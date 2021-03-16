@@ -1,86 +1,87 @@
+import 'dart:core';
 import 'dart:ffi';
 
-class Operator {
-    Operator(ExprOperator exprOperator, Int8 int);
+class _Operator {
+    _Operator(ExprOperator exprOperator, int int);
 }
 
-class Bool {
-    Bool(bool boolean, Int8 int);
+class _Bool extends ExprToken {
+    _Bool(bool boolean, int int);
 }
 
-class Identifier {
-    Identifier(String string, Int8 int);
+class _Identifier {
+    _Identifier(String string, int int);
 }
 
-class Number {
-    Number(Double double, Int8 int);
+class _Number {
+    _Number(Double double, int int);
 }
 
-class Negation {
-    Negation(Int8 int);
+class _Negation {
+    _Negation(int int);
 }
 
-class Comma {
-    Comma(Int8 int);
+class _Comma {
+    _Comma(int int);
 }
 
-class ParensOpen {
-    ParensOpen(Int8 int);
+class _ParensOpen {
+    _ParensOpen(int int);
 }
 
-class ParensClose {
-    ParensClose(Int8 int);
+class _ParensClose {
+    _ParensClose(int int);
 }
 
-class CurlyBracketOpen {
-    CurlyBracketOpen(Int8 int);
+class _CurlyBracketOpen {
+    _CurlyBracketOpen(int int);
 }
 
-class CurlyBracketClose {
-    CurlyBracketClose(Int8 int);
+class _CurlyBracketClose {
+    _CurlyBracketClose(int int);
 }
 
-class BracketOpen {
-    BracketOpen(Int8 int);
+class _BracketOpen {
+    _BracketOpen(int int);
 }
 
-class BracketClose {
-    BracketClose(Int8 int);
+class _BracketClose {
+    _BracketClose(int int);
 }
 
-class String {
-    String(String string, Int8 int);
+class _String {
+    _String(String string, int int);
 }
 
-class Period {
-    Period(Int8 int);
+class _Period {
+    _Period(int int);
 }
 
-class Other {
-    Other(String string, Int8 int);
+class _Other {
+    _Other(String string, int int);
 }
 
-class EOF {
+class _EOF {
 }
 
-const ExprToken = [
-    Operator,
-    Bool,
-    Identifier,
-    Number,
-    Negation,
-    Comma,
-    ParensOpen,
-    ParensClose,
-    CurlyBracketOpen,
-    CurlyBracketClose,
-    BracketOpen,
-    BracketClose,
-    String,
-    Period,
-    Other,
-    EOF
-];
+class ExprToken {
+    static final Operator = (ExprOperator exprOperator, int int) => _Operator(exprOperator, int);
+    static final Bool = (bool boolean, int int) => _Bool(boolean, int);
+    static final Identifier = (String string, int int) => _Identifier(string, int);
+    static final Number = (Double double, int int) =>_Number(double, int);
+    static final Negation = (int int) => _Negation(int);
+    static final Comma = (int int) => _Comma(int);
+    static final ParensOpen = (int int) => _ParensOpen(int);
+    static final ParensClose = (int int) => _ParensClose(int);
+    static final CurlyBracketOpen = (int int) => _CurlyBracketOpen(int);
+    static final CurlyBracketClose = (int int) => _CurlyBracketClose(int);
+    static final BracketOpen = (int int) => _BracketOpen(int);
+    static final BracketClose = (int int) => _BracketClose(int);
+    static final StringD = (String string, int int) => _String(string, int);
+    static final Period = (int int) => _Period(int);
+    static final Other = (String string, int int) => _Other(string, int);
+    static final EOF = () => _EOF();
+}
 
 class ExprOperator {
     static const ConditionStart = "?";
@@ -131,3 +132,11 @@ class ExprOperator {
         }
     }
 }
+
+const Mode = {
+    "idle": 0,
+    "keyword": 10,
+    "number": 20,
+    "string": 30,
+    "escapedString": 35
+};
