@@ -26,13 +26,14 @@ enum CVUTokenType {
   EOF
 }
 
+
 class CVUToken {
   var value;
   int? ln;
   int? ch;
   final CVUTokenType type;
 
-  CVUToken.operator(String this.value, this.ln, this.ch) : type = CVUTokenType.Operator;
+  CVUToken.operator(CVUOperator this.value, this.ln, this.ch) : type = CVUTokenType.Operator;
   CVUToken.bool(bool this.value, this.ln, this.ch) : type = CVUTokenType.Bool;
   CVUToken.number(double this.value, this.ln, this.ch) : type = CVUTokenType.Number;
   CVUToken.string(String this.value, this.ln, this.ch) : type = CVUTokenType.String;
@@ -52,12 +53,12 @@ class CVUToken {
   CVUToken.bracketOpen(this.ln, this.ch) : type = CVUTokenType.BracketOpen;
   CVUToken.bracketClose(this.ln, this.ch) : type = CVUTokenType.BracketClose;
   CVUToken.nil(this.ln, this.ch) : type = CVUTokenType.Nil;
-  CVUToken.eOF() : type = CVUTokenType.EOF;
+  CVUToken.EOF() : type = CVUTokenType.EOF;
 
   List toParts() {
     List parts = [];
     switch (type) {
-      case (CVUTokenType.Operator): parts += ["Operator", value, ln, ch]; break;
+      case (CVUTokenType.Operator): parts += ["Operator", (value as CVUOperator).value, ln, ch]; break;
       case (CVUTokenType.Bool): parts += ["Bool", value, ln, ch]; break;
       case (CVUTokenType.Number): parts += ["Number", value, ln, ch]; break;
       case (CVUTokenType.String): parts += ["String", value, ln, ch]; break;
@@ -85,13 +86,21 @@ class CVUToken {
   }
 }
 
-class CVUOperator {//TODO better enum?
-  static const String ConditionAND = "AND";
-  static const String ConditionOR = "OR";
-  static const String ConditionEquals = "=";
+enum CVUOperator {
+  ConditionAND, ConditionOR, ConditionEquals
+}
 
-  precedence(operator) {
-    switch (operator) {
+extension CVUOperatorExtension on CVUOperator {
+  static const operators = {
+    CVUOperator.ConditionAND: "AND",
+    CVUOperator.ConditionOR: "OR",
+    CVUOperator.ConditionEquals: "=",
+  };
+
+  String get value => operators[this]!;
+
+  int precedence() {
+    switch (this) {
       case CVUOperator.ConditionAND:
         return 20;
       case CVUOperator.ConditionOR:
@@ -103,15 +112,32 @@ class CVUOperator {//TODO better enum?
 }
 
 enum Mode {
-  idle, //0
-  color, //5
-  comment, //8
-  keyword, //10
-  namedIdentifier, //11
-  number, //20
-  expression, //25
-  string, //30
-  escapedString //35
+  idle,
+  color,
+  comment,
+  keyword,
+  namedIdentifier,
+  number,
+  expression,
+  string,
+  escapedString
+}
+
+extension ModeExtension on Mode {
+  int get weight {
+    switch (this) {
+      case (Mode.idle): return 0;
+      case (Mode.color): return 5;
+      case (Mode.comment): return 8;
+      case (Mode.keyword): return 10;
+      case (Mode.namedIdentifier): return 11;
+      case (Mode.number): return 20;
+      case (Mode.expression): return 25;
+      case (Mode.string): return 30;
+      case (Mode.escapedString): return 35;
+      default: return 0;
+    }
+  }
 }
 
 class CVULexer {
@@ -178,7 +204,7 @@ class CVULexer {
     this.input.split("").forEach((c) {
       ch += 1;
 
-      if (isMode.index >= Mode.string.index) {
+      if (isMode.weight >= Mode.string.weight) {
         if (c == "\n") {
           ln += 1;
           ch = 0;

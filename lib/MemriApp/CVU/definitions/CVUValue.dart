@@ -59,6 +59,8 @@ class CVUValue implements CVUStringConvertible {
       case CVUValueType.subdefinition:
         CVUDefinitionContent x = value;
         return x.toCVUString(depth, tab, includeInitialTab);
+      default:
+        return "";
     }
   }
 
