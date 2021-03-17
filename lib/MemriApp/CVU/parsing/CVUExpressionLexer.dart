@@ -187,7 +187,7 @@ class CVUExpressionLexer {
     };
   }
 
-  CVUExpressionLexer({this.input = "", this.startInStringMode = false});
+  CVUExpressionLexer([this.input = "", this.startInStringMode = false]);
 
   List<ExprToken> tokenize() {
     final List<ExprToken> tokens = [];
