@@ -6,6 +6,7 @@
 //
 
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionLexer.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVUExpressionParser.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 
 import 'CVUParsedDefinition.dart';
@@ -360,27 +361,27 @@ class LookupType {
   var value;
 
   LookupType.defaultLookup() : this.type = LookupTypeType.defaultLookup;
-  LookupType.lookup(ExpressionNode? this.value) : this.type = LookupTypeType.lookup;
+  LookupType.lookup([ExpressionNode? this.value]) : this.type = LookupTypeType.lookup;
   LookupType.function(List<ExpressionNode> this.value) : this.type = LookupTypeType.function;
 }
 
 class LookupNode {
-  String name;
+  String? name;
   bool isArray = false;
-  LookupType type;
+  LookupType? type;
 
-  LookupNode(String this.name, LookupType this.type, [bool this.isArray = false]);
+  LookupNode({String? name, LookupType? type, bool isArray = false});
 
   static get defaultLookup {
-    return LookupNode("@@DEFAULT@@", LookupType.defaultLookup());
+    return LookupNode(name: "@@DEFAULT@@", type: LookupType.defaultLookup());
   }
 
   String toCVUString() {
-    switch (type.type) {
+    switch (type?.type) {
       case LookupTypeType.defaultLookup:
         return "";
       case LookupTypeType.function:
-        List<ExpressionNode> args = this.type.value;
+        List<ExpressionNode> args = this.type?.value;
         return '$name(${args.map(($0) => $0.toCVUString()).join(", ")})';
       default:
         return '$name${this.isArray ? "[]" : ""}';
