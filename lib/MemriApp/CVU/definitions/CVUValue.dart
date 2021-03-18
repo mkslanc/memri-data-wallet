@@ -5,6 +5,7 @@
 //  Created by T Brennan on 7/12/20.
 //
 
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionLexer.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionParser.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
@@ -24,6 +25,9 @@ enum CVUValueType {
 class CVUValue implements CVUStringConvertible {
   final CVUValueType type;
   var value;
+
+  @override
+  List<Object?> get props => [type, value];
 
   CVUValue.expression(ExpressionNode this.value) : type = CVUValueType.expression;
   CVUValue.constant(CVUValue_Constant this.value) : type = CVUValueType.constant;
@@ -85,9 +89,12 @@ enum CVUValue_ConstantType {
 }
 
 /// Get a string representation of the value
-class CVUValue_Constant {
+class CVUValue_Constant extends Equatable {
   final CVUValue_ConstantType type;
   var value;
+
+  @override
+  List<Object?> get props => [type, value];
 
   CVUValue_Constant.argument(String this.value) : type = CVUValue_ConstantType.argument;
   CVUValue_Constant.number(double this.value) : type = CVUValue_ConstantType.number;
@@ -210,7 +217,7 @@ extension ExpressionNodeTypeExtension on ExpressionNodeType {
   }
 }
 
-class ExpressionNode {
+class ExpressionNode extends Equatable {
   final ExpressionNodeType type;
   final value;
 
@@ -348,6 +355,9 @@ class ExpressionNode {
         return '${lhs.toCVUString()} AND ${rhs.toCVUString()}';
     }
   }
+
+  @override
+  List<Object?> get props => [type, value, secondArg, thirdArg];
 }
 //End From CVUValue_Expression
 
@@ -358,21 +368,27 @@ enum LookupTypeType {
   function
 }
 
-class LookupType {
+class LookupType extends Equatable {
   LookupTypeType type;
   var value;
+
+  @override
+  List<Object?> get props => [type, value];
 
   LookupType.defaultLookup() : this.type = LookupTypeType.defaultLookup;
   LookupType.lookup([ExpressionNode? this.value]) : this.type = LookupTypeType.lookup;
   LookupType.function(List<ExpressionNode> this.value) : this.type = LookupTypeType.function;
 }
 
-class LookupNode {
+class LookupNode extends Equatable {
   String? name;
   bool isArray = false;
   LookupType? type;
 
-  LookupNode({String? name, LookupType? type, bool isArray = false});
+  @override
+  List<Object?> get props => [type, name, isArray];
+
+  LookupNode({String? this.name, LookupType? this.type, bool this.isArray = false});
 
   static get defaultLookup {
     return LookupNode(name: "@@DEFAULT@@", type: LookupType.defaultLookup());

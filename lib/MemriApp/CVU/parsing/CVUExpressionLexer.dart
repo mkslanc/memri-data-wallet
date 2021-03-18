@@ -393,7 +393,7 @@ class CVUExpressionLexer {
         addToken(ExprToken_String(keyword.join(), input.length - keyword.length));
       }
     } else if (isMode == Mode.string) {
-      throw CVUExpressionParseErrors_MissingQuoteClose;
+      throw CVUExpressionParseErrors_MissingQuoteClose();
     }
 
     return tokens;

@@ -55,14 +55,13 @@ class CVUExpressionParser {
     }
 
     lastToken = tokens[index];
-    index += 1;
+    index++;
     return lastToken ?? ExprToken_EOF(); // Check for out of bound?
   }
 
   ExpressionNode parse() {
     index = 0;
     var result = parseExpression();
-
     var token = popCurrentToken();
     if (token is ExprToken_EOF) {
       return result;
@@ -75,7 +74,7 @@ class CVUExpressionParser {
     return parseBinaryOp(node: node);
   }
 
-  ExpressionNode parsePrimary({bool skipOperator = false}) {
+  ExpressionNode parsePrimary([bool skipOperator = false]) {
     var token = peekCurrentToken();
     if (token is ExprToken_Negation) {
       return parseNegation();
@@ -104,7 +103,7 @@ class CVUExpressionParser {
   }
 
   ExpressionNode parseIntExpressionComponent() {
-    return parsePrimary(skipOperator: true);
+    return parsePrimary(true);
   }
 
   ExpressionNode parseNumber() {
@@ -112,7 +111,6 @@ class CVUExpressionParser {
     if (token is! ExprToken_Number) {
       throw CVUExpressionParseErrors_UnexpectedToken(lastToken!);
     }
-
     var value = token.value;
     return ExpressionNode.constant(CVUValue_Constant.number(value!));
   }
@@ -122,7 +120,6 @@ class CVUExpressionParser {
     if (token is! ExprToken_String) {
       throw CVUExpressionParseErrors_UnexpectedToken(lastToken!);
     }
-
     var value = token.value;
     return ExpressionNode.constant(CVUValue_Constant.string(value!));
   }
@@ -132,13 +129,12 @@ class CVUExpressionParser {
     if (token is! ExprToken_Bool) {
       throw CVUExpressionParseErrors_UnexpectedToken(lastToken!);
     }
-
     var value = token.value;
     return ExpressionNode.constant(CVUValue_Constant.bool(value!));
   }
 
   ExpressionNode parsePeriod() {
-    var token = popCurrentToken();
+    var token = peekCurrentToken();
     if (token is! ExprToken_Period) {
       throw CVUExpressionParseErrors_UnexpectedToken(lastToken!);
     }
@@ -189,7 +185,6 @@ class CVUExpressionParser {
     }
 
     var exp = parseExpression();
-
     token = popCurrentToken();
     if (token is! ExprToken_ParensClose) {
       throw CVUExpressionParseErrors_ExpectedCharacter(")");
@@ -201,16 +196,15 @@ class CVUExpressionParser {
   ExpressionNode parseIdentifier({initialNode}) {
     List<LookupNode> sequence = [];
 
-    if (initialNode) {
+    if (initialNode != null) {
       sequence.add(initialNode);
     }
 
     while (true) {
       var token = peekCurrentToken();
       if (token is ExprToken_Identifier) {
-        popCurrentToken();
-
         var name = token.value;
+        popCurrentToken();
         sequence.add(LookupNode(name: name, type: LookupType.lookup()));
       }
 
@@ -224,11 +218,12 @@ class CVUExpressionParser {
         token = peekCurrentToken();
         if (token is ExprToken_BracketClose) {
           popCurrentToken();
-          sequence[sequence.length - 1 - 1].isArray = true; //TODO:
+          sequence[sequence.length - 1].isArray = true; //TODO:
         } else {
           var exp = parseLookupExpression();
-          sequence[sequence.length - 1 - 1].type = LookupType.lookup(exp);
+          sequence[sequence.length - 1].type = LookupType.lookup(exp);
 
+          token = popCurrentToken();
           if (token is! ExprToken_BracketClose) {
             throw CVUExpressionParseErrors_ExpectedCharacter("]");
           }
@@ -266,11 +261,10 @@ class CVUExpressionParser {
           throw CVUExpressionParseErrors_ExpectedIdentifier();
         }
 
-        sequence[sequence.length - 1 - 1].type = LookupType.function(arguments);
+        sequence[sequence.length - 1].type = LookupType.function(arguments);
       }
 
       var nextToken = peekCurrentToken();
-
       if (nextToken is ExprToken_Period) {
         popCurrentToken();
         continue;
@@ -289,10 +283,10 @@ class CVUExpressionParser {
 
     var nextToken = peekCurrentToken();
     if (nextToken is! ExprToken_Operator) {
-      if (nextToken is ExprToken_BracketOpen) {
+      if (nextToken is ExprToken_CurlyBracketOpen) {
         return 1;
       }
-      if (nextToken is ExprToken_BracketClose) {
+      if (nextToken is ExprToken_CurlyBracketClose) {
         return 2;
       }
 
@@ -312,9 +306,9 @@ class CVUExpressionParser {
       }
 
       var nextToken = peekCurrentToken();
-      var op = (nextToken as ExprToken_Operator).value;
-      if (nextToken is ExprToken_Operator && op == ExprOperator.ConditionElse) {
-        return lhs;
+      if (nextToken is ExprToken_Operator) {
+        var op = nextToken.value;
+        if (op == ExprOperator.ConditionElse) return lhs;
       }
       if (nextToken is ExprToken_CurlyBracketClose) {
         return lhs;
@@ -329,7 +323,7 @@ class CVUExpressionParser {
         throw CVUExpressionParseErrors_UnexpectedToken(lastToken!);
       }
 
-      op = token.value;
+      var op = token.value;
       if (op == ExprOperator.ConditionStart) {
         return parseConditionOp(lhs);
       }
@@ -391,7 +385,6 @@ class CVUExpressionParser {
     if (token is! ExprToken_Operator) {
       throw CVUExpressionParseErrors_ExpectedConditionElse();
     }
-
     var op = token.value;
     if (op != ExprOperator.ConditionElse) {
       throw CVUExpressionParseErrors_ExpectedConditionElse();
@@ -403,7 +396,7 @@ class CVUExpressionParser {
   }
 
   ExpressionNode parseStringMode([ExpressionNode? firstNode]) {
-    countStringModeNodes += 1;
+    countStringModeNodes++;
     if (countStringModeNodes > 1) {
       throw CVUExpressionParseErrors_UnexpectedToken(lastToken!);
     }
@@ -427,7 +420,6 @@ class CVUExpressionParser {
       }
 
       expressions.add(parseExpression());
-
       var token = popCurrentToken();
       if (token is! ExprToken_CurlyBracketClose) {
         if (lastToken is ExprToken_EOF) {
