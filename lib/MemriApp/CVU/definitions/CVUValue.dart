@@ -39,9 +39,9 @@ class CVUValue implements CVUStringConvertible {
   @override
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     // TODO: implement toCVUString
-    switch (this.type) {
+    switch (type) {
       case (CVUValueType.expression):
-        ExpressionNode expression = this.value;
+        ExpressionNode expression = value;
         String innerString = expression.toCVUString();
         switch (expression.type) {
           case ExpressionNodeType.stringMode:
@@ -171,17 +171,17 @@ class CVUValue_Constant extends Equatable {
       case CVUValue_ConstantType.argument:
         return value;
       case CVUValue_ConstantType.number:
-        return value.toString(); //.format("0.##") //TODO:
+        double n = value;
+        return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 2);
       case CVUValue_ConstantType.string:
-        String escaped = value
-            .replace(/*/"/, "\\\""*/); // Escape '"' characters //TODO @mkslanc not sure if correct
+        String escaped = (value as String).replaceAll("\"", "\\\"");
         return insideStringMode ? escaped : '"$escaped"';
       case CVUValue_ConstantType.bool:
         return value ? "true" : "false";
       case CVUValue_ConstantType.colorHex:
         return '#$value';
       case CVUValue_ConstantType.nil:
-        return "null";
+        return "nil";
       default:
         return "null";
     }
@@ -278,13 +278,12 @@ class ExpressionNode extends Equatable {
 
   String toCVUString() {
     ExpressionNode lhs, rhs, x;
-    List<ExpressionNode> nodes;
     switch (type) {
       case ExpressionNodeType.lookup:
-        nodes = value;
+        List<LookupNode> nodes = value;
         return nodes.map(($0) => $0.toCVUString()).join(".");
       case ExpressionNodeType.stringMode:
-        nodes = this.value;
+        List<ExpressionNode> nodes = value;
         return nodes.map((ExpressionNode $0) {
           switch ($0.type) {
             case ExpressionNodeType.constant:
@@ -295,63 +294,63 @@ class ExpressionNode extends Equatable {
           }
         }).join("");
       case ExpressionNodeType.conditional:
-        ExpressionNode condition = this.value;
-        ExpressionNode trueExp = this.secondArg;
-        ExpressionNode falseExp = this.thirdArg;
+        ExpressionNode condition = value;
+        ExpressionNode trueExp = secondArg;
+        ExpressionNode falseExp = thirdArg;
         return '${condition.toCVUString()} ? ${trueExp.toCVUString()} : ${falseExp.toCVUString()}';
       case ExpressionNodeType.or:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} OR ${rhs.toCVUString()}';
       case ExpressionNodeType.negation:
-        x = this.value;
+        x = value;
         return '!${x.toCVUString()}';
       case ExpressionNodeType.addition:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} + ${rhs.toCVUString()}';
       case ExpressionNodeType.subtraction:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} - ${rhs.toCVUString()}';
       case ExpressionNodeType.multiplication:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} * ${rhs.toCVUString()}';
       case ExpressionNodeType.division:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} / ${rhs.toCVUString()}';
       case ExpressionNodeType.constant:
-        x = this.value;
+        x = value;
         return x.toCVUString();
       case ExpressionNodeType.lessThan:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} < ${rhs.toCVUString()}';
       case ExpressionNodeType.greaterThan:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} > ${rhs.toCVUString()}';
       case ExpressionNodeType.lessThanOrEqual:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} <= ${rhs.toCVUString()}';
       case ExpressionNodeType.greaterThanOrEqual:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} >= ${rhs.toCVUString()}';
       case ExpressionNodeType.areEqual:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} = ${rhs.toCVUString()}';
       case ExpressionNodeType.areNotEqual:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} != ${rhs.toCVUString()}';
       case ExpressionNodeType.and:
-        lhs = this.value;
-        rhs = this.secondArg;
+        lhs = value;
+        rhs = secondArg;
         return '${lhs.toCVUString()} AND ${rhs.toCVUString()}';
     }
   }
@@ -381,28 +380,28 @@ class LookupType extends Equatable {
 }
 
 class LookupNode extends Equatable {
-  String? name;
+  String name;
   bool isArray = false;
-  LookupType? type;
+  LookupType type;
 
   @override
   List<Object?> get props => [type, name, isArray];
 
-  LookupNode({String? this.name, LookupType? this.type, bool this.isArray = false});
+  LookupNode({required this.name, required this.type, this.isArray = false});
 
   static get defaultLookup {
     return LookupNode(name: "@@DEFAULT@@", type: LookupType.defaultLookup());
   }
 
   String toCVUString() {
-    switch (type?.type) {
+    switch (type.type) {
       case LookupTypeType.defaultLookup:
         return "";
       case LookupTypeType.function:
-        List<ExpressionNode> args = this.type?.value;
+        List<ExpressionNode> args = type.value;
         return '$name(${args.map(($0) => $0.toCVUString()).join(", ")})';
       default:
-        return '$name${this.isArray ? "[]" : ""}';
+        return '$name${isArray ? "[]" : ""}';
     }
   }
 }

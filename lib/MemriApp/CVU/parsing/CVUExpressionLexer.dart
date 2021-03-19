@@ -19,8 +19,8 @@ class ExprToken_Bool extends ExprToken {
 }
 
 class ExprToken_Identifier extends ExprToken {
-  String? value;
-  int? i;
+  String value;
+  int i;
 
   ExprToken_Identifier(this.value, this.i);
 }

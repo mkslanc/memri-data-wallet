@@ -21,8 +21,8 @@ class CVUUINode {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;
 
-    if (properties.isEmpty || children.isEmpty) {
-      return '${includeInitialTab ? tabs : ""}$type';
+    if (properties.isEmpty && children.isEmpty) {
+      return '${includeInitialTab ? tabs : ""}${type.inString}';
     }
 
     String propertiesString = properties.isEmpty ? "" : properties.toCVUString(depth + 1, tab, true);
@@ -35,7 +35,7 @@ class CVUUINode {
 
     bool includeNewLineBetweenPropertiesAndChildren = propertiesString.isNotEmpty && childrenString.isNotEmpty;
 
-    return '${includeInitialTab ? tabs : ""}${type} {\n$propertiesString${includeNewLineBetweenPropertiesAndChildren ? "\n" : ""}$childrenString$tabs}';
+    return '${includeInitialTab ? tabs : ""}${type.inString} {\n$propertiesString${includeNewLineBetweenPropertiesAndChildren ? "\n" : ""}$childrenString$tabs}';
   }
 
   String get description {

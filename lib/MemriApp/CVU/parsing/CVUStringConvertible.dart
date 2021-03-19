@@ -33,7 +33,7 @@ extension MapCVUStringConvertible on Map {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     List strings = map((key, value) {
       // if (value == null || !value.toCVUString /*TODO @anijanyan check if CVUStringConvertible */) {return MapEntry(key, null);};
-      return MapEntry(key, '$key: ${(value?.toCVUString!(depth, tab, false))}');
+      return MapEntry(key, value?.toCVUString == null ? value : '$key: ${(value.toCVUString!(depth, tab, false))}');
     }).values.toList();
     strings.removeWhere((element) => element == null);
     strings.sort();

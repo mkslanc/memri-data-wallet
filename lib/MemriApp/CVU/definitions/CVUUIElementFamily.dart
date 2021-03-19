@@ -68,6 +68,7 @@ extension CVUUIElementFamilyExtension on CVUUIElementFamily {
     CVUUIElementFamily.FileThumbnail: "filethumbnail",
   };
 
+  String get inString => this.toString().split(".").last;
   String get value => values[this]!;
   static CVUUIElementFamily rawValue(value) => values.keys.firstWhere(
     (k) => values[k] == value, orElse: () => CVUUIElementFamily.Null//TODO @anijanyan see why this isn't nullable

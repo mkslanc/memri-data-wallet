@@ -193,7 +193,7 @@ class CVUExpressionParser {
     return exp;
   }
 
-  ExpressionNode parseIdentifier({initialNode}) {
+  ExpressionNode parseIdentifier({LookupNode? initialNode}) {
     List<LookupNode> sequence = [];
 
     if (initialNode != null) {
@@ -203,7 +203,7 @@ class CVUExpressionParser {
     while (true) {
       var token = peekCurrentToken();
       if (token is ExprToken_Identifier) {
-        var name = token.value;
+        String name = token.value;
         popCurrentToken();
         sequence.add(LookupNode(name: name, type: LookupType.lookup()));
       }

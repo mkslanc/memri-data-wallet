@@ -2,6 +2,8 @@
 // CVULexer.swift
 // Copyright © 2020 memri. All rights reserved.
 
+import 'package:memri/MemriApp/CVU/parsing/CVUParseErrors.dart';
+
 enum CVUTokenType {
   Operator,
   Bool,
@@ -217,9 +219,9 @@ class CVULexer {
           isMode = Mode.escapedString;
         } else if (isMode == Mode.string && c == startChar) {
           if (isStringExpression) {
-            tokens.add(CVUToken.stringExpression(keyword.join(), ln, ch));
+            tokens.add(CVUToken.stringExpression(keyword.join(), ln, ch - keyword.length));
           } else {
-            tokens.add(CVUToken.string(keyword.join(), ln, ch));
+            tokens.add(CVUToken.string(keyword.join(), ln, ch - keyword.length));
           }
 
           keyword = [];
@@ -239,7 +241,8 @@ class CVULexer {
 
       if (isMode == Mode.expression) {
         if (c == "}" && lastChar == "}") {
-          if (tokens.removeLast() == CVUToken.curlyBracketOpen(ln, ch)) {
+          CVUToken lastToken = tokens.removeLast();
+          if (lastToken.type == CVUTokenType.CurlyBracketOpen) {
             keyword.removeLast();
 
             tokens.add(CVUToken.expression(keyword.join(), ln, ch));
@@ -367,6 +370,21 @@ class CVULexer {
 
       lastChar = c;
     });
+
+    if (keyword.length > 0) {
+      addToken();
+    }
+
+    if (isMode == Mode.string) {
+      throw CVUParseErrors.MissingQuoteClose(CVUToken.EOF());
+    }
+    else if (isMode == Mode.expression) {
+      throw CVUParseErrors.MissingExpressionClose(CVUToken.EOF());
+    }
+    else if (isMode != Mode.idle) {
+      // TODO:
+      throw Exception("Unhandled error mode: $isMode");
+    }
 
     return tokens;
   }
