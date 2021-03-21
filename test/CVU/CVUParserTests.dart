@@ -1,3 +1,7 @@
+//
+// CVUParserTests.swift
+// Copyright © 2020 memri. All rights reserved.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVULexer.dart';
