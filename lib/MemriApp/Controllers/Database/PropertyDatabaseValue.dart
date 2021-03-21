@@ -26,8 +26,8 @@ class PropertyDatabaseValue {
     return value.toString();
   }
 
-  double asDouble() {
-    return double.parse(value);
+  double? asDouble() {
+    return double.tryParse(value);
   }
 
   bool asBool() {
@@ -39,7 +39,7 @@ class PropertyDatabaseValue {
     return DateTime(int.parse(value) * 1000);
   }
 
-  double asCGFloat() {
-    return double.parse(value);
+  double? asCGFloat() {
+    return double.tryParse(value);
   }
 }

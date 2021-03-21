@@ -131,7 +131,7 @@ class CVUValue_Constant extends Equatable {
       case CVUValue_ConstantType.number:
         return value;
       case CVUValue_ConstantType.string:
-        return double.parse(value);
+        return double.tryParse(value);
       case CVUValue_ConstantType.bool:
         return value ? 1 : 0;
       case CVUValue_ConstantType.colorHex:
