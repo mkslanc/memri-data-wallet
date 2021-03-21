@@ -1,0 +1,10 @@
+.calendar {
+    name: "calendar"
+    title: "Calendar"
+    defaultRenderer: calendar
+          
+    [datasource = pod] {
+        query: Message EmailMessage Note
+        sortProperty: dateModified
+    }
+}

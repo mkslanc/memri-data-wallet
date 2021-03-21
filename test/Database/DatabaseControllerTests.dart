@@ -1,14 +1,15 @@
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import '../../lib/globals.dart' as globals;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late DatabaseController databaseController;
 
   setUp(() async {
     globals.isRunningTests = true;
     databaseController = DatabaseController();
-    await databaseController.initDB();
+    await databaseController.init();
   });
 
   test('testDatabaseSetup', () async {

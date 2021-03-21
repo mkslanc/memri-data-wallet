@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart' as paths;
 import 'package:path/path.dart' as p;
 
 import '../../../globals.dart' as globals;
+import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
@@ -13,10 +14,10 @@ class DatabaseController {
 
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(
-      [String this.databaseName = "memri", //TODO:
-      /*Schema*/ this.schema/*= .loadFromFile()*/]);
+      [this.databaseName = "memri", //TODO:
+      this.schema]);
 
-  initDB() async {
+  init() async {
     databasePool = await () async {
       final dataDir = await paths.getApplicationDocumentsDirectory();
       final url = File(p.join(dataDir.path, databaseName + '.sqlite'));
@@ -28,10 +29,10 @@ class DatabaseController {
         return Database(VmDatabase(url));
       }
     }();
+    schema = schema ?? await Schema.loadFromFile();
   }
 
-  /*Schema*/
-  final schema;
+  late Schema? schema;
 
   /// This is the connection to the database used throughout the app
   late Database databasePool;

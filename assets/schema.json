@@ -1,0 +1,875 @@
+{
+    "properties": [
+      { "item_type": "Account", "property": "handle", "value_type": "string" },
+      { "item_type": "Account", "property": "displayName", "value_type": "string" },
+      { "item_type": "Account", "property": "service", "value_type": "string" },
+      { "item_type": "Account", "property": "itemType", "value_type": "string" },
+      { "item_type": "Account", "property": "avatarUrl", "value_type": "string" },
+      { "item_type": "Account", "property": "externalId", "value_type": "string" },
+
+      { "item_type": "Address", "property": "latitude", "value_type": "double" },
+      { "item_type": "Address", "property": "longitude", "value_type": "double" },
+      { "item_type": "Address", "property": "city", "value_type": "string" },
+      { "item_type": "Address", "property": "postalCode", "value_type": "string" },
+      { "item_type": "Address", "property": "state", "value_type": "string" },
+      { "item_type": "Address", "property": "street", "value_type": "string" },
+      { "item_type": "Address", "property": "itemType", "value_type": "string" },
+      { "item_type": "Address", "property": "locationAutoLookupHash", "value_type": "string" },
+
+      { "item_type": "Article", "property": "title", "value_type": "string" },
+      { "item_type": "Article", "property": "abstract", "value_type": "string" },
+      { "item_type": "Article", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Article", "property": "keyword", "value_type": "string" },
+      { "item_type": "Article", "property": "content", "value_type": "string" },
+      { "item_type": "Article", "property": "textContent", "value_type": "string" },
+      { "item_type": "Article", "property": "transcript", "value_type": "string" },
+      { "item_type": "Article", "property": "itemType", "value_type": "string" },
+      { "item_type": "Article", "property": "comment", "value_type": "string" },
+
+      { "item_type": "Audio", "property": "bitrate", "value_type": "int" },
+      { "item_type": "Audio", "property": "duration", "value_type": "int" },
+      { "item_type": "Audio", "property": "endTime", "value_type": "datetime" },
+      { "item_type": "Audio", "property": "fileLocation", "value_type": "string" },
+      { "item_type": "Audio", "property": "startTime", "value_type": "datetime" },
+      
+      { "item_type": "Audio", "property": "caption", "value_type": "string" },
+      { "item_type": "Audio", "property": "transcript", "value_type": "string" },
+
+      { "item_type": "AuditItem", "property": "date", "value_type": "datetime" },
+      { "item_type": "AuditItem", "property": "content", "value_type": "string" },
+      { "item_type": "AuditItem", "property": "action", "value_type": "string" },
+
+      { "item_type": "CVUStoredDefinition", "property": "definition", "value_type": "string" },
+      { "item_type": "CVUStoredDefinition", "property": "domain", "value_type": "string" },
+      { "item_type": "CVUStoredDefinition", "property": "name", "value_type": "string" },
+      { "item_type": "CVUStoredDefinition", "property": "query", "value_type": "string" },
+      { "item_type": "CVUStoredDefinition", "property": "selector", "value_type": "string" },
+      { "item_type": "CVUStoredDefinition", "property": "itemType", "value_type": "string" },
+
+      { "item_type": "Comment", "property": "title", "value_type": "string" },
+      { "item_type": "Comment", "property": "abstract", "value_type": "string" },
+      { "item_type": "Comment", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Comment", "property": "keyword", "value_type": "string" },
+      { "item_type": "Comment", "property": "content", "value_type": "string" },
+      { "item_type": "Comment", "property": "textContent", "value_type": "string" },
+      { "item_type": "Comment", "property": "transcript", "value_type": "string" },
+      { "item_type": "Comment", "property": "itemType", "value_type": "string" },
+      { "item_type": "Country", "property": "latitude", "value_type": "double" },
+      { "item_type": "Country", "property": "longitude", "value_type": "double" },
+      { "item_type": "Country", "property": "name", "value_type": "string" },
+      
+      { "item_type": "CreativeWork", "property": "title", "value_type": "string" },
+      { "item_type": "CreativeWork", "property": "abstract", "value_type": "string" },
+      { "item_type": "CreativeWork", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "CreativeWork", "property": "keyword", "value_type": "string" },
+      { "item_type": "CreativeWork", "property": "content", "value_type": "string" },
+      { "item_type": "CreativeWork", "property": "textContent", "value_type": "string" },
+      { "item_type": "CreativeWork", "property": "transcript", "value_type": "string" },
+      { "item_type": "CreativeWork", "property": "itemType", "value_type": "string" },
+     
+      { "item_type": "CryptoKey", "property": "itemType", "value_type": "string" },
+      { "item_type": "CryptoKey", "property": "role", "value_type": "string" },
+      { "item_type": "CryptoKey", "property": "key", "value_type": "string" },
+      { "item_type": "CryptoKey", "property": "active", "value_type": "bool" },
+      { "item_type": "CryptoKey", "property": "name", "value_type": "string" },
+
+      { "item_type": "Device", "property": "deviceID", "value_type": "string" },
+      { "item_type": "Device", "property": "make", "value_type": "string" },
+      { "item_type": "Device", "property": "manufacturer", "value_type": "string" },
+      { "item_type": "Device", "property": "model", "value_type": "string" },
+      { "item_type": "Device", "property": "name", "value_type": "string" },
+      { "item_type": "Device", "property": "dateAcquired", "value_type": "datetime" },
+      { "item_type": "Device", "property": "dateLost", "value_type": "datetime" },
+
+      { "item_type": "Diet", "property": "title", "value_type": "string" },
+      { "item_type": "Diet", "property": "abstract", "value_type": "string" },
+      { "item_type": "Diet", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Diet", "property": "keyword", "value_type": "string" },
+      { "item_type": "Diet", "property": "content", "value_type": "string" },
+      { "item_type": "Diet", "property": "textContent", "value_type": "string" },
+      { "item_type": "Diet", "property": "transcript", "value_type": "string" },
+      { "item_type": "Diet", "property": "itemType", "value_type": "string" },
+      { "item_type": "Diet", "property": "duration", "value_type": "int" },
+      { "item_type": "Diet", "property": "name", "value_type": "string" },
+
+
+
+      { "item_type": "EmailMessage", "property": "title", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "abstract", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "EmailMessage", "property": "keyword", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "content", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "textContent", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "transcript", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "itemType", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "subject", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "dateSent", "value_type": "datetime" },
+      { "item_type": "EmailMessage", "property": "dateReceived", "value_type": "datetime" },
+      { "item_type": "EmailMessage", "property": "service", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "externalId", "value_type": "string" },
+      { "item_type": "EmailMessage", "property": "starred", "value_type": "bool" },
+
+      { "item_type": "Event", "property": "audience", "value_type": "string" },
+      { "item_type": "Event", "property": "startTime", "value_type": "datetime" },
+      { "item_type": "Event", "property": "endTime", "value_type": "datetime" },
+      { "item_type": "Event", "property": "duration", "value_type": "int" },
+      { "item_type": "Event", "property": "eventStatus", "value_type": "string" },
+      
+      
+      { "item_type": "ExercisePlan", "property": "title", "value_type": "string" },
+      { "item_type": "ExercisePlan", "property": "abstract", "value_type": "string" },
+      { "item_type": "ExercisePlan", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "ExercisePlan", "property": "keyword", "value_type": "string" },
+      { "item_type": "ExercisePlan", "property": "content", "value_type": "string" },
+      { "item_type": "ExercisePlan", "property": "textContent", "value_type": "string" },
+      { "item_type": "ExercisePlan", "property": "transcript", "value_type": "string" },
+      { "item_type": "ExercisePlan", "property": "itemType", "value_type": "string" },
+
+      
+      { "item_type": "ExercisePlan", "property": "duration", "value_type": "int" },
+      { "item_type": "ExercisePlan", "property": "repetitions", "value_type": "int" },
+          { "item_type": "File", "property": "sha256", "value_type": "string" },
+      { "item_type": "File", "property": "nonce", "value_type": "string" },
+      { "item_type": "File", "property": "key", "value_type": "string" },
+      { "item_type": "File", "property": "filename", "value_type": "string" },
+      { "item_type": "Frequency", "property": "occurrences", "value_type": "string" },
+
+      { "item_type": "Game", "property": "title", "value_type": "string" },
+      { "item_type": "Game", "property": "abstract", "value_type": "string" },
+      { "item_type": "Game", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Game", "property": "keyword", "value_type": "string" },
+      { "item_type": "Game", "property": "content", "value_type": "string" },
+      { "item_type": "Game", "property": "textContent", "value_type": "string" },
+      { "item_type": "Game", "property": "transcript", "value_type": "string" },
+      { "item_type": "Game", "property": "itemType", "value_type": "string" },
+      { "item_type": "GenericAttribute", "property": "name", "value_type": "string" },
+      { "item_type": "GenericAttribute", "property": "boolValue", "value_type": "bool" },
+      { "item_type": "GenericAttribute", "property": "datetimeValue", "value_type": "datetime" },
+      { "item_type": "GenericAttribute", "property": "doubleValue", "value_type": "double" },
+      { "item_type": "GenericAttribute", "property": "intValue", "value_type": "int" },
+      { "item_type": "GenericAttribute", "property": "stringValue", "value_type": "string" },
+
+      { "item_type": "HowTo", "property": "title", "value_type": "string" },
+      { "item_type": "HowTo", "property": "abstract", "value_type": "string" },
+      { "item_type": "HowTo", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "HowTo", "property": "keyword", "value_type": "string" },
+      { "item_type": "HowTo", "property": "content", "value_type": "string" },
+      { "item_type": "HowTo", "property": "textContent", "value_type": "string" },
+      { "item_type": "HowTo", "property": "transcript", "value_type": "string" },
+      { "item_type": "HowTo", "property": "itemType", "value_type": "string" },
+      
+      { "item_type": "Importer", "property": "name", "value_type": "string" },
+      { "item_type": "Importer", "property": "repository", "value_type": "string" },
+      { "item_type": "Importer", "property": "dataType", "value_type": "string" },
+      { "item_type": "Importer", "property": "icon", "value_type": "string" },
+      { "item_type": "Importer", "property": "bundleImage", "value_type": "string" },
+      { "item_type": "Importer", "property": "itemDescription", "value_type": "string" },
+
+      { "item_type": "ImporterRun", "property": "name", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "repository", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "progress", "value_type": "double" },
+      { "item_type": "ImporterRun", "property": "dataType", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "username", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "password", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "runStatus", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "errorMessage", "value_type": "string" },
+      { "item_type": "ImporterRun", "property": "progressMessage", "value_type": "string" },
+      { "item_type": "Indexer", "property": "name", "value_type": "string" },
+      { "item_type": "Indexer", "property": "repository", "value_type": "string" },
+      { "item_type": "Indexer", "property": "icon", "value_type": "string" },
+      { "item_type": "Indexer", "property": "query", "value_type": "string" },
+      { "item_type": "Indexer", "property": "bundleImage", "value_type": "string" },
+      { "item_type": "Indexer", "property": "runDestination", "value_type": "string" },
+      { "item_type": "Indexer", "property": "indexerClass", "value_type": "string" },
+      
+      { "item_type": "Indexer", "property": "itemDescription", "value_type": "string" },
+
+      { "item_type": "IndexerRun", "property": "name", "value_type": "string" },
+      { "item_type": "IndexerRun", "property": "repository", "value_type": "string" },
+      { "item_type": "IndexerRun", "property": "query", "value_type": "string" },
+      { "item_type": "IndexerRun", "property": "progress", "value_type": "double" },
+      { "item_type": "IndexerRun", "property": "targetDataType", "value_type": "string" },
+      { "item_type": "IndexerRun", "property": "runStatus", "value_type": "string" },
+      { "item_type": "IndexerRun", "property": "errorMessage", "value_type": "string" },
+      { "item_type": "IndexerRun", "property": "progressMessage", "value_type": "string" },
+      
+      { "item_type": "Industry", "property": "itemType", "value_type": "string" },
+
+      { "item_type": "Integrator", "property": "name", "value_type": "string" },
+      { "item_type": "Integrator", "property": "repository", "value_type": "string" },
+
+      
+      { "item_type": "Label", "property": "color", "value_type": "string" },
+      { "item_type": "Label", "property": "name", "value_type": "string" },
+
+      { "item_type": "Location", "property": "latitude", "value_type": "double" },
+      { "item_type": "Location", "property": "longitude", "value_type": "double" },
+      
+      { "item_type": "LabelAnnotation", "property": "labels", "value_type": "string" },
+      { "item_type": "LabelAnnotation", "property": "allowSharing", "value_type": "bool" },
+
+      { "item_type": "Material", "property": "name", "value_type": "string" },
+      { "item_type": "Material", "property": "defaultQuantity", "value_type": "string" },
+      { "item_type": "Measure", "property": "definition", "value_type": "string" },
+      { "item_type": "Measure", "property": "symbol", "value_type": "string" },
+      { "item_type": "Measure", "property": "intValue", "value_type": "int" },
+      { "item_type": "Measure", "property": "doubleValue", "value_type": "double" },
+      { "item_type": "Measure", "property": "stringValue", "value_type": "string" },
+      { "item_type": "Measure", "property": "datetimeValue", "value_type": "datetime" },
+      { "item_type": "Measure", "property": "boolValue", "value_type": "bool" },
+      { "item_type": "MediaObject", "property": "bitrate", "value_type": "int" },
+      { "item_type": "MediaObject", "property": "duration", "value_type": "int" },
+      { "item_type": "MediaObject", "property": "endTime", "value_type": "datetime" },
+      { "item_type": "MediaObject", "property": "fileLocation", "value_type": "string" },
+      { "item_type": "MediaObject", "property": "startTime", "value_type": "datetime" },
+      { "item_type": "MedicalCondition", "property": "itemType", "value_type": "string" },
+      { "item_type": "MedicalCondition", "property": "name", "value_type": "string" },
+      { "item_type": "MedicalCondition", "property": "type", "value_type": "string" },
+
+      { "item_type": "Message", "property": "title", "value_type": "string" },
+      { "item_type": "Message", "property": "abstract", "value_type": "string" },
+      { "item_type": "Message", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Message", "property": "keyword", "value_type": "string" },
+      { "item_type": "Message", "property": "content", "value_type": "string" },
+      { "item_type": "Message", "property": "textContent", "value_type": "string" },
+      { "item_type": "Message", "property": "transcript", "value_type": "string" },
+      { "item_type": "Message", "property": "itemType", "value_type": "string" },
+
+      
+      { "item_type": "Message", "property": "subject", "value_type": "string" },
+      { "item_type": "Message", "property": "dateSent", "value_type": "datetime" },
+      { "item_type": "Message", "property": "dateReceived", "value_type": "datetime" },
+      { "item_type": "Message", "property": "service", "value_type": "string" },
+      
+      
+      
+      { "item_type": "Message", "property": "externalId", "value_type": "string" },
+
+      { "item_type": "MessageChannel", "property": "name", "value_type": "string" },
+      { "item_type": "MessageChannel", "property": "topic", "value_type": "string" },
+      { "item_type": "MessageChannel", "property": "encrypted", "value_type": "bool" },
+      
+      
+      { "item_type": "MessageChannel", "property": "externalId", "value_type": "string" },
+
+
+      { "item_type": "MovingImage", "property": "title", "value_type": "string" },
+      { "item_type": "MovingImage", "property": "abstract", "value_type": "string" },
+      { "item_type": "MovingImage", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "MovingImage", "property": "keyword", "value_type": "string" },
+      { "item_type": "MovingImage", "property": "content", "value_type": "string" },
+      { "item_type": "MovingImage", "property": "textContent", "value_type": "string" },
+      { "item_type": "MovingImage", "property": "transcript", "value_type": "string" },
+      { "item_type": "MovingImage", "property": "itemType", "value_type": "string" },
+      { "item_type": "NavigationItem", "property": "title", "value_type": "string" },
+      { "item_type": "NavigationItem", "property": "sessionName", "value_type": "string" },
+      { "item_type": "NavigationItem", "property": "sequence", "value_type": "int" },
+      { "item_type": "NavigationItem", "property": "itemType", "value_type": "string" },
+
+      { "item_type": "Network", "property": "name", "value_type": "string" },
+      
+          { "item_type": "Note", "property": "title", "value_type": "string" },
+      { "item_type": "Note", "property": "abstract", "value_type": "string" },
+      { "item_type": "Note", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Note", "property": "keyword", "value_type": "string" },
+      { "item_type": "Note", "property": "content", "value_type": "string" },
+      { "item_type": "Note", "property": "textContent", "value_type": "string" },
+      { "item_type": "Note", "property": "transcript", "value_type": "string" },
+      { "item_type": "Note", "property": "itemType", "value_type": "string" },
+      { "item_type": "Note", "property": "starred", "value_type": "bool" },
+
+      
+      
+      
+      { "item_type": "Note", "property": "starred", "value_type": "bool" },
+
+      { "item_type": "NoteList", "property": "title", "value_type": "string" },
+      { "item_type": "NoteList", "property": "abstract", "value_type": "string" },
+      { "item_type": "NoteList", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "NoteList", "property": "keyword", "value_type": "string" },
+      { "item_type": "NoteList", "property": "content", "value_type": "string" },
+      { "item_type": "NoteList", "property": "textContent", "value_type": "string" },
+      { "item_type": "NoteList", "property": "transcript", "value_type": "string" },
+      { "item_type": "NoteList", "property": "itemType", "value_type": "string" },
+
+      
+      { "item_type": "NoteList", "property": "category", "value_type": "string" },
+      
+          
+
+      { "item_type": "Organization", "property": "name", "value_type": "string" },
+      { "item_type": "Organization", "property": "dateFounded", "value_type": "datetime" },
+      { "item_type": "Organization", "property": "areaServed", "value_type": "string" },
+      { "item_type": "Organization", "property": "taxId", "value_type": "string" },
+
+      
+      
+          { "item_type": "PerformingArt", "property": "title", "value_type": "string" },
+      { "item_type": "PerformingArt", "property": "abstract", "value_type": "string" },
+      { "item_type": "PerformingArt", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "PerformingArt", "property": "keyword", "value_type": "string" },
+      { "item_type": "PerformingArt", "property": "content", "value_type": "string" },
+      { "item_type": "PerformingArt", "property": "textContent", "value_type": "string" },
+      { "item_type": "PerformingArt", "property": "transcript", "value_type": "string" },
+      { "item_type": "PerformingArt", "property": "itemType", "value_type": "string" },
+      { "item_type": "Person", "property": "birthDate", "value_type": "datetime" },
+      { "item_type": "Person", "property": "email", "value_type": "string" },
+      { "item_type": "Person", "property": "deathDate", "value_type": "datetime" },
+      { "item_type": "Person", "property": "firstName", "value_type": "string" },
+      { "item_type": "Person", "property": "lastName", "value_type": "string" },
+      { "item_type": "Person", "property": "gender", "value_type": "string" },
+      { "item_type": "Person", "property": "sexualOrientation", "value_type": "string" },
+      { "item_type": "Person", "property": "displayName", "value_type": "string" },
+      { "item_type": "Person", "property": "role", "value_type": "string" },
+      { "item_type": "Person", "property": "height", "value_type": "double" },
+
+
+      
+      
+      
+      { "item_type": "Person", "property": "height", "value_type": "double" },
+
+      { "item_type": "PhoneNumber", "property": "phoneNumber", "value_type": "string" },
+
+      { "item_type": "Photo", "property": "bitrate", "value_type": "int" },
+      { "item_type": "Photo", "property": "duration", "value_type": "int" },
+      { "item_type": "Photo", "property": "endTime", "value_type": "datetime" },
+      { "item_type": "Photo", "property": "fileLocation", "value_type": "string" },
+      { "item_type": "Photo", "property": "startTime", "value_type": "datetime" },
+      
+      { "item_type": "Photo", "property": "caption", "value_type": "string" },
+      { "item_type": "Photo", "property": "exifData", "value_type": "string" },
+      { "item_type": "Photo", "property": "name", "value_type": "string" },        { "item_type": "Product", "property": "audience", "value_type": "string" },
+      { "item_type": "Product", "property": "color", "value_type": "string" },
+      { "item_type": "Product", "property": "manufacturer", "value_type": "string" },
+      { "item_type": "Product", "property": "model", "value_type": "string" },
+      { "item_type": "Product", "property": "pattern", "value_type": "string" },
+      { "item_type": "Product", "property": "dateAcquired", "value_type": "datetime" },
+      { "item_type": "Product", "property": "productCondition", "value_type": "string" },
+      { "item_type": "Product", "property": "dateProduced", "value_type": "datetime" },
+      { "item_type": "Product", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Product", "property": "service", "value_type": "string" },
+      
+      
+      
+      
+          { "item_type": "ProductCode", "property": "productCodeType", "value_type": "string" },
+      { "item_type": "ProductCode", "property": "productNumber", "value_type": "string" },
+
+      { "item_type": "Receipt", "property": "store", "value_type": "string" },
+      { "item_type": "Receipt", "property": "category", "value_type": "string" },
+      { "item_type": "Receipt", "property": "totalCost", "value_type": "double" },
+          { "item_type": "Recipe", "property": "title", "value_type": "string" },
+      { "item_type": "Recipe", "property": "abstract", "value_type": "string" },
+      { "item_type": "Recipe", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Recipe", "property": "keyword", "value_type": "string" },
+      { "item_type": "Recipe", "property": "content", "value_type": "string" },
+      { "item_type": "Recipe", "property": "textContent", "value_type": "string" },
+      { "item_type": "Recipe", "property": "transcript", "value_type": "string" },
+      { "item_type": "Recipe", "property": "itemType", "value_type": "string" },
+
+      
+      { "item_type": "Recipe", "property": "duration", "value_type": "int" },
+      { "item_type": "Recipe", "property": "instructions", "value_type": "string" },
+      
+      
+          { "item_type": "Recording", "property": "title", "value_type": "string" },
+      { "item_type": "Recording", "property": "abstract", "value_type": "string" },
+      { "item_type": "Recording", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Recording", "property": "keyword", "value_type": "string" },
+      { "item_type": "Recording", "property": "content", "value_type": "string" },
+      { "item_type": "Recording", "property": "textContent", "value_type": "string" },
+      { "item_type": "Recording", "property": "transcript", "value_type": "string" },
+      { "item_type": "Recording", "property": "itemType", "value_type": "string" },
+      { "item_type": "Reservation", "property": "dateReserved", "value_type": "datetime" },
+      { "item_type": "Reservation", "property": "reservationStatus", "value_type": "string" },
+      
+      
+      
+          { "item_type": "Resource", "property": "url", "value_type": "string" },
+
+      { "item_type": "Review", "property": "title", "value_type": "string" },
+      { "item_type": "Review", "property": "abstract", "value_type": "string" },
+      { "item_type": "Review", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "Review", "property": "keyword", "value_type": "string" },
+      { "item_type": "Review", "property": "content", "value_type": "string" },
+      { "item_type": "Review", "property": "textContent", "value_type": "string" },
+      { "item_type": "Review", "property": "transcript", "value_type": "string" },
+      { "item_type": "Review", "property": "itemType", "value_type": "string" },
+
+      { "item_type": "Route", "property": "startTime", "value_type": "datetime" },
+      { "item_type": "Route", "property": "endTime", "value_type": "datetime" },
+      
+      { "item_type": "Setting", "property": "key", "value_type": "string" },
+      { "item_type": "Setting", "property": "json", "value_type": "blob" },
+          
+      { "item_type": "Span", "property": "startIdx", "value_type": "int" },
+      { "item_type": "Span", "property": "endIdx", "value_type": "int" },
+
+      { "item_type": "TimeFrame", "property": "startTime", "value_type": "datetime" },
+      { "item_type": "TimeFrame", "property": "endTime", "value_type": "datetime" },
+
+      { "item_type": "Transaction", "property": "orderStatus", "value_type": "bool" },
+      { "item_type": "Transaction", "property": "orderNumber", "value_type": "string" },
+      { "item_type": "Transaction", "property": "discountCode", "value_type": "string" },
+      { "item_type": "Transaction", "property": "dateOrdered", "value_type": "datetime" },
+      { "item_type": "Transaction", "property": "dateExecuted", "value_type": "datetime" },
+      
+      
+      
+          { "item_type": "Trip", "property": "startTime", "value_type": "datetime" },
+      { "item_type": "Trip", "property": "endTime", "value_type": "datetime" },
+      
+      
+          { "item_type": "Unit", "property": "symbol", "value_type": "string" },
+      { "item_type": "Unit", "property": "name", "value_type": "string" },
+
+      { "item_type": "Video", "property": "bitrate", "value_type": "int" },
+      { "item_type": "Video", "property": "duration", "value_type": "int" },
+      { "item_type": "Video", "property": "endTime", "value_type": "datetime" },
+      { "item_type": "Video", "property": "fileLocation", "value_type": "string" },
+      { "item_type": "Video", "property": "startTime", "value_type": "datetime" },
+      
+      { "item_type": "Video", "property": "caption", "value_type": "string" },
+      { "item_type": "Video", "property": "exifData", "value_type": "string" },
+      { "item_type": "Video", "property": "name", "value_type": "string" },    { "item_type": "VisualArt", "property": "title", "value_type": "string" },
+      { "item_type": "VisualArt", "property": "abstract", "value_type": "string" },
+      { "item_type": "VisualArt", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "VisualArt", "property": "keyword", "value_type": "string" },
+      { "item_type": "VisualArt", "property": "content", "value_type": "string" },
+      { "item_type": "VisualArt", "property": "textContent", "value_type": "string" },
+      { "item_type": "VisualArt", "property": "transcript", "value_type": "string" },
+      { "item_type": "VisualArt", "property": "itemType", "value_type": "string" },
+
+      { "item_type": "Vote", "property": "itemType", "value_type": "string" },
+
+      { "item_type": "VoteAction", "property": "dateExecuted", "value_type": "datetime" },
+
+      { "item_type": "Website", "property": "itemType", "value_type": "string" },
+      { "item_type": "Website", "property": "url", "value_type": "string" },
+
+      { "item_type": "WrittenWork", "property": "title", "value_type": "string" },
+      { "item_type": "WrittenWork", "property": "abstract", "value_type": "string" },
+      { "item_type": "WrittenWork", "property": "datePublished", "value_type": "datetime" },
+      { "item_type": "WrittenWork", "property": "keyword", "value_type": "string" },
+      { "item_type": "WrittenWork", "property": "content", "value_type": "string" },
+      { "item_type": "WrittenWork", "property": "textContent", "value_type": "string" },
+      { "item_type": "WrittenWork", "property": "transcript", "value_type": "string" },
+      { "item_type": "WrittenWork", "property": "itemType", "value_type": "string" }
+
+    ],
+  "edges": [
+      { "source_type": "Account", "edge": "owner", "target_type": "Person" },
+      { "source_type": "Account", "edge": "price", "target_type": "Measure" },
+      { "source_type": "Account", "edge": "location", "target_type": "Location" },
+      { "source_type": "Account", "edge": "organization", "target_type": "Organization" },
+      
+      { "source_type": "Address", "edge": "country", "target_type": "Country" },
+      { "source_type": "Address", "edge": "location", "target_type": "Location" },
+      
+      { "source_type": "Article", "edge": "audio", "target_type": "Audio" },
+      { "source_type": "Article", "edge": "citation", "target_type": "CreativeWork" },
+      { "source_type": "Article", "edge": "contentLocation", "target_type": "Location" },
+      { "source_type": "Article", "edge": "locationCreated", "target_type": "Location" },
+      { "source_type": "Article", "edge": "video", "target_type": "Video" },
+      { "source_type": "Article", "edge": "writtenBy", "target_type": "Person" },
+      { "source_type": "Article", "edge": "file", "target_type": "File" },
+      { "source_type": "Article", "edge": "recordedAt", "target_type": "Event" },
+      { "source_type": "Article", "edge": "review", "target_type": "Review" },
+      
+      { "source_type": "VisualArt", "edge": "audio", "target_type": "Audio" },
+      { "source_type": "VisualArt", "edge": "citation", "target_type": "CreativeWork" },
+      { "source_type": "VisualArt", "edge": "contentLocation", "target_type": "Location" },
+      { "source_type": "VisualArt", "edge": "locationCreated", "target_type": "Location" },
+      { "source_type": "VisualArt", "edge": "video", "target_type": "Video" },
+      { "source_type": "VisualArt", "edge": "writtenBy", "target_type": "Person" },
+      { "source_type": "VisualArt", "edge": "file", "target_type": "File" },
+      { "source_type": "VisualArt", "edge": "recordedAt", "target_type": "Event" },
+      { "source_type": "VisualArt", "edge": "review", "target_type": "Review" },
+      
+      
+      { "source_type": "WrittenWork", "edge": "audio", "target_type": "Audio" },
+      { "source_type": "WrittenWork", "edge": "citation", "target_type": "CreativeWork" },
+      { "source_type": "WrittenWork", "edge": "contentLocation", "target_type": "Location" },
+      { "source_type": "WrittenWork", "edge": "locationCreated", "target_type": "Location" },
+      { "source_type": "WrittenWork", "edge": "video", "target_type": "Video" },
+      { "source_type": "WrittenWork", "edge": "writtenBy", "target_type": "Person" },
+      { "source_type": "WrittenWork", "edge": "file", "target_type": "File" },
+      { "source_type": "WrittenWork", "edge": "recordedAt", "target_type": "Event" },
+      { "source_type": "WrittenWork", "edge": "review", "target_type": "Review" },
+
+
+    
+    { "source_type": "Audio", "edge": "file", "target_type": "File" },
+        
+    
+    { "source_type": "Comment", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Comment", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Comment", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Comment", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Comment", "edge": "video", "target_type": "Video" },
+    { "source_type": "Comment", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Comment", "edge": "file", "target_type": "File" },
+    { "source_type": "Comment", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Comment", "edge": "review", "target_type": "Review" },
+
+    
+    
+    
+    { "source_type": "Country", "edge": "flag", "target_type": "Photo" },
+    { "source_type": "Country", "edge": "location", "target_type": "Location" },
+
+
+    { "source_type": "CreativeWork", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "CreativeWork", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "CreativeWork", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "CreativeWork", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "CreativeWork", "edge": "video", "target_type": "Video" },
+    { "source_type": "CreativeWork", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "CreativeWork", "edge": "file", "target_type": "File" },
+    { "source_type": "CreativeWork", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "CreativeWork", "edge": "review", "target_type": "Review" },
+
+    
+    
+    
+    
+    
+    
+    { "source_type": "Diet", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Diet", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Diet", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Diet", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Diet", "edge": "video", "target_type": "Video" },
+    { "source_type": "Diet", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Diet", "edge": "file", "target_type": "File" },
+    { "source_type": "Diet", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Diet", "edge": "review", "target_type": "Review" },
+    
+    { "source_type": "Diet", "edge": "includedProduct", "target_type": "Product" },
+    { "source_type": "Diet", "edge": "excludedProduct", "target_type": "Product" },
+
+
+    { "source_type": "EmailMessage", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "EmailMessage", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "EmailMessage", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "EmailMessage", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "EmailMessage", "edge": "video", "target_type": "Video" },
+    { "source_type": "EmailMessage", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "EmailMessage", "edge": "file", "target_type": "File" },
+    { "source_type": "EmailMessage", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "EmailMessage", "edge": "review", "target_type": "Review" },
+    
+    
+    
+    
+    { "source_type": "EmailMessage", "edge": "messageChannel", "target_type": "MessageChannel" },
+    { "source_type": "EmailMessage", "edge": "sender", "target_type": "Account" },
+    { "source_type": "EmailMessage", "edge": "receiver", "target_type": "Account" },
+    { "source_type": "EmailMessage", "edge": "cc", "target_type": "Account" },
+    { "source_type": "EmailMessage", "edge": "bcc", "target_type": "Account" },
+    { "source_type": "EmailMessage", "edge": "replyTo", "target_type": "Account" },
+    
+    
+    
+    
+    { "source_type": "Event", "edge": "location", "target_type": "Location" },
+    { "source_type": "Event", "edge": "review", "target_type": "Review" },
+    { "source_type": "Event", "edge": "subEvent", "target_type": "Organization" },
+    { "source_type": "Event", "edge": "capacity", "target_type": "Measure" },
+
+
+    { "source_type": "ExercisePlan", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "ExercisePlan", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "ExercisePlan", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "ExercisePlan", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "ExercisePlan", "edge": "video", "target_type": "Video" },
+    { "source_type": "ExercisePlan", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "ExercisePlan", "edge": "file", "target_type": "File" },
+    { "source_type": "ExercisePlan", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "ExercisePlan", "edge": "review", "target_type": "Review" },
+    
+    
+    { "source_type": "ExercisePlan", "edge": "workload", "target_type": "Measure" },
+    { "source_type": "ExercisePlan", "edge": "frequency", "target_type": "Frequency" },
+
+    
+    
+    
+    
+    { "source_type": "File", "edge": "resource", "target_type": "Resource" },
+
+    { "source_type": "Game", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Game", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Game", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Game", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Game", "edge": "video", "target_type": "Video" },
+    { "source_type": "Game", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Game", "edge": "file", "target_type": "File" },
+    { "source_type": "Game", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Game", "edge": "review", "target_type": "Review" },
+
+    
+    
+    
+    
+    
+    { "source_type": "HowTo", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "HowTo", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "HowTo", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "HowTo", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "HowTo", "edge": "video", "target_type": "Video" },
+    { "source_type": "HowTo", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "HowTo", "edge": "file", "target_type": "File" },
+    { "source_type": "HowTo", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "HowTo", "edge": "review", "target_type": "Review" },
+
+    
+    
+    
+    
+    
+    { "source_type": "Importer", "edge": "importerRun", "target_type": "ImporterRun" },
+    
+    { "source_type": "ImporterRun", "edge": "importer", "target_type": "Importer" },
+
+{ "source_type": "Indexer", "edge": "indexerRun", "target_type": "IndexerRun" },
+    { "source_type": "IndexerRun", "edge": "indexer", "target_type": "Indexer" },
+        { "source_type": "Invoice", "edge": "file", "target_type": "File" },
+    { "source_type": "Invoice", "edge": "transaction", "target_type": "Transaction" },
+
+
+    
+    
+        { "source_type": "Lead", "edge": "offer", "target_type": "Offer" },
+
+        
+    
+    { "source_type": "Material", "edge": "price", "target_type": "Measure" },
+
+{ "source_type": "Measure", "edge": "unit", "target_type": "Unit" },
+
+    
+    
+    
+    
+    
+    { "source_type": "MediaObject", "edge": "file", "target_type": "File" },
+
+    
+    
+    { "source_type": "Message", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Message", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Message", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Message", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Message", "edge": "video", "target_type": "Video" },
+    { "source_type": "Message", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Message", "edge": "file", "target_type": "File" },
+    { "source_type": "Message", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Message", "edge": "review", "target_type": "Review" },
+    { "source_type": "Message", "edge": "photo", "target_type": "Photo" },
+    
+    
+    { "source_type": "LabelAnnotation", "edge": "annotatedItem", "target_type": "Any" },
+    
+    
+    { "source_type": "Message", "edge": "messageChannel", "target_type": "MessageChannel" },
+    { "source_type": "Message", "edge": "sender", "target_type": "Account" },
+    { "source_type": "Message", "edge": "receiver", "target_type": "Account" },
+    
+    
+    { "source_type": "MessageChannel", "edge": "photo", "target_type": "Photo" },
+    { "source_type": "MessageChannel", "edge": "receiver", "target_type": "Account" },
+
+    { "source_type": "MovingImage", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "MovingImage", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "MovingImage", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "MovingImage", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "MovingImage", "edge": "video", "target_type": "Video" },
+    { "source_type": "MovingImage", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "MovingImage", "edge": "file", "target_type": "File" },
+    { "source_type": "MovingImage", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "MovingImage", "edge": "review", "target_type": "Review" },
+
+    
+    
+    
+        
+    { "source_type": "Network", "edge": "organization", "target_type": "Organization" },
+    { "source_type": "Network", "edge": "resource", "target_type": "Resource" },
+    { "source_type": "Network", "edge": "website", "target_type": "Website" },
+
+
+    { "source_type": "Note", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Note", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Note", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Note", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Note", "edge": "video", "target_type": "Video" },
+    { "source_type": "Note", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Note", "edge": "file", "target_type": "File" },
+    { "source_type": "Note", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Note", "edge": "review", "target_type": "Review" },
+    { "source_type": "Note", "edge": "comment", "target_type": "Comment" },
+    { "source_type": "Note", "edge": "noteList", "target_type": "NoteList" },
+    { "source_type": "NoteList", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "NoteList", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "NoteList", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "NoteList", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "NoteList", "edge": "video", "target_type": "Video" },
+    { "source_type": "NoteList", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "NoteList", "edge": "file", "target_type": "File" },
+    { "source_type": "NoteList", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "NoteList", "edge": "review", "target_type": "Review" },
+    
+    { "source_type": "NoteList", "edge": "span", "target_type": "Span" },
+    { "source_type": "NoteList", "edge": "itemSpan", "target_type": "Span" },
+    { "source_type": "NoteList", "edge": "note", "target_type": "Note" },
+
+    { "source_type": "Offer", "edge": "transaction", "target_type": "Transaction" },
+
+    { "source_type": "OpeningHours", "edge": "timeFrame", "target_type": "TimeFrame" },
+
+
+    
+    
+    
+    
+    { "source_type": "Organization", "edge": "address", "target_type": "Address" },
+    { "source_type": "Organization", "edge": "foundingLocation", "target_type": "Location" },
+    { "source_type": "Organization", "edge": "logo", "target_type": "Photo" },
+    { "source_type": "Organization", "edge": "review", "target_type": "Review" },
+    { "source_type": "Organization", "edge": "subOrganization", "target_type": "Event" },
+    { "source_type": "Organization", "edge": "performsAt", "target_type": "Event" },
+    { "source_type": "Organization", "edge": "attends", "target_type": "Event" },
+    { "source_type": "Organization", "edge": "organizes", "target_type": "Event" },
+    { "source_type": "Organization", "edge": "openingHours", "target_type": "OpeningHours" },
+    { "source_type": "Organization", "edge": "industry", "target_type": "Industry" },
+    { "source_type": "Organization", "edge": "buyer", "target_type": "Transaction" },
+    { "source_type": "Organization", "edge": "seller", "target_type": "Transaction" },
+
+
+    { "source_type": "PerformingArt", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "PerformingArt", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "PerformingArt", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "PerformingArt", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "PerformingArt", "edge": "video", "target_type": "Video" },
+    { "source_type": "PerformingArt", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "PerformingArt", "edge": "file", "target_type": "File" },
+    { "source_type": "PerformingArt", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "PerformingArt", "edge": "review", "target_type": "Review" },
+
+
+    
+    { "source_type": "Person", "edge": "address", "target_type": "Address" },
+    { "source_type": "Person", "edge": "birthPlace", "target_type": "Location" },
+    { "source_type": "Person", "edge": "deathPlace", "target_type": "Location" },
+    { "source_type": "Person", "edge": "profilePicture", "target_type": "Photo" },
+    { "source_type": "Person", "edge": "relationship", "target_type": "Person" },
+    { "source_type": "Person", "edge": "hasPhoneNumber", "target_type": "PhoneNumber" },
+    { "source_type": "Person", "edge": "website", "target_type": "Website" },
+    { "source_type": "Person", "edge": "industry", "target_type": "Industry" },
+    { "source_type": "Person", "edge": "cryptoKey", "target_type": "CryptoKey" },
+    { "source_type": "Person", "edge": "account", "target_type": "Account" },
+    { "source_type": "Person", "edge": "diet", "target_type": "Diet" },
+    { "source_type": "Person", "edge": "medicalCondition", "target_type": "MedicalCondition" },
+    { "source_type": "Person", "edge": "memberOf", "target_type": "Organization" },
+    { "source_type": "Person", "edge": "performsAt", "target_type": "Event" },
+    { "source_type": "Person", "edge": "attends", "target_type": "Event" },
+    { "source_type": "Person", "edge": "organizes", "target_type": "Event" },
+    { "source_type": "Person", "edge": "founded", "target_type": "Organization" },
+    { "source_type": "Person", "edge": "buyer", "target_type": "Transaction" },
+    { "source_type": "Person", "edge": "seller", "target_type": "Transaction" },
+    { "source_type": "Photo", "edge": "file", "target_type": "File" },
+    
+    
+    
+    { "source_type": "Photo", "edge": "thumbnail", "target_type": "File" },
+
+    { "source_type": "PhysicalEntity", "edge": "owner", "target_type": "Person" },
+    { "source_type": "PhysicalEntity", "edge": "location", "target_type": "Location" },
+
+
+    
+    
+    { "source_type": "Product", "edge": "material", "target_type": "Material" },
+    { "source_type": "Product", "edge": "productCode", "target_type": "ProductCode" },
+    { "source_type": "Product", "edge": "review", "target_type": "Review" },
+    { "source_type": "Product", "edge": "accessoryOrSparePartFor", "target_type": "Product" },
+    { "source_type": "Product", "edge": "consumableBy", "target_type": "Product" },
+    { "source_type": "Product", "edge": "price", "target_type": "Measure" },
+    { "source_type": "Receipt", "edge": "file", "target_type": "File" },
+    { "source_type": "Receipt", "edge": "photo", "target_type": "Photo" },
+
+
+    { "source_type": "Recipe", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Recipe", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Recipe", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Recipe", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Recipe", "edge": "video", "target_type": "Video" },
+    { "source_type": "Recipe", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Recipe", "edge": "file", "target_type": "File" },
+    { "source_type": "Recipe", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Recipe", "edge": "review", "target_type": "Review" },
+    
+    
+    { "source_type": "Recipe", "edge": "ingredient", "target_type": "Product" },
+    { "source_type": "Recipe", "edge": "price", "target_type": "Measure" },
+    { "source_type": "Recipe", "edge": "yields", "target_type": "Measure" },
+    { "source_type": "Recipe", "edge": "toolRequired", "target_type": "Product" },
+
+
+    { "source_type": "Recording", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Recording", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Recording", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Recording", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Recording", "edge": "video", "target_type": "Video" },
+    { "source_type": "Recording", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Recording", "edge": "file", "target_type": "File" },
+    { "source_type": "Recording", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Recording", "edge": "review", "target_type": "Review" },
+
+    
+    
+    { "source_type": "Reservation", "edge": "organization", "target_type": "Organization" },
+    { "source_type": "Reservation", "edge": "route", "target_type": "Route" },
+    { "source_type": "Reservation", "edge": "reservedBy", "target_type": "Person" },
+    { "source_type": "Reservation", "edge": "reservedFor", "target_type": "Person" },
+    { "source_type": "Reservation", "edge": "price", "target_type": "Measure" },
+
+    { "source_type": "Review", "edge": "audio", "target_type": "Audio" },
+    { "source_type": "Review", "edge": "citation", "target_type": "CreativeWork" },
+    { "source_type": "Review", "edge": "contentLocation", "target_type": "Location" },
+    { "source_type": "Review", "edge": "locationCreated", "target_type": "Location" },
+    { "source_type": "Review", "edge": "video", "target_type": "Video" },
+    { "source_type": "Review", "edge": "writtenBy", "target_type": "Person" },
+    { "source_type": "Review", "edge": "file", "target_type": "File" },
+    { "source_type": "Review", "edge": "recordedAt", "target_type": "Event" },
+    { "source_type": "Review", "edge": "review", "target_type": "Review" },
+    { "source_type": "Review", "edge": "rating", "target_type": "Measure" },
+
+    { "source_type": "Route", "edge": "startLocation", "target_type": "Location" },
+    { "source_type": "Route", "edge": "endLocation", "target_type": "Location" },
+    { "source_type": "Route", "edge": "price", "target_type": "Measure" },
+    { "source_type": "Route", "edge": "receipt", "target_type": "Receipt" },
+    { "source_type": "Route", "edge": "ticket", "target_type": "File" },
+
+        
+    { "source_type": "Transaction", "edge": "purchaseLocation", "target_type": "Location" },
+    { "source_type": "Transaction", "edge": "product", "target_type": "Product" },
+    { "source_type": "Transaction", "edge": "billingAddress", "target_type": "Address" },
+    { "source_type": "Transaction", "edge": "payedWithAccount", "target_type": "Account" },
+    { "source_type": "Transaction", "edge": "discount", "target_type": "Measure" },
+
+    
+    
+    { "source_type": "Trip", "edge": "route", "target_type": "Route" },
+    { "source_type": "Trip", "edge": "startLocation", "target_type": "Location" },
+    { "source_type": "Trip", "edge": "endLocation", "target_type": "Location" },
+    { "source_type": "Trip", "edge": "price", "target_type": "Measure" },
+
+    
+    { "source_type": "Video", "edge": "file", "target_type": "File" },
+    
+    { "source_type": "Video", "edge": "thumbnail", "target_type": "File" }
+  ]
+}

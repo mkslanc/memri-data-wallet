@@ -1,0 +1,15 @@
+[renderer = calendar] {
+	timeProperty: {{.dateModified}}
+}
+
+[renderer = timeline] {
+    timeProperty: {{.dateModified}}
+}
+
+
+.calendarDayView {
+    [renderer = timeline] {
+        detailLevel: hour
+        recentFirst: false
+    }
+}

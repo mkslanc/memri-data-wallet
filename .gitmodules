@@ -1,0 +1,3 @@
+[submodule "assets/demoAssets"]
+	path = assets/demoAssets
+	url = git@gitlab.memri.io:memri/flutter-app-assets.git
