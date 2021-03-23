@@ -7,13 +7,8 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
-import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
-import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
-import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
-import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 abstract class CVUAction {
@@ -64,21 +59,21 @@ class CVUActionOpenView extends CVUAction {
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
-    CVUDefinitionContent? viewDefinition;
-    var view = vars["view"];
-    if (view is CVUValueSubdefinition) {
-      viewDefinition = view.value;
-    }
-    CVUViewArguments viewArguments;
-    var viewArgs = vars["viewArguments"];
-    if (viewArgs is CVUValueSubdefinition) {
-      viewArguments = CVUViewArguments(
-          args: viewArgs.value.properties, argumentItem: context.currentItem, parentArguments: context.viewArguments);
-    } else {
-      viewArguments = CVUViewArguments();
-    }
-    DatabaseController db = DatabaseController(); //TODO = sceneController.appController.databaseController;
-    var resolver = CVUPropertyResolver(context: context, lookup: CVULookupController(), db: db, properties: this.vars);
+    // CVUDefinitionContent? viewDefinition;
+    // var view = vars["view"];
+    // if (view is CVUValueSubdefinition) {
+    //   viewDefinition = view.value;
+    // }
+    // CVUViewArguments viewArguments;
+    // var viewArgs = vars["viewArguments"];
+    // if (viewArgs is CVUValueSubdefinition) {
+    //   viewArguments = CVUViewArguments(
+    //       args: viewArgs.value.properties, argumentItem: context.currentItem, parentArguments: context.viewArguments);
+    // } else {
+    //   viewArguments = CVUViewArguments();
+    // }
+    // DatabaseController db = DatabaseController(); //TODO = sceneController.appController.databaseController;
+    // var resolver = CVUPropertyResolver(context: context, lookup: CVULookupController(), db: db, properties: this.vars);
     // sceneController.navigateToNewContext({
     // viewName: this.viewName ?? resolver.string("viewName") ?? "customView",
     // inheritDatasource: resolver.bool("inheritDatasource", true),
