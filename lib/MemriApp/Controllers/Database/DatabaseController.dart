@@ -5,27 +5,27 @@ import 'package:moor/ffi.dart';
 import 'package:path_provider/path_provider.dart' as paths;
 import 'package:path/path.dart' as p;
 
-import '../../../globals.dart' as globals;
 import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
   String databaseName;
+  bool inMemory;
 
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(
-      [this.databaseName = "memri", //TODO:
-      this.schema]);
+      {this.databaseName = "memri", //TODO:
+      this.schema,
+      this.inMemory = false});
 
   init() async {
     databasePool = await () async {
-      final dataDir = await paths.getApplicationDocumentsDirectory();
-      final url = File(p.join(dataDir.path, databaseName + '.sqlite'));
-      print(url);
-
-      if (globals.isRunningTests) {
+      if (inMemory) {
         return Database(VmDatabase.memory());
       } else {
+        final dataDir = await paths.getApplicationDocumentsDirectory();
+        final url = File(p.join(dataDir.path, databaseName + '.sqlite'));
+        print(url);
         return Database(VmDatabase(url));
       }
     }();

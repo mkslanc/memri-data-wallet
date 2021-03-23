@@ -3,8 +3,6 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import 'package:flutter/services.dart';
 
-import '../../../globals.dart' as globals;
-
 /// A schema definition. This is used to dynamically enforce supported types and properties
 class Schema {
   /// Supported types in the schema
@@ -13,9 +11,9 @@ class Schema {
   Schema(this.types);
 
   /// Load a Schema struct from the given file URL. Default URL of nil loads `schema.json` from the app bundle
-  static Future<Schema> loadFromFile([String? url]) async {
+  static Future<Schema> loadFromFile({String? url, isRunningTests = false}) async {
     handleError(String string) {
-      if (globals.isRunningTests) {
+      if (isRunningTests) {
         throw (string);
       } else {
         print(string);

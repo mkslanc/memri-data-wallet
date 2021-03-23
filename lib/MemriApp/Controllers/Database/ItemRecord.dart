@@ -1,24 +1,37 @@
+import 'package:uuid/uuid.dart';
+
 import 'DatabaseController.dart';
 
 class ItemRecord {
-    static var databaseTableName = "item";
-    
-    String uid;
-    String type;
-    DateTime dateCreated;
-    
-    DateTime dateModified;
-    int version;
-    bool deleted;
+  static var databaseTableName = "item";
 
-    SyncState syncState;
-    bool syncHasPriority;
+  String uid;
+  String type;
+  DateTime? dateCreated;
 
-    /*
+  DateTime? dateModified;
+  int version;
+  bool deleted;
+
+  //SyncState syncState; TODO:
+  //bool syncHasPriority; TODO:
+
+  ItemRecord({
+    uid,
+    required this.type,
+    dateCreated,
+    dateModified,
+    this.version = 1,
+    this.deleted = false,
+  })  : this.dateModified = dateModified ?? DateTime.now(),
+        this.dateCreated = dateCreated ?? DateTime.now(),
+        this.uid = uid ?? Uuid().v4().toString();
+
+  /* TODO:
     static func == (lhs: ItemRecord, rhs: ItemRecord) -> Bool {
         lhs.uid == rhs.uid && lhs.type == rhs.type
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(uid)
         hasher.combine(type)
@@ -27,13 +40,13 @@ class ItemRecord {
   static fetchWithUID(String uid, DatabaseController db
       /* = AppController.shared.databaseController*/) async {
     try {
-      return await db.databasePool?.itemRecordFetchWithUID(uid);
+      return await db.databasePool.itemRecordFetchWithUID(uid);
     } catch (e) {
       return null;
     }
   }
 
-  /*static var properties = hasMany(ItemPropertyRecord.self, key: "itemProperty")
+/*static var properties = hasMany(ItemPropertyRecord.self, key: "itemProperty")
 
     func property(_ name: String, db: DatabaseController = AppController.shared.databaseController) -> ItemPropertyRecord? {
         try? db.read { db in
