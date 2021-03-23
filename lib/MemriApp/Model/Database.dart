@@ -1,6 +1,5 @@
 import 'package:moor/moor.dart';
 
-
 part 'Database.g.dart';
 
 @UseMoor(

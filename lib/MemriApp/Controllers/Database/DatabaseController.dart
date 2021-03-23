@@ -9,6 +9,10 @@ import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
+  late Schema? schema;
+
+  /// This is the connection to the database used throughout the app
+  late Database databasePool;
   String databaseName;
   bool inMemory;
 
@@ -31,11 +35,6 @@ class DatabaseController {
     }();
     schema = schema ?? await Schema.loadFromFile();
   }
-
-  late Schema? schema;
-
-  /// This is the connection to the database used throughout the app
-  late Database databasePool;
 
   /// Check if the database has been setup //TODO:
 //bool get databaseIsSetup => ItemRecord.fetchOne(db) != null ?? false;

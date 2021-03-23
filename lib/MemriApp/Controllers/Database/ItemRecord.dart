@@ -10,7 +10,6 @@ class ItemRecord {
   DateTime? dateCreated;
 
   DateTime? dateModified;
-  int version;
   bool deleted;
 
   //SyncState syncState; TODO:
@@ -21,7 +20,6 @@ class ItemRecord {
     required this.type,
     dateCreated,
     dateModified,
-    this.version = 1,
     this.deleted = false,
   })  : this.dateModified = dateModified ?? DateTime.now(),
         this.dateCreated = dateCreated ?? DateTime.now(),
@@ -42,7 +40,8 @@ class ItemRecord {
     try {
       return await db.databasePool.itemRecordFetchWithUID(uid);
     } catch (e) {
-      return null;
+      print(e);
+      return;
     }
   }
 

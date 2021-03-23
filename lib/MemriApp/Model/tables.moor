@@ -6,8 +6,7 @@ CREATE TABLE items
     dateCreated        DATETIME /* datetime */ NOT NULL,
     dateModified       DATETIME /* datetime */ NOT NULL,
     dateServerModified DATETIME /* datetime */,
-    deleted            BOOLEAN /* boolean */   NOT NULL,
-    version            INTEGER                 NOT NULL
+    deleted BOOLEAN /* boolean */ NOT NULL
 );
 CREATE
 UNIQUE INDEX idx_items_id on items (id);
