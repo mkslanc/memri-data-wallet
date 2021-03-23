@@ -1,0 +1,33 @@
+image: cirrusci/flutter:stable
+
+stages:
+  - lint
+  - test
+  - build
+
+flutter_analyze:
+  stage: lint
+  script:
+    - flutter analyze
+    - flutter format -l 100 -n . --set-exit-if-changed
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - lib/**/*.dart
+      - test/**/*.dart
+
+unit_test:
+  stage: test
+  script:
+    - flutter test test/*
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - lib/**/*
+      - test/**/*
+
+build_web:
+  stage: build
+  script: flutter build web
