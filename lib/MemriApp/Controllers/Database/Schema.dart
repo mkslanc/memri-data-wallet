@@ -62,11 +62,11 @@ class Schema {
   ResolvedType? expectedType(String itemType, String propertyOrEdgeName) {
     var propertyType = expectedPropertyType(itemType, propertyOrEdgeName);
     if (propertyType != null) {
-      return ResolvedType_property(propertyType);
+      return ResolvedTypeProperty(propertyType);
     } else {
       var edgeType = expectedTargetType(itemType, propertyOrEdgeName);
       if (edgeType != null) {
-        return ResolvedType_edge(edgeType);
+        return ResolvedTypeEdge(edgeType);
       } else {
         return null;
       }
@@ -82,18 +82,18 @@ class Schema {
   }
 }
 
-class ResolvedType {}
+abstract class ResolvedType {}
 
-class ResolvedType_property extends ResolvedType {
+class ResolvedTypeProperty extends ResolvedType {
   String value;
 
-  ResolvedType_property(this.value);
+  ResolvedTypeProperty(this.value);
 }
 
-class ResolvedType_edge extends ResolvedType {
+class ResolvedTypeEdge extends ResolvedType {
   String value;
 
-  ResolvedType_edge(this.value);
+  ResolvedTypeEdge(this.value);
 }
 
 /// A schema type definition. This defines the supported properties and their value type
@@ -172,7 +172,7 @@ class SchemaEdge {
   Map<String, dynamic> toJson() => {
         'source_type': sourceType,
         'edge': edge,
-        'target_type': '${targetType}${allowsMultiple ? "[]" : ""}',
+        'target_type': '$targetType${allowsMultiple ? "[]" : ""}',
       };
 }
 
