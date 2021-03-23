@@ -312,8 +312,7 @@ void main() {
   });
 
   test('testSingleLineSyntax', () {
-    var snippet =
-        """Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }""";
+    var snippet = """Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }""";
     expect(parseToCVUString(snippet), """Person {
     background: #fff
     border: 1 red
@@ -521,12 +520,8 @@ Person {
     var snippet = """Person {
     test: 1""";
 
-    expect(
-        () => parse(snippet),
-        throwsA(predicate((e) =>
-            e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.UnexpectedToken &&
-            e.token!.type == CVUTokenType.EOF)));
+    expect(() => parse(snippet),
+        throwsA(predicate((e) => e is CVUParseErrors && e is CVUParseErrorsUnexpectedToken && e.token is CVUTokenEOF)));
   });
 
   test('testErrorMissingBracketCloseInDefinition', () {
@@ -538,11 +533,11 @@ Person {
         () => parse(snippet),
         throwsA(predicate((e) =>
             e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.ExpectedCharacter &&
+            e is CVUParseErrorsExpectedCharacter &&
             e.character == "]" &&
-            e.token!.type == CVUTokenType.CurlyBracketOpen &&
-            e.token!.ln == 0 &&
-            e.token!.ch == 16)));
+            e.token is CVUTokenCurlyBracketOpen &&
+            e.token.ln == 0 &&
+            e.token.ch == 16)));
   });
 
   //testErrorMissingBracketCloseInArray
@@ -554,10 +549,8 @@ Person {
 
     expect(
         () => parse(snippet),
-        throwsA(predicate((e) =>
-            e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.MissingExpressionClose &&
-            e.token!.type == CVUTokenType.EOF)));
+        throwsA(predicate(
+            (e) => e is CVUParseErrors && e is CVUParseErrorsMissingExpressionClose && e.token is CVUTokenEOF)));
   });
 
   test('testErrorMissingExprCloseBrackets', () {
@@ -567,10 +560,8 @@ Person {
 
     expect(
         () => parse(snippet),
-        throwsA(predicate((e) =>
-            e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.MissingExpressionClose &&
-            e.token!.type == CVUTokenType.EOF)));
+        throwsA(predicate(
+            (e) => e is CVUParseErrors && e is CVUParseErrorsMissingExpressionClose && e.token is CVUTokenEOF)));
   });
 
   test('testErrorExtraBracket', () {
@@ -582,10 +573,10 @@ Person {
         () => parse(snippet),
         throwsA(predicate((e) =>
             e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.ExpectedIdentifier &&
-            e.token!.type == CVUTokenType.BracketClose &&
-            e.token!.ln == 1 &&
-            e.token!.ch == 21)));
+            e is CVUParseErrorsExpectedIdentifier &&
+            e.token is CVUTokenBracketClose &&
+            e.token.ln == 1 &&
+            e.token.ch == 21)));
   });
 
   test('testErrorTopLevelBracket', () {
@@ -595,11 +586,11 @@ Person {
         () => parse(snippet),
         throwsA(predicate((e) =>
             e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.ExpectedIdentifier &&
-            e.token!.type == CVUTokenType.Number &&
-            e.token!.value == 5 &&
-            e.token!.ln == 0 &&
-            e.token!.ch == 1))); //TODO in swift there is 2, but doesn't seem correct
+            e is CVUParseErrorsExpectedIdentifier &&
+            e.token is CVUTokenNumber &&
+            (e.token as CVUTokenNumber).value == 5 &&
+            e.token.ln == 0 &&
+            e.token.ch == 1))); //TODO in swift there is 2, but doesn't seem correct
   });
 
   test('testErrorExtraCurlyBracket', () {
@@ -611,10 +602,10 @@ Person {
         () => parse(snippet),
         throwsA(predicate((e) =>
             e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.UnexpectedToken &&
-            e.token!.type == CVUTokenType.BracketClose &&
-            e.token!.ln == 1 &&
-            e.token!.ch == 21)));
+            e is CVUParseErrorsUnexpectedToken &&
+            e.token is CVUTokenBracketClose &&
+            e.token.ln == 1 &&
+            e.token.ch == 21)));
   });
 
   test('testErrorExtraColonInArray', () {
@@ -626,10 +617,10 @@ Person {
         () => parse(snippet),
         throwsA(predicate((e) =>
             e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.ExpectedKey &&
-            e.token!.type == CVUTokenType.Colon &&
-            e.token!.ln == 1 &&
-            e.token!.ch == 20)));
+            e is CVUParseErrorsExpectedKey &&
+            e.token is CVUTokenColon &&
+            e.token.ln == 1 &&
+            e.token.ch == 20)));
   });
 
   test('testErrorExtraColonInProperty', () {
@@ -641,10 +632,10 @@ Person {
         () => parse(snippet),
         throwsA(predicate((e) =>
             e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.ExpectedKey &&
-            e.token!.type == CVUTokenType.Colon &&
-            e.token!.ln == 1 &&
-            e.token!.ch == 17)));
+            e is CVUParseErrorsExpectedKey &&
+            e.token is CVUTokenColon &&
+            e.token.ln == 1 &&
+            e.token.ch == 17)));
   });
 
   test('testErrorMissingQuoteClose', () {
@@ -654,10 +645,8 @@ Person {
 
     expect(
         () => parse(snippet),
-        throwsA(predicate((e) =>
-            e is CVUParseErrors &&
-            e.type == CVUParseErrorsTypes.MissingQuoteClose &&
-            e.token!.type == CVUTokenType.EOF)));
+        throwsA(
+            predicate((e) => e is CVUParseErrors && e is CVUParseErrorsMissingQuoteClose && e.token is CVUTokenEOF)));
   });
 
   //testErrorMultilineQuote

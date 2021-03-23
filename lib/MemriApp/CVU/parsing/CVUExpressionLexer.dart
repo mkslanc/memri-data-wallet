@@ -4,122 +4,145 @@ import 'CVUExpressionParser.dart';
 class ExprToken {
 }
 
-class ExprToken_Operator extends ExprToken {
-  String? value;
-  int? i;
+class ExprTokenOperator extends ExprToken {
+  final ExprOperator value;
+  final int i;
 
-  ExprToken_Operator(this.value, this.i);
+  ExprTokenOperator(this.value, this.i);
 }
 
-class ExprToken_Bool extends ExprToken {
-  bool? value;
-  int? i;
+class ExprTokenBool extends ExprToken {
+  final bool value;
+  final int i;
 
-  ExprToken_Bool(this.value, this.i);
+  ExprTokenBool(this.value, this.i);
 }
 
-class ExprToken_Identifier extends ExprToken {
-  String value;
-  int i;
+class ExprTokenIdentifier extends ExprToken {
+  final String value;
+  final int i;
 
-  ExprToken_Identifier(this.value, this.i);
+  ExprTokenIdentifier(this.value, this.i);
 }
 
-class ExprToken_Number extends ExprToken {
-  double? value;
-  int? i;
+class ExprTokenNumber extends ExprToken {
+  final double value;
+  final int i;
 
-  ExprToken_Number(this.value, this.i);
+  ExprTokenNumber(this.value, this.i);
 }
 
-class ExprToken_Negation extends ExprToken {
-  int? i;
+class ExprTokenNegation extends ExprToken {
+  final int i;
 
-  ExprToken_Negation(this.i);
+  ExprTokenNegation(this.i);
 }
 
-class ExprToken_Comma extends ExprToken {
-  int? i;
+class ExprTokenComma extends ExprToken {
+  final int i;
 
-  ExprToken_Comma(this.i);
+  ExprTokenComma(this.i);
 }
 
-class ExprToken_ParensOpen extends ExprToken {
-  int? i;
+class ExprTokenParensOpen extends ExprToken {
+  final int i;
 
-  ExprToken_ParensOpen(this.i);
+  ExprTokenParensOpen(this.i);
 }
 
-class ExprToken_ParensClose extends ExprToken {
-  int? i;
+class ExprTokenParensClose extends ExprToken {
+  final int i;
 
-  ExprToken_ParensClose(this.i);
+  ExprTokenParensClose(this.i);
 }
 
-class ExprToken_CurlyBracketOpen extends ExprToken {
-  int? i;
+class ExprTokenCurlyBracketOpen extends ExprToken {
+  final int i;
 
-  ExprToken_CurlyBracketOpen(this.i);
+  ExprTokenCurlyBracketOpen(this.i);
 }
 
-class ExprToken_CurlyBracketClose extends ExprToken {
-  int? i;
+class ExprTokenCurlyBracketClose extends ExprToken {
+  final int i;
 
-  ExprToken_CurlyBracketClose(this.i);
+  ExprTokenCurlyBracketClose(this.i);
 }
 
-class ExprToken_BracketOpen extends ExprToken {
-  int? i;
+class ExprTokenBracketOpen extends ExprToken {
+  final int i;
 
-  ExprToken_BracketOpen(this.i);
+  ExprTokenBracketOpen(this.i);
 }
 
-class ExprToken_BracketClose extends ExprToken {
-  int? i;
+class ExprTokenBracketClose extends ExprToken {
+  final int i;
 
-  ExprToken_BracketClose(this.i);
+  ExprTokenBracketClose(this.i);
 }
 
-class ExprToken_String extends ExprToken {
-  String? value;
-  int? i;
+class ExprTokenString extends ExprToken {
+  final String value;
+  final int i;
 
-  ExprToken_String(this.value, this.i);
+  ExprTokenString(this.value, this.i);
 }
 
-class ExprToken_Period extends ExprToken {
-  int? i;
+class ExprTokenPeriod extends ExprToken {
+  final int i;
 
-  ExprToken_Period(this.i);
+  ExprTokenPeriod(this.i);
 }
 
-class ExprToken_Other extends ExprToken {
-  String? value;
-  int? i;
+class ExprTokenOther extends ExprToken {
+  final String value;
+  final int i;
 
-  ExprToken_Other(this.value, this.i);
+  ExprTokenOther(this.value, this.i);
 }
 
-class ExprToken_EOF extends ExprToken {}
+class ExprTokenEOF extends ExprToken {}
 
-class ExprOperator {
-  static const ConditionStart = "?";
-  static const ConditionElse = ":";
-  static const ConditionAND = "AND";
-  static const ConditionOR = "OR";
-  static const ConditionEquals = "=";
-  static const ConditionNotEquals = "!=";
-  static const ConditionGreaterThan = ">";
-  static const ConditionGreaterThanOrEqual = ">=";
-  static const ConditionLessThan = "<";
-  static const ConditionLessThanOrEqual = "<=";
-  static const Plus = "+";
-  static const Minus = "-";
-  static const Multiplication = "*";
-  static const Division = "/";
+enum ExprOperator {
+  ConditionStart,
+  ConditionElse,
+  ConditionAND,
+  ConditionOR,
+  ConditionEquals,
+  ConditionNotEquals,
+  ConditionGreaterThan,
+  ConditionGreaterThanOrEqual,
+  ConditionLessThan,
+  ConditionLessThanOrEqual,
+  Plus,
+  Minus,
+  Multiplication,
+  Division
+}
 
-  static int? precedence(operator) {
-    switch (operator) {
+extension ExprOperatorExtension on ExprOperator {
+  static const Map<ExprOperator, String> operators = {
+    ExprOperator.ConditionStart: "?",
+    ExprOperator.ConditionElse: ":",
+    ExprOperator.ConditionAND: "AND",
+    ExprOperator.ConditionOR: "OR",
+    ExprOperator.ConditionEquals: "=",
+    ExprOperator.ConditionNotEquals: "!=",
+    ExprOperator.ConditionGreaterThan: ">",
+    ExprOperator.ConditionGreaterThanOrEqual: ">=",
+    ExprOperator.ConditionLessThan: "<",
+    ExprOperator.ConditionLessThanOrEqual: "<=",
+    ExprOperator.Plus: "+",
+    ExprOperator.Minus: "-",
+    ExprOperator.Multiplication: "*",
+    ExprOperator.Division: "/"
+  };
+
+  String get value => operators[this]!;
+
+  String get rawValue => this.toString().split(".").last;
+
+  int get precedence {
+    switch (this) {
       case ExprOperator.ConditionStart:
         return 5;
       case ExprOperator.ConditionElse:
@@ -152,12 +175,23 @@ class ExprOperator {
   }
 }
 
-class Mode {
-  static const idle = 0;
-  static const keyword = 10;
-  static const number = 20;
-  static const string = 30;
-  static const escapedString = 35;
+enum Mode { idle, keyword, number, string, escapedString }
+
+extension ModeExtension on Mode {
+  int get weight {
+    switch (this) {
+      case Mode.idle:
+        return 0;
+      case Mode.keyword:
+        return 10;
+      case Mode.number:
+        return 20;
+      case Mode.string:
+        return 30;
+      case Mode.escapedString:
+        return 35;
+    }
+  }
 }
 
 class CVUExpressionLexer {
@@ -166,24 +200,24 @@ class CVUExpressionLexer {
 
   Map<String, ExprToken Function(int i)> get keywords {
     return {
-      "true": (i) => ExprToken_Bool(true, i),
-      "True": (i) => ExprToken_Bool(true, i),
-      "false": (i) => ExprToken_Bool(false, i),
-      "False": (i) => ExprToken_Bool(false, i),
-      "and": (i) => ExprToken_Operator(ExprOperator.ConditionAND, i),
-      "AND": (i) => ExprToken_Operator(ExprOperator.ConditionAND, i),
-      "or": (i) => ExprToken_Operator(ExprOperator.ConditionOR, i),
-      "OR": (i) => ExprToken_Operator(ExprOperator.ConditionOR, i),
-      "equals": (i) => ExprToken_Operator(ExprOperator.ConditionEquals, i),
-      "EQUALS": (i) => ExprToken_Operator(ExprOperator.ConditionEquals, i),
-      "eq": (i) => ExprToken_Operator(ExprOperator.ConditionEquals, i),
-      "EQ": (i) => ExprToken_Operator(ExprOperator.ConditionEquals, i),
-      "neq": (i) => ExprToken_Operator(ExprOperator.ConditionNotEquals, i),
-      "NEQ": (i) => ExprToken_Operator(ExprOperator.ConditionNotEquals, i),
-      "gt": (i) => ExprToken_Operator(ExprOperator.ConditionGreaterThan, i),
-      "GT": (i) => ExprToken_Operator(ExprOperator.ConditionGreaterThan, i),
-      "lt": (i) => ExprToken_Operator(ExprOperator.ConditionLessThan, i),
-      "LT": (i) => ExprToken_Operator(ExprOperator.ConditionLessThan, i),
+      "true": (i) => ExprTokenBool(true, i),
+      "True": (i) => ExprTokenBool(true, i),
+      "false": (i) => ExprTokenBool(false, i),
+      "False": (i) => ExprTokenBool(false, i),
+      "and": (i) => ExprTokenOperator(ExprOperator.ConditionAND, i),
+      "AND": (i) => ExprTokenOperator(ExprOperator.ConditionAND, i),
+      "or": (i) => ExprTokenOperator(ExprOperator.ConditionOR, i),
+      "OR": (i) => ExprTokenOperator(ExprOperator.ConditionOR, i),
+      "equals": (i) => ExprTokenOperator(ExprOperator.ConditionEquals, i),
+      "EQUALS": (i) => ExprTokenOperator(ExprOperator.ConditionEquals, i),
+      "eq": (i) => ExprTokenOperator(ExprOperator.ConditionEquals, i),
+      "EQ": (i) => ExprTokenOperator(ExprOperator.ConditionEquals, i),
+      "neq": (i) => ExprTokenOperator(ExprOperator.ConditionNotEquals, i),
+      "NEQ": (i) => ExprTokenOperator(ExprOperator.ConditionNotEquals, i),
+      "gt": (i) => ExprTokenOperator(ExprOperator.ConditionGreaterThan, i),
+      "GT": (i) => ExprTokenOperator(ExprOperator.ConditionGreaterThan, i),
+      "lt": (i) => ExprTokenOperator(ExprOperator.ConditionLessThan, i),
+      "LT": (i) => ExprTokenOperator(ExprOperator.ConditionLessThan, i),
     };
   }
 
@@ -192,13 +226,13 @@ class CVUExpressionLexer {
   List<ExprToken> tokenize() {
     final List<ExprToken> tokens = [];
 
-    int isMode = startInStringMode ? Mode.string : Mode.idle;
+    Mode isMode = startInStringMode ? Mode.string : Mode.idle;
     var keyword = <String>[];
 
     var i;
     addToken([ExprToken? token]) {
       if (isMode == Mode.number) {
-        tokens.add(ExprToken_Number(double.parse(keyword.join()), i));
+        tokens.add(ExprTokenNumber(double.parse(keyword.join()), i));
         keyword = [];
         isMode = Mode.idle;
       } else if (isMode == Mode.keyword) {
@@ -207,7 +241,7 @@ class CVUExpressionLexer {
         if (f != null) {
           tokens.add(f(i));
         } else {
-          tokens.add(ExprToken_Identifier(kw, i));
+          tokens.add(ExprTokenIdentifier(kw, i));
         }
 
         keyword = [];
@@ -230,26 +264,26 @@ class CVUExpressionLexer {
         switch (l) {
           case "!":
             if (c == "=") {
-              addToken(ExprToken_Operator(ExprOperator.ConditionNotEquals, i));
+              addToken(ExprTokenOperator(ExprOperator.ConditionNotEquals, i));
               continue;
             } else {
-              addToken(ExprToken_Negation(i));
+              addToken(ExprTokenNegation(i));
               break;
             }
           case ">":
             if (c == "=") {
-              addToken(ExprToken_Operator(ExprOperator.ConditionGreaterThanOrEqual, i));
+              addToken(ExprTokenOperator(ExprOperator.ConditionGreaterThanOrEqual, i));
               continue;
             } else {
-              addToken(ExprToken_Operator(ExprOperator.ConditionGreaterThan, i));
+              addToken(ExprTokenOperator(ExprOperator.ConditionGreaterThan, i));
               break;
             }
           case "<":
             if (c == "=") {
-              addToken(ExprToken_Operator(ExprOperator.ConditionLessThanOrEqual, i));
+              addToken(ExprTokenOperator(ExprOperator.ConditionLessThanOrEqual, i));
               continue;
             } else {
-              addToken(ExprToken_Operator(ExprOperator.ConditionLessThan, i));
+              addToken(ExprTokenOperator(ExprOperator.ConditionLessThan, i));
               break;
             }
           default:
@@ -257,14 +291,13 @@ class CVUExpressionLexer {
         }
       }
 
-      if (isMode >= Mode.string) {
-        if (isMode == Mode.string &&
-            (c == startChar || startChar == null && startInStringMode && c == "{")) {
+      if (isMode.weight >= Mode.string.weight) {
+        if (isMode == Mode.string && (c == startChar || startChar == null && startInStringMode && c == "{")) {
           if (keyword.length > 0 || i > 0 || c != "{") {
-            addToken(ExprToken_String(keyword.join(), i));
+            addToken(ExprTokenString(keyword.join(), i));
           }
           if (c == "{") {
-            addToken(ExprToken_CurlyBracketOpen(i));
+            addToken(ExprTokenCurlyBracketOpen(i));
           }
           keyword = [];
           isMode = Mode.idle;
@@ -285,40 +318,40 @@ class CVUExpressionLexer {
 
       switch (c) {
         case "*":
-          addToken(ExprToken_Operator(ExprOperator.Multiplication, i));
+          addToken(ExprTokenOperator(ExprOperator.Multiplication, i));
           break;
         case "/":
-          addToken(ExprToken_Operator(ExprOperator.Division, i));
+          addToken(ExprTokenOperator(ExprOperator.Division, i));
           break;
         case "+":
-          addToken(ExprToken_Operator(ExprOperator.Plus, i));
+          addToken(ExprTokenOperator(ExprOperator.Plus, i));
           break;
         case "-":
-          addToken(ExprToken_Operator(ExprOperator.Minus, i));
+          addToken(ExprTokenOperator(ExprOperator.Minus, i));
           break;
         case "!":
           lastChar = c;
           continue;
         case "?":
-          addToken(ExprToken_Operator(ExprOperator.ConditionStart, i));
+          addToken(ExprTokenOperator(ExprOperator.ConditionStart, i));
           break;
         case ":":
-          addToken(ExprToken_Operator(ExprOperator.ConditionElse, i));
+          addToken(ExprTokenOperator(ExprOperator.ConditionElse, i));
           break;
         case "(":
-          addToken(ExprToken_ParensOpen(i));
+          addToken(ExprTokenParensOpen(i));
           break;
         case ")":
-          addToken(ExprToken_ParensClose(i));
+          addToken(ExprTokenParensClose(i));
           break;
         case "[":
-          addToken(ExprToken_BracketOpen(i));
+          addToken(ExprTokenBracketOpen(i));
           break;
         case "]":
-          addToken(ExprToken_BracketClose(i));
+          addToken(ExprTokenBracketClose(i));
           break;
         case "=":
-          addToken(ExprToken_Operator(ExprOperator.ConditionEquals, i));
+          addToken(ExprTokenOperator(ExprOperator.ConditionEquals, i));
           break;
         case ">":
           lastChar = c;
@@ -327,7 +360,7 @@ class CVUExpressionLexer {
           lastChar = c;
           continue;
         case ",":
-          addToken(ExprToken_Comma(i));
+          addToken(ExprTokenComma(i));
           break;
         case "'":
         case "\"":
@@ -338,7 +371,7 @@ class CVUExpressionLexer {
           if (isMode == Mode.number) {
             keyword.add(c.toString());
           } else {
-            addToken(ExprToken_Period(i));
+            addToken(ExprTokenPeriod(i));
           }
           break;
         case " ":
@@ -362,18 +395,18 @@ class CVUExpressionLexer {
           break;
         case "{":
           if (startInStringMode) {
-            addToken(ExprToken_CurlyBracketOpen(i));
+            addToken(ExprTokenCurlyBracketOpen(i));
             isMode = Mode.idle;
           } else {
-            throw CVUExpressionParseErrors_UnexpectedToken(ExprToken_CurlyBracketOpen(i));
+            throw CVUExpressionParseErrorsUnexpectedToken(ExprTokenCurlyBracketOpen(i));
           }
           break;
         case "}":
           if (startInStringMode) {
-            addToken(ExprToken_CurlyBracketClose(i));
+            addToken(ExprTokenCurlyBracketClose(i));
             isMode = Mode.string;
           } else {
-            throw CVUExpressionParseErrors_UnexpectedToken(ExprToken_CurlyBracketOpen(i));
+            throw CVUExpressionParseErrorsUnexpectedToken(ExprTokenCurlyBracketOpen(i));
           }
           break;
         default:
@@ -390,10 +423,10 @@ class CVUExpressionLexer {
 
     if (startInStringMode) {
       if (keyword.length > 0) {
-        addToken(ExprToken_String(keyword.join(), input.length - keyword.length));
+        addToken(ExprTokenString(keyword.join(), input.length - keyword.length));
       }
     } else if (isMode == Mode.string) {
-      throw CVUExpressionParseErrors_MissingQuoteClose();
+      throw CVUExpressionParseErrorsMissingQuoteClose();
     }
 
     return tokens;

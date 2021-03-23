@@ -7,6 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Expression.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionLexer.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionParser.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
@@ -14,9 +15,9 @@ import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 
 
-ExpressionNode parse(String snippet, [bool stringMode = false]) {
+CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
   var lexer = CVUExpressionLexer(snippet, stringMode);
-  var tokens =  lexer.tokenize();
+  var tokens = lexer.tokenize();
   var parser = CVUExpressionParser(tokens);
   return parser.parse();
 }
@@ -24,16 +25,18 @@ ExpressionNode parse(String snippet, [bool stringMode = false]) {
 var databaseController = DatabaseController();
 var lookupController = CVULookupController(LookupMock(true, "Memri", 10));
 
-bool? interpretAsBool(ExpressionNode expr) {
-  return lookupController.resolve<bool>(value: CVUValue.expression(expr), context: CVUContext(), db: databaseController);
+bool? interpretAsBool(CVUExpressionNode expr) {
+  return lookupController.resolve<bool>(value: CVUValueExpression(expr), context: CVUContext(), db: databaseController);
 }
 
-double? interpretAsDouble(ExpressionNode expr) {
-  return lookupController.resolve<double>(value: CVUValue.expression(expr), context: CVUContext(), db: databaseController);
+double? interpretAsDouble(CVUExpressionNode expr) {
+  return lookupController.resolve<double>(
+      value: CVUValueExpression(expr), context: CVUContext(), db: databaseController);
 }
 
-String? interpretAsString(ExpressionNode expr) {
-  return lookupController.resolve<String>(value: CVUValue.expression(expr), context: CVUContext(), db: databaseController);
+String? interpretAsString(CVUExpressionNode expr) {
+  return lookupController.resolve<String>(
+      value: CVUValueExpression(expr), context: CVUContext(), db: databaseController);
 }
 
 void main() {

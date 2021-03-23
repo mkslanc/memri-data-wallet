@@ -6,6 +6,8 @@ import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUINode.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Expression.dart';
 
 import 'CVULexer.dart';
 import 'CVUParseErrors.dart';
@@ -18,12 +20,12 @@ class CVUParser {
   CVUParser(this.tokens);
 
   CVUToken peekCurrentToken() {
-    return index >= tokens.length ? CVUToken.EOF() : tokens[index];
+    return index >= tokens.length ? CVUTokenEOF() : tokens[index];
   }
 
   CVUToken popCurrentToken() {
     if (index >= tokens.length) {
-      lastToken = CVUToken.EOF();
+      lastToken = CVUTokenEOF();
       return lastToken!;
     }
 
@@ -37,8 +39,10 @@ class CVUParser {
     List<CVUParsedDefinition> result = [];
 
     while (true) {
-      if (CVUTokenType.EOF == peekCurrentToken().type) { return result; }
-      if (CVUTokenType.Newline == peekCurrentToken().type) {
+      if (peekCurrentToken() is CVUTokenEOF) {
+        return result;
+      }
+      if (peekCurrentToken() is CVUTokenNewline) {
         popCurrentToken();
         continue;
       }
@@ -46,8 +50,7 @@ class CVUParser {
       var dsl = parseViewDSL();
       if (dsl.get("sessions") != null) {
         dsl.type = CVUDefinitionType.sessions;
-      }
-      else if (dsl.get("views") != null) {
+      } else if (dsl.get("views") != null) {
         dsl.type = CVUDefinitionType.views;
       }
 
@@ -58,7 +61,7 @@ class CVUParser {
   CVUParsedDefinition parseViewDSL() {
     CVUParsedDefinition node = parsePrimary();
 
-    if (CVUTokenType.Colon == peekCurrentToken().type) {
+    if (peekCurrentToken() is CVUTokenColon) {
       popCurrentToken();
     }
 
@@ -66,57 +69,56 @@ class CVUParser {
   }
 
   CVUParsedDefinition parsePrimary([bool skipOperator = false]) {
-    switch (peekCurrentToken().type) {
-      case CVUTokenType.Identifier:
-        return parseIdentifierSelector();
-      case CVUTokenType.NamedIdentifier:
-        return parseNamedIdentifierSelector();
-      case CVUTokenType.BracketOpen:
-        return parseBracketsSelector();
-      case CVUTokenType.String:
-        return parseStringSelector();
-      default:
-        throw CVUParseErrors.ExpectedDefinition(popCurrentToken());
+    var currentToken = peekCurrentToken();
+    if (currentToken is CVUTokenIdentifier) {
+      return parseIdentifierSelector();
+    } else if (currentToken is CVUTokenNamedIdentifier) {
+      return parseNamedIdentifierSelector();
+    } else if (currentToken is CVUTokenBracketOpen) {
+      return parseBracketsSelector();
+    } else if (currentToken is CVUTokenString) {
+      return parseStringSelector();
+    } else {
+      throw CVUParseErrorsExpectedDefinition(popCurrentToken());
     }
   }
 
   CVUParsedDefinition parseIdentifierSelector() {
     // Example: Person {
     CVUToken token = popCurrentToken();
-    if (token.type != CVUTokenType.Identifier) {
-      throw CVUParseErrors.ExpectedIdentifier(lastToken!);
+    if (token is! CVUTokenIdentifier) {
+      throw CVUParseErrorsExpectedIdentifier(lastToken!);
     }
     String typeIdentifier = token.value;
 
     // Example: Person[name = 'john']
-    if (CVUTokenType.BracketOpen == peekCurrentToken().type) {
+    if (peekCurrentToken() is CVUTokenBracketOpen) {
       popCurrentToken();
-      if (CVUTokenType.BracketClose == peekCurrentToken().type) {
+      if (peekCurrentToken() is CVUTokenBracketClose) {
         popCurrentToken();
         typeIdentifier += "[]";
-      }
-      else {
-      // TODO:
+      } else {
+        // TODO:
       }
     }
 
-    if (CVUTokenType.Caret == peekCurrentToken().type) {
+    if (peekCurrentToken() is CVUTokenCaret) {
       popCurrentToken();
       CVUToken token = popCurrentToken();
-      if (token.type != CVUTokenType.Identifier) {
-        throw CVUParseErrors.ExpectedIdentifier(lastToken!);
+      if (token is! CVUTokenIdentifier) {
+        throw CVUParseErrorsExpectedIdentifier(lastToken!);
       }
       return CVUParsedDefinition(type: CVUDefinitionType.uiNode, selector: typeIdentifier, renderer: token.value);
     }
 
-    return CVUParsedDefinition(type: CVUDefinitionType.view, selector: typeIdentifier/*TODO @mkslanc .replace(/\./)*/);
+    return CVUParsedDefinition(type: CVUDefinitionType.view, selector: typeIdentifier);
   }
 
   CVUParsedDefinition parseNamedIdentifierSelector() {
     // Example: "Some Name" {
     CVUToken token = popCurrentToken();
-    if (token.type != CVUTokenType.NamedIdentifier) {
-      throw CVUParseErrors.UnexpectedToken(lastToken!);
+    if (token is! CVUTokenNamedIdentifier) {
+      throw CVUParseErrorsUnexpectedToken(lastToken!);
     }
     String name = token.value;
 
@@ -126,19 +128,14 @@ class CVUParser {
   // For JSON support
   CVUParsedDefinition parseStringSelector() {
     CVUToken token = popCurrentToken();
-    if (token.type != CVUTokenType.String) {
-      throw CVUParseErrors.UnexpectedToken(lastToken!);
+    if (token is! CVUTokenString) {
+      throw CVUParseErrorsUnexpectedToken(lastToken!);
     }
     String value = token.value;
 
     if (value.startsWith(".")) {
-      return CVUParsedDefinition(
-          type: CVUDefinitionType.view,
-          selector: value,
-          name: value.substring(0, 1)
-      );
-    }
-    else if (value.startsWith("[")) {
+      return CVUParsedDefinition(type: CVUDefinitionType.view, selector: value, name: value.substring(0, 1));
+    } else if (value.startsWith("[")) {
       throw Exception("Not supported yet"); // TODO:
     }
     else {
@@ -148,67 +145,74 @@ class CVUParser {
 
   CVUParsedDefinition parseBracketsSelector([CVUToken? token]) {
     CVUToken tokenT = token ?? popCurrentToken();
-    if (tokenT.type != CVUTokenType.BracketOpen) {
-      throw CVUParseErrors.ExpectedCharacter("[", lastToken!);
+    if (tokenT is! CVUTokenBracketOpen) {
+      throw CVUParseErrorsExpectedCharacter("[", lastToken!);
     }
     CVUToken typeToken = token ?? lastToken!;
 
     tokenT = popCurrentToken();
-    if (tokenT.type != CVUTokenType.Identifier) {
-      throw CVUParseErrors.ExpectedIdentifier(lastToken!);
+    if (tokenT is! CVUTokenIdentifier) {
+      throw CVUParseErrorsExpectedIdentifier(lastToken!);
     }
     String type = tokenT.value;
 
     // TODO: Only allow inside other definition
-    if (["session", "view"].contains(type) && CVUTokenType.BracketClose == peekCurrentToken().type) {
+    if (["session", "view"].contains(type) && peekCurrentToken() is CVUTokenBracketClose) {
       popCurrentToken();
       switch (type) {
-        case "session": return CVUParsedDefinition(selector: "[session]");
-        case "view": return CVUParsedDefinition(selector: "[view]");
+        case "session":
+          return CVUParsedDefinition(selector: "[session]");
+        case "view":
+          return CVUParsedDefinition(selector: "[view]");
         // default: return; // Can never get here
       }
     }
 
     tokenT = popCurrentToken();
-    if (tokenT.type != CVUTokenType.Operator) {
-      throw CVUParseErrors.ExpectedCharacter("=", lastToken!);
+    if (tokenT is! CVUTokenOperator) {
+      throw CVUParseErrorsExpectedCharacter("=", lastToken!);
     }
     CVUOperator op = tokenT.value;
 
     if (CVUOperator.ConditionEquals == op) {
       String name;
       tokenT = popCurrentToken();
-      if (CVUTokenType.String == tokenT.type) {
+      if (tokenT is CVUTokenString) {
         name = tokenT.value;
-      } else if (CVUTokenType.Identifier == lastToken?.type) {
-        name = lastToken?.value;
+      } else if (lastToken is CVUTokenIdentifier) {
+        name = (lastToken as CVUTokenIdentifier).value;
       } else {
-        throw CVUParseErrors.ExpectedString(lastToken!);
+        throw CVUParseErrorsExpectedString(lastToken!);
       }
 
       tokenT = popCurrentToken();
-      if (tokenT.type != CVUTokenType.BracketClose) {
-        throw CVUParseErrors.ExpectedCharacter("]", lastToken!);
+      if (tokenT is! CVUTokenBracketClose) {
+        throw CVUParseErrorsExpectedCharacter("]", lastToken!);
       }
 
-        switch (type) {
-          case "sessions": return CVUParsedDefinition(type: CVUDefinitionType.sessions, selector: "[sessions = $name]", name: name);
-          case "session": return CVUParsedDefinition(type: CVUDefinitionType.views, selector: "[session = $name]", name: name);
-          case "view": return CVUParsedDefinition(type: CVUDefinitionType.view, selector: "[view = $name]", name: name);
-          case "datasource": return CVUParsedDefinition(type: CVUDefinitionType.datasource, selector: "[datasource = $name]", name: name);
-          case "renderer": return CVUParsedDefinition(type: CVUDefinitionType.renderer, selector: "[renderer = $name]", name: name);
-          case "language": return CVUParsedDefinition(type: CVUDefinitionType.language, selector: "[language = $name]", name: name);
-          default:
-            throw CVUParseErrors.UnknownDefinition(type, typeToken);
-        }
-    }
-    else {
-      throw CVUParseErrors.ExpectedCharacter("=", lastToken!);
+      switch (type) {
+        case "sessions":
+          return CVUParsedDefinition(type: CVUDefinitionType.sessions, selector: "[sessions = $name]", name: name);
+        case "session":
+          return CVUParsedDefinition(type: CVUDefinitionType.views, selector: "[session = $name]", name: name);
+        case "view":
+          return CVUParsedDefinition(type: CVUDefinitionType.view, selector: "[view = $name]", name: name);
+        case "datasource":
+          return CVUParsedDefinition(type: CVUDefinitionType.datasource, selector: "[datasource = $name]", name: name);
+        case "renderer":
+          return CVUParsedDefinition(type: CVUDefinitionType.renderer, selector: "[renderer = $name]", name: name);
+        case "language":
+          return CVUParsedDefinition(type: CVUDefinitionType.language, selector: "[language = $name]", name: name);
+        default:
+          throw CVUParseErrorsUnknownDefinition(type, typeToken);
+      }
+    } else {
+      throw CVUParseErrorsExpectedCharacter("=", lastToken!);
     }
   }
 
-  ExpressionNode createExpression(String code, [bool startInStringMode = false]) {
-    return ExpressionNode.create(code, startInStringMode);
+  CVUExpressionNode createExpression(String code, [bool startInStringMode = false]) {
+    return CVUExpressionNode.create(code, startInStringMode);
   }
 
   CVUDefinitionContent parseDict([String? uiElementName]) {
@@ -222,7 +226,7 @@ class CVUParser {
     setPropertyValue() {
       if (lastKey != null && lastKey.isNotEmpty) {
         if (isArrayMode || stack.length > 1) {
-          parsedContent.properties[lastKey] = CVUValue.array(stack);
+          parsedContent.properties[lastKey] = CVUValueArray(stack);
         } else if (stack.length > 0) {
           parsedContent.properties[lastKey] = stack.first;
         }
@@ -239,178 +243,117 @@ class CVUParser {
     }
 
     while (true) {
-//            print(peekCurrentToken())
-
-
       CVUToken token = popCurrentToken();
-      var v = token.value;
-      switch (token.type) {
-        case CVUTokenType.Bool:
-          stack.add(CVUValue.constant(CVUValue_Constant.bool(v)));
-          break;
-        case CVUTokenType.BracketOpen:
-          if (stack.length == 0 && lastKey != null) {
-            isArrayMode = true;
-          } else {
-            setPropertyValue();
-
-            var definition = parseBracketsSelector(lastToken!);
-            definition = parseDefinition(definition);
-            parsedContent.definitions.add(definition);
-          }
-          break;
-        case CVUTokenType.BracketClose:
-          if (isArrayMode) {
-            setPropertyValue();
-            isArrayMode = false;
-            lastKey = null;
-          } else {
-            throw CVUParseErrors.UnexpectedToken(
-                lastToken!); // We should never get here
-          }
-          break;
-        case CVUTokenType.CurlyBracketOpen:
-          if (!(lastKey!.isNotEmpty)) {
-            throw CVUParseErrors.ExpectedIdentifier(lastToken!);
-          }
-
-          stack.add(CVUValue.subdefinition(parseDict(lastKey)));
-          break;
-        case CVUTokenType.CurlyBracketClose:
+      if (token is CVUTokenBool) {
+        stack.add(CVUValueConstant(CVUConstantBool(token.value)));
+      } else if (token is CVUTokenBracketOpen) {
+        if (stack.length == 0 && lastKey != null) {
+          isArrayMode = true;
+        } else {
           setPropertyValue();
-          return parsedContent; // DONE
-        case CVUTokenType.Colon:
-          throw CVUParseErrors.ExpectedKey(lastToken!);
-        case CVUTokenType.Expression:
-          stack.add(CVUValue.expression(createExpression(v)));
-          break;
-        case CVUTokenType.Identifier:
-          if (lastKey == null) {
-            CVUToken nextToken = peekCurrentToken();
-            if (CVUTokenType.Colon == nextToken.type) {
-              popCurrentToken();
-              lastKey = v;
-              nextToken = peekCurrentToken();
-            }
 
-            CVUUIElementFamily? type = CVUUIElementFamilyExtension.rawValue(v.toLowerCase());
-            if (lastKey == null && (type != CVUUIElementFamily.Null)) {
-              var properties = CVUDefinitionContent();
-              if (CVUTokenType.CurlyBracketOpen == nextToken.type) {
-                popCurrentToken();
-                properties = parseDict(v);
-              }
-
-              addUIElement(type, properties);
-            }
-            else if (v == "userstate" || v == "viewarguments" || v == "contextpane") {
-              if (CVUTokenType.CurlyBracketOpen == nextToken.type) {
-                popCurrentToken();
-                CVUDefinitionContent properties = parseDict();
-                stack.add(CVUValue.subdefinition(properties));
-              }
-            }
-            else if (CVUTokenType.CurlyBracketOpen == nextToken.type) {
-              lastKey = v;
-            } else if (CVUTokenType.Caret == nextToken.type) {
-              index -= 1; // TODO better way of
-              CVUParsedDefinition identifierNode = parseIdentifierSelector();
-              parsedContent.definitions.add(parseDefinition(identifierNode));
-            }
-          }
-          // else if (knownActions[v.toLowerCase()]) {
-          //     let name = knownActions[v.toLowerCase()];
-          //     if (name) {
-          //         var options = MemriDictionary();
-          //         outerLoop: while (true) {
-          //             switch (peekCurrentToken().type) {
-          //                 case CVUTokenType.Comma:
-          //                     if (isArrayMode) {
-          //                         popCurrentToken()
-          //                     }
-          //                     break;
-          //                 case CVUTokenType.CurlyBracketOpen:
-          //                     popCurrentToken();
-          //                     options = parseDict();
-          //                     break;
-          //                 default:
-          //                     break outerLoop;
-          //             }
-          //         }
-          //
-          //         //let argumentsJs = options["arguments"] ? Object.assign({}, options["arguments"]) : {} //TODO:
-          //         //delete options["arguments"];
-          //         let actionFamily = ActionFamily[name];
-          //         if (actionFamily) {
-          //             //TODO:
-          //             let ActionType = getActionType(actionFamily);//TODO:
-          //             stack.add(ActionType(context, options));//[context, arguments, options]
-          //             //stack.add(actionFamily)
-          //         } else {
-          //             // TODO ERROR REPORTING
-          //         }
-          //     }
-          // }
-          else {
-            stack.add(CVUValue.constant(CVUValue_Constant.argument(v)));
-          }
-          break;
-        case CVUTokenType.Newline:
-          if (stack.length == 0) {
-            continue;
-          }
-          else {
-            continue comma;
-          }
-        comma:
-        case CVUTokenType.Comma:
-          if (isArrayMode) {
-            continue;
-          } // IGNORE
-          else {
-            continue semiColon;
-          }
-        semiColon:
-        case CVUTokenType.SemiColon:
+          var definition = parseBracketsSelector(lastToken!);
+          definition = parseDefinition(definition);
+          parsedContent.definitions.add(definition);
+        }
+      } else if (token is CVUTokenBracketClose) {
+        if (isArrayMode) {
           setPropertyValue();
+          isArrayMode = false;
           lastKey = null;
-          break;
-        case CVUTokenType.Nil:
-          stack.add(CVUValue.constant(CVUValue_Constant.nil()));
-          break;
-        case CVUTokenType.Number:
-          stack.add(CVUValue.constant(CVUValue_Constant.number(v)));
-          break;
-        case CVUTokenType.String:
-          if (!isArrayMode && CVUTokenType.Colon == peekCurrentToken().type) {
-            setPropertyValue(); // TODO: Is this every necessary?
+        } else {
+          throw CVUParseErrorsUnexpectedToken(lastToken!); // We should never get here
+        }
+      } else if (token is CVUTokenCurlyBracketOpen) {
+        if (!(lastKey!.isNotEmpty)) {
+          throw CVUParseErrorsExpectedIdentifier(lastToken!);
+        }
+
+        stack.add(CVUValueSubdefinition(parseDict(lastKey)));
+      } else if (token is CVUTokenCurlyBracketClose) {
+        setPropertyValue();
+        return parsedContent; // DONE
+      } else if (token is CVUTokenColon) {
+        throw CVUParseErrorsExpectedKey(lastToken!);
+      } else if (token is CVUTokenExpression) {
+        stack.add(CVUValueExpression(createExpression(token.value)));
+      } else if (token is CVUTokenIdentifier) {
+        var v = token.value;
+        if (lastKey == null) {
+          CVUToken nextToken = peekCurrentToken();
+          if (nextToken is CVUTokenColon) {
             popCurrentToken();
             lastKey = v;
-          } else if (lastKey == null) {
-            lastKey = v;
-          } else {
-            stack.add(CVUValue.constant(CVUValue_Constant.string(v)));
+            nextToken = peekCurrentToken();
           }
-          break;
-        case CVUTokenType.StringExpression:
-          stack.add(CVUValue.expression(createExpression(v, true)));
-          break;
-        case CVUTokenType.Color:
-          stack.add(CVUValue.constant(CVUValue_Constant.colorHex(v)));
-          break;
-        default:
-          throw CVUParseErrors.UnexpectedToken(lastToken!);
+
+          CVUUIElementFamily type = CVUUIElementFamilyExtension.rawValue(v.toLowerCase());
+          if (lastKey == null && (type != CVUUIElementFamily.Null)) {
+            var properties = CVUDefinitionContent();
+            if (nextToken is CVUTokenCurlyBracketOpen) {
+              popCurrentToken();
+              properties = parseDict(v);
+            }
+
+            addUIElement(type, properties);
+          } else if (v == "userstate" || v == "viewarguments" || v == "contextpane") {
+            if (nextToken is CVUTokenCurlyBracketOpen) {
+              popCurrentToken();
+              CVUDefinitionContent properties = parseDict();
+              stack.add(CVUValueSubdefinition(properties));
+            }
+          } else if (nextToken is CVUTokenCurlyBracketOpen) {
+            lastKey = v;
+          } else if (nextToken is CVUTokenCaret) {
+            index -= 1; // TODO better way of
+            CVUParsedDefinition identifierNode = parseIdentifierSelector();
+            parsedContent.definitions.add(parseDefinition(identifierNode));
+          }
+        } else {
+          stack.add(CVUValueConstant(CVUConstantArgument(v)));
+        }
+      } else if (token is CVUTokenNewline || token is CVUTokenComma || token is CVUTokenSemiColon) {
+        if (token is CVUTokenNewline || token is CVUTokenComma) {
+          if (token is CVUTokenNewline && stack.length == 0) {
+            continue;
+          }
+          if (isArrayMode) {
+            continue;
+          }
+        }
+        setPropertyValue();
+        lastKey = null;
+      } else if (token is CVUTokenNil) {
+        stack.add(CVUValueConstant(CVUConstantNil()));
+      } else if (token is CVUTokenNumber) {
+        stack.add(CVUValueConstant(CVUConstantNumber(token.value)));
+      } else if (token is CVUTokenString) {
+        var v = token.value;
+        if (!isArrayMode && (peekCurrentToken() is CVUTokenColon)) {
+          setPropertyValue(); // TODO: Is this every necessary?
+          popCurrentToken();
+          lastKey = v;
+        } else if (lastKey == null) {
+          lastKey = v;
+        } else {
+          stack.add(CVUValueConstant(CVUConstantString(v)));
+        }
+      } else if (token is CVUTokenStringExpression) {
+        stack.add(CVUValueExpression(createExpression(token.value, true)));
+      } else if (token is CVUTokenColor) {
+        stack.add(CVUValueConstant(CVUConstantColorHex(token.value)));
+      } else {
+        throw CVUParseErrorsUnexpectedToken(lastToken!);
       }
     }
   }
   CVUParsedDefinition parseDefinition(CVUParsedDefinition selector){
     while (true) {
-      if (CVUTokenType.Newline == peekCurrentToken().type) {
+      if (peekCurrentToken() is CVUTokenNewline) {
         popCurrentToken();
-      }
-      else {
-        if (CVUTokenType.CurlyBracketOpen != this.popCurrentToken().type) {
-          throw CVUParseErrors.ExpectedCharacter("{", this.lastToken!);
+      } else {
+        if (this.popCurrentToken() is! CVUTokenCurlyBracketOpen) {
+          throw CVUParseErrorsExpectedCharacter("{", this.lastToken!);
         }
         break;
       }

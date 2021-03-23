@@ -9,20 +9,23 @@
 
 /// A schema definition. This is used to dynamically enforce supported types and properties
 class Schema {
-  dynamic? expectedType({String? itemType, String? propertyName, String? propertyOrEdgeName}) {
+  ResolvedType? expectedType({String? itemType, String? propertyName, String? propertyOrEdgeName}) {
     return null;
   }
 }
 
-enum ResolvedTypeType { property, edge }
+class ResolvedTypeProperty extends ResolvedType {
+  final SchemaValueType value;
 
-class ResolvedType {
-  final ResolvedTypeType type;
-  final dynamic value;
-
-  ResolvedType.property(SchemaValueType this.value) : type = ResolvedTypeType.property;
-
-  ResolvedType.edge(String this.value) : type = ResolvedTypeType.edge;
+  ResolvedTypeProperty(this.value);
 }
+
+class ResolvedTypeEdge extends ResolvedType {
+  final String value;
+
+  ResolvedTypeEdge(this.value);
+}
+
+abstract class ResolvedType {}
 
 enum SchemaValueType { string, bool, int, double, datetime, blob }

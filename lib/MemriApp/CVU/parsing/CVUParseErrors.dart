@@ -6,89 +6,101 @@ import 'dart:math';
 
 import 'CVULexer.dart';
 
-enum CVUParseErrorsTypes {
-  UnexpectedToken,
-  UnknownDefinition,
-  ExpectedCharacter,
-  ExpectedDefinition,
-  ExpectedIdentifier,
-  ExpectedKey,
-  ExpectedString,
-  MissingQuoteClose,
-  MissingExpressionClose
+class CVUParseErrorsUnexpectedToken extends CVUParseErrors {
+  CVUParseErrorsUnexpectedToken(CVUToken token) : super(token);
+}
+
+class CVUParseErrorsUnknownDefinition extends CVUParseErrors {
+  final String name;
+
+  CVUParseErrorsUnknownDefinition(this.name, CVUToken token) : super(token);
+}
+
+class CVUParseErrorsExpectedCharacter extends CVUParseErrors {
+  final String character;
+
+  CVUParseErrorsExpectedCharacter(this.character, CVUToken token) : super(token);
+}
+
+class CVUParseErrorsExpectedDefinition extends CVUParseErrors {
+  CVUParseErrorsExpectedDefinition(CVUToken token) : super(token);
+}
+
+class CVUParseErrorsExpectedIdentifier extends CVUParseErrors {
+  CVUParseErrorsExpectedIdentifier(CVUToken token) : super(token);
+}
+
+class CVUParseErrorsExpectedKey extends CVUParseErrors {
+  CVUParseErrorsExpectedKey(CVUToken token) : super(token);
+}
+
+class CVUParseErrorsExpectedString extends CVUParseErrors {
+  CVUParseErrorsExpectedString(CVUToken token) : super(token);
+}
+
+class CVUParseErrorsMissingQuoteClose extends CVUParseErrors {
+  CVUParseErrorsMissingQuoteClose(CVUToken token) : super(token);
+}
+
+class CVUParseErrorsMissingExpressionClose extends CVUParseErrors {
+  CVUParseErrorsMissingExpressionClose(CVUToken token) : super(token);
 }
 
 class CVUParseErrors implements Exception {
-  CVUParseErrorsTypes type;
-  CVUToken? token;
-  String? character;
+  final CVUToken token;
 
-  CVUParseErrors.UnexpectedToken(CVUToken this.token) : type = CVUParseErrorsTypes.UnexpectedToken;
-  CVUParseErrors.UnknownDefinition(String this.character, CVUToken this.token)
-      : type = CVUParseErrorsTypes.UnknownDefinition;
-  CVUParseErrors.ExpectedCharacter(String this.character, CVUToken this.token)
-      : type = CVUParseErrorsTypes.ExpectedCharacter;
-  CVUParseErrors.ExpectedDefinition(CVUToken this.token) : type = CVUParseErrorsTypes.ExpectedDefinition;
-  CVUParseErrors.ExpectedIdentifier(CVUToken this.token) : type = CVUParseErrorsTypes.ExpectedIdentifier;
-  CVUParseErrors.ExpectedKey(CVUToken this.token) : type = CVUParseErrorsTypes.ExpectedKey;
-  CVUParseErrors.ExpectedString(CVUToken this.token) : type = CVUParseErrorsTypes.ExpectedString;
-  CVUParseErrors.MissingQuoteClose(CVUToken this.token) : type = CVUParseErrorsTypes.MissingQuoteClose;
-  CVUParseErrors.MissingExpressionClose(CVUToken this.token) : type = CVUParseErrorsTypes.MissingExpressionClose;
+  CVUParseErrors(this.token);
 
-  String toErrorString(String code) {//TODO toString can't be override with param code
+  String toErrorString(String code) {
+    //TODO toString can't be override with param code
     String message = "";
     List parts;
 
-
     String loc(List parts) {
-      if (parts[2] == "") { return "at the end of the file"; }
-      else {
+      if (parts[2] == "") {
+        return "at the end of the file";
+      } else {
         int line = (int.parse(parts[2] ?? -2)) + 1;
         int char = (int.parse(parts[3] ?? -2)) + 1;
         return 'at line:$line and character:$char';
       }
     }
+
     String displayToken(List parts) {
       return '${parts[0]}' + ((parts[1] ?? "x") != "" ? "('${parts[1]}')" : "");
     }
 
-    switch (type) {
-      case CVUParseErrorsTypes.UnexpectedToken:
-        parts = token!.toParts();
-        message = 'Unexpected ${displayToken(parts)} found ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.UnknownDefinition:
-        parts = token!.toParts();
-        message = 'Unknown Definition for `$character` type \'${displayToken(parts)}\' found ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.ExpectedCharacter:
-        parts = token!.toParts();
-        message = 'Expected Character ${character} and found ${displayToken(parts)} instead ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.ExpectedDefinition:
-        parts = token!.toParts();
-        message = 'Expected Definition and found ${displayToken(parts)} instead ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.ExpectedIdentifier:
-        parts = token!.toParts();
-        message = 'Expected Identifier and found ${displayToken(parts)} instead ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.ExpectedKey:
-        parts = token!.toParts();
-        message = 'Expected Key and found ${displayToken(parts)} instead ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.ExpectedString:
-        parts = token!.toParts();
-        message = 'Expected String and found ${displayToken(parts)} instead ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.MissingQuoteClose:
-        parts = token!.toParts();
-        message = 'Missing quote ${loc(parts)}';
-        break;
-      case CVUParseErrorsTypes.MissingExpressionClose:
-        parts = token!.toParts();
-        message = "Missing expression close token '}}' ${loc(parts)}";
-        break;
+    var error = this;
+
+    if (error is CVUParseErrorsUnexpectedToken) {
+      parts = token.toParts();
+      message = 'Unexpected ${displayToken(parts)} found ${loc(parts)}';
+    } else if (error is CVUParseErrorsUnknownDefinition) {
+      parts = token.toParts();
+      message = 'Unknown Definition for `${error.name}` type \'${displayToken(parts)}\' found ${loc(parts)}';
+    } else if (error is CVUParseErrorsExpectedCharacter) {
+      parts = token.toParts();
+      message = 'Expected Character ${error.character} and found ${displayToken(parts)} instead ${loc(parts)}';
+    } else if (error is CVUParseErrorsExpectedDefinition) {
+      parts = token.toParts();
+      message = 'Expected Definition and found ${displayToken(parts)} instead ${loc(parts)}';
+    } else if (error is CVUParseErrorsExpectedIdentifier) {
+      parts = token.toParts();
+      message = 'Expected Identifier and found ${displayToken(parts)} instead ${loc(parts)}';
+    } else if (error is CVUParseErrorsExpectedKey) {
+      parts = token.toParts();
+      message = 'Expected Key and found ${displayToken(parts)} instead ${loc(parts)}';
+    } else if (error is CVUParseErrorsExpectedString) {
+      parts = token.toParts();
+      message = 'Expected String and found ${displayToken(parts)} instead ${loc(parts)}';
+    } else if (error is CVUParseErrorsMissingQuoteClose) {
+      parts = token.toParts();
+      message = 'Missing quote ${loc(parts)}';
+    } else if (error is CVUParseErrorsMissingExpressionClose) {
+      parts = token.toParts();
+      message = "Missing expression close token '}}' ${loc(parts)}";
+    } else {
+      throw Exception("Unknown error type: ${error.toString()}");
     }
 
     List<String> lines = code.split("\n");

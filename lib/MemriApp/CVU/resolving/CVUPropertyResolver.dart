@@ -8,8 +8,8 @@
 import 'dart:html';
 
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
@@ -27,12 +27,7 @@ class CVUPropertyResolver {
   final DatabaseController db;
   final Map<String, CVUValue> properties;
 
-  CVUPropertyResolver({
-    required this.context,
-    required this.lookup,
-    required this.db,
-    required this.properties
-  });
+  CVUPropertyResolver({required this.context, required this.lookup, required this.db, required this.properties});
 
   CVUPropertyResolver replacingItem(ItemRecord item) {
     CVUPropertyResolver result = this;
@@ -49,26 +44,20 @@ class CVUPropertyResolver {
     if (value == null) {
       return [];
     }
-    if (CVUValueType.array != value.type) {
+    if (value is! CVUValueArray) {
       return [value];
     }
 
     return value.value;
   }
 
-
   CVUPropertyResolver? subdefinition(String key) {
     CVUValue? value = properties[key];
-    if (value == null || value.type != CVUValueType.subdefinition) {
+    if (value == null || value is! CVUValueSubdefinition) {
       return null;
     }
-    CVUDefinitionContent subdef = value.value;
     return CVUPropertyResolver(
-      context: this.context,
-      lookup: this.lookup,
-      db: this.db,
-      properties: subdef.properties
-    );
+        context: this.context, lookup: this.lookup, db: this.db, properties: value.value.properties);
   }
 
   double? number(String key) {
@@ -79,7 +68,8 @@ class CVUPropertyResolver {
     return lookup.resolve<double>(value: val, context: context, db: db);
   }
 
-  double? cgFloat(String key) {//TODO do we need this
+  double? cgFloat(String key) {
+    //TODO do we need this
     var val = value(key);
     if (val != null) {
       return null;
@@ -87,7 +77,8 @@ class CVUPropertyResolver {
     return lookup.resolve<double>(value: val, context: context, db: db);
   }
 
-  int? Int(String key) {//TODO naming
+  int? Int(String key) {
+    //TODO naming
     var val = value(key);
     if (val != null) {
       return null;
@@ -105,11 +96,10 @@ class CVUPropertyResolver {
 
   List<String> stringArray(String key) {
     return valueArray(key)
-        .map((CVUValue $0) => lookup.resolve<String>(value: $0, context: this.context, db: this.db))
+        .map((CVUValue element) => lookup.resolve<String>(value: element, context: this.context, db: this.db))
         .whereType<String>()
         .toList();
   }
-
 
   bool? boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) {
     CVUValue? val = value(key);
@@ -178,7 +168,6 @@ class CVUPropertyResolver {
     return lookup.resolve<PropertyDatabaseValue>(property: propertyName, item: item, db: this.db);
   }
 
-
   PropertyDatabaseValue? _propertyForItemRecord(ItemRecord item, String propertyName) {
     return lookup.resolve<PropertyDatabaseValue>(property: propertyName, item: item, db: this.db);
   }
@@ -196,12 +185,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    return lookup.resolve<Binding<bool>>(
-      value: val,
-      defaultValue: defaultValue,
-      context: this.context,
-      db: this.db
-    );
+    return lookup.resolve<Binding<bool>>(value: val, defaultValue: defaultValue, context: this.context, db: this.db);
   }
 
   Binding<String>? _bindingWithString(String key, String? defaultValue) {
@@ -209,12 +193,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    return lookup.resolve<Binding<String>>(
-        value: val,
-        defaultValue: defaultValue,
-        context: this.context,
-        db: this.db
-    );
+    return lookup.resolve<Binding<String>>(value: val, defaultValue: defaultValue, context: this.context, db: this.db);
   }
 
   CVUAction? action(String key) {
@@ -222,37 +201,35 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    switch (val.type) {
-      case CVUValueType.constant:
-        if ((val.value as CVUValue_Constant).type == CVUValue_ConstantType.argument) {
-          String actionName = (val.value as CVUValue_Constant).value;
-          var type = cvuAction(actionName);
-          if (type == null) {
-            return null;
-          }
-          return type(vars: {});
-        } else {
-          return null;
-        }
-      case CVUValueType.array:
-        var array = val.value;
-        if (array[0] != null || (array[0] as CVUValue).type != CVUValueType.constant ||
-            array[1] != null || (array[1] as CVUValue).type != CVUValueType.subdefinition) {
-          return null;
-        }
-        CVUValue_Constant argument = (array[0] as CVUValue).value;
-        if (argument.type != CVUValue_ConstantType.argument) {
-          return null;
-        }
-        String actionName = argument.value;
-        CVUDefinitionContent def = (array[1] as CVUValue).value;
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantArgument) {
+        String actionName = (val.value as CVUConstantArgument).value;
         var type = cvuAction(actionName);
         if (type == null) {
           return null;
         }
-        return type(vars: def.properties);
-      default:
+        return type(vars: {});
+      } else {
         return null;
+      }
+    } else if (val is CVUValueArray) {
+      var array = val.value;
+      if (array[0] is! CVUValueConstant || array[1] is! CVUValueSubdefinition) {
+        return null;
+      }
+      var argument = (array[0] as CVUValueConstant).value;
+      if (argument is! CVUConstantArgument) {
+        return null;
+      }
+      String actionName = argument.value;
+      var def = (array[1] as CVUValueSubdefinition).value;
+      var type = cvuAction(actionName);
+      if (type == null) {
+        return null;
+      }
+      return type(vars: def.properties);
+    } else {
+      return null;
     }
   }
 
@@ -268,24 +245,33 @@ class CVUPropertyResolver {
     return null;
   }
 
-  String? fileURL(String key) {//TODO type URL? @anijanyan
-    return "";//TODO
+  String? fileURL(String key) {
+    //TODO type URL? @anijanyan
+    return ""; //TODO
     // return FileStorageController.getURLForFile(this.fileUID(key));
   }
 
   CVU_SizingMode sizingMode([String key = "sizingMode"]) {
     var val = value(key);
-    if (val == null) { return CVU_SizingMode.fit; }
+    if (val == null) {
+      return CVU_SizingMode.fit;
+    }
     String? string = lookup.resolve<String>(value: val, context: context, db: db);
-    if (string == null) { return CVU_SizingMode.fit; }
-    return /*CVU_SizingMode(rawValue: string) ??*/ CVU_SizingMode.fit;//TODO:
+    if (string == null) {
+      return CVU_SizingMode.fit;
+    }
+    return /*CVU_SizingMode(rawValue: string) ??*/ CVU_SizingMode.fit; //TODO:
   }
 
   String? color([String key = "color"]) {
     var val = this.value(key);
-    if (val == null) { return null; }
+    if (val == null) {
+      return null;
+    }
     String? string = lookup.resolve<String>(value: val, context: this.context, db: this.db);
-    if (string == null) { return null; }
+    if (string == null) {
+      return null;
+    }
     return string;
     //TODO @anijanyan
     /*if (Color.named(string)) {
@@ -356,18 +342,10 @@ class CVUPropertyResolver {
     var values = valueArray(propertyName);
     double? x, y;
     if (values[0] != null) {
-      x = lookup.resolve<double>(
-        value: values[0].value,
-        context: this.context,
-        db: this.db
-      );
+      x = lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
     }
     if (values[1] != null) {
-      y = lookup.resolve<double>(
-          value: values[1].value,
-          context: this.context,
-          db: this.db
-      );
+      y = lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
     }
     if (x != null && y != null) {
       return Point(x, y);
@@ -390,7 +368,7 @@ class CVUPropertyResolver {
     if (edgeInsets == null) {
       return null;
     }
-    return edgeInsets;//TODO do we need this? @anijanyan
+    return edgeInsets; //TODO do we need this? @anijanyan
     /*return {
       top: edgeInsets.top,
       left: edgeInsets.left,
@@ -401,11 +379,10 @@ class CVUPropertyResolver {
 
   EdgeInsets? insets(String propertyName) {
     var values = this.valueArray(propertyName);
-    List<double> insetArray = values.map<double?>(($0) => lookup.resolve<double>(
-      value: $0,
-      context: this.context,
-      db: this.db
-    )).whereType<double>().toList();
+    List<double> insetArray = values
+        .map<double?>((element) => lookup.resolve<double>(value: element, context: this.context, db: this.db))
+        .whereType<double>()
+        .toList();
     if (insetArray.length > 0) {
       switch (insetArray.length) {
         case 2:
@@ -422,9 +399,7 @@ class CVUPropertyResolver {
           );
         case 1:
           double edgeInset = insetArray[0];
-          return new EdgeInsets.all(
-            edgeInset
-          );
+          return new EdgeInsets.all(edgeInset);
         default:
           return null;
       }
@@ -438,60 +413,34 @@ class CVUPropertyResolver {
     double? size;
     if (values[0] != null) {
       if (values[1] != null) {
-        name = lookup.resolve<String>(
-            value: values[0].value,
-            context: this.context,
-            db: this.db
-        );
-        size = lookup.resolve<double>(
-            value: values[1].value,
-            context: this.context,
-            db: this.db
-        );
+        name = lookup.resolve<String>(value: values[0], context: this.context, db: this.db);
+        size = lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
       }
     }
 
-    if (name != null  && size != null) {
+    if (name != null && size != null) {
       return CVUFont(
-        name: name,
-        size: size,
-        weight: CVUFont.Weight[lookup.resolve<String>(
-          value: values[2].value,
-          context: this.context,
-          db: this.db
-        )] ?? defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
-      );
+          name: name,
+          size: size,
+          weight: CVUFont.Weight[lookup.resolve<String>(value: values[2], context: this.context, db: this.db)] ??
+              defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+          );
     } else {
       var val = values[0];
       if (val != null) {
-        double? size = lookup.resolve<double>(
-          value: val,
-          context: this.context,
-          db: this.db
-        );
+        double? size = lookup.resolve<double>(value: val, context: this.context, db: this.db);
 
         if (size != null) {
           return CVUFont(
-            name: name,
-            size: size,
-            weight: CVUFont.Weight[lookup.resolve<String>(
-              value: values[1].value,
-              context: this.context,
-              db: this.db
-            )] ?? defaultValue.weight
-          );//.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+              name: name,
+              size: size,
+              weight: CVUFont.Weight[lookup.resolve<String>(value: values[1], context: this.context, db: this.db)] ??
+                  defaultValue.weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
         } else {
           var weight = CVUFont.Weight[lookup.resolve<String>(
-            value: val,
-            context: this.context,
-            db: this.db
-          )];//.flatMap(Font.Weight.init) TODO:
+              value: val, context: this.context, db: this.db)]; //.flatMap(Font.Weight.init) TODO:
           if (weight != null) {
-            return CVUFont(
-              name: defaultValue.name,
-              size: defaultValue.size,
-              weight: weight
-            );
+            return CVUFont(name: defaultValue.name, size: defaultValue.size, weight: weight);
           }
         }
       }
@@ -531,11 +480,10 @@ class CVUPropertyResolver {
     return cgFloat("height") ?? cgFloat("maxHeight");
   }
 
-
   Size? get offset {
     var val = this.cgPoint("offset");
     if (val == null) {
-      return null;//.zero TODO:
+      return null; //.zero TODO:
     }
     return new Size(val.x.toDouble(), val.y.toDouble());
   }
@@ -565,12 +513,7 @@ class CVUPropertyResolver {
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
-    return EdgeInsets.fromLTRB(
-      uiInsets.left,
-      uiInsets.top,
-      uiInsets.right,
-      uiInsets.bottom
-    );
+    return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
   EdgeInsets get margin {
@@ -578,12 +521,7 @@ class CVUPropertyResolver {
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
-    return EdgeInsets.fromLTRB(
-        uiInsets.left,
-        uiInsets.top,
-        uiInsets.right,
-        uiInsets.bottom
-    );
+    return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
   double? get cornerRadius {

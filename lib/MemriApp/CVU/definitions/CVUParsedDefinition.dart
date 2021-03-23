@@ -40,20 +40,24 @@ class CVUDefinitionContent {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;
     String propertiesString = properties.isEmpty ? "" : properties.toCVUString(depth + 1, tab, true);
-    if (propertiesString.isNotEmpty) {propertiesString += "\n";}
+    if (propertiesString.isNotEmpty) {
+      propertiesString += "\n";
+    }
 
-    String childrenString = children.isEmpty ? "" : children.map((node) =>
-      node.toCVUString(depth + 1, tab, true)).join("\n");
-    if (childrenString.isNotEmpty) {childrenString += "\n";}
+    String childrenString =
+        children.isEmpty ? "" : children.map((node) => node.toCVUString(depth + 1, tab, true)).join("\n");
+    if (childrenString.isNotEmpty) {
+      childrenString += "\n";
+    }
 
-    String nestedDefinitions = definitions.isEmpty ? "" : definitions.map(($0) =>
-      $0.toCVUString(depth + 1, tab, true)
-    ).join("\n\n");
-    if (nestedDefinitions.isNotEmpty) {nestedDefinitions += "\n";}
+    String nestedDefinitions =
+        definitions.isEmpty ? "" : definitions.map((element) => element.toCVUString(depth + 1, tab, true)).join("\n\n");
+    if (nestedDefinitions.isNotEmpty) {
+      nestedDefinitions += "\n";
+    }
 
     bool newLineA = propertiesString.isNotEmpty && childrenString.isNotEmpty;
     bool newLineB = nestedDefinitions.isNotEmpty && (propertiesString.isNotEmpty || childrenString.isNotEmpty);
-
 
     return '${includeInitialTab ? tabs : ""}{\n$propertiesString${newLineA ? "\n" : ""}$childrenString${newLineB ? "\n" : ""}$nestedDefinitions$tabs}';
   }
@@ -62,7 +66,7 @@ class CVUDefinitionContent {
     if (other == null) { return this; }
     var result = this;
     for (var definition in other.definitions) {
-      int index = result.definitions.indexWhere(($0) => $0.selector == definition.selector );
+      int index = result.definitions.indexWhere((element) => element.selector == definition.selector);
       if (index > -1) {
         result.definitions[index] = result.definitions[index].merge(definition);
       } else {
@@ -74,7 +78,7 @@ class CVUDefinitionContent {
         var lhs = result.properties[entry.key]?.getSubdefinition();
         var rhs = entry.value.getSubdefinition();
         if (lhs != null && rhs != null) {
-          return CVUValue.subdefinition(lhs.merge(rhs));
+          return CVUValueSubdefinition(lhs.merge(rhs));
         } else {
           return entry.value; // Prefer rhs properties
         }

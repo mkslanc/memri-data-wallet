@@ -4,84 +4,162 @@
 
 import 'package:memri/MemriApp/CVU/parsing/CVUParseErrors.dart';
 
-enum CVUTokenType {
-  Operator,
-  Bool,
-  Number,
-  String,
-  Identifier,
-  NamedIdentifier,
-  StringExpression,
-  Expression,
-  Negation,
-  Comma,
-  Color,
-  SemiColon,
-  Colon,
-  Newline,
-  Caret,
-  CurlyBracketOpen,
-  CurlyBracketClose,
-  BracketOpen,
-  BracketClose,
-  Nil,
-  EOF
+class CVUTokenOperator extends CVUToken {
+  final CVUOperator value;
+
+  CVUTokenOperator(this.value, ln, ch) : super(ln, ch);
 }
 
+class CVUTokenBool extends CVUToken {
+  final bool value;
 
-class CVUToken {
-  var value;
-  int? ln;
-  int? ch;
-  final CVUTokenType type;
+  CVUTokenBool(this.value, ln, ch) : super(ln, ch);
+}
 
-  CVUToken.operator(CVUOperator this.value, this.ln, this.ch) : type = CVUTokenType.Operator;
-  CVUToken.bool(bool this.value, this.ln, this.ch) : type = CVUTokenType.Bool;
-  CVUToken.number(double this.value, this.ln, this.ch) : type = CVUTokenType.Number;
-  CVUToken.string(String this.value, this.ln, this.ch) : type = CVUTokenType.String;
-  CVUToken.identifier(String this.value, this.ln, this.ch) : type = CVUTokenType.Identifier;
-  CVUToken.namedIdentifier(String this.value, this.ln, this.ch) : type = CVUTokenType.NamedIdentifier;
-  CVUToken.stringExpression(String this.value, this.ln, this.ch) : type = CVUTokenType.StringExpression;
-  CVUToken.expression(String this.value, this.ln, this.ch) : type = CVUTokenType.Expression;
-  CVUToken.negation(this.ln, this.ch) : type = CVUTokenType.Negation;
-  CVUToken.comma(this.ln, this.ch) : type = CVUTokenType.Comma;
-  CVUToken.color(String this.value, this.ln, this.ch) : type = CVUTokenType.Color;
-  CVUToken.semiColon(this.ln, this.ch) : type = CVUTokenType.SemiColon;
-  CVUToken.colon(this.ln, this.ch) : type = CVUTokenType.Colon;
-  CVUToken.newline(this.ln, this.ch) : type = CVUTokenType.Newline;
-  CVUToken.caret(this.ln, this.ch) : type = CVUTokenType.Caret;
-  CVUToken.curlyBracketOpen(this.ln, this.ch) : type = CVUTokenType.CurlyBracketOpen;
-  CVUToken.curlyBracketClose(this.ln, this.ch) : type = CVUTokenType.CurlyBracketClose;
-  CVUToken.bracketOpen(this.ln, this.ch) : type = CVUTokenType.BracketOpen;
-  CVUToken.bracketClose(this.ln, this.ch) : type = CVUTokenType.BracketClose;
-  CVUToken.nil(this.ln, this.ch) : type = CVUTokenType.Nil;
-  CVUToken.EOF() : type = CVUTokenType.EOF;
+class CVUTokenNumber extends CVUToken {
+  final double value;
+
+  CVUTokenNumber(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenString extends CVUToken {
+  final String value;
+
+  CVUTokenString(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenIdentifier extends CVUToken {
+  final String value;
+
+  CVUTokenIdentifier(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenNamedIdentifier extends CVUToken {
+  final String value;
+
+  CVUTokenNamedIdentifier(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenStringExpression extends CVUToken {
+  final String value;
+
+  CVUTokenStringExpression(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenExpression extends CVUToken {
+  final String value;
+
+  CVUTokenExpression(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenNegation extends CVUToken {
+  CVUTokenNegation(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenComma extends CVUToken {
+  CVUTokenComma(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenColor extends CVUToken {
+  final String value;
+
+  CVUTokenColor(this.value, ln, ch) : super(ln, ch);
+}
+
+class CVUTokenSemiColon extends CVUToken {
+  CVUTokenSemiColon(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenColon extends CVUToken {
+  CVUTokenColon(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenNewline extends CVUToken {
+  CVUTokenNewline(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenCaret extends CVUToken {
+  CVUTokenCaret(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenCurlyBracketOpen extends CVUToken {
+  CVUTokenCurlyBracketOpen(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenCurlyBracketClose extends CVUToken {
+  CVUTokenCurlyBracketClose(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenBracketOpen extends CVUToken {
+  CVUTokenBracketOpen(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenBracketClose extends CVUToken {
+  CVUTokenBracketClose(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenNil extends CVUToken {
+  CVUTokenNil(ln, ch) : super(ln, ch);
+}
+
+class CVUTokenEOF extends CVUToken {
+  CVUTokenEOF() : super();
+}
+
+abstract class CVUToken {
+  final int? ln;
+  final int? ch;
+
+  CVUToken([this.ln, this.ch]);
 
   List toParts() {
     List parts = [];
-    switch (type) {
-      case (CVUTokenType.Operator): parts += ["Operator", (value as CVUOperator).value, ln, ch]; break;
-      case (CVUTokenType.Bool): parts += ["Bool", value, ln, ch]; break;
-      case (CVUTokenType.Number): parts += ["Number", value, ln, ch]; break;
-      case (CVUTokenType.String): parts += ["String", value, ln, ch]; break;
-      case (CVUTokenType.Identifier): parts += ["Identifier", value, ln, ch]; break;
-      case (CVUTokenType.NamedIdentifier): parts += ["NamedIdentifier", value, ln, ch]; break;
-      case (CVUTokenType.StringExpression): parts += ["StringExpression", value, ln, ch]; break;
-      case (CVUTokenType.Expression): parts += ["Expression", value, ln, ch]; break;
-      case (CVUTokenType.Negation): parts += ["Negation", "", ln, ch]; break;
-      case (CVUTokenType.Comma): parts += ["Comma", "", ln, ch]; break;
-      case (CVUTokenType.Color): parts += ["Color", value, ln, ch]; break;
-      case (CVUTokenType.SemiColon): parts += ["SemiColon", "", ln, ch]; break;
-      case (CVUTokenType.Colon): parts += ["Colon", "", ln, ch]; break;
-      case (CVUTokenType.Newline): parts += ["Newline", "", ln, ch]; break;
-      case (CVUTokenType.Caret): parts += ["Caret", "", ln, ch]; break;
-      case (CVUTokenType.CurlyBracketOpen): parts += ["CurlyBracketOpen", "", ln, ch]; break;
-      case (CVUTokenType.CurlyBracketClose): parts += ["CurlyBracketClose", "", ln, ch]; break;
-      case (CVUTokenType.BracketOpen): parts += ["BracketOpen", "", ln, ch]; break;
-      case (CVUTokenType.BracketClose): parts += ["BracketClose", "", ln, ch]; break;
-      case (CVUTokenType.Nil): parts += ["Nil", "", ln, ch]; break;
-      case (CVUTokenType.EOF): parts += ["EOF", ""]; break;
-      default: break;
+    var token = this;
+
+    if (token is CVUTokenOperator) {
+      parts += ["Operator", token.value.value, ln, ch];
+    } else if (token is CVUTokenBool) {
+      parts += ["Bool", token.value, ln, ch];
+    } else if (token is CVUTokenNumber) {
+      parts += ["Number", token.value, ln, ch];
+    } else if (token is CVUTokenString) {
+      parts += ["String", token.value, ln, ch];
+    } else if (token is CVUTokenIdentifier) {
+      parts += ["Identifier", token.value, ln, ch];
+    } else if (token is CVUTokenNamedIdentifier) {
+      parts += ["NamedIdentifier", token.value, ln, ch];
+    } else if (token is CVUTokenStringExpression) {
+      parts += ["StringExpression", token.value, ln, ch];
+    } else if (token is CVUTokenExpression) {
+      parts += ["Expression", token.value, ln, ch];
+    } else if (token is CVUTokenNegation) {
+      parts += ["Negation", "", ln, ch];
+    } else if (token is CVUTokenComma) {
+      parts += ["Comma", "", ln, ch];
+    } else if (token is CVUTokenColor) {
+      parts += ["Color", token.value, ln, ch];
+    } else if (token is CVUTokenSemiColon) {
+      parts += ["SemiColon", "", ln, ch];
+    } else if (token is CVUTokenColon) {
+      parts += ["Colon", "", ln, ch];
+    } else if (token is CVUTokenNewline) {
+      parts += ["Newline", "", ln, ch];
+    } else if (token is CVUTokenCaret) {
+      parts += ["Caret", "", ln, ch];
+    } else if (token is CVUTokenCurlyBracketOpen) {
+      parts += ["CurlyBracketOpen", "", ln, ch];
+    } else if (token is CVUTokenCurlyBracketClose) {
+      parts += ["CurlyBracketClose", "", ln, ch];
+    } else if (token is CVUTokenBracketOpen) {
+      parts += ["BracketOpen", "", ln, ch];
+    } else if (token is CVUTokenBracketClose) {
+      parts += ["BracketClose", "", ln, ch];
+    } else if (token is CVUTokenNil) {
+      parts += ["Nil", "", ln, ch];
+    } else if (token is CVUTokenEOF) {
+      parts += ["EOF", "", ln, ch];
+    } else {
+      throw Exception("We should never get here");
     }
 
     return parts;
@@ -93,7 +171,7 @@ enum CVUOperator {
 }
 
 extension CVUOperatorExtension on CVUOperator {
-  static const operators = {
+  static const Map<CVUOperator, String> operators = {
     CVUOperator.ConditionAND: "AND",
     CVUOperator.ConditionOR: "OR",
     CVUOperator.ConditionEquals: "=",
@@ -101,7 +179,7 @@ extension CVUOperatorExtension on CVUOperator {
 
   String get value => operators[this]!;
 
-  int precedence() {
+  int get precedence {
     switch (this) {
       case CVUOperator.ConditionAND:
         return 20;
@@ -128,16 +206,24 @@ enum Mode {
 extension ModeExtension on Mode {
   int get weight {
     switch (this) {
-      case (Mode.idle): return 0;
-      case (Mode.color): return 5;
-      case (Mode.comment): return 8;
-      case (Mode.keyword): return 10;
-      case (Mode.namedIdentifier): return 11;
-      case (Mode.number): return 20;
-      case (Mode.expression): return 25;
-      case (Mode.string): return 30;
-      case (Mode.escapedString): return 35;
-      default: return 0;
+      case Mode.idle:
+        return 0;
+      case Mode.color:
+        return 5;
+      case Mode.comment:
+        return 8;
+      case Mode.keyword:
+        return 10;
+      case Mode.namedIdentifier:
+        return 11;
+      case Mode.number:
+        return 20;
+      case Mode.expression:
+        return 25;
+      case Mode.string:
+        return 30;
+      case Mode.escapedString:
+        return 35;
     }
   }
 }
@@ -148,20 +234,20 @@ class CVULexer {
   CVULexer(this.input);
 
   final Map<String, CVUToken Function(int, int)> keywords = {
-    "true": (ln, ch) => CVUToken.bool(true, ln, ch),
-    "True": (ln, ch) => CVUToken.bool(true, ln, ch),
-    "false": (ln, ch) => CVUToken.bool(false, ln, ch),
-    "False": (ln, ch) => CVUToken.bool(false, ln, ch),
-    "and": (ln, ch) => CVUToken.operator(CVUOperator.ConditionAND, ln, ch),
-    "AND": (ln, ch) => CVUToken.operator(CVUOperator.ConditionAND, ln, ch),
-    "or": (ln, ch) => CVUToken.operator(CVUOperator.ConditionOR, ln, ch),
-    "OR": (ln, ch) => CVUToken.operator(CVUOperator.ConditionOR, ln, ch),
-    "equals": (ln, ch) => CVUToken.operator(CVUOperator.ConditionEquals, ln, ch),
-    "EQUALS": (ln, ch) => CVUToken.operator(CVUOperator.ConditionEquals, ln, ch),
-    "not": (ln, ch) => CVUToken.negation(ln, ch),
-    "NOT": (ln, ch) => CVUToken.negation(ln, ch),
-    "nil": (ln, ch) => CVUToken.nil(ln, ch),
-    "null": (ln, ch) => CVUToken.nil(ln, ch),
+    "true": (ln, ch) => CVUTokenBool(true, ln, ch),
+    "True": (ln, ch) => CVUTokenBool(true, ln, ch),
+    "false": (ln, ch) => CVUTokenBool(false, ln, ch),
+    "False": (ln, ch) => CVUTokenBool(false, ln, ch),
+    "and": (ln, ch) => CVUTokenOperator(CVUOperator.ConditionAND, ln, ch),
+    "AND": (ln, ch) => CVUTokenOperator(CVUOperator.ConditionAND, ln, ch),
+    "or": (ln, ch) => CVUTokenOperator(CVUOperator.ConditionOR, ln, ch),
+    "OR": (ln, ch) => CVUTokenOperator(CVUOperator.ConditionOR, ln, ch),
+    "equals": (ln, ch) => CVUTokenOperator(CVUOperator.ConditionEquals, ln, ch),
+    "EQUALS": (ln, ch) => CVUTokenOperator(CVUOperator.ConditionEquals, ln, ch),
+    "not": (ln, ch) => CVUTokenNegation(ln, ch),
+    "NOT": (ln, ch) => CVUTokenNegation(ln, ch),
+    "nil": (ln, ch) => CVUTokenNil(ln, ch),
+    "null": (ln, ch) => CVUTokenNil(ln, ch),
   };
 
   List<CVUToken> tokenize() {
@@ -176,11 +262,11 @@ class CVULexer {
 
     addToken([CVUToken? token]) {
       if (isMode == Mode.number) {
-        tokens.add(CVUToken.number(double.parse(keyword.join()), ln, ch - keyword.length));
+        tokens.add(CVUTokenNumber(double.parse(keyword.join()), ln, ch - keyword.length));
         keyword = [];
         isMode = Mode.idle;
       } else if (isMode == Mode.color) {
-        tokens.add(CVUToken.color(keyword.join(), ln, ch));
+        tokens.add(CVUTokenColor(keyword.join(), ln, ch));
         keyword = [];
         isMode = Mode.idle;
       } else if (isMode == Mode.keyword || isMode == Mode.namedIdentifier) {
@@ -189,9 +275,9 @@ class CVULexer {
         if (keywords[kw] != null) {
           tokens.add(keywords[kw]!(ln, ch));
         } else if (isMode == Mode.namedIdentifier) {
-          tokens.add(CVUToken.namedIdentifier(kw, ln, ch - kw.length - 1));
+          tokens.add(CVUTokenNamedIdentifier(kw, ln, ch - kw.length - 1));
         } else {
-          tokens.add(CVUToken.identifier(kw, ln, ch - kw.length));
+          tokens.add(CVUTokenIdentifier(kw, ln, ch - kw.length));
         }
 
         keyword = [];
@@ -219,9 +305,9 @@ class CVULexer {
           isMode = Mode.escapedString;
         } else if (isMode == Mode.string && c == startChar) {
           if (isStringExpression) {
-            tokens.add(CVUToken.stringExpression(keyword.join(), ln, ch - keyword.length));
+            tokens.add(CVUTokenStringExpression(keyword.join(), ln, ch - keyword.length));
           } else {
-            tokens.add(CVUToken.string(keyword.join(), ln, ch - keyword.length));
+            tokens.add(CVUTokenString(keyword.join(), ln, ch - keyword.length));
           }
 
           keyword = [];
@@ -242,10 +328,10 @@ class CVULexer {
       if (isMode == Mode.expression) {
         if (c == "}" && lastChar == "}") {
           CVUToken lastToken = tokens.removeLast();
-          if (lastToken.type == CVUTokenType.CurlyBracketOpen) {
+          if (lastToken is CVUTokenCurlyBracketOpen) {
             keyword.removeLast();
 
-            tokens.add(CVUToken.expression(keyword.join(), ln, ch));
+            tokens.add(CVUTokenExpression(keyword.join(), ln, ch));
             keyword = [];
             isMode = Mode.idle;
           }
@@ -275,33 +361,33 @@ class CVULexer {
 
       switch (c) {
         case "\n":
-          addToken(CVUToken.newline(ln, ch));
+          addToken(CVUTokenNewline(ln, ch));
           ln += 1;
           ch = 0;
           break;
         case "!":
-          addToken(CVUToken.negation(ln, ch));
+          addToken(CVUTokenNegation(ln, ch));
           break;
         case "[":
-          addToken(CVUToken.bracketOpen(ln, ch));
+          addToken(CVUTokenBracketOpen(ln, ch));
           break;
         case "]":
-          addToken(CVUToken.bracketClose(ln, ch));
+          addToken(CVUTokenBracketClose(ln, ch));
           break;
         case "=":
-          addToken(CVUToken.operator(CVUOperator.ConditionEquals, ln, ch));
+          addToken(CVUTokenOperator(CVUOperator.ConditionEquals, ln, ch));
           break;
         case ",":
-          addToken(CVUToken.comma(ln, ch));
+          addToken(CVUTokenComma(ln, ch));
           break;
         case ":":
-          addToken(CVUToken.colon(ln, ch));
+          addToken(CVUTokenColon(ln, ch));
           break;
         case ">":
-          addToken(CVUToken.caret(ln, ch));
+          addToken(CVUTokenCaret(ln, ch));
           break;
         case ";":
-          addToken(CVUToken.semiColon(ln, ch));
+          addToken(CVUTokenSemiColon(ln, ch));
           break;
         case "'":
         case "\"":
@@ -345,11 +431,11 @@ class CVULexer {
           if (lastChar == "{") {
             isMode = Mode.expression;
           } else {
-            addToken(CVUToken.curlyBracketOpen(ln, ch));
+            addToken(CVUTokenCurlyBracketOpen(ln, ch));
           }
           break;
         case "}":
-          addToken(CVUToken.curlyBracketClose(ln, ch));
+          addToken(CVUTokenCurlyBracketClose(ln, ch));
           break;
         case ".":
           if (isMode == Mode.idle) {
@@ -376,10 +462,10 @@ class CVULexer {
     }
 
     if (isMode == Mode.string) {
-      throw CVUParseErrors.MissingQuoteClose(CVUToken.EOF());
+      throw CVUParseErrorsMissingQuoteClose(CVUTokenEOF());
     }
     else if (isMode == Mode.expression) {
-      throw CVUParseErrors.MissingExpressionClose(CVUToken.EOF());
+      throw CVUParseErrorsMissingExpressionClose(CVUTokenEOF());
     }
     else if (isMode != Mode.idle) {
       // TODO:

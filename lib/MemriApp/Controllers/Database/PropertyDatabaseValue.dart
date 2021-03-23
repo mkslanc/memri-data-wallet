@@ -7,20 +7,46 @@
 
 /// This type is used as an intermediate for storing and retrieving values from the database
 /// It makes use of the dynamic schema to determine what type to resolve the data as.
-enum PropertyDatabaseValueType {
-  string, bool, int, double, datetime, blob
+enum PropertyDatabaseValueType { string, bool, int, double, datetime, blob }
+
+class PropertyDatabaseValueString extends PropertyDatabaseValue {
+  final String value;
+
+  PropertyDatabaseValueString(this.value);
 }
 
-class PropertyDatabaseValue {
-  final PropertyDatabaseValueType type;
-  final value;
+class PropertyDatabaseValueBool extends PropertyDatabaseValue {
+  final bool value;
 
-  PropertyDatabaseValue.string(String this.value) : type = PropertyDatabaseValueType.string;
-  PropertyDatabaseValue.bool(bool this.value) : type = PropertyDatabaseValueType.bool;
-  PropertyDatabaseValue.int(int this.value) : type = PropertyDatabaseValueType.int;
-  PropertyDatabaseValue.double(double this.value) : type = PropertyDatabaseValueType.double;
-  PropertyDatabaseValue.datetime(DateTime this.value) : type = PropertyDatabaseValueType.datetime;
-  PropertyDatabaseValue.blob(String this.value) : type = PropertyDatabaseValueType.blob;
+  PropertyDatabaseValueBool(this.value);
+}
+
+class PropertyDatabaseValueInt extends PropertyDatabaseValue {
+  final int value;
+
+  PropertyDatabaseValueInt(this.value);
+}
+
+class PropertyDatabaseValueDouble extends PropertyDatabaseValue {
+  final double value;
+
+  PropertyDatabaseValueDouble(this.value);
+}
+
+class PropertyDatabaseValueDatetime extends PropertyDatabaseValue {
+  final DateTime value;
+
+  PropertyDatabaseValueDatetime(this.value);
+}
+
+class PropertyDatabaseValueBlob extends PropertyDatabaseValue {
+  final String value;
+
+  PropertyDatabaseValueBlob(this.value);
+}
+
+abstract class PropertyDatabaseValue {
+  late dynamic value;
 
   String asString() {
     return value.toString();
@@ -31,7 +57,7 @@ class PropertyDatabaseValue {
   }
 
   bool asBool() {
-    String str = value.toString();//TODO find a better way to convert to bool @anijanyan
+    String str = value.toString(); //TODO find a better way to convert to bool @anijanyan
     return str != '0' && str != 'false' && str != '';
   }
 

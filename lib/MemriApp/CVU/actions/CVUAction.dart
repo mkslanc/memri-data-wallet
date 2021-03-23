@@ -24,35 +24,35 @@ abstract class CVUAction {
 CVUAction Function({Map? vars})? cvuAction(String named) {//TODO dart promised to fix passing constructor as callables https://github.com/dart-lang/language/issues/216
   switch (named.toLowerCase()) {
     case "openview":
-      return ({Map? vars}) => CVUAction_OpenView(vars: vars);
+      return ({Map? vars}) => CVUActionOpenView(vars: vars);
     case "back":
-      return ({Map? vars}) => CVUAction_NavigateBack(vars: vars);
+      return ({Map? vars}) => CVUActionNavigateBack(vars: vars);
     case "forward":
-      return ({Map? vars}) => CVUAction_NavigateBack(vars: vars);
+      return ({Map? vars}) => CVUActionNavigateBack(vars: vars);
     case "additem":
-      return ({Map? vars}) => CVUAction_AddItem(vars: vars);
+      return ({Map? vars}) => CVUActionAddItem(vars: vars);
     case "copytoclipboard":
-      return ({Map? vars}) => CVUAction_CopyToClipboard(vars: vars);
+      return ({Map? vars}) => CVUActionCopyToClipboard(vars: vars);
     case "toggleeditmode":
-      return ({Map? vars}) => CVUAction_ToggleEditMode(vars: vars);
+      return ({Map? vars}) => CVUActionToggleEditMode(vars: vars);
     case "togglefilterpanel":
-      return ({Map? vars}) => CVUAction_ToggleFilterPanel(vars: vars);
+      return ({Map? vars}) => CVUActionToggleFilterPanel(vars: vars);
     case "togglenavigation":
-      return ({Map? vars}) => CVUAction_ToggleNavigation(vars: vars);
+      return ({Map? vars}) => CVUActionToggleNavigation(vars: vars);
     case "togglefullscreen":
-      return ({Map? vars}) => CVUAction_ToggleFullScreen(vars: vars);
+      return ({Map? vars}) => CVUActionToggleFullScreen(vars: vars);
     case "delete":
-      return ({Map? vars}) => CVUAction_Delete(vars: vars);
+      return ({Map? vars}) => CVUActionDelete(vars: vars);
     case "selectall":
-      return ({Map? vars}) => CVUAction_SelectAll(vars: vars);
+      return ({Map? vars}) => CVUActionSelectAll(vars: vars);
     case "deselectall":
-      return ({Map? vars}) => CVUAction_DeselectAll(vars: vars);
+      return ({Map? vars}) => CVUActionDeselectAll(vars: vars);
     default:
       return null;
   }
 }
 
-class CVUAction_OpenView extends CVUAction {
+class CVUActionOpenView extends CVUAction {
   Map<String, CVUValue> vars;
 
   String? viewName;
@@ -60,27 +60,24 @@ class CVUAction_OpenView extends CVUAction {
   List<String>? uids;
   DateTimeRange? dateRange;
 
-  CVUAction_OpenView({
-    vars,
-    this.viewName,
-    this.renderer,
-    this.uids,
-    this.dateRange
-  }) : this.vars = vars ?? {};
+  CVUActionOpenView({vars, this.viewName, this.renderer, this.uids, this.dateRange}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
     CVUDefinitionContent? viewDefinition;
-    if (vars["view"] != null && (vars["view"] as CVUValue).type == CVUValueType.subdefinition) {
-      viewDefinition = (vars["view"] as CVUValue).value;
+    var view = vars["view"];
+    if (view is CVUValueSubdefinition) {
+      viewDefinition = view.value;
     }
     CVUViewArguments viewArguments;
-    if (vars["viewArguments"] != null && (vars["viewArguments"] as CVUValue).type == CVUValueType.subdefinition) {
-      viewArguments = CVUViewArguments(args: (vars["viewArguments"] as CVUValue).value.properties, argumentItem: context.currentItem, parentArguments: context.viewArguments);
+    var viewArgs = vars["viewArguments"];
+    if (viewArgs is CVUValueSubdefinition) {
+      viewArguments = CVUViewArguments(
+          args: viewArgs.value.properties, argumentItem: context.currentItem, parentArguments: context.viewArguments);
     } else {
       viewArguments = CVUViewArguments();
     }
-    DatabaseController db = DatabaseController();//TODO = sceneController.appController.databaseController;
+    DatabaseController db = DatabaseController(); //TODO = sceneController.appController.databaseController;
     var resolver = CVUPropertyResolver(context: context, lookup: CVULookupController(), db: db, properties: this.vars);
     // sceneController.navigateToNewContext({
     // viewName: this.viewName ?? resolver.string("viewName") ?? "customView",
@@ -96,22 +93,21 @@ class CVUAction_OpenView extends CVUAction {
 
 }
 
-class CVUAction_NavigateBack extends CVUAction {
+class CVUActionNavigateBack extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_NavigateBack({vars}) : this.vars = vars ?? {};
+  CVUActionNavigateBack({vars}) : this.vars = vars ?? {};
 
   @override
   execute(SceneController sceneController, CVUContext context) {
     // sceneController.navigateBack();
   }
-
 }
 
-class CVUAction_CopyToClipboard extends CVUAction {
+class CVUActionCopyToClipboard extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_CopyToClipboard({vars}) : this.vars = vars ?? {};
+  CVUActionCopyToClipboard({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -119,23 +115,10 @@ class CVUAction_CopyToClipboard extends CVUAction {
   }
 }
 
-class CVUAction_AddItem extends CVUAction {
+class CVUActionAddItem extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_AddItem({vars}) : this.vars = vars ?? {};
-
-  @override
-  void execute(SceneController sceneController, CVUContext context) {
-    // TODO: implement execute
-  }
-
-}
-
-
-class CVUAction_ToggleEditMode extends CVUAction {
-  Map<String, CVUValue> vars;
-
-  CVUAction_ToggleEditMode({vars}) : this.vars = vars ?? {};
+  CVUActionAddItem({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -143,10 +126,10 @@ class CVUAction_ToggleEditMode extends CVUAction {
   }
 }
 
-class CVUAction_ToggleFilterPanel extends CVUAction {
+class CVUActionToggleEditMode extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_ToggleFilterPanel({vars}) : this.vars = vars ?? {};
+  CVUActionToggleEditMode({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -154,11 +137,10 @@ class CVUAction_ToggleFilterPanel extends CVUAction {
   }
 }
 
-
-class CVUAction_ToggleNavigation extends CVUAction {
+class CVUActionToggleFilterPanel extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_ToggleNavigation({vars}) : this.vars = vars ?? {};
+  CVUActionToggleFilterPanel({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -166,10 +148,10 @@ class CVUAction_ToggleNavigation extends CVUAction {
   }
 }
 
-class CVUAction_ToggleFullScreen extends CVUAction {
+class CVUActionToggleNavigation extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_ToggleFullScreen({vars}) : this.vars = vars ?? {};
+  CVUActionToggleNavigation({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -177,10 +159,10 @@ class CVUAction_ToggleFullScreen extends CVUAction {
   }
 }
 
-class CVUAction_Delete extends CVUAction {
+class CVUActionToggleFullScreen extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_Delete({vars}) : this.vars = vars ?? {};
+  CVUActionToggleFullScreen({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -188,11 +170,10 @@ class CVUAction_Delete extends CVUAction {
   }
 }
 
-
-class CVUAction_SelectAll extends CVUAction {
+class CVUActionDelete extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_SelectAll({vars}) : this.vars = vars ?? {};
+  CVUActionDelete({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -200,10 +181,21 @@ class CVUAction_SelectAll extends CVUAction {
   }
 }
 
-class CVUAction_DeselectAll extends CVUAction {
+class CVUActionSelectAll extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUAction_DeselectAll({vars}) : this.vars = vars ?? {};
+  CVUActionSelectAll({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) {
+    // TODO: implement execute
+  }
+}
+
+class CVUActionDeselectAll extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionDeselectAll({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
