@@ -16,7 +16,8 @@ abstract class CVUAction {
 }
 
 /// Used to look up the concrete type matching a CVU action name
-CVUAction Function({Map? vars})? cvuAction(String named) {//TODO dart promised to fix passing constructor as callables https://github.com/dart-lang/language/issues/216
+CVUAction Function({Map? vars})? cvuAction(String named) {
+  //TODO fix this when when Dart fixes passing constructors as callables https://github.com/dart-lang/language/issues/216
   switch (named.toLowerCase()) {
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
