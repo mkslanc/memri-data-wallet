@@ -9,14 +9,15 @@ import 'CVUUIElementFamily.dart';
 import 'CVUValue.dart';
 
 /// This represents a CVU definition of how to show a data item. It can contain properties (eg. onPress action), and children (eg. UI elements to show)
-class CVUUINode {
+class CVUUINode extends CVUStringConvertible {
   final CVUUIElementFamily type;
   List<CVUUINode> children = [];
   Map<String, CVUValue> properties = {};
 
   var id = Uuid();
 
-  CVUUINode({required this.type, required this.children, required this.properties});
+  CVUUINode(
+      {required this.type, required this.children, required this.properties});
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;

@@ -299,7 +299,7 @@ class CVULexer {
         }
 
         if (isMode == Mode.escapedString) {
-          keyword.add(c.toString());
+          keyword.add(c);
           isMode = Mode.string;
         } else if (c == "\\") {
           isMode = Mode.escapedString;
@@ -315,7 +315,7 @@ class CVULexer {
           isStringExpression = false;
           return;
         } else {
-          keyword.add(c.toString());
+          keyword.add(c);
         }
 
         if (c == "{") {
@@ -336,7 +336,7 @@ class CVULexer {
             isMode = Mode.idle;
           }
         } else {
-          keyword.add(c.toString());
+          keyword.add(c);
           lastChar = c;
           if (c == "\n") {
             ln += 1;
@@ -419,10 +419,10 @@ class CVULexer {
         case "7":
         case "8":
         case "9":
-          if (isMode == Mode.idle) {
+        if (isMode == Mode.idle) {
             isMode = Mode.number;
           }
-          keyword.add(c.toString());
+          keyword.add(c);
           break;
         case "#":
           isMode = Mode.color;
@@ -441,7 +441,7 @@ class CVULexer {
           if (isMode == Mode.idle) {
             isMode = Mode.namedIdentifier;
           } else if (isMode == Mode.number) {
-            keyword.add(c.toString());
+            keyword.add(c);
           } else {
             continue defaultCase;
           }
@@ -451,7 +451,7 @@ class CVULexer {
           if (isMode == Mode.idle) {
             isMode = Mode.keyword;
           }
-          keyword.add(c.toString());
+          keyword.add(c);
       }
 
       lastChar = c;

@@ -79,15 +79,17 @@ class ItemRecord {
         return Binding<bool>(
           () => propertyValue(name, db)?.asBool() ?? defaultValue,
           (newValue) {
-            setPropertyValue(name, /*new PropertyDatabaseValue.bool(newValue)*/ null, db);
-          }
+            setPropertyValue(
+              name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
+        }
         );
       default:
         return Binding<String>(
           () => propertyValue(name, db)?.asString() ?? defaultValue.toString(),
           (newValue) {
-            setPropertyValue(name, /*new PropertyDatabaseValue.bool(newValue)*/ null, db);
-          }
+            setPropertyValue(
+              name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
+        }
         );
     }
   }

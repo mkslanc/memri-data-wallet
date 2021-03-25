@@ -223,32 +223,43 @@ class CVULookupController {
             separator = resolve<String>(expression: exp, context: context, db: db);
 
             if (separator != null && separator.isNotEmpty) {
-              String joined =
-              currentValue.values.map((element) => element.asString()).where((element) => element.isNotEmpty).join(
-                  separator);
-              currentValue = LookupStepValues([new PropertyDatabaseValueString(joined)]);
+              String joined = currentValue.values
+                  .map((element) => element.asString())
+                  .where((element) => element.isNotEmpty)
+                  .join(separator);
+              currentValue =
+                  LookupStepValues([PropertyDatabaseValueString(joined)]);
             } else {
               String joined = currentValue.values
                   .map((element) => element.asString())
                   .where((element) => element.isNotEmpty)
-                  .join(", "); //TODO @anijanyan String.localizedString(strings);
-              currentValue = LookupStepValues([new PropertyDatabaseValueString(joined)]);
+                  .join(
+                      ", "); //TODO @anijanyan String.localizedString(strings);
+              currentValue =
+                  LookupStepValues([PropertyDatabaseValueString(joined)]);
             }
             break;
           case "joinwithcomma":
             String joined = args
-                .map((element) => resolve<String>(expression: element, context: context, db: db).toString())
+                .map((element) => resolve<String>(
+                        expression: element, context: context, db: db)
+                    .toString())
                 .where((element) => element.isNotEmpty)
                 .join(", ");
-            currentValue = new LookupStepValues([new PropertyDatabaseValueString(joined)]);
+            currentValue =
+                LookupStepValues([PropertyDatabaseValueString(joined)]);
             break;
           case "joinnatural":
             List<String> strings = args
-                .map((element) => resolve<String>(expression: element, context: context, db: db).toString())
+                .map((element) => resolve<String>(
+                        expression: element, context: context, db: db)
+                    .toString())
                 .where((element) => element.isNotEmpty)
                 .toList();
-            var joined = strings.join(", "); //TODO @anijanyan String.localizedString(strings);
-            currentValue = new LookupStepValues([PropertyDatabaseValueString(joined)]);
+            var joined = strings
+                .join(", "); //TODO @anijanyan String.localizedString(strings);
+            currentValue =
+                LookupStepValues([PropertyDatabaseValueString(joined)]);
             break;
           case "plainstring":
             if (currentValue == null || currentValue is! LookupStepValues) {
@@ -256,17 +267,17 @@ class CVULookupController {
             }
             List<PropertyDatabaseValue> stripped = currentValue.values
                 .map((PropertyDatabaseValue value) {
-              String htmlstring = value.asString();
-              if (htmlstring.isEmpty) {
-                return null;
-              }
-              return PropertyDatabaseValueString(htmlstring);
-              //TODO return PropertyDatabaseValueString(DOMPurify.sanitize(htmlstring, {ALLOWED_TAGS: []}))
-            })
+                  String htmlstring = value.asString();
+                  if (htmlstring.isEmpty) {
+                    return null;
+                  }
+                  return PropertyDatabaseValueString(htmlstring);
+                  //TODO return PropertyDatabaseValueString(DOMPurify.sanitize(htmlstring, {ALLOWED_TAGS: []}))
+                })
                 .whereType<PropertyDatabaseValue>()
                 .toList();
 
-            currentValue = new LookupStepValues(stripped);
+            currentValue = LookupStepValues(stripped);
             break;
           case "first":
             if (currentValue == null) {
@@ -318,7 +329,7 @@ class CVULookupController {
               String initials = currentValue.values
                   .map((element) => element.asString()[0])
                   .where((element) => element.isNotEmpty)
-                  .join("")
+                  .join()
                   .toUpperCase();
               currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
             } else if (currentValue is LookupStepItems) {
@@ -328,12 +339,14 @@ class CVULookupController {
               ItemRecord first = currentValue.items[0];
               if (first.type == "Person") {
                 String initials = [
-                  resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
-                  resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
+                  resolve<PropertyDatabaseValue>(
+                      property: "firstName", item: first, db: db),
+                  resolve<PropertyDatabaseValue>(
+                      property: "lastName", item: first, db: db)
                 ]
                     .map((element) => element?.asString()[0])
                     .where((element) => element != null && element.isNotEmpty)
-                    .join("")
+                    .join()
                     .toUpperCase();
                 currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
               } else {
@@ -386,9 +399,11 @@ class CVULookupController {
               if (item != null) {
                 currentValue = LookupStepItems([item]);
               } else if (number != null) {
-                currentValue = new LookupStepValues([new PropertyDatabaseValueDouble(number)]);
+                currentValue =
+                    LookupStepValues([PropertyDatabaseValueDouble(number)]);
               } else if (string != null) {
-                currentValue = new LookupStepValues([new PropertyDatabaseValueString(string)]);
+                currentValue =
+                    LookupStepValues([PropertyDatabaseValueString(string)]);
               } else {
                 var items = resolve<List<ItemRecord>>(expression: expression, context: context, db: db)!;
                 if (items.isNotEmpty) {
@@ -418,7 +433,7 @@ class CVULookupController {
       return items;
     }
     return items.where((item) {
-      CVUContext context = new CVUContext(currentItem: item);
+      CVUContext context = CVUContext(currentItem: item);
       return resolve<bool>(expression: exp, context: context, db: db) ?? false;
     }).toList();
   }
@@ -457,8 +472,10 @@ class CVULookupController {
             return LookupStepValues(
                 items.map((element) => PropertyDatabaseValueDatetime(element.dateModified)).toList());
           case "dateCreated":
-            return new LookupStepValues(
-                items.map((element) => PropertyDatabaseValueDatetime(element.dateCreated)).toList());
+            return LookupStepValues(items
+                .map((element) =>
+                    PropertyDatabaseValueDatetime(element.dateCreated))
+                .toList());
           default:
             break;
         }
@@ -478,7 +495,7 @@ class CVULookupController {
               })
               .whereType<PropertyDatabaseValue>()
               .toList();
-          return new LookupStepValues(result);
+          return LookupStepValues(result);
         } else if (expectedType is ResolvedTypeEdge) {
           /// LOOKUP EDGE FOR EACH ITEM
           if (node.isArray) {
@@ -488,7 +505,7 @@ class CVULookupController {
           } else {
             List<ItemRecord> result =
                 items.map((item) => item.edgeItem(trimmedName, db)).whereType<ItemRecord>().toList();
-            return new LookupStepItems(filter(result, subexpression, db));
+            return LookupStepItems(filter(result, subexpression, db));
           }
         } else {
           return null;
@@ -676,9 +693,10 @@ class CVULookupController {
       return expression.value.asString();
     } else if (expression is CVUExpressionNodeStringMode) {
       return expression.nodes
-          .map((element) => resolve<String>(expression: element, context: context, db: db))
+          .map((element) =>
+              resolve<String>(expression: element, context: context, db: db))
           .whereType<String>()
-          .join("");
+          .join();
     } else {
       return null;
     }

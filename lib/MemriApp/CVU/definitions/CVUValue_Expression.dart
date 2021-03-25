@@ -35,7 +35,7 @@ abstract class CVUExpressionNode extends Equatable {
         } else {
           return '{${element.toCVUString()}}';
         }
-      }).join("");
+      }).join();
     } else if (expressionNode is CVUExpressionNodeConditional) {
       return '${expressionNode.condition.toCVUString()} ? ${expressionNode.trueExp.toCVUString()} : ${expressionNode.falseExp.toCVUString()}';
     } else if (expressionNode is CVUExpressionNodeOr) {

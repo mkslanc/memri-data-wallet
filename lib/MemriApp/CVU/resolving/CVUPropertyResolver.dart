@@ -5,7 +5,7 @@
 //  Created by T Brennan on 8/1/21.
 //
 
-import 'dart:html';
+import 'dart:math';
 
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
@@ -77,13 +77,14 @@ class CVUPropertyResolver {
     return lookup.resolve<double>(value: val, context: context, db: db);
   }
 
-  int? Int(String key) {
-    //TODO naming
+  int? integer(String key) {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup.resolve<double>(value: val, context: context, db: db)?.toInt();
+    return lookup
+        .resolve<double>(value: val, context: context, db: db)
+        ?.toInt();
   }
 
   String? string(String key) {
@@ -341,18 +342,19 @@ class CVUPropertyResolver {
   Point? cgPoint(String propertyName) {
     var values = valueArray(propertyName);
     double? x, y;
-    if (values[0] != null) {
-      x = lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
+    if (values.length >= 2) {
+      x = lookup.resolve<double>(
+          value: values[0], context: this.context, db: this.db);
+      y = lookup.resolve<double>(
+          value: values[1], context: this.context, db: this.db);
     }
-    if (values[1] != null) {
-      y = lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
-    }
+
     if (x != null && y != null) {
       return Point(x, y);
     } else {
       var val = cgFloat(propertyName);
       if (val != null) {
-        return new Point(val, val);
+        return Point(val, val);
       } else {
         return null;
       }
@@ -399,7 +401,7 @@ class CVUPropertyResolver {
           );
         case 1:
           double edgeInset = insetArray[0];
-          return new EdgeInsets.all(edgeInset);
+          return EdgeInsets.all(edgeInset);
         default:
           return null;
       }
@@ -411,31 +413,36 @@ class CVUPropertyResolver {
     var values = valueArray(propertyName);
     String? name;
     double? size;
-    if (values[0] != null) {
-      if (values[1] != null) {
-        name = lookup.resolve<String>(value: values[0], context: this.context, db: this.db);
-        size = lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
-      }
+    if (values.length >= 2) {
+      name = lookup.resolve<String>(
+          value: values[0], context: this.context, db: this.db);
+      size = lookup.resolve<double>(
+          value: values[1], context: this.context, db: this.db);
     }
 
     if (name != null && size != null) {
       return CVUFont(
           name: name,
           size: size,
-          weight: CVUFont.Weight[lookup.resolve<String>(value: values[2], context: this.context, db: this.db)] ??
-              defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+          weight: CVUFont.Weight[lookup.resolve<String>(
+                  value: values[2], context: this.context, db: this.db)] ??
+              defaultValue
+                  .weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
           );
     } else {
-      var val = values[0];
-      if (val != null) {
-        double? size = lookup.resolve<double>(value: val, context: this.context, db: this.db);
+      if (values.isNotEmpty) {
+        var val = values[0];
+        double? size = lookup.resolve<double>(
+            value: val, context: this.context, db: this.db);
 
         if (size != null) {
           return CVUFont(
               name: name,
               size: size,
-              weight: CVUFont.Weight[lookup.resolve<String>(value: values[1], context: this.context, db: this.db)] ??
-                  defaultValue.weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+              weight: CVUFont.Weight[lookup.resolve<String>(
+                      value: values[1], context: this.context, db: this.db)] ??
+                  defaultValue
+                      .weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
         } else {
           var weight = CVUFont.Weight[lookup.resolve<String>(
               value: val, context: this.context, db: this.db)]; //.flatMap(Font.Weight.init) TODO:
@@ -485,7 +492,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return null; //.zero TODO:
     }
-    return new Size(val.x.toDouble(), val.y.toDouble());
+    return Size(val.x.toDouble(), val.y.toDouble());
   }
 
   double? get shadow {
@@ -501,7 +508,7 @@ class CVUPropertyResolver {
   }
 
   int? get lineLimit {
-    return Int("lineLimit");
+    return integer("lineLimit");
   }
 
   bool? get forceAspect {

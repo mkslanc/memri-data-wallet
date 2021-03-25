@@ -306,12 +306,12 @@ class CVUExpressionLexer {
         }
 
         if (isMode == Mode.escapedString) {
-          keyword.add(c.toString());
+          keyword.add(c);
           isMode = Mode.string;
         } else if (c == "\\") {
           isMode = Mode.escapedString;
         } else {
-          keyword.add(c.toString());
+          keyword.add(c);
         }
         continue;
       }
@@ -369,7 +369,7 @@ class CVUExpressionLexer {
           break;
         case ".":
           if (isMode == Mode.number) {
-            keyword.add(c.toString());
+            keyword.add(c);
           } else {
             addToken(ExprTokenPeriod(i));
           }
@@ -388,10 +388,10 @@ class CVUExpressionLexer {
         case "7":
         case "8":
         case "9":
-          if (isMode == Mode.idle) {
+        if (isMode == Mode.idle) {
             isMode = Mode.number;
           }
-          keyword.add(c.toString());
+          keyword.add(c);
           break;
         case "{":
           if (startInStringMode) {
@@ -411,7 +411,7 @@ class CVUExpressionLexer {
           break;
         default:
           isMode = Mode.keyword;
-          keyword.add(c.toString());
+          keyword.add(c);
       }
 
       lastChar = null;

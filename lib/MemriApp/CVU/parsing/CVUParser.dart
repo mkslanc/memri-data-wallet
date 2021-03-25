@@ -164,7 +164,6 @@ class CVUParser {
           return CVUParsedDefinition(selector: "[session]");
         case "view":
           return CVUParsedDefinition(selector: "[view]");
-        // default: return; // Can never get here
       }
     }
 
@@ -265,7 +264,7 @@ class CVUParser {
           throw CVUParseErrorsUnexpectedToken(lastToken!); // We should never get here
         }
       } else if (token is CVUTokenCurlyBracketOpen) {
-        if (!(lastKey!.isNotEmpty)) {
+        if (lastKey == null) {
           throw CVUParseErrorsExpectedIdentifier(lastToken!);
         }
 

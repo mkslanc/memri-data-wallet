@@ -24,7 +24,7 @@ enum CVUDefinitionDomain { user }
 
 /// A struct holding the content of a CVUDefinition
 /// Contains properties, children, and sub-definitions
-class CVUDefinitionContent {
+class CVUDefinitionContent extends CVUStringConvertible {
   List<CVUParsedDefinition> definitions = [];
   List<CVUUINode> children = [];
   Map<String, CVUValue> properties = {};
@@ -93,7 +93,7 @@ class CVUDefinitionContent {
 }
 
 /// A swift representation of a CVU definition
-class CVUParsedDefinition {
+class CVUParsedDefinition extends CVUStringConvertible {
   CVUDefinitionType type = CVUDefinitionType.other;
   CVUDefinitionDomain domain = CVUDefinitionDomain.user;
 
@@ -134,7 +134,7 @@ class CVUParsedDefinition {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;
     String body = parsed.toCVUString(depth, tab, false);
-    return '${includeInitialTab ? tabs : ""}${(selector!.isNotEmpty) ? selector! + " " : ""}${(renderer != null && renderer!.isNotEmpty) ? "> " + renderer! + " " : ""}$body';
+    return '${includeInitialTab ? tabs : ""}${(selector != null && selector!.isNotEmpty) ? selector! + " " : ""}${(renderer != null && renderer!.isNotEmpty) ? "> " + renderer! + " " : ""}$body';
   }
 
   CVUParsedDefinition merge(CVUParsedDefinition? other) {

@@ -9,9 +9,10 @@ abstract class CVUStringConvertible {
 extension ListCVUStringConvertible on List {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     List strings = map((value) {
-      // if (!value || !value.toCVUString/*TODO @anijanyan check if CVUStringConvertible */) {return null;};
-      return value?.toCVUString!(depth + 1, tab, false);
-    }).toList();
+      return (value is CVUStringConvertible)
+          ? value.toCVUString(depth + 1, tab, false)
+          : null;
+    }).where((element) => element != null).toList();
 
     if (strings.isEmpty) {
       return "[]";
@@ -32,10 +33,12 @@ extension ListCVUStringConvertible on List {
 extension MapCVUStringConvertible on Map {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     List strings = map((key, value) {
-      // if (value == null || !value.toCVUString /*TODO @anijanyan check if CVUStringConvertible */) {return MapEntry(key, null);};
-      return MapEntry(key, value?.toCVUString == null ? value : '$key: ${(value.toCVUString!(depth, tab, false))}');
-    }).values.toList();
-    strings.removeWhere((element) => element == null);
+      return MapEntry(
+          key,
+          (value is CVUStringConvertible)
+              ? '$key: ${(value.toCVUString(depth, tab, false))}'
+              : null);
+    }).values.where((element) => element != null).toList();
     strings.sort();
     String tabs = tab * depth;
     return '${includeInitialTab ? tabs : ""}${strings.join('\n$tabs')}';
