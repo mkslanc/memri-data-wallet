@@ -12,7 +12,7 @@ void main() {
     SchemaProperty property = SchemaProperty.fromJson(decodedJson);
     expect(property.itemType, "Review");
     expect(property.property, "title");
-    expect(property.valueType, "string");
+    expect(property.valueType, SchemaValueType.string);
   });
 
   test('testEncodeSchemaProperty', () {

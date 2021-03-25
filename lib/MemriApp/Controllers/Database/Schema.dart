@@ -73,7 +73,7 @@ class Schema {
     }
   }
 
-  String? expectedPropertyType(String itemType, String propertyName) {
+  SchemaValueType? expectedPropertyType(String itemType, String propertyName) {
     return types[itemType]?.propertyTypes[propertyName]?.valueType;
   }
 
@@ -85,7 +85,7 @@ class Schema {
 abstract class ResolvedType {}
 
 class ResolvedTypeProperty extends ResolvedType {
-  String value;
+  SchemaValueType value;
 
   ResolvedTypeProperty(this.value);
 }
@@ -113,30 +113,32 @@ class SchemaType {
 class SchemaProperty {
   String itemType;
   String property;
-  String valueType;
+  SchemaValueType valueType;
 
   SchemaProperty(this.itemType, this.property, this.valueType);
 
   SchemaProperty.fromJson(Map<String, dynamic> json)
       : itemType = json['item_type'],
         property = json['property'],
-        valueType = json['value_type'];
+        valueType = SchemaValueTypeExtension.rawValue(json['value_type']);
 
   Map<String, dynamic> toJson() => {
         'item_type': itemType,
         'property': property,
-        'value_type': valueType,
+        'value_type': valueType.inString,
       };
 }
 
-enum SchemaValueType {
-  string,
-  bool,
-  int,
-  double,
-  datetime,
-  blob
-} //TODO: extension to use this enum?
+enum SchemaValueType { string, bool, int, double, datetime, blob }
+
+extension SchemaValueTypeExtension on SchemaValueType {
+  static SchemaValueType rawValue(String value) =>
+      SchemaValueType.values.firstWhere((val) => val.inString == value);
+
+  String get inString {
+    return this.toString().split('.').last;
+  }
+}
 
 /// A schema edge definition.
 class SchemaEdge {
