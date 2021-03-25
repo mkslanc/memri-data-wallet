@@ -1,0 +1,181 @@
+//
+//  DatabaseTypes.swift
+//  MemriDatabase
+//
+//  Created by T Brennan on 13/11/20.
+//
+
+import 'dart:convert';
+
+import 'package:moor/moor.dart';
+
+import 'Schema.dart';
+
+/// This type is used as an intermediate for storing and retrieving values from the database
+/// It makes use of the dynamic schema to determine what type to resolve the data as.
+abstract class PropertyDatabaseValue {
+  dynamic value;
+
+  static PropertyDatabaseValue? createFromDBValue(
+      Value databaseValue, SchemaValueType propertyType) {
+    switch (propertyType) {
+      case SchemaValueType.string:
+        var string = databaseValue.value; //TODO:
+        if (string == null) {
+          return null;
+        }
+        return PropertyDatabaseValueString(string);
+      case SchemaValueType.bool:
+        var boolean = databaseValue.value;
+        if (boolean == null) {
+          return null;
+        }
+        return PropertyDatabaseValueBool(boolean);
+      case SchemaValueType.int:
+        var number = int.tryParse(databaseValue.value);
+        if (number == null) {
+          return null;
+        }
+        return PropertyDatabaseValueInt(number);
+      case SchemaValueType.double:
+        var doubleValue = double.tryParse(databaseValue.value);
+        if (doubleValue == null) {
+          return null;
+        }
+        return PropertyDatabaseValueDouble(doubleValue);
+      case SchemaValueType.datetime:
+        var datetimeInt = int.tryParse(databaseValue.value);
+        if (datetimeInt == null) {
+          return null;
+        }
+        var date = DateTime(databaseValue.value);
+        return PropertyDatabaseValueDatetime(date);
+      case SchemaValueType.blob:
+        var data = databaseValue.value;
+        if (data == null) {
+          return null;
+        }
+        return PropertyDatabaseValueBlob(jsonEncode(data));
+    }
+  }
+
+  static PropertyDatabaseValue? create(
+      dynamic value, SchemaValueType propertyType,
+      [String debugInfo = ""]) {
+    switch (propertyType) {
+      case SchemaValueType.double:
+        if (value is! double) {
+          throw Exception('Expected Double: $debugInfo');
+        }
+        return PropertyDatabaseValueDouble(value);
+      case SchemaValueType.bool:
+        if (value is! bool) {
+          throw Exception('Expected Bool: $debugInfo');
+        }
+        return PropertyDatabaseValueBool(value);
+      case SchemaValueType.int:
+        if (value is! int) {
+          throw Exception('Expected Int: $debugInfo');
+        }
+        return PropertyDatabaseValueInt(value);
+      case SchemaValueType.string:
+        if (value is! String) {
+          throw Exception('Expected String: $debugInfo');
+        }
+        return PropertyDatabaseValueString(value);
+      case SchemaValueType.datetime:
+        if (value is! DateTime) {
+          throw Exception(
+              'Expected DateTime (Int with milliseconds since 1970): $debugInfo');
+        }
+        return PropertyDatabaseValueDatetime(value);
+      case SchemaValueType.blob:
+        if (value is String) {
+          return PropertyDatabaseValueBlob(value);
+        } else {
+          if (value == null) {
+            throw Exception('Expected Data blob: $debugInfo.');
+          }
+          var data = jsonEncode(value);
+          return PropertyDatabaseValueBlob(data);
+        }
+    }
+  }
+
+  ItemRecordPropertyTable toDBTableName(SchemaValueType type) {
+    //TODO tableName @anijanyan
+    switch (type) {
+      case SchemaValueType.string:
+      case SchemaValueType.blob:
+        return ItemRecordPropertyTable.strings;
+      case SchemaValueType.bool:
+      case SchemaValueType.datetime:
+      case SchemaValueType.int:
+        return ItemRecordPropertyTable.integers;
+      case SchemaValueType.double:
+        return ItemRecordPropertyTable.reals;
+      default:
+        throw Exception("Unknown schema value type");
+    }
+  }
+
+  String? asString() {
+    return value.toString();
+  }
+
+  double? asDouble() {
+    return double.tryParse(value);
+  }
+
+  bool? asBool() {
+    return (value != null && ["0", "", "false"].contains(value.toString()))
+        ? true
+        : false; //TODO find a valid way to convert to boolean @anijanyan
+  }
+
+  DateTime? asDate() {
+    var val = int.tryParse(value); //TODO is this correct @anijanyan
+    return val == null ? null : DateTime.fromMicrosecondsSinceEpoch(val);
+  }
+
+  double? asCGFloat() {
+    return double.tryParse(value);
+  }
+}
+
+enum ItemRecordPropertyTable { strings, integers, reals }
+
+class PropertyDatabaseValueString extends PropertyDatabaseValue {
+  final String value;
+
+  PropertyDatabaseValueString(this.value);
+}
+
+class PropertyDatabaseValueBool extends PropertyDatabaseValue {
+  final bool value;
+
+  PropertyDatabaseValueBool(this.value);
+}
+
+class PropertyDatabaseValueInt extends PropertyDatabaseValue {
+  final int value;
+
+  PropertyDatabaseValueInt(this.value);
+}
+
+class PropertyDatabaseValueDouble extends PropertyDatabaseValue {
+  final double value;
+
+  PropertyDatabaseValueDouble(this.value);
+}
+
+class PropertyDatabaseValueDatetime extends PropertyDatabaseValue {
+  final DateTime value;
+
+  PropertyDatabaseValueDatetime(this.value);
+}
+
+class PropertyDatabaseValueBlob extends PropertyDatabaseValue {
+  final String value; //TODO type is blob
+  PropertyDatabaseValueBlob(this.value);
+}
