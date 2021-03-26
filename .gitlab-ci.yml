@@ -10,23 +10,12 @@ flutter_analyze:
   script:
     - flutter analyze
     - flutter format -l 100 -n . --set-exit-if-changed
-  only:
-    refs:
-      - merge_requests
-    changes:
-      - lib/**/*.dart
-      - test/**/*.dart
 
 unit_test:
   stage: test
   script:
+    - apt-get update -qq && apt-get install -y -qq sqlite3 libsqlite3-dev
     - flutter test test/*
-  only:
-    refs:
-      - merge_requests
-    changes:
-      - lib/**/*
-      - test/**/*
 
 build_web:
   stage: build
