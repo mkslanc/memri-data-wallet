@@ -35,10 +35,9 @@ class ItemEdgeRecord {
 
     return keyProperties;
   }
+*/
 
-func save(db dbController: DatabaseController = AppController.shared.databaseController) throws {
-        try dbController.writeSync { (db) in
-            try save(db)
-        }
-    }*/
+  save(Database db) async {
+    return await db.itemEdgeRecordSave(this);
+  }
 }

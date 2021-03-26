@@ -27,17 +27,11 @@ class ItemPropertyRecord {
     return await db.itemPropertyRecordInsert(this);
   }
 
-/* TODO
+  delete(Database db) async {
+    await db.itemPropertyRecordDelete(this);
+  }
 
-    func delete(db dbController: DatabaseController = AppController.shared.databaseController) throws {
-        try dbController.writeSync { (db) in
-            try db.execute(literal: "DELETE FROM itemProperty WHERE \(Columns.itemUID) = \(itemUID) AND \(Columns.name) = \(name)")
-        }
-    }
-    
-    func save(db dbController: DatabaseController = AppController.shared.databaseController) throws {
-        try dbController.writeSync { (db) in
-            try save(db)
-        }
-    }*/
+  save(Database db) async {
+    return await db.itemPropertyRecordSave(this);
+  }
 }

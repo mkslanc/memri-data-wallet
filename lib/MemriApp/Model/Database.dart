@@ -42,6 +42,17 @@ class Database extends _$Database {
     return into(data.table).insert(data.companion);
   }
 
+  Future<void> itemPropertyRecordDelete(ItemPropertyRecord record) async {
+    ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
+    Item item = await itemRecordFetchWithUID(record.itemUID);
+    this.customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
+  }
+
+  Future<int> itemPropertyRecordSave(ItemPropertyRecord record) async {
+    var data = await getItemPropertyRecordTableData(record);
+    return into(data.table).insertOnConflictUpdate(data.companion);
+  }
+
   Future<ItemPropertyRecordTableData> getItemPropertyRecordTableData(
       ItemPropertyRecord record) async {
     ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
@@ -81,6 +92,18 @@ class Database extends _$Database {
         target: Value(target.rowId!),
         name: Value(record.name));
     return into(edges).insert(entry);
+  }
+
+  Future<int> itemEdgeRecordSave(ItemEdgeRecord record) async {
+    Item self = await itemRecordFetchWithUID(record.selfUID);
+    Item source = await itemRecordFetchWithUID(record.sourceUID);
+    Item target = await itemRecordFetchWithUID(record.targetUID);
+    EdgesCompanion entry = EdgesCompanion(
+        self: Value(self.rowId),
+        source: Value(source.rowId!),
+        target: Value(target.rowId!),
+        name: Value(record.name));
+    return into(edges).insertOnConflictUpdate(entry);
   }
 }
 
