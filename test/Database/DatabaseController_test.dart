@@ -1,5 +1,6 @@
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memri/MemriApp/Controllers/Database/DemoData.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,5 +17,14 @@ void main() {
         .get();
 
     expect(tables.length, 6);
+  });
+
+  test('testDemoDataImport', () async {
+    await DemoData.importDemoData(
+        databaseController: databaseController, throwIfAgainstSchema: true);
+  });
+
+  tearDown(() async {
+    databaseController.databasePool.close();
   });
 }

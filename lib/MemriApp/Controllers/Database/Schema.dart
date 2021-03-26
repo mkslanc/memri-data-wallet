@@ -178,7 +178,6 @@ class SchemaEdge {
       };
 }
 
-// MARK: CODABLE STRUCTS
 /// A simple struct used for decoding the schema json.
 /// The schema is stored in a diff-friendly format, however the app loads it into memory as dictionaries that can be efficiently queried.
 class SchemaFile {

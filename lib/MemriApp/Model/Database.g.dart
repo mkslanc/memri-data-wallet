@@ -184,12 +184,11 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     required DateTime dateCreated,
     required DateTime dateModified,
     this.dateServerModified = const Value.absent(),
-    required bool deleted,
-  })   : id = Value(id),
+    this.deleted = const Value.absent(),
+  })  : id = Value(id),
         type = Value(type),
         dateCreated = Value(dateCreated),
-        dateModified = Value(dateModified),
-        deleted = Value(deleted);
+        dateModified = Value(dateModified);
 
   static Insertable<Item> custom({
     Expression<int?>? rowId,
@@ -327,7 +326,9 @@ class Items extends Table with TableInfo<Items, Item> {
   late final GeneratedBoolColumn deleted = _constructDeleted();
 
   GeneratedBoolColumn _constructDeleted() {
-    return GeneratedBoolColumn('deleted', $tableName, false, $customConstraints: 'NOT NULL');
+    return GeneratedBoolColumn('deleted', $tableName, false,
+        $customConstraints: 'NOT NULL DEFAULT false',
+        defaultValue: const CustomExpression<bool>('false'));
   }
 
   @override
@@ -379,8 +380,6 @@ class Items extends Table with TableInfo<Items, Item> {
     }
     if (data.containsKey('deleted')) {
       context.handle(_deletedMeta, deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta));
-    } else if (isInserting) {
-      context.missing(_deletedMeta);
     }
     return context;
   }

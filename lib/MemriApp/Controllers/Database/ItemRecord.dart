@@ -1,15 +1,14 @@
+import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:uuid/uuid.dart';
 
 import 'DatabaseController.dart';
 
 class ItemRecord {
-  static var databaseTableName = "item";
-
   String uid;
   String type;
-  DateTime? dateCreated;
+  DateTime dateCreated;
 
-  DateTime? dateModified;
+  DateTime dateModified;
   bool deleted;
 
   //SyncState syncState; TODO:
@@ -23,7 +22,7 @@ class ItemRecord {
     this.deleted = false,
   })  : this.dateModified = dateModified ?? DateTime.now(),
         this.dateCreated = dateCreated ?? DateTime.now(),
-        this.uid = uid ?? Uuid().v4().toString();
+        this.uid = uid ?? Uuid().v4();
 
   /* TODO:
     static func == (lhs: ItemRecord, rhs: ItemRecord) -> Bool {
@@ -35,14 +34,24 @@ class ItemRecord {
         hasher.combine(type)
     }*/
 
-  static fetchWithUID(String uid, DatabaseController db
-      /* = AppController.shared.databaseController*/) async {
+  static Future<ItemRecord?> fetchWithUID(String uid, DatabaseController db
+      /*= AppController.shared.databaseController*/) async {
     try {
-      return await db.databasePool.itemRecordFetchWithUID(uid);
+      Item item = await db.databasePool.itemRecordFetchWithUID(uid);
+      return ItemRecord(
+          uid: item.id,
+          type: item.type,
+          dateCreated: item.dateCreated,
+          dateModified: item.dateModified,
+          deleted: item.deleted);
     } catch (e) {
       print(e);
-      return;
+      return null;
     }
+  }
+
+  insert(Database db) async {
+    return await db.itemRecordInsert(this);
   }
 
 /*static var properties = hasMany(ItemPropertyRecord.self, key: "itemProperty")
