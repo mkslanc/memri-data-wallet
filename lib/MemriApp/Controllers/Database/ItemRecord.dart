@@ -1,13 +1,15 @@
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
 
 import 'DatabaseController.dart';
 
 class ItemRecord {
+  int? rowId;
   String uid;
   String type;
   DateTime dateCreated;
-
+  DateTime? dateServerModified;
   DateTime dateModified;
   bool deleted;
 
@@ -15,6 +17,7 @@ class ItemRecord {
   //bool syncHasPriority; TODO:
 
   ItemRecord({
+    this.rowId,
     uid,
     required this.type,
     dateCreated,
@@ -23,6 +26,29 @@ class ItemRecord {
   })  : this.dateModified = dateModified ?? DateTime.now(),
         this.dateCreated = dateCreated ?? DateTime.now(),
         this.uid = uid ?? Uuid().v4();
+
+  ItemRecord.fromItem(Item item)
+      : rowId = item.rowId,
+        uid = item.id,
+        type = item.type,
+        dateCreated = item.dateCreated,
+        dateModified = item.dateModified,
+        dateServerModified = item.dateServerModified,
+        deleted = item.deleted;
+
+  ItemsCompanion toCompanion() {
+    return ItemsCompanion(
+      rowId: rowId == null ? const Value.absent() : Value(rowId),
+      id: Value(uid),
+      type: Value(type),
+      dateCreated: Value(dateCreated),
+      dateModified: Value(dateModified),
+      dateServerModified: dateServerModified == null
+          ? const Value.absent()
+          : Value(dateServerModified),
+      deleted: Value(deleted),
+    );
+  }
 
   /* TODO:
     static func == (lhs: ItemRecord, rhs: ItemRecord) -> Bool {

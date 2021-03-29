@@ -29,12 +29,13 @@ class Database extends _$Database {
   }
 
   Future<int> itemRecordInsert(ItemRecord record) {
-    ItemsCompanion entry = ItemsCompanion(
-        id: Value(record.uid),
-        type: Value(record.type),
-        dateCreated: Value(record.dateCreated),
-        dateModified: Value(record.dateModified));
-    return into(items).insert(entry);
+    return into(items).insert(record.toCompanion());
+  }
+
+  itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
+    return await customSelect("SELECT * from items WHERE $query",
+        variables: binding,
+        readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
   }
 
   Future<int> itemPropertyRecordInsert(ItemPropertyRecord record) async {
@@ -43,9 +44,11 @@ class Database extends _$Database {
   }
 
   Future<void> itemPropertyRecordDelete(ItemPropertyRecord record) async {
-    ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
+    ItemRecordPropertyTable table =
+        PropertyDatabaseValue.toDBTableName(record.$value.type);
     Item item = await itemRecordFetchWithUID(record.itemUID);
-    this.customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
+    this.customStatement(
+        "DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
   }
 
   Future<int> itemPropertyRecordSave(ItemPropertyRecord record) async {
@@ -83,27 +86,11 @@ class Database extends _$Database {
   }
 
   Future<int> itemEdgeRecordInsert(ItemEdgeRecord record) async {
-    Item self = await itemRecordFetchWithUID(record.selfUID);
-    Item source = await itemRecordFetchWithUID(record.sourceUID);
-    Item target = await itemRecordFetchWithUID(record.targetUID);
-    EdgesCompanion entry = EdgesCompanion(
-        self: Value(self.rowId),
-        source: Value(source.rowId!),
-        target: Value(target.rowId!),
-        name: Value(record.name));
-    return into(edges).insert(entry);
+    return into(edges).insert(await record.toCompanion(this));
   }
 
   Future<int> itemEdgeRecordSave(ItemEdgeRecord record) async {
-    Item self = await itemRecordFetchWithUID(record.selfUID);
-    Item source = await itemRecordFetchWithUID(record.sourceUID);
-    Item target = await itemRecordFetchWithUID(record.targetUID);
-    EdgesCompanion entry = EdgesCompanion(
-        self: Value(self.rowId),
-        source: Value(source.rowId!),
-        target: Value(target.rowId!),
-        name: Value(record.name));
-    return into(edges).insertOnConflictUpdate(entry);
+    return into(edges).insertOnConflictUpdate(await record.toCompanion(this));
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:moor/moor.dart';
 
 class ItemEdgeRecord {
   String selfUID;
@@ -11,6 +12,18 @@ class ItemEdgeRecord {
       required this.sourceUID,
       required this.name,
       required this.targetUID});
+
+  Future<EdgesCompanion> toCompanion(Database db) async {
+    Item self = await db.itemRecordFetchWithUID(selfUID);
+    Item source = await db.itemRecordFetchWithUID(sourceUID);
+    Item target = await db.itemRecordFetchWithUID(targetUID);
+    return EdgesCompanion(
+      self: Value(self.rowId!),
+      source: Value(source.rowId!),
+      name: Value(name),
+      target: Value(target.rowId!),
+    );
+  }
 
   insert(Database db) async {
     return await db.itemEdgeRecordInsert(this);
