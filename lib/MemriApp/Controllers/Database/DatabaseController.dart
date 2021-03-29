@@ -9,18 +9,22 @@ import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
-  late Schema? schema;
+  late Schema? _schema;
 
   /// This is the connection to the database used throughout the app
   late Database databasePool;
   String databaseName;
   bool inMemory;
 
+  Schema get schema =>
+      _schema!; //TODO this is done because constructors can't be async
+
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(
       {this.databaseName = "memri", //TODO:
-      this.schema,
-      this.inMemory = false});
+      schema,
+      this.inMemory = false})
+      : this._schema = schema;
 
   init() async {
     databasePool = await () async {
@@ -33,11 +37,12 @@ class DatabaseController {
         return Database(VmDatabase(url));
       }
     }();
-    schema = schema ?? await Schema.loadFromFile();
+    _schema ??= await Schema.loadFromFile();
   }
 
-  /// Check if the database has been setup //TODO:
-//bool get databaseIsSetup => ItemRecord.fetchOne(db) != null ?? false;
+  /// Check if the database has been setup
+  bool get databaseIsSetup =>
+      /*ItemRecord.fetchWithUID(db) != null ?? */ false; //TODO
 
 /*[ItemRecord]*/ /* search(String searchString)  { //TODO:
         */ /*try read { (db) in

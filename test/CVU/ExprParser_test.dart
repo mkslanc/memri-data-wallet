@@ -1,9 +1,9 @@
+import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Expression.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_LookupNode.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionLexer.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUExpressionParser.dart';
-import 'package:test/test.dart';
 
 parse({snippet, stringMode = false}) {
   var lexer = CVUExpressionLexer(snippet, stringMode);
@@ -366,7 +366,7 @@ void main() {
 
   test('testExample', () {
     var snippet =
-        """!(test + -5.63537) or 4/3 ? variable.func() : me.address[primary = true].country ? ((4+5 * 10) + test[10]) : 'asdads\\'asdad' + ''""";
+    """!(test + -5.63537) or 4/3 ? variable.func() : me.address[primary = true].country ? ((4+5 * 10) + test[10]) : 'asdads\\'asdad' + ''""";
     var result = parse(snippet: snippet);
     expect(
         result,
@@ -413,7 +413,7 @@ void main() {
     var snippet = "true ? 'yes'";
 
     expect(
-        () => parse(snippet: snippet), throwsA(predicate((e) => e is CVUExpressionParseErrorsExpectedConditionElse)));
+            () => parse(snippet: snippet), throwsA(predicate((e) => e is CVUExpressionParseErrorsExpectedConditionElse)));
   });
 
   test('testErrorIncompleteBinaryOp', () {
@@ -427,9 +427,9 @@ void main() {
     var snippet = "5 @ 4";
 
     expect(
-        () => parse(snippet: snippet),
+            () => parse(snippet: snippet),
         throwsA(predicate((e) =>
-            e is CVUExpressionParseErrorsUnexpectedToken &&
+        e is CVUExpressionParseErrorsUnexpectedToken &&
             e.value is ExprTokenIdentifier &&
             (e.value as ExprTokenIdentifier).value == "@")));
   });
@@ -458,9 +458,9 @@ void main() {
     var snippet = "Hello {fetchName()}";
 
     expect(
-        () => parse(snippet: snippet),
+            () => parse(snippet: snippet),
         throwsA(predicate((e) =>
-            e is CVUExpressionParseErrorsUnexpectedToken &&
+        e is CVUExpressionParseErrorsUnexpectedToken &&
             e.value is ExprTokenCurlyBracketOpen &&
             (e.value as ExprTokenCurlyBracketOpen).i == 6)));
   });

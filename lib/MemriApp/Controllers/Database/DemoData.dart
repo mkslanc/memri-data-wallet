@@ -24,10 +24,11 @@ class DemoData {
     }
 
     List<DemoDataItem> processedItems = items
-        .expand((item) => processItemJSON(item: item, schema: (databaseController.schema)!))
+        .expand((item) =>
+            processItemJSON(item: item, schema: databaseController.schema))
         .toList();
 
-    Map<String, String> tempUIDLookup = Map();
+    Map<String, int> tempIDLookup = Map();
 
     for (var item in processedItems) {
       var record = ItemRecord(
@@ -36,10 +37,10 @@ class DemoData {
           dateCreated: item.dateCreated,
           dateModified: item.dateModified);
       var tempUID = item.tempUID;
+      var recordID = await record.insert(databaseController.databasePool);
       if (tempUID != null) {
-        tempUIDLookup[tempUID] = record.uid;
+        tempIDLookup[tempUID] = recordID;
       }
-      await record.insert(databaseController.databasePool);
     }
 
     for (var item in processedItems) {
@@ -49,18 +50,20 @@ class DemoData {
         await record.insert(databaseController.databasePool);
       }
       for (var edge in item.edges) {
-        var targetActualUID = tempUIDLookup[edge.targetTempUID];
-        if (targetActualUID == null) {
+        var targetActualID = tempIDLookup[edge.targetTempUID];
+        if (targetActualID == null) {
           continue;
         }
         ItemRecord selfRecord = ItemRecord(
-            type: "Edge", dateCreated: item.dateCreated, dateModified: item.dateModified);
-        await selfRecord.insert(databaseController.databasePool);
+            type: "Edge",
+            dateCreated: item.dateCreated,
+            dateModified: item.dateModified);
+        var itemID = await selfRecord.insert(databaseController.databasePool);
         var record = ItemEdgeRecord(
-            selfUID: selfRecord.uid,
-            sourceUID: item.uid,
+            selfRowID: selfRecord.rowId,
+            sourceRowID: itemID,
             name: edge.name,
-            targetUID: targetActualUID);
+            targetRowID: targetActualID);
         await record.insert(databaseController.databasePool);
       }
     }

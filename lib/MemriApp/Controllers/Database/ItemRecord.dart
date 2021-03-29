@@ -1,8 +1,12 @@
+import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
+import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
 
+import '../AppController.dart';
 import 'DatabaseController.dart';
+import 'ItemPropertyRecord.dart';
 
 class ItemRecord {
   int? rowId;
@@ -60,24 +64,139 @@ class ItemRecord {
         hasher.combine(type)
     }*/
 
-  static Future<ItemRecord?> fetchWithUID(String uid, DatabaseController db
-      /*= AppController.shared.databaseController*/) async {
+  Future<ItemPropertyRecord?> property(
+      String name, DatabaseController? dbController
+      /* = AppController.shared.databaseController*/) async {
+    return null; //ItemPropertyRecord();
+    // return ItemPropertyRecord.getOne(dbController, {
+    // name: name,
+    // itemUID: this.uid
+    // }, this.type);
+  }
+
+  List<ItemPropertyRecord> properties(DatabaseController dbController
+      /* = AppController.shared.databaseController*/) {
+    return [];
+    // return ItemPropertyRecord.getAll(dbController, {
+    // itemUID: this.uid
+    // }, this.type);
+  }
+
+  /*TODO PropertyDatabaseValue*/
+  dynamic propertyValue(String name, DatabaseController? dbController
+      // = AppController.shared.databaseController
+      ) {
+    // let property = this.property(name, dbController)
+    // if (!property) { return undefined }
+    // return property.value(this.type, dbController.schema)
+  }
+
+  setPropertyValue(
+      String name, dynamic? value, DatabaseController? dbController) {}
+
+  static Future<ItemRecord?> fetchWithUID(String uid,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
     try {
       Item item = await db.databasePool.itemRecordFetchWithUID(uid);
-      return ItemRecord(
-          uid: item.id,
-          type: item.type,
-          dateCreated: item.dateCreated,
-          dateModified: item.dateModified,
-          deleted: item.deleted);
+      return ItemRecord.fromItem(item);
     } catch (e) {
       print(e);
       return null;
     }
   }
 
-  insert(Database db) async {
+  Future<int> insert(Database db) async {
     return await db.itemRecordInsert(this);
+  }
+
+  Future<ItemRecord?> edgeItem(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      var edge = await db.databasePool
+          .edgeRecordSelect({"source": rowId, "name": name});
+      if (edge != null) {
+        return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<List<ItemRecord>> edgeItems(String name,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+
+    try {
+      var edges = await db.databasePool
+          .edgeRecordsSelect({"source": rowId, "name": name});
+      return (await Future.wait(edges.map((edge) async =>
+              await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+          .whereType<ItemRecord>()
+          .toList();
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<ItemRecord?> reverseEdgeItem(String name,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+
+    try {
+      var edge = await db.databasePool
+          .edgeRecordSelect({"target": rowId, "name": name});
+      if (edge != null) {
+        return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<List<ItemRecord>> reverseEdgeItems(String name,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+
+    try {
+      var edges = await db.databasePool
+          .edgeRecordsSelect({"target": rowId, "name": name});
+      return (await Future.wait(edges.map((edge) async =>
+              await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+          .whereType<ItemRecord>()
+          .toList();
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Binding<dynamic> propertyBinding(
+      {required String name,
+      dynamic? defaultValue,
+      DatabaseController? db,
+      Type? type}) {
+    // db ?= AppController.shared.databaseController
+    switch (type) {
+      case bool:
+        return Binding<bool>(
+            () => propertyValue(name, db)?.asBool() ?? defaultValue,
+            (newValue) {
+          setPropertyValue(
+              name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
+        });
+      default:
+        return Binding<String>(
+            () =>
+                propertyValue(name, db)?.asString() ?? defaultValue.toString(),
+            (newValue) {
+          setPropertyValue(
+              name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
+        });
+    }
   }
 
 /*static var properties = hasMany(ItemPropertyRecord.self, key: "itemProperty")
