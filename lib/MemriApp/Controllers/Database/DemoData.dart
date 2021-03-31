@@ -24,11 +24,11 @@ class DemoData {
     }
 
     List<DemoDataItem> processedItems = items
-        .expand((item) =>
-            processItemJSON(item: item, schema: databaseController.schema))
+        .expand((item) => processItemJSON(item: item, schema: databaseController.schema))
         .toList();
 
-    Map<String, int> tempIDLookup = Map();
+    Map<String, int> tempIDLookup = {};
+    Map<String, int> sourceIDLookup = {};
 
     for (var item in processedItems) {
       var record = ItemRecord(
@@ -41,6 +41,7 @@ class DemoData {
       if (tempUID != null) {
         tempIDLookup[tempUID] = recordID;
       }
+      sourceIDLookup[item.uid] = recordID;
     }
 
     for (var item in processedItems) {
@@ -54,14 +55,14 @@ class DemoData {
         if (targetActualID == null) {
           continue;
         }
+        var sourceRowID = sourceIDLookup[item.uid];
+
         ItemRecord selfRecord = ItemRecord(
-            type: "Edge",
-            dateCreated: item.dateCreated,
-            dateModified: item.dateModified);
-        var itemID = await selfRecord.insert(databaseController.databasePool);
+            type: "Edge", dateCreated: item.dateCreated, dateModified: item.dateModified);
+        var selfRowId = await selfRecord.insert(databaseController.databasePool);
         var record = ItemEdgeRecord(
-            selfRowID: selfRecord.rowId,
-            sourceRowID: itemID,
+            selfRowID: selfRowId,
+            sourceRowID: sourceRowID,
             name: edge.name,
             targetRowID: targetActualID);
         await record.insert(databaseController.databasePool);

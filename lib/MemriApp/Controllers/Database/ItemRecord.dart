@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
@@ -8,7 +9,8 @@ import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
 
-class ItemRecord {
+// ignore: must_be_immutable
+class ItemRecord extends Equatable {
   int? rowId;
   String uid;
   String type;
@@ -54,18 +56,7 @@ class ItemRecord {
     );
   }
 
-  /* TODO:
-    static func == (lhs: ItemRecord, rhs: ItemRecord) -> Bool {
-        lhs.uid == rhs.uid && lhs.type == rhs.type
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(uid)
-        hasher.combine(type)
-    }*/
-
-  Future<ItemPropertyRecord?> property(
-      String name, DatabaseController? dbController
+  Future<ItemPropertyRecord?> property(String name, DatabaseController? dbController
       /* = AppController.shared.databaseController*/) async {
     return null; //ItemPropertyRecord();
     // return ItemPropertyRecord.getOne(dbController, {
@@ -91,8 +82,7 @@ class ItemRecord {
     // return property.value(this.type, dbController.schema)
   }
 
-  setPropertyValue(
-      String name, dynamic? value, DatabaseController? dbController) {}
+  setPropertyValue(String name, dynamic? value, DatabaseController? dbController) {}
 
   static Future<ItemRecord?> fetchWithUID(String uid,
       [DatabaseController? db]) async {
@@ -132,7 +122,7 @@ class ItemRecord {
       var edges = await db.databasePool
           .edgeRecordsSelect({"source": rowId, "name": name});
       return (await Future.wait(edges.map((edge) async =>
-              await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+      await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
           .whereType<ItemRecord>()
           .toList();
     } catch (e) {
@@ -165,7 +155,7 @@ class ItemRecord {
       var edges = await db.databasePool
           .edgeRecordsSelect({"target": rowId, "name": name});
       return (await Future.wait(edges.map((edge) async =>
-              await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+      await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
           .whereType<ItemRecord>()
           .toList();
     } catch (e) {
@@ -175,29 +165,23 @@ class ItemRecord {
   }
 
   Binding<dynamic> propertyBinding(
-      {required String name,
-      dynamic? defaultValue,
-      DatabaseController? db,
-      Type? type}) {
-    // db ?= AppController.shared.databaseController
+      {required String name, dynamic? defaultValue, DatabaseController? db, Type? type}) {
+    db ??= AppController.shared.databaseController;
     switch (type) {
       case bool:
-        return Binding<bool>(
-            () => propertyValue(name, db)?.asBool() ?? defaultValue,
-            (newValue) {
-          setPropertyValue(
-              name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
+        return Binding<bool>(() => propertyValue(name, db)?.asBool() ?? defaultValue, (newValue) {
+          setPropertyValue(name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
         });
       default:
-        return Binding<String>(
-            () =>
-                propertyValue(name, db)?.asString() ?? defaultValue.toString(),
+        return Binding<String>(() => propertyValue(name, db)?.asString() ?? defaultValue.toString(),
             (newValue) {
-          setPropertyValue(
-              name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
+          setPropertyValue(name, /*PropertyDatabaseValue.bool(newValue)*/ null, db);
         });
     }
   }
+
+  @override
+  List<Object> get props => [uid, type];
 
 /*static var properties = hasMany(ItemPropertyRecord.self, key: "itemProperty")
 
@@ -284,47 +268,7 @@ class ItemRecord {
        try? request(for: ItemRecord.reverseEdges).filter(ItemEdgeRecord.Columns.name == name).fetchAll(db).lazy.compactMap { $0.owningItem(db: db) }
             }) ?? []
     }
-    
-    enum Columns: String, ColumnExpression {
-        case uid, type, dateCreated, dateModified, version, deleted, syncState, syncHasPriority
-    }
-    
-    
-    internal init(uid: StringUUID = StringUUID(), type: String, dateCreated: Date? = nil, dateModified: Date? = nil, version: Int = 1, deleted: Bool = false, syncState: SyncState = .create, syncHasPriority: Bool = false) {
-        self.uid = uid
-        self.type = type
-        self.dateCreated = dateCreated ?? Date()
-        self.dateModified = dateModified ?? Date()
-        self.version = version
-        self.deleted = deleted
-        self.syncState = syncState
-        self.syncHasPriority = syncHasPriority
-        super.init()
-    }
-    
-    required init(row: Row) {
-        self.uid = row[Columns.uid]
-        self.type = row[Columns.type]
-        self.dateCreated = row[Columns.dateCreated]
-        self.dateModified = row[Columns.dateModified]
-        self.version = row[Columns.version]
-        self.deleted = row[Columns.deleted]
-        self.syncState = row[Columns.syncState]
-        self.syncHasPriority = row[Columns.syncHasPriority]
-        super.init(row: row)
-    }
-    
-    override func encode(to container: inout PersistenceContainer) {
-        container[Columns.uid] = uid
-        container[Columns.type] = type
-        container[Columns.dateCreated] = dateCreated
-        container[Columns.dateModified] = dateModified
-        container[Columns.version] = version
-        container[Columns.deleted] = deleted
-        container[Columns.syncState] = syncState
-        container[Columns.syncHasPriority] = syncHasPriority
-    }
-    
+
     static let intrinsicProperties: Set<String> = ["type", "uid", "dateCreated", "dateModified", "version", "deleted"]
 
     func syncDict(db: Database, schema: Schema) -> [String: AnyEncodable] {
@@ -382,6 +326,12 @@ class ItemRecord {
                AND \(ItemPropertyRecord.databaseSearchTableName) MATCH ?
         """, arguments: [pattern])
     }*/
+  static Future<List<ItemRecord>> search(DatabaseController dbController, String pattern) async {
+    List<dynamic> list = await dbController.databasePool
+        .itemPropertyRecordsCustomSelect("value MATCH ?", [Variable.withString(pattern)], true);
+    return await Future.wait(list.map((el) async => ItemRecord.fromItem(
+        await dbController.databasePool.itemRecordFetchWithRowId(int.parse(el.item)))));
+  }
 }
 /*extension ItemRecord {
     func propertyBinding(name: String, defaultValue: String? = nil, db: DatabaseController = AppController.shared.databaseController) -> Binding<String?> {

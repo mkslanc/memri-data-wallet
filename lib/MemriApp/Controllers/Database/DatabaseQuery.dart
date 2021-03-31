@@ -1,3 +1,4 @@
+import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 
@@ -9,7 +10,7 @@ class DatabaseQueryConfig {
   List<String> itemTypes;
 
   /// A list of item UIDs to include. Default is Empty -> don't filter on UID
-  Set<String> itemUIDs;
+  Set<String> itemUIDs; //TODO: we will need to refactor this to use rowIds
 
   /// A property to sort the results by
   String? sortProperty;
@@ -41,19 +42,12 @@ class DatabaseQueryConfig {
   bool includeImmediateEdgeSearch;
 
   /// A list of conditions. eg. property name = "Demo note"
-  var /*List<DatabaseQueryCondition>*/ conditions = [];
+  List<DatabaseQueryCondition> conditions = [];
 
-  late Database db;
+  late DatabaseController dbController;
 
   DatabaseQueryConfig({
-    this.itemTypes = const [
-      "Person",
-      "Note",
-      "Address",
-      "Photo",
-      "Indexer",
-      "Importer"
-    ],
+    this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
     this.itemUIDs = const {},
     this.sortProperty = "dateModified",
     this.sortAscending = false,
@@ -68,7 +62,14 @@ class DatabaseQueryConfig {
     this.conditions = const [],
   });
 
-  _constructFilteredRequest([Set<String>? searchUIDs]) async {
+  _constructFilteredRequest([Set<int>? searchIDs]) async {
+    List<dynamic> intersection(List<List<dynamic>> arrays) {
+      if (arrays.length == 0) {
+        return [];
+      }
+      return [...arrays].reduce((a, c) => a.where((i) => c.contains(i)).toList());
+    }
+
     var limit = pageSize;
     var offset = pageSize * currentPage;
 
@@ -85,17 +86,21 @@ class DatabaseQueryConfig {
     }
 
     /// Filter to only include items matching the search term (AND if already filtered by UID, those that match both)
-    if (searchUIDs != null) {
+    if (searchIDs != null) {
       var itemUIDCondition;
       if (itemUIDs.isNotEmpty) {
+        //TODO: reimplement this with rowIds
+        var items = await Future.wait(searchIDs
+            .map((id) async => await dbController.databasePool.itemRecordFetchWithRowId(id)));
+        var searchUIDs = items.map((item) => item.id).toSet();
         itemUIDCondition = searchUIDs.intersection(itemUIDs).map((uid) {
           queryBindings.add(Variable.withString(uid));
           return "uid = ?";
         });
       } else {
-        itemUIDCondition = searchUIDs.map((uid) {
-          queryBindings.add(Variable.withString(uid));
-          return "uid = ?";
+        itemUIDCondition = searchIDs.map((rowId) {
+          queryBindings.add(Variable.withInt(rowId));
+          return "row_id = ?";
         });
       }
       queryConditions.add("(" + itemUIDCondition.join(" OR ") + ")");
@@ -125,141 +130,138 @@ class DatabaseQueryConfig {
       queryBindings.add(Variable.withDateTime(dateCreatedAfter!));
     }
 
-    var itemRecords = await db.itemRecordsCustomSelect(
-        queryConditions.join(" and "), queryBindings);
+    var itemRecords = await dbController.databasePool
+        .itemRecordsCustomSelect(queryConditions.join(" and "), queryBindings);
     if (itemRecords.length == 0) {
       return [];
     }
 
-    // Property conditions
-    /* let queryPropertyConditions: [SQLExpression] = conditions.compactMap { condition in
-            switch condition {
-            case let .propertyEquals(info):
-                return ItemPropertyRecord.Columns.name == info.name && ItemPropertyRecord.Columns.value == info.value
-            default:
-                return nil
-            }
-        }
-        if !queryPropertyConditions.isEmpty {
-            let propertyFilter = ItemRecord.properties.filter(queryPropertyConditions.joined(operator: .and))
-            request = request.having(propertyFilter.isEmpty == false)
-        }
-        
-        // Edge conditions
-        let queryEdgeConditions: [SQLExpression] = conditions.compactMap { condition in
-            switch condition {
-            case let .edgeHasTarget(info):
-                return ItemEdgeRecord.Columns.name == info.edgeName && ItemEdgeRecord.Columns.targetUID == info.targetUID
-            default:
-                return nil
-            }
-        }
-        if !queryEdgeConditions.isEmpty {
-            let edgeFilter = ItemRecord.edges.filter(queryEdgeConditions.joined(operator: .and))
-            request = request.having(edgeFilter.isEmpty == false)
-        }
-        
-        switch sortProperty?.nilIfBlank {
-        case "dateCreated":
-            request = request.order(sortAscending ? [ItemRecord.Columns.dateCreated, ItemRecord.Columns.dateModified] : [ItemRecord.Columns.dateCreated.desc, ItemRecord.Columns.dateModified.desc])
-        case "dateModified":
-            request = request.order(sortAscending ? [ItemRecord.Columns.dateModified, ItemRecord.Columns.dateCreated] : [ItemRecord.Columns.dateModified.desc, ItemRecord.Columns.dateCreated.desc])
-        case .some(let sortProperty):
-            let sortAlias = TableAlias()
-            request = request.joining(optional:
-                                        ItemRecord.properties.aliased(sortAlias)
-                                        .filter(ItemPropertyRecord.Columns.name == sortProperty)
-            )
-            .order(sortAscending ? [
-                sortAlias[ItemPropertyRecord.Columns.value].ascNullsLast,
-                ItemRecord.Columns.dateModified,
-                ItemRecord.Columns.dateCreated
-            ] : [
-                sortAlias[ItemPropertyRecord.Columns.value].desc,
-                ItemRecord.Columns.dateModified.desc,
-                ItemRecord.Columns.dateCreated.desc
-            ])
-        default: break
-        }*/
+    List<int> rowIds = [];
+    itemRecords.forEach((itemRecord) => rowIds.add(itemRecord.rowId!));
 
-    return itemRecords;
+    // Property conditions TODO
+    // Property and edges conditions
+    var queryPropertyConditions = [];
+    await Future.forEach(this.conditions, (DatabaseQueryCondition condition) async {
+      var info, query;
+      List<Variable<dynamic>> binding = [];
+
+      if (condition is DatabaseQueryConditionPropertyEquals) {
+        info = condition.value;
+        query = "name = ? AND value = ? AND item IN (${rowIds.join(", ")})";
+        binding = [Variable.withString(info.name), Variable(info.value)];
+        queryPropertyConditions
+            .add(await dbController.databasePool.itemPropertyRecordsCustomSelect(query, binding));
+      } else if (condition is DatabaseQueryConditionEdgeHasTarget) {
+        //TODO: need to watch use cases
+        info = condition.value;
+        query = "name = ? AND target = ? AND source IN (${rowIds.join(", ")})";
+        binding = [Variable(info.edgeName), Variable(info.target)];
+        queryPropertyConditions
+            .add(await dbController.databasePool.edgeRecordsCustomSelect(query, binding));
+      }
+    });
+
+    List<int> filteredIds = [];
+    if (queryPropertyConditions.isNotEmpty) {
+      List<List<int>> allConditionsItemsRowIds = [];
+      queryPropertyConditions.forEach((conditions) {
+        List<int> itemsRowIds = [];
+        conditions.forEach((el) {
+          if (el.item != null) {
+            itemsRowIds.add(el.item);
+          } else {
+            //TODO: should work, but need to check
+            itemsRowIds.add(el.source);
+          }
+        });
+        allConditionsItemsRowIds.add(itemsRowIds);
+      });
+      filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
+      if (filteredIds.length == 0) {
+        return [];
+      } else {
+        rowIds = filteredIds;
+      }
+    }
+
+    var orderBy = "";
+    var sortOrder = this.sortAscending ? "" : "DESC";
+    switch (sortProperty) {
+      case "dateCreated":
+        orderBy = "ORDER BY dateCreated $sortOrder, dateModified $sortOrder";
+        break;
+      case "dateModified":
+        orderBy = "ORDER BY dateModified $sortOrder, dateCreated $sortOrder";
+        break;
+      default:
+        //TODO: table alias
+        orderBy =
+            "ORDER BY ${this.sortProperty} $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
+        break;
+    }
+    var finalQuery = "row_id IN (${rowIds.join(", ")}) $orderBy LIMIT $limit OFFSET $offset";
+    return await dbController.databasePool.itemRecordsCustomSelect(finalQuery, []);
   }
 
-  /*private func constructSearchRequest() -> SQLRequest<StringUUID?>? {
-        guard let searchString = searchString?.nilIfBlank,
-              let searchQuery = FTS3Pattern(matchingAllTokensIn: searchString),
-              let refinedQuery = try? FTS3Pattern(rawPattern: "\(searchQuery.rawPattern)*")
-        else {
-            return nil
-        }
-        return SQLRequest(sql:
-            """
-               SELECT DISTINCT \(ItemPropertyRecord.Columns.itemUID)
-               FROM \(ItemPropertyRecord.databaseSearchTableName)
-               WHERE \(ItemPropertyRecord.databaseSearchTableName) MATCH ?
-            """, arguments: [refinedQuery])
-    }*/
+  _constructSearchRequest() async {
+    var refinedQuery = "$searchString*";
+    if (searchString == null) {
+      return;
+    }
+    return await dbController.databasePool.itemPropertyRecordsCustomSelect(
+        "value MATCH ?", [Variable.withString(refinedQuery)], true);
+  }
 
-  Future<List<ItemRecord>> executeRequest(Database db) async {
-    this.db = db;
-    /*var searchUIDs = try constructSearchRequest().map { try Set($0.fetchAll(db).compactMap { $0 }) }
-        if includeImmediateEdgeSearch {
-            /// Find items connected the the search results by one or more edges. Eg. if a file is found based on the search term, we will also include a Photo or Note that links to it
-            let edgeUIDs = try searchUIDs.map { searchUIDs -> [StringUUID] in
-                try ItemEdgeRecord.filter(searchUIDs.contains(ItemEdgeRecord.Columns.targetUID)).select([ItemEdgeRecord.Columns.sourceUID]).fetchAll(db)
-            }
-            searchUIDs = searchUIDs?.union(edgeUIDs ?? [])
-        }*/
+  Future<List<ItemRecord>> executeRequest(DatabaseController dbController) async {
+    this.dbController = dbController;
+    List<dynamic>? itemProperties = await _constructSearchRequest();
+    Set<int>? searchIDs;
+    if (itemProperties != null) {
+      searchIDs = Set.of(itemProperties).map((el) => int.parse(el.item)).toSet();
+      if (includeImmediateEdgeSearch) {
+        /// Find items connected the the search results by one or more edges. Eg. if a file is found based on the search term, we will also include a Photo or Note that links to it
+        var edges = await Future.wait(searchIDs
+            .map((id) async => await dbController.databasePool.edgeRecordSelect({"target": id})));
+        Set<int>? edgeIDs = edges.where((edge) => edge != null).map((edge) => edge!.source).toSet();
+        searchIDs = searchIDs.union(edgeIDs);
+      }
+    }
 
-    List<Item> result = await _constructFilteredRequest(); /*searchUIDs*/
+    List<dynamic> result = await _constructFilteredRequest(searchIDs);
     if (result.length > 0) {
-      return result.map((item) => ItemRecord.fromItem(item)).toList();
+      return result.map((item) => ItemRecord.fromItem(item as Item)).toList();
     }
     return [];
   }
 }
 
-/*
-enum DatabaseQueryCondition: Codable, Equatable {
-    case propertyEquals(PropertyEquals)
-    case edgeHasTarget(EdgeHasTarget)
-    
-    enum CodingKeys: CodingKey {
-        case propertyEquals, edgeHasTarget
-    }
-    
-    struct PropertyEquals: Codable, Equatable {
-        var name: String
-        var value: String
-    }
-    
-    struct EdgeHasTarget: Codable, Equatable {
-        var edgeName: String
-        var targetUID: StringUUID
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .propertyEquals(let info):
-            try container.encode(info, forKey: .propertyEquals)
-        case .edgeHasTarget(let info):
-            try container.encode(info, forKey: .edgeHasTarget)
-        }
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let key = container.allKeys.first
-        
-        switch key {
-        case .propertyEquals:
-            try self = .propertyEquals(container.decode(PropertyEquals.self, forKey: .propertyEquals))
-        case .edgeHasTarget:
-            try self = .edgeHasTarget(container.decode(EdgeHasTarget.self, forKey: .edgeHasTarget))
-        case .none:
-            throw StringError(description: "Unknown database query condition")
-        }
-    }
+abstract class DatabaseQueryCondition {
+  dynamic get value;
 }
-*/
+
+class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
+  PropertyEquals value;
+
+  DatabaseQueryConditionPropertyEquals(this.value);
+}
+
+class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
+  EdgeHasTarget value;
+
+  DatabaseQueryConditionEdgeHasTarget(this.value);
+}
+
+class PropertyEquals {
+  String name;
+  dynamic value;
+
+  PropertyEquals(this.name, this.value);
+}
+
+class EdgeHasTarget {
+  String edgeName;
+  String target;
+
+  EdgeHasTarget(this.edgeName, this.target);
+}

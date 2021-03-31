@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/ffi.dart';
 import 'package:path_provider/path_provider.dart' as paths;
@@ -41,17 +42,17 @@ class DatabaseController {
   }
 
   /// Check if the database has been setup
-  bool get databaseIsSetup =>
-      /*ItemRecord.fetchWithUID(db) != null ?? */ false; //TODO
+  Future<bool> get databaseIsSetup async {
+    var item = await this.databasePool.itemRecordFetchOne();
+    return (item != null);
+  }
 
-/*[ItemRecord]*/ /* search(String searchString)  { //TODO:
-        */ /*try read { (db) in
-            guard let searchQuery = FTS3Pattern(matchingAllTokensIn: searchString) else {
-                throw StringError(description: "Invalid search string: \(searchString)")
-            }
-            let refinedQuery = try FTS3Pattern(rawPattern: "\(searchQuery.rawPattern)*")
-            let search = try ItemRecord.search(db, pattern: refinedQuery)
-            return search
-        }*/ /*
-    }*/
+  Future<List<ItemRecord>> search(String? searchString) async {
+    var searchQuery = searchString;
+    if (searchQuery == null) {
+      throw Exception("Invalid search string: $searchString");
+    }
+    var refinedQuery = "$searchQuery*";
+    return await ItemRecord.search(this, refinedQuery);
+  }
 }

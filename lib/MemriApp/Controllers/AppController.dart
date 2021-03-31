@@ -36,8 +36,8 @@ class AppController {
     requestAuthentication();
   }
 
-  updateState() {
-    if (!checkHasBeenSetup()) {
+  updateState() async {
+    if (!await checkHasBeenSetup()) {
       state = AppState.setup;
       return;
     }
@@ -51,10 +51,10 @@ class AppController {
   }
 
   // MARK: Setup
-  setupApp(SetupConfig config, void Function(Exception? error) onCompletion) {
+  setupApp(SetupConfig config, void Function(Exception? error) onCompletion) async {
     if (config is SetupConfigLocal || config is SetupConfigNewPod) {
       try {
-        if (databaseController.databaseIsSetup) {
+        if (await databaseController.databaseIsSetup) {
           // If there is already data set up, don't import
           onCompletion(null);
           return;
@@ -87,8 +87,8 @@ class AppController {
     }
   }
 
-  requestAuthentication() {
-    if (!checkHasBeenSetup()) {
+  requestAuthentication() async {
+    if (!await checkHasBeenSetup()) {
       return;
     }
     isAuthenticated = true;
@@ -104,11 +104,11 @@ class AppController {
     }*/
   }
 
-  bool checkHasBeenSetup() {
+  Future<bool> checkHasBeenSetup() async {
     /*if (!(new Keychain().contains(AppController.keychainDatabaseKey, true))) {
         return false
     }*/
-    if (!AppController.shared.databaseController.databaseIsSetup) {
+    if (!await AppController.shared.databaseController.databaseIsSetup) {
       return false;
     }
     return true;

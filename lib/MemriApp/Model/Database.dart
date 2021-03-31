@@ -28,15 +28,26 @@ class Database extends _$Database {
     return await (select(items)..where((t) => t.id.equals(uid))).getSingle();
   }
 
+  Future<Item> itemRecordFetchWithRowId(int id) async {
+    return await (select(items)..where((t) => t.rowId.equals(id))).getSingle();
+  }
+
+  Future<Item?> itemRecordFetchOne() async {
+    return await select(items).getSingleOrNull();
+  }
+
   Future<int> itemRecordInsert(ItemRecord record) async {
     return await into(items).insert(record.toCompanion());
   }
 
-  Future<List<Item>> itemRecordsCustomSelect(
-      String query, List<Variable<dynamic>> binding) async {
+  Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
+    if (query == "") {
+      return await customSelect("SELECT * from items", variables: binding, readsFrom: {items})
+          .map((row) => Item.fromData(row.data, this))
+          .get();
+    }
     return await customSelect("SELECT * from items WHERE $query",
-        variables: binding,
-        readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
+        variables: binding, readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
   }
 
   Future<int> itemPropertyRecordInsert(ItemPropertyRecord record) async {
@@ -48,13 +59,37 @@ class Database extends _$Database {
     ItemRecordPropertyTable table =
         PropertyDatabaseValue.toDBTableName(record.$value.type);
     Item item = await itemRecordFetchWithUID(record.itemUID);
-    this.customStatement(
-        "DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
+    this.customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
   }
 
   Future<int> itemPropertyRecordSave(ItemPropertyRecord record) async {
     var data = await getItemPropertyRecordTableData(record);
     return into(data.table).insertOnConflictUpdate(data.companion);
+  }
+
+  Future<List<dynamic>> itemPropertyRecordsCustomSelect(
+      String query, List<Variable<dynamic>> binding,
+      [bool isFTS = false]) async {
+    if (isFTS) {
+      List<StringsSearchData> stringProps = await customSelect(
+              "SELECT * from strings_search WHERE $query",
+              variables: binding,
+              readsFrom: {stringsSearch})
+          .map((row) => StringsSearchData.fromData(row.data, this))
+          .get();
+      return stringProps;
+    } else {
+      List<IntegerDb> intProps = await customSelect("SELECT * from integers WHERE $query",
+          variables: binding,
+          readsFrom: {integers}).map((row) => IntegerDb.fromData(row.data, this)).get();
+      List<StringDb> stringProps = await customSelect("SELECT * from strings WHERE $query",
+          variables: binding,
+          readsFrom: {strings}).map((row) => StringDb.fromData(row.data, this)).get();
+      List<RealDb> realProps = await customSelect("SELECT * from reals WHERE $query",
+          variables: binding,
+          readsFrom: {integers}).map((row) => RealDb.fromData(row.data, this)).get();
+      return [...intProps, ...stringProps, ...realProps];
+    }
   }
 
   Future<ItemPropertyRecordTableData> getItemPropertyRecordTableData(
@@ -98,9 +133,7 @@ class Database extends _$Database {
     return await customSelect(
         "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"}",
         variables: properties.values.map((property) => Variable(property)).toList(),
-        readsFrom: {
-          edges
-        }).map((row) => Edge.fromData(row.data, this)).getSingle();
+        readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).getSingleOrNull();
   }
 
   Future<List<Edge>> edgeRecordsSelect(Map<String, dynamic> properties) async {
@@ -108,6 +141,11 @@ class Database extends _$Database {
         "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"}",
         variables: properties.values.map((property) => Variable(property)).toList(),
         readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
+  }
+
+  Future<List<Edge>> edgeRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
+    return await customSelect("SELECT * from edges WHERE $query",
+        variables: binding, readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
 }
 

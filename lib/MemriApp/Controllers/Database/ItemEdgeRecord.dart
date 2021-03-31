@@ -64,15 +64,6 @@ class ItemEdgeRecord {
   }
 
 /*
-
-    ItemRecord? owningItem(Database db)  {
-       return ItemRecord.filter(key: sourceUID).fetchOne(db);
-    }
-
-    ItemRecord? targetItem(Database db) {
-        return ItemRecord.filter(key: targetUID).fetchOne(db);
-    }
-
   Map<String, dynamic> _syncDict() {
     Map<String, dynamic> keyProperties = {
       "_type": name,
