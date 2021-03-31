@@ -5,13 +5,17 @@ import 'PropertyDatabaseValue.dart';
 import 'Schema.dart';
 
 class ItemPropertyRecord {
-  String itemUID;
+  String? itemUID;
+  int itemRowID;
   String name;
 
   PropertyDatabaseValue $value;
 
   ItemPropertyRecord(
-      {required this.itemUID, required this.name, required PropertyDatabaseValue value})
+      {this.itemUID,
+      required this.itemRowID,
+      required this.name,
+      required PropertyDatabaseValue value})
       : $value = value;
 
   PropertyDatabaseValue? value(String itemType, [Schema? schema]) {

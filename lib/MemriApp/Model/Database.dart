@@ -40,6 +40,10 @@ class Database extends _$Database {
     return await into(items).insert(record.toCompanion());
   }
 
+  Future<int> itemRecordSave(ItemRecord record) async {
+    return into(items).insertOnConflictUpdate(record.toCompanion());
+  }
+
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
     if (query == "") {
       return await customSelect("SELECT * from items", variables: binding, readsFrom: {items})
@@ -57,13 +61,21 @@ class Database extends _$Database {
 
   Future<void> itemPropertyRecordDelete(ItemPropertyRecord record) async {
     ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
-    Item item = await itemRecordFetchWithUID(record.itemUID);
-    this.customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
+    Item item = await itemRecordFetchWithRowId(record.itemRowID);
+    customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
   }
 
-  Future<int> itemPropertyRecordSave(ItemPropertyRecord record) async {
+  Future<dynamic> itemPropertyRecordSave(ItemPropertyRecord record) async {
     var data = await getItemPropertyRecordTableData(record);
-    return into(data.table).insertOnConflictUpdate(data.companion);
+    var property = await itemPropertyRecordsCustomSelect(
+        "name = ? AND item = ?", [Variable(record.name), Variable(record.itemRowID)]);
+    if (property.length > 0) {
+      //TODO: need to test
+      return update(data.table).where(
+          (tbl) => (tbl as Strings).item.equals(record.itemRowID) & tbl.name.equals(record.name));
+    } else {
+      return into(data.table).insert(data.companion);
+    }
   }
 
   Future<List<dynamic>> itemPropertyRecordsCustomSelect(
@@ -94,7 +106,7 @@ class Database extends _$Database {
   Future<ItemPropertyRecordTableData> getItemPropertyRecordTableData(
       ItemPropertyRecord record) async {
     ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
-    Item item = await itemRecordFetchWithUID(record.itemUID);
+    Item item = await itemRecordFetchWithRowId(record.itemRowID);
     switch (table) {
       case ItemRecordPropertyTable.integers:
         return ItemPropertyRecordTableData(

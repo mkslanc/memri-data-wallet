@@ -45,7 +45,7 @@ void main() {
   test('testWriteInRead', () async {
     var queryDef = await databaseController.search("trailhead first");
     var result = queryDef[0];
-    result.setPropertyValue(
+    await result.setPropertyValue(
         "content", PropertyDatabaseValueString("TESTING 123"), databaseController);
   });
 

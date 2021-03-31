@@ -7,6 +7,13 @@
 
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 
+enum SyncState {
+  create,
+  update,
+  noChanges,
+  failed,
+}
+
 class SyncController {
   final DatabaseController databaseController;
 

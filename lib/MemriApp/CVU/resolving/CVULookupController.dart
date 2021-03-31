@@ -168,7 +168,7 @@ class CVULookupController {
         ItemRecord? item = res?[0];
         String? property = res?[1];
         if (res != null && item != null && property != null) {
-          return item.propertyBinding(name: property, defaultValue: defaultValue);
+          return await item.propertyBinding(name: property, defaultValue: defaultValue);
         }
       }
       return null;
