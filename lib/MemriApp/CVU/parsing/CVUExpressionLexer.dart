@@ -1,8 +1,7 @@
 import 'dart:core';
 import 'CVUExpressionParser.dart';
 
-class ExprToken {
-}
+class ExprToken {}
 
 class ExprTokenOperator extends ExprToken {
   final ExprOperator value;
@@ -292,7 +291,8 @@ class CVUExpressionLexer {
       }
 
       if (isMode.weight >= Mode.string.weight) {
-        if (isMode == Mode.string && (c == startChar || startChar == null && startInStringMode && c == "{")) {
+        if (isMode == Mode.string &&
+            (c == startChar || startChar == null && startInStringMode && c == "{")) {
           if (keyword.length > 0 || i > 0 || c != "{") {
             addToken(ExprTokenString(keyword.join(), i));
           }
@@ -388,7 +388,7 @@ class CVUExpressionLexer {
         case "7":
         case "8":
         case "9":
-        if (isMode == Mode.idle) {
+          if (isMode == Mode.idle) {
             isMode = Mode.number;
           }
           keyword.add(c);

@@ -108,7 +108,8 @@ class CVUParser {
       if (token is! CVUTokenIdentifier) {
         throw CVUParseErrorsExpectedIdentifier(lastToken!);
       }
-      return CVUParsedDefinition(type: CVUDefinitionType.uiNode, selector: typeIdentifier, renderer: token.value);
+      return CVUParsedDefinition(
+          type: CVUDefinitionType.uiNode, selector: typeIdentifier, renderer: token.value);
     }
 
     return CVUParsedDefinition(type: CVUDefinitionType.view, selector: typeIdentifier);
@@ -134,11 +135,11 @@ class CVUParser {
     String value = token.value;
 
     if (value.startsWith(".")) {
-      return CVUParsedDefinition(type: CVUDefinitionType.view, selector: value, name: value.substring(0, 1));
+      return CVUParsedDefinition(
+          type: CVUDefinitionType.view, selector: value, name: value.substring(0, 1));
     } else if (value.startsWith("[")) {
       throw Exception("Not supported yet"); // TODO:
-    }
-    else {
+    } else {
       return CVUParsedDefinition(type: CVUDefinitionType.view, selector: value);
     }
   }
@@ -191,17 +192,23 @@ class CVUParser {
 
       switch (type) {
         case "sessions":
-          return CVUParsedDefinition(type: CVUDefinitionType.sessions, selector: "[sessions = $name]", name: name);
+          return CVUParsedDefinition(
+              type: CVUDefinitionType.sessions, selector: "[sessions = $name]", name: name);
         case "session":
-          return CVUParsedDefinition(type: CVUDefinitionType.views, selector: "[session = $name]", name: name);
+          return CVUParsedDefinition(
+              type: CVUDefinitionType.views, selector: "[session = $name]", name: name);
         case "view":
-          return CVUParsedDefinition(type: CVUDefinitionType.view, selector: "[view = $name]", name: name);
+          return CVUParsedDefinition(
+              type: CVUDefinitionType.view, selector: "[view = $name]", name: name);
         case "datasource":
-          return CVUParsedDefinition(type: CVUDefinitionType.datasource, selector: "[datasource = $name]", name: name);
+          return CVUParsedDefinition(
+              type: CVUDefinitionType.datasource, selector: "[datasource = $name]", name: name);
         case "renderer":
-          return CVUParsedDefinition(type: CVUDefinitionType.renderer, selector: "[renderer = $name]", name: name);
+          return CVUParsedDefinition(
+              type: CVUDefinitionType.renderer, selector: "[renderer = $name]", name: name);
         case "language":
-          return CVUParsedDefinition(type: CVUDefinitionType.language, selector: "[language = $name]", name: name);
+          return CVUParsedDefinition(
+              type: CVUDefinitionType.language, selector: "[language = $name]", name: name);
         default:
           throw CVUParseErrorsUnknownDefinition(type, typeToken);
       }
@@ -234,11 +241,8 @@ class CVUParser {
     }
 
     addUIElement(CVUUIElementFamily type, CVUDefinitionContent properties) {
-      parsedContent.children.add(CVUUINode(
-          type: type,
-          children: properties.children,
-          properties: properties.properties
-      ));
+      parsedContent.children.add(
+          CVUUINode(type: type, children: properties.children, properties: properties.properties));
     }
 
     while (true) {
@@ -346,7 +350,8 @@ class CVUParser {
       }
     }
   }
-  CVUParsedDefinition parseDefinition(CVUParsedDefinition selector){
+
+  CVUParsedDefinition parseDefinition(CVUParsedDefinition selector) {
     while (true) {
       if (peekCurrentToken() is CVUTokenNewline) {
         popCurrentToken();

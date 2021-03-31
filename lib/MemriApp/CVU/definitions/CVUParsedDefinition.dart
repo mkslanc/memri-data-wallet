@@ -9,16 +9,7 @@ import 'CVUValue.dart';
 
 /// An enum describing the different types of definition in CVU.
 /// These have different ways of being expressed in CVU eg. [renderer = ...], Text, .someViewName
-enum CVUDefinitionType {
-  view,
-  views,
-  uiNode,
-  sessions,
-  renderer,
-  datasource,
-  language,
-  other
-}
+enum CVUDefinitionType { view, views, uiNode, sessions, renderer, datasource, language, other }
 
 enum CVUDefinitionDomain { user }
 
@@ -39,34 +30,41 @@ class CVUDefinitionContent extends CVUStringConvertible {
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;
-    String propertiesString = properties.isEmpty ? "" : properties.toCVUString(depth + 1, tab, true);
+    String propertiesString =
+        properties.isEmpty ? "" : properties.toCVUString(depth + 1, tab, true);
     if (propertiesString.isNotEmpty) {
       propertiesString += "\n";
     }
 
-    String childrenString =
-        children.isEmpty ? "" : children.map((node) => node.toCVUString(depth + 1, tab, true)).join("\n");
+    String childrenString = children.isEmpty
+        ? ""
+        : children.map((node) => node.toCVUString(depth + 1, tab, true)).join("\n");
     if (childrenString.isNotEmpty) {
       childrenString += "\n";
     }
 
-    String nestedDefinitions =
-        definitions.isEmpty ? "" : definitions.map((element) => element.toCVUString(depth + 1, tab, true)).join("\n\n");
+    String nestedDefinitions = definitions.isEmpty
+        ? ""
+        : definitions.map((element) => element.toCVUString(depth + 1, tab, true)).join("\n\n");
     if (nestedDefinitions.isNotEmpty) {
       nestedDefinitions += "\n";
     }
 
     bool newLineA = propertiesString.isNotEmpty && childrenString.isNotEmpty;
-    bool newLineB = nestedDefinitions.isNotEmpty && (propertiesString.isNotEmpty || childrenString.isNotEmpty);
+    bool newLineB =
+        nestedDefinitions.isNotEmpty && (propertiesString.isNotEmpty || childrenString.isNotEmpty);
 
     return '${includeInitialTab ? tabs : ""}{\n$propertiesString${newLineA ? "\n" : ""}$childrenString${newLineB ? "\n" : ""}$nestedDefinitions$tabs}';
   }
 
   CVUDefinitionContent merge([CVUDefinitionContent? other]) {
-    if (other == null) { return this; }
+    if (other == null) {
+      return this;
+    }
     var result = this;
     for (var definition in other.definitions) {
-      int index = result.definitions.indexWhere((element) => element.selector == definition.selector);
+      int index =
+          result.definitions.indexWhere((element) => element.selector == definition.selector);
       if (index > -1) {
         result.definitions[index] = result.definitions[index].merge(definition);
       } else {
@@ -108,17 +106,17 @@ class CVUParsedDefinition extends CVUStringConvertible {
 
   CVUDefinitionContent parsed = CVUDefinitionContent();
 
-  CVUParsedDefinition({
-    this.type = CVUDefinitionType.other,
-    this.domain = CVUDefinitionDomain.user,
-    this.selector,
-    this.renderer,
-    this.name
-  });
+  CVUParsedDefinition(
+      {this.type = CVUDefinitionType.other,
+      this.domain = CVUDefinitionDomain.user,
+      this.selector,
+      this.renderer,
+      this.name});
 
   get(propName) {
     return parsed.properties[propName];
   }
+
   set(String propName, value) {
     parsed.properties[propName] = value;
   }
@@ -138,7 +136,9 @@ class CVUParsedDefinition extends CVUStringConvertible {
   }
 
   CVUParsedDefinition merge(CVUParsedDefinition? other) {
-    if (other == null) { return this; }
+    if (other == null) {
+      return this;
+    }
     var result = this;
     result.parsed = parsed.merge(other.parsed);
     return result;

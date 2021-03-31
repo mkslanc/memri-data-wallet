@@ -49,9 +49,8 @@ class ItemRecord extends Equatable {
       type: Value(type),
       dateCreated: Value(dateCreated),
       dateModified: Value(dateModified),
-      dateServerModified: dateServerModified == null
-          ? const Value.absent()
-          : Value(dateServerModified),
+      dateServerModified:
+          dateServerModified == null ? const Value.absent() : Value(dateServerModified),
       deleted: Value(deleted),
     );
   }
@@ -84,8 +83,7 @@ class ItemRecord extends Equatable {
 
   setPropertyValue(String name, dynamic? value, DatabaseController? dbController) {}
 
-  static Future<ItemRecord?> fetchWithUID(String uid,
-      [DatabaseController? db]) async {
+  static Future<ItemRecord?> fetchWithUID(String uid, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     try {
       Item item = await db.databasePool.itemRecordFetchWithUID(uid);
@@ -103,8 +101,7 @@ class ItemRecord extends Equatable {
   Future<ItemRecord?> edgeItem(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     try {
-      var edge = await db.databasePool
-          .edgeRecordSelect({"source": rowId, "name": name});
+      var edge = await db.databasePool.edgeRecordSelect({"source": rowId, "name": name});
       if (edge != null) {
         return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
       }
@@ -114,15 +111,13 @@ class ItemRecord extends Equatable {
     }
   }
 
-  Future<List<ItemRecord>> edgeItems(String name,
-      [DatabaseController? db]) async {
+  Future<List<ItemRecord>> edgeItems(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
 
     try {
-      var edges = await db.databasePool
-          .edgeRecordsSelect({"source": rowId, "name": name});
-      return (await Future.wait(edges.map((edge) async =>
-      await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+      var edges = await db.databasePool.edgeRecordsSelect({"source": rowId, "name": name});
+      return (await Future.wait(
+              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
           .whereType<ItemRecord>()
           .toList();
     } catch (e) {
@@ -131,13 +126,11 @@ class ItemRecord extends Equatable {
     }
   }
 
-  Future<ItemRecord?> reverseEdgeItem(String name,
-      [DatabaseController? db]) async {
+  Future<ItemRecord?> reverseEdgeItem(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
 
     try {
-      var edge = await db.databasePool
-          .edgeRecordSelect({"target": rowId, "name": name});
+      var edge = await db.databasePool.edgeRecordSelect({"target": rowId, "name": name});
       if (edge != null) {
         return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
       }
@@ -147,15 +140,13 @@ class ItemRecord extends Equatable {
     }
   }
 
-  Future<List<ItemRecord>> reverseEdgeItems(String name,
-      [DatabaseController? db]) async {
+  Future<List<ItemRecord>> reverseEdgeItems(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
 
     try {
-      var edges = await db.databasePool
-          .edgeRecordsSelect({"target": rowId, "name": name});
-      return (await Future.wait(edges.map((edge) async =>
-      await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+      var edges = await db.databasePool.edgeRecordsSelect({"target": rowId, "name": name});
+      return (await Future.wait(
+              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
           .whereType<ItemRecord>()
           .toList();
     } catch (e) {

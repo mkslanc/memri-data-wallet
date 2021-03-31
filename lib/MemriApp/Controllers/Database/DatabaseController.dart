@@ -17,8 +17,7 @@ class DatabaseController {
   String databaseName;
   bool inMemory;
 
-  Schema get schema =>
-      _schema!; //TODO this is done because constructors can't be async
+  Schema get schema => _schema!; //TODO this is done because constructors can't be async
 
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(

@@ -27,7 +27,8 @@ class CVUPropertyResolver {
   final DatabaseController db;
   final Map<String, CVUValue> properties;
 
-  CVUPropertyResolver({required this.context, required this.lookup, required this.db, required this.properties});
+  CVUPropertyResolver(
+      {required this.context, required this.lookup, required this.db, required this.properties});
 
   CVUPropertyResolver replacingItem(ItemRecord item) {
     CVUPropertyResolver result = this;
@@ -57,7 +58,10 @@ class CVUPropertyResolver {
       return null;
     }
     return CVUPropertyResolver(
-        context: this.context, lookup: this.lookup, db: this.db, properties: value.value.properties);
+        context: this.context,
+        lookup: this.lookup,
+        db: this.db,
+        properties: value.value.properties);
   }
 
   Future<double?> number(String key) async {
@@ -82,8 +86,7 @@ class CVUPropertyResolver {
     if (val != null) {
       return null;
     }
-    return (await lookup.resolve<double>(value: val, context: context, db: db))
-        ?.toInt();
+    return (await lookup.resolve<double>(value: val, context: context, db: db))?.toInt();
   }
 
   Future<String?> string(String key) async {
@@ -96,14 +99,12 @@ class CVUPropertyResolver {
 
   Future<List<String>> stringArray(String key) async {
     return (await Future.wait(valueArray(key).map((CVUValue element) async =>
-            await lookup.resolve<String>(
-                value: element, context: this.context, db: this.db))))
+            await lookup.resolve<String>(value: element, context: this.context, db: this.db))))
         .whereType<String>()
         .toList();
   }
 
-  Future<bool?> boolean(String key,
-      [bool? defaultValue, bool? defaultValueForMissingKey]) async {
+  Future<bool?> boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) async {
     CVUValue? val = value(key);
     if (val == null) {
       if (defaultValue != null || defaultValueForMissingKey != null) {
@@ -111,8 +112,7 @@ class CVUPropertyResolver {
       }
       return null;
     }
-    return await lookup.resolve<bool>(
-            value: val, context: this.context, db: this.db) ??
+    return await lookup.resolve<bool>(value: val, context: this.context, db: this.db) ??
         defaultValue;
   }
 
@@ -129,8 +129,7 @@ class CVUPropertyResolver {
     if (val != null) {
       return null;
     }
-    return await lookup.resolve<ItemRecord>(
-        value: val, context: context, db: db);
+    return await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
   }
 
   Future<List<ItemRecord>> items(String key) async {
@@ -138,8 +137,7 @@ class CVUPropertyResolver {
     if (val != null) {
       return [];
     }
-    return (await lookup.resolve<List<ItemRecord>>(
-        value: val, context: context, db: db))!;
+    return (await lookup.resolve<List<ItemRecord>>(value: val, context: context, db: db))!;
   }
 
   Future<ItemRecord?> edge(String key, String edgeName) async {
@@ -147,13 +145,11 @@ class CVUPropertyResolver {
     if (val != null) {
       return null;
     }
-    ItemRecord? item =
-        await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
+    ItemRecord? item = await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
     if (item == null) {
       return null;
     }
-    return await lookup.resolve<ItemRecord>(
-        edge: edgeName, item: item, db: this.db);
+    return await lookup.resolve<ItemRecord>(edge: edgeName, item: item, db: this.db);
   }
 
   Future<PropertyDatabaseValue?> property(
@@ -165,14 +161,13 @@ class CVUPropertyResolver {
     }
   }
 
-  Future<PropertyDatabaseValue?> _propertyForString(
-      String key, String propertyName) async {
+  Future<PropertyDatabaseValue?> _propertyForString(String key, String propertyName) async {
     var val = value(key);
     if (val == null) {
       return null;
     }
-    ItemRecord? item = await lookup.resolve<ItemRecord>(
-        value: val, context: this.context, db: this.db);
+    ItemRecord? item =
+        await lookup.resolve<ItemRecord>(value: val, context: this.context, db: this.db);
     if (item == null) {
       return null;
     }
@@ -194,30 +189,22 @@ class CVUPropertyResolver {
     }
   }
 
-  Future<Binding<bool>?> _bindingWithBoolean(String key,
-      [bool defaultValue = false]) async {
+  Future<Binding<bool>?> _bindingWithBoolean(String key, [bool defaultValue = false]) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
     return await lookup.resolve<Binding<bool>>(
-        value: val,
-        defaultValue: defaultValue,
-        context: this.context,
-        db: this.db);
+        value: val, defaultValue: defaultValue, context: this.context, db: this.db);
   }
 
-  Future<Binding<String>?> _bindingWithString(
-      String key, String? defaultValue) async {
+  Future<Binding<String>?> _bindingWithString(String key, String? defaultValue) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
     return await lookup.resolve<Binding<String>>(
-        value: val,
-        defaultValue: defaultValue,
-        context: this.context,
-        db: this.db);
+        value: val, defaultValue: defaultValue, context: this.context, db: this.db);
   }
 
   CVUAction? action(String key) {
@@ -263,8 +250,7 @@ class CVUPropertyResolver {
       file = await edge(key, "file");
     }
     if (file != null && file.type == "File") {
-      String? filename =
-          (await property(item: file, propertyName: "filename"))?.asString();
+      String? filename = (await property(item: file, propertyName: "filename"))?.asString();
       return filename;
     }
     return null;
@@ -281,8 +267,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return CVU_SizingMode.fit;
     }
-    String? string =
-        await lookup.resolve<String>(value: val, context: context, db: db);
+    String? string = await lookup.resolve<String>(value: val, context: context, db: db);
     if (string == null) {
       return CVU_SizingMode.fit;
     }
@@ -294,8 +279,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    String? string = await lookup.resolve<String>(
-        value: val, context: this.context, db: this.db);
+    String? string = await lookup.resolve<String>(value: val, context: this.context, db: this.db);
     if (string == null) {
       return null;
     }
@@ -313,8 +297,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return Alignment.center;
     }
-    switch (
-        await lookup.resolve<String>(value: val, context: context, db: db)) {
+    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
       case "leading":
         return Alignment.centerLeft;
@@ -351,8 +334,7 @@ class CVUPropertyResolver {
     if (val == null) {
       return TextAlign.left;
     }
-    switch (
-        await lookup.resolve<String>(value: val, context: context, db: db)) {
+    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
       case "leading":
         return TextAlign.left;
@@ -371,10 +353,8 @@ class CVUPropertyResolver {
     var values = valueArray(propertyName);
     double? x, y;
     if (values.length >= 2) {
-      x = await lookup.resolve<double>(
-          value: values[0], context: this.context, db: this.db);
-      y = await lookup.resolve<double>(
-          value: values[1], context: this.context, db: this.db);
+      x = await lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
+      y = await lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
     }
 
     if (x != null && y != null) {
@@ -409,9 +389,8 @@ class CVUPropertyResolver {
 
   Future<EdgeInsets?> insets(String propertyName) async {
     var values = this.valueArray(propertyName);
-    List<double> insetArray = (await Future.wait(values.map<Future<double?>>(
-            (element) async => await lookup.resolve<double>(
-                value: element, context: this.context, db: this.db))))
+    List<double> insetArray = (await Future.wait(values.map<Future<double?>>((element) async =>
+            await lookup.resolve<double>(value: element, context: this.context, db: this.db))))
         .whereType<double>()
         .toList();
     if (insetArray.length > 0) {
@@ -437,17 +416,14 @@ class CVUPropertyResolver {
     }
   }
 
-  Future<CVUFont> font(
-      [String propertyName = "font", CVUFont? defaultValue]) async {
+  Future<CVUFont> font([String propertyName = "font", CVUFont? defaultValue]) async {
     defaultValue = defaultValue ?? CVUFont();
     var values = valueArray(propertyName);
     String? name;
     double? size;
     if (values.length >= 2) {
-      name = await lookup.resolve<String>(
-          value: values[0], context: this.context, db: this.db);
-      size = await lookup.resolve<double>(
-          value: values[1], context: this.context, db: this.db);
+      name = await lookup.resolve<String>(value: values[0], context: this.context, db: this.db);
+      size = await lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
     }
 
     if (name != null && size != null) {
@@ -456,14 +432,12 @@ class CVUPropertyResolver {
           size: size,
           weight: CVUFont.Weight[await lookup.resolve<String>(
                   value: values[2], context: this.context, db: this.db)] ??
-              defaultValue
-                  .weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+              defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
           );
     } else {
       if (values.isNotEmpty) {
         var val = values[0];
-        double? size = await lookup.resolve<double>(
-            value: val, context: this.context, db: this.db);
+        double? size = await lookup.resolve<double>(value: val, context: this.context, db: this.db);
 
         if (size != null) {
           return CVUFont(
@@ -471,18 +445,12 @@ class CVUPropertyResolver {
               size: size,
               weight: CVUFont.Weight[await lookup.resolve<String>(
                       value: values[1], context: this.context, db: this.db)] ??
-                  defaultValue
-                      .weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+                  defaultValue.weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
         } else {
           var weight = CVUFont.Weight[await lookup.resolve<String>(
-              value: val,
-              context: this.context,
-              db: this.db)]; //.flatMap(Font.Weight.init) TODO:
+              value: val, context: this.context, db: this.db)]; //.flatMap(Font.Weight.init) TODO:
           if (weight != null) {
-            return CVUFont(
-                name: defaultValue.name,
-                size: defaultValue.size,
-                weight: weight);
+            return CVUFont(name: defaultValue.name, size: defaultValue.size, weight: weight);
           }
         }
       }
@@ -555,8 +523,7 @@ class CVUPropertyResolver {
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
-    return EdgeInsets.fromLTRB(
-        uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
+    return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
   Future<EdgeInsets> get margin async {
@@ -564,8 +531,7 @@ class CVUPropertyResolver {
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
-    return EdgeInsets.fromLTRB(
-        uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
+    return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
   Future<double?> get cornerRadius async {

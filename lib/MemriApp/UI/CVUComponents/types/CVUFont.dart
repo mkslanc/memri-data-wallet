@@ -14,12 +14,7 @@ class CVUFont {
   CVUFont({this.name, this.size, this.weight, this.italic = false});
 
   Map<String, dynamic> get font {
-    return {
-      "family": name,
-      "size": size,
-      "weight": weight ?? FontWeight.normal,
-      "italic": italic
-    };
+    return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};
   }
 
   /*get uiFont(): UIFont {

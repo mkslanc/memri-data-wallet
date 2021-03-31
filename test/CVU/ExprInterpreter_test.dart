@@ -26,23 +26,17 @@ var lookupController = CVULookupController(LookupMock(true, "Memri", 10));
 
 Future<bool?> interpretAsBool(CVUExpressionNode expr) async {
   return await lookupController.resolve<bool>(
-      value: CVUValueExpression(expr),
-      context: CVUContext(),
-      db: databaseController);
+      value: CVUValueExpression(expr), context: CVUContext(), db: databaseController);
 }
 
 Future<double?> interpretAsDouble(CVUExpressionNode expr) async {
   return await lookupController.resolve<double>(
-      value: CVUValueExpression(expr),
-      context: CVUContext(),
-      db: databaseController);
+      value: CVUValueExpression(expr), context: CVUContext(), db: databaseController);
 }
 
 Future<String?> interpretAsString(CVUExpressionNode expr) async {
   return await lookupController.resolve<String>(
-      value: CVUValueExpression(expr),
-      context: CVUContext(),
-      db: databaseController);
+      value: CVUValueExpression(expr), context: CVUContext(), db: databaseController);
 }
 
 void main() {
@@ -110,8 +104,7 @@ void main() {
   });
 
   test('testMultiCondition', () async {
-    var snippet =
-        "true ? false and true ? -1 : false or true ? 'yes' : 'no' : -1";
+    var snippet = "true ? false and true ? -1 : false or true ? 'yes' : 'no' : -1";
 
     var expr = parse(snippet);
     var result = await interpretAsString(expr);

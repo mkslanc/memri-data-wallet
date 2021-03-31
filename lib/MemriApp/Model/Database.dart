@@ -56,8 +56,7 @@ class Database extends _$Database {
   }
 
   Future<void> itemPropertyRecordDelete(ItemPropertyRecord record) async {
-    ItemRecordPropertyTable table =
-        PropertyDatabaseValue.toDBTableName(record.$value.type);
+    ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
     Item item = await itemRecordFetchWithUID(record.itemUID);
     this.customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
   }

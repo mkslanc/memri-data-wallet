@@ -162,6 +162,5 @@ class ExistingPodConfig {
   final String podPublicKey;
   final String podDatabaseKey;
 
-  ExistingPodConfig(
-      this.podURL, this.podPrivateKey, this.podPublicKey, this.podDatabaseKey);
+  ExistingPodConfig(this.podURL, this.podPrivateKey, this.podPublicKey, this.podDatabaseKey);
 }

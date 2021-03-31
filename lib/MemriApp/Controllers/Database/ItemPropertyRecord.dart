@@ -11,9 +11,7 @@ class ItemPropertyRecord {
   PropertyDatabaseValue $value;
 
   ItemPropertyRecord(
-      {required this.itemUID,
-      required this.name,
-      required PropertyDatabaseValue value})
+      {required this.itemUID, required this.name, required PropertyDatabaseValue value})
       : $value = value;
 
   PropertyDatabaseValue? value(String itemType, [Schema? schema]) {

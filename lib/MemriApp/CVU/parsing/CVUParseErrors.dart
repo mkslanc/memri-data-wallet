@@ -77,10 +77,12 @@ class CVUParseErrors implements Exception {
       message = 'Unexpected ${displayToken(parts)} found ${loc(parts)}';
     } else if (error is CVUParseErrorsUnknownDefinition) {
       parts = token.toParts();
-      message = 'Unknown Definition for `${error.name}` type \'${displayToken(parts)}\' found ${loc(parts)}';
+      message =
+          'Unknown Definition for `${error.name}` type \'${displayToken(parts)}\' found ${loc(parts)}';
     } else if (error is CVUParseErrorsExpectedCharacter) {
       parts = token.toParts();
-      message = 'Expected Character ${error.character} and found ${displayToken(parts)} instead ${loc(parts)}';
+      message =
+          'Expected Character ${error.character} and found ${displayToken(parts)} instead ${loc(parts)}';
     } else if (error is CVUParseErrorsExpectedDefinition) {
       parts = token.toParts();
       message = 'Expected Definition and found ${displayToken(parts)} instead ${loc(parts)}';
@@ -117,12 +119,8 @@ class CVUParseErrors implements Exception {
         afterLines = afterLinesList.join("\n");
       }
 
-      return message + "\n\n"
-        + beforeLines + "\n"
-        + "-" * ch + "^\n"
-        + afterLines;
-    }
-    else {
+      return message + "\n\n" + beforeLines + "\n" + "-" * ch + "^\n" + afterLines;
+    } else {
       return message;
     }
   }
