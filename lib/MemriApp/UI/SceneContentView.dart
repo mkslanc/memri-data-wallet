@@ -1,0 +1,91 @@
+//
+//  SceneContentView.swift
+//  Memri
+//
+//  Created by T Brennan on 23/1/21.
+//
+
+import 'package:flutter/cupertino.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
+
+import 'Chrome/BottomBarView.dart';
+import 'Chrome/SearchView.dart';
+import 'ViewContextController.dart';
+
+class SceneContentView extends StatefulWidget {
+  final SceneController sceneController;
+  final ViewContextController viewContext;
+
+  SceneContentView({required this.sceneController, required this.viewContext});
+  @override
+  _SceneContentViewState createState() =>
+      _SceneContentViewState(this.sceneController, this.viewContext);
+}
+
+class _SceneContentViewState extends State<SceneContentView> {
+  SceneController sceneController;
+  ViewContextController viewContext;
+
+  _SceneContentViewState(this.sceneController, this.viewContext);
+
+  /// Keep track of whether the search bar is currently open (keyboard shown)
+  final searchBarOpen = ValueNotifier<bool>(false);
+
+  /// Translates the rendererName to the correct Renderer view
+  Widget get renderer {
+    switch (viewContext.config.rendererName.toLowerCase()) {
+      /*case "list":
+        ListRendererView(viewContext: viewContext);
+      case "grid":
+        GridRendererView(viewContext: viewContext);
+      case "map":
+        MapRendererView(viewContext: viewContext);
+      case "timeline":
+        TimelineRendererView(viewContext: viewContext);
+      case "calendar":
+        CalendarRendererView(viewContext: viewContext);
+      case "photoviewer":
+        PhotoViewerRendererView(viewContext: viewContext);
+      case "chart":
+        ChartRendererView(viewContext: viewContext);
+      case "singleitem":
+        SingleItemRendererView(viewContext: viewContext);
+      case "noteeditor":
+        NoteEditorRendererView(viewContext: viewContext);
+      case "labelannotation":
+        LabelAnnotationRendererView(viewContext: viewContext);
+      case "fileviewer":
+        FileRendererView(viewContext: viewContext);
+      case "generaleditor":
+        GeneralEditorRendererView(viewContext: viewContext);*/
+      default:
+        return Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        renderer,
+        ValueListenableBuilder<bool>(
+            builder: (BuildContext context, value, Widget? child) {
+              // This builder will only get called when the _counter
+              // is updated.
+              return value
+                  ? SearchView(viewContext: viewContext, isActive: searchBarOpen)
+                  : BottomBarView(
+                      viewContext: viewContext,
+                      onFilterButtonPressed: () {
+                        searchBarOpen.value = true;
+                      },
+                      onSearchPressed: () {
+                        sceneController.filterPanelIsVisible = true;
+                      },
+                    );
+            },
+            valueListenable: searchBarOpen)
+      ],
+    );
+  }
+}

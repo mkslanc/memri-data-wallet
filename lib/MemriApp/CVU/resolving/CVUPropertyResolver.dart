@@ -458,8 +458,8 @@ class CVUPropertyResolver {
     return defaultValue;
   }
 
-  Future<bool?> get showNode async {
-    return await boolean("show", false, true);
+  Future<bool> get showNode async {
+    return (await boolean("show", false, true))!; //TODO boolean function type @anijanyan
   }
 
   Future<double> get opacity async {

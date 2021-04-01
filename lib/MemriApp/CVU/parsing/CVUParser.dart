@@ -290,8 +290,8 @@ class CVUParser {
             nextToken = peekCurrentToken();
           }
 
-          CVUUIElementFamily type = CVUUIElementFamilyExtension.rawValue(v.toLowerCase());
-          if (lastKey == null && (type != CVUUIElementFamily.Null)) {
+          var type = CVUUIElementFamilyExtension.rawValue(v.toLowerCase());
+          if (lastKey == null && type != null) {
             var properties = CVUDefinitionContent();
             if (nextToken is CVUTokenCurlyBracketOpen) {
               popCurrentToken();
