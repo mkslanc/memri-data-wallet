@@ -158,6 +158,10 @@ class Database extends _$Database {
     return await customSelect("SELECT * from edges WHERE $query",
         variables: binding, readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
+
+  Future<NavigationStateData?> navigationStateFetchOne() async {
+    return await select(navigationState).getSingleOrNull();
+  }
 }
 
 class ItemPropertyRecordTableData {

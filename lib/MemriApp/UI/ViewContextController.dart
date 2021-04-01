@@ -29,7 +29,10 @@ class ViewContextController {
   var configObservation;
   var queryObservation;
 
+  CVUDefinitionContent rendererDefinition;
+
   ViewContext get config => configHolder.config;
+
   set config(ViewContext newValue) {
     if (configHolder.config != newValue) {
       configHolder.config = newValue;
@@ -40,7 +43,9 @@ class ViewContextController {
   ViewContextController(
       {required ViewContextHolder config,
       DatabaseController? databaseController,
-      CVUController? cvuController}) {
+      CVUController? cvuController,
+      rendererDefinition})
+      : this.rendererDefinition = rendererDefinition ?? CVUDefinitionContent() {
     this.databaseController = databaseController ?? AppController.shared.databaseController;
     this.cvuController = cvuController ?? AppController.shared.cvuController;
     this.lookupController = CVULookupController();
@@ -74,6 +79,7 @@ class ViewContextController {
   }
 
   ItemRecord? get focusedItem => config.focusedItem;
+
   set focusedItem(ItemRecord? newValue) {
     config.focusedItem = newValue;
   }
@@ -141,16 +147,16 @@ class ViewContextController {
     }
   }
 
-  CVUDefinitionContent rendererDefinition = CVUDefinitionContent();
+  late CVUPropertyResolver viewDefinitionPropertyResolver
 
-  CVUPropertyResolver
-      viewDefinitionPropertyResolver /* = (){TODO check if these functions are needed
+      /* = (){TODO check if these functions are needed
     return config.viewDefinition.propertyResolver(context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
   }()*/
       ;
 
-  CVUPropertyResolver
-      rendererDefinitionPropertyResolver /* = (){
+  late CVUPropertyResolver rendererDefinitionPropertyResolver
+
+      /* = (){
     return rendererDefinition.propertyResolver(context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
   }()*/
       ;
@@ -180,7 +186,9 @@ class ViewContextController {
   /// This holds the array of results for the query. If `isObserving` is set to true, this will be up to date with any changes in the database.
   // @Published
   List<ItemRecord> _items = [];
+
   List<ItemRecord> get items => _items;
+
   set items(List<ItemRecord> items) {
     this._items = items;
   }
@@ -207,6 +215,7 @@ class ViewContextController {
 
   // MARK: Search State
   String? get searchString => config.query.searchString;
+
   set searchString(String? newValue) {
     config.query.searchString = newValue;
   }
@@ -218,7 +227,9 @@ class ViewContextController {
   /// Determines if the query is actively observing for changes. If set to false, it won't respond to changes.
   /// Use this to avoid unneccessary observation if a query isn't being shown in the UI currently
   bool _isObservingQuery = true;
+
   bool get isObservingQuery => _isObservingQuery;
+
   set isObservingQuery(bool isObservingQuery) {
     if (this._isObservingQuery == isObservingQuery) {
       return;

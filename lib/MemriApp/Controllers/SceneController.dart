@@ -1,22 +1,19 @@
-//
-//  SceneController.swift
-//  MemriDatabase
-//
-//  Created by T Brennan on 14/12/20.
-//
-
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
+import 'package:memri/MemriApp/UI/SceneContentView.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 import 'AppController.dart';
 import 'Database/DatabaseQuery.dart';
 import 'Database/ItemRecord.dart';
+import 'Database/NavigationStack.dart';
 
 /// The scene controller is specific to a particular `window` of the app. On the iPhone there is usually only one. There may be multiple eg. if multitasking on iPad or multiple windows on mac
 class SceneController {
@@ -24,22 +21,22 @@ class SceneController {
 
   ViewContextController? topMostContext;
 
-  // MemriUINavigationController navigationController = MemriUINavigationController();
+  MemriUINavigationController navigationController = MemriUINavigationController();
 
-  init() {
-    // setupObservations();
-    //
-    // var oldState = appController.databaseController.read {
-    // try NavigationStack.fetchOne($0)
-    // }
-    // if let navStack = oldState, let topView = navStack.state.last {
-    // navigationStack = navStack
-    // let context = makeContext(forConfig: topView)
-    // topMostContext = context
-    // navigationController.viewControllers = [UIHostingController(rootView: SceneContentView(context: context))]
-    // } else {
-    // navigationController.viewControllers = [UIHostingController(rootView: Text("Welcome to Memri"))]
-    // }
+  init() async {
+    await appController.databaseController.init();
+    //setupObservations();
+    var navStack = await NavigationStack.fetchOne(appController.databaseController);
+    if (navStack != null && navStack.state.length > 0) {
+      _navigationStack = navStack;
+      var topView = navStack.state.last;
+      var context = makeContext(topView);
+      topMostContext = context;
+      navigationController.setViewControllers(
+          [MaterialPage(child: SceneContentView(sceneController: this, viewContext: context))]);
+    } else {
+      navigationController.setViewControllers([MaterialPage(child: Text("Welcome to Memri"))]);
+    }
   }
 
   // @Published
@@ -53,7 +50,7 @@ class SceneController {
 
   String? get navigationFilterText => _navigationQuery.searchString;
 
-  set(String? newValue) => _navigationQuery.searchString = newValue?.nilIfBlank;
+  set(String? newValue) => _navigationQuery.searchString = newValue?.nullIfBlank;
 
   // @Published
   bool filterPanelIsVisible = false;
@@ -61,7 +58,7 @@ class SceneController {
   DatabaseQueryConfig _navigationQuery =
       DatabaseQueryConfig(itemTypes: ["NavigationItem"], sortProperty: "");
 
-  List<NavigationElement> get navigationItems {
+  /*List<NavigationElement> get navigationItems { TODO
     return _navigationItemRecords.map<NavigationElement>((item) {
       String? title;
       switch (item.propertyValue("itemType")?.asString()) {
@@ -79,10 +76,11 @@ class SceneController {
           if (title == null || targetViewName == null) {
             return null;
           }
-          return NavigationElement.item(NavigationElement.Item(title, targetViewName));
+          return NavigationElement.item(
+              NavigationElement.Item(title, targetViewName));
       }
     }).toList();
-  }
+  }*/
 
   // @Published
   List<ItemRecord> _navigationItemRecords = <ItemRecord>[];
@@ -114,7 +112,7 @@ class SceneController {
     //     })
   }
 
-  NavigationStack _navigationStack;
+  NavigationStack _navigationStack = NavigationStack();
 
   /* = NavigationStack() {
   willSet {
@@ -125,8 +123,8 @@ class SceneController {
   didSet {
   if navigationStack != oldValue {
   try? appController.databaseController.writeSync {
-  try navigationStack.save($0)
-  }
+  try .save($0)
+  }navigationStack
   }
   }
   }*/
@@ -138,21 +136,20 @@ class SceneController {
         cvuController: appController.cvuController);
   }
 
-  bool get canNavigateBack => _navigationStack.state.count > 1;
+  bool get canNavigateBack => _navigationStack.state.length > 1;
 
   navigateBack() {
     if (_navigationStack.state.length <= 1) {
       return;
     }
-    var newTopConfig = _navigationStack.state[_navigationStack.state.endIndex - 2];
-    _navigationStack.state.pop();
+    var newTopConfig = _navigationStack.state[_navigationStack.state.length - 1 - 2];
+    _navigationStack.state.removeLast();
 
     var context = makeContext(newTopConfig);
     topMostContext = context;
-
-    // var vc = UIHostingController(SceneContentView(context));
-    // navigationController.viewControllers.insert(vc, at: navigationController.viewControllers.endIndex - 1);
-    // navigationController.popToViewController(vc, animated: true);
+    var vc = MaterialPage(child: SceneContentView(sceneController: this, viewContext: context));
+    navigationController.pages.add(vc);
+    //navigationController.popToViewController(vc, animated: true); TODO: need to test this
   }
 
   navigateToNewContext(
@@ -186,7 +183,6 @@ class SceneController {
                 db: appController.databaseController)
             .string("defaultRenderer") ??
         defaultRenderer;
-    ;
 
     var datasource = viewDefinition.definitions
         .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
@@ -243,12 +239,13 @@ class SceneController {
     var newViewContextController = makeContext(holder);
     topMostContext = newViewContextController;
     if (clearStack) {
-      navigationStack.state = [holder];
+      _navigationStack.state = [holder];
     } else {
-      navigationStack.state.append(holder);
+      _navigationStack.state.add(holder);
     }
-    navigationController.setViewControllers(
-        [UIHostingController(rootView: SceneContentView(context: newViewContextController))],
-        animated: animated);
+    navigationController.setViewControllers([
+      MaterialPage(
+          child: SceneContentView(sceneController: this, viewContext: newViewContextController))
+    ]);
   }
 }
