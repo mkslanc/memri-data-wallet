@@ -5,6 +5,8 @@
 //  Created by T Brennan on 30/1/21.
 //
 
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
@@ -66,7 +68,7 @@ class ViewContextController {
     if (focusedItem == null) {
       return 0;
     }
-    return items.indexOf(focusedItem) ?? 0;
+    return max(items.indexOf(focusedItem), 0);
   }
 
   set focusedIndex(int newValue) {
@@ -147,16 +149,14 @@ class ViewContextController {
     }
   }
 
-  late CVUPropertyResolver viewDefinitionPropertyResolver
-
-      /* = (){TODO check if these functions are needed
+  late CVUPropertyResolver
+      viewDefinitionPropertyResolver /* = (){TODO check if these functions are needed
     return config.viewDefinition.propertyResolver(context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
   }()*/
       ;
 
-  late CVUPropertyResolver rendererDefinitionPropertyResolver
-
-      /* = (){
+  late CVUPropertyResolver
+      rendererDefinitionPropertyResolver /* = (){
     return rendererDefinition.propertyResolver(context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
   }()*/
       ;
@@ -207,9 +207,11 @@ class ViewContextController {
             .map((uid) => items.indexWhere((item) => item.uid == uid))
             .whereType<int>()
             .toList()), (newValue) {
-      selectedItems =
-          Set.of(newValue.map<String?>((index) => items[index]?.uid).whereType<String>().toList())
-              .toList();
+      selectedItems = Set.of(newValue
+              .map<String?>((index) => items.asMap()[index]?.uid)
+              .whereType<String>()
+              .toList())
+          .toList();
     });
   }
 
