@@ -12,10 +12,9 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 /// This is the view used to display the browser content of each scene
 class SceneView extends StatelessWidget {
   final SceneController sceneController;
+  final double filterPanelGestureOffset = 0;
 
   SceneView({required this.sceneController});
-
-  double filterPanelGestureOffset = 0;
 
   @override
   Widget build(BuildContext context) {

@@ -33,7 +33,7 @@ class Database extends _$Database {
   }
 
   Future<Item?> itemRecordFetchOne() async {
-    return await select(items).getSingleOrNull();
+    return await (select(items)..limit(1)).getSingleOrNull();
   }
 
   Future<int> itemRecordInsert(ItemRecord record) async {

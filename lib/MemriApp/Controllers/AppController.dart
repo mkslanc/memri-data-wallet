@@ -59,7 +59,7 @@ class AppController {
           onCompletion(null);
           return;
         }
-        DemoData.importDemoData(databaseController: databaseController);
+        await DemoData.importDemoData(databaseController: databaseController);
       } on Exception catch (error) {
         onCompletion(error);
         return;

@@ -194,6 +194,8 @@ class DatabaseQueryConfig {
       case "dateModified":
         orderBy = "ORDER BY dateModified $sortOrder, dateCreated $sortOrder";
         break;
+      case "":
+        break;
       default:
         //TODO: table alias
         orderBy =
@@ -213,7 +215,7 @@ class DatabaseQueryConfig {
         "value MATCH ?", [Variable.withString(refinedQuery)], true);
   }
 
-  Future<List<ItemRecord>> executeRequest(DatabaseController dbController) async {
+  Stream<List<ItemRecord>> executeRequest(DatabaseController dbController) async* {
     this.dbController = dbController;
     List<dynamic>? itemProperties = await _constructSearchRequest();
     Set<int>? searchIDs;
@@ -230,9 +232,10 @@ class DatabaseQueryConfig {
 
     List<dynamic> result = await _constructFilteredRequest(searchIDs);
     if (result.length > 0) {
-      return result.map((item) => ItemRecord.fromItem(item as Item)).toList();
+      yield result.map((item) => ItemRecord.fromItem(item as Item)).toList();
+    } else {
+      yield [];
     }
-    return [];
   }
 }
 

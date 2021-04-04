@@ -11,7 +11,7 @@ import '../ViewContextController.dart';
 /// This view is displayed when the user presses the search button
 /// It moves itself to be above the keyboard automatically
 class SearchView extends StatelessWidget {
-  ViewContextController viewContext;
+  final ViewContextController viewContext;
   final ValueNotifier<bool> isActive;
 
   SearchView({required this.viewContext, required this.isActive});

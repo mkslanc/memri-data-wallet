@@ -2,6 +2,7 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
 import 'package:memri/MemriApp/Controllers/Database/DemoData.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 
 void main() {
@@ -15,14 +16,16 @@ void main() {
         databaseController: databaseController, throwIfAgainstSchema: true);
   });
 
-  test('testQuery', () async {
+  test('testQuery', () {
     var queryDef =
         DatabaseQueryConfig(itemTypes: ["Note", "Photo"], pageSize: 1000, currentPage: 0);
-    var result = await queryDef.executeRequest(databaseController);
-    expect(result, isNot(result.length == 0));
+    var result = queryDef.executeRequest(databaseController);
+    result.listen(expectAsync1(
+        (List<ItemRecord> records) => expect(records, isNot(records.length == 0)),
+        max: -1));
   });
 
-  test('testQueryWithConditions', () async {
+  test('testQueryWithConditions', () {
     var queryDef = DatabaseQueryConfig(
         itemTypes: [],
         pageSize: 1000,
@@ -31,15 +34,19 @@ void main() {
           DatabaseQueryConditionPropertyEquals(PropertyEquals("title", "A demo note")),
           DatabaseQueryConditionPropertyEquals(PropertyEquals("starred", true))
         ]);
-    var result = await queryDef.executeRequest(databaseController);
-    expect(result.length, 1);
+    var result = queryDef.executeRequest(databaseController);
+    result.listen(expectAsync1((List<ItemRecord> records) {
+      expect(records.length, 1);
+    }, max: -1));
   });
 
-  test('testSearchQuery', () async {
+  test('testSearchQuery', () {
     var queryDef = DatabaseQueryConfig(
         itemTypes: ["Note", "Photo"], searchString: "demo", pageSize: 10, currentPage: 0);
-    var result = await queryDef.executeRequest(databaseController);
-    expect(result.length, 1);
+    var result = queryDef.executeRequest(databaseController);
+    result.listen(expectAsync1((List<ItemRecord> records) {
+      expect(records.length, 1);
+    }, max: -1));
   });
 
   test('testWriteInRead', () async {

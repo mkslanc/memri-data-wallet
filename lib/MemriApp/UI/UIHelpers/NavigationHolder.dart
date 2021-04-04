@@ -15,8 +15,8 @@ class NavigationHolder {
 
 class MemriUINavigationController extends Navigator {
   setViewControllers(List<Page> newPages) {
-    pages.clear();
-    pages.addAll(newPages);
+    //pages.clear();
+    //pages.addAll(newPages);
   }
 
 /*override func viewDidLoad() { TODO

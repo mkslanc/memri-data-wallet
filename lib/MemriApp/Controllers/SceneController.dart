@@ -3,6 +3,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
+import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
@@ -12,6 +13,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 import 'AppController.dart';
 import 'Database/DatabaseQuery.dart';
+import 'Database/DemoData.dart';
 import 'Database/ItemRecord.dart';
 import 'Database/NavigationStack.dart';
 
@@ -24,8 +26,14 @@ class SceneController {
   MemriUINavigationController navigationController = MemriUINavigationController();
 
   init() async {
+    //TODO: remove in prod
     await appController.databaseController.init();
-    //setupObservations();
+    if (await appController.databaseController.databaseIsSetup) {
+    } else {
+      await DemoData.importDemoData(databaseController: appController.databaseController);
+    }
+    ////
+    _setupObservations();
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
       _navigationStack = navStack;
@@ -50,7 +58,8 @@ class SceneController {
 
   String? get navigationFilterText => _navigationQuery.searchString;
 
-  set(String? newValue) => _navigationQuery.searchString = newValue?.nullIfBlank;
+  set navigationFilterText(String? newValue) =>
+      _navigationQuery.searchString = newValue?.nullIfBlank;
 
   // @Published
   bool filterPanelIsVisible = false;
@@ -58,29 +67,29 @@ class SceneController {
   DatabaseQueryConfig _navigationQuery =
       DatabaseQueryConfig(itemTypes: ["NavigationItem"], sortProperty: "");
 
-  /*List<NavigationElement> get navigationItems { TODO
-    return _navigationItemRecords.map<NavigationElement>((item) {
+  Stream<List<NavigationElement?>> get navigationItems async* {
+    var items = await Future.wait(_navigationItemRecords.map((item) async {
       String? title;
-      switch (item.propertyValue("itemType")?.asString()) {
+      switch ((await item.propertyValue("itemType"))?.asString()) {
         case "heading":
-          title = item.propertyValue("title")?.asString();
-          if (title != null) {
+          title = (await item.propertyValue("title"))?.asString();
+          if (title == null) {
             return null;
           }
-          return NavigationElement.heading(title);
+          return NavigationElementHeading(title);
         case "line":
-          return NavigationElement.line();
+          return NavigationElementLine();
         default:
-          title = item.propertyValue("title")?.asString();
-          var targetViewName = item.propertyValue("sessionName")?.asString();
+          title = (await item.propertyValue("title"))?.asString();
+          var targetViewName = (await item.propertyValue("sessionName"))?.asString();
           if (title == null || targetViewName == null) {
             return null;
           }
-          return NavigationElement.item(
-              NavigationElement.Item(title, targetViewName));
+          return NavigationElementItem(Item(title, targetViewName));
       }
-    }).toList();
-  }*/
+    }));
+    yield items;
+  }
 
   // @Published
   List<ItemRecord> _navigationItemRecords = <ItemRecord>[];
@@ -88,28 +97,11 @@ class SceneController {
   // _queryObservation: AnyCancellable?
   /// Sets up a database observation
   _setupObservations() {
-    /// Remove old observation
-    // queryObservation?.cancel()
-    // queryObservation = nil
-
     /// Note that the request must remain constant within the observation, hence constructed outside of the tracking (if changed, start a observation)
     var config = _navigationQuery;
-    // var observation = ValueObservation
-    //     .tracking {
-    //   db in
-    //   try
-    //   config.executeRequest(db: db)
-    // }
-
-    /// Subscribe to changes in the value, with the first result being reported immediately
-    // queryObservation = observation.publisher(
-    // in: appController.databaseController.databasePool,
-    // scheduling: .immediate)
-    //     .sink(
-    //     receiveCompletion: { completion in},
-    //     receiveValue: { result in
-    //       self.navigationItemRecords = result
-    //     })
+    config.executeRequest(appController.databaseController).listen((records) {
+      _navigationItemRecords = records;
+    });
   }
 
   NavigationStack _navigationStack = NavigationStack();

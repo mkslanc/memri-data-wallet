@@ -196,7 +196,7 @@ class ViewContextController {
   // AnyPublisher<[ItemRecord], Never> _itemsChangePublisher;
 
   /// Convenience variable returning whether there are any items
-  bool get hasItems => !items.isEmpty;
+  bool get hasItems => items.isNotEmpty;
 
   // MARK: Selection State
   List<String> selectedItems = <String>[];

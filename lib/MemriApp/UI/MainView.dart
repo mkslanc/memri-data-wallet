@@ -17,7 +17,7 @@ import 'Setup/SetupScreenView.dart';
 /// This is the view used in each scene to display the appropriate state
 /// This depends on whether the app has been setup, and if the user is authenticated.
 class MainView extends StatelessWidget {
-  AppController appController = AppController.shared;
+  final AppController appController = AppController.shared;
   final SceneController sceneController;
   MainView({required this.sceneController});
 
