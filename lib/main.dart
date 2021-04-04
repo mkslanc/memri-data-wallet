@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/MainView.dart';
+import 'package:moor/ffi.dart';
 
 import 'MemriApp/Controllers/SceneController.dart';
 
@@ -8,10 +9,14 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final sceneController = SceneController();
+
   @override
   Widget build(BuildContext context) {
-    var sceneController = SceneController();
+    assert(() {
+      VmDatabase.closeExistingInstances();
+      return true;
+    }());
     sceneController.init();
 
     return MaterialApp(

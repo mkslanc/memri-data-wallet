@@ -12,7 +12,11 @@ extension Dictionary<E> on List<E> {
     return null;
   }
 
-  List<T> compactMap<T>([T f(E e)?]) {
-    return this.map<T>(f ?? (e) => e as T).where((element) => element != null).toList();
+  List<T> compactMap<T>([T? f(E e)?]) {
+    return this
+        .map<T?>(f ?? (e) => e as T?)
+        .where((element) => element != null)
+        .whereType<T>()
+        .toList();
   }
 }

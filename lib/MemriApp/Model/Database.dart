@@ -24,6 +24,12 @@ class Database extends _$Database {
     );
   }
 
+  Future resetDb() async {
+    for (var table in allTables) {
+      await delete(table).go();
+    }
+  }
+
   Future<Item> itemRecordFetchWithUID(String uid) async {
     return await (select(items)..where((t) => t.id.equals(uid))).getSingle();
   }

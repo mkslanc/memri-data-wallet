@@ -64,12 +64,31 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                     ),
                   ))),
           StreamBuilder(
-            stream: _getNavigationItems(),
-            builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
+            stream: sceneController.navigationItems,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasError) {
+                print(snapshot.error.toString());
+                return Text(
+                  "Error occurred",
+                  style: TextStyle(color: Colors.red),
+                );
+              }
               if (snapshot.hasData) {
-                List<Widget>? items = snapshot.data;
+                List<Widget> widgets = [];
+                var items = snapshot.data;
+                items.forEach((navItem) {
+                  if (navItem is NavigationElementItem) {
+                    var item = navItem.value;
+                    widgets.add(NavigationItemView(item: item, sceneController: sceneController));
+                  } else if (navItem is NavigationElementHeading) {
+                    var title = navItem.value;
+                    widgets.add(NavigationHeadingView(title: title));
+                  } else {
+                    widgets.add(NavigationLineView());
+                  }
+                });
                 return Flexible(
-                    child: ListView(padding: EdgeInsets.fromLTRB(0, 15, 0, 0), children: items!));
+                    child: ListView(padding: EdgeInsets.fromLTRB(0, 15, 0, 0), children: widgets));
               }
               return SizedBox(
                 child: CircularProgressIndicator(),
@@ -81,25 +100,6 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
         ],
       ),
     );
-  }
-
-  Stream<List<Widget>> _getNavigationItems() async* {
-    List<Widget> widgets = [];
-    sceneController.navigationItems.listen((items) {
-      items.forEach((navItem) {
-        if (navItem is NavigationElementItem) {
-          var item = navItem.value;
-          widgets.add(NavigationItemView(item: item, sceneController: sceneController));
-        } else if (navItem is NavigationElementHeading) {
-          var title = navItem.value;
-          widgets.add(NavigationHeadingView(title: title));
-        } else {
-          widgets.add(NavigationLineView());
-        }
-      });
-    });
-
-    yield widgets;
   }
 }
 
@@ -150,7 +150,7 @@ class NavigationItemView extends StatelessWidget {
       style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith<Color>(
         (Set<MaterialState> states) {
           if (states.contains(MaterialState.pressed)) return Colors.white12;
-          return Colors.white; //TODO:
+          return Colors.white12; //TODO:
         },
       )),
     );

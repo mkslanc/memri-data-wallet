@@ -1,4 +1,5 @@
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:moor/moor.dart';
 
 import '../AppController.dart';
 import 'PropertyDatabaseValue.dart';
@@ -25,7 +26,7 @@ class ItemPropertyRecord {
       return null;
     }
     return PropertyDatabaseValue.createFromDBValue(
-        $value.value, expectedType); //TODO: check with tests
+        Value($value.value), expectedType); //TODO: check with tests
   }
 
   insert(Database db) async {

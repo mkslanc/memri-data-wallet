@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
@@ -24,10 +26,15 @@ class SceneController {
   ViewContextController? topMostContext;
 
   MemriUINavigationController navigationController = MemriUINavigationController();
+  static bool isInited = false; //TODO
 
   init() async {
+    if (SceneController.isInited) {
+      return;
+    }
     //TODO: remove in prod
     await appController.databaseController.init();
+    await appController.databaseController.databasePool.resetDb();
     if (await appController.databaseController.databaseIsSetup) {
     } else {
       await DemoData.importDemoData(databaseController: appController.databaseController);
@@ -45,6 +52,7 @@ class SceneController {
     } else {
       navigationController.setViewControllers([MaterialPage(child: Text("Welcome to Memri"))]);
     }
+    SceneController.isInited = true;
   }
 
   // @Published
@@ -67,32 +75,33 @@ class SceneController {
   DatabaseQueryConfig _navigationQuery =
       DatabaseQueryConfig(itemTypes: ["NavigationItem"], sortProperty: "");
 
-  Stream<List<NavigationElement?>> get navigationItems async* {
-    var items = await Future.wait(_navigationItemRecords.map((item) async {
-      String? title;
-      switch ((await item.propertyValue("itemType"))?.asString()) {
-        case "heading":
-          title = (await item.propertyValue("title"))?.asString();
-          if (title == null) {
-            return null;
+  Stream<List<NavigationElement?>> get navigationItems {
+    return _navigationItemRecords.stream.asyncMap((result) async =>
+        await Future.wait<NavigationElement?>(
+            result.compactMap<Future<NavigationElement?>>((item) async {
+          String? title;
+          switch ((await item.propertyValue("itemType"))?.asString()) {
+            case "heading":
+              title = (await item.propertyValue("title"))?.asString();
+              if (title == null) {
+                return null;
+              }
+              return NavigationElementHeading(title);
+            case "line":
+              return NavigationElementLine();
+            default:
+              title = (await item.propertyValue("title"))?.asString();
+              var targetViewName = (await item.propertyValue("sessionName"))?.asString();
+              if (title == null || targetViewName == null) {
+                return null;
+              }
+              return NavigationElementItem(Item(title, targetViewName));
           }
-          return NavigationElementHeading(title);
-        case "line":
-          return NavigationElementLine();
-        default:
-          title = (await item.propertyValue("title"))?.asString();
-          var targetViewName = (await item.propertyValue("sessionName"))?.asString();
-          if (title == null || targetViewName == null) {
-            return null;
-          }
-          return NavigationElementItem(Item(title, targetViewName));
-      }
-    }));
-    yield items;
+        })));
   }
 
   // @Published
-  List<ItemRecord> _navigationItemRecords = <ItemRecord>[];
+  StreamController<List<ItemRecord>> _navigationItemRecords = StreamController();
 
   // _queryObservation: AnyCancellable?
   /// Sets up a database observation
@@ -100,7 +109,7 @@ class SceneController {
     /// Note that the request must remain constant within the observation, hence constructed outside of the tracking (if changed, start a observation)
     var config = _navigationQuery;
     config.executeRequest(appController.databaseController).listen((records) {
-      _navigationItemRecords = records;
+      _navigationItemRecords.add(records);
     });
   }
 
