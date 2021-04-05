@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -137,22 +138,24 @@ class NavigationItemView extends StatelessWidget {
     /*withAnimation { TODO:
           sceneController.navigationIsVisible = false
       }*/
-    return ElevatedButton(
+    return TextButton(
       onPressed: () => sceneController.navigateToNewContext(
           clearStack: true, animated: false, viewName: item.targetViewName),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
         child: Text(
-          item.name,
+          item.name.capitalizingFirst,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white70),
         ),
       ),
-      style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith<Color>(
-        (Set<MaterialState> states) {
-          if (states.contains(MaterialState.pressed)) return Colors.white12;
-          return Colors.white12; //TODO:
-        },
-      )),
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) return Colors.white12;
+              return Colors.transparent;
+            },
+          ),
+          alignment: Alignment.topLeft),
     );
   }
 }
