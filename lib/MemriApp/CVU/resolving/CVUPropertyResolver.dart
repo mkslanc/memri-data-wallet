@@ -91,7 +91,7 @@ class CVUPropertyResolver {
 
   Future<String?> string(String key) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     return await lookup.resolve<String>(value: val, context: context, db: db);

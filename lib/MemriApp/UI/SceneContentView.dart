@@ -10,6 +10,7 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import 'Chrome/BottomBarView.dart';
 import 'Chrome/SearchView.dart';
+import 'Renderers/ListRenderer.dart';
 import 'ViewContextController.dart';
 
 class SceneContentView extends StatefulWidget {
@@ -18,8 +19,7 @@ class SceneContentView extends StatefulWidget {
 
   SceneContentView({required this.sceneController, required this.viewContext});
   @override
-  _SceneContentViewState createState() =>
-      _SceneContentViewState(this.sceneController, this.viewContext);
+  _SceneContentViewState createState() => _SceneContentViewState(sceneController, viewContext);
 }
 
 class _SceneContentViewState extends State<SceneContentView> {
@@ -34,9 +34,12 @@ class _SceneContentViewState extends State<SceneContentView> {
   /// Translates the rendererName to the correct Renderer view
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
-      /*case "list":
-        ListRendererView(viewContext: viewContext);
-      case "grid":
+      case "list":
+        return ListRendererView(
+          viewContext: viewContext,
+          sceneController: sceneController,
+        );
+      /*case "grid":
         GridRendererView(viewContext: viewContext);
       case "map":
         MapRendererView(viewContext: viewContext);
@@ -80,7 +83,7 @@ class _SceneContentViewState extends State<SceneContentView> {
                         searchBarOpen.value = true;
                       },
                       onSearchPressed: () {
-                        sceneController.filterPanelIsVisible = true;
+                        sceneController.filterPanelIsVisible.value = true;
                       },
                     );
             },

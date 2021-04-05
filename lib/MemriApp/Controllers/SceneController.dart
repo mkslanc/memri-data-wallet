@@ -61,8 +61,7 @@ class SceneController {
   // @Published
   bool isInEditMode = false;
 
-  // @Published
-  bool navigationIsVisible = false;
+  ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
 
   String? get navigationFilterText => _navigationQuery.searchString;
 
@@ -71,8 +70,7 @@ class SceneController {
     _setupObservations();
   }
 
-  // @Published
-  bool filterPanelIsVisible = false;
+  ValueNotifier<bool> filterPanelIsVisible = ValueNotifier(false);
 
   DatabaseQueryConfig _navigationQuery =
       DatabaseQueryConfig(itemTypes: ["NavigationItem"], sortProperty: "");
@@ -156,7 +154,7 @@ class SceneController {
     var context = makeContext(newTopConfig);
     topMostContext = context;
     var vc = MaterialPage(child: SceneContentView(sceneController: this, viewContext: context));
-    navigationController.pages.add(vc);
+    // navigationController.pages.add(vc);
     //navigationController.popToViewController(vc, animated: true); TODO: need to test this
   }
 

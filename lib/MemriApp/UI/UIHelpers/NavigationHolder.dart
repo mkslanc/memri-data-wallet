@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
-class NavigationHolder {
+class NavigationHolder extends StatelessWidget {
   MemriUINavigationController controller;
 
   NavigationHolder(this.controller);
+
+  @override
+  Widget build(BuildContext context) {
+    return controller;
+  }
+
 /*func makeUIViewController(context: Context) -> MemriUINavigationController { TODO
         return controller
     }
@@ -13,22 +19,26 @@ class NavigationHolder {
     }*/
 }
 
-class MemriUINavigationController extends Navigator {
+class MemriUINavigationController extends StatefulWidget {
   setViewControllers(List<Page> newPages) {
-    //pages.clear();
-    //pages.addAll(newPages);
+    print("My pages ${newPages.toString()}");
+    // state.pages = newPages;
   }
 
-/*override func viewDidLoad() { TODO
-        super.viewDidLoad()
-        super.isNavigationBarHidden = true
-    }
-    
-    override var isNavigationBarHidden: Bool {
-        get { super.isNavigationBarHidden } set { super.isNavigationBarHidden = true }
-    }
-    
-    override func setNavigationBarHidden(_ hidden: Bool, animated: Bool) {
-        super.setNavigationBarHidden(true, animated: false)
-    }*/
+  @override
+  _MemriUINavigationControllerState createState() => _MemriUINavigationControllerState();
+}
+
+class _MemriUINavigationControllerState extends State<MemriUINavigationController> {
+  List<Page> pages = [];
+
+  setViewControllers(List<Page> newPages) {
+    pages = newPages;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Text("MemriUINavigationController");
+  }
 }
