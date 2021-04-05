@@ -66,8 +66,10 @@ class SceneController {
 
   String? get navigationFilterText => _navigationQuery.searchString;
 
-  set navigationFilterText(String? newValue) =>
-      _navigationQuery.searchString = newValue?.nullIfBlank;
+  set navigationFilterText(String? newValue) {
+    _navigationQuery.searchString = newValue?.nullIfBlank;
+    _setupObservations();
+  }
 
   // @Published
   bool filterPanelIsVisible = false;
@@ -101,14 +103,19 @@ class SceneController {
   }
 
   // @Published
-  StreamController<List<ItemRecord>> _navigationItemRecords = StreamController();
+  StreamController<List<ItemRecord>> _navigationItemRecords = StreamController.broadcast();
 
-  // _queryObservation: AnyCancellable?
+  StreamSubscription<List<ItemRecord>>? _queryObservation;
+
   /// Sets up a database observation
   _setupObservations() {
+    _queryObservation?.cancel();
+
     /// Note that the request must remain constant within the observation, hence constructed outside of the tracking (if changed, start a observation)
-    var config = _navigationQuery;
-    config.executeRequest(appController.databaseController).listen((records) {
+    _queryObservation = _navigationQuery
+        .executeRequest(appController.databaseController)
+        .asBroadcastStream()
+        .listen((records) {
       _navigationItemRecords.add(records);
     });
   }

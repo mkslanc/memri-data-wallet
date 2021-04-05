@@ -27,7 +27,7 @@ class AppController {
   static String keychainDatabaseKey = "memri_databaseKey";
 
   AppController() {
-    databaseController = DatabaseController();
+    databaseController = DatabaseController(inMemory: true);
     this.syncController = SyncController(databaseController);
     this.cvuController = CVUController();
   }

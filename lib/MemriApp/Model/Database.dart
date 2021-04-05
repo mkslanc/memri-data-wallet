@@ -148,7 +148,7 @@ class Database extends _$Database {
 
   Future<Edge?> edgeRecordSelect(Map<String, dynamic> properties) async {
     return await customSelect(
-        "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"}",
+        "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"} LIMIT 1",
         variables: properties.values.map((property) => Variable(property)).toList(),
         readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).getSingleOrNull();
   }
