@@ -26,12 +26,8 @@ class SceneController {
   ViewContextController? topMostContext;
 
   MemriUINavigationController navigationController = MemriUINavigationController();
-  static bool isInited = false; //TODO
 
   init() async {
-    if (SceneController.isInited) {
-      return;
-    }
     //TODO: remove in prod
     await appController.databaseController.init();
     await appController.databaseController.databasePool.resetDb();
@@ -52,7 +48,6 @@ class SceneController {
     } else {
       navigationController.setViewControllers([MaterialPage(child: Text("Welcome to Memri"))]);
     }
-    SceneController.isInited = true;
   }
 
   // @Published
@@ -76,7 +71,7 @@ class SceneController {
       DatabaseQueryConfig(itemTypes: ["NavigationItem"], sortProperty: "");
 
   Stream<List<NavigationElement?>> get navigationItems {
-    return _navigationItemRecords.stream.asyncMap((result) async =>
+    return navigationItemRecords.stream.asyncMap((result) async =>
         await Future.wait<NavigationElement?>(
             result.compactMap<Future<NavigationElement?>>((item) async {
           String? title;
@@ -101,7 +96,7 @@ class SceneController {
   }
 
   // @Published
-  StreamController<List<ItemRecord>> _navigationItemRecords = StreamController.broadcast();
+  StreamController<List<ItemRecord>> navigationItemRecords = StreamController.broadcast();
 
   StreamSubscription<List<ItemRecord>>? _queryObservation;
 
@@ -114,7 +109,7 @@ class SceneController {
         .executeRequest(appController.databaseController)
         .asBroadcastStream()
         .listen((records) {
-      _navigationItemRecords.add(records);
+      navigationItemRecords.add(records);
     });
   }
 

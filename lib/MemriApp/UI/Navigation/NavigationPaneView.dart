@@ -91,10 +91,13 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                 return Flexible(
                     child: ListView(padding: EdgeInsets.fromLTRB(0, 15, 0, 0), children: widgets));
               }
-              return SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
+              return Padding(
+                padding: EdgeInsets.all(20),
+                child: SizedBox(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                ),
               );
             },
           )
