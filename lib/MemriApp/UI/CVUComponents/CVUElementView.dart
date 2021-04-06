@@ -8,7 +8,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
+import 'CVUElements/CVUButton.dart';
+import 'CVUElements/CVUForEach.dart';
+import 'CVUElements/CVUImage.dart';
+import 'CVUElements/CVUShape.dart';
+import 'CVUElements/CVUStacks.dart';
+import 'CVUElements/CVUText.dart';
+import 'CVUElements/CVUTextField.dart';
 import 'CVUUINodeResolver.dart';
 
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
@@ -20,41 +28,41 @@ class CVUElementView extends StatelessWidget {
   Widget resolvedComponent() {
     switch (nodeResolver.node.type) {
       case CVUUIElementFamily.ForEach:
-      // return CVU_ForEach(nodeResolver: nodeResolver);
+        return CVUForEach(nodeResolver: nodeResolver);
       case CVUUIElementFamily.HStack:
-      // return CVU_HStack(nodeResolver: nodeResolver);
+        return CVUHStack(nodeResolver: nodeResolver);
       case CVUUIElementFamily.VStack:
-      // return CVU_VStack(nodeResolver: nodeResolver);
+        return CVUVStack(nodeResolver: nodeResolver);
       case CVUUIElementFamily.ZStack:
-      // return CVU_ZStack(nodeResolver: nodeResolver);
+        return CVUZStack(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Text:
-      // return CVU_Text(nodeResolver: nodeResolver);
+        return CVUText(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Image:
-      // return CVU_Image(nodeResolver: nodeResolver);
-      case CVUUIElementFamily.Map:
+        return CVUImage(nodeResolver: nodeResolver);
+      /*case CVUUIElementFamily.Map:
       // return CVU_Map(nodeResolver: nodeResolver);
       case CVUUIElementFamily.SmartText:
-      // return CVU_SmartText(nodeResolver: nodeResolver);
+        return CVUSmartText(nodeResolver: nodeResolver);*/
       case CVUUIElementFamily.Textfield:
-      // return CVU_TextField(nodeResolver: nodeResolver);
-      case CVUUIElementFamily.Toggle:
-      // return CVU_Toggle(nodeResolver: nodeResolver);
+        return CVUTextField(nodeResolver: nodeResolver);
+      /*case CVUUIElementFamily.Toggle:
+      // return CVU_Toggle(nodeResolver: nodeResolver);*/
       case CVUUIElementFamily.Button:
-      // return CVU_Button(nodeResolver: nodeResolver);
+        return CVUButton(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Divider:
         return Divider();
       case CVUUIElementFamily.HorizontalLine:
         return Divider(); //TODO
       case CVUUIElementFamily.Circle:
-      // return CVU_Shape.Circle(nodeResolver: nodeResolver);
+        return CVUShapeCircle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Rectangle:
-      // return CVU_Shape.Rectangle(nodeResolver: nodeResolver);
-      case CVUUIElementFamily.HTMLView:
+        return CVUShapeRectangle(nodeResolver: nodeResolver);
+      /* case CVUUIElementFamily.HTMLView:
       // return CVU_HTMLView(nodeResolver: nodeResolver);
       case CVUUIElementFamily.TimelineItem:
       // return CVU_TimelineItem(nodeResolver: nodeResolver);
       case CVUUIElementFamily.FileThumbnail:
-      // return CVU_FileThumbnail(nodeResolver: nodeResolver);
+      // return CVU_FileThumbnail(nodeResolver: nodeResolver);*/
       case CVUUIElementFamily.Spacer:
         return Spacer();
       case CVUUIElementFamily.Empty:

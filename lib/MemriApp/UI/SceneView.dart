@@ -23,7 +23,6 @@ class SceneView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Text("SceneView");
     return NavigationWrapperView(
         sceneController: sceneController,
         child: Stack(

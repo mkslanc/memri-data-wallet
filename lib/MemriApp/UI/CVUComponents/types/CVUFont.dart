@@ -31,7 +31,7 @@ class CVUFont {
     // heavy: "heavy",
     // light: "light",
     // medium: "medium",//TODO
-    // regular: "regular",
+    "regular": FontWeight.normal,
     // semibold: "semibold",
     // thin: "thin",
     // ultraLight: "ultraLight",

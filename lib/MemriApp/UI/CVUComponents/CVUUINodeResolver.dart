@@ -25,21 +25,26 @@ class CVUUINodeResolver {
   CVUUINodeResolver(
       {required this.context, required this.lookup, required this.node, required this.db});
 
-  Widget childrenInForEach() {
-    return Wrap(
-        children: node.children
-            .map((child) => //TODO is this right?
-                CVUElementView(
-                    nodeResolver:
-                        CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db)))
-            .toList());
+  Widget childrenInForEachWithWrap() {
+    return Wrap(children: childrenInForEach());
+  }
+
+  List<Widget> childrenInForEach() {
+    return node.children
+        .map((child) => //TODO is this right?
+            CVUElementView(
+              nodeResolver:
+                  CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+            ))
+        .toList();
   }
 
   Widget? firstChild() {
     if (node.children.isNotEmpty) {
       var child = node.children.first;
       return CVUElementView(
-          nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db));
+        nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+      );
     }
   }
 
