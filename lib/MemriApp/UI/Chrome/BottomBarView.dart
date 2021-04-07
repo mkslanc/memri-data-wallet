@@ -28,10 +28,10 @@ class BottomBarView extends StatelessWidget {
       Divider(),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Wrap(spacing: 4, children: [
-            Wrap(spacing: 4, children: [
+          child: Row(/*spacing: 4, */ children: [
+            Row(/*spacing: 4, */ children: [
               ElevatedButton(
-                onPressed: onFilterButtonPressed,
+                onPressed: onSearchPressed,
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
                   child: Row(
@@ -47,8 +47,8 @@ class BottomBarView extends StatelessWidget {
               ),
               if (filter != null)
                 ElevatedButton(
-                    onPressed: () => viewContext.searchString = null,
-                    child: Icon(Icons.clear)) //TODO style
+                    onPressed: () => viewContext.searchString = null, child: Icon(Icons.clear))
+              //TODO style
             ]),
             Spacer(),
             ElevatedButton(

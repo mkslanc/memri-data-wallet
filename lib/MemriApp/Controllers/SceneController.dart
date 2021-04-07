@@ -39,14 +39,14 @@ class SceneController {
     setupObservations();
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
-      _navigationStack = navStack;
+      navigationStack = navStack;
       var topView = navStack.state.last;
       var context = makeContext(topView);
       topMostContext = context;
-      navigationController.setViewControllers(
-          [MaterialPage(child: SceneContentView(sceneController: this, viewContext: context))]);
+      navigationController
+          .setViewControllers(SceneContentView(sceneController: this, viewContext: context));
     } else {
-      navigationController.setViewControllers([MaterialPage(child: Text("Welcome to Memri"))]);
+      navigationController.setViewControllers(Text("Welcome to Memri"));
     }
   }
 
@@ -57,6 +57,8 @@ class SceneController {
   bool isInEditMode = false;
 
   ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
+  ValueNotifier<bool> shouldUpdate =
+      ValueNotifier(false); //TODO dirty hack, delete as soon as good solution is found @anijanyan
 
   String? get navigationFilterText => _navigationQuery.searchString;
 
@@ -116,6 +118,10 @@ class SceneController {
   }
 
   NavigationStack _navigationStack = NavigationStack();
+  set navigationStack(NavigationStack newValue) {
+    _navigationStack = newValue;
+    shouldUpdate.value = !shouldUpdate.value; //TODO dirty hack
+  }
 
   /* = NavigationStack() {
   willSet {
@@ -147,6 +153,7 @@ class SceneController {
     }
     var newTopConfig = _navigationStack.state[_navigationStack.state.length - 1 - 2];
     _navigationStack.state.removeLast();
+    navigationStack = _navigationStack; //TODO
 
     var context = makeContext(newTopConfig);
     topMostContext = context;
@@ -246,9 +253,8 @@ class SceneController {
     } else {
       _navigationStack.state.add(holder);
     }
-    navigationController.setViewControllers([
-      MaterialPage(
-          child: SceneContentView(sceneController: this, viewContext: newViewContextController))
-    ]);
+    navigationStack = _navigationStack; //TODO
+    navigationController.setViewControllers(
+        SceneContentView(sceneController: this, viewContext: newViewContextController));
   }
 }

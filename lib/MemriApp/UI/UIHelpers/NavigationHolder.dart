@@ -1,44 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 class NavigationHolder extends StatelessWidget {
-  MemriUINavigationController controller;
+  final MemriUINavigationController controller;
 
   NavigationHolder(this.controller);
 
   @override
   Widget build(BuildContext context) {
-    return controller;
+    return Expanded(
+        child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: controller,
+    ));
   }
-
-/*func makeUIViewController(context: Context) -> MemriUINavigationController { TODO
-        return controller
-    }
-    
-    func updateUIViewController(_ navController: MemriUINavigationController, context: Context) {
-
-    }*/
 }
 
-class MemriUINavigationController extends StatefulWidget {
-  setViewControllers(List<Page> newPages) {
-    print("My pages ${newPages.toString()}");
-    // state.pages = newPages;
+class MemriUINavigationController extends StatelessWidget {
+  setViewControllers(Widget widget) {
+    Navigator.pushReplacement(
+        _context,
+        MaterialPageRoute(
+          builder: (context) => Scaffold(
+            body: widget,
+          ),
+        ));
+    ;
   }
 
-  @override
-  _MemriUINavigationControllerState createState() => _MemriUINavigationControllerState();
-}
-
-class _MemriUINavigationControllerState extends State<MemriUINavigationController> {
-  List<Page> pages = [];
-
-  setViewControllers(List<Page> newPages) {
-    pages = newPages;
-  }
+  late BuildContext _context;
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Text("MemriUINavigationController");
+    _context = context;
+
+    return Scaffold(
+      body: Text("Welcome to Memri"), //TODO
+    );
   }
 }

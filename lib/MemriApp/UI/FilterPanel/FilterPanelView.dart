@@ -15,6 +15,6 @@ class FilterPanelView extends StatefulWidget {
 class _FilterPanelViewState extends State<FilterPanelView> {
   @override
   Widget build(BuildContext context) {
-    return Text("_FilterPanelViewState");
+    return SizedBox.shrink();
   }
 }

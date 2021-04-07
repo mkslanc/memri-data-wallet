@@ -22,7 +22,7 @@ class AppController {
   late SyncController syncController;
   late CVUController cvuController;
 
-  AppState state = AppState.setup;
+  AppState state = AppState.authenticated;//TODO while working, change to setup as soon as completed setupScreen @anijanyan
 
   static String keychainDatabaseKey = "memri_databaseKey";
 

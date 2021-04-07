@@ -73,17 +73,15 @@ class _SceneContentViewState extends State<SceneContentView> {
         renderer,
         ValueListenableBuilder<bool>(
             builder: (BuildContext context, value, Widget? child) {
-              // This builder will only get called when the _counter
-              // is updated.
               return value
                   ? SearchView(viewContext: viewContext, isActive: searchBarOpen)
                   : BottomBarView(
                       viewContext: viewContext,
                       onFilterButtonPressed: () {
-                        searchBarOpen.value = true;
+                        sceneController.filterPanelIsVisible.value = true;
                       },
                       onSearchPressed: () {
-                        sceneController.filterPanelIsVisible.value = true;
+                        searchBarOpen.value = true;
                       },
                     );
             },

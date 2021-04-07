@@ -139,12 +139,12 @@ class NavigationItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /*withAnimation { TODO:
-          sceneController.navigationIsVisible = false
-      }*/
     return TextButton(
-      onPressed: () => sceneController.navigateToNewContext(
-          clearStack: true, animated: false, viewName: item.targetViewName),
+      onPressed: () {
+        sceneController.navigateToNewContext(
+            clearStack: true, animated: false, viewName: item.targetViewName);
+        sceneController.navigationIsVisible.value = false; //TODO animation
+      },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
         child: Text(
