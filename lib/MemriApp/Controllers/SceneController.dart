@@ -36,7 +36,7 @@ class SceneController {
       await DemoData.importDemoData(databaseController: appController.databaseController);
     }
     ////
-    _setupObservations();
+    setupObservations();
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
       _navigationStack = navStack;
@@ -62,7 +62,7 @@ class SceneController {
 
   set navigationFilterText(String? newValue) {
     _navigationQuery.searchString = newValue?.nullIfBlank;
-    _setupObservations();
+    setupObservations();
   }
 
   ValueNotifier<bool> filterPanelIsVisible = ValueNotifier(false);
@@ -70,29 +70,31 @@ class SceneController {
   DatabaseQueryConfig _navigationQuery =
       DatabaseQueryConfig(itemTypes: ["NavigationItem"], sortProperty: "");
 
-  Stream<List<NavigationElement?>> get navigationItems {
-    return navigationItemRecords.stream.asyncMap((result) async =>
-        await Future.wait<NavigationElement?>(
-            result.compactMap<Future<NavigationElement?>>((item) async {
-          String? title;
-          switch ((await item.propertyValue("itemType"))?.asString()) {
-            case "heading":
-              title = (await item.propertyValue("title"))?.asString();
-              if (title == null) {
-                return null;
-              }
-              return NavigationElementHeading(title);
-            case "line":
-              return NavigationElementLine();
-            default:
-              title = (await item.propertyValue("title"))?.asString();
-              var targetViewName = (await item.propertyValue("sessionName"))?.asString();
-              if (title == null || targetViewName == null) {
-                return null;
-              }
-              return NavigationElementItem(Item(title, targetViewName));
-          }
-        })));
+  Future<List<NavigationElement?>?> get navigationItems async {
+    var itemsStream = navigationItemRecords.stream;
+    await for (var itemStream in itemsStream) {
+      return Future.wait<NavigationElement?>(
+          itemStream.compactMap<Future<NavigationElement?>>((item) async {
+        String? title;
+        switch ((await item.propertyValue("itemType"))?.asString()) {
+          case "heading":
+            title = (await item.propertyValue("title"))?.asString();
+            if (title == null) {
+              return null;
+            }
+            return NavigationElementHeading(title);
+          case "line":
+            return NavigationElementLine();
+          default:
+            title = (await item.propertyValue("title"))?.asString();
+            var targetViewName = (await item.propertyValue("sessionName"))?.asString();
+            if (title == null || targetViewName == null) {
+              return null;
+            }
+            return NavigationElementItem(Item(title, targetViewName));
+        }
+      }));
+    }
   }
 
   // @Published
@@ -101,7 +103,7 @@ class SceneController {
   StreamSubscription<List<ItemRecord>>? _queryObservation;
 
   /// Sets up a database observation
-  _setupObservations() {
+  setupObservations() {
     _queryObservation?.cancel();
 
     /// Note that the request must remain constant within the observation, hence constructed outside of the tracking (if changed, start a observation)

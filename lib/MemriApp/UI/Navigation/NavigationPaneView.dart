@@ -22,6 +22,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
   bool showSettings = false;
 
   Widget build(BuildContext context) {
+    sceneController.setupObservations();
     return ColoredBox(
       color: Color(0xff543184),
       child: Column(
@@ -64,8 +65,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                       ],
                     ),
                   ))),
-          StreamBuilder(
-            stream: sceneController.navigationItems,
+          FutureBuilder(
+            future: sceneController.navigationItems,
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasError) {
                 print(snapshot.error.toString());
