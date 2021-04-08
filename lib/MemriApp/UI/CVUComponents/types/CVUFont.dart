@@ -11,7 +11,7 @@ class CVUFont {
   FontWeight? weight;
   bool italic;
 
-  CVUFont({this.name, this.size, this.weight, this.italic = false});
+  CVUFont({this.name, this.size = 15, this.weight = FontWeight.normal, this.italic = false});
 
   Map<String, dynamic> get font {
     return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};

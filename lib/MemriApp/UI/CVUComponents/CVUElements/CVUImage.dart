@@ -11,20 +11,28 @@ class CVUImage extends StatelessWidget {
 
   CVUImage({required this.nodeResolver});
 
-  late final dynamic? fileImageURL;
-  late final ImageProvider? bundleImage;
+  late dynamic? fileImageURL;
+  late ImageProvider? bundleImage;
+  late Color? color;
+  //late CVUFont? font; TODO
+  late String? iconName;
 
   init() async {
     fileImageURL = await getFileImageURL();
     if (fileImageURL == null) {
       bundleImage = await getBundleImage();
+      if (bundleImage == null) {
+        //font = await nodeResolver.propertyResolver.font();
+        color = await nodeResolver.propertyResolver.color();
+        iconName = await nodeResolver.propertyResolver.string("systemName");
+      }
     }
   }
 
   getFileImageURL() async /*: URL?*/ {
     var imageURI = await nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
-      return;
+      return null;
     } //TODO:
     //return FileStorageController.getURLForFile(withUUID: imageURI);
   }
@@ -59,22 +67,19 @@ class CVUImage extends StatelessWidget {
       }*/
             } else if (bundleImage != null) {
               return Image(image: bundleImage!);
+            } else if (iconName != null) {
+              return Icon(
+                MemriIcon.getByName(iconName!),
+                color: color,
+                //size: font?.size,
+              );
+              //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
+              //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
             } else {
-              return FutureBuilder(
-                  future: nodeResolver.propertyResolver.string("systemName"),
-                  builder: (BuildContext builder, AsyncSnapshot<String?> snapshot) {
-                    if (snapshot.hasData) {
-                      var iconName = snapshot.data;
-                      return Icon(MemriIcon.getByName(iconName!));
-                      //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
-                      //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
-                    } else {
-                      return Icon(
-                        Icons.error,
-                        color: Color(0x993c3c43),
-                      );
-                    }
-                  });
+              return Icon(
+                Icons.error,
+                color: Color(0x993c3c43),
+              );
             }
           }
           return Text("");

@@ -529,7 +529,7 @@ class CVUPropertyResolver {
     return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
-  Future<double?> get cornerRadius async {
+  Future<double> get cornerRadius async {
     return await cgFloat("cornerRadius") ?? 0;
   }
 

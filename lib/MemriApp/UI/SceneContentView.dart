@@ -64,7 +64,8 @@ class _SceneContentViewState extends State<SceneContentView> {
       case "generaleditor":
         GeneralEditorRendererView(viewContext: viewContext);*/
       default:
-        return Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold));
+        return Expanded(
+            child: Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold)));
     }
   }
 
