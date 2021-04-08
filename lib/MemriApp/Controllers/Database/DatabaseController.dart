@@ -16,6 +16,7 @@ class DatabaseController {
   late Database databasePool;
   String databaseName;
   bool inMemory;
+  bool isInited = false;
 
   Schema get schema => _schema!; //TODO this is done because constructors can't be async
 
@@ -27,6 +28,7 @@ class DatabaseController {
       : this._schema = schema;
 
   init() async {
+    if (isInited) return;
     databasePool = await () async {
       if (inMemory) {
         return Database(VmDatabase.memory());
@@ -38,6 +40,7 @@ class DatabaseController {
       }
     }();
     _schema ??= await Schema.loadFromFile();
+    isInited = true;
   }
 
   /// Check if the database has been setup

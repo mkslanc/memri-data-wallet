@@ -27,7 +27,7 @@ class SceneController {
   MemriUINavigationController navigationController = MemriUINavigationController();
 
   init() async {
-    setupObservations();
+    // setupObservations();//TODO
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
       navigationStack = navStack;
