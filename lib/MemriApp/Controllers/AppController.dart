@@ -5,6 +5,7 @@
 //  Created by T Brennan on 14/12/20.
 //
 
+import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,8 +23,9 @@ class AppController {
   late SyncController syncController;
   late CVUController cvuController;
 
-  AppState state = AppState
-      .authenticated; //TODO while working, change to setup as soon as completed setupScreen @anijanyan
+  ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
+  get state => _state;
+  set state(newValue) => _state.value = newValue;
 
   static String keychainDatabaseKey = "memri_databaseKey";
 
@@ -96,9 +98,8 @@ class AppController {
     isAuthenticated = true;
     // var dbKey = Keychain().getString(AppController.keychainDatabaseKey);
     //TODO @anijanyan
-    /*var dbKey = "aaaa"
-    if (dbKey != null) {
-        print(`GOT KEY: ${dbKey}`);
+    /*if (dbKey != null) {
+        print(`GOT KEY: $dbKey`);
         isAuthenticated = true;
     } else {
         isAuthenticated = false;

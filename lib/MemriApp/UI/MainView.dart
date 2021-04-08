@@ -31,13 +31,17 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    switch (appController.state) {
-      case AppState.setup:
-        return SetupScreenView();
-      case AppState.authentication:
-        return AuthenticationScreen();
-      case AppState.authenticated:
-        return SceneView(sceneController: sceneController);
-    }
+    return ValueListenableBuilder(
+        valueListenable: appController.state,
+        builder: (BuildContext context, AppState value, Widget? child) {
+          switch (value) {
+            case AppState.setup:
+              return SetupScreenView();
+            case AppState.authentication:
+              return AuthenticationScreen();
+            case AppState.authenticated:
+              return SceneView(sceneController: sceneController);
+          }
+        });
   }
 }
