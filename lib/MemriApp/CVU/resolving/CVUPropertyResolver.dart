@@ -272,7 +272,8 @@ class CVUPropertyResolver {
     if (string == null) {
       return CVU_SizingMode.fit;
     }
-    return /*CVU_SizingMode(rawValue: string) ??*/ CVU_SizingMode.fit; //TODO:
+
+    return string == "fill" ? CVU_SizingMode.fill : CVU_SizingMode.fit;
   }
 
   Future<Color?> color([String key = "color"]) async {
@@ -417,16 +418,17 @@ class CVUPropertyResolver {
     String? name;
     double? size;
     if (values.length >= 2) {
-      name = await lookup.resolve<String>(value: values[0], context: this.context, db: this.db);
-      size = await lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
+      name = await lookup.resolve<String>(value: values[1], context: this.context, db: this.db);
+      size = await lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
     }
 
     if (name != null && size != null) {
+      var weight =
+          await lookup.resolve<String>(value: values[1], context: this.context, db: this.db);
       return CVUFont(
           name: name,
           size: size,
-          weight: CVUFont.Weight[await lookup.resolve<String>(
-                  value: values[2], context: this.context, db: this.db)] ??
+          weight: CVUFont.Weight[weight] ??
               defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
           );
     } else {
@@ -439,7 +441,7 @@ class CVUPropertyResolver {
               name: name,
               size: size,
               weight: CVUFont.Weight[await lookup.resolve<String>(
-                      value: values[1], context: this.context, db: this.db)] ??
+                      value: values[0], context: this.context, db: this.db)] ??
                   defaultValue.weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
         } else {
           var weight = CVUFont.Weight[await lookup.resolve<String>(

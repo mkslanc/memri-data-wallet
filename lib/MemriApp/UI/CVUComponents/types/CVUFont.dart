@@ -17,24 +17,16 @@ class CVUFont {
     return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};
   }
 
-  /*get uiFont(): UIFont {
-      let font = UIFont.systemFont(
-          ofSize: size ?? UIFont.systemFontSize,
-          weight: weight?.uiKit ?? .regular
-      )
-      let fontWithTraits = font.withTraits(traits: italic ? .traitItalic : [])
-      return fontWithTraits
-  }*/
   static const Map<String, FontWeight> Weight = {
-    "black": FontWeight.bold,
-    "bold": FontWeight.bold,
-    // heavy: "heavy",
-    // light: "light",
-    // medium: "medium",//TODO
+    "black": FontWeight.w900,
+    "bold": FontWeight.w700,
+    "heavy": FontWeight.w800,
+    "light": FontWeight.w300,
+    "medium": FontWeight.w500,
     "regular": FontWeight.normal,
-    // semibold: "semibold",
-    // thin: "thin",
-    // ultraLight: "ultraLight",
+    "semibold": FontWeight.w600,
+    "thin": FontWeight.w200,
+    "ultraLight": FontWeight.w100,
   };
 }
 
