@@ -17,24 +17,27 @@ class NavigationHolder extends StatelessWidget {
 
 class MemriUINavigationController extends StatelessWidget {
   setViewControllers(Widget widget) {
-    Navigator.pushReplacement(
-        _context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(
-            body: widget,
-          ),
-        ));
+    Navigator.pushReplacement(_context, MaterialPageRoute(
+      builder: (context) {
+        _context = context;
+        return Scaffold(
+          body: widget,
+        );
+      },
+    ));
     ;
   }
 
-  late BuildContext _context;
+  late BuildContext _context; //TODO this doesn't seem nice, should review
 
   @override
   Widget build(BuildContext context) {
     _context = context;
 
     return Scaffold(
-      body: Text("Welcome to Memri"), //TODO
+      body: Center(
+        child: Text("Welcome to Memri"),
+      ), //TODO
     );
   }
 }
