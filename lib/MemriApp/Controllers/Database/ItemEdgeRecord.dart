@@ -56,11 +56,11 @@ class ItemEdgeRecord {
   }
 
   Future<ItemRecord?> owningItem(DatabaseController db) async {
-    return await ItemRecord.fetchWithUID(sourceUID!, db);
+    return await ItemRecord.fetchWithRowID(sourceRowID!, db);
   }
 
   Future<ItemRecord?> targetItem(DatabaseController db) async {
-    return await ItemRecord.fetchWithUID(targetUID!, db);
+    return await ItemRecord.fetchWithRowID(targetRowID!, db);
   }
 
 /*

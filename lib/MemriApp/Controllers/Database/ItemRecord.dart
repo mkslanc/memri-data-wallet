@@ -145,6 +145,17 @@ class ItemRecord extends Equatable {
     }
   }
 
+  static Future<ItemRecord?> fetchWithRowID(int id, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      Item item = await db.databasePool.itemRecordFetchWithRowId(id);
+      return ItemRecord.fromItem(item);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   Future<int> insert(Database db) async {
     return await db.itemRecordInsert(this);
   }

@@ -514,10 +514,12 @@ class CVULookupController {
                 .toList();
             return LookupStepItems(await filter(result, subexpression, db));
           } else {
-            List<ItemRecord> result =
-                (await Future.wait(items.map((item) async => await item.edgeItem(trimmedName, db))))
-                    .whereType<ItemRecord>()
-                    .toList();
+            List<ItemRecord> result = [];
+            await Future.forEach(items, (ItemRecord item) async {
+              var itemRecord = await item.edgeItem(trimmedName, db);
+              if (itemRecord != null) result.add(itemRecord);
+            });
+
             return LookupStepItems(await filter(result, subexpression, db));
           }
         } else {
