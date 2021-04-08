@@ -11,7 +11,17 @@ class CVUImage extends StatelessWidget {
 
   CVUImage({required this.nodeResolver});
 
-  get fileImageURL async /*: URL?*/ {
+  late final dynamic? fileImageURL;
+  late final ImageProvider? bundleImage;
+
+  init() async {
+    fileImageURL = await getFileImageURL();
+    if (fileImageURL == null) {
+      bundleImage = await getBundleImage();
+    }
+  }
+
+  getFileImageURL() async /*: URL?*/ {
     var imageURI = await nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
       return;
@@ -19,7 +29,7 @@ class CVUImage extends StatelessWidget {
     //return FileStorageController.getURLForFile(withUUID: imageURI);
   }
 
-  Future<ImageProvider?> get bundleImage async /*: UIImage?*/ {
+  Future<ImageProvider?> getBundleImage() async /*: UIImage?*/ {
     var imageName = await nodeResolver.propertyResolver.string("bundleImage");
     if (imageName == null) {
       return null;
@@ -34,22 +44,21 @@ class CVUImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var imageURL = fileImageURL;
-    if (imageURL != null) {
-      return Text("place for your image");
-      /*TODO: MemriImageView(imageURL: imageURL, fitContent: nodeResolver.propertyResolver.sizingMode() == .fit)
+    return FutureBuilder(
+        future: init(),
+        builder: (BuildContext builder, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (fileImageURL != null) {
+              return Text("place for your image");
+              /*TODO: MemriImageView(imageURL: imageURL, fitContent: nodeResolver.propertyResolver.sizingMode() == .fit)
           .if(nodeResolver.propertyResolver.sizingMode() == .fit) {
       $0.aspectRatio(
       MemriImageView.getAspectRatio(of: imageURL) ?? 1,
       contentMode: .fit
       )
       }*/
-    } else {
-      return FutureBuilder(
-          future: bundleImage,
-          builder: (BuildContext builder, AsyncSnapshot<ImageProvider?> snapshot) {
-            if (snapshot.hasData) {
-              return Image(image: (snapshot.data)!);
+            } else if (bundleImage != null) {
+              return Image(image: bundleImage!);
             } else {
               return FutureBuilder(
                   future: nodeResolver.propertyResolver.string("systemName"),
@@ -67,7 +76,8 @@ class CVUImage extends StatelessWidget {
                     }
                   });
             }
-          });
-    }
+          }
+          return Text("");
+        });
   }
 }

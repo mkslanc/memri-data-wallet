@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 import '../ViewContextController.dart';
 
@@ -26,7 +27,7 @@ class _ListRendererViewState extends State<ListRendererView> {
 
   late EdgeInsets insets;
   late Point spacing;
-  late String backgroundColor;
+  late Color backgroundColor;
   late bool separatorsEnabled;
 
   Future<bool> init() async {
@@ -34,7 +35,7 @@ class _ListRendererViewState extends State<ListRendererView> {
         EdgeInsets.only(top: 10, left: 10, bottom: 10, right: 10);
     spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        "systemBackground"; //TODO CVUColor.system(.systemBackground);
+        CVUColor.system("systemBackground");
     separatorsEnabled =
         !(await viewContext.rendererDefinitionPropertyResolver.boolean("hideSeparators", false))!;
 
@@ -54,13 +55,15 @@ class _ListRendererViewState extends State<ListRendererView> {
                         itemBuilder: (context, index) => Padding(
                             padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
                             child: Padding(
-                              padding: EdgeInsets.fromLTRB(
-                                  insets.left,
-                                  index == 0 ? 0 : spacing.y / 2,
-                                  insets.right,
-                                  index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-                              child: viewContext.render(viewContext.items[index]),
-                            )),
+                                padding: EdgeInsets.fromLTRB(
+                                    insets.left,
+                                    index == 0 ? 0 : spacing.y / 2,
+                                    insets.right,
+                                    index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+                                child: ColoredBox(
+                                  color: backgroundColor,
+                                  child: viewContext.render(viewContext.items[index]),
+                                ))),
                         separatorBuilder: (context, index) => Divider(
                               color: separatorsEnabled ? Colors.black : Colors.transparent,
                             ),
@@ -74,7 +77,8 @@ class _ListRendererViewState extends State<ListRendererView> {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
-                          color: Color.fromRGBO(0, 0, 0, 0.7)),
+                          color: Color.fromRGBO(0, 0, 0, 0.7),
+                          backgroundColor: backgroundColor),
                     ),
                   ),
                 );

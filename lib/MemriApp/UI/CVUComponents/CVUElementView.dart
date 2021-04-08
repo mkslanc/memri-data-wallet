@@ -8,6 +8,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
 
 import 'CVUElements/CVUButton.dart';
 import 'CVUElements/CVUForEach.dart';
@@ -105,7 +106,9 @@ class CVUElementView extends StatelessWidget {
         future: nodeResolver.propertyResolver.showNode,
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData && snapshot.data == true) {
-            return resolvedComponent();
+            return needsModifier
+                ? CVUAppearanceModifier(nodeResolver: nodeResolver).body(resolvedComponent())
+                : resolvedComponent();
           }
           return SizedBox.shrink();
         });

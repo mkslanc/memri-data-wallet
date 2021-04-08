@@ -10,18 +10,41 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 class CVUText extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
 
+  late final CVUFont font;
+  late final Color? color;
+  late final String? content;
+  late final TextAlign textAlign;
+  late final int? lineLimit;
+
   CVUText({required this.nodeResolver});
 
-  Future<String?> get content async {
-    return (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+  init() async {
+    font = await nodeResolver.propertyResolver.font();
+    color = await nodeResolver.propertyResolver.color();
+    content = (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    textAlign = await nodeResolver.propertyResolver.textAlignment();
+    lineLimit = await nodeResolver.propertyResolver.lineLimit;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: content,
-        builder: (BuildContext builder, AsyncSnapshot<String?> snapshot) {
-          return Text(snapshot.data ?? "");
+        future: init(),
+        builder: (BuildContext builder, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Text(
+              content ?? "",
+              maxLines: lineLimit,
+              style: TextStyle(
+                fontSize: font.size,
+                fontWeight: font.weight,
+                fontStyle: font.italic ? FontStyle.italic : FontStyle.normal,
+                color: color,
+              ),
+              textAlign: textAlign,
+            );
+          }
+          return Text("");
           // .fixedSize(horizontal: false, vertical: true) TODO
         });
   }
@@ -34,7 +57,7 @@ class CVUText extends StatelessWidget {
 class CVUSmartText extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
   late final CVUFont font;
-  late final String? color;
+  late final Color? color;
   late final String? content;
 
   CVUSmartText({required this.nodeResolver});

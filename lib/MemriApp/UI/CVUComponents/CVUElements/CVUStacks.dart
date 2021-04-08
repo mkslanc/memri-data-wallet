@@ -26,10 +26,11 @@ class CVUHStack extends StatelessWidget {
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done: //TODO: spacing
-              return Row(
-                // crossAxisAlignment: alignment as CrossAxisAlignment,
-                children: nodeResolver.childrenInForEach(),
-              );
+              return Align(
+                  alignment: alignment,
+                  child: Row(
+                    children: nodeResolver.childrenInForEach(),
+                  ));
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillWidth", defaultValue: false)) {
             $0.frame(maxWidth: .infinity, alignment: nodeResolver.propertyResolver.alignment())
@@ -68,10 +69,11 @@ class CVUVStack extends StatelessWidget {
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done: //TODO: spacing
-              return Column(
-                //crossAxisAlignment: alignment as CrossAxisAlignment,
-                children: nodeResolver.childrenInForEach(),
-              );
+              return Align(
+                  alignment: alignment,
+                  child: Column(
+                    children: nodeResolver.childrenInForEach(),
+                  ));
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
             $0.frame(maxHeight: .infinity, alignment: nodeResolver.propertyResolver.alignment())
