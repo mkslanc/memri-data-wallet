@@ -22,23 +22,25 @@ class _GridRendererViewState extends State<GridRendererView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        viewContext.hasItems
-            ? GridView.count(
-                shrinkWrap: true,
-                primary: false,
-                padding: const EdgeInsets.all(5),
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-                crossAxisCount: 3,
-                children: viewContext.items.map((item) => viewContext.render(item)).toList(),
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [],
-              )
-      ],
-    );
+    return viewContext.hasItems
+        ? Flexible(
+            child: GridView.count(
+            shrinkWrap: true,
+            primary: false,
+            padding: const EdgeInsets.all(5),
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 5,
+            crossAxisCount: 3,
+            children: viewContext.items.map((item) {
+              return Container(
+                alignment: Alignment.bottomRight,
+                child: viewContext.render(item),
+              );
+            }).toList(),
+          ))
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [],
+          );
   }
 }

@@ -26,7 +26,7 @@ class CVUShapeRectangle extends StatelessWidget {
 
   CVUShapeRectangle({required this.nodeResolver});
 
-  late double cornerRadius;
+  late final double cornerRadius;
   late final Color color;
 
   init() async {

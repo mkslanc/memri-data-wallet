@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVU_Other.dart';
 
 /// A CVU element for displaying an image
 /// - Use the `image` property to display an Image item
@@ -11,42 +14,41 @@ class CVUImage extends StatelessWidget {
 
   CVUImage({required this.nodeResolver});
 
-  late dynamic? fileImageURL;
-  late ImageProvider? bundleImage;
-  late Color? color;
-  //late CVUFont? font; TODO
-  late String? iconName;
+  late final String? fileImageURL;
+  late final ImageProvider? bundleImage;
+  late final Color? color;
+
+  late final CVUFont? font;
+  late final String? iconName;
+  late final CVU_SizingMode sizingMode;
 
   init() async {
     fileImageURL = await getFileImageURL();
+    sizingMode = await nodeResolver.propertyResolver.sizingMode();
     if (fileImageURL == null) {
       bundleImage = await getBundleImage();
       if (bundleImage == null) {
-        //font = await nodeResolver.propertyResolver.font();
+        font = await nodeResolver.propertyResolver.font();
         color = await nodeResolver.propertyResolver.color();
         iconName = await nodeResolver.propertyResolver.string("systemName");
       }
     }
   }
 
-  getFileImageURL() async /*: URL?*/ {
+  Future<String?> getFileImageURL() async {
     var imageURI = await nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
       return null;
-    } //TODO:
-    //return FileStorageController.getURLForFile(withUUID: imageURI);
+    }
+    return FileStorageController.getURLForFile(imageURI);
   }
 
-  Future<ImageProvider?> getBundleImage() async /*: UIImage?*/ {
+  Future<ImageProvider?> getBundleImage() async {
     var imageName = await nodeResolver.propertyResolver.string("bundleImage");
     if (imageName == null) {
       return null;
     }
     var image = AssetImage(imageName);
-    /* TODO: need some way to check
-        if (image == null) {
-            return;
-        }*/
     return image;
   }
 
@@ -57,21 +59,17 @@ class CVUImage extends StatelessWidget {
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (fileImageURL != null) {
-              return Text("place for your image");
-              /*TODO: MemriImageView(imageURL: imageURL, fitContent: nodeResolver.propertyResolver.sizingMode() == .fit)
-          .if(nodeResolver.propertyResolver.sizingMode() == .fit) {
-      $0.aspectRatio(
-      MemriImageView.getAspectRatio(of: imageURL) ?? 1,
-      contentMode: .fit
-      )
-      }*/
+              return Image(
+                image: AssetImage(fileImageURL!),
+                fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
+              );
             } else if (bundleImage != null) {
               return Image(image: bundleImage!);
             } else if (iconName != null) {
               return Icon(
                 MemriIcon.getByName(iconName!),
                 color: color,
-                //size: font?.size,
+                size: font?.size,
               );
               //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
               //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
