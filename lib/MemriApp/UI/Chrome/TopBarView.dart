@@ -81,7 +81,7 @@ class TopBarView extends StatelessWidget {
             },
             valueListenable: sceneController.shouldUpdate,
           ),
-          Divider()
+          //Divider()
         ],
       ),
     );

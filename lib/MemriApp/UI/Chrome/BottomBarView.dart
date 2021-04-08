@@ -4,6 +4,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 import '../ViewContextController.dart';
 
@@ -25,37 +26,45 @@ class BottomBarView extends StatelessWidget {
   Widget build(BuildContext context) {
     var filter = currentFilter;
     return Column(children: [
-      Divider(),
+      // Divider(),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Row(/*spacing: 4, */ children: [
-            Row(/*spacing: 4, */ children: [
-              ElevatedButton(
-                onPressed: onSearchPressed,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 7),
-                        child: Icon(Icons.search),
-                      ),
-                      if (filter != null) Text(filter) //TODO style
-                    ],
+          child: ColoredBox(
+              color: CVUColor.system("secondarySystemBackground"),
+              child: Row(/*spacing: 4, */ children: [
+                Row(/*spacing: 4, */ children: [
+                  TextButton(
+                    onPressed: onSearchPressed,
+                    child: Padding(
+                        padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                        child: ClipRect(
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 7),
+                                child: Icon(Icons.search),
+                              ),
+                              if (filter != null) Text(filter) //TODO style
+                            ],
+                          ),
+                        )),
                   ),
-                ),
-              ),
-              if (filter != null)
-                ElevatedButton(
-                    onPressed: () => viewContext.searchString = null, child: Icon(Icons.clear))
-              //TODO style
-            ]),
-            Spacer(),
-            ElevatedButton(
-              onPressed: onFilterButtonPressed,
-              child: Icon(Icons.menu),
-            )
-          ]))
+                  if (filter != null)
+                    TextButton(
+                        onPressed: () => viewContext.searchString = null, child: Icon(Icons.clear))
+                  //TODO style
+                ]),
+                Spacer(),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: ClipRect(
+                    child: TextButton(
+                      onPressed: onFilterButtonPressed,
+                      child: Icon(Icons.filter_list),
+                    ),
+                  ),
+                )
+              ])))
     ]);
   }
 }
