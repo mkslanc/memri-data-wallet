@@ -22,10 +22,10 @@ extension MemriIcon on IconData {
         return Icons.chat_bubble;
       case 'square.and.pencil':
         return Icons.edit;
+      case 'star.fill':
+        return Icons.star;
       default:
-        {
-          return Icons.contact_support_rounded;
-        }
+        return Icons.contact_support_rounded;
     }
   }
 }

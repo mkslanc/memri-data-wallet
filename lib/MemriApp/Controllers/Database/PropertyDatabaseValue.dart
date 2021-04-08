@@ -70,10 +70,15 @@ abstract class PropertyDatabaseValue {
         }
         return PropertyDatabaseValueDouble(value.toDouble());
       case SchemaValueType.bool:
-        if (value is! bool) {
+        if (value is! bool && value is! int) {
           throw Exception('Expected Bool: $debugInfo');
         } //TODO: @mkslanc
-        var intVal = value ? 1 : 0;
+        var intVal;
+        if (value is bool) {
+          intVal = (value) ? 1 : 0;
+        } else {
+          intVal = value;
+        }
         return PropertyDatabaseValueInt(intVal);
       //return PropertyDatabaseValueBool(value, SchemaValueType.bool);
       case SchemaValueType.int:

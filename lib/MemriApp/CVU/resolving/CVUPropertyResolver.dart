@@ -66,7 +66,7 @@ class CVUPropertyResolver {
 
   Future<double?> number(String key) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     return await lookup.resolve<double>(value: val, context: context, db: db);
@@ -75,7 +75,7 @@ class CVUPropertyResolver {
   Future<double?> cgFloat(String key) async {
     //TODO do we need this
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     return await lookup.resolve<double>(value: val, context: context, db: db);
@@ -83,7 +83,7 @@ class CVUPropertyResolver {
 
   Future<int?> integer(String key) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     return (await lookup.resolve<double>(value: val, context: context, db: db))?.toInt();
@@ -118,7 +118,7 @@ class CVUPropertyResolver {
 
   Future<DateTime?> dateTime(String key) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     return await lookup.resolve<DateTime>(value: val, context: context, db: db);
@@ -126,7 +126,7 @@ class CVUPropertyResolver {
 
   Future<ItemRecord?> item(String key) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     return await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
@@ -134,7 +134,7 @@ class CVUPropertyResolver {
 
   Future<List<ItemRecord>> items(String key) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return [];
     }
     return (await lookup.resolve<List<ItemRecord>>(value: val, context: context, db: db))!;
@@ -142,7 +142,7 @@ class CVUPropertyResolver {
 
   Future<ItemRecord?> edge(String key, String edgeName) async {
     var val = value(key);
-    if (val != null) {
+    if (val == null) {
       return null;
     }
     ItemRecord? item = await lookup.resolve<ItemRecord>(value: val, context: context, db: db);

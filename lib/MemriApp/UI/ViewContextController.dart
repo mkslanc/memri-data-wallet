@@ -96,8 +96,8 @@ class ViewContextController {
 
   /// Return a SwiftUI view for the given item based on it's CVU definition.
   /// Set `overrideRenderer` if you want to render the item as though it is in a different renderer to the context (eg. "list" to get the list-specific appearance)
-  Widget? render(ItemRecord item, [String? overrideRenderer, bool blankIfNoDefinition = false]) {
-    cvuController.render(
+  Widget render(ItemRecord item, [String? overrideRenderer, bool blankIfNoDefinition = false]) {
+    return cvuController.render(
         cvuContext: getCVUContext(item, overrideRenderer),
         lookup: lookupController,
         db: databaseController,
@@ -149,17 +149,15 @@ class ViewContextController {
     }
   }
 
-  late CVUPropertyResolver
-      viewDefinitionPropertyResolver /* = (){TODO check if these functions are needed
-    return config.viewDefinition.propertyResolver(context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
-  }()*/
-      ;
+  late CVUPropertyResolver viewDefinitionPropertyResolver = () {
+    return config.viewDefinition.propertyResolver(
+        context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
+  }();
 
-  late CVUPropertyResolver
-      rendererDefinitionPropertyResolver /* = (){
-    return rendererDefinition.propertyResolver(context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
-  }()*/
-      ;
+  late CVUPropertyResolver rendererDefinitionPropertyResolver = () {
+    return rendererDefinition.propertyResolver(
+        context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
+  }();
 
   setRendererProperty(String renderer, String property, CVUValue value) {
     var index = config.viewDefinition.definitions.indexWhere((definition) =>
@@ -244,7 +242,6 @@ class ViewContextController {
   setupQueryObservation() {
     /// Remove old observation
     queryObservation?.cancel();
-    queryObservation = null;
 
     /// Only set up an observation if `isObserving` is true
     if (!isObservingQuery) {
@@ -252,6 +249,10 @@ class ViewContextController {
     }
 
     var queryConfig = config.query;
+    queryObservation =
+        queryConfig.executeRequest(databaseController).asBroadcastStream().listen((records) {
+      items = records;
+    });
     // var observation = ValueObservation
     //     .tracking { db in
     // try queryConfig.executeRequest(db: db)

@@ -23,27 +23,45 @@ class TopBarView extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        onPressed: () => sceneController.navigationIsVisible.value = true,
-                        icon: Icon(Icons.dehaze),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: Wrap(
+                              children: [
+                                IconButton(
+                                  onPressed: () => sceneController.navigationIsVisible.value = true,
+                                  icon: Icon(Icons.dehaze),
+                                  padding: EdgeInsets.all(10),
+                                ),
+                                if (sceneController.canNavigateBack)
+                                  IconButton(
+                                    onPressed: () => sceneController.navigateBack(),
+                                    icon: Icon(Icons.arrow_back),
+                                  )
+                              ],
+                            ),
+                          )
+                        ],
                       ),
-                      if (sceneController.canNavigateBack)
-                        IconButton(
-                          onPressed: () => sceneController.navigateBack(),
-                          icon: Icon(Icons.arrow_back),
-                        )
+                      FutureBuilder(
+                          future: sceneController.topMostContext?.viewDefinitionPropertyResolver
+                              .string("title"),
+                          builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                            if (snapshot.hasData) {
+                              return Expanded(
+                                  child: Center(
+                                child: Text(snapshot.data!),
+                              ));
+                            } else {
+                              return SizedBox.shrink(); //TODO Spacer?
+                            }
+                          }),
+                      SizedBox(
+                        width: 100,
+                      ),
                     ],
                   ),
-                  FutureBuilder(
-                      future: sceneController.topMostContext?.viewDefinitionPropertyResolver
-                          .string("title"),
-                      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                        if (snapshot.hasData) {
-                          return Text(snapshot.data!);
-                        } else {
-                          return SizedBox.shrink(); //TODO Spacer?
-                        }
-                      })
                 ],
               );
             },

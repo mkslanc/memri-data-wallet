@@ -8,7 +8,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import 'CVUElements/CVUButton.dart';
 import 'CVUElements/CVUForEach.dart';
@@ -105,7 +104,7 @@ class CVUElementView extends StatelessWidget {
     return FutureBuilder(
         future: nodeResolver.propertyResolver.showNode,
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.requireData) {
+          if (snapshot.hasData && snapshot.data == true) {
             return resolvedComponent();
           }
           return SizedBox.shrink();

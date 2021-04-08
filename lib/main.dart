@@ -5,6 +5,7 @@ import 'package:moor/ffi.dart';
 import 'MemriApp/Controllers/SceneController.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(
     title: "Memri",
     home: Memri(),

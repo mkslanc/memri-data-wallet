@@ -5,7 +5,10 @@
 //  Created by T Brennan on 7/12/20.
 //
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVULexer.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUParser.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
@@ -19,30 +22,39 @@ import 'definitions/CVUParsedDefinition.dart';
 class CVUController {
   late List<CVUParsedDefinition> definitions;
 
-  CVUController() {
+  init() async {
     try {
-      this.definitions = /*Constants.isRunningTests ? [] :*/ CVUController.parseCVU(); //TODO:
+      definitions = await CVUController.parseCVU();
     } catch (error) {
       print(error);
       this.definitions = [];
     }
   }
 
-  static List<CVUParsedDefinition> parseCVU() {
-    var string = CVUController._readCVUString();
+  static Future<List<CVUParsedDefinition>> parseCVU() async {
+    var string = await CVUController.readCVUString();
     var lexer = CVULexer(string);
     var tokens = lexer.tokenize();
     var parser = CVUParser(tokens);
     return parser.parse();
   }
 
-  static String _readCVUString() {
-    return "";
+  static Future<String> readCVUString() async {
+    var manifestJson = await rootBundle.loadString('AssetManifest.json');
+    List<String> cvus = json
+        .decode(manifestJson)
+        .keys
+        .where((String key) => key.startsWith('assets/defaultCVU'))
+        .toList();
+
+    cvus = await Future.wait(cvus.map((cvu) async => await rootBundle.loadString(cvu)).toList());
+
+    return cvus.join("\n").replaceAll("\r", "");
   }
 
   CVUParsedDefinition? _definitionFor(
       {required CVUDefinitionType type, String? selector, String? viewName, String? rendererName}) {
-    CVUController._definitionFrom(
+    return CVUController._definitionFrom(
         definitions: definitions,
         type: type,
         selector: selector,
@@ -149,7 +161,7 @@ class CVUController {
     return mergedDefinition;
   }
 
-  Widget? render(
+  Widget render(
       {required CVUContext cvuContext,
       required CVULookupController lookup,
       required DatabaseController db,
@@ -164,5 +176,6 @@ class CVUController {
       return Text("No definition for displaying a `$type` in this context",
           style: TextStyle(fontFamily: "caption"));
     }
+    return Text("");
   }
 }

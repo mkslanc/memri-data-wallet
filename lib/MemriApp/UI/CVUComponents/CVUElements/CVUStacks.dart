@@ -27,7 +27,7 @@ class CVUHStack extends StatelessWidget {
           switch (snapshot.connectionState) {
             case ConnectionState.done: //TODO: spacing
               return Row(
-                crossAxisAlignment: alignment as CrossAxisAlignment,
+                // crossAxisAlignment: alignment as CrossAxisAlignment,
                 children: nodeResolver.childrenInForEach(),
               );
             /* TODO:
@@ -69,7 +69,7 @@ class CVUVStack extends StatelessWidget {
           switch (snapshot.connectionState) {
             case ConnectionState.done: //TODO: spacing
               return Column(
-                crossAxisAlignment: alignment as CrossAxisAlignment,
+                //crossAxisAlignment: alignment as CrossAxisAlignment,
                 children: nodeResolver.childrenInForEach(),
               );
             /* TODO:

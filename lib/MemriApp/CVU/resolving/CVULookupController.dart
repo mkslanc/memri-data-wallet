@@ -1,10 +1,4 @@
-//
-//  CVULookup.swift
-//  MemriDatabase
-//
-//  Created by T Brennan on 23/12/20.
-//
-
+import 'package:html/parser.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Expression.dart';
@@ -272,8 +266,8 @@ class CVULookupController {
                   if (htmlstring == null || htmlstring.isEmpty) {
                     return null;
                   }
-                  return PropertyDatabaseValueString(htmlstring);
-                  //TODO return PropertyDatabaseValueString(DOMPurify.sanitize(htmlstring, {ALLOWED_TAGS: []}))
+                  var strippedText = parse(parse(htmlstring).body!.text).documentElement!.text;
+                  return PropertyDatabaseValueString(strippedText);
                 })
                 .whereType<PropertyDatabaseValue>()
                 .toList();
@@ -501,17 +495,15 @@ class CVULookupController {
         var expectedType = db.schema.expectedType(itemType, node.name);
         if (expectedType is ResolvedTypeProperty) {
           /// LOOKUP PROPERTY FOR EACH ITEM
-          List<PropertyDatabaseValue> result = items
-              .map((item) async {
-                ItemPropertyRecord? property = await item.property(node.name, db);
-                PropertyDatabaseValue? value = property?.value(item.type, db.schema);
-                if (property == null || value == null) {
-                  return null;
-                }
-                return value;
-              })
-              .whereType<PropertyDatabaseValue>()
-              .toList();
+          List<PropertyDatabaseValue> result = [];
+          await Future.forEach(items, (ItemRecord item) async {
+            ItemPropertyRecord? property = await item.property(node.name, db);
+            PropertyDatabaseValue? value = property?.value(item.type, db.schema);
+            if (property == null || value == null) {
+              return null;
+            }
+            result.add(value);
+          });
           return LookupStepValues(result);
         } else if (expectedType is ResolvedTypeEdge) {
           /// LOOKUP EDGE FOR EACH ITEM
