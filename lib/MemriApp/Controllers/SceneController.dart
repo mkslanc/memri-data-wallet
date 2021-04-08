@@ -15,7 +15,6 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 import 'AppController.dart';
 import 'Database/DatabaseQuery.dart';
-import 'Database/DemoData.dart';
 import 'Database/ItemRecord.dart';
 import 'Database/NavigationStack.dart';
 
@@ -28,14 +27,6 @@ class SceneController {
   MemriUINavigationController navigationController = MemriUINavigationController();
 
   init() async {
-    //TODO: remove in prod
-    await appController.databaseController.init();
-    await appController.databaseController.databasePool.resetDb();
-    if (await appController.databaseController.databaseIsSetup) {
-    } else {
-      await DemoData.importDemoData(databaseController: appController.databaseController);
-    }
-    ////
     setupObservations();
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
