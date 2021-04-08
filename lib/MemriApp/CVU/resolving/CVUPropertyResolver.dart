@@ -14,6 +14,7 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVU_Other.dart';
 import 'package:flutter/material.dart';
@@ -274,7 +275,7 @@ class CVUPropertyResolver {
     return /*CVU_SizingMode(rawValue: string) ??*/ CVU_SizingMode.fit; //TODO:
   }
 
-  Future<String?> color([String key = "color"]) async {
+  Future<Color?> color([String key = "color"]) async {
     var val = this.value(key);
     if (val == null) {
       return null;
@@ -283,19 +284,13 @@ class CVUPropertyResolver {
     if (string == null) {
       return null;
     }
-    return string;
-    //TODO @anijanyan
-    /*if (Color.named(string)) {
-      return Color.named(string)
-    } else {
-      return Color.hex(string)
-    }*/
+    return CVUColor(color: string).value;
   }
 
   Future<Alignment> alignment([String propertyName = "alignment"]) async {
     var val = value(propertyName);
     if (val == null) {
-      return Alignment.center;
+      return Alignment.topLeft;
     }
     switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
@@ -325,7 +320,7 @@ class CVUPropertyResolver {
       case "bottomright":
         return Alignment.bottomRight;
       default:
-        return Alignment.center;
+        return Alignment.topLeft;
     }
   }
 
@@ -466,11 +461,11 @@ class CVUPropertyResolver {
     return await number("opacity") ?? 1;
   }
 
-  Future<String?> get backgroundColor async {
+  Future<Color?> get backgroundColor async {
     return await color("background");
   }
 
-  Future<String?> get borderColor async {
+  Future<Color?> get borderColor async {
     return await color("border");
   }
 
