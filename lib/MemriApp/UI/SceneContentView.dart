@@ -10,7 +10,9 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import 'Chrome/BottomBarView.dart';
 import 'Chrome/SearchView.dart';
+import 'Renderers/GridRenderer.dart';
 import 'Renderers/ListRenderer.dart';
+import 'Renderers/NoteEditorRenderer.dart';
 import 'ViewContextController.dart';
 
 class SceneContentView extends StatefulWidget {
@@ -18,6 +20,7 @@ class SceneContentView extends StatefulWidget {
   final ViewContextController viewContext;
 
   SceneContentView({required this.sceneController, required this.viewContext});
+
   @override
   _SceneContentViewState createState() => _SceneContentViewState(sceneController, viewContext);
 }
@@ -35,13 +38,12 @@ class _SceneContentViewState extends State<SceneContentView> {
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
-        return ListRendererView(
-          viewContext: viewContext,
-          sceneController: sceneController,
-        );
-      /*case "grid":
-        GridRendererView(viewContext: viewContext);
-      case "map":
+        return ListRendererView(viewContext: viewContext, sceneController: sceneController);
+      case "noteeditor":
+        return NoteEditorRendererView(viewContext: viewContext, sceneController: sceneController);
+      case "grid":
+        return GridRendererView(viewContext: viewContext, sceneController: sceneController);
+      /*case "map":
         MapRendererView(viewContext: viewContext);
       case "timeline":
         TimelineRendererView(viewContext: viewContext);

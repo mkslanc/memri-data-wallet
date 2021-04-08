@@ -17,7 +17,7 @@ class NavigationHolder extends StatelessWidget {
 
 class MemriUINavigationController extends StatelessWidget {
   setViewControllers(Widget widget) {
-    Navigator.pushReplacement(_context, MaterialPageRoute(
+    Navigator.pushReplacement(_context!, MaterialPageRoute(
       builder: (context) {
         _context = context;
         return Scaffold(
@@ -28,7 +28,7 @@ class MemriUINavigationController extends StatelessWidget {
     ;
   }
 
-  late BuildContext _context; //TODO this doesn't seem nice, should review
+  BuildContext? _context; //TODO this doesn't seem nice, should review
 
   @override
   Widget build(BuildContext context) {

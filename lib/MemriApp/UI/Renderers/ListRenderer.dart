@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
@@ -52,18 +51,23 @@ class _ListRendererViewState extends State<ListRendererView> {
               if (viewContext.hasItems) {
                 return Flexible(
                     child: ListView.separated(
-                        itemBuilder: (context, index) => Padding(
-                            padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                            child: Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                    insets.left,
-                                    index == 0 ? 0 : spacing.y / 2,
-                                    insets.right,
-                                    index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-                                child: ColoredBox(
-                                  color: backgroundColor,
-                                  child: viewContext.render(viewContext.items[index]),
-                                ))),
+                        itemBuilder: (context, index) => ListTile(
+                              title: Padding(
+                                  padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                                  child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          insets.left,
+                                          index == 0 ? 0 : spacing.y / 2,
+                                          insets.right,
+                                          index == viewContext.items.length - 1
+                                              ? 0
+                                              : spacing.y / 2),
+                                      child: ColoredBox(
+                                        color: backgroundColor,
+                                        child: viewContext.render(viewContext.items[index]),
+                                      ))),
+                              onTap: selectionMode(index),
+                            ),
                         separatorBuilder: (context, index) => Divider(
                               color: separatorsEnabled ? Colors.black : Colors.transparent,
                             ),
@@ -91,5 +95,25 @@ class _ListRendererViewState extends State<ListRendererView> {
               );
           }
         });
+  }
+
+  GestureTapCallback selectionMode(index) {
+    if (sceneController.isInEditMode) {
+      return () {
+        print(index);
+      };
+      // return .selectMultiple(viewContext.selectedIndicesBinding)
+    } else {
+      return () {
+        var item = viewContext.items.asMap()[index];
+
+        if (item != null) {
+          var press = viewContext.nodePropertyResolver(item)?.action("onPress");
+          if (press != null) {
+            press.execute(sceneController, viewContext.getCVUContext(item));
+          }
+        }
+      };
+    }
   }
 }
