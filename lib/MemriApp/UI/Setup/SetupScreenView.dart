@@ -279,25 +279,25 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     );
   }
 
-  void onConnectPressed() {
+  void onConnectPressed() async {
     if (model.setupAsNewPod) {
       setState(() {
         _showingNewPodWarning = true;
       });
     } else {
-      handleSetup(false);
+      await handleSetup(false);
     }
   }
 
-  void onLocalDemoPressed() {
-    handleSetup(true);
+  void onLocalDemoPressed() async {
+    await handleSetup(true);
   }
 
-  void onAcknowledgedNewPodWarning() {
-    handleSetup(false);
+  void onAcknowledgedNewPodWarning() async {
+    await handleSetup(false);
   }
 
-  handleSetup(bool localOnly) {
+  handleSetup(bool localOnly) async {
     setState(() => model.state = PodSetupState.loading);
 
     void handleCompletion(Exception? error) {
@@ -317,6 +317,6 @@ class _SetupScreenViewState extends State<SetupScreenView> {
       handleCompletion(null);
       return;
     }
-    appController.setupApp(config, handleCompletion);
+    await appController.setupApp(config, handleCompletion);
   }
 }
