@@ -27,7 +27,8 @@ class SceneController {
   MemriUINavigationController navigationController = MemriUINavigationController();
 
   init() async {
-    // setupObservations();//TODO
+    await appController.databaseController.init();
+    setupObservations(); //TODO
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
       navigationStack = navStack;
@@ -37,7 +38,7 @@ class SceneController {
       navigationController
           .setViewControllers(SceneContentView(sceneController: this, viewContext: context));
     } else {
-      navigationController.setViewControllers(Text("Welcome to Memri"));
+      // navigationController.setViewControllers(Text("Welcome to Memri"));//TODO
     }
   }
 
@@ -142,15 +143,15 @@ class SceneController {
     if (_navigationStack.state.length <= 1) {
       return;
     }
-    var newTopConfig = _navigationStack.state[_navigationStack.state.length - 1 - 2];
+    var newTopConfig = _navigationStack.state[_navigationStack.state.length - 2];
     _navigationStack.state.removeLast();
     navigationStack = _navigationStack; //TODO
 
     var context = makeContext(newTopConfig);
     topMostContext = context;
-    var vc = MaterialPage(child: SceneContentView(sceneController: this, viewContext: context));
-    // navigationController.pages.add(vc);
-    //navigationController.popToViewController(vc, animated: true); TODO: need to test this
+
+    var vc = SceneContentView(sceneController: this, viewContext: context);
+    navigationController.setViewControllers(vc); //TODO this is not right
   }
 
   navigateToNewContext(

@@ -56,7 +56,6 @@ class AppController {
 
   // MARK: Setup
   setupApp(SetupConfig config, void Function(Exception? error) onCompletion) async {
-    await databaseController.init();
     if (config is SetupConfigLocal || config is SetupConfigNewPod) {
       try {
         if (await databaseController.databaseIsSetup) {

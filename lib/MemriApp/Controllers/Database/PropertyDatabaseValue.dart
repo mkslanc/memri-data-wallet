@@ -32,7 +32,7 @@ abstract class PropertyDatabaseValue {
         if (boolean == null) {
           return null;
         }
-        return PropertyDatabaseValueBool(boolean);
+        return PropertyDatabaseValueBool(boolean == 1 ? true : false);
       case SchemaValueType.int:
         var number = int.tryParse(databaseValue.value);
         if (number == null) {
@@ -137,9 +137,9 @@ abstract class PropertyDatabaseValue {
   }
 
   bool? asBool() {
-    return (value != null && ["0", "", "false"].contains(value.toString()))
-        ? true
-        : false; //TODO find a valid way to convert to boolean @anijanyan
+    return (value == null || ["0", "", "false"].contains(value.toString()))
+        ? false
+        : true; //TODO find a valid way to convert to boolean @anijanyan
   }
 
   DateTime? asDate() {

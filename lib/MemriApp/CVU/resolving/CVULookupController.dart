@@ -571,7 +571,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepValues) {
-      return lookupResult.values[0].asBool();
+      return lookupResult.values.asMap()[0]?.asBool();
     } else if (lookupResult is LookupStepItems) {
       return lookupResult.items.isNotEmpty;
     } else {
