@@ -5,9 +5,19 @@ import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 
 import '../CVUUINodeResolver.dart';
 
+List<Widget> space(double gap, Iterable<Widget> children) =>
+    children //TODO: move to utilities and use in static views
+        .expand((item) sync* {
+          yield SizedBox(width: gap);
+          yield item;
+        })
+        .skip(1)
+        .toList();
+
 /// A CVU element for displaying multiple children in a Horizontal Stack
 /// - set the `alignment` property to `top`, `center`, or `bottom`
 /// - set the `fillWidth` property to `true` if the stack should fill all available width
+
 class CVUHStack extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
   late final AlignmentResolver alignment;
@@ -30,7 +40,8 @@ class CVUHStack extends StatelessWidget {
               return Row(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                children: nodeResolver.childrenInForEach(),
+                children: space(spacing?.x.toDouble() ?? 0,
+                    nodeResolver.childrenInForEach()),
               );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillWidth", defaultValue: false)) {
@@ -73,7 +84,8 @@ class CVUVStack extends StatelessWidget {
               return Column(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                children: nodeResolver.childrenInForEach(),
+                children: space(spacing?.y.toDouble() ?? 0,
+                    nodeResolver.childrenInForEach()),
               );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
