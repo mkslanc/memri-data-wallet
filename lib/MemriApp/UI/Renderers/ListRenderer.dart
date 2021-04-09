@@ -107,9 +107,8 @@ class _ListRendererViewState extends State<ListRendererView> {
   GestureTapCallback selectionMode(index) {
     if (sceneController.isInEditMode) {
       return () {
-        print(index);
+        print(index); //TODO select
       };
-      // return .selectMultiple(viewContext.selectedIndicesBinding)
     } else {
       return () {
         var item = viewContext.items.asMap()[index];

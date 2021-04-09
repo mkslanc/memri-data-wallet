@@ -18,6 +18,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 
 import 'definitions/CVUParsedDefinition.dart';
+import 'definitions/CVUUINode.dart';
 
 class CVUController {
   late List<CVUParsedDefinition> definitions;
@@ -167,7 +168,7 @@ class CVUController {
       required DatabaseController db,
       required bool blankIfNoDefinition}) {
     var nodeDefinition = nodeDefinitionFor(cvuContext);
-    var node = nodeDefinition?.children.first;
+    CVUUINode? node = nodeDefinition?.children.asMap()[0];
     if (node != null) {
       return CVUElementView(
           nodeResolver: CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node, db: db));

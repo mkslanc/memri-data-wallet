@@ -13,6 +13,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
@@ -257,10 +258,10 @@ class CVUPropertyResolver {
     return null;
   }
 
-  String? fileURL(String key) {
-    //TODO type URL? @anijanyan
-    return ""; //TODO
-    // return FileStorageController.getURLForFile(this.fileUID(key));
+  Future<String?> fileURL(String key) async {
+    var uuid = await fileUID(key);
+    if (uuid == null) return null;
+    return FileStorageController.getURLForFile(uuid);
   }
 
   Future<CVU_SizingMode> sizingMode([String key = "sizingMode"]) async {
