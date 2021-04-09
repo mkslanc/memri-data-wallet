@@ -188,8 +188,12 @@ class ViewContextController {
   List<ItemRecord> get items => _items;
 
   set items(List<ItemRecord> items) {
-    this._items = items;
+    _items = items;
+    itemsValueNotifier.value = _items;
   }
+
+  ValueNotifier<List<ItemRecord>> itemsValueNotifier =
+      ValueNotifier([]); //TODO not sure if this is right architecture
 
   // AnyPublisher<[ItemRecord], Never> _itemsChangePublisher;
 
@@ -218,7 +222,11 @@ class ViewContextController {
 
   set searchString(String? newValue) {
     config.query.searchString = newValue;
+    searchStringNotifier.value = newValue;
+    setupQueryObservation();
   }
+
+  ValueNotifier<String?> searchStringNotifier = ValueNotifier(null);
 
   // MARK: OTHER
   bool isFullScreen = false;
@@ -231,11 +239,11 @@ class ViewContextController {
   bool get isObservingQuery => _isObservingQuery;
 
   set isObservingQuery(bool isObservingQuery) {
-    if (this._isObservingQuery == isObservingQuery) {
+    if (_isObservingQuery == isObservingQuery) {
       return;
     }
-    this._isObservingQuery = isObservingQuery;
-    this.setupQueryObservation();
+    _isObservingQuery = isObservingQuery;
+    setupQueryObservation();
   }
 
   /// Sets up a database observation so that all

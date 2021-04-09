@@ -48,45 +48,51 @@ class _ListRendererViewState extends State<ListRendererView> {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              if (viewContext.hasItems) {
-                return Flexible(
-                    child: ListView.separated(
-                        itemBuilder: (context, index) => ListTile(
-                              title: Padding(
-                                  padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                                  child: Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                          insets.left,
-                                          index == 0 ? 0 : spacing.y / 2,
-                                          insets.right,
-                                          index == viewContext.items.length - 1
-                                              ? 0
-                                              : spacing.y / 2),
-                                      child: ColoredBox(
-                                        color: backgroundColor,
-                                        child: viewContext.render(viewContext.items[index]),
-                                      ))),
-                              onTap: selectionMode(index),
-                            ),
-                        separatorBuilder: (context, index) => Divider(
-                              color: separatorsEnabled ? Colors.black : Colors.transparent,
-                            ),
-                        itemCount: viewContext.items.length));
-              } else {
-                return Padding(
-                  padding: EdgeInsets.all(30),
-                  child: Center(
-                    child: Text(
-                      "No items",
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Color.fromRGBO(0, 0, 0, 0.7),
-                          backgroundColor: backgroundColor),
-                    ),
-                  ),
-                );
-              }
+              return ValueListenableBuilder(
+                  valueListenable: viewContext.itemsValueNotifier,
+                  builder: (BuildContext context, value, child) {
+                    if (viewContext.hasItems) {
+                      return Flexible(
+                          child: ListView.separated(
+                              itemBuilder: (context, index) => ListTile(
+                                    title: Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                                        child: Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                insets.left,
+                                                index == 0 ? 0 : spacing.y / 2,
+                                                insets.right,
+                                                index == viewContext.items.length - 1
+                                                    ? 0
+                                                    : spacing.y / 2),
+                                            child: ColoredBox(
+                                              color: backgroundColor,
+                                              child: viewContext.render(viewContext.items[index]),
+                                            ))),
+                                    onTap: selectionMode(index),
+                                  ),
+                              separatorBuilder: (context, index) => Divider(
+                                    color: separatorsEnabled ? Colors.black : Colors.transparent,
+                                  ),
+                              itemCount: viewContext.items.length));
+                    } else {
+                      return Padding(
+                        padding: EdgeInsets.all(30),
+                        child: Center(
+                          child: Text(
+                            "No items",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: Color.fromRGBO(0, 0, 0, 0.7),
+                                backgroundColor: backgroundColor),
+                          ),
+                        ),
+                      );
+                    }
+                  });
+
             default:
               return SizedBox(
                 child: CircularProgressIndicator(),

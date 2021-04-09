@@ -10,12 +10,17 @@ import '../ViewContextController.dart';
 
 /// This view is displayed when the user presses the search button
 /// It moves itself to be above the keyboard automatically
-class SearchView extends StatelessWidget {
+class SearchView extends StatefulWidget {
   final ViewContextController viewContext;
   final ValueNotifier<bool> isActive;
 
   SearchView({required this.viewContext, required this.isActive});
 
+  @override
+  _SearchViewState createState() => _SearchViewState();
+}
+
+class _SearchViewState extends State<SearchView> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,8 +32,18 @@ class SearchView extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(Icons.search),
-                  TextField(),
-                  IconButton(icon: Icon(Icons.close), onPressed: () => isActive.value = false)
+                  Expanded(
+                    child: TextFormField(
+                      controller: TextEditingController(text: widget.viewContext.searchString),
+                      onChanged: (value) => setState(() => widget.viewContext.searchString = value),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: "Search",
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.close), onPressed: () => widget.isActive.value = false)
                 ],
               ))
         ],
