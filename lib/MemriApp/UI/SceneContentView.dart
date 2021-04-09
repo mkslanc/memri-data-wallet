@@ -10,9 +10,18 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import 'Chrome/BottomBarView.dart';
 import 'Chrome/SearchView.dart';
+import 'Renderers/CalendarRenderer.dart';
+import 'Renderers/ChartRenderer.dart';
+import 'Renderers/FileRenderer.dart';
+import 'Renderers/GeneralEditorRenderer.dart';
 import 'Renderers/GridRenderer.dart';
+import 'Renderers/LabelAnnotationRenderer.dart';
 import 'Renderers/ListRenderer.dart';
+import 'Renderers/MapRenderer.dart';
 import 'Renderers/NoteEditorRenderer.dart';
+import 'Renderers/PhotoViewerRenderer.dart';
+import 'Renderers/SingleItemRenderer.dart';
+import 'Renderers/TimelineRenderer.dart';
 import 'ViewContextController.dart';
 
 class SceneContentView extends StatefulWidget {
@@ -42,31 +51,35 @@ class _SceneContentViewState extends State<SceneContentView> {
           switch (value.toLowerCase()) {
             case "list":
               return ListRendererView(viewContext: viewContext, sceneController: sceneController);
+            case "grid":
+              return GridRendererView(viewContext: viewContext, sceneController: sceneController);
+            case "map":
+              return MapRendererView(viewContext: viewContext, sceneController: sceneController);
+            case "timeline":
+              return TimelineRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
+            case "calendar":
+              return CalendarRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
+            case "photoviewer":
+              return PhotoViewerRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
+            case "chart":
+              return ChartRendererView(viewContext: viewContext, sceneController: sceneController);
+            case "singleitem":
+              return SingleItemRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
             case "noteeditor":
               return NoteEditorRendererView(
                   viewContext: viewContext, sceneController: sceneController);
-            case "grid":
-              return GridRendererView(viewContext: viewContext, sceneController: sceneController);
-            /*case "map":
-              MapRendererView(viewContext: viewContext);
-            case "timeline":
-              TimelineRendererView(viewContext: viewContext);
-            case "calendar":
-              CalendarRendererView(viewContext: viewContext);
-            case "photoviewer":
-              PhotoViewerRendererView(viewContext: viewContext);
-            case "chart":
-              ChartRendererView(viewContext: viewContext);
-            case "singleitem":
-              SingleItemRendererView(viewContext: viewContext);
-            case "noteeditor":
-              NoteEditorRendererView(viewContext: viewContext);
             case "labelannotation":
-              LabelAnnotationRendererView(viewContext: viewContext);
+              return LabelAnnotationRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
             case "fileviewer":
-              FileRendererView(viewContext: viewContext);
+              return FileRendererView(viewContext: viewContext, sceneController: sceneController);
             case "generaleditor":
-              GeneralEditorRendererView(viewContext: viewContext);*/
+              return GeneralEditorRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
             default:
               return Expanded(
                   child:
@@ -74,6 +87,8 @@ class _SceneContentViewState extends State<SceneContentView> {
           }
         });
   }
+
+  //TODO onAppear, onDisappear
 
   @override
   Widget build(BuildContext context) {
