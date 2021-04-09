@@ -18,7 +18,7 @@ class SetupScreenView extends StatefulWidget {
 class _SetupScreenViewState extends State<SetupScreenView> {
   AppController appController = AppController.shared;
   SetupScreenModel model = SetupScreenModel();
-  var _showingNewPodWarning = false;
+  // var _showingNewPodWarning = false;
 
   _SetupScreenViewState();
 
@@ -281,9 +281,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
 
   void onConnectPressed() async {
     if (model.setupAsNewPod) {
-      setState(() {
-        _showingNewPodWarning = true;
-      });
+      // setState(() => _showingNewPodWarning = true);
     } else {
       await handleSetup(false);
     }

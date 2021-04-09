@@ -23,9 +23,9 @@ class _NoteEditorRendererViewState extends State<NoteEditorRendererView> {
   final SceneController sceneController;
   final ViewContextController viewContext;
 
-  bool _showingImagePicker = false;
-  bool _showingImagePicker_shouldUseCamera = false;
-  void Function()? _imagePickerPromise;
+  // bool _showingImagePicker = false;
+  // bool _showingImagePicker_shouldUseCamera = false;
+  // void Function()? _imagePickerPromise;
 
   _NoteEditorRendererViewState(this.sceneController, this.viewContext);
 
