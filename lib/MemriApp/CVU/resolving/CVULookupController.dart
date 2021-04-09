@@ -292,9 +292,9 @@ class CVULookupController {
               return null;
             }
 
-            if (currentValue is LookupStepValues) {
+            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
               currentValue = LookupStepValues([currentValue.values.last]);
-            } else if (currentValue is LookupStepItems) {
+            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
               currentValue = LookupStepItems([currentValue.items.last]);
             } else {
               return null;
