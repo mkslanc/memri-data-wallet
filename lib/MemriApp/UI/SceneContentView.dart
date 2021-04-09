@@ -36,37 +36,43 @@ class _SceneContentViewState extends State<SceneContentView> {
 
   /// Translates the rendererName to the correct Renderer view
   Widget get renderer {
-    switch (viewContext.config.rendererName.toLowerCase()) {
-      case "list":
-        return ListRendererView(viewContext: viewContext, sceneController: sceneController);
-      case "noteeditor":
-        return NoteEditorRendererView(viewContext: viewContext, sceneController: sceneController);
-      case "grid":
-        return GridRendererView(viewContext: viewContext, sceneController: sceneController);
-      /*case "map":
-        MapRendererView(viewContext: viewContext);
-      case "timeline":
-        TimelineRendererView(viewContext: viewContext);
-      case "calendar":
-        CalendarRendererView(viewContext: viewContext);
-      case "photoviewer":
-        PhotoViewerRendererView(viewContext: viewContext);
-      case "chart":
-        ChartRendererView(viewContext: viewContext);
-      case "singleitem":
-        SingleItemRendererView(viewContext: viewContext);
-      case "noteeditor":
-        NoteEditorRendererView(viewContext: viewContext);
-      case "labelannotation":
-        LabelAnnotationRendererView(viewContext: viewContext);
-      case "fileviewer":
-        FileRendererView(viewContext: viewContext);
-      case "generaleditor":
-        GeneralEditorRendererView(viewContext: viewContext);*/
-      default:
-        return Expanded(
-            child: Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold)));
-    }
+    return ValueListenableBuilder(
+        valueListenable: viewContext.config.rendererName,
+        builder: (BuildContext context, String value, Widget? child) {
+          switch (value.toLowerCase()) {
+            case "list":
+              return ListRendererView(viewContext: viewContext, sceneController: sceneController);
+            case "noteeditor":
+              return NoteEditorRendererView(
+                  viewContext: viewContext, sceneController: sceneController);
+            case "grid":
+              return GridRendererView(viewContext: viewContext, sceneController: sceneController);
+            /*case "map":
+              MapRendererView(viewContext: viewContext);
+            case "timeline":
+              TimelineRendererView(viewContext: viewContext);
+            case "calendar":
+              CalendarRendererView(viewContext: viewContext);
+            case "photoviewer":
+              PhotoViewerRendererView(viewContext: viewContext);
+            case "chart":
+              ChartRendererView(viewContext: viewContext);
+            case "singleitem":
+              SingleItemRendererView(viewContext: viewContext);
+            case "noteeditor":
+              NoteEditorRendererView(viewContext: viewContext);
+            case "labelannotation":
+              LabelAnnotationRendererView(viewContext: viewContext);
+            case "fileviewer":
+              FileRendererView(viewContext: viewContext);
+            case "generaleditor":
+              GeneralEditorRendererView(viewContext: viewContext);*/
+            default:
+              return Expanded(
+                  child:
+                      Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold)));
+          }
+        });
   }
 
   @override

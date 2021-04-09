@@ -35,16 +35,19 @@ class SceneView extends StatelessWidget {
             ),
             ValueListenableBuilder(
               builder: (BuildContext context, bool value, Widget? child) {
-                if (value && sceneController.topMostContext != null) {
+                var currentContext = sceneController.topMostContext;
+                if (value && currentContext != null) {
                   return Stack(
+                    alignment: Alignment.bottomCenter,
                     children: [
-                      ColoredBox(color: Colors.black12),
-                      Column(
-                        children: [
-                          // Capsule TODO
-                          FilterPanelView()
-                        ],
-                      )
+                      GestureDetector(
+                        onTap: () => sceneController.filterPanelIsVisible.value = false,
+                        child: ColoredBox(
+                          color: Colors.black45,
+                          child: SizedBox.expand(),
+                        ),
+                      ),
+                      FilterPanelView(viewContext: currentContext)
                     ],
                   );
                 } else {
@@ -52,7 +55,7 @@ class SceneView extends StatelessWidget {
                 }
               },
               valueListenable: sceneController.filterPanelIsVisible,
-            )
+            ),
           ],
         ));
   }

@@ -72,7 +72,7 @@ class ViewContextController {
   }
 
   set focusedIndex(int newValue) {
-    var item = items[newValue];
+    var item = items.asMap()[newValue];
     if (item != null) {
       config.focusedItem = item;
     } else {
@@ -109,7 +109,7 @@ class ViewContextController {
         currentItem: item,
         selector: null,
         viewName: config.viewName,
-        rendererName: overrideRenderer ?? config.rendererName,
+        rendererName: overrideRenderer ?? config.rendererName.value,
         viewDefinition: config.viewDefinition,
         viewArguments: config.viewArguments);
   }
@@ -135,7 +135,7 @@ class ViewContextController {
           (await viewDefinitionPropertyResolver.string("defaultRenderer"))?.toLowerCase();
       List<String> list = config.viewDefinition.definitions
           .map((def) {
-            if (def.type == CVUDefinitionType.renderer) {
+            if (def.type != CVUDefinitionType.renderer) {
               return null;
             }
             return def.name?.toLowerCase();

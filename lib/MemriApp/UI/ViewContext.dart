@@ -6,6 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
@@ -16,7 +17,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 class ViewContext {
   String? viewName;
 
-  String rendererName;
+  ValueNotifier<String> rendererName;
 
   CVUDefinitionContent viewDefinition;
 
@@ -27,23 +28,19 @@ class ViewContext {
   ItemRecord? focusedItem;
 
   ViewContext(
-      {required this.rendererName,
+      {required rendererName,
       required this.query,
       this.viewName,
       viewDefinition,
       this.viewArguments,
       this.focusedItem})
-      : this.viewDefinition = viewDefinition ?? CVUDefinitionContent();
+      : this.rendererName = ValueNotifier(rendererName),
+        this.viewDefinition = viewDefinition ?? CVUDefinitionContent();
 }
 
 /// A class type that holds a ViewContext struct. This allows the struct to be shared between objects while maintaining value semantics.
 class ViewContextHolder {
-  ViewContext _config; //TODO
-  ViewContext get config => _config;
-  set config(ViewContext config) {
-    _config = config;
-    // configPublisher.send();//TODO @anijanyan
-  }
+  ViewContext config; //TODO configPublisher.send() on set
 
-  ViewContextHolder(this._config);
+  ViewContextHolder(this.config);
 }
