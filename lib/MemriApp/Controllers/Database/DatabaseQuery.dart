@@ -86,7 +86,10 @@ class DatabaseQueryConfig {
     }
 
     /// Filter to only include items matching the search term (AND if already filtered by UID, those that match both)
-    if (searchIDs != null && searchIDs.isNotEmpty) {
+    if (searchIDs != null) {
+      if (searchIDs.isEmpty) {
+        return [];
+      }
       var itemUIDCondition;
       if (itemUIDs.isNotEmpty) {
         //TODO: reimplement this with rowIds
