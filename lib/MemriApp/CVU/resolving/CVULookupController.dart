@@ -556,7 +556,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepValues) {
-      return lookupResult.values[0].asString();
+      return lookupResult.values.asMap()[0]?.asString();
     } else {
       return null;
     }
