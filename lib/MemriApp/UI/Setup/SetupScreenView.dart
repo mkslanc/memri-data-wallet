@@ -18,7 +18,6 @@ class SetupScreenView extends StatefulWidget {
 class _SetupScreenViewState extends State<SetupScreenView> {
   AppController appController = AppController.shared;
   SetupScreenModel model = SetupScreenModel();
-  // var _showingNewPodWarning = false;
 
   _SetupScreenViewState();
 
@@ -281,7 +280,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
 
   void onConnectPressed() async {
     if (model.setupAsNewPod) {
-      // setState(() => _showingNewPodWarning = true);
+      setState(newPodWarning);
     } else {
       await handleSetup(false);
     }
@@ -291,7 +290,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     await handleSetup(true);
   }
 
-  void onAcknowledgedNewPodWarning() async {
+  Future<void> onAcknowledgedNewPodWarning() async {
     await handleSetup(false);
   }
 
@@ -316,5 +315,33 @@ class _SetupScreenViewState extends State<SetupScreenView> {
       return;
     }
     await appController.setupApp(config, handleCompletion);
+  }
+
+  void newPodWarning() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Set up new pod'),
+          content: Text("Are you sure you want to install demo data to your pod?"),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Set up as new pod'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await onAcknowledgedNewPodWarning();
+              },
+            ),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
