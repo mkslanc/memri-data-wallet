@@ -15,7 +15,9 @@ class NavigationHolder extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class MemriUINavigationController extends StatelessWidget {
+  //TODO must_be_immutable
   setViewControllers(Widget widget) {
     Navigator.pushReplacement(_context!, MaterialPageRoute(
       builder: (context) {
@@ -25,7 +27,6 @@ class MemriUINavigationController extends StatelessWidget {
         );
       },
     ));
-    ;
   }
 
   BuildContext? _context; //TODO this doesn't seem nice, should review

@@ -9,6 +9,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVU_Other.dart';
 /// - Use the `image` property to display an Image item
 /// - Use the `bundleImage` property to display an icon pre-packaged with the Memri App
 /// - Use the `systemName` property to display an iOS SFSymbols (system) icon
+// ignore: must_be_immutable
 class CVUImage extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
 

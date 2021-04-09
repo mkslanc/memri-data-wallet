@@ -21,6 +21,7 @@ class CVUShapeCircle extends StatelessWidget {
 }
 
 /// A CVU element for displaying a rectangle
+// ignore: must_be_immutable
 class CVUShapeRectangle extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
 
