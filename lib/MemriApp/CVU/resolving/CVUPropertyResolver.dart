@@ -293,110 +293,89 @@ class CVUPropertyResolver {
     var val = value(propertyName);
     if (val == null) {
       return AlignmentResolver(
-          mainAxis: MainAxisAlignment.start,
-          crossAxis: CrossAxisAlignment.start);
+          mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
     }
     if (alignType == "row") {
       switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
         case "left":
         case "leading":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.start,
-            crossAxis: CrossAxisAlignment.center);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.center);
         case "top":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
         case "right":
         case "trailing":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.end,
-            crossAxis: CrossAxisAlignment.center);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.center);
         case "bottom":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.end);
         case "center":
         case "centre":
         case "middle":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.center,
-            crossAxis: CrossAxisAlignment.center);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
         case "lefttop":
         case "topleft":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.start,
-            crossAxis: CrossAxisAlignment.start);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
         case "righttop":
         case "topright":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.end,
-            crossAxis: CrossAxisAlignment.start);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.start);
         case "leftbottom":
         case "bottomleft":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.start,
-            crossAxis: CrossAxisAlignment.end);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.end);
         case "rightbottom":
         case "bottomright":
-        return AlignmentResolver(
-            mainAxis: MainAxisAlignment.end,
-            crossAxis: CrossAxisAlignment.end);
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
       }
     } else {
       switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
         case "left":
         case "leading":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.start);
         case "top":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
         case "right":
         case "trailing":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center,
-              crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.end);
         case "bottom":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.start);
         case "center":
         case "centre":
         case "middle":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center,
-              crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
         case "lefttop":
         case "topleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
         case "righttop":
         case "topright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.end);
         case "leftbottom":
         case "bottomleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.start);
         case "rightbottom":
         case "bottomright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end,
-              crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start,
-              crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
       }
     }
   }

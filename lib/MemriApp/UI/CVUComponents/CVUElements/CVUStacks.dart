@@ -40,8 +40,7 @@ class CVUHStack extends StatelessWidget {
               return Row(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                children: space(spacing?.x.toDouble() ?? 0,
-                    nodeResolver.childrenInForEach()),
+                children: space(spacing?.x.toDouble() ?? 0, nodeResolver.childrenInForEach()),
               );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillWidth", defaultValue: false)) {
@@ -84,8 +83,7 @@ class CVUVStack extends StatelessWidget {
               return Column(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                children: space(spacing?.y.toDouble() ?? 0,
-                    nodeResolver.childrenInForEach()),
+                children: space(spacing?.y.toDouble() ?? 0, nodeResolver.childrenInForEach()),
               );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
