@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import '../ViewContextController.dart';
 
@@ -22,36 +23,40 @@ class _GridRendererViewState extends State<GridRendererView> {
 
   @override
   Widget build(BuildContext context) {
-    return viewContext.hasItems
-        ? Expanded(
-            child: GridView.count(
-            childAspectRatio: 4 / 5,
-            shrinkWrap: true,
-            primary: false,
-            padding: const EdgeInsets.all(5),
-            crossAxisSpacing: 5,
-            mainAxisSpacing: 5,
-            crossAxisCount: 3,
-            children: viewContext.items
-                .asMap()
-                .map<int, Widget>((index, item) {
-                  return MapEntry(
-                      index,
-                      GestureDetector(
-                        onTap: selectionMode(index),
-                        child: Container(
-                          alignment: Alignment.bottomRight,
-                          child: viewContext.render(item),
-                        ),
-                      ));
-                })
-                .values
-                .toList(),
-          ))
-        : Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [],
-          );
+    return ValueListenableBuilder(
+        valueListenable: viewContext.itemsValueNotifier,
+        builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+          return viewContext.hasItems
+              ? Expanded(
+                  child: GridView.count(
+                  childAspectRatio: 4 / 5,
+                  shrinkWrap: true,
+                  primary: false,
+                  padding: const EdgeInsets.all(5),
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                  crossAxisCount: 3,
+                  children: viewContext.items
+                      .asMap()
+                      .map<int, Widget>((index, item) {
+                        return MapEntry(
+                            index,
+                            GestureDetector(
+                              onTap: selectionMode(index),
+                              child: Container(
+                                alignment: Alignment.bottomRight,
+                                child: viewContext.render(item),
+                              ),
+                            ));
+                      })
+                      .values
+                      .toList(),
+                ))
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [],
+                );
+        });
   }
 
   GestureTapCallback selectionMode(index) {

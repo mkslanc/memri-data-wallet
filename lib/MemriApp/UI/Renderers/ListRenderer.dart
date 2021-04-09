@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
@@ -50,7 +51,7 @@ class _ListRendererViewState extends State<ListRendererView> {
             case ConnectionState.done:
               return ValueListenableBuilder(
                   valueListenable: viewContext.itemsValueNotifier,
-                  builder: (BuildContext context, value, child) {
+                  builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
                     if (viewContext.hasItems) {
                       return Expanded(
                           child: ListView.separated(
