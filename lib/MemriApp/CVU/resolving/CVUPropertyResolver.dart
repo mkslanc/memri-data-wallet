@@ -288,40 +288,115 @@ class CVUPropertyResolver {
     return CVUColor(color: string).value;
   }
 
-  Future<Alignment> alignment([String propertyName = "alignment"]) async {
+  Future<AlignmentResolver> alignment(String alignType, [String propertyName = "alignment"]) async {
     var val = value(propertyName);
     if (val == null) {
-      return Alignment.topLeft;
+      return AlignmentResolver(
+          mainAxis: MainAxisAlignment.start,
+          crossAxis: CrossAxisAlignment.start);
     }
-    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
-      case "left":
-      case "leading":
-        return Alignment.centerLeft;
-      case "top":
-        return Alignment.topCenter;
-      case "right":
-      case "trailing":
-        return Alignment.centerRight;
-      case "bottom":
-        return Alignment.bottomCenter;
-      case "center":
-      case "centre":
-      case "middle":
-        return Alignment.center;
-      case "lefttop":
-      case "topleft":
-        return Alignment.topLeft;
-      case "righttop":
-      case "topright":
-        return Alignment.topRight;
-      case "leftbottom":
-      case "bottomleft":
-        return Alignment.bottomLeft;
-      case "rightbottom":
-      case "bottomright":
-        return Alignment.bottomRight;
-      default:
-        return Alignment.topLeft;
+    if (alignType == "row") {
+      switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+        case "left":
+        case "leading":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.start,
+            crossAxis: CrossAxisAlignment.center);
+        case "top":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
+        case "right":
+        case "trailing":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.end,
+            crossAxis: CrossAxisAlignment.center);
+        case "bottom":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.end);
+        case "center":
+        case "centre":
+        case "middle":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.center,
+            crossAxis: CrossAxisAlignment.center);
+        case "lefttop":
+        case "topleft":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.start,
+            crossAxis: CrossAxisAlignment.start);
+        case "righttop":
+        case "topright":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.end,
+            crossAxis: CrossAxisAlignment.start);
+        case "leftbottom":
+        case "bottomleft":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.start,
+            crossAxis: CrossAxisAlignment.end);
+        case "rightbottom":
+        case "bottomright":
+        return AlignmentResolver(
+            mainAxis: MainAxisAlignment.end,
+            crossAxis: CrossAxisAlignment.end);
+        default:
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
+      }
+    } else {
+      switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+        case "left":
+        case "leading":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.start);
+        case "top":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
+        case "right":
+        case "trailing":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.end);
+        case "bottom":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.start);
+        case "center":
+        case "centre":
+        case "middle":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.center);
+        case "lefttop":
+        case "topleft":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
+        case "righttop":
+        case "topright":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.end);
+        case "leftbottom":
+        case "bottomleft":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.start);
+        case "rightbottom":
+        case "bottomright":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.end);
+        default:
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
+      }
     }
   }
 
@@ -538,4 +613,11 @@ class CVUPropertyResolver {
   Future<Point?> get spacing async {
     return await cgPoint("spacing");
   }
+}
+
+class AlignmentResolver {
+  MainAxisAlignment mainAxis;
+  CrossAxisAlignment crossAxis;
+
+  AlignmentResolver({required this.mainAxis, required this.crossAxis});
 }

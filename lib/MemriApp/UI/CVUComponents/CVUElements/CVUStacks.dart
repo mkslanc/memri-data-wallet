@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -9,28 +10,28 @@ import '../CVUUINodeResolver.dart';
 /// - set the `fillWidth` property to `true` if the stack should fill all available width
 class CVUHStack extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
-  late final Alignment alignment;
+  late final AlignmentResolver alignment;
   late final Point? spacing;
 
   CVUHStack({required this.nodeResolver});
 
-  init() async {
-    alignment = await nodeResolver.propertyResolver.alignment();
+  init(String alignType) async {
+    alignment = await nodeResolver.propertyResolver.alignment(alignType);
     spacing = await nodeResolver.propertyResolver.spacing;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: init("row"),
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done: //TODO: spacing
-              return Align(
-                  alignment: alignment,
-                  child: Row(
-                    children: nodeResolver.childrenInForEach(),
-                  ));
+              return Row(
+                mainAxisAlignment: alignment.mainAxis,
+                crossAxisAlignment: alignment.crossAxis,
+                children: nodeResolver.childrenInForEach(),
+              );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillWidth", defaultValue: false)) {
             $0.frame(maxWidth: .infinity, alignment: nodeResolver.propertyResolver.alignment())
@@ -52,28 +53,28 @@ class CVUHStack extends StatelessWidget {
 /// - set the `fillHeight` property to `true` if the stack should fill all available height
 class CVUVStack extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
-  late final Alignment alignment;
+  late final AlignmentResolver alignment;
   late final Point? spacing;
 
   CVUVStack({required this.nodeResolver});
 
-  init() async {
-    alignment = await nodeResolver.propertyResolver.alignment();
+  init(String alignType) async {
+    alignment = await nodeResolver.propertyResolver.alignment(alignType);
     spacing = await nodeResolver.propertyResolver.spacing;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: init("column"),
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done: //TODO: spacing
-              return Align(
-                  alignment: alignment,
-                  child: Column(
-                    children: nodeResolver.childrenInForEach(),
-                  ));
+              return Column(
+                mainAxisAlignment: alignment.mainAxis,
+                crossAxisAlignment: alignment.crossAxis,
+                children: nodeResolver.childrenInForEach(),
+              );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
             $0.frame(maxHeight: .infinity, alignment: nodeResolver.propertyResolver.alignment())
@@ -94,13 +95,14 @@ class CVUVStack extends StatelessWidget {
 /// - set the `alignment` property to align to any corner, edge, or center
 class CVUZStack extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
-  late final Alignment alignment;
+
+  //late final AlignmentResolver alignment;
   late final Point? spacing;
 
   CVUZStack({required this.nodeResolver});
 
   init() async {
-    alignment = await nodeResolver.propertyResolver.alignment();
+    //alignment = await nodeResolver.propertyResolver.alignment();
     spacing = await nodeResolver.propertyResolver.spacing;
   }
 

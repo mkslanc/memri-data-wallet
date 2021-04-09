@@ -69,7 +69,6 @@ class CVUAppearanceModifier {
             .font(nodeResolver.propertyResolver.font().font)
             .multilineTextAlignment(nodeResolver.propertyResolver.textAlignment())
             .lineLimit(nodeResolver.propertyResolver.lineLimit)
-            .if(nodeResolver.propertyResolver.cornerRadius() > 0) { $0.clipShape(shape) }
             .background(
                 shape
                     .fill(nodeResolver.propertyResolver.backgroundColor?.color ?? .clear)
