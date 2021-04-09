@@ -126,20 +126,24 @@ class _FilterPanelViewState extends State<FilterPanelView> {
           if (snapshot.hasData) {
             var supportedRenderers = snapshot.data!.toList();
             supportedRenderers.sort();
-            return Center(
-              child: Column(
-                  children: supportedRenderers
-                      .map((rendererName) => TextButton(
-                          onPressed: () => viewContext.config.rendererName.value = rendererName,
-                          child: Text(
-                            rendererName.toUpperCase(),
-                            style: TextStyle(
-                                fontWeight: rendererName == viewContext.config.rendererName.value
-                                    ? FontWeight.bold
-                                    : null),
-                          )))
-                      .toList()),
-            );
+            return ValueListenableBuilder(
+                valueListenable: viewContext.config.rendererName,
+                builder: (BuildContext context, String selectedRendererName, Widget? child) =>
+                    Center(
+                      child: Column(
+                          children: supportedRenderers
+                              .map((rendererName) => TextButton(
+                                  onPressed: () =>
+                                      viewContext.config.rendererName.value = rendererName,
+                                  child: Text(
+                                    rendererName.toUpperCase(),
+                                    style: TextStyle(
+                                        fontWeight: rendererName == selectedRendererName
+                                            ? FontWeight.bold
+                                            : null),
+                                  )))
+                              .toList()),
+                    ));
           } else {
             return Center(
               child: SizedBox(
