@@ -11,6 +11,6 @@ class SingleItemRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("SingleItemRendererView");
+    return Expanded(child: Text("SingleItemRendererView"));
   }
 }

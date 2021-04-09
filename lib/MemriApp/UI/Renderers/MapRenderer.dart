@@ -15,6 +15,6 @@ class MapRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("MapRendererView");
+    return Expanded(child: Text("MapRendererView"));
   }
 }

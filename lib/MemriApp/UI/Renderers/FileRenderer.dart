@@ -15,6 +15,6 @@ class FileRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("FileRendererView");
+    return Expanded(child: Text("FileRendererView"));
   }
 }

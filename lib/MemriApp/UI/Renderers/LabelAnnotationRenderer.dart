@@ -16,6 +16,6 @@ class LabelAnnotationRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("LabelAnnotationRendererView");
+    return Expanded(child: Text("LabelAnnotationRendererView"));
   }
 }

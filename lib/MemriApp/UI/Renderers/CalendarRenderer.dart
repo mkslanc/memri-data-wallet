@@ -15,6 +15,6 @@ class CalendarRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("CalendarRendererView");
+    return Expanded(child: Text("CalendarRendererView"));
   }
 }

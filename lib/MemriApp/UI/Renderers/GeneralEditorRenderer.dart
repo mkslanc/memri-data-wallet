@@ -13,6 +13,6 @@ class GeneralEditorRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("GeneralEditorRendererView");
+    return Expanded(child: Text("GeneralEditorRendererView"));
   }
 }
