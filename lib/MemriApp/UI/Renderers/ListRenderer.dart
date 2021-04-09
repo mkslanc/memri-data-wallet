@@ -52,7 +52,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                   valueListenable: viewContext.itemsValueNotifier,
                   builder: (BuildContext context, value, child) {
                     if (viewContext.hasItems) {
-                      return Flexible(
+                      return Expanded(
                           child: ListView.separated(
                               itemBuilder: (context, index) => ListTile(
                                     title: Padding(
@@ -77,7 +77,8 @@ class _ListRendererViewState extends State<ListRendererView> {
                                   ),
                               itemCount: viewContext.items.length));
                     } else {
-                      return Padding(
+                      return Expanded(
+                          child: Padding(
                         padding: EdgeInsets.all(30),
                         child: Center(
                           child: Text(
@@ -89,7 +90,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                                 backgroundColor: backgroundColor),
                           ),
                         ),
-                      );
+                      ));
                     }
                   });
 

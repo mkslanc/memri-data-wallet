@@ -20,7 +20,6 @@ class BottomBarView extends StatelessWidget {
       required this.onSearchPressed,
       required this.onFilterButtonPressed});
 
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [

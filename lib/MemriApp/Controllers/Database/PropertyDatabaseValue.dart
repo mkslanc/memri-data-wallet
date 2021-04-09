@@ -46,7 +46,7 @@ abstract class PropertyDatabaseValue {
         }
         return PropertyDatabaseValueDouble(doubleValue);
       case SchemaValueType.datetime:
-        var datetimeInt = int.tryParse(databaseValue.value);
+        var datetimeInt = databaseValue.value;
         if (datetimeInt == null) {
           return null;
         }

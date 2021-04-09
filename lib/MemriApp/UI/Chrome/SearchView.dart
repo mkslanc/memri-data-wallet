@@ -24,6 +24,7 @@ class _SearchViewState extends State<SearchView> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      alignment: Alignment.bottomLeft,
       child: Column(
         children: [
           Divider(),
@@ -34,8 +35,8 @@ class _SearchViewState extends State<SearchView> {
                   Icon(Icons.search),
                   Expanded(
                     child: TextFormField(
-                      controller: TextEditingController(text: widget.viewContext.searchString),
                       onChanged: (value) => setState(() => widget.viewContext.searchString = value),
+                      initialValue: widget.viewContext.searchString,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: "Search",

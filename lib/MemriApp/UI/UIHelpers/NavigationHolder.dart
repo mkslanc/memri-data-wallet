@@ -23,6 +23,7 @@ class MemriUINavigationController extends StatelessWidget {
       builder: (context) {
         _context = context;
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: widget,
         );
       },

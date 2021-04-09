@@ -61,7 +61,7 @@ class CVUImage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             if (fileImageURL != null) {
               return Image(
-                image: AssetImage(fileImageURL!),
+                image: ResizeImage(AssetImage(fileImageURL!), width: 150), //TODO: to avoid lagging
                 fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
               );
             } else if (bundleImage != null) {

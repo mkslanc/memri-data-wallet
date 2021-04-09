@@ -208,7 +208,7 @@ class DatabaseQueryConfig {
 
   _constructSearchRequest() async {
     var refinedQuery = "$searchString*";
-    if (searchString == null) {
+    if (searchString == null || searchString == "") {
       return;
     }
     return await dbController.databasePool.itemPropertyRecordsCustomSelect(

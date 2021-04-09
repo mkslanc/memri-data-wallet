@@ -20,6 +20,7 @@ class CVUAppearanceModifier {
   late double maxWidth;
   late double minHeight;
   late double maxHeight;
+  late double cornerRadius;
 
   init() async {
     padding = await nodeResolver.propertyResolver.padding;
@@ -29,15 +30,21 @@ class CVUAppearanceModifier {
     maxWidth = await nodeResolver.propertyResolver.maxWidth ?? double.infinity;
     minHeight = await nodeResolver.propertyResolver.minHeight ?? 0;
     maxHeight = await nodeResolver.propertyResolver.maxHeight ?? double.infinity;
+    cornerRadius = await nodeResolver.propertyResolver.cornerRadius;
   }
 
   Widget body(Widget child) {
     var widget = child;
-
     return FutureBuilder(
         future: init(),
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
+            if (cornerRadius > 0) {
+              widget = ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
+                child: widget,
+              );
+            }
             return ConstrainedBox(
               constraints: BoxConstraints(
                   maxHeight: maxHeight,

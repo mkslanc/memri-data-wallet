@@ -23,8 +23,9 @@ class _GridRendererViewState extends State<GridRendererView> {
   @override
   Widget build(BuildContext context) {
     return viewContext.hasItems
-        ? Flexible(
+        ? Expanded(
             child: GridView.count(
+            childAspectRatio: 4 / 5,
             shrinkWrap: true,
             primary: false,
             padding: const EdgeInsets.all(5),

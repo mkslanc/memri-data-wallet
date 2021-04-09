@@ -24,7 +24,7 @@ class TopBarView extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: 48,
+                      height: 60,
                       width: double.maxFinite,
                       child: Row(
                         children: [
