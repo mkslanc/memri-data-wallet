@@ -5,6 +5,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 
@@ -30,9 +31,10 @@ class BottomBarView extends StatelessWidget {
               color: CVUColor.system("secondarySystemBackground"),
               child: ValueListenableBuilder(
                   valueListenable: viewContext.searchStringNotifier,
-                  builder: (BuildContext context, String? filter, Widget? child) =>
-                      Row(/*spacing: 4, */ children: [
-                        Row(/*spacing: 4, */ children: [
+                  builder: (BuildContext context, String? filter, Widget? child) => Row(
+                          children: space(4, [
+                        Row(
+                            children: space(4, [
                           TextButton(
                             onPressed: onSearchPressed,
                             child: Padding(
@@ -44,7 +46,8 @@ class BottomBarView extends StatelessWidget {
                                         padding: EdgeInsets.only(right: 7),
                                         child: Icon(Icons.search),
                                       ),
-                                      if (filter != null) Text(filter) //TODO style
+                                      if (filter != null) Text(filter)
+                                      //TODO style
                                     ],
                                   ),
                                 )),
@@ -54,7 +57,7 @@ class BottomBarView extends StatelessWidget {
                                 onPressed: () => viewContext.searchString = null,
                                 child: Icon(Icons.clear))
                           //TODO style
-                        ]),
+                        ])),
                         Spacer(),
                         Padding(
                           padding: EdgeInsets.all(10),
@@ -65,7 +68,7 @@ class BottomBarView extends StatelessWidget {
                             ),
                           ),
                         )
-                      ]))))
+                      ])))))
     ]);
   }
 }

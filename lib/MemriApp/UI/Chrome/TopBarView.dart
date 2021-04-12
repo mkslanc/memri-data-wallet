@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatelessWidget {
@@ -27,7 +28,7 @@ class TopBarView extends StatelessWidget {
                       height: 60,
                       width: double.maxFinite,
                       child: Row(
-                        children: [
+                        children: space(4, [
                           Row(
                             children: [
                               SizedBox(
@@ -72,7 +73,7 @@ class TopBarView extends StatelessWidget {
                               width: 100,
                             ),
                           )
-                        ],
+                        ]),
                       ),
                     )
                   ],

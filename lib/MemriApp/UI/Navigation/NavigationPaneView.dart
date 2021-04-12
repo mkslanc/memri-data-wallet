@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -34,7 +35,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                   child: SizedBox(
                     height: 95,
                     child: Row(
-                      children: [
+                      children: space(20, [
                         IconButton(
                             onPressed: () => setState(() => showSettings = true),
                             icon: Icon(
@@ -42,9 +43,6 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                               size: 22,
                               color: Color(0xffd9d2e9),
                             )),
-                        SizedBox(
-                          width: 20,
-                        ),
                         Flexible(
                           child: TextFormField(
                             style: TextStyle(color: Color(0xff8a66bc)),
@@ -62,7 +60,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                             ),
                           ),
                         )
-                      ],
+                      ]),
                     ),
                   ))),
           FutureBuilder(

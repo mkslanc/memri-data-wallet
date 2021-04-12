@@ -5,6 +5,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import 'SetupScreenModel.dart';
 
@@ -26,6 +27,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints geom) => MaterialApp(
               home: Scaffold(
+                resizeToAvoidBottomInset: false,
                 body: Stack(
                   children: [
                     Container(
@@ -43,10 +45,9 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                   builder: (BuildContext context, snapshot) => Scaffold(
                                           body: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
-                                        // spacing: 10,
                                         // direction: Axis.vertical,
                                         // crossAxisAlignment: WrapCrossAlignment.center,
-                                        children: [
+                                        children: space(10, [
                                           Wrap(
                                             direction: Axis.vertical,
                                             crossAxisAlignment: WrapCrossAlignment.center,
@@ -122,7 +123,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                                               "Let me try the app without a pod")))
                                                 ],
                                               ))
-                                        ],
+                                        ]),
                                       ))),
                             ),
                           )
@@ -256,7 +257,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     return Padding(
       padding: EdgeInsets.only(top: 10 /*TODO*/),
       child: Column(
-        children: [
+        children: space(10, [
           if (model.state == PodSetupState.error)
             Text(
               "Error connecting to pod: ${model.errorString}",
@@ -273,7 +274,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                 child: Text("Connect to pod"),
                 style: ElevatedButton.styleFrom(enableFeedback: model.isValidToProceedToConnect)),
           )
-        ],
+        ]),
       ),
     );
   }
