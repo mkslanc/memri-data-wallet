@@ -4,6 +4,8 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:moor/moor.dart';
 
+export 'shared.dart';
+
 part 'Database.g.dart';
 
 @UseMoor(

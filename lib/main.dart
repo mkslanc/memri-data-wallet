@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/MainView.dart';
-import 'package:moor/ffi.dart';
 
 import 'MemriApp/Controllers/SceneController.dart';
 
@@ -17,11 +16,6 @@ class Memri extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(() {
-      VmDatabase.closeExistingInstances();
-      return true;
-    }());
-
     return Scaffold(
         body: FutureBuilder(
             future: sceneController.init(),
