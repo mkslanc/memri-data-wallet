@@ -109,7 +109,6 @@ class CVUZStack extends StatelessWidget {
   CVUZStack({required this.nodeResolver});
 
   init() async {
-    //alignment = await nodeResolver.propertyResolver.alignment();
     spacing = await nodeResolver.propertyResolver.spacing;
   }
 
@@ -121,6 +120,7 @@ class CVUZStack extends StatelessWidget {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               return Stack(
+                alignment: Alignment.center,
                 children: nodeResolver.childrenInForEach(),
               );
             default:

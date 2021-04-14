@@ -12,6 +12,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifie
 
 import 'CVUElements/CVUButton.dart';
 import 'CVUElements/CVUForEach.dart';
+import 'CVUElements/CVUHTMLView.dart';
 import 'CVUElements/CVUImage.dart';
 import 'CVUElements/CVUShape.dart';
 import 'CVUElements/CVUStacks.dart';
@@ -57,9 +58,9 @@ class CVUElementView extends StatelessWidget {
         return CVUShapeCircle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Rectangle:
         return CVUShapeRectangle(nodeResolver: nodeResolver);
-      /* case CVUUIElementFamily.HTMLView:
-      // return CVU_HTMLView(nodeResolver: nodeResolver);
-      case CVUUIElementFamily.TimelineItem:
+      case CVUUIElementFamily.HTMLView:
+        return CVUHTMLView(nodeResolver: nodeResolver);
+      /* case CVUUIElementFamily.TimelineItem:
       // return CVU_TimelineItem(nodeResolver: nodeResolver);
       case CVUUIElementFamily.FileThumbnail:
       // return CVU_FileThumbnail(nodeResolver: nodeResolver);*/

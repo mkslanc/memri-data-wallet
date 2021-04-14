@@ -4,7 +4,7 @@ class CVUColor {
   late Color value;
 
   CVUColor({required String color}) {
-    if (color[0] == "#") {
+    if (color[0] == "#" || int.tryParse(color, radix: 16) != null) {
       value = CVUColor.hex(color);
     } else {
       value = CVUColor.system(color);

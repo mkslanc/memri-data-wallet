@@ -221,7 +221,8 @@ class CVUPropertyResolver {
         if (type == null) {
           return null;
         }
-        return type(vars: {});
+        Map<String, CVUValue> emptyVars = {};
+        return type(vars: emptyVars);
       } else {
         return null;
       }
