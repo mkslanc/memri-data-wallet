@@ -120,8 +120,8 @@ class CVUZStack extends StatelessWidget {
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return Container(
-                child: nodeResolver.childrenInForEachWithWrap(),
+              return Stack(
+                children: nodeResolver.childrenInForEach(),
               );
             default:
               return SizedBox(
