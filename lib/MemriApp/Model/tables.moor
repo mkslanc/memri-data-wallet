@@ -70,13 +70,47 @@ CREATE TABLE reals
 ) AS RealDb;
 CREATE
 UNIQUE INDEX idx_reals_item_name on reals (item, name);
-                CREATE
-INDEX idx_reals_name_value on reals(name, value);
-                CREATE
-INDEX idx_reals_name_item on reals(name, item);
+CREATE
+    INDEX idx_reals_name_value on reals (name, value);
+CREATE
+    INDEX idx_reals_name_item on reals (name, item);
 
 CREATE TABLE navigationState
 (
     sessionID TEXT PRIMARY KEY NOT NULL,
     state     BLOB             NOT NULL
 );
+
+CREATE VIRTUAL TABLE strings_search USING fts5
+(
+    content=
+    "strings",
+    item
+    UNINDEXED,
+    name
+    UNINDEXED,
+    value,
+    tokenize =
+    'porter'
+);
+
+-- Triggers to keep the FTS index up to date.
+CREATE TRIGGER tbl_ai
+    AFTER INSERT
+    ON strings
+BEGIN
+    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);
+END;
+CREATE TRIGGER tbl_ad
+    AFTER DELETE
+    ON strings
+BEGIN
+    INSERT INTO strings_search(strings_search, item, name, value) VALUES ('delete', old.item, old.name, old.value);
+END;
+CREATE TRIGGER tbl_au
+    AFTER UPDATE
+    ON strings
+BEGIN
+    INSERT INTO strings_search(strings_search, item, name, value) VALUES ('delete', old.item, old.name, old.value);
+    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);
+END;

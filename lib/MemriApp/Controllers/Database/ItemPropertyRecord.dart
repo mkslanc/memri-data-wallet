@@ -1,20 +1,25 @@
 import 'package:memri/MemriApp/Model/Database.dart';
 
+import '../AppController.dart';
 import 'PropertyDatabaseValue.dart';
 import 'Schema.dart';
 
 class ItemPropertyRecord {
-  String itemUID;
+  String? itemUID;
+  int itemRowID;
   String name;
 
   PropertyDatabaseValue $value;
 
   ItemPropertyRecord(
-      {required this.itemUID, required this.name, required PropertyDatabaseValue value})
+      {this.itemUID,
+      required this.itemRowID,
+      required this.name,
+      required PropertyDatabaseValue value})
       : $value = value;
 
-  PropertyDatabaseValue? value(String itemType, Schema schema
-      /* = AppController.shared.databaseController.schema*/) {
+  PropertyDatabaseValue? value(String itemType, [Schema? schema]) {
+    schema ??= AppController.shared.databaseController.schema;
     var expectedType = schema.types[itemType]?.propertyTypes[name]?.valueType;
     if (expectedType == null) {
       return null;

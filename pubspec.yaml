@@ -28,6 +28,7 @@ dependencies:
   path_provider: ^2.0.1
   path: ^1.8.0
   uuid: ^3.0.2
+  equatable: ^2.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -35,7 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
-  test: ^1.16.5
   flutter_test:
     sdk: flutter
   moor_generator: ^4.1.0

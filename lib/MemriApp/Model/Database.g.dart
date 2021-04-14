@@ -42,7 +42,6 @@ class Item extends DataClass implements Insertable<Item> {
       deleted: boolType.mapFromDatabaseResponse(data['${effectivePrefix}deleted'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -86,7 +85,6 @@ class Item extends DataClass implements Insertable<Item> {
       deleted: serializer.fromJson<bool>(json['deleted']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -118,7 +116,6 @@ class Item extends DataClass implements Insertable<Item> {
         dateServerModified: dateServerModified ?? this.dateServerModified,
         deleted: deleted ?? this.deleted,
       );
-
   @override
   String toString() {
     return (StringBuffer('Item(')
@@ -144,7 +141,6 @@ class Item extends DataClass implements Insertable<Item> {
                   dateCreated.hashCode,
                   $mrjc(dateModified.hashCode,
                       $mrjc(dateServerModified.hashCode, deleted.hashCode)))))));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -166,7 +162,6 @@ class ItemsCompanion extends UpdateCompanion<Item> {
   final Value<DateTime> dateModified;
   final Value<DateTime?> dateServerModified;
   final Value<bool> deleted;
-
   const ItemsCompanion({
     this.rowId = const Value.absent(),
     this.id = const Value.absent(),
@@ -176,7 +171,6 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     this.dateServerModified = const Value.absent(),
     this.deleted = const Value.absent(),
   });
-
   ItemsCompanion.insert({
     this.rowId = const Value.absent(),
     required String id,
@@ -189,7 +183,6 @@ class ItemsCompanion extends UpdateCompanion<Item> {
         type = Value(type),
         dateCreated = Value(dateCreated),
         dateModified = Value(dateModified);
-
   static Insertable<Item> custom({
     Expression<int?>? rowId,
     Expression<String>? id,
@@ -274,12 +267,9 @@ class ItemsCompanion extends UpdateCompanion<Item> {
 class Items extends Table with TableInfo<Items, Item> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   Items(this._db, [this._alias]);
-
   final VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
   late final GeneratedIntColumn rowId = _constructRowId();
-
   GeneratedIntColumn _constructRowId() {
     return GeneratedIntColumn('row_id', $tableName, true,
         declaredAsPrimaryKey: true, $customConstraints: 'PRIMARY KEY');
@@ -287,7 +277,6 @@ class Items extends Table with TableInfo<Items, Item> {
 
   final VerificationMeta _idMeta = const VerificationMeta('id');
   late final GeneratedTextColumn id = _constructId();
-
   GeneratedTextColumn _constructId() {
     return GeneratedTextColumn('id', $tableName, false, $customConstraints: 'NOT NULL');
   }
@@ -334,10 +323,8 @@ class Items extends Table with TableInfo<Items, Item> {
   @override
   List<GeneratedColumn> get $columns =>
       [rowId, id, type, dateCreated, dateModified, dateServerModified, deleted];
-
   @override
   Items get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'items';
   @override
@@ -386,7 +373,6 @@ class Items extends Table with TableInfo<Items, Item> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {rowId};
-
   @override
   Item map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -421,7 +407,6 @@ class Edge extends DataClass implements Insertable<Edge> {
       target: intType.mapFromDatabaseResponse(data['${effectivePrefix}target'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -470,7 +455,6 @@ class Edge extends DataClass implements Insertable<Edge> {
         name: name ?? this.name,
         target: target ?? this.target,
       );
-
   @override
   String toString() {
     return (StringBuffer('Edge(')
@@ -485,7 +469,6 @@ class Edge extends DataClass implements Insertable<Edge> {
   @override
   int get hashCode =>
       $mrjf($mrjc(self.hashCode, $mrjc(source.hashCode, $mrjc(name.hashCode, target.hashCode))));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -501,14 +484,12 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
   final Value<int> source;
   final Value<String> name;
   final Value<int> target;
-
   const EdgesCompanion({
     this.self = const Value.absent(),
     this.source = const Value.absent(),
     this.name = const Value.absent(),
     this.target = const Value.absent(),
   });
-
   EdgesCompanion.insert({
     this.self = const Value.absent(),
     required int source,
@@ -517,7 +498,6 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
   })   : source = Value(source),
         name = Value(name),
         target = Value(target);
-
   static Insertable<Edge> custom({
     Expression<int?>? self,
     Expression<int>? source,
@@ -575,12 +555,9 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
 class Edges extends Table with TableInfo<Edges, Edge> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   Edges(this._db, [this._alias]);
-
   final VerificationMeta _selfMeta = const VerificationMeta('self');
   late final GeneratedIntColumn self = _constructSelf();
-
   GeneratedIntColumn _constructSelf() {
     return GeneratedIntColumn('self', $tableName, true,
         declaredAsPrimaryKey: true, $customConstraints: 'PRIMARY KEY');
@@ -588,31 +565,26 @@ class Edges extends Table with TableInfo<Edges, Edge> {
 
   final VerificationMeta _sourceMeta = const VerificationMeta('source');
   late final GeneratedIntColumn source = _constructSource();
-
   GeneratedIntColumn _constructSource() {
     return GeneratedIntColumn('source', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedTextColumn name = _constructName();
-
   GeneratedTextColumn _constructName() {
     return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _targetMeta = const VerificationMeta('target');
   late final GeneratedIntColumn target = _constructTarget();
-
   GeneratedIntColumn _constructTarget() {
     return GeneratedIntColumn('target', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   @override
   List<GeneratedColumn> get $columns => [self, source, name, target];
-
   @override
   Edges get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'edges';
   @override
@@ -645,7 +617,6 @@ class Edges extends Table with TableInfo<Edges, Edge> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {self};
-
   @override
   Edge map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -663,7 +634,6 @@ class Edges extends Table with TableInfo<Edges, Edge> {
         'FOREIGN KEY (target) REFERENCES items (row_id)',
         'FOREIGN KEY (self) REFERENCES items (row_id)'
       ];
-
   @override
   bool get dontWriteConstraints => true;
 }
@@ -727,7 +697,6 @@ class IntegerDb extends DataClass implements Insertable<IntegerDb> {
         name: name ?? this.name,
         value: value ?? this.value,
       );
-
   @override
   String toString() {
     return (StringBuffer('IntegerDb(')
@@ -740,7 +709,6 @@ class IntegerDb extends DataClass implements Insertable<IntegerDb> {
 
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -754,13 +722,11 @@ class IntegersCompanion extends UpdateCompanion<IntegerDb> {
   final Value<int> item;
   final Value<String> name;
   final Value<int> value;
-
   const IntegersCompanion({
     this.item = const Value.absent(),
     this.name = const Value.absent(),
     this.value = const Value.absent(),
   });
-
   IntegersCompanion.insert({
     required int item,
     required String name,
@@ -768,7 +734,6 @@ class IntegersCompanion extends UpdateCompanion<IntegerDb> {
   })   : item = Value(item),
         name = Value(name),
         value = Value(value);
-
   static Insertable<IntegerDb> custom({
     Expression<int>? item,
     Expression<String>? name,
@@ -818,41 +783,33 @@ class IntegersCompanion extends UpdateCompanion<IntegerDb> {
 class Integers extends Table with TableInfo<Integers, IntegerDb> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   Integers(this._db, [this._alias]);
-
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedIntColumn item = _constructItem();
-
   GeneratedIntColumn _constructItem() {
     return GeneratedIntColumn('item', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedTextColumn name = _constructName();
-
   GeneratedTextColumn _constructName() {
     return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedIntColumn value = _constructValue();
-
   GeneratedIntColumn _constructValue() {
     return GeneratedIntColumn('value', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
-
   @override
   Integers get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'integers';
   @override
   final String actualTableName = 'integers';
-
   @override
   VerificationContext validateIntegrity(Insertable<IntegerDb> instance,
       {bool isInserting = false}) {
@@ -878,7 +835,6 @@ class Integers extends Table with TableInfo<Integers, IntegerDb> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
-
   @override
   IntegerDb map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -914,7 +870,6 @@ class StringDb extends DataClass implements Insertable<StringDb> {
       value: stringType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -956,7 +911,6 @@ class StringDb extends DataClass implements Insertable<StringDb> {
         name: name ?? this.name,
         value: value ?? this.value,
       );
-
   @override
   String toString() {
     return (StringBuffer('StringDb(')
@@ -969,7 +923,6 @@ class StringDb extends DataClass implements Insertable<StringDb> {
 
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -983,13 +936,11 @@ class StringsCompanion extends UpdateCompanion<StringDb> {
   final Value<int> item;
   final Value<String> name;
   final Value<String> value;
-
   const StringsCompanion({
     this.item = const Value.absent(),
     this.name = const Value.absent(),
     this.value = const Value.absent(),
   });
-
   StringsCompanion.insert({
     required int item,
     required String name,
@@ -997,7 +948,6 @@ class StringsCompanion extends UpdateCompanion<StringDb> {
   })   : item = Value(item),
         name = Value(name),
         value = Value(value);
-
   static Insertable<StringDb> custom({
     Expression<int>? item,
     Expression<String>? name,
@@ -1047,36 +997,29 @@ class StringsCompanion extends UpdateCompanion<StringDb> {
 class Strings extends Table with TableInfo<Strings, StringDb> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   Strings(this._db, [this._alias]);
-
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedIntColumn item = _constructItem();
-
   GeneratedIntColumn _constructItem() {
     return GeneratedIntColumn('item', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedTextColumn name = _constructName();
-
   GeneratedTextColumn _constructName() {
     return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedTextColumn value = _constructValue();
-
   GeneratedTextColumn _constructValue() {
     return GeneratedTextColumn('value', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
-
   @override
   Strings get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'strings';
   @override
@@ -1106,7 +1049,6 @@ class Strings extends Table with TableInfo<Strings, StringDb> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
-
   @override
   StringDb map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -1143,7 +1085,6 @@ class RealDb extends DataClass implements Insertable<RealDb> {
       value: doubleType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1185,7 +1126,6 @@ class RealDb extends DataClass implements Insertable<RealDb> {
         name: name ?? this.name,
         value: value ?? this.value,
       );
-
   @override
   String toString() {
     return (StringBuffer('RealDb(')
@@ -1198,7 +1138,6 @@ class RealDb extends DataClass implements Insertable<RealDb> {
 
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -1212,13 +1151,11 @@ class RealsCompanion extends UpdateCompanion<RealDb> {
   final Value<int> item;
   final Value<String> name;
   final Value<double> value;
-
   const RealsCompanion({
     this.item = const Value.absent(),
     this.name = const Value.absent(),
     this.value = const Value.absent(),
   });
-
   RealsCompanion.insert({
     required int item,
     required String name,
@@ -1226,7 +1163,6 @@ class RealsCompanion extends UpdateCompanion<RealDb> {
   })   : item = Value(item),
         name = Value(name),
         value = Value(value);
-
   static Insertable<RealDb> custom({
     Expression<int>? item,
     Expression<String>? name,
@@ -1276,36 +1212,29 @@ class RealsCompanion extends UpdateCompanion<RealDb> {
 class Reals extends Table with TableInfo<Reals, RealDb> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   Reals(this._db, [this._alias]);
-
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedIntColumn item = _constructItem();
-
   GeneratedIntColumn _constructItem() {
     return GeneratedIntColumn('item', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedTextColumn name = _constructName();
-
   GeneratedTextColumn _constructName() {
     return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedRealColumn value = _constructValue();
-
   GeneratedRealColumn _constructValue() {
     return GeneratedRealColumn('value', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
-
   @override
   Reals get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'reals';
   @override
@@ -1335,7 +1264,6 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
-
   @override
   RealDb map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -1354,6 +1282,240 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
   bool get dontWriteConstraints => true;
 }
 
+class StringsSearchData extends DataClass implements Insertable<StringsSearchData> {
+  final String item;
+  final String name;
+  final String value;
+
+  StringsSearchData({required this.item, required this.name, required this.value});
+
+  factory StringsSearchData.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return StringsSearchData(
+      item: stringType.mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      value: stringType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['item'] = Variable<String>(item);
+    map['name'] = Variable<String>(name);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  StringsSearchCompanion toCompanion(bool nullToAbsent) {
+    return StringsSearchCompanion(
+      item: Value(item),
+      name: Value(name),
+      value: Value(value),
+    );
+  }
+
+  factory StringsSearchData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return StringsSearchData(
+      item: serializer.fromJson<String>(json['item']),
+      name: serializer.fromJson<String>(json['name']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'item': serializer.toJson<String>(item),
+      'name': serializer.toJson<String>(name),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  StringsSearchData copyWith({String? item, String? name, String? value}) => StringsSearchData(
+        item: item ?? this.item,
+        name: name ?? this.name,
+        value: value ?? this.value,
+      );
+
+  @override
+  String toString() {
+    return (StringBuffer('StringsSearchData(')
+          ..write('item: $item, ')
+          ..write('name: $name, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
+
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is StringsSearchData &&
+          other.item == this.item &&
+          other.name == this.name &&
+          other.value == this.value);
+}
+
+class StringsSearchCompanion extends UpdateCompanion<StringsSearchData> {
+  final Value<String> item;
+  final Value<String> name;
+  final Value<String> value;
+
+  const StringsSearchCompanion({
+    this.item = const Value.absent(),
+    this.name = const Value.absent(),
+    this.value = const Value.absent(),
+  });
+
+  StringsSearchCompanion.insert({
+    required String item,
+    required String name,
+    required String value,
+  })   : item = Value(item),
+        name = Value(name),
+        value = Value(value);
+
+  static Insertable<StringsSearchData> custom({
+    Expression<String>? item,
+    Expression<String>? name,
+    Expression<String>? value,
+  }) {
+    return RawValuesInsertable({
+      if (item != null) 'item': item,
+      if (name != null) 'name': name,
+      if (value != null) 'value': value,
+    });
+  }
+
+  StringsSearchCompanion copyWith(
+      {Value<String>? item, Value<String>? name, Value<String>? value}) {
+    return StringsSearchCompanion(
+      item: item ?? this.item,
+      name: name ?? this.name,
+      value: value ?? this.value,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (item.present) {
+      map['item'] = Variable<String>(item.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StringsSearchCompanion(')
+          ..write('item: $item, ')
+          ..write('name: $name, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class StringsSearch extends Table
+    with
+        TableInfo<StringsSearch, StringsSearchData>,
+        VirtualTableInfo<StringsSearch, StringsSearchData> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+
+  StringsSearch(this._db, [this._alias]);
+
+  final VerificationMeta _itemMeta = const VerificationMeta('item');
+  late final GeneratedTextColumn item = _constructItem();
+
+  GeneratedTextColumn _constructItem() {
+    return GeneratedTextColumn('item', $tableName, false, $customConstraints: '');
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedTextColumn name = _constructName();
+
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn('name', $tableName, false, $customConstraints: '');
+  }
+
+  final VerificationMeta _valueMeta = const VerificationMeta('value');
+  late final GeneratedTextColumn value = _constructValue();
+
+  GeneratedTextColumn _constructValue() {
+    return GeneratedTextColumn('value', $tableName, false, $customConstraints: '');
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [item, name, value];
+
+  @override
+  StringsSearch get asDslTable => this;
+
+  @override
+  String get $tableName => _alias ?? 'strings_search';
+  @override
+  final String actualTableName = 'strings_search';
+
+  @override
+  VerificationContext validateIntegrity(Insertable<StringsSearchData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('item')) {
+      context.handle(_itemMeta, item.isAcceptableOrUnknown(data['item']!, _itemMeta));
+    } else if (isInserting) {
+      context.missing(_itemMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(_valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+
+  @override
+  StringsSearchData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return StringsSearchData.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  StringsSearch createAlias(String alias) {
+    return StringsSearch(_db, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+
+  @override
+  String get moduleAndArgs =>
+      'fts5(content="strings", item UNINDEXED, name UNINDEXED, value, tokenize = \'porter\')';
+}
+
 class NavigationStateData extends DataClass implements Insertable<NavigationStateData> {
   final String sessionID;
   final Uint8List state;
@@ -1370,7 +1532,6 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
       state: uint8ListType.mapFromDatabaseResponse(data['${effectivePrefix}state'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1419,7 +1580,6 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
 
   @override
   int get hashCode => $mrjf($mrjc(sessionID.hashCode, state.hashCode));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -1431,12 +1591,10 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
 class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
   final Value<String> sessionID;
   final Value<Uint8List> state;
-
   const NavigationStateCompanion({
     this.sessionID = const Value.absent(),
     this.state = const Value.absent(),
   });
-
   NavigationStateCompanion.insert({
     required String sessionID,
     required Uint8List state,
@@ -1498,17 +1656,14 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
 
   final VerificationMeta _stateMeta = const VerificationMeta('state');
   late final GeneratedBlobColumn state = _constructState();
-
   GeneratedBlobColumn _constructState() {
     return GeneratedBlobColumn('state', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   @override
   List<GeneratedColumn> get $columns => [sessionID, state];
-
   @override
   NavigationState get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'navigationState';
   @override
@@ -1535,7 +1690,6 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
 
   @override
   Set<GeneratedColumn> get $primaryKey => {sessionID};
-
   @override
   NavigationStateData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -1584,6 +1738,16 @@ abstract class _$Database extends GeneratedDatabase {
       Index('idx_reals_name_value', 'CREATE\r\nINDEX idx_reals_name_value on reals(name, value);');
   late final Index idxRealsNameItem =
       Index('idx_reals_name_item', 'CREATE\r\nINDEX idx_reals_name_item on reals(name, item);');
+  late final StringsSearch stringsSearch = StringsSearch(this);
+  late final Trigger tblAi = Trigger(
+      'CREATE TRIGGER tbl_ai AFTER INSERT ON strings BEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
+      'tbl_ai');
+  late final Trigger tblAd = Trigger(
+      'CREATE TRIGGER tbl_ad AFTER DELETE ON strings BEGIN\r\n    INSERT INTO strings_search(strings_search, item, name, value) VALUES(\'delete\', old.item, old.name, old.value);\r\nEND;',
+      'tbl_ad');
+  late final Trigger tblAu = Trigger(
+      'CREATE TRIGGER tbl_au AFTER UPDATE ON strings BEGIN\r\n    INSERT INTO strings_search(strings_search, item, name, value) VALUES(\'delete\', old.item, old.name, old.value);\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
+      'tbl_au');
   late final NavigationState navigationState = NavigationState(this);
 
   @override
@@ -1609,6 +1773,34 @@ abstract class _$Database extends GeneratedDatabase {
         idxRealsItemName,
         idxRealsNameValue,
         idxRealsNameItem,
+        stringsSearch,
+        tblAi,
+        tblAd,
+        tblAu,
         navigationState
       ];
+
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
+        [
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('strings', limitUpdateKind: UpdateKind.insert),
+            result: [
+              TableUpdate('strings_search', kind: UpdateKind.insert),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('strings', limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('strings_search', kind: UpdateKind.insert),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('strings', limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('strings_search', kind: UpdateKind.insert),
+            ],
+          ),
+        ],
+      );
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/ffi.dart';
 import 'package:path_provider/path_provider.dart' as paths;
@@ -9,18 +10,21 @@ import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
-  late Schema? schema;
+  late Schema? _schema;
 
   /// This is the connection to the database used throughout the app
   late Database databasePool;
   String databaseName;
   bool inMemory;
 
+  Schema get schema => _schema!; //TODO this is done because constructors can't be async
+
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(
       {this.databaseName = "memri", //TODO:
-      this.schema,
-      this.inMemory = false});
+      schema,
+      this.inMemory = false})
+      : this._schema = schema;
 
   init() async {
     databasePool = await () async {
@@ -33,20 +37,21 @@ class DatabaseController {
         return Database(VmDatabase(url));
       }
     }();
-    schema = schema ?? await Schema.loadFromFile();
+    _schema ??= await Schema.loadFromFile();
   }
 
-  /// Check if the database has been setup //TODO:
-//bool get databaseIsSetup => ItemRecord.fetchOne(db) != null ?? false;
+  /// Check if the database has been setup
+  Future<bool> get databaseIsSetup async {
+    var item = await this.databasePool.itemRecordFetchOne();
+    return (item != null);
+  }
 
-/*[ItemRecord]*/ /* search(String searchString)  { //TODO:
-        */ /*try read { (db) in
-            guard let searchQuery = FTS3Pattern(matchingAllTokensIn: searchString) else {
-                throw StringError(description: "Invalid search string: \(searchString)")
-            }
-            let refinedQuery = try FTS3Pattern(rawPattern: "\(searchQuery.rawPattern)*")
-            let search = try ItemRecord.search(db, pattern: refinedQuery)
-            return search
-        }*/ /*
-    }*/
+  Future<List<ItemRecord>> search(String? searchString) async {
+    var searchQuery = searchString;
+    if (searchQuery == null) {
+      throw Exception("Invalid search string: $searchString");
+    }
+    var refinedQuery = "$searchQuery*";
+    return await ItemRecord.search(this, refinedQuery);
+  }
 }

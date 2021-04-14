@@ -16,8 +16,7 @@ class CVUUINode extends CVUStringConvertible {
 
   var id = Uuid();
 
-  CVUUINode(
-      {required this.type, required this.children, required this.properties});
+  CVUUINode({required this.type, required this.children, required this.properties});
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;
@@ -26,15 +25,21 @@ class CVUUINode extends CVUStringConvertible {
       return '${includeInitialTab ? tabs : ""}${type.inString}';
     }
 
-    String propertiesString = properties.isEmpty ? "" : properties.toCVUString(depth + 1, tab, true);
-    if (propertiesString.isNotEmpty) {propertiesString += "\n";}
+    String propertiesString =
+        properties.isEmpty ? "" : properties.toCVUString(depth + 1, tab, true);
+    if (propertiesString.isNotEmpty) {
+      propertiesString += "\n";
+    }
 
-    String childrenString = children.isEmpty ? "" : children.map((node) =>
-      node.toCVUString(depth + 1, tab, true)
-    ).join("\n\n");
-    if (childrenString.isNotEmpty) {childrenString += "\n";}
+    String childrenString = children.isEmpty
+        ? ""
+        : children.map((node) => node.toCVUString(depth + 1, tab, true)).join("\n\n");
+    if (childrenString.isNotEmpty) {
+      childrenString += "\n";
+    }
 
-    bool includeNewLineBetweenPropertiesAndChildren = propertiesString.isNotEmpty && childrenString.isNotEmpty;
+    bool includeNewLineBetweenPropertiesAndChildren =
+        propertiesString.isNotEmpty && childrenString.isNotEmpty;
 
     return '${includeInitialTab ? tabs : ""}${type.inString} {\n$propertiesString${includeNewLineBetweenPropertiesAndChildren ? "\n" : ""}$childrenString$tabs}';
   }

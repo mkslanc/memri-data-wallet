@@ -312,7 +312,8 @@ void main() {
   });
 
   test('testSingleLineSyntax', () {
-    var snippet = """Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }""";
+    var snippet =
+        """Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }""";
     expect(parseToCVUString(snippet), """Person {
     background: #fff
     border: 1 red
@@ -520,8 +521,10 @@ Person {
     var snippet = """Person {
     test: 1""";
 
-    expect(() => parse(snippet),
-        throwsA(predicate((e) => e is CVUParseErrors && e is CVUParseErrorsUnexpectedToken && e.token is CVUTokenEOF)));
+    expect(
+        () => parse(snippet),
+        throwsA(predicate((e) =>
+            e is CVUParseErrors && e is CVUParseErrorsUnexpectedToken && e.token is CVUTokenEOF)));
   });
 
   test('testErrorMissingBracketCloseInDefinition', () {
@@ -549,8 +552,10 @@ Person {
 
     expect(
         () => parse(snippet),
-        throwsA(predicate(
-            (e) => e is CVUParseErrors && e is CVUParseErrorsMissingExpressionClose && e.token is CVUTokenEOF)));
+        throwsA(predicate((e) =>
+            e is CVUParseErrors &&
+            e is CVUParseErrorsMissingExpressionClose &&
+            e.token is CVUTokenEOF)));
   });
 
   test('testErrorMissingExprCloseBrackets', () {
@@ -560,8 +565,10 @@ Person {
 
     expect(
         () => parse(snippet),
-        throwsA(predicate(
-            (e) => e is CVUParseErrors && e is CVUParseErrorsMissingExpressionClose && e.token is CVUTokenEOF)));
+        throwsA(predicate((e) =>
+            e is CVUParseErrors &&
+            e is CVUParseErrorsMissingExpressionClose &&
+            e.token is CVUTokenEOF)));
   });
 
   test('testErrorExtraBracket', () {
@@ -645,8 +652,10 @@ Person {
 
     expect(
         () => parse(snippet),
-        throwsA(
-            predicate((e) => e is CVUParseErrors && e is CVUParseErrorsMissingQuoteClose && e.token is CVUTokenEOF)));
+        throwsA(predicate((e) =>
+            e is CVUParseErrors &&
+            e is CVUParseErrorsMissingQuoteClose &&
+            e.token is CVUTokenEOF)));
   });
 
   //testErrorMultilineQuote

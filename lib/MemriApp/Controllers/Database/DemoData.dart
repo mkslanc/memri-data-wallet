@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemEdgeRecord.dart';
 import 'ItemPropertyRecord.dart';
@@ -13,9 +14,8 @@ import 'Schema.dart';
 
 class DemoData {
   static Future<void> importDemoData(
-      {required DatabaseController
-          databaseController /*:  = AppController.shared.databaseController*/,
-      bool throwIfAgainstSchema = false}) async {
+      {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
+    databaseController ??= AppController.shared.databaseController;
     var fileURL = "assets/demo_database.json";
     var fileData = await rootBundle.loadString(fileURL);
     var items = jsonDecode(fileData);
@@ -24,10 +24,11 @@ class DemoData {
     }
 
     List<DemoDataItem> processedItems = items
-        .expand((item) => processItemJSON(item: item, schema: (databaseController.schema)!))
+        .expand((item) => processItemJSON(item: item, schema: databaseController!.schema))
         .toList();
 
-    Map<String, String> tempUIDLookup = Map();
+    Map<String, int> tempIDLookup = {};
+    Map<String, int> sourceIDLookup = {};
 
     for (var item in processedItems) {
       var record = ItemRecord(
@@ -36,31 +37,37 @@ class DemoData {
           dateCreated: item.dateCreated,
           dateModified: item.dateModified);
       var tempUID = item.tempUID;
+      var recordID = await record.insert(databaseController.databasePool);
       if (tempUID != null) {
-        tempUIDLookup[tempUID] = record.uid;
+        tempIDLookup[tempUID] = recordID;
       }
-      await record.insert(databaseController.databasePool);
+      sourceIDLookup[item.uid] = recordID;
     }
 
     for (var item in processedItems) {
       for (var property in item.properties) {
-        ItemPropertyRecord record =
-            ItemPropertyRecord(itemUID: item.uid, name: property.name, value: property.value);
+        ItemPropertyRecord record = ItemPropertyRecord(
+            itemUID: item.uid,
+            itemRowID: sourceIDLookup[item.uid]!,
+            name: property.name,
+            value: property.value);
         await record.insert(databaseController.databasePool);
       }
       for (var edge in item.edges) {
-        var targetActualUID = tempUIDLookup[edge.targetTempUID];
-        if (targetActualUID == null) {
+        var targetActualID = tempIDLookup[edge.targetTempUID];
+        if (targetActualID == null) {
           continue;
         }
+        var sourceRowID = sourceIDLookup[item.uid];
+
         ItemRecord selfRecord = ItemRecord(
             type: "Edge", dateCreated: item.dateCreated, dateModified: item.dateModified);
-        await selfRecord.insert(databaseController.databasePool);
+        var selfRowId = await selfRecord.insert(databaseController.databasePool);
         var record = ItemEdgeRecord(
-            selfUID: selfRecord.uid,
-            sourceUID: item.uid,
+            selfRowID: selfRowId,
+            sourceRowID: sourceRowID,
             name: edge.name,
-            targetUID: targetActualUID);
+            targetRowID: targetActualID);
         await record.insert(databaseController.databasePool);
       }
     }

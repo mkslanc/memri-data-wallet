@@ -38,12 +38,12 @@ enum CVUUIElementFamily {
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {
-
   String get inString => this.toString().split(".").last;
 
   String get value => this.inString.toLowerCase();
 
-  static CVUUIElementFamily rawValue(value) => CVUUIElementFamily.values.firstWhere((val) => val.value == value,
-      orElse: () => CVUUIElementFamily.Null //TODO @anijanyan see why this isn't nullable
-      );
+  static CVUUIElementFamily rawValue(value) =>
+      CVUUIElementFamily.values.firstWhere((val) => val.value == value,
+          orElse: () => CVUUIElementFamily.Null //TODO @anijanyan see why this isn't nullable
+          );
 }

@@ -1,193 +1,239 @@
+import 'package:equatable/equatable.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
+import 'package:memri/MemriApp/Controllers/Syncing/SyncController.dart';
+import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
 
+import '../AppController.dart';
 import 'DatabaseController.dart';
+import 'ItemPropertyRecord.dart';
 
-class ItemRecord {
+// ignore: must_be_immutable
+class ItemRecord extends Equatable {
+  int? rowId;
   String uid;
   String type;
   DateTime dateCreated;
-
+  DateTime? dateServerModified;
   DateTime dateModified;
   bool deleted;
 
-  //SyncState syncState; TODO:
-  //bool syncHasPriority; TODO:
+  SyncState syncState;
+  bool syncHasPriority;
 
-  ItemRecord({
-    uid,
-    required this.type,
-    dateCreated,
-    dateModified,
-    this.deleted = false,
-  })  : this.dateModified = dateModified ?? DateTime.now(),
+  ItemRecord(
+      {this.rowId,
+      uid,
+      required this.type,
+      dateCreated,
+      dateModified,
+      this.deleted = false,
+      this.syncState = SyncState.create,
+      this.syncHasPriority = false})
+      : this.dateModified = dateModified ?? DateTime.now(),
         this.dateCreated = dateCreated ?? DateTime.now(),
         this.uid = uid ?? Uuid().v4();
 
-  /* TODO:
-    static func == (lhs: ItemRecord, rhs: ItemRecord) -> Bool {
-        lhs.uid == rhs.uid && lhs.type == rhs.type
+  ItemRecord.fromItem(Item item)
+      : rowId = item.rowId,
+        uid = item.id,
+        type = item.type,
+        dateCreated = item.dateCreated,
+        dateModified = item.dateModified,
+        dateServerModified = item.dateServerModified,
+        deleted = item.deleted,
+        syncState = SyncState.create,
+        syncHasPriority = false;
+
+  ItemsCompanion toCompanion() {
+    return ItemsCompanion(
+      rowId: rowId == null ? const Value.absent() : Value(rowId),
+      id: Value(uid),
+      type: Value(type),
+      dateCreated: Value(dateCreated),
+      dateModified: Value(dateModified),
+      dateServerModified:
+          dateServerModified == null ? const Value.absent() : Value(dateServerModified),
+      deleted: Value(deleted),
+    );
+  }
+
+  Future<ItemPropertyRecord?> property(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var properties = await db.databasePool.itemPropertyRecordsCustomSelect(
+        "name = ? AND item = ?", [Variable(name), Variable(rowId)]);
+    if (properties.length > 0) {
+      SchemaValueType? valueType = db.schema.types[this.type]?.propertyTypes[name]?.valueType;
+      return ItemPropertyRecord(
+          itemRowID: properties[0].item,
+          name: properties[0].name,
+          value: PropertyDatabaseValue.create(properties[0].value, valueType!));
+    }
+    return null;
+  }
+
+  Future<List<ItemPropertyRecord?>> properties([DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var properties =
+        await db.databasePool.itemPropertyRecordsCustomSelect("item = ?", [Variable(rowId)]);
+    if (properties.length > 0) {
+      return properties.map((property) {
+        SchemaValueType? valueType =
+            db?.schema.types[this.type]?.propertyTypes[property.name]?.valueType;
+        return ItemPropertyRecord(
+            itemRowID: property.item,
+            name: property.name,
+            value: PropertyDatabaseValue.create(property.value, valueType!));
+      }).toList();
+    }
+    return [];
+  }
+
+  Future<PropertyDatabaseValue?> propertyValue(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var property = await this.property(name, db);
+    if (property == null) {
+      return null;
+    }
+    return property.value(this.type, db.schema);
+  }
+
+  save(Database db) async {
+    return await db.itemRecordSave(this);
+  }
+
+  setPropertyValue(String name, PropertyDatabaseValue? value, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+
+    /// Mark the item as modified, and mark for syncing (unless already marked as a newly created item to be synced)
+    dateModified = DateTime.now();
+    if (this.syncState != SyncState.create) {
+      this.syncState = SyncState.update;
     }
 
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(uid)
-        hasher.combine(type)
-    }*/
+    /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
+    await this.save(db.databasePool);
 
-  static Future<ItemRecord?> fetchWithUID(String uid, DatabaseController db
-      /*= AppController.shared.databaseController*/) async {
+    /// Create or update the property
+    var property = await this.property(name, db);
+    if (property != null) {
+      if (value != null) {
+        property.$value = value;
+        await property.save(db.databasePool);
+      } else {
+        await property.delete(db.databasePool);
+      }
+    } else if (value != null) {
+      property =
+          ItemPropertyRecord(itemUID: this.uid, itemRowID: this.rowId!, name: name, value: value);
+      await property.save(db.databasePool);
+    }
+  }
+
+  static Future<ItemRecord?> fetchWithUID(String uid, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
     try {
       Item item = await db.databasePool.itemRecordFetchWithUID(uid);
-      return ItemRecord(
-          uid: item.id,
-          type: item.type,
-          dateCreated: item.dateCreated,
-          dateModified: item.dateModified,
-          deleted: item.deleted);
+      return ItemRecord.fromItem(item);
     } catch (e) {
       print(e);
       return null;
     }
   }
 
-  insert(Database db) async {
+  Future<int> insert(Database db) async {
     return await db.itemRecordInsert(this);
   }
 
-/*static var properties = hasMany(ItemPropertyRecord.self, key: "itemProperty")
+  Future<ItemRecord?> edgeItem(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      var edge = await db.databasePool.edgeRecordSelect({"source": rowId, "name": name});
+      if (edge != null) {
+        return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 
-    func property(_ name: String, db: DatabaseController = AppController.shared.databaseController) -> ItemPropertyRecord? {
-        try? db.read { db in
-            try? request(for: ItemRecord.properties).filter(ItemPropertyRecord.Columns.name == name).fetchOne(db)
-        }
+  Future<List<ItemRecord>> edgeItems(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      var edges = await db.databasePool.edgeRecordsSelect({"source": rowId, "name": name});
+      return (await Future.wait(
+              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+          .whereType<ItemRecord>()
+          .toList();
+    } catch (e) {
+      print(e);
+      return [];
     }
-    
-    func properties(db: DatabaseController = AppController.shared.databaseController) -> [ItemPropertyRecord] {
-        (try? db.read { db in
-    try? request(for: ItemRecord.properties).fetchAll(db)
-        }) ?? []
-    }
-    
-    func propertyValue(
-        _ name: String,
-        db: DatabaseController = AppController.shared.databaseController
-    ) -> PropertyDatabaseValue? {
-        guard let property = property(name, db: db) else { return nil }
-        return property.value(itemType: type, schema: db.schema)
-    }
-    
-    func save(db dbController: DatabaseController = AppController.shared.databaseController) throws {
-        try dbController.writeSync { (db) in
-            try save(db)
-        }
-    }
-    
-    
-    func setPropertyValue(
-        name: String,
-        value: PropertyDatabaseValue?,
-        db dbController: DatabaseController = AppController.shared.databaseController
-    ) throws {
-        try dbController.writeSync { (db) in
-            /// Mark the item as modified, and mark for syncing (unless already marked as a newly created item to be synced)
-            dateModified = Date()
-            if syncState != .create {
-                syncState = .update
-            }
-            /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
-            try save(db: dbController)
-            
-            /// Create or update the property
-            if let property = property(name, db: dbController) {
-                if let value = value {
-                    property.value = value.databaseValue
-                    try property.save(db)
-                } else {
-                    try property.delete(db: dbController)
-                }
-            } else if let value = value {
-                let property = ItemPropertyRecord(itemUID: uid, name: name, value: value)
-                try property.save(db)
-            }
-        }
-    }
-    
-    
-    static let edges = hasMany(ItemEdgeRecord.self, using: ItemEdgeRecord.ownerForeignKey)
+  }
 
-    func edgeItem(_ name: String, db: DatabaseController = AppController.shared.databaseController) -> ItemRecord? {
-        try? db.read { db in
-         try? request(for: ItemRecord.edges).filter(ItemEdgeRecord.Columns.name == name).fetchOne(db)?.targetItem(db: db)
-        }
-    }
-    func edgeItems(_ name: String, db: DatabaseController = AppController.shared.databaseController) -> [ItemRecord] {
-        (try? db.read { db in
-         try? request(for: ItemRecord.edges).filter(ItemEdgeRecord.Columns.name == name).fetchAll(db).lazy.compactMap { $0.targetItem(db: db) }
-        }) ?? []
-    }
-    
-    static var reverseEdges = hasMany(ItemEdgeRecord.self, using: ItemEdgeRecord.targetForeignKey)
-    func reverseEdgeItem(_ name: String, db: DatabaseController = AppController.shared.databaseController) -> ItemRecord? {
-        
-            try? db.read { db in
-        try? request(for: ItemRecord.reverseEdges).filter(ItemEdgeRecord.Columns.name == name).fetchOne(db)?.owningItem(db: db)
-            }
-    }
-    func reverseEdgeItems(_ name: String, db: DatabaseController = AppController.shared.databaseController) -> [ItemRecord] {
-        
-            (try? db.read { db in
-       try? request(for: ItemRecord.reverseEdges).filter(ItemEdgeRecord.Columns.name == name).fetchAll(db).lazy.compactMap { $0.owningItem(db: db) }
-            }) ?? []
-    }
-    
-    enum Columns: String, ColumnExpression {
-        case uid, type, dateCreated, dateModified, version, deleted, syncState, syncHasPriority
-    }
-    
-    
-    internal init(uid: StringUUID = StringUUID(), type: String, dateCreated: Date? = nil, dateModified: Date? = nil, version: Int = 1, deleted: Bool = false, syncState: SyncState = .create, syncHasPriority: Bool = false) {
-        self.uid = uid
-        self.type = type
-        self.dateCreated = dateCreated ?? Date()
-        self.dateModified = dateModified ?? Date()
-        self.version = version
-        self.deleted = deleted
-        self.syncState = syncState
-        self.syncHasPriority = syncHasPriority
-        super.init()
-    }
-    
-    required init(row: Row) {
-        self.uid = row[Columns.uid]
-        self.type = row[Columns.type]
-        self.dateCreated = row[Columns.dateCreated]
-        self.dateModified = row[Columns.dateModified]
-        self.version = row[Columns.version]
-        self.deleted = row[Columns.deleted]
-        self.syncState = row[Columns.syncState]
-        self.syncHasPriority = row[Columns.syncHasPriority]
-        super.init(row: row)
-    }
-    
-    override func encode(to container: inout PersistenceContainer) {
-        container[Columns.uid] = uid
-        container[Columns.type] = type
-        container[Columns.dateCreated] = dateCreated
-        container[Columns.dateModified] = dateModified
-        container[Columns.version] = version
-        container[Columns.deleted] = deleted
-        container[Columns.syncState] = syncState
-        container[Columns.syncHasPriority] = syncHasPriority
-    }
-    
-    static let intrinsicProperties: Set<String> = ["type", "uid", "dateCreated", "dateModified", "version", "deleted"]
+  Future<ItemRecord?> reverseEdgeItem(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
 
+    try {
+      var edge = await db.databasePool.edgeRecordSelect({"target": rowId, "name": name});
+      if (edge != null) {
+        return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<List<ItemRecord>> reverseEdgeItems(String name, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+
+    try {
+      var edges = await db.databasePool.edgeRecordsSelect({"target": rowId, "name": name});
+      return (await Future.wait(
+              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+          .whereType<ItemRecord>()
+          .toList();
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<Binding> propertyBinding(
+      {required String name, dynamic? defaultValue, DatabaseController? db, Type? type}) async {
+    db ??= AppController.shared.databaseController;
+    switch (type) {
+      case bool:
+        return Binding<Future<bool>>(
+            () async => (await propertyValue(name, db))?.asBool() ?? defaultValue,
+            (newValue) async {
+          await setPropertyValue(name, PropertyDatabaseValueBool(await newValue), db);
+        });
+      default:
+        return Binding<Future<String>>(
+            () async => (await propertyValue(name, db))?.asString() ?? defaultValue.toString(),
+            (newValue) async {
+          await setPropertyValue(name, PropertyDatabaseValueString(await newValue), db);
+        });
+    }
+  }
+
+  @override
+  List<Object> get props => [uid, type];
+
+/*
     func syncDict(db: Database, schema: Schema) -> [String: AnyEncodable] {
         let properties = try! request(for: ItemRecord.properties).fetchAll(db)
 //        let edges = try! request(for: ItemRecord.edges).fetchAll(db)
         return _syncDict(properties: properties, schema: schema)//, edges: edges)
     }
-    
+
     func _syncDict(properties: [ItemPropertyRecord], schema: Schema) -> [String: AnyEncodable] { //, edges: [ItemEdgeRecord]
         let keyProperties: [String: AnyEncodable] = [
             "_type": type,
@@ -206,84 +252,11 @@ class ItemRecord {
         return keyProperties
             .merging(otherProperties, uniquingKeysWith: { a, b in a })
     }
-    
-    init(fromSyncDict dict: [String: AnyDecodable]) throws {
-        guard let uidString = dict["uid"]?.value as? String,
-              let type = dict["type"]?.value as? String,
-              let dateCreated = (dict["dateCreated"]?.value as? Int).flatMap(DatabaseHelperFunctions.decode)
-        else {
-            throw NSError()
-        }
-        self.uid = StringUUID(uid: uidString)
-        self.type = type
-        self.dateCreated = dateCreated
-        self.dateModified = (dict["dateModified"]?.value as? Int).flatMap(DatabaseHelperFunctions.decode) ?? dateCreated
-        self.version = dict["version"]?.value as? Int ?? 1
-        self.deleted = dict["deleted"]?.value as? Bool ?? false
-        
-        // This is direct from the latest version so no need to sync again
-        self.syncState = .noChanges
-        self.syncHasPriority = false
-        super.init()
-    }
-    
-    static func search(_ db: Database, pattern: FTS3Pattern) throws -> [ItemRecord] {
-        try ItemRecord.fetchAll(db, sql:
-        """
-           SELECT DISTINCT \(ItemRecord.databaseTableName).*
-           FROM \(ItemRecord.databaseTableName)
-           JOIN \(ItemPropertyRecord.databaseSearchTableName)
-               ON \(ItemPropertyRecord.databaseSearchTableName).itemUID = \(ItemRecord.databaseTableName).uid
-               AND \(ItemPropertyRecord.databaseSearchTableName) MATCH ?
-        """, arguments: [pattern])
-    }*/
+  */
+  static Future<List<ItemRecord>> search(DatabaseController dbController, String pattern) async {
+    List<dynamic> list = await dbController.databasePool
+        .itemPropertyRecordsCustomSelect("value MATCH ?", [Variable.withString(pattern)], true);
+    return await Future.wait(list.map((el) async => ItemRecord.fromItem(
+        await dbController.databasePool.itemRecordFetchWithRowId(int.parse(el.item)))));
+  }
 }
-/*extension ItemRecord {
-    func propertyBinding(name: String, defaultValue: String? = nil, db: DatabaseController = AppController.shared.databaseController) -> Binding<String?> {
-        Binding {
-            self.propertyValue(name, db: db)?.asString() ?? defaultValue
-        } set: { (newValue) in
-            try? self.setPropertyValue(name: name, value: newValue?.nilIfBlank.map { .string($0) }, db: db)
-        }
-    }
-    
-    func propertyBinding(name: String, defaultValue: String = "", db: DatabaseController = AppController.shared.databaseController) -> Binding<String> {
-        Binding {
-            self.propertyValue(name, db: db)?.asString() ?? defaultValue
-        } set: { (newValue) in
-            try? self.setPropertyValue(name: name, value: .string(newValue), db: db)
-        }
-    }
-    
-    func propertyBinding(name: String, db: DatabaseController = AppController.shared.databaseController) -> Binding<Bool?> {
-        Binding {
-            self.propertyValue(name, db: db)?.asBool()
-        } set: { (newValue) in
-            try? self.setPropertyValue(name: name, value: newValue.map { .bool($0) }, db: db)
-        }
-    }
-    
-    func propertyBinding(name: String, defaultValue: Bool = false, db: DatabaseController = AppController.shared.databaseController) -> Binding<Bool> {
-        Binding {
-            self.propertyValue(name, db: db)?.asBool() ?? defaultValue
-        } set: { (newValue) in
-            try? self.setPropertyValue(name: name, value: .bool(newValue), db: db)
-        }
-    }
-    
-    func propertyBinding(name: String, db: DatabaseController = AppController.shared.databaseController) -> Binding<Double?> {
-        Binding {
-            self.propertyValue(name, db: db)?.asDouble()
-        } set: { (newValue) in
-            try? self.setPropertyValue(name: name, value: newValue.map { .double($0) }, db: db)
-        }
-    }
-    
-    func propertyBinding(name: String, db: DatabaseController = AppController.shared.databaseController) -> Binding<Date?> {
-        Binding {
-            self.propertyValue(name, db: db)?.asDate()
-        } set: { (newValue) in
-            try? self.setPropertyValue(name: name, value: newValue.map { .datetime($0) }, db: db)
-        }
-    }
-}*/

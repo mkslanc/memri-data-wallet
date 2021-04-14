@@ -27,7 +27,8 @@ class CVUPropertyResolver {
   final DatabaseController db;
   final Map<String, CVUValue> properties;
 
-  CVUPropertyResolver({required this.context, required this.lookup, required this.db, required this.properties});
+  CVUPropertyResolver(
+      {required this.context, required this.lookup, required this.db, required this.properties});
 
   CVUPropertyResolver replacingItem(ItemRecord item) {
     CVUPropertyResolver result = this;
@@ -57,52 +58,53 @@ class CVUPropertyResolver {
       return null;
     }
     return CVUPropertyResolver(
-        context: this.context, lookup: this.lookup, db: this.db, properties: value.value.properties);
+        context: this.context,
+        lookup: this.lookup,
+        db: this.db,
+        properties: value.value.properties);
   }
 
-  double? number(String key) {
+  Future<double?> number(String key) async {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup.resolve<double>(value: val, context: context, db: db);
+    return await lookup.resolve<double>(value: val, context: context, db: db);
   }
 
-  double? cgFloat(String key) {
+  Future<double?> cgFloat(String key) async {
     //TODO do we need this
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup.resolve<double>(value: val, context: context, db: db);
+    return await lookup.resolve<double>(value: val, context: context, db: db);
   }
 
-  int? integer(String key) {
+  Future<int?> integer(String key) async {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup
-        .resolve<double>(value: val, context: context, db: db)
-        ?.toInt();
+    return (await lookup.resolve<double>(value: val, context: context, db: db))?.toInt();
   }
 
-  String? string(String key) {
+  Future<String?> string(String key) async {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup.resolve<String>(value: val, context: context, db: db);
+    return await lookup.resolve<String>(value: val, context: context, db: db);
   }
 
-  List<String> stringArray(String key) {
-    return valueArray(key)
-        .map((CVUValue element) => lookup.resolve<String>(value: element, context: this.context, db: this.db))
+  Future<List<String>> stringArray(String key) async {
+    return (await Future.wait(valueArray(key).map((CVUValue element) async =>
+            await lookup.resolve<String>(value: element, context: this.context, db: this.db))))
         .whereType<String>()
         .toList();
   }
 
-  bool? boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) {
+  Future<bool?> boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) async {
     CVUValue? val = value(key);
     if (val == null) {
       if (defaultValue != null || defaultValueForMissingKey != null) {
@@ -110,91 +112,99 @@ class CVUPropertyResolver {
       }
       return null;
     }
-    return lookup.resolve<bool>(value: val, context: this.context, db: this.db) ?? defaultValue;
+    return await lookup.resolve<bool>(value: val, context: this.context, db: this.db) ??
+        defaultValue;
   }
 
-  DateTime? dateTime(String key) {
+  Future<DateTime?> dateTime(String key) async {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup.resolve<DateTime>(value: val, context: context, db: db);
+    return await lookup.resolve<DateTime>(value: val, context: context, db: db);
   }
 
-  ItemRecord? item(String key) {
+  Future<ItemRecord?> item(String key) async {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    return lookup.resolve<ItemRecord>(value: val, context: context, db: db);
+    return await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
   }
 
-  List<ItemRecord> items(String key) {
+  Future<List<ItemRecord>> items(String key) async {
     var val = value(key);
     if (val != null) {
       return [];
     }
-    return lookup.resolve<List<ItemRecord>>(value: val, context: context, db: db)!;
+    return (await lookup.resolve<List<ItemRecord>>(value: val, context: context, db: db))!;
   }
 
-  ItemRecord? edge(String key, String edgeName) {
+  Future<ItemRecord?> edge(String key, String edgeName) async {
     var val = value(key);
     if (val != null) {
       return null;
     }
-    ItemRecord? item = lookup.resolve<ItemRecord>(value: val, context: context, db: db);
+    ItemRecord? item = await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
     if (item == null) {
       return null;
     }
-    return lookup.resolve<ItemRecord>(edge: edgeName, item: item, db: this.db);
+    return await lookup.resolve<ItemRecord>(edge: edgeName, item: item, db: this.db);
   }
 
-  PropertyDatabaseValue? property({String? key, ItemRecord? item, required String propertyName}) {
+  Future<PropertyDatabaseValue?> property(
+      {String? key, ItemRecord? item, required String propertyName}) async {
     if (key != null) {
-      return _propertyForString(key, propertyName);
+      return await _propertyForString(key, propertyName);
     } else {
-      return _propertyForItemRecord(item!, propertyName);
+      return await _propertyForItemRecord(item!, propertyName);
     }
   }
 
-  PropertyDatabaseValue? _propertyForString(String key, String propertyName) {
+  Future<PropertyDatabaseValue?> _propertyForString(String key, String propertyName) async {
     var val = value(key);
     if (val == null) {
       return null;
     }
-    ItemRecord? item = lookup.resolve<ItemRecord>(value: val, context: this.context, db: this.db);
+    ItemRecord? item =
+        await lookup.resolve<ItemRecord>(value: val, context: this.context, db: this.db);
     if (item == null) {
       return null;
     }
-    return lookup.resolve<PropertyDatabaseValue>(property: propertyName, item: item, db: this.db);
+    return await lookup.resolve<PropertyDatabaseValue>(
+        property: propertyName, item: item, db: this.db);
   }
 
-  PropertyDatabaseValue? _propertyForItemRecord(ItemRecord item, String propertyName) {
-    return lookup.resolve<PropertyDatabaseValue>(property: propertyName, item: item, db: this.db);
+  Future<PropertyDatabaseValue?> _propertyForItemRecord(
+      ItemRecord item, String propertyName) async {
+    return await lookup.resolve<PropertyDatabaseValue>(
+        property: propertyName, item: item, db: this.db);
   }
 
-  Binding? binding(String key, dynamic? defaultValue) {
+  Future<Binding?> binding(String key, dynamic? defaultValue) async {
     if (defaultValue.runtimeType == bool) {
-      return _bindingWithBoolean(key, defaultValue ?? false);
+      return await _bindingWithBoolean(key, defaultValue ?? false);
     } else {
-      return _bindingWithString(key, defaultValue);
+      return await _bindingWithString(key, defaultValue);
     }
   }
 
-  Binding<bool>? _bindingWithBoolean(String key, [bool defaultValue = false]) {
+  Future<Binding<bool>?> _bindingWithBoolean(String key, [bool defaultValue = false]) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
-    return lookup.resolve<Binding<bool>>(value: val, defaultValue: defaultValue, context: this.context, db: this.db);
+    return await lookup.resolve<Binding<bool>>(
+        value: val, defaultValue: defaultValue, context: this.context, db: this.db);
   }
 
-  Binding<String>? _bindingWithString(String key, String? defaultValue) {
+  Future<Binding<String>?> _bindingWithString(String key, String? defaultValue) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
-    return lookup.resolve<Binding<String>>(value: val, defaultValue: defaultValue, context: this.context, db: this.db);
+    return await lookup.resolve<Binding<String>>(
+        value: val, defaultValue: defaultValue, context: this.context, db: this.db);
   }
 
   CVUAction? action(String key) {
@@ -234,13 +244,13 @@ class CVUPropertyResolver {
     }
   }
 
-  String? fileUID(String key) {
-    ItemRecord? file = item(key);
+  Future<String?> fileUID(String key) async {
+    ItemRecord? file = await item(key);
     if (file == null || file.type != "File") {
-      file = edge(key, "file");
+      file = await edge(key, "file");
     }
     if (file != null && file.type == "File") {
-      String? filename = property(item: file, propertyName: "filename")?.asString();
+      String? filename = (await property(item: file, propertyName: "filename"))?.asString();
       return filename;
     }
     return null;
@@ -252,24 +262,24 @@ class CVUPropertyResolver {
     // return FileStorageController.getURLForFile(this.fileUID(key));
   }
 
-  CVU_SizingMode sizingMode([String key = "sizingMode"]) {
+  Future<CVU_SizingMode> sizingMode([String key = "sizingMode"]) async {
     var val = value(key);
     if (val == null) {
       return CVU_SizingMode.fit;
     }
-    String? string = lookup.resolve<String>(value: val, context: context, db: db);
+    String? string = await lookup.resolve<String>(value: val, context: context, db: db);
     if (string == null) {
       return CVU_SizingMode.fit;
     }
     return /*CVU_SizingMode(rawValue: string) ??*/ CVU_SizingMode.fit; //TODO:
   }
 
-  String? color([String key = "color"]) {
+  Future<String?> color([String key = "color"]) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
-    String? string = lookup.resolve<String>(value: val, context: this.context, db: this.db);
+    String? string = await lookup.resolve<String>(value: val, context: this.context, db: this.db);
     if (string == null) {
       return null;
     }
@@ -282,12 +292,12 @@ class CVUPropertyResolver {
     }*/
   }
 
-  Alignment alignment([String propertyName = "alignment"]) {
+  Future<Alignment> alignment([String propertyName = "alignment"]) async {
     var val = value(propertyName);
     if (val == null) {
       return Alignment.center;
     }
-    switch (lookup.resolve<String>(value: val, context: context, db: db)) {
+    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
       case "leading":
         return Alignment.centerLeft;
@@ -319,12 +329,12 @@ class CVUPropertyResolver {
     }
   }
 
-  TextAlign textAlignment([String propertyName = "textAlign"]) {
+  Future<TextAlign> textAlignment([String propertyName = "textAlign"]) async {
     var val = value(propertyName);
     if (val == null) {
       return TextAlign.left;
     }
-    switch (lookup.resolve<String>(value: val, context: context, db: db)) {
+    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
       case "leading":
         return TextAlign.left;
@@ -339,20 +349,18 @@ class CVUPropertyResolver {
     }
   }
 
-  Point? cgPoint(String propertyName) {
+  Future<Point?> cgPoint(String propertyName) async {
     var values = valueArray(propertyName);
     double? x, y;
     if (values.length >= 2) {
-      x = lookup.resolve<double>(
-          value: values[0], context: this.context, db: this.db);
-      y = lookup.resolve<double>(
-          value: values[1], context: this.context, db: this.db);
+      x = await lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
+      y = await lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
     }
 
     if (x != null && y != null) {
       return Point(x, y);
     } else {
-      var val = cgFloat(propertyName);
+      var val = await cgFloat(propertyName);
       if (val != null) {
         return Point(val, val);
       } else {
@@ -361,12 +369,12 @@ class CVUPropertyResolver {
     }
   }
 
-  EdgeInsets? get edgeInsets {
-    return this.insets("edgeInset");
+  Future<EdgeInsets?> get edgeInsets async {
+    return await this.insets("edgeInset");
   }
 
-  EdgeInsets? get nsEdgeInset {
-    var edgeInsets = this.edgeInsets;
+  Future<EdgeInsets?> get nsEdgeInset async {
+    var edgeInsets = await this.edgeInsets;
     if (edgeInsets == null) {
       return null;
     }
@@ -379,10 +387,10 @@ class CVUPropertyResolver {
     };*/
   }
 
-  EdgeInsets? insets(String propertyName) {
+  Future<EdgeInsets?> insets(String propertyName) async {
     var values = this.valueArray(propertyName);
-    List<double> insetArray = values
-        .map<double?>((element) => lookup.resolve<double>(value: element, context: this.context, db: this.db))
+    List<double> insetArray = (await Future.wait(values.map<Future<double?>>((element) async =>
+            await lookup.resolve<double>(value: element, context: this.context, db: this.db))))
         .whereType<double>()
         .toList();
     if (insetArray.length > 0) {
@@ -408,43 +416,38 @@ class CVUPropertyResolver {
     }
   }
 
-  CVUFont font([String propertyName = "font", CVUFont? defaultValue]) {
+  Future<CVUFont> font([String propertyName = "font", CVUFont? defaultValue]) async {
     defaultValue = defaultValue ?? CVUFont();
     var values = valueArray(propertyName);
     String? name;
     double? size;
     if (values.length >= 2) {
-      name = lookup.resolve<String>(
-          value: values[0], context: this.context, db: this.db);
-      size = lookup.resolve<double>(
-          value: values[1], context: this.context, db: this.db);
+      name = await lookup.resolve<String>(value: values[0], context: this.context, db: this.db);
+      size = await lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
     }
 
     if (name != null && size != null) {
       return CVUFont(
           name: name,
           size: size,
-          weight: CVUFont.Weight[lookup.resolve<String>(
+          weight: CVUFont.Weight[await lookup.resolve<String>(
                   value: values[2], context: this.context, db: this.db)] ??
-              defaultValue
-                  .weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+              defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
           );
     } else {
       if (values.isNotEmpty) {
         var val = values[0];
-        double? size = lookup.resolve<double>(
-            value: val, context: this.context, db: this.db);
+        double? size = await lookup.resolve<double>(value: val, context: this.context, db: this.db);
 
         if (size != null) {
           return CVUFont(
               name: name,
               size: size,
-              weight: CVUFont.Weight[lookup.resolve<String>(
+              weight: CVUFont.Weight[await lookup.resolve<String>(
                       value: values[1], context: this.context, db: this.db)] ??
-                  defaultValue
-                      .weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+                  defaultValue.weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
         } else {
-          var weight = CVUFont.Weight[lookup.resolve<String>(
+          var weight = CVUFont.Weight[await lookup.resolve<String>(
               value: val, context: this.context, db: this.db)]; //.flatMap(Font.Weight.init) TODO:
           if (weight != null) {
             return CVUFont(name: defaultValue.name, size: defaultValue.size, weight: weight);
@@ -455,87 +458,87 @@ class CVUPropertyResolver {
     return defaultValue;
   }
 
-  bool? get showNode {
-    return boolean("show", false, true);
+  Future<bool?> get showNode async {
+    return await boolean("show", false, true);
   }
 
-  double get opacity {
-    return number("opacity") ?? 1;
+  Future<double> get opacity async {
+    return await number("opacity") ?? 1;
   }
 
-  String? get backgroundColor {
-    return color("background");
+  Future<String?> get backgroundColor async {
+    return await color("background");
   }
 
-  String? get borderColor {
-    return color("border");
+  Future<String?> get borderColor async {
+    return await color("border");
   }
 
-  double? get minWidth {
-    return cgFloat("width") ?? cgFloat("minWidth");
+  Future<double?> get minWidth async {
+    return await cgFloat("width") ?? await cgFloat("minWidth");
   }
 
-  double? get minHeight {
-    return cgFloat("height") ?? cgFloat("minHeight");
+  Future<double?> get minHeight async {
+    return await cgFloat("height") ?? await cgFloat("minHeight");
   }
 
-  double? get maxWidth {
-    return cgFloat("width") ?? cgFloat("maxWidth");
+  Future<double?> get maxWidth async {
+    return await cgFloat("width") ?? await cgFloat("maxWidth");
   }
 
-  double? get maxHeight {
-    return cgFloat("height") ?? cgFloat("maxHeight");
+  Future<double?> get maxHeight async {
+    return await cgFloat("height") ?? await cgFloat("maxHeight");
   }
 
-  Size? get offset {
-    var val = this.cgPoint("offset");
+  Future<Size?> get offset async {
+    var val = await this.cgPoint("offset");
     if (val == null) {
       return null; //.zero TODO:
     }
     return Size(val.x.toDouble(), val.y.toDouble());
   }
 
-  double? get shadow {
-    var val = cgFloat("shadow");
+  Future<double?> get shadow async {
+    var val = await cgFloat("shadow");
     if (val == null || val <= 0) {
       return null;
     }
     return val;
   }
 
-  double? get zIndex {
-    return number("zIndex");
+  Future<double?> get zIndex async {
+    return await number("zIndex");
   }
 
-  int? get lineLimit {
-    return integer("lineLimit");
+  Future<int?> get lineLimit async {
+    return await integer("lineLimit");
   }
 
-  bool? get forceAspect {
-    return boolean("forceAspect", false);
+  Future<bool?> get forceAspect async {
+    return await boolean("forceAspect", false);
   }
 
-  EdgeInsets get padding {
-    var uiInsets = this.insets("padding");
+  Future<EdgeInsets> get padding async {
+    var uiInsets = await this.insets("padding");
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
     return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
-  EdgeInsets get margin {
-    var uiInsets = this.insets("padding");
+  Future<EdgeInsets> get margin async {
+    var uiInsets = await this.insets("padding");
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
     return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
-  double? get cornerRadius {
-    return cgFloat("cornerRadius") ?? 0;
+  Future<double?> get cornerRadius async {
+    return await cgFloat("cornerRadius") ?? 0;
   }
 
-  Point? get spacing {
-    return cgPoint("spacing");
+  Future<Point?> get spacing async {
+    return await cgPoint("spacing");
   }
 }

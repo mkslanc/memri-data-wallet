@@ -5,7 +5,6 @@
 //  Created by T Brennan on 8/1/21.
 //
 
-
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
@@ -56,7 +55,8 @@ class CVUActionOpenView extends CVUAction {
   List<String>? uids;
   DateTimeRange? dateRange;
 
-  CVUActionOpenView({vars, this.viewName, this.renderer, this.uids, this.dateRange}) : this.vars = vars ?? {};
+  CVUActionOpenView({vars, this.viewName, this.renderer, this.uids, this.dateRange})
+      : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -86,7 +86,6 @@ class CVUActionOpenView extends CVUAction {
     // viewArguments: viewArguments
     // })
   }
-
 }
 
 class CVUActionNavigateBack extends CVUAction {

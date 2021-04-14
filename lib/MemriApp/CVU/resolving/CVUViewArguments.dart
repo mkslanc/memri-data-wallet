@@ -18,9 +18,5 @@ class CVUViewArguments {
   // The view arguments of the parent view (used to resolve)
   CVUViewArguments? parentArguments;
 
-  CVUViewArguments({
-    args,
-    this.argumentItem,
-    this.parentArguments
-  }) : this.args = args ?? {};
+  CVUViewArguments({args, this.argumentItem, this.parentArguments}) : this.args = args ?? {};
 }

@@ -166,9 +166,7 @@ abstract class CVUToken {
   }
 }
 
-enum CVUOperator {
-  ConditionAND, ConditionOR, ConditionEquals
-}
+enum CVUOperator { ConditionAND, ConditionOR, ConditionEquals }
 
 extension CVUOperatorExtension on CVUOperator {
   static const Map<CVUOperator, String> operators = {
@@ -419,7 +417,7 @@ class CVULexer {
         case "7":
         case "8":
         case "9":
-        if (isMode == Mode.idle) {
+          if (isMode == Mode.idle) {
             isMode = Mode.number;
           }
           keyword.add(c);
@@ -463,11 +461,9 @@ class CVULexer {
 
     if (isMode == Mode.string) {
       throw CVUParseErrorsMissingQuoteClose(CVUTokenEOF());
-    }
-    else if (isMode == Mode.expression) {
+    } else if (isMode == Mode.expression) {
       throw CVUParseErrorsMissingExpressionClose(CVUTokenEOF());
-    }
-    else if (isMode != Mode.idle) {
+    } else if (isMode != Mode.idle) {
       // TODO:
       throw Exception("Unhandled error mode: $isMode");
     }
