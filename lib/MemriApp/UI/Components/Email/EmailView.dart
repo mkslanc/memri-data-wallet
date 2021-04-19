@@ -8,6 +8,8 @@ class EmailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmailViewUIKit();
+    return EmailViewUIKit(
+      emailHTML: emailHTML ?? "",
+    );
   }
 }
