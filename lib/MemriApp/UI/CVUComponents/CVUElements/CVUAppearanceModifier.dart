@@ -21,6 +21,7 @@ class CVUAppearanceModifier {
   late double minHeight;
   late double maxHeight;
   late double cornerRadius;
+  late double opacity;
 
   init() async {
     padding = await nodeResolver.propertyResolver.padding;
@@ -31,6 +32,7 @@ class CVUAppearanceModifier {
     minHeight = await nodeResolver.propertyResolver.minHeight ?? 0;
     maxHeight = await nodeResolver.propertyResolver.maxHeight ?? double.infinity;
     cornerRadius = await nodeResolver.propertyResolver.cornerRadius;
+    opacity = await nodeResolver.propertyResolver.opacity;
   }
 
   Widget body(Widget child) {
@@ -53,9 +55,12 @@ class CVUAppearanceModifier {
                   minWidth: minWidth),
               child: ColoredBox(
                 color: backgroundColor,
-                child: Padding(
-                  padding: padding,
-                  child: widget,
+                child: Opacity(
+                  opacity: opacity,
+                  child: Padding(
+                    padding: padding,
+                    child: widget,
+                  ),
                 ),
               ),
             );
@@ -79,7 +84,6 @@ class CVUAppearanceModifier {
                     .strokeBorder(nodeResolver.propertyResolver.borderColor?.color ?? .clear)
             )
             .offset(nodeResolver.propertyResolver.offset)
-            .opacity(nodeResolver.propertyResolver.opacity)
             .ifLet(nodeResolver.propertyResolver.zIndex) { $0.zIndex($1) }*/
   }
 }
