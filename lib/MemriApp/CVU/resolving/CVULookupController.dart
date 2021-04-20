@@ -539,7 +539,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepValues) {
-      return lookupResult.values[0].asDouble();
+      return lookupResult.values.asMap()[0]?.asDouble();
     } else {
       return null;
     }
