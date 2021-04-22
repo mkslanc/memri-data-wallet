@@ -50,7 +50,7 @@ abstract class PropertyDatabaseValue {
         if (datetimeInt == null) {
           return null;
         }
-        var date = DateTime(databaseValue.value);
+        var date = DateTime.fromMillisecondsSinceEpoch(databaseValue.value);
         return PropertyDatabaseValueDatetime(date);
       case SchemaValueType.blob:
         var data = databaseValue.value;
