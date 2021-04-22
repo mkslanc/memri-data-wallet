@@ -34,7 +34,6 @@ class CVUHStack extends StatelessWidget {
               Widget widget = Row(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                mainAxisSize: MainAxisSize.min,
                 children: space(spacing?.x.toDouble() ?? 0, nodeResolver.childrenInForEach()),
               );
               return widget;
@@ -79,7 +78,6 @@ class CVUVStack extends StatelessWidget {
               return Column(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                mainAxisSize: MainAxisSize.min,
                 children: space(spacing?.y.toDouble() ?? 0, nodeResolver.childrenInForEach()),
               );
             /* TODO:

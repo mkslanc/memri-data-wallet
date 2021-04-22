@@ -6,6 +6,7 @@
 //
 
 import 'package:flutter/cupertino.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUINode.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
@@ -30,13 +31,16 @@ class CVUUINodeResolver {
   }
 
   List<Widget> childrenInForEach() {
-    return node.children
-        .map((child) => //TODO is this right?
-            CVUElementView(
-              nodeResolver:
-                  CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
-            ))
-        .toList();
+    return node.children.map((child) {
+      Widget widget = CVUElementView(
+        nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+      );
+      if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
+          (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
+        widget = Expanded(child: widget);
+      }
+      return widget;
+    }).toList();
   }
 
   Widget? firstChild() {
