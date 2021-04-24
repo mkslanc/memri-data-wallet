@@ -207,7 +207,7 @@ class ItemRecord extends Equatable {
     try {
       var edges = await db.databasePool.edgeRecordsSelect({"target": rowId, "name": name});
       return (await Future.wait(
-              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
+              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).owningItem(db!))))
           .whereType<ItemRecord>()
           .toList();
     } catch (e) {
