@@ -40,10 +40,10 @@ class CVUElementView extends StatelessWidget {
         return CVUText(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: nodeResolver);
-      /*case CVUUIElementFamily.Map:
+      //case CVUUIElementFamily.Map:
       // return CVU_Map(nodeResolver: nodeResolver);
       case CVUUIElementFamily.SmartText:
-        return CVUSmartText(nodeResolver: nodeResolver);*/
+        return CVUSmartText(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Textfield:
         return CVUTextField(nodeResolver: nodeResolver);
       /*case CVUUIElementFamily.Toggle:
