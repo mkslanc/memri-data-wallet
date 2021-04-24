@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -52,12 +53,8 @@ class CVUShapeRectangle extends StatelessWidget {
         future: init(),
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                //borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
-                color: color,
-              ),
+            return Circle(
+              color: color,
             );
           }
           return Text("");

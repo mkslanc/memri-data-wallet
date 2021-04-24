@@ -106,7 +106,8 @@ class DemoData {
     List<DemoDataEdge> edges = [];
     // Fake a recent date for the demo data
 
-    var dateCreated = DateTime.now().subtract(Duration(milliseconds: Random().nextInt(1814400)));
+    var dateCreated =
+        DateTime.now().subtract(Duration(milliseconds: Random().nextInt(1814400 * 1000)));
     var dateModified = dateCreated;
 
     item.forEach((propertyName, propertyValue) {

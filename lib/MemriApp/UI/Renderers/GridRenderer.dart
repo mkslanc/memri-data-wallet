@@ -29,6 +29,7 @@ class _GridRendererViewState extends State<GridRendererView> {
           return viewContext.hasItems
               ? Expanded(
                   child: GridView.count(
+                  physics: AlwaysScrollableScrollPhysics(),
                   childAspectRatio: 4 / 5,
                   shrinkWrap: true,
                   primary: false,
