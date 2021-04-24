@@ -133,7 +133,7 @@ abstract class PropertyDatabaseValue {
   }
 
   double? asDouble() {
-    return value is double ? value : double.tryParse(value);
+    return value is double ? value : double.tryParse(value.toString());
   }
 
   bool? asBool() {
