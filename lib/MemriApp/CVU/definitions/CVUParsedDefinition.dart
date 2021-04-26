@@ -77,17 +77,30 @@ class CVUDefinitionContent extends CVUStringConvertible {
         result.definitions.add(definition);
       }
     }
-    for (var entry in other.properties.entries) {
-      result.properties.putIfAbsent(entry.key, () {
-        var lhs = result.properties[entry.key]?.getSubdefinition();
-        var rhs = entry.value.getSubdefinition();
-        if (lhs != null && rhs != null) {
-          return CVUValueSubdefinition(lhs.merge(rhs));
+    var allProps = {};
+    allProps.addAll(result.properties);
+    allProps.addAll(other.properties);
+
+    for (var entry in allProps.entries) {
+      var lhs = result.properties[entry.key]?.getSubdefinition();
+      var rhs = entry.value.getSubdefinition();
+      if (lhs != null && rhs != null) {
+        //TODO: need to check
+        result.properties.update(entry.key, (value) => CVUValueSubdefinition(lhs.merge(rhs)));
+      } else {
+        // Prefer rhs properties
+        if (result.properties.containsKey(entry.key)) {
+          if (other.properties.containsKey(entry.key)) {
+            result.properties.update(entry.key, (value) => (other.properties[entry.key])!);
+          } else {
+            result.properties.remove(entry.key);
+          }
         } else {
-          return entry.value; // Prefer rhs properties
+          result.properties[entry.key] = entry.value;
         }
-      });
+      }
     }
+
     if (other.children.isNotEmpty) {
       result.children = other.children; // Override children if defined
     }

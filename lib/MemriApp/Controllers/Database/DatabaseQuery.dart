@@ -62,6 +62,25 @@ class DatabaseQueryConfig {
     this.conditions = const [],
   });
 
+  DatabaseQueryConfig clone() {
+    //TODO find better way to clone object
+    return DatabaseQueryConfig(
+      itemTypes: itemTypes,
+      itemUIDs: itemUIDs,
+      sortProperty: sortProperty,
+      sortAscending: sortAscending,
+      dateModifiedAfter: dateModifiedAfter,
+      dateModifiedBefore: dateModifiedBefore,
+      dateCreatedAfter: dateCreatedAfter,
+      dateCreatedBefore: dateCreatedBefore,
+      pageSize: pageSize,
+      currentPage: currentPage,
+      searchString: searchString,
+      includeImmediateEdgeSearch: includeImmediateEdgeSearch,
+      conditions: conditions,
+    );
+  }
+
   _constructFilteredRequest([Set<int>? searchIDs]) async {
     List<dynamic> intersection(List<List<dynamic>> arrays) {
       if (arrays.length == 0) {
@@ -145,7 +164,7 @@ class DatabaseQueryConfig {
     // Property conditions TODO
     // Property and edges conditions
     var queryPropertyConditions = [];
-    await Future.forEach(this.conditions, (DatabaseQueryCondition condition) async {
+    await Future.forEach(conditions, (DatabaseQueryCondition condition) async {
       var info, query;
       List<Variable<dynamic>> binding = [];
 
@@ -171,11 +190,10 @@ class DatabaseQueryConfig {
       queryPropertyConditions.forEach((conditions) {
         List<int> itemsRowIds = [];
         conditions.forEach((el) {
-          if (el.item != null) {
-            itemsRowIds.add(el.item);
-          } else {
-            //TODO: should work, but need to check
+          if (el is Edge) {
             itemsRowIds.add(el.source);
+          } else {
+            itemsRowIds.add(el.item);
           }
         });
         allConditionsItemsRowIds.add(itemsRowIds);

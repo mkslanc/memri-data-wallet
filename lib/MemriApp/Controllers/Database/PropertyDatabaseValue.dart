@@ -40,8 +40,8 @@ abstract class PropertyDatabaseValue {
         }
         return PropertyDatabaseValueInt(number);
       case SchemaValueType.double:
-        var doubleValue = double.tryParse(databaseValue.value);
-        if (doubleValue == null) {
+        var doubleValue = databaseValue.value;
+        if (doubleValue == null || !(doubleValue is double)) {
           return null;
         }
         return PropertyDatabaseValueDouble(doubleValue);
@@ -133,7 +133,7 @@ abstract class PropertyDatabaseValue {
   }
 
   double? asDouble() {
-    return double.tryParse(value);
+    return value is double ? value : double.tryParse(value.toString());
   }
 
   bool? asBool() {
