@@ -72,9 +72,12 @@ class CVUSmartText extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: init(),
-        builder: (BuildContext builder, AsyncSnapshot<String?> snapshot) {
-          return Text(snapshot.data ?? "");
-          //TODO: MemriSmartTextView
+        builder: (BuildContext builder, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Text(content ?? "");
+          } else {
+            return SizedBox.shrink();
+          }
         });
   }
 }
