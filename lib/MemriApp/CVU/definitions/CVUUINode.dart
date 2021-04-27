@@ -14,9 +14,27 @@ class CVUUINode extends CVUStringConvertible {
   List<CVUUINode> children = [];
   Map<String, CVUValue> properties = {};
 
+  bool shouldExpandWidth =
+      false; //TODO maybe there is a better way to handle flutter layout constraints and expands?
+  bool shouldExpandHeight = false;
+
   var id = Uuid();
 
-  CVUUINode({required this.type, required this.children, required this.properties});
+  CVUUINode({required this.type, required this.children, required this.properties}) {
+    children.forEach((element) {
+      if (element.shouldExpandWidth ||
+          (element.type == CVUUIElementFamily.Spacer && type == CVUUIElementFamily.HStack)) {
+        shouldExpandWidth = true;
+      }
+      if (element.shouldExpandHeight ||
+          (element.type == CVUUIElementFamily.Spacer && type == CVUUIElementFamily.VStack)) {
+        shouldExpandHeight = true;
+      }
+    });
+    if (type == CVUUIElementFamily.HTMLView) {
+      shouldExpandHeight = true;
+    }
+  }
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;

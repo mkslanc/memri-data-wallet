@@ -25,8 +25,7 @@ class _EmailViewUIKitState extends State<EmailViewUIKit> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 300, //TODO: hardcoded til layout will be fixed
+    return SizedBox.expand(
       child: WebView(
           initialUrl: 'about:blank',
           onPageFinished: (String url) => _loadContent(),
