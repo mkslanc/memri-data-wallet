@@ -26,7 +26,6 @@ class TopBarView extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: 60,
-                      width: double.maxFinite,
                       child: Row(
                         children: space(4, [
                           Row(
@@ -64,7 +63,7 @@ class TopBarView extends StatelessWidget {
                                     ),
                                   ));
                                 } else {
-                                  return SizedBox.shrink(); //TODO Spacer?
+                                  return Spacer();
                                 }
                               }),
                           Padding(
@@ -82,7 +81,9 @@ class TopBarView extends StatelessWidget {
             },
             valueListenable: sceneController.shouldUpdate,
           ),
-          //Divider()
+          Divider(
+            height: 1,
+          )
         ],
       ),
     );

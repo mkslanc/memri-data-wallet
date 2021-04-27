@@ -27,7 +27,9 @@ class _SearchViewState extends State<SearchView> {
       alignment: Alignment.bottomLeft,
       child: Column(
         children: [
-          Divider(),
+          Divider(
+            height: 1,
+          ),
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
               child: Row(

@@ -156,7 +156,9 @@ class CalendarRendererView extends StatelessWidget {
                       ],
                     ),
                     Spacer(),
-                    Divider()
+                    Divider(
+                      height: 1,
+                    )
                   ],
                 ),
               ),

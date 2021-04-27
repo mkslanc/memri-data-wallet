@@ -51,9 +51,13 @@ class CVUElementView extends StatelessWidget {
       case CVUUIElementFamily.Button:
         return CVUButton(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Divider:
-        return Divider();
+        return Divider(
+          height: 1,
+        );
       case CVUUIElementFamily.HorizontalLine:
-        return Divider(); //TODO
+        return Divider(
+          height: 1,
+        ); //TODO
       case CVUUIElementFamily.Circle:
         return CVUShapeCircle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Rectangle:
