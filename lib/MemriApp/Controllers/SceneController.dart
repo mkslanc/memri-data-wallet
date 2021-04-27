@@ -207,7 +207,7 @@ class SceneController {
             .toList();
 
     var queryConfig = inheritDatasource
-        ? (topMostContext?.config.query ?? DatabaseQueryConfig())
+        ? (topMostContext?.config.query.clone() ?? DatabaseQueryConfig())
         : DatabaseQueryConfig();
     var itemTypes =
         await datasourceResolver?.stringArray("query") ?? [targetItem?.type].compactMap();
