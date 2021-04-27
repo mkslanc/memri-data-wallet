@@ -55,26 +55,28 @@ class _ListRendererViewState extends State<ListRendererView> {
                     if (viewContext.hasItems) {
                       return Expanded(
                           child: ListView.separated(
+                              physics:
+                                  BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                              padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
                               itemBuilder: (context, index) => ListTile(
+                                    dense: true,
                                     title: Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                                        child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                insets.left,
-                                                index == 0 ? 0 : spacing.y / 2,
-                                                insets.right,
-                                                index == viewContext.items.length - 1
-                                                    ? 0
-                                                    : spacing.y / 2),
-                                            child: ColoredBox(
-                                              color: backgroundColor,
-                                              child: viewContext.render(viewContext.items[index]),
-                                            ))),
+                                        padding: EdgeInsets.fromLTRB(
+                                            insets.left,
+                                            index == 0 ? 0 : spacing.y / 2,
+                                            insets.right,
+                                            index == viewContext.items.length - 1
+                                                ? 0
+                                                : spacing.y / 2),
+                                        child: ColoredBox(
+                                          color: backgroundColor,
+                                          child: viewContext.render(viewContext.items[index]),
+                                        )),
                                     onTap: selectionMode(index),
                                   ),
                               separatorBuilder: (context, index) => Divider(
-                                    color: separatorsEnabled ? Colors.black : Colors.transparent,
+                                    height: 1,
+                                    color: separatorsEnabled ? null : Colors.transparent,
                                   ),
                               itemCount: viewContext.items.length));
                     } else {
