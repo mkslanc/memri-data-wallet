@@ -21,11 +21,8 @@ class CVUShapeCircle extends StatelessWidget {
         future: init(),
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color,
-              ),
+            return Circle(
+              color: color,
             );
           }
           return Text("");
@@ -53,8 +50,11 @@ class CVUShapeRectangle extends StatelessWidget {
         future: init(),
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Circle(
-              color: color,
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
+                color: color,
+              ),
             );
           }
           return Text("");
