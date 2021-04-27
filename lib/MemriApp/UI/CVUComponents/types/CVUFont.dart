@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 /// Represents a font in the CVU language
 class CVUFont {
   String? name;
-  double? size;
+  double size;
   FontWeight? weight;
   bool italic;
 
