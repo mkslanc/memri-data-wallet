@@ -128,12 +128,15 @@ class Database extends _$Database {
     Item item = await itemRecordFetchWithRowId(record.itemRowID);
     switch (table) {
       case ItemRecordPropertyTable.integers:
+        var value = record.$value.value is bool
+            ? record.$value.value == true
+                ? 1
+                : 0
+            : record.$value.value;
         return ItemPropertyRecordTableData(
             table: integers,
             companion: IntegersCompanion(
-                item: Value(item.rowId!),
-                name: Value(record.name),
-                value: Value(record.$value.value)));
+                item: Value(item.rowId!), name: Value(record.name), value: Value(value)));
       case ItemRecordPropertyTable.reals:
         return ItemPropertyRecordTableData(
             table: reals,
