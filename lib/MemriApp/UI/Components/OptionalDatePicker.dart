@@ -29,9 +29,9 @@ class _OptionalDatePickerState extends State<OptionalDatePicker> {
   _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: (widget.selection.get())!, // Refer step 1
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      initialDate: (widget.selection.get())!,
+      firstDate: DateTime.now().subtract(Duration(days: 365 * 100)),
+      lastDate: DateTime.now().add(Duration(days: 365 * 5)),
     );
     if (picked != null && picked != widget.selection.get())
       setState(() {
@@ -46,7 +46,8 @@ class _OptionalDatePickerState extends State<OptionalDatePicker> {
         Expanded(
           child: TextButton(
             onPressed: () => _selectDate(context),
-            child: Text(unwrappedBinding.toString().split(' ').first),
+            child:
+                Text(unwrappedBinding.toString().split(' ').first), //TODO: format this with Jiffy
           ),
         ),
         IconButton(
