@@ -2,6 +2,7 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 
+import '../AppController.dart';
 import 'ItemRecord.dart';
 
 class ItemEdgeRecord {
@@ -75,7 +76,8 @@ class ItemEdgeRecord {
   }
 */
 
-  save(Database db) async {
+  save([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
     return await db.itemEdgeRecordSave(this);
   }
 }
