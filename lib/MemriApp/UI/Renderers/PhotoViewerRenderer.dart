@@ -44,6 +44,8 @@ class PhotoViewerRendererView extends StatelessWidget {
           if (viewContext.hasItems) {
             return Container(
               child: PhotoViewerView(
+                onToggleOverlayVisibility: onToggleOverlayVisibility,
+                viewContext: viewContext,
                 photoItemProvider: photoItemProvider,
                 initialIndex: viewContext.focusedIndex,
               ),
