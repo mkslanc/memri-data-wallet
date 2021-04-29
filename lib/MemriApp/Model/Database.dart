@@ -49,7 +49,7 @@ class Database extends _$Database {
   }
 
   Future<int> itemRecordSave(ItemRecord record) async {
-    return into(items).insertOnConflictUpdate(record.toCompanion());
+    return await into(items).insertOnConflictUpdate(record.toCompanion());
   }
 
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
@@ -78,9 +78,20 @@ class Database extends _$Database {
     var property = await itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(record.name), Variable(record.itemRowID)]);
     if (property.length > 0) {
-      //TODO: need to test
-      return update(data.table).where(
-          (tbl) => (tbl as Strings).item.equals(record.itemRowID) & tbl.name.equals(record.name));
+      return (update(data.table)
+            ..where((tbl) {
+              if (tbl is Integers) {
+                //TODO find a way to avoid this?
+                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+              } else if (tbl is Strings) {
+                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+              } else if (tbl is Reals) {
+                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+              } else {
+                throw Exception("Unknown table ${data.table.toString()}");
+              }
+            }))
+          .write(data.companion);
     } else {
       return into(data.table).insert(data.companion);
     }
