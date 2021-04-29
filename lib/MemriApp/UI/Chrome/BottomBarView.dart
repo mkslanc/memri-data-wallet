@@ -24,51 +24,58 @@ class BottomBarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      // Divider(),
-      Padding(
+      Divider(
+        height: 1,
+      ),
+      ColoredBox(
+        color: CVUColor.system("secondarySystemBackground"),
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
-          child: ColoredBox(
-              color: CVUColor.system("secondarySystemBackground"),
-              child: ValueListenableBuilder(
-                  valueListenable: viewContext.searchStringNotifier,
-                  builder: (BuildContext context, String? filter, Widget? child) => Row(
-                          children: space(4, [
-                        Row(
-                            children: space(4, [
-                          TextButton(
-                            onPressed: onSearchPressed,
-                            child: Padding(
-                                padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
-                                child: ClipRect(
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 7),
-                                        child: Icon(Icons.search),
-                                      ),
-                                      if (filter != null) Text(filter)
-                                      //TODO style
-                                    ],
-                                  ),
-                                )),
-                          ),
-                          if (filter != null)
-                            TextButton(
-                                onPressed: () => viewContext.searchString = null,
-                                child: Icon(Icons.clear))
-                          //TODO style
-                        ])),
-                        Spacer(),
-                        Padding(
-                          padding: EdgeInsets.all(10),
-                          child: ClipRect(
-                            child: TextButton(
-                              onPressed: onFilterButtonPressed,
-                              child: Icon(Icons.filter_list),
+          child: ValueListenableBuilder(
+              valueListenable: viewContext.searchStringNotifier,
+              builder: (BuildContext context, String? filter, Widget? child) => Row(
+                      children: space(4, [
+                    Row(
+                        children: space(4, [
+                      TextButton(
+                        style: TextButton.styleFrom(padding: EdgeInsets.fromLTRB(10, 10, 0, 10)),
+                        onPressed: onSearchPressed,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: 7),
+                              child: Icon(Icons.search),
                             ),
+                            if (filter != null)
+                              Text(
+                                filter,
+                                style: TextStyle(fontSize: 12, color: CVUColor.system("label")),
+                              )
+                          ],
+                        ),
+                      ),
+                      if (filter != null)
+                        IconButton(
+                          onPressed: () => viewContext.searchString = null,
+                          icon: Icon(
+                            Icons.clear,
+                            size: 12,
                           ),
                         )
-                      ])))))
+                    ])),
+                    Spacer(),
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: ClipRect(
+                        child: TextButton(
+                          onPressed: onFilterButtonPressed,
+                          child: Icon(Icons.filter_list),
+                        ),
+                      ),
+                    )
+                  ]))),
+        ),
+      )
     ]);
   }
 }

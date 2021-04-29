@@ -192,6 +192,7 @@ class NavigationLineView extends StatelessWidget {
         children: [
           Divider(
             color: Colors.black,
+            height: 1,
           )
         ],
       ),
