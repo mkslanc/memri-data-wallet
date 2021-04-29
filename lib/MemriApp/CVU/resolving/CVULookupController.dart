@@ -29,7 +29,8 @@ class CVULookupController {
       CVUExpressionNode? expression,
       CVUContext? context,
       dynamic? defaultValue,
-      DatabaseController? db}) async {
+      DatabaseController? db,
+      Type? additionalType}) async {
     switch (T) {
       case double:
         if (nodes != null) {
@@ -72,8 +73,8 @@ class CVULookupController {
           return await _resolveExpressionItemRecordArray(expression, context!, db!) as T?;
         }
         return await _resolveItemRecordArray(value!, context!, db!) as T?;
-      case Binding:
-        return await _resolveBinding(value!, context!, db!, defaultValue) as T?;
+      case FutureBinding:
+        return await _resolveBinding(value!, context!, db!, defaultValue, additionalType!) as T?;
       case LookupStep:
         return await _resolveLookupStep(nodes!, context!, db!) as T?;
       case PropertyDatabaseValue:
@@ -152,17 +153,17 @@ class CVULookupController {
     }
   }
 
-  Future<Binding<dynamic>?> _resolveBinding(
-      CVUValue value, CVUContext context, DatabaseController db, dynamic? defaultValue) async {
+  Future<FutureBinding?> _resolveBinding(CVUValue value, CVUContext context, DatabaseController db,
+      dynamic? defaultValue, Type type) async {
     if (value is CVUValueExpression) {
       var expression = value.value;
       if (expression is CVUExpressionNodeLookup) {
-        var nodes = expression.nodes;
+        List<CVULookupNode> nodes = []..addAll(expression.nodes);
         List? res = await _resolveToItemAndProperty(nodes, context, db);
         ItemRecord? item = res?[0];
         String? property = res?[1];
         if (res != null && item != null && property != null) {
-          return await item.propertyBinding(name: property, defaultValue: defaultValue);
+          return await item.propertyBinding(name: property, defaultValue: defaultValue, type: type);
         }
       }
       return null;
@@ -830,7 +831,7 @@ class CVULookupController {
   Future<List?> _resolveToItemAndProperty(
       List<CVULookupNode> nodes, CVUContext context, DatabaseController db) async {
     ItemRecord? currentItem;
-    if (currentItem == null || nodes.isEmpty) {
+    if (nodes.isEmpty) {
       return null;
     }
 
