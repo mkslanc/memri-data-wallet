@@ -67,7 +67,7 @@ class ItemRecord extends Equatable {
     var properties = await db.databasePool.itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(name), Variable(rowId)]);
     if (properties.length > 0) {
-      SchemaValueType? valueType = db.schema.types[this.type]?.propertyTypes[name]?.valueType;
+      SchemaValueType? valueType = db.schema.types[type]?.propertyTypes[name]?.valueType;
       return ItemPropertyRecord(
           itemRowID: properties[0].item,
           name: properties[0].name,
@@ -83,7 +83,7 @@ class ItemRecord extends Equatable {
     if (properties.length > 0) {
       return properties.map((property) {
         SchemaValueType? valueType =
-            db?.schema.types[this.type]?.propertyTypes[property.name]?.valueType;
+            db?.schema.types[type]?.propertyTypes[property.name]?.valueType;
         return ItemPropertyRecord(
             itemRowID: property.item,
             name: property.name,
@@ -95,15 +95,16 @@ class ItemRecord extends Equatable {
 
   Future<PropertyDatabaseValue?> propertyValue(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
-    var property = await this.property(name, db);
-    if (property == null) {
+    var itemPropertyRecord = await property(name, db);
+    if (itemPropertyRecord == null) {
       return null;
     }
-    return property.value(this.type, db.schema);
+    return itemPropertyRecord.value(type, db.schema);
   }
 
   save(Database db) async {
-    return await db.itemRecordSave(this);
+    var savedRowID = await db.itemRecordSave(this);
+    if (rowId == null) rowId = savedRowID;
   }
 
   setPropertyValue(String name, PropertyDatabaseValue? value, [DatabaseController? db]) async {
@@ -111,26 +112,26 @@ class ItemRecord extends Equatable {
 
     /// Mark the item as modified, and mark for syncing (unless already marked as a newly created item to be synced)
     dateModified = DateTime.now();
-    if (this.syncState != SyncState.create) {
-      this.syncState = SyncState.update;
+    if (syncState != SyncState.create) {
+      syncState = SyncState.update;
     }
 
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
-    await this.save(db.databasePool);
+    await save(db.databasePool);
 
     /// Create or update the property
-    var property = await this.property(name, db);
-    if (property != null) {
+    var itemPropertyRecord = await property(name, db);
+    if (itemPropertyRecord != null) {
       if (value != null) {
-        property.$value = value;
-        await property.save(db.databasePool);
+        itemPropertyRecord.$value = value;
+        await itemPropertyRecord.save(db.databasePool);
       } else {
-        await property.delete(db.databasePool);
+        await itemPropertyRecord.delete(db.databasePool);
       }
     } else if (value != null) {
-      property =
-          ItemPropertyRecord(itemUID: this.uid, itemRowID: this.rowId!, name: name, value: value);
-      await property.save(db.databasePool);
+      itemPropertyRecord =
+          ItemPropertyRecord(itemUID: uid, itemRowID: rowId!, name: name, value: value);
+      await itemPropertyRecord.save(db.databasePool);
     }
   }
 
@@ -193,7 +194,7 @@ class ItemRecord extends Equatable {
     try {
       var edge = await db.databasePool.edgeRecordSelect({"target": rowId, "name": name});
       if (edge != null) {
-        return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
+        return await ItemEdgeRecord.fromEdge(edge).owningItem(db);
       }
     } catch (e) {
       print(e);
