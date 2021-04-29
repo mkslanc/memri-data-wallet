@@ -18,6 +18,7 @@ import 'CVUElements/CVUShape.dart';
 import 'CVUElements/CVUStacks.dart';
 import 'CVUElements/CVUText.dart';
 import 'CVUElements/CVUTextField.dart';
+import 'CVUElements/CVUToggle.dart';
 import 'CVUUINodeResolver.dart';
 
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
@@ -46,8 +47,8 @@ class CVUElementView extends StatelessWidget {
         return CVUSmartText(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Textfield:
         return CVUTextField(nodeResolver: nodeResolver);
-      /*case CVUUIElementFamily.Toggle:
-      // return CVU_Toggle(nodeResolver: nodeResolver);*/
+      case CVUUIElementFamily.Toggle:
+        return CVUToggle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Button:
         return CVUButton(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Divider:
