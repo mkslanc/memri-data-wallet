@@ -217,21 +217,21 @@ class ItemRecord extends Equatable {
     }
   }
 
-  Future<Binding> propertyBinding(
+  Future<FutureBinding> propertyBinding(
       {required String name, dynamic? defaultValue, DatabaseController? db, Type? type}) async {
     db ??= AppController.shared.databaseController;
     switch (type) {
       case bool:
-        return Binding<Future<bool>>(
+        return FutureBinding<bool>(
             () async => (await propertyValue(name, db))?.asBool() ?? defaultValue,
             (newValue) async {
-          await setPropertyValue(name, PropertyDatabaseValueBool(await newValue), db);
+          await setPropertyValue(name, PropertyDatabaseValueBool(newValue), db);
         });
       default:
-        return Binding<Future<String>>(
+        return FutureBinding<String>(
             () async => (await propertyValue(name, db))?.asString() ?? defaultValue.toString(),
             (newValue) async {
-          await setPropertyValue(name, PropertyDatabaseValueString(await newValue), db);
+          await setPropertyValue(name, PropertyDatabaseValueString(newValue), db);
         });
     }
   }
