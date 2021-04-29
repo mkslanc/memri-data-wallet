@@ -146,7 +146,7 @@ class NavigationItemView extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
         child: Text(
-          item.name.capitalizingFirst,
+          item.name.capitalizingFirst(),
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white70),
         ),
       ),
