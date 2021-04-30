@@ -159,10 +159,6 @@ class Database extends _$Database {
   }
 
   Future<int> itemEdgeRecordSave(ItemEdgeRecord record) async {
-    if (record.selfUID == null && record.selfRowID == null) {
-      ItemRecord selfRecord = ItemRecord(type: "Edge");
-      record.selfRowID = await selfRecord.insert(this);
-    }
     return into(edges).insertOnConflictUpdate(await record.toCompanion(this));
   }
 
