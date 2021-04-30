@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/CalendarHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
 import 'CalendarRendererModel.dart';
@@ -107,70 +108,61 @@ class CalendarRendererView extends StatelessWidget {
     days.addAll(List.generate(6, (index) => null));
     days.addAll(calendarHelper.getPaddedDays(month));
     days.addAll(calendarHelper.getPaddedDaysEnd(month));
-    return days
-        .asMap()
-        .map((index, day) {
-          if (day != null && day is DateTime) {
-            return MapEntry(
-              index,
-              GestureDetector(
-                onTap: () {
-                  if (calcs.hasItemOnDay(day)) {
-                    CVUActionOpenView(
-                            viewName: "calendarDayView",
-                            renderer: "timeline",
-                            dateRange: calendarHelper.wholeDay(day))
-                        .execute(sceneController, viewContext.getCVUContext());
-                  } else {
-                    return;
-                  }
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Spacer(),
-                    Text(
-                      calendarHelper.dayString(day),
-                      style: TextStyle(
-                          color: calendarHelper.isToday(day)
-                              ? primaryColor
-                              : CVUColor.system("label")),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: SizedBox(
-                            width: 10,
-                            height: 10,
-                            child: Circle(
-                                color: calcs.itemsOnDay(day).isEmpty
-                                    ? CVUColor.system("clear")
-                                    : primaryColor),
-                          ),
-                        ),
-                        calcs.itemsOnDay(day).length > 1
-                            ? Text("x${calcs.itemsOnDay(day).length}")
-                            : Text("")
-                      ],
-                    ),
-                    Spacer(),
-                    Divider(
-                      height: 1,
-                    )
-                  ],
-                ),
-              ),
-            );
-          } else {
-            if (day is Widget) {
-              return MapEntry(index, day);
+    return days.mapIndexed((index, day) {
+      if (day != null && day is DateTime) {
+        return GestureDetector(
+          onTap: () {
+            if (calcs.hasItemOnDay(day)) {
+              CVUActionOpenView(
+                      viewName: "calendarDayView",
+                      renderer: "timeline",
+                      dateRange: calendarHelper.wholeDay(day))
+                  .execute(sceneController, viewContext.getCVUContext());
+            } else {
+              return;
             }
-            return MapEntry(index, Text(""));
-          }
-        })
-        .values
-        .toList();
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Spacer(),
+              Text(
+                calendarHelper.dayString(day),
+                style: TextStyle(
+                    color: calendarHelper.isToday(day) ? primaryColor : CVUColor.system("label")),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: SizedBox(
+                      width: 10,
+                      height: 10,
+                      child: Circle(
+                          color: calcs.itemsOnDay(day).isEmpty
+                              ? CVUColor.system("clear")
+                              : primaryColor),
+                    ),
+                  ),
+                  calcs.itemsOnDay(day).length > 1
+                      ? Text("x${calcs.itemsOnDay(day).length}")
+                      : Text("")
+                ],
+              ),
+              Spacer(),
+              Divider(
+                height: 1,
+              )
+            ],
+          ),
+        );
+      } else {
+        if (day is Widget) {
+          return day;
+        }
+        return Text("");
+      }
+    }).toList();
   }
 }

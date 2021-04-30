@@ -9,6 +9,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// The Label Annotation renderer
 /// This renderer can be used to annotate items with Labels
@@ -53,14 +54,10 @@ class _LabelAnnotationRendererViewState extends State<LabelAnnotationRendererVie
   Future<List<LabelOption>> get labelOptions async {
     var icons = (await labelOptionIcons).asMap();
     return (await viewContext.rendererDefinitionPropertyResolver.stringArray("labelOptions"))
-        .asMap()
-        .map((index, element) => MapEntry(
-            index,
-            LabelOption(
-                labelID: element,
-                text: element.titleCase(),
-                icon: Icon(MemriIcon.getByName(icons[index] ?? "tag")))))
-        .values
+        .mapIndexed((index, element) => LabelOption(
+            labelID: element,
+            text: element.titleCase(),
+            icon: Icon(MemriIcon.getByName(icons[index] ?? "tag"))))
         .toList();
   }
 

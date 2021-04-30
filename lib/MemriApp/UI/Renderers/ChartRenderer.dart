@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
 
@@ -237,15 +238,9 @@ class ChartRendererView extends StatelessWidget {
       lineBarsData: [lineChartData],
       showingTooltipIndicators: await showValueLabels
           ? spots
-              .asMap()
-              .map((i, el) {
-                return MapEntry(
-                    i,
-                    ShowingTooltipIndicators(i, [
-                      LineBarSpot(lineChartData, 0, lineChartData.spots[i]),
-                    ]));
-              })
-              .values
+              .mapIndexed((i, el) => ShowingTooltipIndicators(i, [
+                    LineBarSpot(lineChartData, 0, lineChartData.spots[i]),
+                  ]))
               .toList()
           : null,
       lineTouchData: LineTouchData(
