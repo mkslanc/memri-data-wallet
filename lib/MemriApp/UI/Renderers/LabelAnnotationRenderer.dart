@@ -98,7 +98,7 @@ class _LabelAnnotationRendererViewState extends State<LabelAnnotationRendererVie
     await annotationItem.setPropertyValue("labels", PropertyDatabaseValueString(labelsString));
 
     var edge = ItemEdgeRecord(
-        sourceUID: annotationItem.uid, name: "annotatedItem", targetUID: currItem.uid);
+        sourceRowID: annotationItem.rowId, name: "annotatedItem", targetRowID: currItem.rowId);
     edge.save();
 
     moveToNextItem();
