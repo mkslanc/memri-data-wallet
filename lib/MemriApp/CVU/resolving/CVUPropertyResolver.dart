@@ -183,30 +183,38 @@ class CVUPropertyResolver {
         property: propertyName, item: item, db: this.db);
   }
 
-  Future<Binding?> binding(String key, dynamic? defaultValue) async {
+  Future<FutureBinding<T>?> binding<T>(String key, dynamic? defaultValue) async {
     if (defaultValue.runtimeType == bool) {
-      return await _bindingWithBoolean(key, defaultValue ?? false);
+      return await _bindingWithBoolean(key, defaultValue ?? false) as FutureBinding<T>?;
     } else {
-      return await _bindingWithString(key, defaultValue);
+      return await _bindingWithString(key, defaultValue) as FutureBinding<T>?;
     }
   }
 
-  Future<Binding<bool>?> _bindingWithBoolean(String key, [bool defaultValue = false]) async {
+  Future<FutureBinding<bool>?> _bindingWithBoolean(String key, [bool defaultValue = false]) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
-    return await lookup.resolve<Binding<bool>>(
-        value: val, defaultValue: defaultValue, context: this.context, db: this.db);
+    return await lookup.resolve<FutureBinding>(
+        value: val,
+        defaultValue: defaultValue,
+        context: this.context,
+        db: this.db,
+        additionalType: bool) as FutureBinding<bool>?;
   }
 
-  Future<Binding<String>?> _bindingWithString(String key, String? defaultValue) async {
+  Future<FutureBinding<String>?> _bindingWithString(String key, String? defaultValue) async {
     var val = this.value(key);
     if (val == null) {
       return null;
     }
-    return await lookup.resolve<Binding<String>>(
-        value: val, defaultValue: defaultValue, context: this.context, db: this.db);
+    return await lookup.resolve<FutureBinding>(
+        value: val,
+        defaultValue: defaultValue,
+        context: this.context,
+        db: this.db,
+        additionalType: String) as FutureBinding<String>?;
   }
 
   CVUAction? action(String key) {

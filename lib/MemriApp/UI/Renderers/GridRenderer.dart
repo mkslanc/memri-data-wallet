@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import '../ViewContextController.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
@@ -38,19 +39,13 @@ class _GridRendererViewState extends State<GridRendererView> {
                   mainAxisSpacing: 5,
                   crossAxisCount: 3,
                   children: viewContext.items
-                      .asMap()
-                      .map<int, Widget>((index, item) {
-                        return MapEntry(
-                            index,
-                            GestureDetector(
-                              onTap: selectionMode(index),
-                              child: Container(
-                                alignment: Alignment.bottomRight,
-                                child: viewContext.render(item),
-                              ),
-                            ));
-                      })
-                      .values
+                      .mapIndexed((index, item) => GestureDetector(
+                            onTap: selectionMode(index),
+                            child: Container(
+                              alignment: Alignment.bottomRight,
+                              child: viewContext.render(item),
+                            ),
+                          ))
                       .toList(),
                 ))
               : Row(

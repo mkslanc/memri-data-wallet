@@ -70,6 +70,13 @@ class CVUColor {
 
   static Color hex(String value) {
     final buffer = StringBuffer();
+    if (value.length == 3) {
+      var newValue = "";
+      for (var i = 0; i < value.length; i++) {
+        newValue += value[i] * 2;
+      }
+      value = newValue;
+    }
     if (value.length == 6 || value.length == 7) buffer.write('ff');
     buffer.write(value.replaceFirst('#', ''));
     return Color(int.parse(buffer.toString(), radix: 16));
