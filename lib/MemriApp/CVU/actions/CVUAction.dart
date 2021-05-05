@@ -47,6 +47,8 @@ CVUAction Function({Map? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionToggleFilterPanel(vars: vars);
     case "star":
       return ({Map? vars}) => CVUActionStar(vars: vars);
+    case "showstarred":
+      return ({Map? vars}) => CVUActionShowStarred(vars: vars);
     case "showcontextpane":
       return ({Map? vars}) => CVUActionShowContextPane(vars: vars);
     case "shownavigation":
@@ -491,8 +493,7 @@ class CVUActionToggleFilterPanel extends CVUAction {
 
   @override
   void execute(SceneController sceneController, CVUContext context) async {
-    sceneController.filterPanelIsVisible =
-        ValueNotifier(!sceneController.filterPanelIsVisible.value);
+    sceneController.filterPanelIsVisible.value = !sceneController.filterPanelIsVisible.value;
   }
 }
 
