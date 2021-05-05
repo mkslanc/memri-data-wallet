@@ -136,6 +136,10 @@ abstract class PropertyDatabaseValue {
     return value is double ? value : double.tryParse(value.toString());
   }
 
+  int? asInt() {
+    return int.tryParse(value);
+  }
+
   bool? asBool() {
     return (value == null || ["0", "", "false"].contains(value.toString()))
         ? false

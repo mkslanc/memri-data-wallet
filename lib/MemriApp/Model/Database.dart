@@ -162,6 +162,11 @@ class Database extends _$Database {
     return into(edges).insertOnConflictUpdate(await record.toCompanion(this));
   }
 
+  Future<int> itemEdgeRecordDelete(ItemEdgeRecord record) async {
+    await (delete(items)..where((tbl) => tbl.rowId.equals(record.selfRowID))).go();
+    return (delete(edges)..where((tbl) => tbl.self.equals(record.selfRowID))).go();
+  }
+
   Future<Edge?> edgeRecordSelect(Map<String, dynamic> properties) async {
     return await customSelect(
         "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"} LIMIT 1",
