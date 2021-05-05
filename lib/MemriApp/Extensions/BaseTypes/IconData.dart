@@ -21,6 +21,7 @@ extension MemriIcon on IconData {
       case 'bubble.left.fill':
         return Icons.chat_bubble;
       case 'square.and.pencil':
+      case 'pencil':
         return Icons.edit;
       case 'star.fill':
         return Icons.star;
