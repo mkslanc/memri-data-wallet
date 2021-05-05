@@ -18,6 +18,7 @@ import 'CVUElements/CVUShape.dart';
 import 'CVUElements/CVUStacks.dart';
 import 'CVUElements/CVUText.dart';
 import 'CVUElements/CVUTextField.dart';
+import 'CVUElements/CVUTimelineItem.dart';
 import 'CVUElements/CVUToggle.dart';
 import 'CVUUINodeResolver.dart';
 
@@ -65,9 +66,9 @@ class CVUElementView extends StatelessWidget {
         return CVUShapeRectangle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.HTMLView:
         return CVUHTMLView(nodeResolver: nodeResolver);
-      /* case CVUUIElementFamily.TimelineItem:
-      // return CVU_TimelineItem(nodeResolver: nodeResolver);
-      case CVUUIElementFamily.FileThumbnail:
+      case CVUUIElementFamily.TimelineItem:
+        return CVUTimelineItem(nodeResolver: nodeResolver);
+      /*case CVUUIElementFamily.FileThumbnail:
       // return CVU_FileThumbnail(nodeResolver: nodeResolver);*/
       case CVUUIElementFamily.Spacer:
         return Spacer();
