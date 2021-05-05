@@ -96,12 +96,14 @@ class CalendarHelper {
     return dateA.isSame(Jiffy(), Units.DAY);
   }
 
-  /*/// Returns true if the given date has the same DateComponents as NOW.
-    /// Eg. to check if in same year and month
-    isSameAsNow(DateTime date, byComponents: Set<Calendar.Component>) -> Bool {
-        let components = calendar.dateComponents(byComponents, from: date)
-        return calendar.date(Date(), matchesComponents: components)
-    }*/
+  /// Returns true if the given date has the same DateComponents as NOW.
+  /// Eg. to check if in same year and month
+  bool isSameAsNow(DateTime date, List<Units> units) {
+    var dateA = dateByUnits(date, units);
+    var now = dateByUnits(DateTime.now(), units);
+
+    return dateA == now;
+  }
 
   String dayString(DateTime date) {
     var dateA = Jiffy(date);
@@ -172,5 +174,12 @@ class CalendarHelper {
   Jiffy endOfYear(DateTime date) {
     var dateA = Jiffy(date);
     return dateA.endOf(Units.YEAR);
+  }
+
+  //Returns a date created from the specified Units //TODO maybe there is a better solution
+  DateTime dateByUnits(DateTime date, List<Units> units) {
+    //TODO week is not working
+    return DateTime(date.year, units.contains(Units.MONTH) ? date.month : 1,
+        units.contains(Units.DAY) ? date.day : 1, units.contains(Units.HOUR) ? date.hour : 0);
   }
 }
