@@ -64,13 +64,6 @@ class CVULookupController {
         } else if (expression != null) {
           return await _resolveExpressionItemRecord(expression, context!, db!) as T?;
         }
-        if (additionalType == CVUValue) {
-          return await _resolveCVUValueArray(value!, context!, db!) as T?;
-        } else if (additionalType == CVUConstant) {
-          return await _resolveCVUConstantArray(value!, context!, db!) as T?;
-        } else if (additionalType == Map) {
-          return await _resolveArrayOfCVUConstantMap(value!, context!, db!) as T?;
-        }
         return await _resolveItemRecord(value!, context!, db!) as T?;
       case List: //TODO this wouldn't work @anijanyan
         if (edge != null) {
@@ -79,6 +72,13 @@ class CVULookupController {
           return await _resolveNodesItemRecordArray(nodes, context!, db!) as T?;
         } else if (expression != null) {
           return await _resolveExpressionItemRecordArray(expression, context!, db!) as T?;
+        }
+        if (additionalType == CVUValue) {
+          return await _resolveCVUValueArray(value!, context!, db!) as T?;
+        } else if (additionalType == CVUConstant) {
+          return await _resolveCVUConstantArray(value!, context!, db!) as T?;
+        } else if (additionalType == Map) {
+          return await _resolveArrayOfCVUConstantMap(value!, context!, db!) as T?;
         }
         return await _resolveItemRecordArray(value!, context!, db!) as T?;
       case FutureBinding:
