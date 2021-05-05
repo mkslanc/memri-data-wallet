@@ -53,10 +53,10 @@ class SceneController {
       return;
     }
 
-    isInEditMode = !isInEditMode;
+    isInEditMode.value = !isInEditMode.value;
 
     var currentArgs = viewArgs.args;
-    currentArgs["readOnly"] = CVUValueConstant(CVUConstantBool(!isInEditMode));
+    currentArgs["readOnly"] = CVUValueConstant(CVUConstantBool(!isInEditMode.value));
     var newArgs = CVUViewArguments(
         args: currentArgs,
         argumentItem: viewArgs.argumentItem,
@@ -68,7 +68,7 @@ class SceneController {
   bool isContentFullscreen = false;
 
   // @Published
-  bool isInEditMode = false;
+  ValueNotifier<bool> isInEditMode = ValueNotifier(false);
 
   ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
   ValueNotifier<bool> shouldUpdate =
