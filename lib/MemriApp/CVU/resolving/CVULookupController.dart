@@ -9,7 +9,8 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
-
+import 'package:memri/MemriApp/Extensions/BaseTypes/DateTime.dart';
+import 'package:moor/moor.dart';
 import 'CVUContext.dart';
 import 'CVUViewArguments.dart';
 
@@ -62,6 +63,13 @@ class CVULookupController {
           return await _resolveNodesItemRecord(nodes, context!, db!) as T?;
         } else if (expression != null) {
           return await _resolveExpressionItemRecord(expression, context!, db!) as T?;
+        }
+        if (additionalType == CVUValue) {
+          return await _resolveCVUValueArray(value!, context!, db!) as T?;
+        } else if (additionalType == CVUConstant) {
+          return await _resolveCVUConstantArray(value!, context!, db!) as T?;
+        } else if (additionalType == Map) {
+          return await _resolveArrayOfCVUConstantMap(value!, context!, db!) as T?;
         }
         return await _resolveItemRecord(value!, context!, db!) as T?;
       case List: //TODO this wouldn't work @anijanyan
@@ -146,10 +154,56 @@ class CVULookupController {
       return (itemRecord != null) ? [itemRecord] : [];
     } else if (value is CVUValueExpression) {
       CVUExpressionNode expression = value.value;
-      return (await resolve<List<ItemRecord>>(
-          expression: expression, context: context, db: db))!; //TODO List<ItemRecord>
+      return (await resolve<List>(
+          expression: expression,
+          context: context,
+          db: db,
+          additionalType: ItemRecord)) as List<ItemRecord>;
     } else {
       return [];
+    }
+  }
+
+  Future<List<CVUValue>> _resolveCVUValueArray(
+      CVUValue value, CVUContext context, DatabaseController db) async {
+    if (value is CVUValueArray) {
+      var values = value.value;
+      return values;
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Map<String, List<CVUConstant>>>> _resolveArrayOfCVUConstantMap(
+      CVUValue value, CVUContext context, DatabaseController db) async {
+    if (value is CVUValueArray) {
+      var values = value.value;
+      return (await Future.wait(values.map((el) async => Map.fromEntries((await Future.wait(
+                  (el.getSubdefinition()?.properties.entries.toList() ?? []).map((entry) async =>
+                      MapEntry(entry.key, await resolve<List<CVUConstant>>(value: entry.value)))))
+              .where((element) => element.value != null)))))
+          .whereType<Map<String, List<CVUConstant>>>()
+          .where((element) => element.isNotEmpty)
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<CVUConstant>?> _resolveCVUConstantArray(
+      CVUValue value, CVUContext context, DatabaseController db) async {
+    if (value is CVUValueConstant) {
+      var constant = value.value;
+      return [constant];
+    } else if (value is CVUValueArray) {
+      var values = value.value;
+      return (await Future.wait(values.map((element) async =>
+              (await resolve<List>(value: element, additionalType: CVUConstant) ?? [])
+                  as List<CVUConstant>)))
+          .expand((element) => element)
+          .toList();
+    } else {
+      return null;
     }
   }
 
@@ -350,6 +404,24 @@ class CVULookupController {
               return null;
             }
             break;
+          case "describechangelog":
+            if (currentValue is LookupStepItems) {
+              if (currentValue.items.isEmpty) {
+                return null;
+              }
+              ItemRecord first = currentValue.items[0];
+              if (first.type == "Person") {
+                var dateCreated = first.dateCreated.formatted();
+                var timeSinceCreated = first.dateCreated.timeDelta;
+                return LookupStepValues([
+                  PropertyDatabaseValueString(
+                      "You created this ${first.type} $dateCreated over the past ${timeSinceCreated ?? ""})")
+                ]);
+              } else {
+                return null;
+              }
+            }
+            return null;
           default:
             return null;
         }
@@ -488,6 +560,8 @@ class CVULookupController {
             return LookupStepValues(items
                 .map((element) => PropertyDatabaseValueDatetime(element.dateCreated))
                 .toList());
+          case "label":
+            return LookupStepItems(await items.asMap()[0]?.edgeItems("label") ?? []);
           default:
             break;
         }
@@ -648,6 +722,33 @@ class CVULookupController {
       return (await resolve<List<ItemRecord>>(
               expression: expression.lhs, context: context, db: db))! +
           (await resolve<List<ItemRecord>>(expression: expression.rhs, context: context, db: db))!;
+    } else if (expression is CVUExpressionNodeOr) {
+      var resolvedA =
+          (await resolve<List<ItemRecord>>(expression: expression.lhs, context: context, db: db))!;
+      return resolvedA.length > 0
+          ? resolvedA
+          : (await resolve<List<ItemRecord>>(
+              expression: expression.rhs, context: context, db: db))!;
+    } else if (expression is CVUExpressionNodeStringMode) {
+      var first = expression.nodes.asMap()[0];
+      var last = expression.nodes.asMap()[expression.nodes.length - 1];
+      if (first is CVUExpressionNodeConstant && last is CVUExpressionNodeLookup) {
+        var query = first.value;
+        var lookupNodes = last.nodes;
+        List? res = await _resolveToItemAndProperty(lookupNodes, context, db);
+        ItemRecord? item = res?[0];
+        String? property = res?[1];
+        if (item != null && property != null) {
+          var value = property == "uid"
+              ? PropertyDatabaseValue.createFromDBValue(Value(item.uid), SchemaValueType.string)
+              : await resolve<PropertyDatabaseValue>(property: property, item: item, db: db);
+          if (value != null && value is PropertyDatabaseValueString) {
+            var valueString = value.value;
+            return await db.search("${query.asString()} $valueString");
+          }
+        }
+      }
+      return [];
     } else {
       return [];
     }

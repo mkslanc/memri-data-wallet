@@ -14,6 +14,7 @@ import 'package:memri/MemriApp/CVU/parsing/CVUParser.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 
@@ -54,11 +55,16 @@ class CVUController {
   }
 
   CVUParsedDefinition? _definitionFor(
-      {required CVUDefinitionType type, String? selector, String? viewName, String? rendererName}) {
+      {required CVUDefinitionType type,
+      String? selector,
+      String? viewName,
+      String? rendererName,
+      bool exactSelector = false}) {
     return CVUController._definitionFrom(
         definitions: definitions,
         type: type,
         selector: selector,
+        exactSelector: exactSelector,
         viewName: viewName,
         rendererName: rendererName);
   }
@@ -67,6 +73,18 @@ class CVUController {
       {required String viewName, CVUDefinitionContent? customDefinition}) {
     var definition = _definitionFor(type: CVUDefinitionType.view, viewName: viewName)?.parsed;
     return definition?.merge(customDefinition) ?? customDefinition;
+  }
+
+  CVUDefinitionContent? viewDefinitionForItemRecord({ItemRecord? itemRecord}) {
+    var definition =
+        _definitionFor(type: CVUDefinitionType.view, selector: itemRecord?.type)?.parsed;
+    return definition;
+  }
+
+  CVUDefinitionContent? edgeDefinitionFor(ItemRecord itemRecord) {
+    var definition =
+        _definitionFor(type: CVUDefinitionType.view, selector: "${itemRecord.type}[]")?.parsed;
+    return definition;
   }
 
   CVUParsedDefinition? rendererDefinitionFor(CVUContext context) {
@@ -84,6 +102,38 @@ class CVUController {
     } else {
       return specificDefinition;
     }
+  }
+
+  CVUDefinitionContent? rendererDefinitionForSelector({String? selector, String? viewName}) {
+    var definition =
+        _definitionFor(type: CVUDefinitionType.renderer, selector: selector, viewName: viewName)
+            ?.parsed;
+    return definition;
+  }
+
+  CVUDefinitionContent? defaultViewDefinitionFor(CVUContext context) {
+    var currentItem = context.currentItem;
+    if (currentItem == null) {
+      return null;
+    }
+
+    for (var selector in ["${currentItem.type}[]", "*[]"]) {
+      var globalDefinition =
+          _definitionFor(type: CVUDefinitionType.view, selector: selector)?.parsed;
+      if (globalDefinition != null) {
+        if (globalDefinition.children.length > 0) {
+          return globalDefinition;
+        }
+        var rendererDefinition = globalDefinition.definitions
+            .where((el) => el.name == context.rendererName && el.parsed.children.length > 0)
+            .toList()
+            .asMap()[0];
+        if (rendererDefinition != null) {
+          return rendererDefinition.parsed;
+        }
+      }
+    }
+    return null;
   }
 
   CVUDefinitionContent? nodeDefinitionFor(CVUContext context) {
@@ -111,6 +161,7 @@ class CVUController {
       {required List<CVUParsedDefinition> definitions,
       required CVUDefinitionType type,
       String? selector,
+      bool exactSelector = false,
       String? viewName,
       String? rendererName}) {
     var relevantDefinitions = definitions.where((def) {
@@ -135,7 +186,10 @@ class CVUController {
 
       // with matching selector or wildcard selector
       if (selector != null) {
-        if (def.selector?.toLowerCase() != selector.toLowerCase()) {
+        if (def.selector?.toLowerCase() == selector.toLowerCase() ||
+            (!exactSelector && (def.selector == "*" || def.selector == null))) {
+          return true;
+        } else {
           return false;
         }
       }
@@ -154,7 +208,6 @@ class CVUController {
     if (relevantDefinitions.isEmpty) {
       return null;
     }
-    // var firstDefinition = relevantDefinitions.first;//TODO check if reduce works @anijanyan
 
     var mergedDefinition = relevantDefinitions.reduce((old, latest) {
       return old.merge(latest);
@@ -164,6 +217,7 @@ class CVUController {
 
   Widget render(
       {required CVUContext cvuContext,
+      required CVUDefinitionContent? nodeDefinition,
       required CVULookupController lookup,
       required DatabaseController db,
       required bool blankIfNoDefinition}) {
@@ -172,6 +226,16 @@ class CVUController {
     if (node != null) {
       return CVUElementView(
           nodeResolver: CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node, db: db));
+    } else if (nodeDefinitionFor(cvuContext)?.children.first != null) {
+      node = nodeDefinitionFor(cvuContext)?.children.asMap()[0];
+      return CVUElementView(
+          nodeResolver:
+              CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db));
+    } else if (defaultViewDefinitionFor(cvuContext)?.children.first != null) {
+      node = defaultViewDefinitionFor(cvuContext)?.children.asMap()[0];
+      return CVUElementView(
+          nodeResolver:
+              CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db));
     } else if (!blankIfNoDefinition && cvuContext.currentItem?.type != null) {
       var type = cvuContext.currentItem!.type;
       return Text("No definition for displaying a `$type` in this context",

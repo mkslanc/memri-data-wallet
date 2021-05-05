@@ -217,6 +217,58 @@ class CVUPropertyResolver {
         additionalType: String) as FutureBinding<String>?;
   }
 
+  List<CVUAction>? actions(String key) {
+    var val = this.value(key);
+    if (val == null) {
+      return null;
+    }
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantArgument) {
+        String actionName = (val.value as CVUConstantArgument).value;
+        var type = cvuAction(actionName);
+        if (type == null) {
+          return null;
+        }
+        return [type(vars: {})];
+      }
+    }
+    if (val is CVUValueArray) {
+      var array = val.value;
+      List<CVUAction> actions = [];
+      for (var i = 0; i < array.length; i += 2) {
+        var action = array[i];
+        if (action is CVUValueConstant) {
+          if (action.value is CVUConstantArgument) {
+            Map<String, CVUValue> vars = {};
+            var def = array[i + 1];
+            if (def is CVUValueSubdefinition) {
+              var keys = def.value.properties.keys;
+              for (var key in keys) {
+                var value = context.viewArguments?.args[key] ??
+                    context.viewArguments?.parentArguments?.args[key] ??
+                    def.value.properties[key];
+                if (value != null) {
+                  vars[key] = value;
+                }
+              }
+            }
+            var type = cvuAction((action.value as CVUConstantArgument).value);
+            if (type == null) {
+              continue;
+            }
+            actions.add(type(vars: vars));
+          } else {
+            continue;
+          }
+        } else {
+          continue;
+        }
+      }
+      return actions;
+    }
+    return null;
+  }
+
   CVUAction? action(String key) {
     var val = value(key);
     if (val == null) {
