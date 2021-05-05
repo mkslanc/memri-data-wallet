@@ -12,6 +12,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 
 import 'CVUElementView.dart';
 
@@ -34,6 +35,21 @@ class CVUUINodeResolver {
     return node.children.map((child) {
       Widget widget = CVUElementView(
         nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+      );
+      if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
+          (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
+        widget = Expanded(child: widget);
+      }
+      return widget;
+    }).toList();
+  }
+
+  List<Widget> childrenInForEachUsingItem(ItemRecord item) {
+    var newContext = context;
+    newContext.currentItem = item;
+    return node.children.map((child) {
+      Widget widget = CVUElementView(
+        nodeResolver: CVUUINodeResolver(context: newContext, lookup: lookup, node: child, db: db),
       );
       if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
           (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
