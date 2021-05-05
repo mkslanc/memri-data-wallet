@@ -24,8 +24,14 @@ extension MemriIcon on IconData {
         return Icons.edit;
       case 'star.fill':
         return Icons.star;
+      case 'star':
+        return Icons.star_border;
       case "xmark.circle":
         return Icons.close;
+      case "plus":
+        return Icons.add;
+      case "rhombus.fill":
+        return Icons.filter_list;
       default:
         return Icons.contact_support_rounded;
     }
