@@ -8,47 +8,118 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
+import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/ViewContext.dart';
+import 'package:memri/MemriApp/UI/ViewContextController.dart';
 
 abstract class CVUAction {
   void execute(SceneController sceneController, CVUContext context);
+
+  Map<String, CVUValue> get defaultVars {
+    return {};
+  }
 }
 
 /// Used to look up the concrete type matching a CVU action name
 CVUAction Function({Map? vars})? cvuAction(String named) {
   //TODO fix this when when Dart fixes passing constructors as callables https://github.com/dart-lang/language/issues/216
   switch (named.toLowerCase()) {
-    case "openview":
-      return ({Map? vars}) => CVUActionOpenView(vars: vars);
     case "back":
-      return ({Map? vars}) => CVUActionNavigateBack(vars: vars);
-    case "forward":
       return ({Map? vars}) => CVUActionNavigateBack(vars: vars);
     case "additem":
       return ({Map? vars}) => CVUActionAddItem(vars: vars);
-    case "copytoclipboard":
-      return ({Map? vars}) => CVUActionCopyToClipboard(vars: vars);
+    case "openview":
+      return ({Map? vars}) => CVUActionOpenView(vars: vars);
     case "toggleeditmode":
       return ({Map? vars}) => CVUActionToggleEditMode(vars: vars);
     case "togglefilterpanel":
       return ({Map? vars}) => CVUActionToggleFilterPanel(vars: vars);
+    case "star":
+      return ({Map? vars}) => CVUActionStar(vars: vars);
+    case "showcontextpane":
+      return ({Map? vars}) => CVUActionShowContextPane(vars: vars);
+    case "shownavigation":
+      return ({Map? vars}) => CVUActionShowNavigation(vars: vars);
+    case "duplicate":
+      return ({Map? vars}) => CVUActionDuplicate(vars: vars);
+    case "schedule":
+      return ({Map? vars}) => CVUActionSchedule(vars: vars);
+    case "delete":
+      return ({Map? vars}) => CVUActionDelete(vars: vars);
+    case "showsessionswitcher":
+      return ({Map? vars}) => CVUActionShowSessionSwitcher(vars: vars);
+    case "forward":
+      return ({Map? vars}) => CVUActionNavigateBack(vars: vars);
+    case "forwardtofront":
+      return ({Map? vars}) => CVUActionForwardToFront(vars: vars);
+    case "backassession":
+      return ({Map? vars}) => CVUActionBackAsSession(vars: vars);
+    case "opensession":
+      return ({Map? vars}) => CVUActionOpenSession(vars: vars);
+    case "opensessionbyname":
+      return ({Map? vars}) => CVUActionOpenSessionByName(vars: vars);
+    case "closepopup":
+      return ({Map? vars}) => CVUActionClosePopup(vars: vars);
+    case "link":
+      return ({Map? vars}) => CVUActionLink(vars: vars);
+    case "unlink":
+      return ({Map? vars}) => CVUActionUnlink(vars: vars);
+    case "multiaction":
+      return ({Map? vars}) => CVUActionMultiAction(vars: vars);
+    case "runindexer":
+      return ({Map? vars}) => CVUActionRunIndexer(vars: vars);
+    case "runimporter":
+      return ({Map? vars}) => CVUActionRunImporter(vars: vars);
+    case "setproperty":
+      return ({Map? vars}) => CVUActionSetProperty(vars: vars);
+    case "setsetting":
+      return ({Map? vars}) => CVUActionSetSetting(vars: vars);
+    case "copytoclipboard":
+      return ({Map? vars}) => CVUActionCopyToClipboard(vars: vars);
+    case "noop":
+      return ({Map? vars}) => CVUActionNoop(vars: vars);
     case "togglenavigation":
       return ({Map? vars}) => CVUActionToggleNavigation(vars: vars);
     case "togglefullscreen":
       return ({Map? vars}) => CVUActionToggleFullScreen(vars: vars);
-    case "delete":
-      return ({Map? vars}) => CVUActionDelete(vars: vars);
     case "selectall":
       return ({Map? vars}) => CVUActionSelectAll(vars: vars);
     case "deselectall":
       return ({Map? vars}) => CVUActionDeselectAll(vars: vars);
     default:
       return null;
+  }
+}
+
+class CVUActionShowStarred extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  Map<String, CVUValue> get defaultVars {
+    return {"icon": CVUValueConstant(CVUConstantString("star.fill"))};
+  }
+
+  CVUActionShowStarred({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(SceneController sceneController, CVUContext context) {
+    Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
+    CVUActionOpenView(
+            vars: newVars,
+            viewName: "filter-starred",
+            renderer: context.rendererName,
+            viewDefinition: context.viewDefinition)
+        .execute(sceneController, context);
   }
 }
 
@@ -59,16 +130,20 @@ class CVUActionOpenView extends CVUAction {
   String? renderer;
   Set<String>? uids;
   DateTimeRange? dateRange;
+  CVUDefinitionContent? viewDefinition;
 
-  CVUActionOpenView({vars, this.viewName, this.renderer, this.uids, this.dateRange})
+  CVUActionOpenView(
+      {vars, this.viewName, this.renderer, this.uids, this.dateRange, this.viewDefinition})
       : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) async {
-    CVUDefinitionContent? viewDefinition;
-    var view = vars["view"];
-    if (view is CVUValueSubdefinition) {
-      viewDefinition = view.value;
+    var customDefinition = viewDefinition;
+    if (customDefinition == null) {
+      var view = vars["view"];
+      if (view is CVUValueSubdefinition) {
+        customDefinition = view.value;
+      }
     }
     CVUViewArguments viewArguments;
     var viewArgs = vars["viewArguments"];
@@ -91,8 +166,90 @@ class CVUActionOpenView extends CVUAction {
         targetItem: context.currentItem,
         overrideUIDs: uids,
         dateRange: dateRange,
-        customDefinition: viewDefinition,
+        customDefinition: customDefinition,
         viewArguments: viewArguments);
+  }
+}
+
+class CVUActionOpenViewByName extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  String? viewName;
+  String? renderer;
+  String? itemType;
+
+  CVUActionOpenViewByName({vars, this.viewName, this.renderer, this.itemType})
+      : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {}
+
+  Future<ViewContextController?> getViewContext(CVUContext context) async {
+    CVUDefinitionContent? customDefinition;
+    var view = vars["view"];
+    if (view is CVUValueSubdefinition) {
+      customDefinition = view.value;
+    }
+    CVUViewArguments viewArguments;
+    view = vars["viewArguments"];
+    if (view is CVUValueSubdefinition) {
+      viewArguments = CVUViewArguments(
+          args: view.value.properties,
+          argumentItem: context.currentItem,
+          parentArguments: context.viewArguments);
+    } else {
+      viewArguments = CVUViewArguments();
+    }
+
+    AppController appController = AppController.shared;
+    var db = appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var viewName = this.viewName ?? await resolver.string("viewName") ?? "customView";
+    var viewDefinition = appController.cvuController
+            .viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
+        CVUDefinitionContent();
+    var newContext = CVUContext(
+        currentItem: null,
+        selector: null,
+        viewName: viewName,
+        viewDefinition: viewDefinition,
+        viewArguments: viewArguments);
+
+    var defaultRenderer = "list";
+    var rendererName = await ((() async =>
+        await viewDefinition
+            .propertyResolver(
+                context: newContext,
+                lookup: CVULookupController(),
+                db: appController.databaseController)
+            .string("defaultRenderer") ??
+        defaultRenderer))();
+
+    var queryConfig = DatabaseQueryConfig();
+    if (itemType != null) {
+      queryConfig.itemTypes = [itemType!];
+    } else {
+      var query = viewArguments.args["query"];
+      if (query is CVUConstantString) {
+        queryConfig.itemTypes = [(query as CVUConstantString).value]; //TODO: check
+      }
+    }
+
+    var config = ViewContext(
+        viewName: viewName,
+        rendererName: rendererName,
+        viewDefinition: viewDefinition,
+        query: queryConfig,
+        viewArguments: viewArguments,
+        focusedItem: context.currentItem);
+    var holder = ViewContextHolder(config);
+    var newViewContext = ViewContextController(
+        config: holder,
+        databaseController: appController.databaseController,
+        cvuController: appController.cvuController);
+
+    return newViewContext;
   }
 }
 
@@ -133,17 +290,6 @@ class CVUActionToggleEditMode extends CVUAction {
   Map<String, CVUValue> vars;
 
   CVUActionToggleEditMode({vars}) : this.vars = vars ?? {};
-
-  @override
-  void execute(SceneController sceneController, CVUContext context) {
-    // TODO: implement execute
-  }
-}
-
-class CVUActionToggleFilterPanel extends CVUAction {
-  Map<String, CVUValue> vars;
-
-  CVUActionToggleFilterPanel({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
@@ -203,5 +349,325 @@ class CVUActionDeselectAll extends CVUAction {
   @override
   void execute(SceneController sceneController, CVUContext context) {
     // TODO: implement execute
+  }
+}
+
+class CVUActionLink extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionLink({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = sceneController.appController.databaseController;
+
+    var currentItem = context.currentItem;
+    var subjectVal = vars["subject"];
+    ItemRecord subjectItem = await lookup.resolve(value: subjectVal, context: context, db: db);
+    var edgeTypeVal = vars["edgeType"];
+    String? edgeType = await lookup.resolve(value: edgeTypeVal, context: context, db: db);
+    var distinctVal = vars["distinct"];
+    bool? unique = await lookup.resolve(value: distinctVal, context: context, db: db);
+    if (currentItem == null ||
+        subjectVal == null ||
+        edgeTypeVal == null ||
+        edgeType == null ||
+        distinctVal == null ||
+        unique == null) {
+      return;
+    }
+
+    if (unique) {
+      var edges = await subjectItem.edges(edgeType);
+      for (ItemEdgeRecord currentEdge in edges) {
+        if (currentEdge.name == edgeType) {
+          var result = await currentEdge.delete();
+          if (result != true) {
+            print(
+                "ERROR CVUAction_link: item: ${subjectItem.type} with id: ${subjectItem.rowId} edge id: ${currentEdge.selfRowID}");
+            return;
+          }
+        }
+      }
+    }
+
+    var edge = ItemEdgeRecord(
+        sourceRowID: subjectItem.rowId, name: edgeType, targetRowID: currentItem.rowId);
+    edge.save(db.databasePool);
+
+    //sceneController.scheduleUIUpdate() TODO:
+  }
+}
+
+class CVUActionUnlink extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionUnlink({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = sceneController.appController.databaseController;
+
+    var currentItem = context.currentItem;
+    var subjectVal = vars["subject"];
+    ItemRecord subjectItem = await lookup.resolve(value: subjectVal, context: context, db: db);
+    var edgeTypeVal = vars["edgeType"];
+    String? edgeType = await lookup.resolve(value: edgeTypeVal, context: context, db: db);
+    if (currentItem == null || subjectVal == null || edgeTypeVal == null || edgeType == null) {
+      return;
+    }
+
+    ItemEdgeRecord? edge;
+    var edges = await subjectItem.edges(edgeType);
+    for (ItemEdgeRecord currentEdge in edges) {
+      if (currentEdge.sourceRowID == subjectItem.rowId &&
+          currentEdge.targetRowID == currentItem.rowId &&
+          currentEdge.name == edgeType) {
+        edge = currentEdge;
+        break;
+      }
+    }
+
+    if (edge == null) {
+      return;
+    }
+
+    var result = await edge.delete();
+    if (result != true) {
+      print(
+          "ERROR CVUAction_Unlink: item: ${subjectItem.type} with id: ${subjectItem.rowId} edge id: ${edge.selfRowID}");
+      return;
+    }
+
+    //sceneController.scheduleUIUpdate()
+  }
+}
+
+class CVUActionStar extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionStar({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    var currentItem = context.currentItem;
+    if (currentItem == null) {
+      return;
+    }
+
+    var prop = "starred";
+    var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
+    try {
+      await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
+      //sceneController.scheduleUIUpdate();
+    } catch (error) {
+      print(
+          "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
+    }
+  }
+}
+
+class CVUActionClosePopup extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionClosePopup({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    sceneController.closeLastInStack();
+  }
+}
+
+class CVUActionToggleFilterPanel extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  Map<String, CVUValue> get defaultVars {
+    return {"icon": CVUValueConstant(CVUConstantString("rhombus.fill"))};
+  }
+
+  CVUActionToggleFilterPanel({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    sceneController.filterPanelIsVisible =
+        ValueNotifier(!sceneController.filterPanelIsVisible.value);
+  }
+}
+
+class CVUActionOpenGroup extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenGroup({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionShowContextPane extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionShowContextPane({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionShowNavigation extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionShowNavigation({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionDuplicate extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionDuplicate({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionSchedule extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionSchedule({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionShowSessionSwitcher extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionShowSessionSwitcher({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionForwardToFront extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionForwardToFront({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionBackAsSession extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionBackAsSession({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionOpenSession extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenSession({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionOpenSessionByName extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenSessionByName({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionMultiAction extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionMultiAction({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionRunIndexer extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionRunIndexer({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionRunImporter extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionRunImporter({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionSetProperty extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionSetProperty({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionSetSetting extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionSetSetting({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
+  }
+}
+
+class CVUActionNoop extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionNoop({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    // TODO:
   }
 }
