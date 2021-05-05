@@ -9,11 +9,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUGrid.dart';
 
+import 'CVUElements/CVUActionButton.dart';
 import 'CVUElements/CVUButton.dart';
+import 'CVUElements/CVUEditorRow.dart';
+import 'CVUElements/CVUFlowStack.dart';
 import 'CVUElements/CVUForEach.dart';
 import 'CVUElements/CVUHTMLView.dart';
 import 'CVUElements/CVUImage.dart';
+import 'CVUElements/CVUMemriButton.dart';
 import 'CVUElements/CVUShape.dart';
 import 'CVUElements/CVUStacks.dart';
 import 'CVUElements/CVUText.dart';
@@ -73,21 +78,22 @@ class CVUElementView extends StatelessWidget {
         return Spacer();
       case CVUUIElementFamily.Empty:
         return SizedBox.shrink();
-//        case CVUUIElementFamily.FlowStack:
-//            flowstack
+      case CVUUIElementFamily.FlowStack:
+        return CVUFlowStack(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.Grid:
+        return CVUGrid(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.EditorRow:
+        return CVUEditorRow(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.SubView:
+        return CVUEditorRow(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.MemriButton:
+        return CVUMemriButton(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.ActionButton:
+        return CVUActionButton(nodeResolver: nodeResolver);
 //        case CVUUIElementFamily.Picker:
 //            picker
 //        case CVUUIElementFamily.EditorSection:
 //            return CVU_EditorSection(nodeResolver: nodeResolver);
-//        case CVUUIElementFamily.EditorRow:
-//            return CVU_EditorRow(nodeResolver: nodeResolver);
-//        case CVUUIElementFamily.MemriButton:
-//            return CVU_MemriButton(nodeResolver: nodeResolver);
-//        case CVUUIElementFamily.ActionButton:
-//            ActionButton(
-//                action: nodeResolver.propertyResolver.resolve("press") ?? Action(context, "noop"),
-//                item: nodeResolver.propertyResolver.item
-//            )
       default:
         return Text("${nodeResolver.node.type} not implemented yet.");
     }
