@@ -15,11 +15,10 @@ class CVUTimelineItem extends StatelessWidget {
   late final String title;
   late final String? subtitle;
 
-  Future<bool> init() async {
+  Future init() async {
     icon = MemriIcon.getByName(await nodeResolver.propertyResolver.string("icon") ?? "arrow_right");
     title = await nodeResolver.propertyResolver.string("title") ?? "-";
     subtitle = await nodeResolver.propertyResolver.string("text");
-    return true;
   }
 
   @override
