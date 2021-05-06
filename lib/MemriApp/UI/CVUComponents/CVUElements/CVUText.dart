@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
-import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+
+import 'CVUTextPropertiesMofifier.dart';
 
 /// A CVU element for displaying text
 /// - Set the `text` property to the desired content
@@ -9,21 +10,16 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 /// - Set the `color` property to change text color
 class CVUText extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
-
-  late final CVUFont font;
+  final Future<TextProperties> textProperties;
+  late final TextProperties resolvedTextProperties;
   late final Color? color;
   late final String? content;
-  late final TextAlign textAlign;
-  late final int? lineLimit;
 
-  CVUText({required this.nodeResolver});
+  CVUText({required this.nodeResolver, required this.textProperties});
 
   init() async {
-    font = await nodeResolver.propertyResolver.font();
-    color = await nodeResolver.propertyResolver.color();
     content = (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
-    textAlign = await nodeResolver.propertyResolver.textAlignment();
-    lineLimit = await nodeResolver.propertyResolver.lineLimit;
+    resolvedTextProperties = await textProperties;
   }
 
   @override
@@ -34,14 +30,9 @@ class CVUText extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             return Text(
               content ?? "",
-              maxLines: lineLimit,
-              style: TextStyle(
-                fontSize: font.size,
-                fontWeight: font.weight,
-                fontStyle: font.italic ? FontStyle.italic : FontStyle.normal,
-                color: color,
-              ),
-              textAlign: textAlign,
+              maxLines: resolvedTextProperties.lineLimit,
+              style: resolvedTextProperties.textStyle,
+              textAlign: resolvedTextProperties.textAlign,
             );
           }
           return Text("");
@@ -56,15 +47,14 @@ class CVUText extends StatelessWidget {
 /// - Set the `color` property to change text color
 class CVUSmartText extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
-  late final CVUFont font;
-  late final Color? color;
+  final Future<TextProperties> textProperties;
+  late final TextProperties resolvedTextProperties;
   late final String? content;
 
-  CVUSmartText({required this.nodeResolver});
+  CVUSmartText({required this.nodeResolver, required this.textProperties});
 
   init() async {
-    font = await nodeResolver.propertyResolver.font();
-    color = await nodeResolver.propertyResolver.color();
+    resolvedTextProperties = await textProperties;
     content = (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
   }
 
@@ -74,7 +64,12 @@ class CVUSmartText extends StatelessWidget {
         future: init(),
         builder: (BuildContext builder, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Text(content ?? "");
+            return Text(
+              content ?? "",
+              style: resolvedTextProperties.textStyle,
+              textAlign: resolvedTextProperties.textAlign,
+              maxLines: resolvedTextProperties.lineLimit,
+            );
           } else {
             return SizedBox.shrink();
           }
