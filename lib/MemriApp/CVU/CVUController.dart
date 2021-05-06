@@ -221,7 +221,7 @@ class CVUController {
       required CVULookupController lookup,
       required DatabaseController db,
       required bool blankIfNoDefinition}) {
-    var nodeDefinition = nodeDefinitionFor(cvuContext);
+    nodeDefinition ??= nodeDefinitionFor(cvuContext);
     CVUUINode? node = nodeDefinition?.children.asMap()[0];
     if (node != null) {
       return CVUElementView(
