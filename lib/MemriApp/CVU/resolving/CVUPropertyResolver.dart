@@ -139,7 +139,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return [];
     }
-    return (await lookup.resolve<List<ItemRecord>>(value: val, context: context, db: db))!;
+    return (await lookup.resolve<List>(
+        value: val, context: context, db: db, additionalType: ItemRecord)) as List<ItemRecord>;
   }
 
   Future<ItemRecord?> edge(String key, String edgeName) async {

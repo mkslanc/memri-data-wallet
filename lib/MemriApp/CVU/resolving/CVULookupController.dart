@@ -65,7 +65,7 @@ class CVULookupController {
           return await _resolveExpressionItemRecord(expression, context!, db!) as T?;
         }
         return await _resolveItemRecord(value!, context!, db!) as T?;
-      case List: //TODO this wouldn't work @anijanyan
+      case List:
         if (edge != null) {
           return await _resolveEdgeItemRecordArray(edge, item!, db!) as T?;
         } else if (nodes != null) {
@@ -415,7 +415,7 @@ class CVULookupController {
                 var timeSinceCreated = first.dateCreated.timeDelta;
                 return LookupStepValues([
                   PropertyDatabaseValueString(
-                      "You created this ${first.type} $dateCreated over the past ${timeSinceCreated})")
+                      "You created this ${first.type} $dateCreated over the past $timeSinceCreated)")
                 ]);
               } else {
                 return null;
@@ -473,9 +473,12 @@ class CVULookupController {
               } else if (string != null) {
                 currentValue = LookupStepValues([PropertyDatabaseValueString(string)]);
               } else {
-                var items = await resolve<List<ItemRecord>>(
-                    expression: expression, context: context, db: db);
-                if (items!.isNotEmpty) {
+                var items = await resolve<List>(
+                    expression: expression,
+                    context: context,
+                    db: db,
+                    additionalType: ItemRecord) as List<ItemRecord>;
+                if (items.isNotEmpty) {
                   currentValue = LookupStepItems(items);
                 } else {
                   return null;
@@ -707,28 +710,51 @@ class CVULookupController {
   Future<List<ItemRecord>> _resolveExpressionItemRecordArray(
       CVUExpressionNode expression, CVUContext context, DatabaseController db) async {
     if (expression is CVUExpressionNodeLookup) {
-      return (await resolve<List<ItemRecord>>(nodes: expression.nodes, context: context, db: db))!;
+      return (await resolve<List>(
+          nodes: expression.nodes,
+          context: context,
+          db: db,
+          additionalType: ItemRecord)) as List<ItemRecord>;
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
           await resolve<bool>(expression: expression.condition, context: context, db: db) ?? false;
       if (conditionResolved) {
-        return (await resolve<List<ItemRecord>>(
-            expression: expression.trueExp, context: context, db: db))!;
+        return (await resolve<List>(
+            expression: expression.trueExp,
+            context: context,
+            db: db,
+            additionalType: ItemRecord)) as List<ItemRecord>;
       } else {
-        return (await resolve<List<ItemRecord>>(
-            expression: expression.falseExp, context: context, db: db))!;
+        return (await resolve<List>(
+            expression: expression.falseExp,
+            context: context,
+            db: db,
+            additionalType: ItemRecord)) as List<ItemRecord>;
       }
     } else if (expression is CVUExpressionNodeAnd) {
-      return (await resolve<List<ItemRecord>>(
-              expression: expression.lhs, context: context, db: db))! +
-          (await resolve<List<ItemRecord>>(expression: expression.rhs, context: context, db: db))!;
+      return ((await resolve<List>(
+              expression: expression.lhs,
+              context: context,
+              db: db,
+              additionalType: ItemRecord)) as List<ItemRecord>) +
+          ((await resolve<List>(
+              expression: expression.rhs,
+              context: context,
+              db: db,
+              additionalType: ItemRecord)) as List<ItemRecord>);
     } else if (expression is CVUExpressionNodeOr) {
-      var resolvedA =
-          (await resolve<List<ItemRecord>>(expression: expression.lhs, context: context, db: db))!;
+      var resolvedA = (await resolve<List>(
+          expression: expression.lhs,
+          context: context,
+          db: db,
+          additionalType: ItemRecord)) as List<ItemRecord>;
       return resolvedA.length > 0
           ? resolvedA
-          : (await resolve<List<ItemRecord>>(
-              expression: expression.rhs, context: context, db: db))!;
+          : (await resolve<List>(
+              expression: expression.rhs,
+              context: context,
+              db: db,
+              additionalType: ItemRecord)) as List<ItemRecord>;
     } else if (expression is CVUExpressionNodeStringMode) {
       var first = expression.nodes.asMap()[0];
       var last = expression.nodes.asMap()[expression.nodes.length - 1];
