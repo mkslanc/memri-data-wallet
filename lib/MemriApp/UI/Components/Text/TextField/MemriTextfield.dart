@@ -29,7 +29,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
     await widget.futureBinding?.get().then((newValue) => updateValue(newValue));
   }
 
-  late T _value;
+  T? _value;
 
   get value => _value;
 
@@ -66,7 +66,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       readOnly: !widget.isEditing,
       style: widget.style,
       decoration: InputDecoration(border: InputBorder.none),
-      controller: TextEditingController()..text = value, //TODO: need to change
+      controller: TextEditingController()..text = value ?? "", //TODO: need to change
       onChanged: (String newValue) async {
         value = newValue;
       },
@@ -94,7 +94,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       decoration: InputDecoration(border: InputBorder.none),
       controller: TextEditingController()..text = value.toString(), //TODO: need to change
       onChanged: (String newValue) async {
-        value = newValue;
+        value = double.tryParse(newValue);
       },
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
