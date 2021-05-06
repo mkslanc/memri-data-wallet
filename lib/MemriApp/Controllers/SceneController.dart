@@ -217,10 +217,10 @@ class SceneController {
     if (uidList.isNotEmpty) {
       queryConfig.itemUIDs = uidList;
     }
-    /*var sortProperty = await datasourceResolver?.string("sortProperty"); TODO
+    var sortProperty = await datasourceResolver?.string("sortProperty");
     if (sortProperty != null) {
       queryConfig.sortProperty = sortProperty;
-    }*/
+    }
     if (dateRange != null) {
       queryConfig.dateModifiedAfter = dateRange.start;
       queryConfig.dateModifiedBefore = dateRange.end;
