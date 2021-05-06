@@ -241,7 +241,7 @@ class GeneralEditorSection extends StatelessWidget {
   List<String> get fields {
     List<String> fields =
         (layout.get<List>(propName: "fields", additionalType: String) as List<String>?) ?? [];
-    if (fields == ["*"]) {
+    if (fields.isNotEmpty && fields[0] == "*") {
       fields = [];
       var propertyTypes =
           viewContext.databaseController.schema.types[item.type]?.propertyTypes ?? {};
@@ -341,18 +341,12 @@ class GeneralEditorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (layout.id.toLowerCase() == "other") {
-      return Text("other?");
-    }
-    if (action != null) {
-      return Text("action?");
-    }
     return FutureBuilder(
         future: init(),
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (isEmpty == true) {
-              return Text("empty?");
+              return Text("");
             } else {
               List<Widget> header = [];
               if (shouldShowTitle) {
@@ -398,7 +392,7 @@ class GeneralEditorSection extends StatelessWidget {
               return Wrap(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: header,
@@ -444,47 +438,6 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     return false;
   }
 
-  /*var body: some View {
-        return VStack(spacing: 0) {
-            let propType = property.valueType
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(prop
-                    .camelCaseToWords()
-                    .lowercased()
-                    .capitalizingFirst())
-                    .generalEditorLabel()
-
-                if let nodeDefinition = viewContext.cvuController.rendererDefinitionFor(viewName: viewContext.config.rendererName)?.properties[prop]?.getSubdefinition() {
-                    viewContext.render(item: item, nodeDefinition: nodeDefinition)
-                } else {
-                    switch propType {
-                    case .string:
-                        stringRow()
-                    case .bool:
-                        boolRow()
-                    case .datetime:
-                        dateRow()
-                    case .int:
-                        intRow()
-                    case .double:
-                        doubleRow()
-                    default:
-                        defaultRow()
-                    }
-                }
-            }
-            .fullWidth()
-            .padding(.bottom, 10)
-            .padding(.horizontal)
-            .background(Color(.systemBackground))
-
-            if !isLast {
-                Divider().padding(.leading, 35)
-            }
-        }
-    }*/
-
   @override
   Widget build(BuildContext context) {
     var propType = property.valueType;
@@ -501,9 +454,9 @@ class DefaultGeneralEditorRow extends StatelessWidget {
         case SchemaValueType.bool:
           currentWidget = boolRow();
           break;
-        /*case SchemaValueType.datetime:
-        currentWidget =dateRow();
-      break;*/
+        case SchemaValueType.datetime:
+          currentWidget = dateRow();
+          break;
         case SchemaValueType.int:
           currentWidget = intRow();
           break;
@@ -518,7 +471,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.fromLTRB(5, 0, 5, 10),
+          padding: EdgeInsets.fromLTRB(10, 0, 5, 10),
           color: CVUColor.system("systemBackground"),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,7 +481,10 @@ class DefaultGeneralEditorRow extends StatelessWidget {
               nodeDefinition != null
                   ? viewContext.render(item: item, nodeDefinition: nodeDefinition)
                   : currentWidget,
-              if (!isLast) Divider()
+              if (!isLast)
+                Divider(
+                  height: 1,
+                )
             ],
           ),
         )
@@ -540,8 +496,10 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     var binding = FutureBinding<String>(
         () async => (await currentItem.propertyValue(property.property))?.asString() ?? "",
         (value) => currentItem.setPropertyValue(prop, PropertyDatabaseValueString(value)));
-    return MemriTextField.async(futureBinding: binding);
-    //.generalEditorCaption()
+    return MemriTextField.async(
+        futureBinding: binding,
+        style: generalEditorCaptionStyle(),
+        isEditing: sceneController.isInEditMode.value);
   }
 
   Widget boolRow() {
@@ -566,12 +524,11 @@ class DefaultGeneralEditorRow extends StatelessWidget {
         () async => (await currentItem.propertyValue(property.property))?.asInt() ?? 0,
         (value) async => currentItem.setPropertyValue(prop, PropertyDatabaseValueInt(value)));
 
-    return MemriTextField.async(futureBinding: binding);
-    /*MemriTextField(value: binding,
-                              clearButtonMode: .whileEditing,
-                              isEditing: $sceneController.isInEditMode,
-                              isSharedEditingBinding: true)
-            .generalEditorCaption() */
+    return MemriTextField.async(
+      futureBinding: binding,
+      style: generalEditorCaptionStyle(),
+      isEditing: sceneController.isInEditMode.value,
+    );
   }
 
   Widget doubleRow() {
@@ -580,29 +537,33 @@ class DefaultGeneralEditorRow extends StatelessWidget {
         (value) async =>
             await currentItem.setPropertyValue(prop, PropertyDatabaseValueDouble(value)));
 
-    return MemriTextField.async(futureBinding: binding);
-    /* MemriTextField(value: binding,
-                              clearButtonMode: .whileEditing,
-                              isEditing: $sceneController.isInEditMode,
-                              isSharedEditingBinding: true)
-            .generalEditorCaption()*/
+    return MemriTextField.async(
+        futureBinding: binding,
+        style: generalEditorCaptionStyle(),
+        isEditing: sceneController.isInEditMode.value);
   }
 
-  /*Widget dateRow() {
-        let binding = Binding<Date>(
-            get: { return currentItem.propertyValue(property.property)?.asDate() ?? Date() },
-            set: {
-                try? currentItem.setPropertyValue(name: self.prop, value: .datetime($0))
-            }
-        )
+  Widget dateRow() {
+    var binding = FutureBinding<DateTime>(
+        () async =>
+            (await currentItem.propertyValue(property.property))?.asDate() ?? DateTime.now(),
+        (value) async =>
+            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));
 
-        DatePicker("", selection: binding, displayedComponents: .date)
-            .labelsHidden()
-    }*/
+    return Text("Place for DatePicker");
+  }
 
   Widget defaultRow([String? caption]) {
     return _GeneralEditorCaption(
         content: caption ?? prop.camelCaseToWords().toLowerCase().capitalizingFirst());
+  }
+
+  TextStyle generalEditorCaptionStyle() {
+    return TextStyle(
+      color: Color(0xFF223322),
+      fontWeight: FontWeight.normal,
+      fontSize: 18,
+    );
   }
 }
 

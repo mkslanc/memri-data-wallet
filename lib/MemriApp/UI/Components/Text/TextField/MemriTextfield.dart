@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 
 class MemriTextField<T> extends StatefulWidget {
   final Binding<T>? binding;
   final FutureBinding<T>? futureBinding;
+  final TextStyle? style;
+  final bool isEditing;
 
-  MemriTextField.sync({required this.binding}) : futureBinding = null;
+  MemriTextField.sync({required this.binding, this.style, this.isEditing = true})
+      : futureBinding = null;
 
-  MemriTextField.async({required this.futureBinding}) : binding = null;
+  MemriTextField.async({required this.futureBinding, this.style, this.isEditing = true})
+      : binding = null;
 
   @override
   _MemriTextFieldState<T> createState() => _MemriTextFieldState<T>();
@@ -24,7 +29,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
     await widget.futureBinding?.get().then((newValue) => updateValue(newValue));
   }
 
-  String _value = "";
+  late T _value;
 
   get value => _value;
 
@@ -45,17 +50,54 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   @override
   Widget build(BuildContext context) {
     //TODO: make it more flexible
+    switch (T) {
+      case int:
+        return intTextForm();
+      case double:
+        return doubleTextForm();
+      case String:
+      default:
+        return stringTextForm();
+    }
+  }
+
+  stringTextForm() {
     return TextFormField(
-      style: TextStyle(
-        color: Color(0xFF223322),
-        fontWeight: FontWeight.normal,
-        fontSize: 18,
-      ),
+      readOnly: !widget.isEditing,
+      style: widget.style,
       decoration: InputDecoration(border: InputBorder.none),
       controller: TextEditingController()..text = value, //TODO: need to change
       onChanged: (String newValue) async {
         value = newValue;
       },
+    );
+  }
+
+  intTextForm() {
+    return TextFormField(
+      readOnly: !widget.isEditing,
+      style: widget.style,
+      decoration: InputDecoration(border: InputBorder.none),
+      controller: TextEditingController()..text = value.toString(), //TODO: need to change
+      onChanged: (String newValue) async {
+        value = int.tryParse(newValue);
+      },
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+    );
+  }
+
+  doubleTextForm() {
+    return TextFormField(
+      readOnly: !widget.isEditing,
+      style: widget.style,
+      decoration: InputDecoration(border: InputBorder.none),
+      controller: TextEditingController()..text = value.toString(), //TODO: need to change
+      onChanged: (String newValue) async {
+        value = newValue;
+      },
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
     );
   }
 }
