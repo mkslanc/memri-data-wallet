@@ -125,6 +125,17 @@ class Database extends _$Database {
     }
   }
 
+  TableInfo getItemPropertyRecordTable(ItemRecordPropertyTable table) {
+    switch (table) {
+      case ItemRecordPropertyTable.integers:
+        return integers;
+      case ItemRecordPropertyTable.reals:
+        return reals;
+      case ItemRecordPropertyTable.strings:
+        return strings;
+    }
+  }
+
   Future<ItemPropertyRecordTableData> getItemPropertyRecordTableData(
       ItemPropertyRecord record) async {
     ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
@@ -190,7 +201,7 @@ class Database extends _$Database {
 }
 
 class ItemPropertyRecordTableData {
-  final table;
+  final TableInfo table;
   final UpdateCompanion companion;
 
   ItemPropertyRecordTableData({required this.table, required this.companion});
