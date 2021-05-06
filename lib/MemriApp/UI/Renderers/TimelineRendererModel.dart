@@ -147,7 +147,7 @@ class TimelineElement {
   TimelineElement(
       {required this.itemType, required this.index, required this.items, required this.date});
 
-  get isGroup => items[0] != items[items.length - 1];
+  get isGroup => items.length > 0 && items.first != items.last;
 }
 
 enum TimelineDetailLevel { year, month, week, day, hour }
