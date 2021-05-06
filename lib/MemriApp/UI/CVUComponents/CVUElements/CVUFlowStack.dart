@@ -26,14 +26,12 @@ class CVUFlowStack extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: init(),
-        builder: (BuildContext context, AsyncSnapshot<List<ItemRecord>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData) {
-              return FlowStack(
-                  data: snapshot.data!,
-                  spacing: spacing,
-                  content: (listItem) => nodeResolver.childrenInForEachUsingItem(listItem));
-            }
+            return FlowStack(
+                data: content,
+                spacing: spacing,
+                content: (listItem) => nodeResolver.childrenInForEachUsingItem(listItem));
           }
           return Text("");
         });
