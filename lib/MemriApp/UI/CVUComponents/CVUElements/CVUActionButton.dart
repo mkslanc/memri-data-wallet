@@ -25,7 +25,7 @@ class CVUActionButton extends StatelessWidget {
     if (_action == null) {
       return null;
     }
-    return action;
+    return _action;
   }
 
   onPress() {
