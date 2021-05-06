@@ -6,17 +6,23 @@ extension FormattedDate on DateTime {
     return DateTime.now().subtract(Duration(days: 7));
   }
 
-  int? get timeDelta {
+  int? get timeDeltaMilliseconds {
     return this.isAtSameMomentAs(DateTime.now())
         ? null
         : this.difference(DateTime.now()).inMilliseconds;
   }
 
+  String get timeDelta {
+    var duration = Duration(milliseconds: (this.timeDeltaMilliseconds?.abs() ?? 0));
+    return duration.toString();
+  }
+
   String? get timestampString {
-    var timeInt = timeDelta;
+    var timeInt = timeDeltaMilliseconds;
     if (timeInt == null) {
       return null;
     }
+    timeInt = timeInt.abs();
 
     //TODO: return formatted string like "1 days 2 hours ago" https://github.com/dart-lang/intl/issues/52
     return Jiffy.unix(timeInt).format();

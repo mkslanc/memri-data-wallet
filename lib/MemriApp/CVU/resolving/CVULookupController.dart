@@ -415,7 +415,7 @@ class CVULookupController {
                 var timeSinceCreated = first.dateCreated.timeDelta;
                 return LookupStepValues([
                   PropertyDatabaseValueString(
-                      "You created this ${first.type} $dateCreated over the past ${timeSinceCreated ?? ""})")
+                      "You created this ${first.type} $dateCreated over the past ${timeSinceCreated})")
                 ]);
               } else {
                 return null;
