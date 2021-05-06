@@ -13,7 +13,7 @@ extension StringExtension on String {
 
   String camelCaseToWords() {
     return this
-        .replaceAllMapped(RegExp(r'/([A-Z])/g'), (match) {
+        .replaceAllMapped(RegExp(r'([A-Z])'), (match) {
           return ' ${match.group(1)}';
         })
         .toLowerCase()
