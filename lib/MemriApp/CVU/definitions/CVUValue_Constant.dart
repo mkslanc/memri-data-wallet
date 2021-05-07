@@ -80,13 +80,10 @@ abstract class CVUConstant {
     if (cvuConstant is CVUConstantArgument) {
       return null;
     } else if (cvuConstant is CVUConstantNumber) {
-      // Number greater than zero = true
       return cvuConstant.value > 0;
-    } else if (cvuConstant is CVUConstantNumber) {
-      // Int greater than zero = true
+    } else if (cvuConstant is CVUConstantInt) {
       return cvuConstant.value > 0;
     } else if (cvuConstant is CVUConstantString) {
-      /// Non-empty string = true (unless string is 'false')
       return cvuConstant.value != "" && cvuConstant.value != "false";
     } else if (cvuConstant is CVUConstantBool) {
       return cvuConstant.value;
@@ -104,7 +101,7 @@ abstract class CVUConstant {
     if (cvuConstant is CVUConstantArgument) {
       return cvuConstant.value;
     } else if (cvuConstant is CVUConstantInt) {
-      return "${cvuConstant.value.toString()}";
+      return cvuConstant.value.toString();
     } else if (cvuConstant is CVUConstantNumber) {
       double n = cvuConstant.value;
       return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 2);

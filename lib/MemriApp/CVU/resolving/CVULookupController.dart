@@ -497,9 +497,8 @@ class CVULookupController {
         /// Check if this is an intrinsic property
         switch (node.name) {
           case "uid":
-            return LookupStepValues(items
-                .map((element) => PropertyDatabaseValueInt(element.rowId!))
-                .toList()); //TODO: maybe need to change
+            return LookupStepValues(
+                items.map((element) => PropertyDatabaseValueInt(element.rowId!)).toList());
           case "dateModified":
             return LookupStepValues(items
                 .map((element) => PropertyDatabaseValueDatetime(element.dateModified))
