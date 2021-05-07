@@ -12,8 +12,7 @@ extension FormattedDate on DateTime {
   }
 
   String get timeDelta {
-    var duration =
-        Duration(milliseconds: (this.timeDeltaMilliseconds?.abs() ?? 0));
+    var duration = Duration(milliseconds: (this.timeDeltaMilliseconds?.abs() ?? 0));
     return duration.toString();
   }
 

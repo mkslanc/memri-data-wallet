@@ -31,26 +31,12 @@ class CVUUINodeResolver {
     return Wrap(children: childrenInForEach());
   }
 
-  List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams}) {
-    return node.children.map((child) {
-      Widget widget = CVUElementView(
-        nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
-        additionalParams: additionalParams,
-      );
-      if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
-          (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
-        widget = Expanded(child: widget);
-      }
-      return widget;
-    }).toList();
-  }
-
-  List<Widget> childrenInForEachUsingItem(ItemRecord item) {
-    var newContext = context;
-    newContext.currentItem = item;
+  List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
+    var newContext = usingItem != null ? context.replacingItem(usingItem) : context;
     return node.children.map((child) {
       Widget widget = CVUElementView(
         nodeResolver: CVUUINodeResolver(context: newContext, lookup: lookup, node: child, db: db),
+        additionalParams: additionalParams,
       );
       if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
           (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
