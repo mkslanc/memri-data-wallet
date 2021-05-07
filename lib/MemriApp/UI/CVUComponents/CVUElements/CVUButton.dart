@@ -24,6 +24,6 @@ class CVUButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //TODO: buttonStyle
-    return ElevatedButton(onPressed: onPress, child: nodeResolver.childrenInForEachWithWrap());
+    return TextButton(onPressed: onPress, child: nodeResolver.childrenInForEachWithWrap());
   }
 }
