@@ -24,7 +24,7 @@ class CVUValueConstant extends CVUValue {
 }
 
 class CVUValueItem extends CVUValue {
-  final String value;
+  final int value;
 
   CVUValueItem(this.value);
 }
@@ -64,7 +64,7 @@ abstract class CVUValue implements CVUStringConvertible {
     } else if (cvuValue is CVUValueConstant) {
       return cvuValue.value.toCVUString();
     } else if (cvuValue is CVUValueItem) {
-      String uid = cvuValue.value;
+      int uid = cvuValue.value;
       return '{{item($uid)}}';
     } else if (cvuValue is CVUValueArray) {
       List<CVUValue> values = cvuValue.value;

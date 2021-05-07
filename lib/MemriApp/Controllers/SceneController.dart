@@ -162,7 +162,7 @@ class SceneController {
       String? overrideRenderer,
       String defaultRenderer = "list",
       ItemRecord? targetItem,
-      Set<String>? overrideUIDs,
+      Set<int>? overrideRowIDs,
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
       CVUViewArguments? viewArguments}) async {
@@ -191,13 +191,13 @@ class SceneController {
     var datasourceResolver = datasource?.parsed.propertyResolver(
         context: newContext, lookup: CVULookupController(), db: appController.databaseController);
 
-    var uidList = overrideUIDs ?? Set.of((await datasourceResolver?.stringArray("uids")) ?? []);
+    var rowIdList = overrideRowIDs ?? Set.of((await datasourceResolver?.intArray("uids")) ?? []);
 
     var filterDef = datasourceResolver?.subdefinition("filter");
     var edgeTargets = filterDef?.subdefinition("edgeTargets");
     var edgeTargetConditions =
         (await Future.wait((edgeTargets?.properties.keys.toList() ?? []).map((key) async {
-      var target = await edgeTargets!.string(key);
+      var target = await edgeTargets!.integer(key);
       if (target == null) {
         return null;
       }
@@ -214,13 +214,18 @@ class SceneController {
     if (itemTypes.isNotEmpty) {
       queryConfig.itemTypes = itemTypes;
     }
-    if (uidList.isNotEmpty) {
-      queryConfig.itemUIDs = uidList;
+    if (rowIdList.isNotEmpty) {
+      queryConfig.itemRowIDs = rowIdList;
     }
     var sortProperty = await datasourceResolver?.string("sortProperty");
     if (sortProperty != null) {
       queryConfig.sortProperty = sortProperty;
     }
+    var sortAscending = await datasourceResolver?.boolean("sortAscending");
+    if (sortAscending != null) {
+      queryConfig.sortAscending = sortAscending;
+    }
+
     if (dateRange != null) {
       queryConfig.dateModifiedAfter = dateRange.start;
       queryConfig.dateModifiedBefore = dateRange.end;

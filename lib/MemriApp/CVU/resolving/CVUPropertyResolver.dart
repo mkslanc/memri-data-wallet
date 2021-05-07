@@ -106,6 +106,13 @@ class CVUPropertyResolver {
         .toList();
   }
 
+  Future<List<int>> intArray(String key) async {
+    return (await Future.wait(valueArray(key).map((CVUValue element) async =>
+            await lookup.resolve<int>(value: element, context: this.context, db: this.db))))
+        .whereType<int>()
+        .toList();
+  }
+
   Future<bool?> boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) async {
     CVUValue? val = value(key);
     if (val == null) {

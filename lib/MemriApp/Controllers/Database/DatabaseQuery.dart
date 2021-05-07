@@ -12,8 +12,8 @@ class DatabaseQueryConfig extends ChangeNotifier {
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
 
-  /// A list of item UIDs to include. Default is Empty -> don't filter on UID
-  Set<String> itemUIDs; //TODO: we will need to refactor this to use rowIds
+  /// A list of item `rowid` to include. Default is Empty -> don't filter on `rowid`
+  Set<int> itemRowIDs;
 
   /// A property to sort the results by
   String? _sortProperty;
@@ -65,7 +65,7 @@ class DatabaseQueryConfig extends ChangeNotifier {
 
   DatabaseQueryConfig({
     this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
-    this.itemUIDs = const {},
+    this.itemRowIDs = const {},
     sortProperty = "dateModified",
     sortAscending = false,
     this.dateModifiedAfter,
@@ -84,7 +84,7 @@ class DatabaseQueryConfig extends ChangeNotifier {
     //TODO find better way to clone object
     return DatabaseQueryConfig(
       itemTypes: itemTypes,
-      itemUIDs: itemUIDs,
+      itemRowIDs: itemRowIDs,
       sortProperty: sortProperty,
       sortAscending: sortAscending,
       dateModifiedAfter: dateModifiedAfter,
@@ -99,7 +99,7 @@ class DatabaseQueryConfig extends ChangeNotifier {
     );
   }
 
-  _constructFilteredRequest([Set<int>? searchIDs]) async {
+  _constructFilteredRequest([Set<int>? searchRowIDs]) async {
     List<dynamic> intersection(List<List<dynamic>> arrays) {
       if (arrays.length == 0) {
         return [];
@@ -123,33 +123,29 @@ class DatabaseQueryConfig extends ChangeNotifier {
     }
 
     /// Filter to only include items matching the search term (AND if already filtered by UID, those that match both)
-    if (searchIDs != null) {
-      if (searchIDs.isEmpty) {
+    if (searchRowIDs != null) {
+      if (searchRowIDs.isEmpty) {
         return [];
       }
-      var itemUIDCondition;
-      if (itemUIDs.isNotEmpty) {
-        //TODO: reimplement this with rowIds
-        var items = await Future.wait(searchIDs
-            .map((id) async => await dbController.databasePool.itemRecordFetchWithRowId(id)));
-        var searchUIDs = items.map((item) => item.id).toSet();
-        itemUIDCondition = searchUIDs.intersection(itemUIDs).map((uid) {
-          queryBindings.add(Variable.withString(uid));
-          return "uid = ?";
+      var itemRowIDCondition;
+      if (itemRowIDs.isNotEmpty) {
+        itemRowIDCondition = searchRowIDs.intersection(itemRowIDs).map((rowid) {
+          queryBindings.add(Variable.withInt(rowid));
+          return "row_id = ?";
         });
       } else {
-        itemUIDCondition = searchIDs.map((rowId) {
+        itemRowIDCondition = searchRowIDs.map((rowId) {
           queryBindings.add(Variable.withInt(rowId));
           return "row_id = ?";
         });
       }
-      queryConditions.add("(" + itemUIDCondition.join(" OR ") + ")");
-    } else if (itemUIDs.isNotEmpty) {
-      var itemUIDCondition = itemUIDs.map((uid) {
-        queryBindings.add(Variable.withString(uid));
-        return "uid = ?";
+      queryConditions.add("(" + itemRowIDCondition.join(" OR ") + ")");
+    } else if (itemRowIDs.isNotEmpty) {
+      var itemRowIDCondition = itemRowIDs.map((rowId) {
+        queryBindings.add(Variable.withInt(rowId));
+        return "row_id = ?";
       });
-      queryConditions.add("(" + itemUIDCondition.join(" OR ") + ")");
+      queryConditions.add("(" + itemRowIDCondition.join(" OR ") + ")");
     }
 
     /// Filter by date ranges
@@ -321,7 +317,7 @@ class PropertyEquals {
 
 class EdgeHasTarget {
   String edgeName;
-  String target;
+  int target;
 
   EdgeHasTarget(this.edgeName, this.target);
 }
