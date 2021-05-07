@@ -28,24 +28,12 @@ class CVUFlowStack extends StatelessWidget {
         future: init(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return FlowStack(
+            return FlowStack<ItemRecord>(
                 data: content,
                 spacing: spacing,
-                content: (listItem) => nodeResolver.childrenInForEachUsingItem(listItem));
+                content: (listItem) => nodeResolver.childrenInForEach(usingItem: listItem));
           }
           return Text("");
         });
   }
-
-/*
-  var body: some View {
-        FlowStack(
-            data: self.content,
-            spacing: self.nodeResolver.propertyResolver.spacing ?? CGPoint.zero
-        ) { listItem in
-            return nodeResolver.childrenInForEach(usingItem: listItem)
-        }
-    }
-   */
-
 }
