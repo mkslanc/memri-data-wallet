@@ -44,11 +44,10 @@ class MemriButton extends StatelessWidget {
                     color: bgColor, borderRadius: BorderRadius.all(Radius.circular(20))),
                 child: Row(
                   children: [
-                    //TODO: Stack
                     Container(
                         padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
                         decoration: BoxDecoration(
-                            color: Color(0xafafaf),
+                            color: Color(0xffafafaf),
                             borderRadius: BorderRadius.all(Radius.circular(20))),
                         child: Text(
                           item?.type ?? "",
