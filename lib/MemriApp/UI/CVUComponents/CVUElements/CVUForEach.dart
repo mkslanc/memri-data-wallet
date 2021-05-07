@@ -46,7 +46,7 @@ class CVUForEach extends StatelessWidget {
 }
 
 abstract class StackWidget {
-  CVUUINodeResolver? nodeResolver;
+  late final CVUUINodeResolver? nodeResolver;
 
   Widget initWidget() {
     if (nodeResolver!.node.children[0].type == CVUUIElementFamily.ForEach) {
