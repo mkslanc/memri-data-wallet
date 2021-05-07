@@ -1,5 +1,4 @@
 import 'package:intl/intl.dart';
-import 'package:jiffy/jiffy.dart';
 
 extension FormattedDate on DateTime {
   static DateTime get oneWeekAgo {
@@ -13,7 +12,8 @@ extension FormattedDate on DateTime {
   }
 
   String get timeDelta {
-    var duration = Duration(milliseconds: (this.timeDeltaMilliseconds?.abs() ?? 0));
+    var duration =
+        Duration(milliseconds: (this.timeDeltaMilliseconds?.abs() ?? 0));
     return duration.toString();
   }
 
@@ -25,7 +25,7 @@ extension FormattedDate on DateTime {
     timeInt = timeInt.abs();
 
     //TODO: return formatted string like "1 days 2 hours ago" https://github.com/dart-lang/intl/issues/52
-    return Jiffy.unix(timeInt).format();
+    return timeInt.toString();
   }
 
   String formatted({String dateFormat = "yyyy/MM/dd HH:mm"}) {
