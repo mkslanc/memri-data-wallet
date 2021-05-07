@@ -31,10 +31,11 @@ class CVUUINodeResolver {
     return Wrap(children: childrenInForEach());
   }
 
-  List<Widget> childrenInForEach() {
+  List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams}) {
     return node.children.map((child) {
       Widget widget = CVUElementView(
         nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+        additionalParams: additionalParams,
       );
       if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
           (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {

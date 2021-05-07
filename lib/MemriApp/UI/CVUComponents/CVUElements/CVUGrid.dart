@@ -1,15 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 
 import '../CVUUINodeResolver.dart';
+import 'CVUForEach.dart';
 
-class CVUGrid extends StatelessWidget {
+class CVUGrid extends StatelessWidget with StackWidget {
   final CVUUINodeResolver nodeResolver;
+  late final List<ItemRecord> items;
 
   CVUGrid({required this.nodeResolver});
 
+  init() async {
+    items = await nodeResolver.propertyResolver.items("items");
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Expanded(child: Text("TODO"));
+    return FutureBuilder(
+        future: init(),
+        builder: (BuildContext builder, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (items.isNotEmpty) {
+              return initWidget();
+            }
+          }
+          return Text("");
+        });
+  }
+
+  @override
+  Widget getWidget(List<Widget> children) {
+    return GridView.count(
+        shrinkWrap: true,
+        physics: BouncingScrollPhysics(parent: BouncingScrollPhysics()),
+        crossAxisCount: 5,
+        scrollDirection: Axis.vertical,
+        children: children,
+        semanticChildCount: items.length);
   }
 
 /*var axis: GridAxis {

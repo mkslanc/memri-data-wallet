@@ -29,13 +29,14 @@ import 'CVUUINodeResolver.dart';
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
 class CVUElementView extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
+  final Map<String, dynamic>? additionalParams; //TODO not best solution
 
-  CVUElementView({required this.nodeResolver});
+  CVUElementView({required this.nodeResolver, this.additionalParams});
 
   Widget resolvedComponent() {
     switch (nodeResolver.node.type) {
       case CVUUIElementFamily.ForEach:
-        return CVUForEach(nodeResolver: nodeResolver);
+        return CVUForEach(nodeResolver: nodeResolver, getWidget: additionalParams!["getWidget"]);
       case CVUUIElementFamily.HStack:
         return CVUHStack(nodeResolver: nodeResolver);
       case CVUUIElementFamily.VStack:
