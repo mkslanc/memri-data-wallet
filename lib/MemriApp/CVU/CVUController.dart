@@ -226,13 +226,13 @@ class CVUController {
     if (node != null) {
       return CVUElementView(
           nodeResolver: CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node, db: db));
-    } else if (nodeDefinitionFor(cvuContext)?.children.first != null) {
-      node = nodeDefinitionFor(cvuContext)?.children.asMap()[0];
+    } else if ((nodeDefinitionFor(cvuContext)?.children ?? []).length > 0) {
+      node = nodeDefinitionFor(cvuContext)?.children.first;
       return CVUElementView(
           nodeResolver:
               CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db));
-    } else if (defaultViewDefinitionFor(cvuContext)?.children.first != null) {
-      node = defaultViewDefinitionFor(cvuContext)?.children.asMap()[0];
+    } else if ((defaultViewDefinitionFor(cvuContext)?.children ?? []).length > 0) {
+      node = defaultViewDefinitionFor(cvuContext)?.children.first;
       return CVUElementView(
           nodeResolver:
               CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db));
