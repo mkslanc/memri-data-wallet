@@ -14,6 +14,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes//String.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
+import 'package:memri/MemriApp/UI/Components/MemriDatePicker.dart';
 import 'package:memri/MemriApp/UI/Components/Text/TextField/MemriTextfield.dart';
 
 import '../ViewContextController.dart';
@@ -167,12 +168,16 @@ class GeneralEditorRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-        child: SingleChildScrollView(
-      child: Column(
-        children: stackContent,
-      ),
-    ));
+    return ValueListenableBuilder(
+        valueListenable: sceneController.isInEditMode,
+        builder: (BuildContext context, bool value, Widget? child) {
+          return Expanded(
+              child: SingleChildScrollView(
+            child: Column(
+              children: stackContent,
+            ),
+          ));
+        });
   }
 }
 
@@ -496,9 +501,10 @@ class DefaultGeneralEditorRow extends StatelessWidget {
         () async => (await currentItem.propertyValue(property.property))?.asString() ?? "",
         (value) => currentItem.setPropertyValue(prop, PropertyDatabaseValueString(value)));
     return MemriTextField.async(
-        futureBinding: binding,
-        style: generalEditorCaptionStyle(),
-        isEditing: sceneController.isInEditMode.value);
+      futureBinding: binding,
+      style: generalEditorCaptionStyle(),
+      isEditing: sceneController.isInEditMode.value,
+    );
   }
 
   Widget boolRow() {
@@ -543,13 +549,24 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   }
 
   Widget dateRow() {
-    /*var binding = FutureBinding<DateTime>(
+    var binding = FutureBinding<DateTime>(
         () async =>
             (await currentItem.propertyValue(property.property))?.asDate() ?? DateTime.now(),
         (value) async =>
-            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));*/
-
-    return Text("DatePicker");
+            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));
+    return FutureBuilder<DateTime>(
+      future: binding.get(),
+      builder: (context, snapshot) =>
+          snapshot.connectionState == ConnectionState.done && snapshot.hasData
+              ? MemriDatePicker(
+                  initialSet: snapshot.data!,
+                  onPressed: (DateTime value) =>
+                      !sceneController.isInEditMode.value ? binding.set(value) : null,
+                  formatter: "MMM d, yyyy",
+                  style: generalEditorCaptionStyle(),
+                  isEditing: sceneController.isInEditMode.value)
+              : SizedBox.shrink(),
+    );
   }
 
   Widget defaultRow([String? caption]) {
