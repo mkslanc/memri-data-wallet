@@ -37,7 +37,6 @@ extension FormattedDate on DateTime {
             durationInt = duration.inSeconds;
             break;
         }
-        ;
         if (durationInt > 0) {
           return "${durationInt.toString()} $durationType${(durationInt > 1) ? "s" : ""}";
         }
@@ -47,19 +46,15 @@ extension FormattedDate on DateTime {
   }
 
   String? get timestampString {
-    var timeInt = timeDeltaMilliseconds;
-    if (timeInt == null) {
-      return null;
-    }
-    timeInt = timeInt.abs();
-
     //TODO: return formatted string like "1 days 2 hours ago" https://github.com/dart-lang/intl/issues/52
-    return timeInt.toString();
+    return timeDelta + ' ago';
   }
 
   String formatted({String dateFormat = "yyyy/MM/dd HH:mm"}) {
     // Compare against 36 hours ago
-    if (this.subtract(Duration(hours: 36)).millisecondsSinceEpoch < 0) {
+    print(this.subtract(Duration(hours: 36)).millisecondsSinceEpoch);
+    if (DateTime.now().subtract(Duration(hours: 36)).millisecondsSinceEpoch >
+        this.millisecondsSinceEpoch) {
       var dateFormatter = DateFormat(dateFormat, "en_US");
       return dateFormatter.format(this);
     } else {
