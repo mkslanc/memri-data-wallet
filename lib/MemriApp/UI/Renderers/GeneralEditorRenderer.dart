@@ -177,11 +177,14 @@ class GeneralEditorRendererView extends StatelessWidget {
 }
 
 class GeneralEditorSection extends StatelessWidget {
-  SceneController sceneController = SceneController.sceneController;
-  ViewContextController viewContext;
-  GeneralEditorLayoutItem layout;
-  ItemRecord item;
-  Set<String> usedFields;
+  final SceneController sceneController = SceneController.sceneController;
+  final ViewContextController viewContext;
+  final GeneralEditorLayoutItem layout;
+  final ItemRecord item;
+  final Set<String> usedFields;
+
+  late final String? _sectionTitle;
+  late final List<ItemRecord> _edgeItems;
 
   GeneralEditorSection(
       {required this.viewContext,
@@ -207,8 +210,6 @@ class GeneralEditorSection extends StatelessWidget {
     }
     return true;
   }
-
-  late String? _sectionTitle;
 
   Future<String?> get sectionTitle async {
     var title = viewContext.cvuController
@@ -254,8 +255,6 @@ class GeneralEditorSection extends StatelessWidget {
 
     return fields;
   }
-
-  List<ItemRecord> _edgeItems = [];
 
   Future<List<ItemRecord>> get edgeItems async {
     var edges = layout.get<List>(propName: "edges", additionalType: String);
@@ -413,16 +412,16 @@ class GeneralEditorSection extends StatelessWidget {
 }
 
 class DefaultGeneralEditorRow extends StatelessWidget {
-  SceneController sceneController = SceneController.sceneController;
-  ViewContextController viewContext;
+  final SceneController sceneController = SceneController.sceneController;
+  final ViewContextController viewContext;
 
-  SchemaProperty property;
-  ItemRecord currentItem;
-  String prop;
-  bool readOnly;
-  bool isLast;
-  bool hasGroup;
-  ItemRecord item;
+  final SchemaProperty property;
+  final ItemRecord currentItem;
+  final String prop;
+  final bool readOnly;
+  final bool isLast;
+  final bool hasGroup;
+  final ItemRecord item;
 
   DefaultGeneralEditorRow(
       {required this.viewContext,
