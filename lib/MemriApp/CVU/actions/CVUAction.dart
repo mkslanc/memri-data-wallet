@@ -453,7 +453,7 @@ class CVUActionStar extends CVUAction {
   CVUActionStar({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  Future execute(SceneController sceneController, CVUContext context) async {
     var currentItem = context.currentItem;
     if (currentItem == null) {
       return;

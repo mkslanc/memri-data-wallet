@@ -6,22 +6,30 @@ import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 import '../CVUUINodeResolver.dart';
 
 /// A CVU element for displaying a button
 /// - Use the `onPress` property to provide a CVU Action for the button
 // ignore: must_be_immutable
-class CVUActionButton extends StatelessWidget {
+class CVUActionButton extends StatefulWidget {
   //TODO: stateful
   final CVUUINodeResolver nodeResolver;
-  final SceneController sceneController = SceneController.sceneController;
-  var isShowing = false;
 
   CVUActionButton({required this.nodeResolver});
 
+  @override
+  _CVUActionButtonState createState() => _CVUActionButtonState();
+}
+
+class _CVUActionButtonState extends State<CVUActionButton> {
+  final SceneController sceneController = SceneController.sceneController;
+
+  var isShowing = false;
+
   CVUAction? get action {
-    var _action = nodeResolver.propertyResolver.action("onPress");
+    var _action = widget.nodeResolver.propertyResolver.action("onPress");
     if (_action == null) {
       return null;
     }
@@ -29,12 +37,12 @@ class CVUActionButton extends StatelessWidget {
   }
 
   onPress() {
-    var actions = nodeResolver.propertyResolver.actions("onPress");
+    var actions = widget.nodeResolver.propertyResolver.actions("onPress");
     if (actions == null) {
       return null;
     }
     for (var action in actions) {
-      action.execute(sceneController, nodeResolver.context);
+      action.execute(sceneController, widget.nodeResolver.context);
     }
   }
 
@@ -64,7 +72,7 @@ class CVUActionButton extends StatelessWidget {
       return null;
     }
     var args = argsValue;
-    var currentItem = nodeResolver.context.currentItem;
+    var currentItem = widget.nodeResolver.context.currentItem;
     if (args is! CVUValueSubdefinition || currentItem == null) {
       return null;
     }
@@ -72,7 +80,8 @@ class CVUActionButton extends StatelessWidget {
     var properties = args.value.properties;
     properties["subject"] = CVUValueItem(currentItem.uid); //TODO: rowid
 
-    return CVUViewArguments(args: properties, argumentItem: nodeResolver.context.currentItem);
+    return CVUViewArguments(
+        args: properties, argumentItem: widget.nodeResolver.context.currentItem);
   }
 
   @override
@@ -88,49 +97,23 @@ class CVUActionButton extends StatelessWidget {
     } else if (validAction is CVUActionStar) {
       return IconButton(
           icon: FutureBuilder(
-              future: nodeResolver.context.currentItem?.propertyValue("starred"),
+              future: widget.nodeResolver.context.currentItem?.propertyValue("starred"),
               builder: (BuildContext context, AsyncSnapshot<PropertyDatabaseValue?> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    var starred = snapshot.data?.asBool() ?? false;
-                    return Icon(MemriIcon.getByName(starred ? "star.fill" : "star"));
-                  }
+                  var starred = snapshot.data?.asBool() ?? false;
+                  return Icon(
+                    MemriIcon.getByName(starred ? "star.fill" : "star"),
+                    color: CVUColor.system("systemBlue"),
+                  );
                 }
                 return Text("");
               }),
-          onPressed: () => validAction.execute(sceneController, nodeResolver.context));
+          onPressed: () async {
+            await validAction
+                .execute(sceneController, widget.nodeResolver.context)
+                .whenComplete(() => setState(() => null));
+          });
     }
     return Text("TODO: CVU_ActionButton");
   }
-
-/*
-var body: some View {
-        if let validAction = self.action as? CVUAction_OpenViewByName {
-            Button(action: {
-                self.isShowing = true
-            }) {
-                Text(title)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-            }
-            .sheet(isPresented: $isShowing) {
-                if let viewContext = validAction.getViewContext(context: CVUContext(currentItem:nodeResolver.context.currentItem, viewName: validAction.viewName, rendererName: validAction.renderer, viewArguments: viewArguments)) {
-                    BrowserView(context: viewContext)
-                } else {
-                    Text("TODO: ActionPopupButton")
-                }
-            }
-        } else if let starAction = self.action as? CVUAction_Star {
-            Button(action: {
-                withAnimation {
-                    starAction.execute(sceneController: sceneController, context: nodeResolver.context)
-                }
-            }) {
-                Image(systemName: (nodeResolver.context.currentItem?.propertyValue("starred")?.asBool() ?? false) == true ? "star.fill" : "star")
-            }
-        }  else {
-            Text("TODO: CVU_ActionButton")
-        }
-    }
- */
 }
