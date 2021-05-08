@@ -388,7 +388,7 @@ class GeneralEditorSection extends StatelessWidget {
                   });
                 }
               }
-              return Wrap(
+              return Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
@@ -502,12 +502,12 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   }
 
   Widget boolRow() {
-    var binding = FutureBinding<bool>(
+    /*var binding = FutureBinding<bool>(
         () async => (await currentItem.propertyValue(property.property))?.asBool() ?? false,
         (value) async {
       var currentVal = (await currentItem.propertyValue(property.property))?.asBool() ?? false;
       currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
-    });
+    });*/
     return Text("Toggle"); //TODO
     /* return Toggle(isOn: binding) {
             Text(prop
@@ -543,13 +543,13 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   }
 
   Widget dateRow() {
-    var binding = FutureBinding<DateTime>(
+    /*var binding = FutureBinding<DateTime>(
         () async =>
             (await currentItem.propertyValue(property.property))?.asDate() ?? DateTime.now(),
         (value) async =>
-            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));
+            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));*/
 
-    return Text("Place for DatePicker");
+    return Text("DatePicker");
   }
 
   Widget defaultRow([String? caption]) {
@@ -566,6 +566,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _GeneralEditorInput extends StatelessWidget {
   final content;
 

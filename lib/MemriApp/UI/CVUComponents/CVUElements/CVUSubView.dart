@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
@@ -19,15 +18,15 @@ class CVUSubView extends StatelessWidget {
   init() async {
     items = await nodeResolver.propertyResolver.items("query");
     content = await _content;
-    CVUValue? def = nodeResolver.propertyResolver
+    /* CVUValue? def = nodeResolver.propertyResolver
         .value("view")
         ?.getSubdefinition()
         ?.definitions
         .compactMap((el) => el.parsed.properties["query"])
-        .first;
-    List<ItemRecord> res = await nodeResolver.lookup.resolve<List>(
+        .first;*/
+    /*List<ItemRecord> res = await nodeResolver.lookup.resolve<List>(
         value: def!, context: nodeResolver.context, db: nodeResolver.db) as List<ItemRecord>;
-    var defp = nodeResolver.propertyResolver.value("view")?.getSubdefinition();
+    var defp = nodeResolver.propertyResolver.value("view")?.getSubdefinition();*/ //TODO:
     spacing = await nodeResolver.propertyResolver.spacing ?? Point(0, 0);
   }
 
