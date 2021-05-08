@@ -18,7 +18,8 @@ class FlowStack<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Flexible(
+      flex: 0,
       child: Stack(
         children: [
           ColoredBox(color: Colors.transparent),
