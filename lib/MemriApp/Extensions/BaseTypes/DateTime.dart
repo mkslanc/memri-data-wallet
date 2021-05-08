@@ -12,8 +12,38 @@ extension FormattedDate on DateTime {
   }
 
   String get timeDelta {
-    var duration = Duration(milliseconds: (this.timeDeltaMilliseconds?.abs() ?? 0));
-    return duration.toString();
+    var duration = Duration(milliseconds: (timeDeltaMilliseconds?.abs() ?? 0));
+
+    //TODO replace with normal localization
+    var durationTypes = ["month", "day", "hour", "minute", "second"];
+
+    return () {
+      var durationInt = 0;
+      for (var durationType in durationTypes) {
+        switch (durationType) {
+          case "month":
+            durationInt = (duration.inDays / 30).floor();
+            break;
+          case "day":
+            durationInt = duration.inDays;
+            break;
+          case "hour":
+            durationInt = duration.inHours;
+            break;
+          case "minute":
+            durationInt = duration.inMinutes;
+            break;
+          case "second":
+            durationInt = duration.inSeconds;
+            break;
+        }
+        ;
+        if (durationInt > 0) {
+          return "${durationInt.toString()} $durationType${(durationInt > 1) ? "s" : ""}";
+        }
+      }
+      return "";
+    }();
   }
 
   String? get timestampString {
