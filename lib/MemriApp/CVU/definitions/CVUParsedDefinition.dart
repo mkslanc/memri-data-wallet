@@ -20,11 +20,23 @@ enum CVUDefinitionDomain { user }
 /// A struct holding the content of a CVUDefinition
 /// Contains properties, children, and sub-definitions
 class CVUDefinitionContent extends CVUStringConvertible {
-  List<CVUParsedDefinition> definitions = [];
+  List<CVUParsedDefinition> definitions;
   List<CVUUINode> children = [];
   Map<String, CVUValue> properties;
 
-  CVUDefinitionContent({properties}) : this.properties = properties ?? {};
+  CVUDefinitionContent({definitions, children, properties})
+      : this.definitions = definitions ?? List<CVUParsedDefinition>.empty(),
+        this.children = children ?? List<CVUUINode>.empty(),
+        this.properties = properties ?? Map<String, CVUValue>();
+
+  CVUDefinitionContent clone() {
+    //TODO find better way to clone object
+    return CVUDefinitionContent(
+      definitions: List<CVUParsedDefinition>.from(definitions),
+      children: List<CVUUINode>.from(children),
+      properties: Map<String, CVUValue>.from(properties),
+    );
+  }
 
   CVUPropertyResolver propertyResolver(
       { //TODO @anijanyan
@@ -64,10 +76,10 @@ class CVUDefinitionContent extends CVUStringConvertible {
   }
 
   CVUDefinitionContent merge([CVUDefinitionContent? other]) {
+    var result = clone();
     if (other == null) {
-      return this;
+      return result;
     }
-    var result = this;
     for (var definition in other.definitions) {
       int index =
           result.definitions.indexWhere((element) => element.selector == definition.selector);
@@ -92,8 +104,6 @@ class CVUDefinitionContent extends CVUStringConvertible {
         if (result.properties.containsKey(entry.key)) {
           if (other.properties.containsKey(entry.key)) {
             result.properties.update(entry.key, (value) => (other.properties[entry.key])!);
-          } else {
-            result.properties.remove(entry.key);
           }
         } else {
           result.properties[entry.key] = entry.value;
@@ -134,6 +144,17 @@ class CVUParsedDefinition extends CVUStringConvertible {
       parsed})
       : this.parsed = parsed ?? CVUDefinitionContent();
 
+  CVUParsedDefinition clone() {
+    //TODO find better way to clone object
+    return CVUParsedDefinition(
+        type: type,
+        domain: domain,
+        selector: selector,
+        renderer: renderer,
+        name: name,
+        parsed: parsed);
+  }
+
   get(propName) {
     return parsed.properties[propName];
   }
@@ -157,10 +178,10 @@ class CVUParsedDefinition extends CVUStringConvertible {
   }
 
   CVUParsedDefinition merge(CVUParsedDefinition? other) {
+    var result = clone();
     if (other == null) {
-      return this;
+      return result;
     }
-    var result = this;
     result.parsed = parsed.merge(other.parsed);
     return result;
   }
