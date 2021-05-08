@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 
 import '../CVUUINodeResolver.dart';
 
 class CVUEditorRow extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
+  late final AlignmentResolver alignment;
+  late final Widget header;
+  late final bool noPadding;
 
   CVUEditorRow({required this.nodeResolver});
 
-  Future<Widget> get header async {
+  init(String alignType) async {
+    alignment = await nodeResolver.propertyResolver.alignment(alignType);
+    header = await _header;
+    noPadding = (await nodeResolver.propertyResolver.boolean("nopadding", false))!;
+  }
+
+  Future<Widget> get _header async {
     var text = await nodeResolver.propertyResolver.string("title");
     if (text != null) {
       Text(
@@ -25,27 +35,24 @@ class CVUEditorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        //TODO: alignment: nodeResolver.propertyResolver.alignment() .if(!nodeResolver.propertyResolver.bool("nopadding", defaultValue: false)) { $0.padding(.horizontal) }
-        future: header,
-        builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+        future: init("column"),
+        builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData) {
-              return SizedBox(
-                //TODO:
-                height: 200,
-                width: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: snapshot.data!,
-                    ),
-                    ...content
-                  ],
-                ),
-              );
-            }
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: (!noPadding) ? 10 : 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: alignment.mainAxis,
+                crossAxisAlignment: alignment.crossAxis,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: header,
+                  ),
+                  ...content
+                ],
+              ),
+            );
           }
           return Text("");
         });
