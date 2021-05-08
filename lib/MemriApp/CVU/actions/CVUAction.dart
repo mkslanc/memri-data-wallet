@@ -366,11 +366,12 @@ class CVUActionLink extends CVUAction {
 
     var currentItem = context.currentItem;
     var subjectVal = vars["subject"];
-    ItemRecord subjectItem = await lookup.resolve(value: subjectVal, context: context, db: db);
+    ItemRecord subjectItem =
+        (await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db))!;
     var edgeTypeVal = vars["edgeType"];
-    String? edgeType = await lookup.resolve(value: edgeTypeVal, context: context, db: db);
+    String? edgeType = await lookup.resolve<String>(value: edgeTypeVal, context: context, db: db);
     var distinctVal = vars["distinct"];
-    bool? unique = await lookup.resolve(value: distinctVal, context: context, db: db);
+    bool? unique = await lookup.resolve<bool>(value: distinctVal, context: context, db: db);
     if (currentItem == null ||
         subjectVal == null ||
         edgeTypeVal == null ||
@@ -414,9 +415,10 @@ class CVUActionUnlink extends CVUAction {
 
     var currentItem = context.currentItem;
     var subjectVal = vars["subject"];
-    ItemRecord subjectItem = await lookup.resolve(value: subjectVal, context: context, db: db);
+    ItemRecord subjectItem =
+        (await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db))!;
     var edgeTypeVal = vars["edgeType"];
-    String? edgeType = await lookup.resolve(value: edgeTypeVal, context: context, db: db);
+    String? edgeType = await lookup.resolve<String>(value: edgeTypeVal, context: context, db: db);
     if (currentItem == null || subjectVal == null || edgeTypeVal == null || edgeType == null) {
       return;
     }
