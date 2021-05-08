@@ -39,8 +39,7 @@ class CVUDefinitionContent extends CVUStringConvertible {
   }
 
   CVUPropertyResolver propertyResolver(
-      { //TODO @anijanyan
-      required CVUContext context,
+      {required CVUContext context,
       required CVULookupController lookup,
       required DatabaseController db}) {
     return CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: properties);
