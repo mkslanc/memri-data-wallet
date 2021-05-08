@@ -21,12 +21,12 @@ enum CVUDefinitionDomain { user }
 /// Contains properties, children, and sub-definitions
 class CVUDefinitionContent extends CVUStringConvertible {
   List<CVUParsedDefinition> definitions;
-  List<CVUUINode> children = [];
+  List<CVUUINode> children;
   Map<String, CVUValue> properties;
 
   CVUDefinitionContent({definitions, children, properties})
-      : this.definitions = definitions ?? List<CVUParsedDefinition>.empty(),
-        this.children = children ?? List<CVUUINode>.empty(),
+      : this.definitions = definitions ?? List<CVUParsedDefinition>.from([]),
+        this.children = children ?? List<CVUUINode>.from([]),
         this.properties = properties ?? Map<String, CVUValue>();
 
   CVUDefinitionContent clone() {
@@ -75,10 +75,10 @@ class CVUDefinitionContent extends CVUStringConvertible {
   }
 
   CVUDefinitionContent merge([CVUDefinitionContent? other]) {
-    var result = clone();
     if (other == null) {
-      return result;
+      return this;
     }
+    var result = clone();
     for (var definition in other.definitions) {
       int index =
           result.definitions.indexWhere((element) => element.selector == definition.selector);
@@ -177,10 +177,10 @@ class CVUParsedDefinition extends CVUStringConvertible {
   }
 
   CVUParsedDefinition merge(CVUParsedDefinition? other) {
-    var result = clone();
     if (other == null) {
-      return result;
+      return this;
     }
+    var result = clone();
     result.parsed = parsed.merge(other.parsed);
     return result;
   }
