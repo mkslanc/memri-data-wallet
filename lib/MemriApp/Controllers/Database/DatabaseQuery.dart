@@ -1,11 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 
 import 'ItemRecord.dart';
+import 'Schema.dart';
 
 /// This type is used to describe a database query.
-class DatabaseQueryConfig {
+class DatabaseQueryConfig extends ChangeNotifier {
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
 
@@ -13,9 +16,23 @@ class DatabaseQueryConfig {
   Set<String> itemUIDs; //TODO: we will need to refactor this to use rowIds
 
   /// A property to sort the results by
-  String? sortProperty;
+  String? _sortProperty;
 
-  bool sortAscending;
+  String? get sortProperty => _sortProperty;
+
+  set sortProperty(String? newValue) {
+    _sortProperty = newValue;
+    notifyListeners();
+  }
+
+  bool _sortAscending = false;
+
+  bool get sortAscending => _sortAscending;
+
+  set sortAscending(bool newValue) {
+    _sortAscending = newValue;
+    notifyListeners();
+  }
 
   /// Only include items modified after this date
   DateTime? dateModifiedAfter;
@@ -49,8 +66,8 @@ class DatabaseQueryConfig {
   DatabaseQueryConfig({
     this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
     this.itemUIDs = const {},
-    this.sortProperty = "dateModified",
-    this.sortAscending = false,
+    sortProperty = "dateModified",
+    sortAscending = false,
     this.dateModifiedAfter,
     this.dateModifiedBefore,
     this.dateCreatedAfter,
@@ -60,7 +77,8 @@ class DatabaseQueryConfig {
     this.searchString,
     this.includeImmediateEdgeSearch = true,
     this.conditions = const [],
-  });
+  })  : _sortAscending = sortAscending,
+        _sortProperty = sortProperty;
 
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
@@ -207,7 +225,9 @@ class DatabaseQueryConfig {
     }
 
     var orderBy = "";
-    var sortOrder = this.sortAscending ? "" : "DESC";
+    var join = "";
+    List<TableInfo> joinTables = [];
+    var sortOrder = sortAscending ? "" : "DESC";
     switch (sortProperty) {
       case "dateCreated":
         orderBy = "ORDER BY dateCreated $sortOrder, dateModified $sortOrder";
@@ -216,15 +236,31 @@ class DatabaseQueryConfig {
         orderBy = "ORDER BY dateModified $sortOrder, dateCreated $sortOrder";
         break;
       case "":
+      case null:
         break;
       default:
-        //TODO: table alias
-        orderBy =
-            "ORDER BY ${this.sortProperty} $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
+        var propertyOrderBy = "";
+        //TODO multiple itemTypes?
+        if (itemTypes.length == 1) {
+          SchemaValueType schemaValueType =
+              dbController.schema.expectedPropertyType(itemTypes.first, sortProperty!)!;
+          ItemRecordPropertyTable itemRecordPropertyTable =
+              PropertyDatabaseValue.toDBTableName(schemaValueType);
+          TableInfo table =
+              dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+          String tableName = table.$tableName;
+          joinTables.add(table);
+          join =
+              "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
+          propertyOrderBy = "$tableName.value $sortOrder, ";
+        }
+
+        orderBy = "ORDER BY $propertyOrderBy dateModified $sortOrder, dateCreated $sortOrder";
         break;
     }
     var finalQuery = "row_id IN (${rowIds.join(", ")}) $orderBy LIMIT $limit OFFSET $offset";
-    return await dbController.databasePool.itemRecordsCustomSelect(finalQuery, []);
+    return await dbController.databasePool
+        .itemRecordsCustomSelect(finalQuery, [], join: join, joinTables: joinTables);
   }
 
   _constructSearchRequest() async {

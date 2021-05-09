@@ -52,14 +52,17 @@ class Database extends _$Database {
     return await into(items).insertOnConflictUpdate(record.toCompanion());
   }
 
-  Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
+  Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
+      {String join = "", List<TableInfo>? joinTables}) async {
     if (query == "") {
       return await customSelect("SELECT * from items", variables: binding, readsFrom: {items})
           .map((row) => Item.fromData(row.data, this))
           .get();
     }
-    return await customSelect("SELECT * from items WHERE $query",
-        variables: binding, readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
+    joinTables ??= [];
+    return await customSelect("SELECT * from items $join WHERE $query",
+        variables: binding,
+        readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }
 
   Future<int> itemPropertyRecordInsert(ItemPropertyRecord record) async {
@@ -119,6 +122,17 @@ class Database extends _$Database {
           variables: binding,
           readsFrom: {integers}).map((row) => RealDb.fromData(row.data, this)).get();
       return [...intProps, ...stringProps, ...realProps];
+    }
+  }
+
+  TableInfo getItemPropertyRecordTable(ItemRecordPropertyTable table) {
+    switch (table) {
+      case ItemRecordPropertyTable.integers:
+        return integers;
+      case ItemRecordPropertyTable.reals:
+        return reals;
+      case ItemRecordPropertyTable.strings:
+        return strings;
     }
   }
 
@@ -187,7 +201,7 @@ class Database extends _$Database {
 }
 
 class ItemPropertyRecordTableData {
-  final table;
+  final TableInfo table;
   final UpdateCompanion companion;
 
   ItemPropertyRecordTableData({required this.table, required this.companion});

@@ -248,19 +248,23 @@ class ViewContextController {
 
   /// Sets up a database observation so that all
   setupQueryObservation() {
+    var queryConfig = config.query;
+
     /// Remove old observation
     queryObservation?.cancel();
+    queryConfig.removeListener(setupQueryObservation);
 
     /// Only set up an observation if `isObserving` is true
     if (!isObservingQuery) {
       return;
     }
 
-    var queryConfig = config.query;
+    queryConfig.addListener(setupQueryObservation);
     queryObservation =
         queryConfig.executeRequest(databaseController).asBroadcastStream().listen((records) {
       items = records;
     });
+
     // var observation = ValueObservation
     //     .tracking { db in
     // try queryConfig.executeRequest(db: db)
