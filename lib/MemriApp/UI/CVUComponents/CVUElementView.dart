@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTextPropertiesModifier.dart';
 
 import 'CVUElements/CVUButton.dart';
 import 'CVUElements/CVUForEach.dart';
@@ -18,7 +19,7 @@ import 'CVUElements/CVUShape.dart';
 import 'CVUElements/CVUStacks.dart';
 import 'CVUElements/CVUText.dart';
 import 'CVUElements/CVUTextField.dart';
-import 'CVUElements/CVUTextPropertiesMofifier.dart';
+import 'CVUElements/CVUTimelineItem.dart';
 import 'CVUElements/CVUToggle.dart';
 import 'CVUUINodeResolver.dart';
 
@@ -75,9 +76,9 @@ class CVUElementView extends StatelessWidget {
         return CVUShapeRectangle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.HTMLView:
         return CVUHTMLView(nodeResolver: nodeResolver);
-      /* case CVUUIElementFamily.TimelineItem:
-      // return CVU_TimelineItem(nodeResolver: nodeResolver);
-      case CVUUIElementFamily.FileThumbnail:
+      case CVUUIElementFamily.TimelineItem:
+        return CVUTimelineItem(nodeResolver: nodeResolver);
+      /*case CVUUIElementFamily.FileThumbnail:
       // return CVU_FileThumbnail(nodeResolver: nodeResolver);*/
       case CVUUIElementFamily.Spacer:
         return Spacer();

@@ -117,7 +117,7 @@ class DatabaseQueryConfig {
         var searchUIDs = items.map((item) => item.id).toSet();
         itemUIDCondition = searchUIDs.intersection(itemUIDs).map((uid) {
           queryBindings.add(Variable.withString(uid));
-          return "uid = ?";
+          return "id = ?";
         });
       } else {
         itemUIDCondition = searchIDs.map((rowId) {
@@ -129,7 +129,7 @@ class DatabaseQueryConfig {
     } else if (itemUIDs.isNotEmpty) {
       var itemUIDCondition = itemUIDs.map((uid) {
         queryBindings.add(Variable.withString(uid));
-        return "uid = ?";
+        return "id = ?";
       });
       queryConditions.add("(" + itemUIDCondition.join(" OR ") + ")");
     }

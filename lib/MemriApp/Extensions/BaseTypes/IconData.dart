@@ -26,6 +26,8 @@ extension MemriIcon on IconData {
         return Icons.star;
       case "xmark.circle":
         return Icons.close;
+      case "arrow_right":
+        return Icons.arrow_right;
       default:
         return Icons.contact_support_rounded;
     }
