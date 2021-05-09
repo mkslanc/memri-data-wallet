@@ -355,7 +355,7 @@ class CVUPropertyResolver {
     var val = value(propertyName);
     if (val == null) {
       return AlignmentResolver(
-          mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+          mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
     }
     if (alignType == "row") {
       switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
@@ -396,7 +396,7 @@ class CVUPropertyResolver {
               mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
       }
     } else {
       switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
@@ -437,7 +437,7 @@ class CVUPropertyResolver {
               mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
       }
     }
   }
