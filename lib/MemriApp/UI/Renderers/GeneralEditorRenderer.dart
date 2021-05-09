@@ -394,6 +394,7 @@ class GeneralEditorSection extends StatelessWidget {
                 }
               }
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
