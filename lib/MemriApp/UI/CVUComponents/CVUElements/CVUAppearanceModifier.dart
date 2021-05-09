@@ -10,10 +10,6 @@ class CVUAppearanceModifier {
 
   CVUAppearanceModifier({required this.nodeResolver});
 
-  /*var shape: some InsettableShape {
-        RoundedRectangle(cornerRadius: nodeResolver.propertyResolver.cornerRadius())
-    }*/
-
   late EdgeInsets padding;
   late Color backgroundColor;
   late double minWidth;
@@ -22,6 +18,9 @@ class CVUAppearanceModifier {
   late double maxHeight;
   late double cornerRadius;
   late double opacity;
+  late double? shadow;
+  late Color? border;
+  late Offset offset;
 
   init() async {
     padding = await nodeResolver.propertyResolver.padding;
@@ -33,6 +32,9 @@ class CVUAppearanceModifier {
     maxHeight = await nodeResolver.propertyResolver.maxHeight ?? double.infinity;
     cornerRadius = await nodeResolver.propertyResolver.cornerRadius;
     opacity = await nodeResolver.propertyResolver.opacity;
+    shadow = await nodeResolver.propertyResolver.shadow;
+    border = await nodeResolver.propertyResolver.borderColor;
+    offset = await nodeResolver.propertyResolver.offset;
   }
 
   Widget body(Widget child) {
@@ -41,49 +43,41 @@ class CVUAppearanceModifier {
         future: init(),
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
+            if (shadow != null) {
+              widget = PhysicalModel(
+                color: backgroundColor,
+                elevation: shadow!,
+                child: widget,
+              );
+            }
             if (cornerRadius > 0) {
               widget = ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
                 child: widget,
               );
             }
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                  maxHeight: maxHeight,
-                  minHeight: minHeight,
-                  maxWidth: maxWidth,
-                  minWidth: minWidth),
-              child: ColoredBox(
-                color: backgroundColor,
+            if (offset != Offset.zero) {
+              widget = Transform.translate(offset: offset, child: widget);
+            }
+            return Container(
+                constraints: BoxConstraints(
+                    maxHeight: maxHeight,
+                    minHeight: minHeight,
+                    maxWidth: maxWidth,
+                    minWidth: minWidth),
+                padding: padding,
+                decoration: BoxDecoration(
+                    color: backgroundColor,
+                    border: border != null ? Border.all(color: border!) : null),
                 child: Opacity(
                   opacity: opacity,
-                  child: Padding(
-                    padding: padding,
-                    child: widget,
-                  ),
-                ),
-              ),
-            );
+                  child: widget,
+                ));
           } else {
             return Text("");
           }
         });
 
-    /* TODO
-            .foregroundColor(nodeResolver.propertyResolver.color()?.color)
-            .font(nodeResolver.propertyResolver.font().font)
-            .multilineTextAlignment(nodeResolver.propertyResolver.textAlignment())
-            .lineLimit(nodeResolver.propertyResolver.lineLimit)
-            .background(
-                shape
-                    .fill(nodeResolver.propertyResolver.backgroundColor?.color ?? .clear)
-                    .ifLet(nodeResolver.propertyResolver.shadow) { $0.shadow(radius: $1) }
-            )
-            .overlay(
-                shape
-                    .strokeBorder(nodeResolver.propertyResolver.borderColor?.color ?? .clear)
-            )
-            .offset(nodeResolver.propertyResolver.offset)
-            .ifLet(nodeResolver.propertyResolver.zIndex) { $0.zIndex($1) }*/
+    /* TODO .ifLet(nodeResolver.propertyResolver.zIndex) { $0.zIndex($1) }*/
   }
 }
