@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../CVUUINodeResolver.dart';
-import 'CVUTextPropertiesMofifier.dart';
+import 'CVUTextPropertiesModifier.dart';
 
 /// A CVU element for displaying a button
 /// - Use the `onPress` property to provide a CVU Action for the button

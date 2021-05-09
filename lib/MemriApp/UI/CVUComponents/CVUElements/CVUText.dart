@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
-import 'CVUTextPropertiesMofifier.dart';
+import 'CVUTextPropertiesModifier.dart';
 
 /// A CVU element for displaying text
 /// - Set the `text` property to the desired content
