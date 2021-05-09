@@ -28,7 +28,7 @@ class CVUElementView extends StatelessWidget {
 
   CVUElementView({required this.nodeResolver});
 
-  Widget resolvedComponent() {
+  Widget resolvedComponent([Future<TextProperties>? textProperties]) {
     switch (nodeResolver.node.type) {
       case CVUUIElementFamily.ForEach:
         return CVUForEach(nodeResolver: nodeResolver);
@@ -39,19 +39,28 @@ class CVUElementView extends StatelessWidget {
       case CVUUIElementFamily.ZStack:
         return CVUZStack(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Text:
-        return CVUText(nodeResolver: nodeResolver);
+        return CVUText(
+          nodeResolver: nodeResolver,
+          textProperties: textProperties!,
+        );
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: nodeResolver);
       //case CVUUIElementFamily.Map:
       // return CVU_Map(nodeResolver: nodeResolver);
       case CVUUIElementFamily.SmartText:
-        return CVUSmartText(nodeResolver: nodeResolver);
+        return CVUSmartText(
+          nodeResolver: nodeResolver,
+          textProperties: textProperties!,
+        );
       case CVUUIElementFamily.Textfield:
         return CVUTextField(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Toggle:
         return CVUToggle(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Button:
-        return CVUButton(nodeResolver: nodeResolver);
+        return CVUButton(
+          nodeResolver: nodeResolver,
+          textProperties: textProperties!,
+        );
       case CVUUIElementFamily.Divider:
         return Divider(
           height: 1,
@@ -114,7 +123,8 @@ class CVUElementView extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData && snapshot.data == true) {
             return needsModifier
-                ? CVUAppearanceModifier(nodeResolver: nodeResolver).body(resolvedComponent())
+                ? CVUAppearanceModifier(nodeResolver: nodeResolver).body(
+                    resolvedComponent(CVUTextPropertiesModifier(nodeResolver: nodeResolver).init()))
                 : resolvedComponent();
           }
           return SizedBox.shrink();
