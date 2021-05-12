@@ -30,7 +30,7 @@ CryptoCurrency > list {
     }
 
     HStack {
-        alignment: center
+        alignment: left
 
         margin: 0 15 0 0
         
@@ -51,6 +51,8 @@ CryptoCurrency > list {
                 color: primary
                 padding: 0 20 0 20
             }
+
+            Spacer
 
             Text {
                 text: {{.topic}}
