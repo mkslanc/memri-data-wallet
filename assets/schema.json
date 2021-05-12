@@ -904,5 +904,6 @@
 
     { "source_type": "CryptoTransaction", "edge": "relateTo", "target_type": "CurrencyOwner" },
     { "source_type": "CryptoTransaction", "edge": "withOwner", "target_type": "CurrencyOwner" }
+
   ]
 }
