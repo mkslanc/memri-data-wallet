@@ -6,8 +6,13 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
+import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 abstract class CVUAction {
@@ -52,39 +57,42 @@ class CVUActionOpenView extends CVUAction {
 
   String? viewName;
   String? renderer;
-  List<String>? uids;
+  Set<String>? uids;
   DateTimeRange? dateRange;
 
   CVUActionOpenView({vars, this.viewName, this.renderer, this.uids, this.dateRange})
       : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
-    // CVUDefinitionContent? viewDefinition;
-    // var view = vars["view"];
-    // if (view is CVUValueSubdefinition) {
-    //   viewDefinition = view.value;
-    // }
-    // CVUViewArguments viewArguments;
-    // var viewArgs = vars["viewArguments"];
-    // if (viewArgs is CVUValueSubdefinition) {
-    //   viewArguments = CVUViewArguments(
-    //       args: viewArgs.value.properties, argumentItem: context.currentItem, parentArguments: context.viewArguments);
-    // } else {
-    //   viewArguments = CVUViewArguments();
-    // }
-    // DatabaseController db = DatabaseController(); //TODO = sceneController.appController.databaseController;
-    // var resolver = CVUPropertyResolver(context: context, lookup: CVULookupController(), db: db, properties: this.vars);
-    // sceneController.navigateToNewContext({
-    // viewName: this.viewName ?? resolver.string("viewName") ?? "customView",
-    // inheritDatasource: resolver.bool("inheritDatasource", true),
-    // overrideRenderer: this.renderer ?? resolver.string("renderer"),
-    // defaultRenderer: "singleItem",
-    // targetItem: context.currentItem,
-    // overrideUIDs: this.uids,
-    // dateRange: this.dateRange, customDefinition: viewDefinition,
-    // viewArguments: viewArguments
-    // })
+  void execute(SceneController sceneController, CVUContext context) async {
+    CVUDefinitionContent? viewDefinition;
+    var view = vars["view"];
+    if (view is CVUValueSubdefinition) {
+      viewDefinition = view.value;
+    }
+    CVUViewArguments viewArguments;
+    var viewArgs = vars["viewArguments"];
+    if (viewArgs is CVUValueSubdefinition) {
+      viewArguments = CVUViewArguments(
+          args: viewArgs.value.properties,
+          argumentItem: context.currentItem,
+          parentArguments: context.viewArguments);
+    } else {
+      viewArguments = CVUViewArguments();
+    }
+    DatabaseController db = sceneController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: this.vars);
+    sceneController.navigateToNewContext(
+        viewName: viewName ?? await resolver.string("viewName") ?? "customView",
+        inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
+        overrideRenderer: renderer ?? await resolver.string("renderer"),
+        defaultRenderer: "singleItem",
+        targetItem: context.currentItem,
+        overrideUIDs: uids,
+        dateRange: dateRange,
+        customDefinition: viewDefinition,
+        viewArguments: viewArguments);
   }
 }
 

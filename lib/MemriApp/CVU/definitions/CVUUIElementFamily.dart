@@ -5,6 +5,8 @@
 //  Created by T Brennan on 28/1/21.
 //
 
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+
 /// This enum contains the supported CVU UI elements. The rawValue is a lowercase representation so that all comparisons can be -insensitive
 enum CVUUIElementFamily {
   ForEach,
@@ -42,8 +44,6 @@ extension CVUUIElementFamilyExtension on CVUUIElementFamily {
 
   String get value => this.inString.toLowerCase();
 
-  static CVUUIElementFamily rawValue(value) =>
-      CVUUIElementFamily.values.firstWhere((val) => val.value == value,
-          orElse: () => CVUUIElementFamily.Null //TODO @anijanyan see why this isn't nullable
-          );
+  static CVUUIElementFamily? rawValue(value) =>
+      CVUUIElementFamily.values.firstWhereOrNull((val) => val.value == value);
 }

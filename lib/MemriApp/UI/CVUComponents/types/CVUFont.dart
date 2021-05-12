@@ -7,34 +7,26 @@ import 'package:flutter/material.dart';
 /// Represents a font in the CVU language
 class CVUFont {
   String? name;
-  double? size;
+  double size;
   FontWeight? weight;
   bool italic;
 
-  CVUFont({this.name, this.size, this.weight, this.italic = false});
+  CVUFont({this.name, this.size = 15, this.weight = FontWeight.normal, this.italic = false});
 
   Map<String, dynamic> get font {
     return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};
   }
 
-  /*get uiFont(): UIFont {
-      let font = UIFont.systemFont(
-          ofSize: size ?? UIFont.systemFontSize,
-          weight: weight?.uiKit ?? .regular
-      )
-      let fontWithTraits = font.withTraits(traits: italic ? .traitItalic : [])
-      return fontWithTraits
-  }*/
   static const Map<String, FontWeight> Weight = {
-    "black": FontWeight.bold,
-    "bold": FontWeight.bold,
-    // heavy: "heavy",
-    // light: "light",
-    // medium: "medium",//TODO
-    // regular: "regular",
-    // semibold: "semibold",
-    // thin: "thin",
-    // ultraLight: "ultraLight",
+    "black": FontWeight.w900,
+    "bold": FontWeight.w700,
+    "heavy": FontWeight.w800,
+    "light": FontWeight.w300,
+    "medium": FontWeight.w500,
+    "regular": FontWeight.normal,
+    "semibold": FontWeight.w600,
+    "thin": FontWeight.w200,
+    "ultraLight": FontWeight.w100,
   };
 }
 

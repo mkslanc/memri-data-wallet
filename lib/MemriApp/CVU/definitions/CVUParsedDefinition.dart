@@ -3,6 +3,10 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
+import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 
 import 'CVUUINode.dart';
 import 'CVUValue.dart';
@@ -18,15 +22,17 @@ enum CVUDefinitionDomain { user }
 class CVUDefinitionContent extends CVUStringConvertible {
   List<CVUParsedDefinition> definitions = [];
   List<CVUUINode> children = [];
-  Map<String, CVUValue> properties = {};
+  Map<String, CVUValue> properties;
 
-/*  CVUPropertyResolver propertyResolver({//TODO @anijanyan
-    CVUContext context,
-    CVULookupController lookup,
-    DatabaseController db:
-  }) {
+  CVUDefinitionContent({properties}) : this.properties = properties ?? {};
+
+  CVUPropertyResolver propertyResolver(
+      { //TODO @anijanyan
+      required CVUContext context,
+      required CVULookupController lookup,
+      required DatabaseController db}) {
     return CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: properties);
-  }*/
+  }
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     String tabs = tab * depth;
@@ -71,17 +77,30 @@ class CVUDefinitionContent extends CVUStringConvertible {
         result.definitions.add(definition);
       }
     }
-    for (var entry in other.properties.entries) {
-      result.properties.putIfAbsent(entry.key, () {
-        var lhs = result.properties[entry.key]?.getSubdefinition();
-        var rhs = entry.value.getSubdefinition();
-        if (lhs != null && rhs != null) {
-          return CVUValueSubdefinition(lhs.merge(rhs));
+    var allProps = {};
+    allProps.addAll(result.properties);
+    allProps.addAll(other.properties);
+
+    for (var entry in allProps.entries) {
+      var lhs = result.properties[entry.key]?.getSubdefinition();
+      var rhs = entry.value.getSubdefinition();
+      if (lhs != null && rhs != null) {
+        //TODO: need to check
+        result.properties.update(entry.key, (value) => CVUValueSubdefinition(lhs.merge(rhs)));
+      } else {
+        // Prefer rhs properties
+        if (result.properties.containsKey(entry.key)) {
+          if (other.properties.containsKey(entry.key)) {
+            result.properties.update(entry.key, (value) => (other.properties[entry.key])!);
+          } else {
+            result.properties.remove(entry.key);
+          }
         } else {
-          return entry.value; // Prefer rhs properties
+          result.properties[entry.key] = entry.value;
         }
-      });
+      }
     }
+
     if (other.children.isNotEmpty) {
       result.children = other.children; // Override children if defined
     }
@@ -104,14 +123,16 @@ class CVUParsedDefinition extends CVUStringConvertible {
   /// The renderer for which this definition is valid (optional)
   String? renderer;
 
-  CVUDefinitionContent parsed = CVUDefinitionContent();
+  CVUDefinitionContent parsed;
 
   CVUParsedDefinition(
       {this.type = CVUDefinitionType.other,
       this.domain = CVUDefinitionDomain.user,
       this.selector,
       this.renderer,
-      this.name});
+      this.name,
+      parsed})
+      : this.parsed = parsed ?? CVUDefinitionContent();
 
   get(propName) {
     return parsed.properties[propName];

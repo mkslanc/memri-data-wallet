@@ -4,6 +4,8 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:moor/moor.dart';
 
+export 'shared.dart';
+
 part 'Database.g.dart';
 
 @UseMoor(
@@ -24,6 +26,12 @@ class Database extends _$Database {
     );
   }
 
+  Future resetDb() async {
+    for (var table in allTables) {
+      await delete(table).go();
+    }
+  }
+
   Future<Item> itemRecordFetchWithUID(String uid) async {
     return await (select(items)..where((t) => t.id.equals(uid))).getSingle();
   }
@@ -33,7 +41,7 @@ class Database extends _$Database {
   }
 
   Future<Item?> itemRecordFetchOne() async {
-    return await select(items).getSingleOrNull();
+    return await (select(items)..limit(1)).getSingleOrNull();
   }
 
   Future<int> itemRecordInsert(ItemRecord record) async {
@@ -41,17 +49,20 @@ class Database extends _$Database {
   }
 
   Future<int> itemRecordSave(ItemRecord record) async {
-    return into(items).insertOnConflictUpdate(record.toCompanion());
+    return await into(items).insertOnConflictUpdate(record.toCompanion());
   }
 
-  Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
+  Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
+      {String join = "", List<TableInfo>? joinTables}) async {
     if (query == "") {
       return await customSelect("SELECT * from items", variables: binding, readsFrom: {items})
           .map((row) => Item.fromData(row.data, this))
           .get();
     }
-    return await customSelect("SELECT * from items WHERE $query",
-        variables: binding, readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
+    joinTables ??= [];
+    return await customSelect("SELECT * from items $join WHERE $query",
+        variables: binding,
+        readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }
 
   Future<int> itemPropertyRecordInsert(ItemPropertyRecord record) async {
@@ -70,9 +81,20 @@ class Database extends _$Database {
     var property = await itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(record.name), Variable(record.itemRowID)]);
     if (property.length > 0) {
-      //TODO: need to test
-      return update(data.table).where(
-          (tbl) => (tbl as Strings).item.equals(record.itemRowID) & tbl.name.equals(record.name));
+      return (update(data.table)
+            ..where((tbl) {
+              if (tbl is Integers) {
+                //TODO find a way to avoid this?
+                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+              } else if (tbl is Strings) {
+                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+              } else if (tbl is Reals) {
+                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+              } else {
+                throw Exception("Unknown table ${data.table.toString()}");
+              }
+            }))
+          .write(data.companion);
     } else {
       return into(data.table).insert(data.companion);
     }
@@ -103,18 +125,32 @@ class Database extends _$Database {
     }
   }
 
+  TableInfo getItemPropertyRecordTable(ItemRecordPropertyTable table) {
+    switch (table) {
+      case ItemRecordPropertyTable.integers:
+        return integers;
+      case ItemRecordPropertyTable.reals:
+        return reals;
+      case ItemRecordPropertyTable.strings:
+        return strings;
+    }
+  }
+
   Future<ItemPropertyRecordTableData> getItemPropertyRecordTableData(
       ItemPropertyRecord record) async {
     ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
     Item item = await itemRecordFetchWithRowId(record.itemRowID);
     switch (table) {
       case ItemRecordPropertyTable.integers:
+        var value = record.$value.value is bool
+            ? record.$value.value == true
+                ? 1
+                : 0
+            : record.$value.value;
         return ItemPropertyRecordTableData(
             table: integers,
             companion: IntegersCompanion(
-                item: Value(item.rowId!),
-                name: Value(record.name),
-                value: Value(record.$value.value)));
+                item: Value(item.rowId!), name: Value(record.name), value: Value(value)));
       case ItemRecordPropertyTable.reals:
         return ItemPropertyRecordTableData(
             table: reals,
@@ -142,7 +178,7 @@ class Database extends _$Database {
 
   Future<Edge?> edgeRecordSelect(Map<String, dynamic> properties) async {
     return await customSelect(
-        "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"}",
+        "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"} LIMIT 1",
         variables: properties.values.map((property) => Variable(property)).toList(),
         readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).getSingleOrNull();
   }
@@ -158,10 +194,14 @@ class Database extends _$Database {
     return await customSelect("SELECT * from edges WHERE $query",
         variables: binding, readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
+
+  Future<NavigationStateData?> navigationStateFetchOne() async {
+    return await select(navigationState).getSingleOrNull();
+  }
 }
 
 class ItemPropertyRecordTableData {
-  final table;
+  final TableInfo table;
   final UpdateCompanion companion;
 
   ItemPropertyRecordTableData({required this.table, required this.companion});

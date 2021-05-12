@@ -1,10 +1,4 @@
-//
-//  CVULookup.swift
-//  MemriDatabase
-//
-//  Created by T Brennan on 23/12/20.
-//
-
+import 'package:html/parser.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Expression.dart';
@@ -35,7 +29,8 @@ class CVULookupController {
       CVUExpressionNode? expression,
       CVUContext? context,
       dynamic? defaultValue,
-      DatabaseController? db}) async {
+      DatabaseController? db,
+      Type? additionalType}) async {
     switch (T) {
       case double:
         if (nodes != null) {
@@ -78,8 +73,8 @@ class CVULookupController {
           return await _resolveExpressionItemRecordArray(expression, context!, db!) as T?;
         }
         return await _resolveItemRecordArray(value!, context!, db!) as T?;
-      case Binding:
-        return await _resolveBinding(value!, context!, db!, defaultValue) as T?;
+      case FutureBinding:
+        return await _resolveBinding(value!, context!, db!, defaultValue, additionalType!) as T?;
       case LookupStep:
         return await _resolveLookupStep(nodes!, context!, db!) as T?;
       case PropertyDatabaseValue:
@@ -158,17 +153,17 @@ class CVULookupController {
     }
   }
 
-  Future<Binding<dynamic>?> _resolveBinding(
-      CVUValue value, CVUContext context, DatabaseController db, dynamic? defaultValue) async {
+  Future<FutureBinding?> _resolveBinding(CVUValue value, CVUContext context, DatabaseController db,
+      dynamic? defaultValue, Type type) async {
     if (value is CVUValueExpression) {
       var expression = value.value;
       if (expression is CVUExpressionNodeLookup) {
-        var nodes = expression.nodes;
+        List<CVULookupNode> nodes = []..addAll(expression.nodes);
         List? res = await _resolveToItemAndProperty(nodes, context, db);
         ItemRecord? item = res?[0];
         String? property = res?[1];
         if (res != null && item != null && property != null) {
-          return await item.propertyBinding(name: property, defaultValue: defaultValue);
+          return await item.propertyBinding(name: property, defaultValue: defaultValue, type: type);
         }
       }
       return null;
@@ -272,8 +267,8 @@ class CVULookupController {
                   if (htmlstring == null || htmlstring.isEmpty) {
                     return null;
                   }
-                  return PropertyDatabaseValueString(htmlstring);
-                  //TODO return PropertyDatabaseValueString(DOMPurify.sanitize(htmlstring, {ALLOWED_TAGS: []}))
+                  var strippedText = parse(parse(htmlstring).body!.text).documentElement!.text;
+                  return PropertyDatabaseValueString(strippedText);
                 })
                 .whereType<PropertyDatabaseValue>()
                 .toList();
@@ -298,9 +293,9 @@ class CVULookupController {
               return null;
             }
 
-            if (currentValue is LookupStepValues) {
+            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
               currentValue = LookupStepValues([currentValue.values.last]);
-            } else if (currentValue is LookupStepItems) {
+            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
               currentValue = LookupStepItems([currentValue.items.last]);
             } else {
               return null;
@@ -484,7 +479,7 @@ class CVULookupController {
         switch (node.name) {
           case "uid":
             return LookupStepValues(
-                items.map((element) => PropertyDatabaseValueString(element.uid)).toList());
+                items.map((element) => PropertyDatabaseValueInt(element.rowId!)).toList());
           case "dateModified":
             return LookupStepValues(items
                 .map((element) => PropertyDatabaseValueDatetime(element.dateModified))
@@ -501,17 +496,15 @@ class CVULookupController {
         var expectedType = db.schema.expectedType(itemType, node.name);
         if (expectedType is ResolvedTypeProperty) {
           /// LOOKUP PROPERTY FOR EACH ITEM
-          List<PropertyDatabaseValue> result = items
-              .map((item) async {
-                ItemPropertyRecord? property = await item.property(node.name, db);
-                PropertyDatabaseValue? value = property?.value(item.type, db.schema);
-                if (property == null || value == null) {
-                  return null;
-                }
-                return value;
-              })
-              .whereType<PropertyDatabaseValue>()
-              .toList();
+          List<PropertyDatabaseValue> result = [];
+          await Future.forEach(items, (ItemRecord item) async {
+            ItemPropertyRecord? property = await item.property(node.name, db);
+            PropertyDatabaseValue? value = property?.value(item.type, db.schema);
+            if (property == null || value == null) {
+              return null;
+            }
+            result.add(value);
+          });
           return LookupStepValues(result);
         } else if (expectedType is ResolvedTypeEdge) {
           /// LOOKUP EDGE FOR EACH ITEM
@@ -522,10 +515,12 @@ class CVULookupController {
                 .toList();
             return LookupStepItems(await filter(result, subexpression, db));
           } else {
-            List<ItemRecord> result =
-                (await Future.wait(items.map((item) async => await item.edgeItem(trimmedName, db))))
-                    .whereType<ItemRecord>()
-                    .toList();
+            List<ItemRecord> result = [];
+            await Future.forEach(items, (ItemRecord item) async {
+              var itemRecord = await item.edgeItem(trimmedName, db);
+              if (itemRecord != null) result.add(itemRecord);
+            });
+
             return LookupStepItems(await filter(result, subexpression, db));
           }
         } else {
@@ -545,7 +540,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepValues) {
-      return lookupResult.values[0].asDouble();
+      return lookupResult.values.asMap()[0]?.asDouble();
     } else {
       return null;
     }
@@ -562,7 +557,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepValues) {
-      return lookupResult.values[0].asString();
+      return lookupResult.values.asMap()[0]?.asString();
     } else {
       return null;
     }
@@ -579,7 +574,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepValues) {
-      return lookupResult.values[0].asBool();
+      return lookupResult.values.asMap()[0]?.asBool();
     } else if (lookupResult is LookupStepItems) {
       return lookupResult.items.isNotEmpty;
     } else {
@@ -836,7 +831,7 @@ class CVULookupController {
   Future<List?> _resolveToItemAndProperty(
       List<CVULookupNode> nodes, CVUContext context, DatabaseController db) async {
     ItemRecord? currentItem;
-    if (currentItem == null || nodes.isEmpty) {
+    if (nodes.isEmpty) {
       return null;
     }
 

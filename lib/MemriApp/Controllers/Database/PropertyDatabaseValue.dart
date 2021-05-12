@@ -32,7 +32,7 @@ abstract class PropertyDatabaseValue {
         if (boolean == null) {
           return null;
         }
-        return PropertyDatabaseValueBool(boolean);
+        return PropertyDatabaseValueBool(boolean == 1 ? true : false);
       case SchemaValueType.int:
         var number = int.tryParse(databaseValue.value);
         if (number == null) {
@@ -40,17 +40,17 @@ abstract class PropertyDatabaseValue {
         }
         return PropertyDatabaseValueInt(number);
       case SchemaValueType.double:
-        var doubleValue = double.tryParse(databaseValue.value);
-        if (doubleValue == null) {
+        var doubleValue = databaseValue.value;
+        if (doubleValue == null || !(doubleValue is double)) {
           return null;
         }
         return PropertyDatabaseValueDouble(doubleValue);
       case SchemaValueType.datetime:
-        var datetimeInt = int.tryParse(databaseValue.value);
+        var datetimeInt = databaseValue.value;
         if (datetimeInt == null) {
           return null;
         }
-        var date = DateTime(databaseValue.value);
+        var date = DateTime.fromMillisecondsSinceEpoch(databaseValue.value);
         return PropertyDatabaseValueDatetime(date);
       case SchemaValueType.blob:
         var data = databaseValue.value;
@@ -70,10 +70,15 @@ abstract class PropertyDatabaseValue {
         }
         return PropertyDatabaseValueDouble(value.toDouble());
       case SchemaValueType.bool:
-        if (value is! bool) {
+        if (value is! bool && value is! int) {
           throw Exception('Expected Bool: $debugInfo');
         } //TODO: @mkslanc
-        var intVal = value ? 1 : 0;
+        var intVal;
+        if (value is bool) {
+          intVal = (value) ? 1 : 0;
+        } else {
+          intVal = value;
+        }
         return PropertyDatabaseValueInt(intVal);
       //return PropertyDatabaseValueBool(value, SchemaValueType.bool);
       case SchemaValueType.int:
@@ -128,13 +133,13 @@ abstract class PropertyDatabaseValue {
   }
 
   double? asDouble() {
-    return double.tryParse(value);
+    return value is double ? value : double.tryParse(value.toString());
   }
 
   bool? asBool() {
-    return (value != null && ["0", "", "false"].contains(value.toString()))
-        ? true
-        : false; //TODO find a valid way to convert to boolean @anijanyan
+    return (value == null || ["0", "", "false"].contains(value.toString()))
+        ? false
+        : true; //TODO find a valid way to convert to boolean @anijanyan
   }
 
   DateTime? asDate() {

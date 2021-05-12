@@ -2,6 +2,7 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 
+import '../AppController.dart';
 import 'ItemRecord.dart';
 
 class ItemEdgeRecord {
@@ -52,15 +53,16 @@ class ItemEdgeRecord {
   }
 
   Future<int> insert(Database db) async {
+    await insertSelfItemRecord(db);
     return await db.itemEdgeRecordInsert(this);
   }
 
   Future<ItemRecord?> owningItem(DatabaseController db) async {
-    return await ItemRecord.fetchWithUID(sourceUID!, db);
+    return await ItemRecord.fetchWithRowID(sourceRowID!, db);
   }
 
   Future<ItemRecord?> targetItem(DatabaseController db) async {
-    return await ItemRecord.fetchWithUID(targetUID!, db);
+    return await ItemRecord.fetchWithRowID(targetRowID!, db);
   }
 
 /*
@@ -75,7 +77,17 @@ class ItemEdgeRecord {
   }
 */
 
-  save(Database db) async {
+  save([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    await insertSelfItemRecord(db);
     return await db.itemEdgeRecordSave(this);
+  }
+
+  insertSelfItemRecord([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    if (selfUID == null && selfRowID == null) {
+      ItemRecord selfRecord = ItemRecord(type: "Edge");
+      selfRowID = await selfRecord.insert(db);
+    }
   }
 }

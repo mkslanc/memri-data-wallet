@@ -5,6 +5,7 @@
 //  Created by T Brennan on 14/12/20.
 //
 
+import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,14 +23,17 @@ class AppController {
   late SyncController syncController;
   late CVUController cvuController;
 
-  AppState state = AppState.setup;
+  ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
+  get state => _state;
+  set state(newValue) => _state.value = newValue;
 
   static String keychainDatabaseKey = "memri_databaseKey";
 
   AppController() {
-    databaseController = DatabaseController();
-    this.syncController = SyncController(databaseController);
-    this.cvuController = CVUController();
+    databaseController = DatabaseController(inMemory: true);
+    syncController = SyncController(databaseController);
+    cvuController = CVUController();
+    cvuController.init();
   }
 
   void onLaunch() {
@@ -59,7 +63,7 @@ class AppController {
           onCompletion(null);
           return;
         }
-        DemoData.importDemoData(databaseController: databaseController);
+        await DemoData.importDemoData(databaseController: databaseController);
       } on Exception catch (error) {
         onCompletion(error);
         return;
@@ -94,9 +98,8 @@ class AppController {
     isAuthenticated = true;
     // var dbKey = Keychain().getString(AppController.keychainDatabaseKey);
     //TODO @anijanyan
-    /*var dbKey = "aaaa"
-    if (dbKey != null) {
-        print(`GOT KEY: ${dbKey}`);
+    /*if (dbKey != null) {
+        print(`GOT KEY: $dbKey`);
         isAuthenticated = true;
     } else {
         isAuthenticated = false;
