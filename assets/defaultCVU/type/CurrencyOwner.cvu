@@ -1,0 +1,174 @@
+CurrencyOwner > list {
+    onPress: openView {
+        viewName: transactionView
+        viewArguments {
+            ownerUID: {{.uid}}
+        }
+    }
+
+    VStack {
+        HStack {
+            spacing: 5
+            show: {{.isOwner = true}}
+
+            VStack {
+                
+                Image {
+                    image: {{.profilePicture}}
+                    sizingMode: fill
+                    minHeight: 80
+                    maxHeight: 80
+                    minWidth: 80
+                    maxWidth: 80
+                    cornerRadius: 30
+                }
+                Text {
+                    text: {{"@" + .username or ""}}
+                    lineLimit: 1
+                    font: 24 bold
+                    color: primary
+                }   
+            }  
+
+            Text {
+                text: {{"Balance: " + .ownCurrency.myToken + " " + .ownCurrency.name}}
+                lineLimit: 1
+                font: 36 regular
+                color: primary
+                padding: 0 0 0 50
+            }
+
+            Spacer
+
+            Button {
+                background: #7E073B
+                cornerRadius: 5
+
+                Text {
+                    text: "Transfer"
+                    font: 12 semibold
+                    color: #fff
+                    padding: 5 8 5 8
+                }
+
+                onPress: openViewByName {
+                    viewName: transferView
+                    viewArguments {
+                        receiverUID: {{.uid}}
+                    }
+                }
+            }  
+        }
+
+        HStack {
+            show: {{.isOwner != true}}
+            VStack {
+                Image {
+                    image: {{.profilePicture}}
+                    sizingMode: fill
+                    minHeight: 50
+                    maxHeight: 50
+                    minWidth: 50
+                    maxWidth: 50
+                    cornerRadius: 30
+                }
+            
+                Text {
+                    text: {{"@"+.username}}
+                    lineLimit: 1
+                    font: 20 regular
+                    color: primary
+                }   
+            }      
+        } 
+    }
+}
+
+CurrencyOwner > grid {  
+
+    VStack {
+        show: {{.isOwner != true}}
+
+        Text {
+            text: {{"Send to"}}
+            font: 24 bold
+            color: primary
+            padding: 0 0 10 0
+        }    
+
+        Image {
+            image: {{.profilePicture}}
+            sizingMode: fill
+            minHeight: 50
+            maxHeight: 50
+            minWidth: 50
+            maxWidth: 50
+            cornerRadius: 30
+        }
+    
+        Text {
+            text: {{"@"+.username}}
+            lineLimit: 1
+            font: 20 regular
+            color: primary
+        }
+
+        Text {
+            text: {{"Enter amount"}}
+            font: 24 bold
+            color: primary
+            padding: 20 0 10 0
+        }
+    
+        Text {
+            background: secondaryBackground
+            font: 20 regular
+            color: primary
+            padding: 10
+        }
+    }
+}
+
+.transactionView {
+    title: "Transactions"
+    defaultRenderer: list
+
+    [datasource = pod] {
+        query: "CryptoTransaction"
+        filter: {
+            edgeTargets: {              
+                relateTo: {{ownerUID}}
+            }
+        }
+        sortProperty: "dateCreated"
+    } 
+
+    [renderer = list] {
+        hideSeparators: true
+    }
+
+    CryptoTransaction > list {
+    }
+}
+
+.transferView {
+    title: "Transfer CirclesUBI"
+    defaultRenderer: grid
+
+    [datasource = pod] {
+        query: "CurrencyOwner"
+        filter: {
+            edgeTargets: {              
+                trustOwner: {{receiverUID}}
+            }
+        }
+        sortProperty: "dateCreated"
+    }
+
+    [renderer = grid] {
+        hideSeparators: true
+    }
+
+    CurrencyOwner > grid {
+    }
+}

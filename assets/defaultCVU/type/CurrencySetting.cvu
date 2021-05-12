@@ -1,0 +1,83 @@
+CurrencySetting > list {
+
+    VStack {
+
+        VStack {
+            show: {{.seedPhrase != ""}}
+
+            Text {
+                text: "Device Address"
+                font: 16 regular
+                color: primary
+                padding: 10
+            }
+            Text {
+                text: {{.deviceAddress}}
+                background: {{ "secondaryBackground" }}
+                font: 28 bold
+                color: primary
+                padding: 10
+            }
+            Text {
+                text: "Profile Address"
+                font: 16 regular
+                color: primary
+                padding: 10 
+            }
+            Text {
+                text: {{.profileAddress}}
+                background: {{ "secondaryBackground" }}
+                font: 28 bold
+                color: primary
+                padding: 10
+            }
+            Text {
+                text: "Token Address"
+                font: 16 regular
+                color: primary
+                padding: 10 
+            }
+            Text {
+                text: {{.tokenAddress}}
+                background: {{ "secondaryBackground" }}
+                font: 24 bold
+                color: primary
+                padding: 10
+            }
+
+            Divider
+
+            Text {
+                text: "Seed Phrase (keep it safe)"
+                font: 28 bold
+                color: primary
+                padding: 10 
+            }
+            Text {
+                text: {{.seedPhrase}}
+                background: {{ "secondaryBackground" }}
+                font: 24 regular
+                color: primary
+                padding: 10
+            }
+        }
+
+    VStack {
+        show: {{.seedPhrase = ""}}
+
+        Text {
+                text: "Input seed phrase for login"
+                font: 28 bold
+                color: primary
+                padding: 10
+            }
+        }
+
+        Text {
+            background: {{ "secondaryBackground" }}
+            font: 24 regular
+            color: primary
+            padding: 10
+        }
+    }
+} 

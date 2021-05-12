@@ -1,0 +1,27 @@
+CryptoTransaction > list {
+    
+    HStack {
+
+        Text {
+            show: {{.relateTo.username = .withOwner.username}}
+            text: {{"Circles UBI"}}
+            font: 20 regular
+            color: primary
+            padding: 10
+        }    
+            
+        Text {
+            show: {{.relateTo.username != .withOwner.username}}
+            text: {{.outward = true ? "@" + .relateTo.username + " sent to @" + .withOwner.username : "@" + .withOwner.username + " sent to @" + .relateTo.username}}
+            font: 20 regular
+            color: primary
+            padding: 10
+        }
+    
+        Text {
+            text: {{.quantity}}
+            font: 20 regular
+            color: primary
+        }
+    }
+}
