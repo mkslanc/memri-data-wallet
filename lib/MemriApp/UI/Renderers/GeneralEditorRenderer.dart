@@ -561,8 +561,9 @@ class DefaultGeneralEditorRow extends StatelessWidget {
           snapshot.connectionState == ConnectionState.done && snapshot.hasData
               ? MemriDatePicker(
                   initialSet: snapshot.data!,
-                  onPressed: (DateTime value) =>
-                      !sceneController.isInEditMode.value ? binding.set(value) : null,
+                  onPressed: sceneController.isInEditMode.value
+                      ? (DateTime value) async => await binding.set(value)
+                      : null,
                   formatter: "MMM d, yyyy",
                   style: generalEditorCaptionStyle(),
                   isEditing: sceneController.isInEditMode.value)
