@@ -69,7 +69,7 @@ class TimelineRendererView extends StatelessWidget {
                         var item = element.items.first;
                         var press = viewContext.nodePropertyResolver(item)?.action("onPress");
                         if (press != null) {
-                          press.execute(sceneController, viewContext.getCVUContext(item));
+                          press.execute(sceneController, viewContext.getCVUContext(item: item));
                         }
                       }
                     },
@@ -98,7 +98,7 @@ class TimelineRendererView extends StatelessWidget {
           backgroundColor: Colors.grey);
     } else if (element.items.length > 0) {
       var item = element.items.first;
-      return viewContext.render(item);
+      return viewContext.render(item: item);
     } else {
       return SizedBox.shrink();
     }

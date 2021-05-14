@@ -32,12 +32,11 @@ class CVUButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //TODO: buttonStyle
-    return TextButton(onPressed: onPress, child: nodeResolver.childrenInForEachWithWrap());
     return FutureBuilder(
         future: init(),
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return ElevatedButton(
+            return TextButton(
               onPressed: onPress,
               child: nodeResolver.childrenInForEachWithWrap(),
               style: ElevatedButton.styleFrom(textStyle: resolvedTextProperties.textStyle),

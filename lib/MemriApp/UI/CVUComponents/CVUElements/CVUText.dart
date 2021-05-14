@@ -18,11 +18,6 @@ class CVUText extends StatelessWidget {
   CVUText({required this.nodeResolver, required this.textProperties});
 
   init() async {
-    font = await nodeResolver.propertyResolver.font();
-    color = await nodeResolver.propertyResolver.color();
-    content = (await nodeResolver.propertyResolver.string("text")) ?? "";
-    textAlign = await nodeResolver.propertyResolver.textAlignment();
-    lineLimit = await nodeResolver.propertyResolver.lineLimit;
     content = (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
     resolvedTextProperties = await textProperties;
   }
