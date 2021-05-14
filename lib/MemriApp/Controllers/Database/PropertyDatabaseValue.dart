@@ -136,6 +136,10 @@ abstract class PropertyDatabaseValue {
     return value is double ? value : double.tryParse(value.toString());
   }
 
+  int? asInt() {
+    return int.tryParse(value);
+  }
+
   bool? asBool() {
     return (value == null || ["0", "", "false"].contains(value.toString()))
         ? false
@@ -143,6 +147,9 @@ abstract class PropertyDatabaseValue {
   }
 
   DateTime? asDate() {
+    if (value is DateTime) {
+      return value;
+    }
     var val = int.tryParse(value); //TODO is this correct @anijanyan
     return val == null ? null : DateTime.fromMicrosecondsSinceEpoch(val);
   }

@@ -70,7 +70,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                                                 : spacing.y / 2),
                                         child: ColoredBox(
                                           color: backgroundColor,
-                                          child: viewContext.render(viewContext.items[index]),
+                                          child: viewContext.render(item: viewContext.items[index]),
                                         )),
                                     onTap: selectionMode(index),
                                   ),
@@ -108,7 +108,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   }
 
   GestureTapCallback selectionMode(index) {
-    if (sceneController.isInEditMode) {
+    if (sceneController.isInEditMode.value) {
       return () {
         print(index); //TODO select
       };
@@ -119,7 +119,7 @@ class _ListRendererViewState extends State<ListRendererView> {
         if (item != null) {
           var press = viewContext.nodePropertyResolver(item)?.action("onPress");
           if (press != null) {
-            press.execute(sceneController, viewContext.getCVUContext(item));
+            press.execute(sceneController, viewContext.getCVUContext(item: item));
           }
         }
       };

@@ -215,50 +215,58 @@ Person {
                                 renderAs: popup
                                 title: "Edit"
                                 
-                                viewName: "choose-item-by-query"
+                                viewName: "itemByQuery"
                                 viewArguments: {
-                                    query: "Photo" /* AND ANY allEdges.targetItemID = {.uid} */
+                                    query: "Photo"
                                     type: Photo
-                                    renderer: "thumbnail"
-                                    subject: {{.}}
+                                    renderer: "grid"
                                     edgeType: "profilePicture"
                                     distinct: true
                                     title: "Choose a photo"
+                                    editMode: false
+                                    onPress: [
+                                        link {
+                                            subject: {{subject}}
+                                            edgeType: {{edgeType}}
+                                            distinct: {{distinct}}
+                                        }
+                                        closePopup
+                                    ]
                                 }
                             }
                         }
                     }
                 }
-				
+
 				VStack {
 					spacing: 6
 					Text {
 						font: 20 bold
 						text: "{.firstName} {.lastName}"
 					}
-					
+
 					Text {
 						show: {{ !.label }}
 						text: "no labels yet"
 					}
-					
+
 					FlowStack {
                         spacing: 5
 						list: {{ .label[] }}
-						
+
 						button {
-							onPress: openViewByName {
-								viewName: "all-items-with-label"
+							onPress: openView {
+								viewName: "allItemsWithLabel"
 								viewArguments: {
 									name: "{.name}"
 									uid: {{.uid}}
 								}
 							}
-							
+
 							VStack {
 								background: {{.color}}
 								cornerRadius: 5
-								
+
 								Text {
 									text: "{.name}"
 									font: 16 semibold
@@ -271,62 +279,46 @@ Person {
 				}
             }
         }
-        
+
         picturesOfPerson {
-            title: "Photos of {.computedTitle()}"
-            
-            SubView {
-                minHeight: 165
-                
-                view {
-                    defaultRenderer: grid
-                    
-                    [datasource = pod] {
-                        query: "Photo AND ANY allEdges.targetItemID = {.uid}"
+            title: "Photos of {.firstName} {.lastName}"
+
+             Grid {
+                height: 200
+                minColumnHeight: 80
+                spacing: 1
+                items: {{.~includes[]}}
+                emptyResultText: "There are no photos here yet"
+
+                ForEach {
+                  items: {{.~includes[]}}
+                    Image {
+                        image: {{.file}}
+                        sizingMode: fill
+                        background: background
+                        width: 90
                     }
-                    
-                    [renderer = grid] {
-                        scrollDirection: horizontal
-                        columns: 2
-                        edgeInset: 0
-                        allowBounce: false
-                        
-                        onPress: openView {
-                            view: {
-                                inherit: {{currentView}}
-                                defaultRenderer: "photoViewer"
-                            }
-                            viewArguments: {
-                                currentItem: {{.}}
-                            }
-                        }
-                    }
-                }
-                arguments: {
-                    showToolbar: false
-                    showBottomBar: false
-                    readOnly: true
                 }
             }
         }
-        
+
         cryptoKeys {
             EditorRow {
                 title: "{.name}"
-            
+
                 Text {
                     text: "{.key}"
                 }
             }
         }
-        
+
         onlineProfiles {
             EditorRow {
                 title: "{.itemType}"
-            
+
                 VStack {
                     cornerRadius: 5
-                
+
                     Text {
                         text: "{.handle}"
                     }
@@ -342,11 +334,11 @@ Person > list {
         }
         VStack {
             alignment: left
-        
+
             HStack {
                 alignment: center
                 spacing: 10
-                
+
                 Image {
                     image: {{.profilePicture}}
                     sizingMode: fill
@@ -356,7 +348,7 @@ Person > list {
                     maxWidth: 60
                     cornerRadius: 30
                 }
-                
+
                 VStack {
                     spacing: 4
                     Text {
@@ -372,7 +364,7 @@ Person > list {
             }
         }
  }
- 
+
  Person > grid {
     onPress: openView {
         renderer: generalEditor
