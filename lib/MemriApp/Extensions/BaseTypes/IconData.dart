@@ -33,6 +33,8 @@ extension MemriIcon on IconData {
         return Icons.add;
       case "rhombus.fill":
         return Icons.filter_list;
+      case "arrow_right":
+        return Icons.arrow_right;
       default:
         return Icons.contact_support_rounded;
     }

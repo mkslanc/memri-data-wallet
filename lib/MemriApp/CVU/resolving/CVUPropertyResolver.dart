@@ -604,12 +604,12 @@ class CVUPropertyResolver {
     return await cgFloat("height") ?? await cgFloat("maxHeight");
   }
 
-  Future<Size?> get offset async {
+  Future<Offset> get offset async {
     var val = await this.cgPoint("offset");
     if (val == null) {
-      return null; //.zero TODO:
+      return Offset.zero;
     }
-    return Size(val.x.toDouble(), val.y.toDouble());
+    return Offset(val.x.toDouble(), val.y.toDouble());
   }
 
   Future<double?> get shadow async {

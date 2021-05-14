@@ -11,9 +11,13 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/OptionalDatePicker.dart';
 
 import '../ViewContextController.dart';
+import 'FilterPanelSortItemView.dart';
 
 class FilterPanelView extends StatefulWidget {
   final ViewContextController viewContext;
+
+  static var excludedSortFields = ["uid", "deleted", "externalId", "version", "allEdges"];
+  static var defaultSortFields = ["dateCreated", "dateModified"];
 
   FilterPanelView({required this.viewContext});
 
@@ -21,7 +25,7 @@ class FilterPanelView extends StatefulWidget {
   _FilterPanelViewState createState() => _FilterPanelViewState(viewContext);
 }
 
-enum FilterPanelTab { renderer, filterOptions, rendererOptions }
+enum FilterPanelTab { renderer, filterOptions, rendererOptions, sortOptions }
 
 class _FilterPanelViewState extends State<FilterPanelView> {
   final ViewContextController viewContext;
@@ -41,6 +45,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
         return "Renderer options";
       case FilterPanelTab.filterOptions:
         return "Filter options";
+      case FilterPanelTab.sortOptions:
+        return "Sort options";
     }
   }
 
@@ -78,6 +84,10 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                     tabButton(Icons.restore, FilterPanelTab.filterOptions),
                     VerticalDivider(
                       width: 1,
+                    ),
+                    tabButton(Icons.swap_vertical_circle, FilterPanelTab.sortOptions),
+                    VerticalDivider(
+                      width: 1,
                     )
                   ],
                 ),
@@ -104,6 +114,16 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                                   currentTabTitle,
                                   style: TextStyle(color: Colors.black, fontSize: 17),
                                 )),
+                                actions: [
+                                  if (currentTab == FilterPanelTab.sortOptions)
+                                    TextButton(
+                                        child: Icon(!viewContext.config.query.sortAscending
+                                            ? Icons.arrow_upward
+                                            : Icons.arrow_downward),
+                                        onPressed: () => setState(() =>
+                                            viewContext.config.query.sortAscending =
+                                                !viewContext.config.query.sortAscending))
+                                ],
                               ),
                             ],
                           ),
@@ -139,6 +159,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
         return filterOptionsTab;
       case FilterPanelTab.rendererOptions:
         return rendererOptionsTab;
+      case FilterPanelTab.sortOptions:
+        return sortOptionsTab;
     }
   }
 
@@ -279,5 +301,43 @@ class _FilterPanelViewState extends State<FilterPanelView> {
               height: 0,
             ),
         itemCount: filterOptions.length);
+  }
+
+  List<String>? get sortFields {
+    var item = viewContext.items.asMap()[0];
+    var propertyTypes =
+        item == null ? null : viewContext.databaseController.schema.types[item.type]?.propertyTypes;
+
+    if (propertyTypes == null) return null;
+
+    List<String> fields = propertyTypes.entries.map((propertyType) => propertyType.key).toList();
+    fields.addAll(FilterPanelView.defaultSortFields);
+    fields.sort();
+    return fields;
+  }
+
+  Widget get sortOptionsTab {
+    var fields =
+        sortFields?.where((field) => !FilterPanelView.excludedSortFields.contains(field)).toList();
+    if (fields == null) return Text("No sort options available.");
+    return ListView.separated(
+        physics: BouncingScrollPhysics(parent: BouncingScrollPhysics()),
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        itemBuilder: (BuildContext context, int index) => ListTile(
+              dense: true,
+              minVerticalPadding: 0,
+              title: FilterPanelSortItemView(
+                property: fields[index],
+                selection: Binding(
+                    () => viewContext.config.query.sortProperty,
+                    (sortProperty) =>
+                        setState(() => viewContext.config.query.sortProperty = sortProperty)),
+              ),
+            ),
+        separatorBuilder: (context, index) => Divider(
+              height: 0,
+            ),
+        itemCount: fields.length);
   }
 }
