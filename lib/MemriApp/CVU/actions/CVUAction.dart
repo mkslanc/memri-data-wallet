@@ -41,6 +41,8 @@ CVUAction Function({Map? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionAddItem(vars: vars);
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
+    case "openviewbyname":
+      return ({Map? vars}) => CVUActionOpenViewByName(vars: vars);
     case "toggleeditmode":
       return ({Map? vars}) => CVUActionToggleEditMode(vars: vars);
     case "togglefilterpanel":

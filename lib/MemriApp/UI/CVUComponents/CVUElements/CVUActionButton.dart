@@ -29,17 +29,13 @@ class _CVUActionButtonState extends State<CVUActionButton> {
   var isShowing = false;
 
   CVUAction? get action {
-    var _action = widget.nodeResolver.propertyResolver.action("onPress");
-    if (_action == null) {
-      return null;
-    }
-    return _action;
+    return widget.nodeResolver.propertyResolver.action("onPress");
   }
 
   onPress() {
     var actions = widget.nodeResolver.propertyResolver.actions("onPress");
     if (actions == null) {
-      return null;
+      return;
     }
     for (var action in actions) {
       action.execute(sceneController, widget.nodeResolver.context);
@@ -47,19 +43,15 @@ class _CVUActionButtonState extends State<CVUActionButton> {
   }
 
   String get title {
-    if (action is! CVUActionOpenViewByName) {
+    var _action = action;
+    if (_action is! CVUActionOpenViewByName) {
       return "";
     }
-    var titleVal = (action as CVUActionOpenViewByName).vars["title"];
-    if (titleVal == null) {
+    var titleVal = _action.vars["title"];
+    if (titleVal is! CVUValueConstant || titleVal.value is! CVUConstantString) {
       return "";
     }
-    var _title = titleVal;
-    if (titleVal is! CVUValueConstant ||
-        (titleVal is CVUValueConstant && titleVal.value is! CVUConstantString)) {
-      return "";
-    }
-    return (_title as CVUConstantString).value;
+    return (titleVal.value as CVUConstantString).value;
   }
 
   CVUViewArguments? get viewArguments {
@@ -89,7 +81,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     var validAction = action;
     if (validAction is CVUActionOpenViewByName) {
       return TextButton(
-          onPressed: () => isShowing = true,
+          onPressed: () => setState(() => isShowing = true),
           child: Text(
             title,
             style: TextStyle(color: Colors.black, fontSize: 15),
