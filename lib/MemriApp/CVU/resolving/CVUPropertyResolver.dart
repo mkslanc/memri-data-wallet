@@ -230,7 +230,7 @@ class CVUPropertyResolver {
         if (type == null) {
           return null;
         }
-        return [type(vars: {})];
+        return [type()];
       }
     }
     if (val is CVUValueArray) {
