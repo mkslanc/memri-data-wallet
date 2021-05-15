@@ -3,7 +3,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Helpers/MapHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
-import 'package:memri/MemriApp/UI/Components/MapView.dart';
+import 'package:memri/MemriApp/UI/Components/Map/MapView.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// A CVU element for displaying a Map
