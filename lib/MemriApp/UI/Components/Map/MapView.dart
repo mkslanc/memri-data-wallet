@@ -70,8 +70,12 @@ class MapView extends StatelessWidget {
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var firstItem = _mapModel.items.asMap()[0];
-            currentCoords = firstItem?.coordinate ?? LatLng(0.0, 0.0);
-            _addMarker(Point(0, 0), currentCoords);
+
+            if (firstItem != null) {
+              currentCoords = firstItem.coordinate;
+              _addMarker(Point(0, 0), currentCoords);
+            }
+
             return IgnorePointer(
               ignoring: !moveable,
               child: Stack(
