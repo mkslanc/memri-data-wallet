@@ -7,7 +7,6 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
-import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
@@ -22,7 +21,7 @@ import 'Database/ItemRecord.dart';
 import 'Database/NavigationStack.dart';
 
 /// The scene controller is specific to a particular `window` of the app. On the iPhone there is usually only one. There may be multiple eg. if multitasking on iPad or multiple windows on mac
-class SceneController {
+class SceneController extends ChangeNotifier {
   AppController appController = AppController.shared;
   static SceneController sceneController = SceneController();
 
@@ -132,6 +131,7 @@ class SceneController {
   }
 
   NavigationStack _navigationStack = NavigationStack();
+
   set navigationStack(NavigationStack newValue) {
     _navigationStack = newValue;
     shouldUpdate.value = !shouldUpdate.value; //TODO dirty hack
@@ -307,21 +307,12 @@ class SceneController {
     }*/ //TODO:
   }
 
-  /*func scheduleUIUpdate(updateWithAnimation: Bool = false) {
-  guard let _ = topMostContext else {
-  return
-  }
+  void scheduleUIUpdate([bool updateWithAnimation = false]) {
+    if (topMostContext == null) {
+      return;
+    }
 
-  if updateWithAnimation {
-  DispatchQueue.main.async {
-  withAnimation {
-  self.topMostContext?.update()
-  self.objectWillChange.send()
+    topMostContext?.update();
+    notifyListeners();
   }
-  }
-  } else {
-  self.topMostContext?.update()
-  objectWillChange.send()
-  }
-  }*/
 }
