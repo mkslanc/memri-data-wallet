@@ -401,7 +401,7 @@ class CVUActionLink extends CVUAction {
         sourceRowID: subjectItem.rowId, name: edgeType, targetRowID: currentItem.rowId);
     edge.save(db.databasePool);
 
-    //sceneController.scheduleUIUpdate() TODO:
+    sceneController.scheduleUIUpdate();
   }
 }
 
@@ -447,7 +447,7 @@ class CVUActionUnlink extends CVUAction {
       return;
     }
 
-    //sceneController.scheduleUIUpdate()
+    sceneController.scheduleUIUpdate();
   }
 }
 
