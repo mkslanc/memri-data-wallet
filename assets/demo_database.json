@@ -4360,7 +4360,7 @@
     {
         "_type": "Wallet",
         "uid": 22001124924993,
-        "name": "Ethereum",
+        "name": "Ethereum",       
         "allEdges": [
             {
                 "targetType": "Photo",
@@ -4550,17 +4550,17 @@
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924997
+                "uid": 22001124924999
             },
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924999
+                "uid": 22001124924997
             },
             {
-                "_type": "withOwner",
+                "_type": "ofOwner",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924999
+                "uid": 22001124924997
             }
         ]
     },
@@ -4576,7 +4576,7 @@
                 "uid": 22001124924997
             },
             {
-                "_type": "withOwner",
+                "_type": "ofOwner",
                 "targetType": "CurrencyOwner",
                 "uid": 22001124924997
             }
@@ -4591,19 +4591,19 @@
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924997
+                "uid": 22001124924998
             },
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924998
+                "uid": 22001124924997
             },
             {
-                "_type": "withOwner",
+                "_type": "ofOwner",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924998
+                "uid": 22001124924997
             }
-
+            
         ]
     },
     {
@@ -4638,19 +4638,19 @@
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924997
+                "uid": 22001124924998
             },
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924998
+                "uid": 22001124924997
             },
             {
-                "_type": "withOwner",
+                "_type": "ofOwner",
                 "targetType": "CurrencyOwner",
-                "uid": 22001124924998
+                "uid": 22001124924997
             }
-
+            
         ]
     },
     {

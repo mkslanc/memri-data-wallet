@@ -2,7 +2,7 @@
     "properties": [
       { "item_type": "CurrencyOwner", "property": "username", "value_type": "string" },
       { "item_type": "CurrencyOwner", "property": "isOwner", "value_type": "bool" },
-
+        
       { "item_type": "CryptoCurrency", "property": "name", "value_type": "string" },
       { "item_type": "CryptoCurrency", "property": "topic", "value_type": "string" },
       { "item_type": "CryptoCurrency", "property": "myToken", "value_type": "double" },
@@ -903,7 +903,7 @@
     { "source_type": "CurrencySetting", "edge": "inWallet", "target_type": "Wallet" },
 
     { "source_type": "CryptoTransaction", "edge": "relateTo", "target_type": "CurrencyOwner" },
-    { "source_type": "CryptoTransaction", "edge": "withOwner", "target_type": "CurrencyOwner" }
+    { "source_type": "CryptoTransaction", "edge": "ofOwner", "target_type": "CurrencyOwner" }
 
   ]
 }

@@ -7,80 +7,80 @@ CurrencyOwner > list {
     }
 
     VStack {
-        HStack {
+        VStack {
             spacing: 5
             show: {{.isOwner = true}}
-
-            VStack {
-                
-                Image {
-                    image: {{.profilePicture}}
-                    sizingMode: fill
-                    minHeight: 80
-                    maxHeight: 80
-                    minWidth: 80
-                    maxWidth: 80
-                    cornerRadius: 30
-                }
-                Text {
-                    text: {{"@" + .username or ""}}
-                    lineLimit: 1
-                    font: 24 bold
-                    color: primary
-                }   
-            }  
 
             Text {
                 text: {{"Balance: " + .ownCurrency.myToken + " " + .ownCurrency.name}}
                 lineLimit: 1
-                font: 36 regular
+                font: 28 bold
                 color: primary
-                padding: 0 0 0 50
+                padding: 10
             }
 
-            Spacer
-
-            Button {
-                background: #7E073B
-                cornerRadius: 5
-
-                Text {
-                    text: "Transfer"
-                    font: 12 semibold
-                    color: #fff
-                    padding: 5 8 5 8
-                }
-
-                onPress: openViewByName {
-                    viewName: transferView
-                    viewArguments {
-                        receiverUID: {{.uid}}
+            HStack {
+                VStack {
+                    Image {
+                        image: {{.profilePicture}}
+                        sizingMode: fill
+                        minHeight: 80
+                        maxHeight: 80
+                        minWidth: 80
+                        maxWidth: 80
+                        cornerRadius: 30
+                    }
+                    Text {
+                        text: {{"@" + .username or ""}}
+                        lineLimit: 1
+                        font: 24 bold
+                        color: primary
                     }
                 }
-            }  
+
+                Spacer
+
+                Button {
+                    background: #7E073B
+                    cornerRadius: 5
+                    padding: 10
+
+                    Text {
+                        text: "Transfer"
+                        font: 12 semibold
+                        color: #fff
+                        padding: 5 8 5 8
+                    }
+
+                    onPress: openViewByName {
+                        viewName: transferView
+                        viewArguments {
+                            receiverUID: {{.uid}}
+                        }
+                    }
+                }
+            }
         }
 
-        HStack {
+        VStack {
             show: {{.isOwner != true}}
-            VStack {
-                Image {
-                    image: {{.profilePicture}}
-                    sizingMode: fill
-                    minHeight: 50
-                    maxHeight: 50
-                    minWidth: 50
-                    maxWidth: 50
-                    cornerRadius: 30
-                }
-            
-                Text {
-                    text: {{"@"+.username}}
-                    lineLimit: 1
-                    font: 20 regular
-                    color: primary
-                }   
-            }      
-        } 
+            Image {
+                image: {{.profilePicture}}
+                sizingMode: fill
+                minHeight: 50
+                maxHeight: 50
+                minWidth: 50
+                maxWidth: 50
+                cornerRadius: 30
+            }
+
+            Text {
+                text: {{"@"+.username}}
+                lineLimit: 1
+                font: 20 regular
+                color: primary
+            }
+        }
     }
 }
 

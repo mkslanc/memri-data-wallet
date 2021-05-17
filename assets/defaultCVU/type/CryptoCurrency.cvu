@@ -9,7 +9,7 @@
                 ownCurrency: {{currencyUID}}
             }
         }
-        sortProperty: "name"
+        sortProperty: "isOwner"
     }
 
     [renderer = list] {
