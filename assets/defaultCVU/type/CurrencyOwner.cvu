@@ -1,11 +1,4 @@
 CurrencyOwner > list {
-    onPress: openView {
-        viewName: transactionView
-        viewArguments {
-            ownerUID: {{.uid}}
-        }
-    }
-
     VStack {
         VStack {
             spacing: 5
@@ -20,21 +13,29 @@ CurrencyOwner > list {
             }
 
             HStack {
-                VStack {
-                    Image {
-                        image: {{.profilePicture}}
-                        sizingMode: fill
-                        minHeight: 80
-                        maxHeight: 80
-                        minWidth: 80
-                        maxWidth: 80
-                        cornerRadius: 30
+                Button {
+                    onPress: openView {
+                        viewName: transactionView
+                        viewArguments {
+                            ownerUID: {{.uid}}
+                        }
                     }
-                    Text {
-                        text: {{"@" + .username or ""}}
-                        lineLimit: 1
-                        font: 24 bold
-                        color: primary
+                    VStack {
+                        Image {
+                            image: {{.profilePicture}}
+                            sizingMode: fill
+                            minHeight: 80
+                            maxHeight: 80
+                            minWidth: 80
+                            maxWidth: 80
+                            cornerRadius: 30
+                        }
+                        Text {
+                            text: {{"@" + .username or ""}}
+                            lineLimit: 1
+                            font: 24 bold
+                            color: primary
+                        }
                     }
                 }
 
@@ -61,23 +62,31 @@ CurrencyOwner > list {
             }
         }
 
-        VStack {
-            show: {{.isOwner != true}}
-            Image {
-                image: {{.profilePicture}}
-                sizingMode: fill
-                minHeight: 50
-                maxHeight: 50
-                minWidth: 50
-                maxWidth: 50
-                cornerRadius: 30
+        Button {
+            onPress: openView {
+                viewName: transactionView
+                viewArguments {
+                    ownerUID: {{.uid}}
+                }
             }
+            VStack {
+                show: {{.isOwner != true}}
+                Image {
+                    image: {{.profilePicture}}
+                    sizingMode: fill
+                    minHeight: 50
+                    maxHeight: 50
+                    minWidth: 50
+                    maxWidth: 50
+                    cornerRadius: 30
+                }
 
-            Text {
-                text: {{"@"+.username}}
-                lineLimit: 1
-                font: 20 regular
-                color: primary
+                Text {
+                    text: {{"@"+.username}}
+                    lineLimit: 1
+                    font: 20 regular
+                    color: primary
+                }
             }
         }
     }
