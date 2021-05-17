@@ -93,7 +93,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
                             widget.viewContext.nodePropertyResolver(item)?.action("onPress");
                         if (press != null) {
                           press.execute(
-                              widget.sceneController, widget.viewContext.getCVUContext(item));
+                              widget.sceneController, widget.viewContext.getCVUContext(item: item));
                         }
                       }
                     },
@@ -122,7 +122,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
           backgroundColor: Colors.grey);
     } else if (element.items.length > 0) {
       var item = element.items.first;
-      return widget.viewContext.render(item);
+      return widget.viewContext.render(item: item);
     } else {
       return SizedBox.shrink();
     }

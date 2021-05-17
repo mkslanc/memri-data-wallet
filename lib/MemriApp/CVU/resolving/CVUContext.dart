@@ -29,8 +29,12 @@ class CVUContext {
       : this.viewDefinition = viewDefinition ?? CVUDefinitionContent();
 
   CVUContext replacingItem(ItemRecord item) {
-    var result = this;
-    result.currentItem = item;
-    return result;
+    return CVUContext(
+        currentItem: item,
+        selector: selector,
+        viewName: viewName,
+        rendererName: rendererName,
+        viewDefinition: viewDefinition,
+        viewArguments: viewArguments);
   }
 }

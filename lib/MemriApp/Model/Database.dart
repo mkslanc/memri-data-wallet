@@ -142,11 +142,12 @@ class Database extends _$Database {
     Item item = await itemRecordFetchWithRowId(record.itemRowID);
     switch (table) {
       case ItemRecordPropertyTable.integers:
-        var value = record.$value.value is bool
-            ? record.$value.value == true
-                ? 1
-                : 0
-            : record.$value.value;
+        var value = record.$value.value;
+        if (value is bool) {
+          value = value ? 1 : 0;
+        } else if (value is DateTime) {
+          value = value.millisecondsSinceEpoch;
+        }
         return ItemPropertyRecordTableData(
             table: integers,
             companion: IntegersCompanion(
@@ -174,6 +175,11 @@ class Database extends _$Database {
 
   Future<int> itemEdgeRecordSave(ItemEdgeRecord record) async {
     return into(edges).insertOnConflictUpdate(await record.toCompanion(this));
+  }
+
+  Future<int> itemEdgeRecordDelete(ItemEdgeRecord record) async {
+    await (delete(items)..where((tbl) => tbl.rowId.equals(record.selfRowID))).go();
+    return (delete(edges)..where((tbl) => tbl.self.equals(record.selfRowID))).go();
   }
 
   Future<Edge?> edgeRecordSelect(Map<String, dynamic> properties) async {

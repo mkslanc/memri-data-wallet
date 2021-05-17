@@ -20,7 +20,7 @@ class PhotoViewerRendererView extends StatelessWidget {
     var fileURL = await viewContext.nodePropertyResolver(item)?.fileURL("file");
     if (fileURL == null) return null;
 
-    var overlay = viewContext.render(item, null, true);
+    var overlay = viewContext.render(item: item, blankIfNoDefinition: true);
     return PhotoViewerControllerPhotoItem(index, fileURL, overlay);
   }
 
