@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 
 class Picker<T> extends StatefulWidget {
-  final String title;
+  final String label;
   final FutureBinding<T> selection;
   final Map<T, String> group;
 
-  Picker(this.title, {required this.selection, required this.group});
+  Picker(this.label, {required this.selection, required this.group});
 
   @override
   _PickerState<T> createState() => _PickerState<T>();
@@ -52,7 +52,7 @@ class _PickerState<T> extends State<Picker<T>> {
                             excludeHeaderSemantics: true,
                             title: Center(
                                 child: Text(
-                              widget.title,
+                              widget.label,
                               style: TextStyle(color: Colors.black, fontSize: 17),
                             )),
                           )),
@@ -90,7 +90,7 @@ class _PickerState<T> extends State<Picker<T>> {
             child: Row(
               children: [
                 Text(
-                  widget.title,
+                  widget.label,
                   style: TextStyle(color: Colors.black),
                 ),
                 Spacer(),
