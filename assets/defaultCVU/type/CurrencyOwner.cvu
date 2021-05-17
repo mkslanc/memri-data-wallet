@@ -43,7 +43,6 @@ CurrencyOwner > list {
                 Button {
                     background: #7E073B
                     cornerRadius: 5
-                    padding: 10
 
                     Text {
                         text: "Transfer"
