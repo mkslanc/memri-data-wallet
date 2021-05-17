@@ -44,19 +44,18 @@ CurrencyOwner > list {
                 Button {
                     background: #7E073B
                     cornerRadius: 5
+                    onPress: openView {
+                        viewName: transferView
+                        viewArguments {
+                            receiverUID: {{.uid}}
+                        }
+                    }
 
                     Text {
                         text: "Transfer"
                         font: 12 semibold
                         color: #fff
                         padding: 5 8 5 8
-                    }
-
-                    onPress: openViewByName {
-                        viewName: transferView
-                        viewArguments {
-                            receiverUID: {{.uid}}
-                        }
                     }
                 }
             }
@@ -92,17 +91,9 @@ CurrencyOwner > list {
     }
 }
 
-CurrencyOwner > grid {  
-
+CurrencyOwner > grid {
     VStack {
         show: {{.isOwner != true}}
-
-        Text {
-            text: {{"Send to"}}
-            font: 24 bold
-            color: primary
-            padding: 0 0 10 0
-        }    
 
         Image {
             image: {{.profilePicture}}
@@ -119,20 +110,6 @@ CurrencyOwner > grid {
             lineLimit: 1
             font: 20 regular
             color: primary
-        }
-
-        Text {
-            text: {{"Enter amount"}}
-            font: 24 bold
-            color: primary
-            padding: 20 0 10 0
-        }
-    
-        Text {
-            background: secondaryBackground
-            font: 20 regular
-            color: primary
-            padding: 10
         }
     }
 }
@@ -160,7 +137,7 @@ CurrencyOwner > grid {
 }
 
 .transferView {
-    title: "Transfer CirclesUBI"
+    title: "Transfer To"
     defaultRenderer: grid
 
     [datasource = pod] {
