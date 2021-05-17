@@ -6,57 +6,60 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
-class GridRendererView extends StatefulWidget {
+class GridRendererView extends StatelessWidget {
   final SceneController sceneController;
   final ViewContextController viewContext;
 
   GridRendererView({required this.sceneController, required this.viewContext});
 
-  @override
-  _GridRendererViewState createState() => _GridRendererViewState(sceneController, viewContext);
-}
+  late final bool isInEditMode;
 
-class _GridRendererViewState extends State<GridRendererView> {
-  final SceneController sceneController;
-  final ViewContextController viewContext;
-
-  _GridRendererViewState(this.sceneController, this.viewContext);
+  Future init() async {
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
+        .boolean("editMode", sceneController.isInEditMode.value))!;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: viewContext.itemsValueNotifier,
-        builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-          return viewContext.hasItems
-              ? Expanded(
-                  child: GridView.count(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  childAspectRatio: 4 / 5,
-                  shrinkWrap: true,
-                  primary: false,
-                  padding: const EdgeInsets.all(5),
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                  crossAxisCount: 3,
-                  children: viewContext.items
-                      .mapIndexed((index, item) => GestureDetector(
-                            onTap: selectionMode(index),
-                            child: Container(
-                              alignment: Alignment.bottomRight,
-                              child: viewContext.render(item: item),
-                            ),
+    return FutureBuilder(
+      future: init(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) =>
+          snapshot.connectionState == ConnectionState.done
+              ? ValueListenableBuilder(
+                  valueListenable: viewContext.itemsValueNotifier,
+                  builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                    return viewContext.hasItems
+                        ? Expanded(
+                            child: GridView.count(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            childAspectRatio: 4 / 5,
+                            shrinkWrap: true,
+                            primary: false,
+                            padding: const EdgeInsets.all(5),
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
+                            crossAxisCount: 3,
+                            children: viewContext.items
+                                .mapIndexed((index, item) => GestureDetector(
+                                      onTap: selectionMode(index),
+                                      child: Container(
+                                        alignment: Alignment.bottomRight,
+                                        child: viewContext.render(item: item),
+                                      ),
+                                    ))
+                                .toList(),
                           ))
-                      .toList(),
-                ))
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [],
-                );
-        });
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [],
+                          );
+                  })
+              : SizedBox.shrink(),
+    );
   }
 
   GestureTapCallback selectionMode(index) {
-    if (sceneController.isInEditMode.value) {
+    if (isInEditMode) {
       return () {
         print(index); //TODO select
       };
