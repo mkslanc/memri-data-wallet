@@ -290,21 +290,15 @@ class SceneController extends ChangeNotifier {
         SceneContentView(sceneController: this, viewContext: newViewContextController));
   }
 
-  late List<Binding<dynamic>> closeStack = [];
+  late List<BuildContext> closeStack = [];
 
-  /*=
-  [Binding<PresentationMode>]()*/ // A stack of bindings for the display state of presented popups
-
-  addToStack(Binding<dynamic> isPresentedBinding) {
-    closeStack.add(isPresentedBinding);
+  addToStack(BuildContext context) {
+    closeStack.add(context);
   }
 
   closeLastInStack() {
-    /*var lastVisibleIndex = closeStack.lastIndexWhere((element) => element.isPresented);
-    if (lastVisibleIndex > -1) {
-      */ /*closeStack[lastVisibleIndex].wrappedValue.dismiss()
-      closeStack = Array(closeStack.prefix(upTo: lastVisibleIndex))*/ /*
-    }*/ //TODO:
+    var lastStack = closeStack.removeLast();
+    Navigator.of(lastStack).pop();
   }
 
   void scheduleUIUpdate([bool updateWithAnimation = false]) {
