@@ -1,7 +1,5 @@
 CurrencySetting > list {
-
     VStack {
-
         VStack {
             alignment: center
             show: {{.seedPhrase != ""}}

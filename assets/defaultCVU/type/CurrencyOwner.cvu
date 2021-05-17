@@ -45,7 +45,7 @@ CurrencyOwner > list {
                     background: #7E073B
                     cornerRadius: 5
                     onPress: openView {
-                        viewName: transferView
+                        viewName: transferToView
                         viewArguments {
                             receiverUID: {{.uid}}
                         }
@@ -93,8 +93,6 @@ CurrencyOwner > list {
 
 CurrencyOwner > grid {
     VStack {
-        show: {{.isOwner != true}}
-
         Image {
             image: {{.profilePicture}}
             sizingMode: fill
@@ -136,7 +134,7 @@ CurrencyOwner > grid {
     }
 }
 
-.transferView {
+.transferToView {
     title: "Transfer To"
     defaultRenderer: grid
 
