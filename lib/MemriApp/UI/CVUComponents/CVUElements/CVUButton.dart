@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUTextPropertiesModifier.dart';
@@ -7,19 +8,21 @@ import 'CVUTextPropertiesModifier.dart';
 /// - Use the `onPress` property to provide a CVU Action for the button
 class CVUButton extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
+  final SceneController sceneController = SceneController.sceneController;
 
-  //final SceneController sceneController;
   final Future<TextProperties> textProperties;
   late final TextProperties resolvedTextProperties;
 
   CVUButton({required this.nodeResolver, required this.textProperties});
 
   onPress() {
-    var action = nodeResolver.propertyResolver.action("onPress");
-    if (action == null) {
+    var actions = nodeResolver.propertyResolver.actions("onPress");
+    if (actions == null) {
       return;
     }
-    //action.execute(sceneController, nodeResolver.context); TODO: need sceneController
+    for (var action in actions) {
+      action.execute(sceneController, nodeResolver.context);
+    }
   }
 
   init() async {
@@ -33,7 +36,7 @@ class CVUButton extends StatelessWidget {
         future: init(),
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return ElevatedButton(
+            return TextButton(
               onPressed: onPress,
               child: nodeResolver.childrenInForEachWithWrap(),
               style: ElevatedButton.styleFrom(textStyle: resolvedTextProperties.textStyle),

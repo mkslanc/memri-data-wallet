@@ -34,6 +34,9 @@ class CVUUINode extends CVUStringConvertible {
     if (type == CVUUIElementFamily.HTMLView) {
       shouldExpandHeight = true;
     }
+    if (type == CVUUIElementFamily.FlowStack) {
+      shouldExpandWidth = true;
+    }
   }
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {

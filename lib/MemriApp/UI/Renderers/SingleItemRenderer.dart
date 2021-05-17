@@ -37,7 +37,7 @@ class SingleItemRendererView extends StatelessWidget {
                         color: backgroundColor,
                         child: Padding(
                           padding: insets,
-                          child: viewContext.render(item),
+                          child: viewContext.render(item: item),
                         ),
                       ));
                     } else {

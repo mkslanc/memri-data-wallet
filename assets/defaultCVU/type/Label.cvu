@@ -103,3 +103,48 @@ Label > grid {
         edgeInset: 10
     }
 }
+
+Label[]: {
+    name: "all-labels"
+    title: "All Labels"
+    emptyResultText: "You have not added any labels yet"
+    defaultRenderer: list
+
+    actionButton: addItem {
+        template: {
+            _type: "label"
+            name: "new label"
+        }
+    }
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+
+    [datasource = pod] {
+        query: "label"
+        sortProperty: dateCreated
+        sortAscending: true
+    }
+}
+
+
+Label: {
+    name: "all-labels"
+    title: "All Labels"
+    emptyResultText: "You have not added any labels yet"
+    defaultRenderer: list
+
+    actionButton: addItem {
+        template: {
+            _type: "label"
+            name: "new label"
+        }
+    }
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+
+    [datasource = pod] {
+        query: "label"
+        sortProperty: dateCreated
+        sortAscending: true
+    }
+}

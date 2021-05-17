@@ -300,12 +300,14 @@ abstract class DatabaseQueryCondition {
   dynamic get value;
 }
 
+// A property of this item equals a particular value
 class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
   PropertyEquals value;
 
   DatabaseQueryConditionPropertyEquals(this.value);
 }
 
+// This item has an edge pointing to 'x' item
 class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
   EdgeHasTarget value;
 

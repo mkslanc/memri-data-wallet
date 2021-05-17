@@ -43,7 +43,7 @@ class _GridRendererViewState extends State<GridRendererView> {
                             onTap: selectionMode(index),
                             child: Container(
                               alignment: Alignment.bottomRight,
-                              child: viewContext.render(item),
+                              child: viewContext.render(item: item),
                             ),
                           ))
                       .toList(),
@@ -56,7 +56,7 @@ class _GridRendererViewState extends State<GridRendererView> {
   }
 
   GestureTapCallback selectionMode(index) {
-    if (sceneController.isInEditMode) {
+    if (sceneController.isInEditMode.value) {
       return () {
         print(index); //TODO select
       };
@@ -67,7 +67,7 @@ class _GridRendererViewState extends State<GridRendererView> {
         if (item != null) {
           var press = viewContext.nodePropertyResolver(item)?.action("onPress");
           if (press != null) {
-            press.execute(sceneController, viewContext.getCVUContext(item));
+            press.execute(sceneController, viewContext.getCVUContext(item: item));
           }
         }
       };

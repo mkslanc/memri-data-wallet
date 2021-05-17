@@ -90,4 +90,10 @@ class ItemEdgeRecord {
       selfRowID = await selfRecord.insert(db);
     }
   }
+
+  Future<bool> delete([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var rows = await db.itemEdgeRecordDelete(this);
+    return rows > 0;
+  }
 }

@@ -60,14 +60,8 @@ class DemoData {
         }
         var sourceRowID = sourceIDLookup[item.uid];
 
-        ItemRecord selfRecord = ItemRecord(
-            type: "Edge", dateCreated: item.dateCreated, dateModified: item.dateModified);
-        var selfRowId = await selfRecord.insert(databaseController.databasePool);
-        var record = ItemEdgeRecord(
-            selfRowID: selfRowId,
-            sourceRowID: sourceRowID,
-            name: edge.name,
-            targetRowID: targetActualID);
+        var record =
+            ItemEdgeRecord(sourceRowID: sourceRowID, name: edge.name, targetRowID: targetActualID);
         await record.insert(databaseController.databasePool);
       }
     }

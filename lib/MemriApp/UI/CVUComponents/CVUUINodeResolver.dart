@@ -12,6 +12,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 
 import 'CVUElementView.dart';
 
@@ -30,10 +31,12 @@ class CVUUINodeResolver {
     return Wrap(children: childrenInForEach());
   }
 
-  List<Widget> childrenInForEach() {
+  List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
+    var newContext = usingItem != null ? context.replacingItem(usingItem) : context;
     return node.children.map((child) {
       Widget widget = CVUElementView(
-        nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+        nodeResolver: CVUUINodeResolver(context: newContext, lookup: lookup, node: child, db: db),
+        additionalParams: additionalParams,
       );
       if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
           (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
