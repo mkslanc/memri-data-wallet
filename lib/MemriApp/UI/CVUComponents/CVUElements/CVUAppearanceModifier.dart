@@ -50,16 +50,10 @@ class CVUAppearanceModifier {
                 child: widget,
               );
             }
-            if (cornerRadius > 0) {
-              widget = ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
-                child: widget,
-              );
-            }
             if (offset != Offset.zero) {
               widget = Transform.translate(offset: offset, child: widget);
             }
-            return Container(
+            widget = Container(
                 constraints: BoxConstraints(
                     maxHeight: maxHeight,
                     minHeight: minHeight,
@@ -73,6 +67,13 @@ class CVUAppearanceModifier {
                   opacity: opacity,
                   child: widget,
                 ));
+            if (cornerRadius > 0) {
+              widget = ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
+                child: widget,
+              );
+            }
+            return widget;
           } else {
             return Text("");
           }
