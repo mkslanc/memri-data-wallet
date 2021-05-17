@@ -241,7 +241,7 @@ class CVUPropertyResolver {
         if (action is CVUValueConstant) {
           if (action.value is CVUConstantArgument) {
             Map<String, CVUValue> vars = {};
-            var def = array[i + 1];
+            var def = array.asMap()[i + 1];
             if (def is CVUValueSubdefinition) {
               var keys = def.value.properties.keys;
               for (var key in keys) {
