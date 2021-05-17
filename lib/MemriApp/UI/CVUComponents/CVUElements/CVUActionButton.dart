@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/ViewContextController.dart';
+import 'package:memri/MemriApp/UI/BrowserView.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -25,8 +28,6 @@ class CVUActionButton extends StatefulWidget {
 
 class _CVUActionButtonState extends State<CVUActionButton> {
   final SceneController sceneController = SceneController.sceneController;
-
-  var isShowing = false;
 
   CVUAction? get action {
     return widget.nodeResolver.propertyResolver.action("onPress");
@@ -81,7 +82,33 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     var validAction = action;
     if (validAction is CVUActionOpenViewByName) {
       return TextButton(
-          onPressed: () => setState(() => isShowing = true),
+          onPressed: () => showModalBottomSheet<void>(
+                context: context,
+                useRootNavigator: true,
+                isScrollControlled: true,
+                builder: (BuildContext context) => FutureBuilder<ViewContextController?>(
+                  future: validAction.getViewContext(CVUContext(
+                      currentItem: widget.nodeResolver.context.currentItem,
+                      viewName: validAction.viewName,
+                      rendererName: validAction.renderer,
+                      viewArguments: viewArguments)),
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return SizedBox.shrink();
+                      default:
+                        if (snapshot.hasData) {
+                          return BrowserView(
+                            viewContext: snapshot.data!,
+                            sceneController: sceneController,
+                          );
+                        } else {
+                          return Text("TODO: ActionPopupButton");
+                        }
+                    }
+                  },
+                ),
+              ),
           child: Text(
             title,
             style: TextStyle(color: Colors.black, fontSize: 15),
