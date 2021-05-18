@@ -72,6 +72,21 @@
   {
     "_type": "NavigationItem",
     "itemType": "heading",
+    "title": "Crypto"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "Cryptocurrency",
+    "sessionName": "allCryptoCurrencies"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "Wallet",
+    "sessionName": "allWallets"
+  },
+  {
+    "_type": "NavigationItem",
+    "itemType": "heading",
     "title": "Inbox"
   },
   {
@@ -981,6 +996,32 @@
         "_target": {
           "_type": "File",
           "filename": "unsplash-image18"
+        }
+      }
+    ]
+  },
+  {
+    "_type": "Photo",
+    "uid": 10499,
+    "allEdges": [
+      {
+        "_type": "file",
+        "_target": {
+          "_type": "File",
+          "filename": "eth"
+        }
+      }
+    ]
+  },
+  {
+    "_type": "Photo",
+    "uid": 10500,
+    "allEdges": [
+      {
+        "_type": "file",
+        "_target": {
+          "_type": "File",
+          "filename": "circles"
         }
       }
     ]
@@ -4320,6 +4361,347 @@
         "targetType": "File",
         "uid": 398901324765,
         "_type": "file"
+      }
+    ]
+  },
+  {
+    "_type": "Wallet",
+    "uid": 22001124924993,
+    "name": "Ethereum",
+    "allEdges": [
+      {
+        "targetType": "Photo",
+        "uid": 10499,
+        "_type": "picture"
+      }
+    ]
+  },
+  {
+    "_type": "Wallet",
+    "uid": 22001124924994,
+    "name": "CirclesUBI",
+    "allEdges": [
+      {
+        "targetType": "Photo",
+        "uid": 10500,
+        "_type": "picture"
+      }
+    ]
+  },
+  {
+    "_type": "CryptoCurrency",
+    "uid": 22001124924995,
+    "name": "ETH",
+    "topic": "Ethereum",
+    "myToken": 100,
+    "allEdges": [
+      {
+        "_type": "hasSetting",
+        "targetType": "CurrencySetting",
+        "uid": 22001124925005
+      },
+      {
+        "targetType": "Photo",
+        "uid": 10499,
+        "_type": "picture"
+      }
+    ]
+  },
+  {
+    "_type": "CryptoCurrency",
+    "uid": 22001124924996,
+    "name": "Circles",
+    "topic": "Circles UBI",
+    "myToken": 3000,
+    "allEdges": [
+      {
+        "_type": "hasSetting",
+        "targetType": "CurrencySetting",
+        "uid": 22001124925006
+      },
+      {
+        "targetType": "Photo",
+        "uid": 10500,
+        "_type": "picture"
+      }
+    ]
+  },
+  {
+    "_type": "CurrencyOwner",
+    "uid": 22001124924997,
+    "username": "alice",
+    "isOwner": true,
+    "allEdges": [
+      {
+        "_type": "profilePicture",
+        "targetType": "Photo",
+        "uid": 10501
+      },
+      {
+        "_type": "belongsTo",
+        "targetType": "Person",
+        "uid": 1
+      },
+      {
+        "_type": "ownCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "trustOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924998
+      },
+      {
+        "_type": "trustOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924999
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925000
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925001
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925002
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925004
+      }
+    ]
+  },
+  {
+    "_type": "CurrencyOwner",
+    "uid": 22001124924998,
+    "username": "eve",
+    "allEdges": [
+      {
+        "_type": "profilePicture",
+        "targetType": "Photo",
+        "uid": 10503
+      },
+      {
+        "_type": "belongsTo",
+        "targetType": "Person",
+        "uid": 3
+      },
+      {
+        "_type": "ownCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "trustOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925002
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925004
+      }
+    ]
+  },
+  {
+    "_type": "CurrencyOwner",
+    "uid": 22001124924999,
+    "username": "bob",
+    "allEdges": [
+      {
+        "_type": "profilePicture",
+        "targetType": "Photo",
+        "uid": 10502
+      },
+      {
+        "_type": "belongsTo",
+        "targetType": "Person",
+        "uid": 2
+      },
+      {
+        "_type": "ownCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "trustOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      },
+      {
+        "_type": "hasTransfer",
+        "targetType": "CryptoTransaction",
+        "uid": 22001124925000
+      }
+    ]
+  },
+  {
+    "_type": "CryptoTransaction",
+    "uid": 22001124925000,
+    "quantity": 50,
+    "outward": true,
+    "allEdges": [
+      {
+        "_type": "inCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924999
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      },
+      {
+        "_type": "ofOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      }
+    ]
+  },
+  {
+    "_type": "CryptoTransaction",
+    "uid": 22001124925001,
+    "quantity": 100,
+    "outward": true,
+    "allEdges": [
+      {
+        "_type": "inCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      },
+      {
+        "_type": "ofOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      }
+    ]
+  },
+  {
+    "_type": "CryptoTransaction",
+    "uid": 22001124925002,
+    "quantity": 100,
+    "outward": false,
+    "allEdges": [
+      {
+        "_type": "inCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924998
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      },
+      {
+        "_type": "ofOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      }
+    ]
+  },
+  {
+    "_type": "CurrencyOwner",
+    "uid": 22001124925003,
+    "username": "0x123456",
+    "isOwner": true,
+    "allEdges": [
+      {
+        "_type": "profilePicture",
+        "targetType": "Photo",
+        "uid": 10501
+      },
+      {
+        "_type": "belongsTo",
+        "targetType": "Person",
+        "uid": 1
+      },
+      {
+        "_type": "ownCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924995
+      }
+    ]
+  },
+  {
+    "_type": "CryptoTransaction",
+    "uid": 22001124925004,
+    "quantity": 200,
+    "outward": true,
+    "allEdges": [
+      {
+        "_type": "inCurrency",
+        "targetType": "CryptoCurrency",
+        "uid": 22001124924996
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924998
+      },
+      {
+        "_type": "relateTo",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      },
+      {
+        "_type": "ofOwner",
+        "targetType": "CurrencyOwner",
+        "uid": 22001124924997
+      }
+    ]
+  },
+  {
+    "_type": "CurrencySetting",
+    "uid": 22001124925005,
+    "seedPhrase": "",
+    "allEdges": [
+      {
+        "_type": "inWallet",
+        "targetType": "Wallet",
+        "uid": 22001124924993
+      }
+    ]
+  },
+  {
+    "_type": "CurrencySetting",
+    "uid": 22001124925006,
+    "seedPhrase": "insect cough company whip books trucks side quill land liquid notebook teaching",
+    "deviceAddress": "0xabcdefg",
+    "profileAddress": "0xhijklmn",
+    "tokenAddress": "0xopqrst",
+    "allEdges": [
+      {
+        "_type": "inWallet",
+        "targetType": "Wallet",
+        "uid": 22001124924994
       }
     ]
   }

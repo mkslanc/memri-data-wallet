@@ -44,6 +44,7 @@ class _OptionalDatePickerState extends State<OptionalDatePicker> {
     if (unwrappedBinding != null) {
       return [
         Expanded(
+          flex: 0,
           child: TextButton(
             onPressed: () => _selectDate(context),
             child:
