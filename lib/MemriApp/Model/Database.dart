@@ -52,6 +52,10 @@ class Database extends _$Database {
     return await into(items).insertOnConflictUpdate(record.toCompanion());
   }
 
+  Future<int> itemRecordDelete(ItemRecord record) async {
+    return await (delete(items)..where((tbl) => tbl.rowId.equals(record.rowId))).go();
+  }
+
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
       {String join = "", List<TableInfo>? joinTables}) async {
     if (query == "") {
