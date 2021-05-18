@@ -33,7 +33,7 @@ class CVUElementView extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
   final Map<String, dynamic>? additionalParams; //TODO not best solution
 
-  CVUElementView({required this.nodeResolver, this.additionalParams});
+  CVUElementView({required this.nodeResolver, this.additionalParams, Key? key}) : super(key: key);
 
   Widget resolvedComponent([Future<TextProperties>? textProperties]) {
     switch (nodeResolver.node.type) {
