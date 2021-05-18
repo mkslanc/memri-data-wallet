@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
+import 'package:memri/MemriApp/UI/Components/Text/TextField/MemriTextfield.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
@@ -13,18 +15,16 @@ class CVUTextField extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
   late final bool? secureMode;
   late final String? hint;
-  late final Binding<String?> contentBinding;
+  late final FutureBinding<String?>? contentBinding;
+  final SceneController sceneController = SceneController();
 
   CVUTextField({required this.nodeResolver});
-
-  //@EnvironmentObject var sceneController: SceneController
 
   init() async {
     // Secure mode hides the input (eg. for passwords)
     secureMode = await nodeResolver.propertyResolver.boolean("secure", false);
     hint = (await nodeResolver.propertyResolver.string("hint"))?.nullIfBlank;
-    contentBinding = await nodeResolver.propertyResolver.binding("value", null)
-        as Binding<String?>; /*?? .constant(nil) */
+    contentBinding = await nodeResolver.propertyResolver.binding<String>("value", null);
   }
 
   @override
@@ -34,18 +34,19 @@ class CVUTextField extends StatelessWidget {
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return TextFormField(
+              return MemriTextField.async(
+                futureBinding: contentBinding,
                 style: TextStyle(color: Color(0xff8a66bc)),
-                onChanged: (text) => contentBinding.set(text),
-                initialValue: contentBinding.get(),
-                decoration: InputDecoration(
+                isEditing: sceneController.isInEditMode.value,
+              );
+            /* TODO:
+            InputDecoration(
                   hintText: hint,
-                  hintStyle: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.4)),
+                  hintStyle:
+                      TextStyle(color: Color.fromRGBO(255, 255, 255, 0.4)),
                   fillColor: Color.fromRGBO(0, 0, 0, 0.4),
                   filled: true,
                 ),
-              );
-            /* TODO:
               textColor: nodeResolver.propertyResolver.color()?.uiColor,
             isEditing: $sceneController.isInEditMode,
             isSharedEditingBinding: true,

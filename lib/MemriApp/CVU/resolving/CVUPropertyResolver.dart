@@ -184,11 +184,12 @@ class CVUPropertyResolver {
         property: propertyName, item: item, db: this.db);
   }
 
-  Future<FutureBinding<T>?> binding<T>(String key, dynamic? defaultValue) async {
-    if (defaultValue.runtimeType == bool) {
-      return await _bindingWithBoolean(key, defaultValue ?? false) as FutureBinding<T>?;
+  Future<FutureBinding<T>?> binding<T>(String key, [T? defaultValue]) async {
+    if (T == bool) {
+      return await _bindingWithBoolean(key, defaultValue != null ? defaultValue as bool : false)
+          as FutureBinding<T>?;
     } else {
-      return await _bindingWithString(key, defaultValue) as FutureBinding<T>?;
+      return await _bindingWithString(key, defaultValue?.toString()) as FutureBinding<T>?;
     }
   }
 
