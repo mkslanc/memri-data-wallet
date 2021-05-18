@@ -19,6 +19,7 @@ import 'CVUElements/CVUFlowStack.dart';
 import 'CVUElements/CVUForEach.dart';
 import 'CVUElements/CVUHTMLView.dart';
 import 'CVUElements/CVUImage.dart';
+import 'CVUElements/CVUMap.dart';
 import 'CVUElements/CVUMemriButton.dart';
 import 'CVUElements/CVUShape.dart';
 import 'CVUElements/CVUStacks.dart';
@@ -52,8 +53,8 @@ class CVUElementView extends StatelessWidget {
         );
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: nodeResolver);
-      //case CVUUIElementFamily.Map:
-      // return CVU_Map(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.Map:
+        return CVUMap(nodeResolver: nodeResolver);
       case CVUUIElementFamily.SmartText:
         return CVUSmartText(
           nodeResolver: nodeResolver,

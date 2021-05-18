@@ -296,9 +296,8 @@ class CVULookupController {
             break;
           case "joinwithcomma":
             String joined = (await Future.wait(args.map((element) async =>
-                    (await resolve<String>(expression: element, context: context, db: db))
-                        .toString())))
-                .where((element) => element.isNotEmpty)
+                    (await resolve<String>(expression: element, context: context, db: db)))))
+                .where((element) => element != null && element.isNotEmpty)
                 .join(", ");
             currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
             break;
