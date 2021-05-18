@@ -46,8 +46,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   }
 
   updateIsInEditMode() async {
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
-        .boolean("editMode", sceneController.isInEditMode.value))!;
+    await initEditMode();
     setState(() {});
   }
 
@@ -65,6 +64,10 @@ class _ListRendererViewState extends State<ListRendererView> {
     separatorsEnabled =
         !(await viewContext.rendererDefinitionPropertyResolver.boolean("hideSeparators", false))!;
 
+    await initEditMode();
+  }
+
+  Future<void> initEditMode() async {
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", sceneController.isInEditMode.value))!; // sceneController.isInEditMode
 
