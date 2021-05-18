@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 extension StringExtension on String {
   String? get nullIfBlank {
     return RegExp(r"^\s*$").hasMatch(this) ? null : this;
@@ -18,5 +20,10 @@ extension StringExtension on String {
         })
         .toLowerCase()
         .capitalizingFirst();
+  }
+
+  String escapeForJavascript() {
+    var str = jsonEncode([this]);
+    return str.substring(2, str.length - 2);
   }
 }
