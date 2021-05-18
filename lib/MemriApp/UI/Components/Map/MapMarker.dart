@@ -20,7 +20,7 @@ class MapMarker extends StatefulWidget {
   }
 }
 
-class MapMarkerState extends State with TickerProviderStateMixin {
+class MapMarkerState extends State<MapMarker> with TickerProviderStateMixin {
   var _initialIconSize = 30.0;
   var _iconSize;
 
@@ -62,7 +62,7 @@ class MapMarkerState extends State with TickerProviderStateMixin {
   }
 
   LatLng getCoordinate() {
-    return (widget as MapMarker)._coordinate;
+    return widget._coordinate;
   }
 
   void _onTap() {

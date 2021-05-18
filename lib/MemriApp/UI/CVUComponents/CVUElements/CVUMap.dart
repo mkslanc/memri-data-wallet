@@ -4,7 +4,6 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Helpers/MapHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/UI/Components/Map/MapView.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// A CVU element for displaying a Map
 class CVUMap extends StatelessWidget {
@@ -64,10 +63,10 @@ class MapViewConfig {
       required this.addressResolver,
       required this.labelResolver,
       this.maxInitialZoom = 16,
-      moveable,
+      Future<bool?>? moveable,
       this.onPress})
       : this.dataItems = dataItems ?? [],
-        this.moveable = moveable ?? true;
+        this.moveable = moveable ?? Future(() => true);
 }
 
 class MapModel {
@@ -88,28 +87,30 @@ class MapModel {
       var locations = await resolveItem(item);
       String labelString = await labelResolver(item) ?? "";
       return locations.map((el) {
-        return MapItem(label: labelString, coordinate: el!, dataItem: item);
+        return MapItem(label: labelString, coordinate: el, dataItem: item);
       });
     }));
     items = newItems.expand((element) => element).toList();
   }
 
-  Future<List<LatLng?>> resolveItem(ItemRecord dataItem) async {
-    List<LatLng?> clLocations = [];
-    List<LatLng?> locations =
-        await Future.wait((await locationResolver(dataItem)).compactMap((item) async {
+  Future<List<LatLng>> resolveItem(ItemRecord dataItem) async {
+    List<LatLng> clLocations = [];
+    List<LatLng> locations =
+        (await Future.wait((await locationResolver(dataItem)).map((item) async {
       var latitude = (await item.propertyValue("latitude"))?.asDouble();
       var longitude = (await item.propertyValue("longitude"))?.asDouble();
       if (latitude == null || longitude == null) {
         return null;
       }
       return LatLng(latitude, longitude);
-    }));
+    })))
+            .whereType<LatLng>()
+            .toList();
     clLocations.addAll(locations);
 
     var addresses = await addressResolver(dataItem);
     var resolvedLocations = await Future.wait(addresses.map((el) async => await lookupAddress(el)));
-    clLocations.addAll(resolvedLocations.where((element) => element != null));
+    clLocations.addAll(resolvedLocations.whereType<LatLng>());
 
     return clLocations;
   }
@@ -119,11 +120,7 @@ class MapModel {
     if (location != null) {
       return location;
     } else {
-      var lookupLocation = await MapHelper.shared.lookupLocationForAddress(address);
-      print(lookupLocation);
-      if (lookupLocation != null) {
-        return lookupLocation;
-      }
+      return await MapHelper.shared.lookupLocationForAddress(address);
     }
   }
 }
