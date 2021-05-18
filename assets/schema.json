@@ -2149,6 +2149,10 @@
       "target_type": "CurrencySetting"
     },
     { "source_type": "CryptoTransaction",
+      "edge": "inCurrency",
+      "target_type": "CryptoCurrency"
+    },
+    { "source_type": "CryptoTransaction",
       "edge": "relateTo",
       "target_type": "CurrencyOwner"
     },

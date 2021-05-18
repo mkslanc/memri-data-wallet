@@ -4,7 +4,7 @@ CryptoTransaction > list {
             show: {{.relateTo.username = .ofOwner.username}}
 
             Text {
-                text: {{"Circles UBI"}}
+                text: {{.inCurrency.topic}}
                 font: 20 regular
                 color: primary
             }
@@ -21,7 +21,7 @@ CryptoTransaction > list {
             show: {{.relateTo.username != .ofOwner.username}}
 
             Text {
-                text: {{.outward = true ? "@" + .ofOwner.username + " sent to @" + .relateTo.username : "@" + .relateTo.username + " sent to @" + .ofOwner.username}}
+                text: {{.outward = true ? "Sent to @" + .relateTo.username : "Received from @" + .relateTo.username}}
                 font: 20 regular
                 color: primary
             }

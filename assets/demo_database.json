@@ -4411,7 +4411,7 @@
         "_type": "CryptoCurrency",
         "uid": 22001124924996,
         "name": "Circles",
-        "topic": "CirclesUBI",
+        "topic": "Circles UBI",
         "myToken": 3000,
         "allEdges": [
             {
@@ -4555,6 +4555,11 @@
         "outward": true,
         "allEdges": [
             {
+                "_type": "inCurrency",
+                "targetType": "CryptoCurrency",
+                "uid": 22001124924996
+            },
+            {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
                 "uid": 22001124924999
@@ -4578,6 +4583,11 @@
         "outward": true,
         "allEdges": [
             {
+                "_type": "inCurrency",
+                "targetType": "CryptoCurrency",
+                "uid": 22001124924996
+            },
+            {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
                 "uid": 22001124924997
@@ -4595,6 +4605,11 @@
         "quantity": 100,
         "outward": false,
         "allEdges": [
+            {
+                "_type": "inCurrency",
+                "targetType": "CryptoCurrency",
+                "uid": 22001124924996
+            },
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
@@ -4642,6 +4657,11 @@
         "quantity": 200,
         "outward": true,
         "allEdges": [
+            {
+                "_type": "inCurrency",
+                "targetType": "CryptoCurrency",
+                "uid": 22001124924996
+            },
             {
                 "_type": "relateTo",
                 "targetType": "CurrencyOwner",
