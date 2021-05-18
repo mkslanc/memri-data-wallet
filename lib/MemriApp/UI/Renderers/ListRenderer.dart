@@ -95,7 +95,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                                     index == value.length - 1 ? 0 : spacing.y / 2),
                                 child: ColoredBox(
                                   color: backgroundColor,
-                                  child: viewContext.render(item: item, key: Key(item.uid)),
+                                  child: viewContext.render(item: item),
                                 ));
                             var callback = selectionMode(index);
                             return isInEditMode
