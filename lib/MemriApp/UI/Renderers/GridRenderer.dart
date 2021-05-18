@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
@@ -22,37 +23,95 @@ class _GridRendererViewState extends State<GridRendererView> {
 
   _GridRendererViewState(this.sceneController, this.viewContext);
 
+  late Axis scrollDirection;
+  late Color backgroundColor;
+
+  @override
+  initState() {
+    super.initState();
+    viewContext.addListener(updateState);
+  }
+
+  dispose() {
+    super.dispose();
+    viewContext.removeListener(updateState);
+  }
+
+  updateState() {
+    setState(() {});
+  }
+
+  init() async {
+    var _scrollDirection =
+        await widget.viewContext.rendererDefinitionPropertyResolver.string("scrollDirection");
+    scrollDirection = () {
+      switch (_scrollDirection) {
+        case "horizontal":
+          return Axis.horizontal;
+        default:
+          return Axis.vertical;
+      }
+    }();
+
+    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        CVUColor.system("systemBackground");
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: viewContext.itemsValueNotifier,
-        builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-          return viewContext.hasItems
-              ? Expanded(
-                  child: GridView.count(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  childAspectRatio: 4 / 5,
-                  shrinkWrap: true,
-                  primary: false,
-                  padding: const EdgeInsets.all(5),
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                  crossAxisCount: 3,
-                  children: viewContext.items
-                      .mapIndexed((index, item) => GestureDetector(
-                            onTap: selectionMode(index),
-                            child: Container(
-                              alignment: Alignment.bottomRight,
-                              child: viewContext.render(item: item),
+    return FutureBuilder(
+      future: init(),
+      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+          ? ValueListenableBuilder(
+              valueListenable: viewContext.itemsValueNotifier,
+              builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                return Expanded(
+                  child: Column(
+                    children: [
+                      viewContext.hasItems
+                          ? Expanded(
+                              child: GridView.count(
+                              //TODO layout
+                              physics: AlwaysScrollableScrollPhysics(),
+                              scrollDirection: scrollDirection,
+                              childAspectRatio: 4 / 5,
+                              shrinkWrap: true,
+                              primary: false,
+                              padding: const EdgeInsets.all(5),
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 5,
+                              crossAxisCount: 3,
+                              children: viewContext.items
+                                  .mapIndexed((index, item) => GestureDetector(
+                                        onTap: selectionMode(index),
+                                        child: Stack(
+                                          alignment: Alignment.bottomRight,
+                                          children: [viewContext.render(item: item)],
+                                        ),
+                                      ))
+                                  .toList(),
+                            ))
+                          : Padding(
+                              padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Spacer(),
+                                  Text(
+                                    "No results",
+                                    style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Spacer()
+                                ],
+                              ),
                             ),
-                          ))
-                      .toList(),
-                ))
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [],
+                    ],
+                  ),
                 );
-        });
+              })
+          : SizedBox.shrink(),
+    );
   }
 
   GestureTapCallback selectionMode(index) {

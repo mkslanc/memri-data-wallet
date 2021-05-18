@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/OptionalDatePicker.dart';
+import 'package:memri/MemriApp/UI/RendererSettingsViews/GridRendererSettingsView.dart';
+import 'package:memri/MemriApp/UI/RendererSettingsViews/TimelineRendererSettingsView.dart';
 
 import '../ViewContextController.dart';
 import 'FilterPanelSortItemView.dart';
@@ -249,11 +251,11 @@ class _FilterPanelViewState extends State<FilterPanelView> {
   Widget get rendererOptionsTab {
     switch (viewContext.config.rendererName.value.toLowerCase()) {
       case "timeline":
-      // return TimelineRendererSettingsView(viewContext: viewContext);
+        return TimelineRendererSettingsView(viewContext: viewContext);
       case "chart":
       // return ChartRendererSettingsView(viewContext: viewContext);
       case "grid":
-      // return GridRendererSettingsView(viewContext: viewContext);
+        return GridRendererSettingsView(viewContext: viewContext);
       default:
         return Padding(
           padding: const EdgeInsets.all(8.0),
