@@ -1,0 +1,38 @@
+CryptoTransaction > list {
+    VStack {
+        HStack {
+            show: {{.relateTo.username = .ofOwner.username}}
+
+            Text {
+                text: {{.inCurrency.topic}}
+                font: 20 regular
+                color: primary
+            }
+            Spacer
+
+            Text {
+                text: {{"+" + .quantity}}
+                font: 20 bold
+                color: primary
+            }
+        }
+
+        HStack {
+            show: {{.relateTo.username != .ofOwner.username}}
+
+            Text {
+                text: {{.outward = true ? "Sent to @" + .relateTo.username : "Received from @" + .relateTo.username}}
+                font: 20 regular
+                color: primary
+            }
+            Spacer
+
+            Text {
+                text: {{.outward = true ? "-" + .quantity : "+" + .quantity}}
+                font: 20 bold
+                color: primary
+            }
+        }
+
+    }
+}
