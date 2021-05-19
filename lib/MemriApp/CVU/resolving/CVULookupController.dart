@@ -661,6 +661,7 @@ class CVULookupController {
       return await resolve<ItemRecord>(expression: expression.lhs, context: context, db: db) ??
           await resolve<ItemRecord>(expression: expression.rhs, context: context, db: db);
     } else {
+      print("CVU Expression error: Unexpected CVU Expression type");
       return null;
     }
   }
@@ -684,6 +685,7 @@ class CVULookupController {
               expression: expression.lhs, context: context, db: db))! +
           (await resolve<List<ItemRecord>>(expression: expression.rhs, context: context, db: db))!;
     } else {
+      print("CVU Expression error: Unexpected CVU Expression type");
       return [];
     }
   }
@@ -726,6 +728,7 @@ class CVULookupController {
         return null;
       }
     } else {
+      print("CVU Expression error: Unexpected CVU Expression type");
       return null;
     }
   }
@@ -763,11 +766,12 @@ class CVULookupController {
       int? lhs = await resolve<int>(expression: expression.lhs, context: context, db: db);
       int? rhs = await resolve<int>(expression: expression.rhs, context: context, db: db);
       if (lhs != null && rhs != null && rhs != 0) {
-        return (lhs / rhs).round(); //TODO: is this should be like that?
+        return (lhs / rhs).floor();
       } else {
         return null;
       }
     } else {
+      print("CVU Expression error: Unexpected CVU Expression type");
       return null;
     }
   }
@@ -806,6 +810,7 @@ class CVULookupController {
           .whereType<String>()
           .join();
     } else {
+      print("CVU Expression error: Unexpected CVU Expression type");
       return null;
     }
   }
@@ -907,6 +912,7 @@ class CVULookupController {
       }
       return lhs != rhs;
     } else {
+      print("CVU Expression error: Unexpected CVU Expression type");
       return null;
     }
   }
