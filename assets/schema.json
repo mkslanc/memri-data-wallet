@@ -336,7 +336,7 @@
       "value_type": "bool"
     },
     { "item_type": "CurrencyOwner",
-      "property": "username",
+      "property": "displayName",
       "value_type": "string"
     },
     { "item_type": "CurrencyOwner",
@@ -2161,7 +2161,7 @@
       "target_type": "CurrencyOwner"
     },
     { "source_type": "CurrencyOwner",
-      "edge": "trustOwner",
+      "edge": "trust",
       "target_type": "CurrencyOwner"
     },
     { "source_type": "CurrencyOwner",
@@ -2169,11 +2169,11 @@
       "target_type": "CryptoCurrency"
     },
     { "source_type": "CurrencyOwner",
-      "edge": "belongsTo",
+      "edge": "owner",
       "target_type": "Person"
     },
     { "source_type": "CurrencyOwner",
-      "edge": "hasTransfer",
+      "edge": "hasTransaction",
       "target_type": "CryptoTransaction"
     },
     { "source_type": "CurrencySetting",

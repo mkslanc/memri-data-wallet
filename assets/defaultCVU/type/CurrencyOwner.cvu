@@ -22,7 +22,7 @@ CurrencyOwner > list {
                     }
                     VStack {
                         Image {
-                            image: {{.belongsTo.profilePicture}}
+                            image: {{.owner.profilePicture}}
                             sizingMode: fill
                             minHeight: 80
                             maxHeight: 80
@@ -31,7 +31,7 @@ CurrencyOwner > list {
                             cornerRadius: 30
                         }
                         Text {
-                            text: {{"@" + .username or ""}}
+                            text: {{"@" + .displayName or ""}}
                             lineLimit: 1
                             font: 24 bold
                             color: primary
@@ -71,7 +71,7 @@ CurrencyOwner > list {
             VStack {
                 show: {{.isOwner != true}}
                 Image {
-                    image: {{.belongsTo.profilePicture}}
+                    image: {{.owner.profilePicture}}
                     sizingMode: fill
                     minHeight: 50
                     maxHeight: 50
@@ -81,7 +81,7 @@ CurrencyOwner > list {
                 }
 
                 Text {
-                    text: {{"@"+.username}}
+                    text: {{"@"+.displayName}}
                     lineLimit: 1
                     font: 20 regular
                     color: primary
@@ -94,7 +94,7 @@ CurrencyOwner > list {
 CurrencyOwner > grid {
     VStack {
         Image {
-            image: {{.belongsTo.profilePicture}}
+            image: {{.owner.profilePicture}}
             sizingMode: fill
             minHeight: 50
             maxHeight: 50
@@ -104,7 +104,7 @@ CurrencyOwner > grid {
         }
     
         Text {
-            text: {{"@"+.username}}
+            text: {{"@"+.displayName}}
             lineLimit: 1
             font: 20 regular
             color: primary
@@ -142,7 +142,7 @@ CurrencyOwner > grid {
         query: "CurrencyOwner"
         filter: {
             edgeTargets: {              
-                trustOwner: {{receiverUID}}
+                trust: {{receiverUID}}
             }
         }
         sortProperty: "dateCreated"

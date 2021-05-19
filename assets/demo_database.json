@@ -4429,11 +4429,11 @@
   {
     "_type": "CurrencyOwner",
     "uid": 22001124924997,
-    "username": "alice",
+    "displayName": "alice",
     "isOwner": true,
     "allEdges": [
       {
-        "_type": "belongsTo",
+        "_type": "owner",
         "targetType": "Person",
         "uid": 1
       },
@@ -4443,32 +4443,32 @@
         "uid": 22001124924996
       },
       {
-        "_type": "trustOwner",
+        "_type": "trust",
         "targetType": "CurrencyOwner",
         "uid": 22001124924998
       },
       {
-        "_type": "trustOwner",
+        "_type": "trust",
         "targetType": "CurrencyOwner",
         "uid": 22001124924999
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925000
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925001
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925002
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925004
       }
@@ -4477,10 +4477,10 @@
   {
     "_type": "CurrencyOwner",
     "uid": 22001124924998,
-    "username": "eve",
+    "displayName": "eve",
     "allEdges": [
       {
-        "_type": "belongsTo",
+        "_type": "owner",
         "targetType": "Person",
         "uid": 3
       },
@@ -4490,17 +4490,17 @@
         "uid": 22001124924996
       },
       {
-        "_type": "trustOwner",
+        "_type": "trust",
         "targetType": "CurrencyOwner",
         "uid": 22001124924997
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925002
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925004
       }
@@ -4509,10 +4509,10 @@
   {
     "_type": "CurrencyOwner",
     "uid": 22001124924999,
-    "username": "bob",
+    "displayName": "bob",
     "allEdges": [
       {
-        "_type": "belongsTo",
+        "_type": "owner",
         "targetType": "Person",
         "uid": 2
       },
@@ -4522,12 +4522,12 @@
         "uid": 22001124924996
       },
       {
-        "_type": "trustOwner",
+        "_type": "trust",
         "targetType": "CurrencyOwner",
         "uid": 22001124924997
       },
       {
-        "_type": "hasTransfer",
+        "_type": "hasTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925000
       }
@@ -4615,16 +4615,11 @@
   {
     "_type": "CurrencyOwner",
     "uid": 22001124925003,
-    "username": "0x123456",
+    "displayName": "0x123456",
     "isOwner": true,
     "allEdges": [
       {
-        "_type": "profilePicture",
-        "targetType": "Photo",
-        "uid": 10501
-      },
-      {
-        "_type": "belongsTo",
+        "_type": "owner",
         "targetType": "Person",
         "uid": 1
       },
