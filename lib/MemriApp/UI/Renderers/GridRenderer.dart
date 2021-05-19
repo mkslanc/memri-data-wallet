@@ -26,6 +26,8 @@ class _GridRendererViewState extends State<GridRendererView> {
   late Axis scrollDirection;
   late Color backgroundColor;
 
+  late bool isInEditMode;
+
   @override
   initState() {
     super.initState();
@@ -55,6 +57,9 @@ class _GridRendererViewState extends State<GridRendererView> {
 
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
+
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
+        .boolean("editMode", sceneController.isInEditMode.value))!;
   }
 
   @override
@@ -115,7 +120,7 @@ class _GridRendererViewState extends State<GridRendererView> {
   }
 
   GestureTapCallback selectionMode(index) {
-    if (sceneController.isInEditMode.value) {
+    if (isInEditMode) {
       return () {
         print(index); //TODO select
       };

@@ -29,6 +29,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   late Point spacing;
   late Color backgroundColor;
   late bool separatorsEnabled;
+  late bool isInEditMode;
 
   Future<bool> init() async {
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
@@ -38,6 +39,9 @@ class _ListRendererViewState extends State<ListRendererView> {
         CVUColor.system("systemBackground");
     separatorsEnabled =
         !(await viewContext.rendererDefinitionPropertyResolver.boolean("hideSeparators", false))!;
+
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
+        .boolean("editMode", sceneController.isInEditMode.value))!; // sceneController.isInEditMode
 
     return true;
   }
@@ -108,7 +112,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   }
 
   GestureTapCallback selectionMode(index) {
-    if (sceneController.isInEditMode.value) {
+    if (isInEditMode) {
       return () {
         print(index); //TODO select
       };

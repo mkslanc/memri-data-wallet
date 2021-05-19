@@ -72,18 +72,37 @@ class GeneralEditorLayoutItem {
 
 /// The GeneralEditorRenderer
 /// This presents an editor for a single item
-class GeneralEditorRendererView extends StatelessWidget {
+class GeneralEditorRendererView extends StatefulWidget {
   final SceneController sceneController;
   final ViewContextController viewContext;
 
   GeneralEditorRendererView({required this.sceneController, required this.viewContext});
 
+  @override
+  _GeneralEditorRendererViewState createState() => _GeneralEditorRendererViewState();
+}
+
+class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
+  updateState() => setState(() {});
+
+  @override
+  initState() {
+    super.initState();
+    widget.sceneController.addListener(updateState);
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    widget.sceneController.removeListener(updateState);
+  }
+
   List<GeneralEditorLayoutItem> get layout {
-    var currentItem = viewContext.focusedItem;
+    var currentItem = widget.viewContext.focusedItem;
     if (currentItem == null) {
       return [];
     }
-    var viewLayout = viewContext.cvuController
+    var viewLayout = widget.viewContext.cvuController
         .viewDefinitionForItemRecord(itemRecord: currentItem)
         ?.definitions
         .asMap()[0]
@@ -95,9 +114,9 @@ class GeneralEditorRendererView extends StatelessWidget {
       viewDefs.addAll(values.compactMap((value) => value.getSubdefinition()?.properties));
     }
 
-    var generalLayout = viewContext.cvuController
+    var generalLayout = widget.viewContext.cvuController
         .rendererDefinitionForSelector(
-            selector: "[renderer = ${viewContext.config.rendererName.value}]")
+            selector: "[renderer = ${widget.viewContext.config.rendererName.value}]")
         ?.properties["layout"];
     List<Map<String, CVUValue>>? generalDefs = [];
     if (generalLayout is CVUValueArray) {
@@ -153,11 +172,11 @@ class GeneralEditorRendererView extends StatelessWidget {
   }
 
   List<Widget> get stackContent {
-    var currentItem = viewContext.focusedItem;
+    var currentItem = widget.viewContext.focusedItem;
     if (currentItem != null) {
       return layout
           .map((layoutSection) => GeneralEditorSection(
-              viewContext: viewContext,
+              viewContext: widget.viewContext,
               layout: layoutSection,
               item: currentItem,
               usedFields: usedFields))
@@ -169,7 +188,7 @@ class GeneralEditorRendererView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: sceneController.isInEditMode,
+        valueListenable: widget.sceneController.isInEditMode,
         builder: (BuildContext context, bool value, Widget? child) {
           return Expanded(
               child: SingleChildScrollView(
@@ -561,8 +580,9 @@ class DefaultGeneralEditorRow extends StatelessWidget {
           snapshot.connectionState == ConnectionState.done && snapshot.hasData
               ? MemriDatePicker(
                   initialSet: snapshot.data!,
-                  onPressed: (DateTime value) =>
-                      !sceneController.isInEditMode.value ? binding.set(value) : null,
+                  onPressed: sceneController.isInEditMode.value
+                      ? (DateTime value) async => await binding.set(value)
+                      : null,
                   formatter: "MMM d, yyyy",
                   style: generalEditorCaptionStyle(),
                   isEditing: sceneController.isInEditMode.value)
