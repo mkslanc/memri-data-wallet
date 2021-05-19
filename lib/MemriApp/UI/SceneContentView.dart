@@ -101,9 +101,6 @@ class _SceneContentViewState extends State<SceneContentView> {
                   ? SearchView(viewContext: viewContext, isActive: searchBarOpen)
                   : BottomBarView(
                       viewContext: viewContext,
-                      onFilterButtonPressed: () {
-                        sceneController.filterPanelIsVisible.value = true;
-                      },
                       onSearchPressed: () {
                         searchBarOpen.value = true;
                       },

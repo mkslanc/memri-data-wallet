@@ -43,7 +43,10 @@ class TopBarView extends StatelessWidget {
                                     ),
                                     if (sceneController.canNavigateBack)
                                       IconButton(
-                                        onPressed: () => sceneController.navigateBack(),
+                                        onPressed: () {
+                                          sceneController.navigateBack();
+                                          sceneController.isInEditMode.value = false;
+                                        },
                                         icon: Icon(Icons.arrow_back),
                                       )
                                   ],

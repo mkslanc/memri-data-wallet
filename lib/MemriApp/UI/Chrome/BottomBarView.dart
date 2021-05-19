@@ -18,12 +18,8 @@ class BottomBarView extends StatelessWidget {
   final ViewContextController viewContext;
 
   final void Function() onSearchPressed;
-  final void Function() onFilterButtonPressed;
 
-  BottomBarView(
-      {required this.viewContext,
-      required this.onSearchPressed,
-      required this.onFilterButtonPressed});
+  BottomBarView({required this.viewContext, required this.onSearchPressed});
 
   @override
   Widget build(BuildContext context) {
