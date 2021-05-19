@@ -495,7 +495,7 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
     required int source,
     required String name,
     required int target,
-  })   : source = Value(source),
+  })  : source = Value(source),
         name = Value(name),
         target = Value(target);
   static Insertable<Edge> custom({
@@ -731,7 +731,7 @@ class IntegersCompanion extends UpdateCompanion<IntegerDb> {
     required int item,
     required String name,
     required int value,
-  })   : item = Value(item),
+  })  : item = Value(item),
         name = Value(name),
         value = Value(value);
   static Insertable<IntegerDb> custom({
@@ -945,7 +945,7 @@ class StringsCompanion extends UpdateCompanion<StringDb> {
     required int item,
     required String name,
     required String value,
-  })   : item = Value(item),
+  })  : item = Value(item),
         name = Value(name),
         value = Value(value);
   static Insertable<StringDb> custom({
@@ -1160,7 +1160,7 @@ class RealsCompanion extends UpdateCompanion<RealDb> {
     required int item,
     required String name,
     required double value,
-  })   : item = Value(item),
+  })  : item = Value(item),
         name = Value(name),
         value = Value(value);
   static Insertable<RealDb> custom({
@@ -1379,7 +1379,7 @@ class StringsSearchCompanion extends UpdateCompanion<StringsSearchData> {
     required String item,
     required String name,
     required String value,
-  })   : item = Value(item),
+  })  : item = Value(item),
         name = Value(name),
         value = Value(value);
 
@@ -1598,7 +1598,7 @@ class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
   NavigationStateCompanion.insert({
     required String sessionID,
     required Uint8List state,
-  })   : sessionID = Value(sessionID),
+  })  : sessionID = Value(sessionID),
         state = Value(state);
 
   static Insertable<NavigationStateData> custom({

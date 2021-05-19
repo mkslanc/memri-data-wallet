@@ -27,7 +27,7 @@ class CVULookupController {
       String? property,
       CVUExpressionNode? expression,
       CVUContext? context,
-      dynamic? defaultValue,
+      dynamic defaultValue,
       DatabaseController? db,
       Type? additionalType}) async {
     switch (T) {
@@ -170,7 +170,7 @@ class CVULookupController {
   }
 
   Future<FutureBinding?> _resolveBinding(CVUValue value, CVUContext context, DatabaseController db,
-      dynamic? defaultValue, Type type) async {
+      dynamic defaultValue, Type type) async {
     if (value is CVUValueExpression) {
       var expression = value.value;
       if (expression is CVUExpressionNodeLookup) {
@@ -873,8 +873,8 @@ class CVULookupController {
       }
       return lhs >= rhs;
     } else if (expression is CVUExpressionNodeAreEqual) {
-      dynamic? lhs = await resolve<double>(expression: expression.lhs, context: context, db: db);
-      dynamic? rhs = await resolve<double>(expression: expression.rhs, context: context, db: db);
+      dynamic lhs = await resolve<double>(expression: expression.lhs, context: context, db: db);
+      dynamic rhs = await resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
         lhs = await resolve<ItemRecord>(expression: expression.lhs, context: context, db: db);
         rhs = await resolve<ItemRecord>(expression: expression.rhs, context: context, db: db);
@@ -896,8 +896,8 @@ class CVULookupController {
       }
       return lhs == rhs;
     } else if (expression is CVUExpressionNodeAreNotEqual) {
-      dynamic? lhs = await resolve<double>(expression: expression.lhs, context: context, db: db);
-      dynamic? rhs = await resolve<double>(expression: expression.rhs, context: context, db: db);
+      dynamic lhs = await resolve<double>(expression: expression.lhs, context: context, db: db);
+      dynamic rhs = await resolve<double>(expression: expression.rhs, context: context, db: db);
       //TODO is this correct? @anijanyan
       if (lhs == null || rhs == null) {
         lhs = await resolve<String>(expression: expression.lhs, context: context, db: db);
