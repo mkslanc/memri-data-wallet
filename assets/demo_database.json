@@ -4433,11 +4433,6 @@
     "isOwner": true,
     "allEdges": [
       {
-        "_type": "profilePicture",
-        "targetType": "Photo",
-        "uid": 10501
-      },
-      {
         "_type": "belongsTo",
         "targetType": "Person",
         "uid": 1
@@ -4485,11 +4480,6 @@
     "username": "eve",
     "allEdges": [
       {
-        "_type": "profilePicture",
-        "targetType": "Photo",
-        "uid": 10503
-      },
-      {
         "_type": "belongsTo",
         "targetType": "Person",
         "uid": 3
@@ -4521,11 +4511,6 @@
     "uid": 22001124924999,
     "username": "bob",
     "allEdges": [
-      {
-        "_type": "profilePicture",
-        "targetType": "Photo",
-        "uid": 10502
-      },
       {
         "_type": "belongsTo",
         "targetType": "Person",

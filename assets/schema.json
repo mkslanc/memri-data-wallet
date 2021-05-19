@@ -2161,10 +2161,6 @@
       "target_type": "CurrencyOwner"
     },
     { "source_type": "CurrencyOwner",
-      "edge": "profilePicture",
-      "target_type": "Photo"
-    },
-    { "source_type": "CurrencyOwner",
       "edge": "trustOwner",
       "target_type": "CurrencyOwner"
     },

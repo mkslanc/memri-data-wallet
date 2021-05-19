@@ -22,7 +22,7 @@ CurrencyOwner > list {
                     }
                     VStack {
                         Image {
-                            image: {{.profilePicture}}
+                            image: {{.belongsTo.profilePicture}}
                             sizingMode: fill
                             minHeight: 80
                             maxHeight: 80
@@ -71,7 +71,7 @@ CurrencyOwner > list {
             VStack {
                 show: {{.isOwner != true}}
                 Image {
-                    image: {{.profilePicture}}
+                    image: {{.belongsTo.profilePicture}}
                     sizingMode: fill
                     minHeight: 50
                     maxHeight: 50
@@ -94,7 +94,7 @@ CurrencyOwner > list {
 CurrencyOwner > grid {
     VStack {
         Image {
-            image: {{.profilePicture}}
+            image: {{.belongsTo.profilePicture}}
             sizingMode: fill
             minHeight: 50
             maxHeight: 50
