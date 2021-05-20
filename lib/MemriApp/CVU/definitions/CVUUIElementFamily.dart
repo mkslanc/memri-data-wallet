@@ -36,7 +36,8 @@ enum CVUUIElementFamily {
   HTMLView,
   TimelineItem,
   FileThumbnail,
-  Null
+  Null,
+  Grid
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {

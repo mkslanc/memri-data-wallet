@@ -35,16 +35,44 @@ class DatabaseQueryConfig extends ChangeNotifier {
   }
 
   /// Only include items modified after this date
-  DateTime? dateModifiedAfter;
+  DateTime? _dateModifiedAfter;
+
+  DateTime? get dateModifiedAfter => _dateModifiedAfter;
+
+  set dateModifiedAfter(DateTime? newValue) {
+    _dateModifiedAfter = newValue;
+    notifyListeners();
+  }
 
   /// Only include items modified before this date
-  DateTime? dateModifiedBefore;
+  DateTime? _dateModifiedBefore;
+
+  DateTime? get dateModifiedBefore => _dateModifiedBefore;
+
+  set dateModifiedBefore(DateTime? newValue) {
+    _dateModifiedBefore = newValue;
+    notifyListeners();
+  }
 
   /// Only include items created after this date
-  DateTime? dateCreatedAfter;
+  DateTime? _dateCreatedAfter;
+
+  DateTime? get dateCreatedAfter => _dateCreatedAfter;
+
+  set dateCreatedAfter(DateTime? newValue) {
+    _dateCreatedAfter = newValue;
+    notifyListeners();
+  }
 
   /// Only include items created before this date
-  DateTime? dateCreatedBefore;
+  DateTime? _dateCreatedBefore;
+
+  DateTime? get dateCreatedBefore => _dateCreatedBefore;
+
+  set dateCreatedBefore(DateTime? newValue) {
+    _dateCreatedBefore = newValue;
+    notifyListeners();
+  }
 
   /// The maximum number of items to fetch
   int pageSize;
@@ -68,17 +96,21 @@ class DatabaseQueryConfig extends ChangeNotifier {
     this.itemRowIDs = const {},
     sortProperty = "dateModified",
     sortAscending = false,
-    this.dateModifiedAfter,
-    this.dateModifiedBefore,
-    this.dateCreatedAfter,
-    this.dateCreatedBefore,
+    dateModifiedAfter,
+    dateModifiedBefore,
+    dateCreatedAfter,
+    dateCreatedBefore,
     this.pageSize = 1000,
     this.currentPage = 0,
     this.searchString,
     this.includeImmediateEdgeSearch = true,
     this.conditions = const [],
   })  : _sortAscending = sortAscending,
-        _sortProperty = sortProperty;
+        _sortProperty = sortProperty,
+        _dateModifiedAfter = dateModifiedAfter,
+        _dateModifiedBefore = dateModifiedBefore,
+        _dateCreatedAfter = dateCreatedAfter,
+        _dateCreatedBefore = dateCreatedBefore;
 
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
@@ -296,12 +328,14 @@ abstract class DatabaseQueryCondition {
   dynamic get value;
 }
 
+// A property of this item equals a particular value
 class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
   PropertyEquals value;
 
   DatabaseQueryConditionPropertyEquals(this.value);
 }
 
+// This item has an edge pointing to 'x' item
 class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
   EdgeHasTarget value;
 

@@ -14,14 +14,16 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import 'ViewContext.dart';
 
-class ViewContextController {
+class ViewContextController extends ChangeNotifier {
   late ViewContextHolder configHolder;
 
   late DatabaseController databaseController;
@@ -96,22 +98,30 @@ class ViewContextController {
 
   /// Return a SwiftUI view for the given item based on it's CVU definition.
   /// Set `overrideRenderer` if you want to render the item as though it is in a different renderer to the context (eg. "list" to get the list-specific appearance)
-  Widget render(ItemRecord item, [String? overrideRenderer, bool blankIfNoDefinition = false]) {
+  Widget render(
+      {required ItemRecord item,
+      String? overrideRenderer,
+      CVUDefinitionContent? nodeDefinition,
+      CVUViewArguments? viewArguments,
+      bool blankIfNoDefinition = false}) {
     return cvuController.render(
-        cvuContext: getCVUContext(item, overrideRenderer),
+        cvuContext: getCVUContext(
+            item: item, overrideRenderer: overrideRenderer, viewArguments: viewArguments),
+        nodeDefinition: nodeDefinition,
         lookup: lookupController,
         db: databaseController,
         blankIfNoDefinition: blankIfNoDefinition);
   }
 
-  CVUContext getCVUContext([ItemRecord? item, String? overrideRenderer]) {
+  CVUContext getCVUContext(
+      {ItemRecord? item, CVUViewArguments? viewArguments, String? overrideRenderer}) {
     return CVUContext(
         currentItem: item,
         selector: null,
         viewName: config.viewName,
         rendererName: overrideRenderer ?? config.rendererName.value,
         viewDefinition: config.viewDefinition,
-        viewArguments: config.viewArguments);
+        viewArguments: viewArguments ?? config.viewArguments);
   }
 
   _updateCachedValues() {
@@ -123,6 +133,7 @@ class ViewContextController {
 
     rendererDefinitionPropertyResolver = rendererDefinition.propertyResolver(
         context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
+    notifyListeners();
   }
 
   Future<Set<String>> get supportedRenderers async {
@@ -159,6 +170,17 @@ class ViewContextController {
         context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
   }();
 
+  CVUPropertyResolver? get itemPropertyResolver {
+    var viewDefinition = cvuController.viewDefinitionForItemRecord(itemRecord: focusedItem);
+    if (viewDefinition == null) {
+      return null;
+    }
+    return viewDefinition.propertyResolver(
+        context: getCVUContext(item: focusedItem),
+        lookup: CVULookupController(),
+        db: databaseController);
+  }
+
   setRendererProperty(String renderer, String property, CVUValue value) {
     var index = config.viewDefinition.definitions.indexWhere((definition) =>
         definition.type == CVUDefinitionType.renderer && definition.name == renderer);
@@ -174,7 +196,7 @@ class ViewContextController {
   }
 
   CVUPropertyResolver? nodePropertyResolver(ItemRecord item) {
-    var context = getCVUContext(item);
+    var context = getCVUContext(item: item);
     return cvuController
         .nodeDefinitionFor(context)
         ?.propertyResolver(context: context, lookup: CVULookupController(), db: databaseController);
@@ -190,6 +212,7 @@ class ViewContextController {
   set items(List<ItemRecord> items) {
     _items = items;
     itemsValueNotifier.value = _items;
+    notifyListeners();
   }
 
   ValueNotifier<List<ItemRecord>> itemsValueNotifier =
@@ -279,5 +302,20 @@ class ViewContextController {
     receiveValue: { result in
     self.items = result
     })*/
+  }
+
+  update() async {
+    var currentItem = config.focusedItem;
+    if (currentItem != null) {
+      var refreshedItem = await ItemRecord.fetchWithRowID(currentItem.rowId!);
+      if (refreshedItem != null) {
+        config.focusedItem = refreshedItem;
+      }
+    }
+    items = await Future.wait<ItemRecord>(items.compactMap<Future<ItemRecord>>(
+        (el) async => (await ItemRecord.fetchWithRowID(el.rowId!))!));
+
+    _updateCachedValues();
+    //objectWillChange.send()
   }
 }

@@ -146,7 +146,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return [];
     }
-    return (await lookup.resolve<List<ItemRecord>>(value: val, context: context, db: db))!;
+    return (await lookup.resolve<List>(
+        value: val, context: context, db: db, additionalType: ItemRecord)) as List<ItemRecord>;
   }
 
   Future<ItemRecord?> edge(String key, String edgeName) async {
@@ -222,6 +223,58 @@ class CVUPropertyResolver {
         context: this.context,
         db: this.db,
         additionalType: String) as FutureBinding<String>?;
+  }
+
+  List<CVUAction>? actions(String key) {
+    var val = this.value(key);
+    if (val == null) {
+      return null;
+    }
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantArgument) {
+        String actionName = (val.value as CVUConstantArgument).value;
+        var type = cvuAction(actionName);
+        if (type == null) {
+          return null;
+        }
+        return [type()];
+      }
+    }
+    if (val is CVUValueArray) {
+      var array = val.value;
+      List<CVUAction> actions = [];
+      for (var i = 0; i < array.length; i += 2) {
+        var action = array[i];
+        if (action is CVUValueConstant) {
+          if (action.value is CVUConstantArgument) {
+            Map<String, CVUValue> vars = {};
+            var def = array.asMap()[i + 1];
+            if (def is CVUValueSubdefinition) {
+              var keys = def.value.properties.keys;
+              for (var key in keys) {
+                var value = context.viewArguments?.args[key] ??
+                    context.viewArguments?.parentArguments?.args[key] ??
+                    def.value.properties[key];
+                if (value != null) {
+                  vars[key] = value;
+                }
+              }
+            }
+            var type = cvuAction((action.value as CVUConstantArgument).value);
+            if (type == null) {
+              continue;
+            }
+            actions.add(type(vars: vars));
+          } else {
+            continue;
+          }
+        } else {
+          continue;
+        }
+      }
+      return actions;
+    }
+    return null;
   }
 
   CVUAction? action(String key) {
@@ -309,7 +362,7 @@ class CVUPropertyResolver {
     var val = value(propertyName);
     if (val == null) {
       return AlignmentResolver(
-          mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+          mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
     }
     if (alignType == "row") {
       switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
@@ -350,7 +403,7 @@ class CVUPropertyResolver {
               mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
       }
     } else {
       switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
@@ -391,7 +444,7 @@ class CVUPropertyResolver {
               mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
       }
     }
   }
@@ -558,12 +611,12 @@ class CVUPropertyResolver {
     return await cgFloat("height") ?? await cgFloat("maxHeight");
   }
 
-  Future<Size?> get offset async {
+  Future<Offset> get offset async {
     var val = await this.cgPoint("offset");
     if (val == null) {
-      return null; //.zero TODO:
+      return Offset.zero;
     }
-    return Size(val.x.toDouble(), val.y.toDouble());
+    return Offset(val.x.toDouble(), val.y.toDouble());
   }
 
   Future<double?> get shadow async {

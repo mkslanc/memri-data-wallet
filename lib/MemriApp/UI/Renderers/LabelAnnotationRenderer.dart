@@ -132,7 +132,7 @@ class _LabelAnnotationRendererViewState extends State<LabelAnnotationRendererVie
   Widget get currentContent {
     var item = currentItem;
     if (item != null) {
-      return widget.viewContext.render(item);
+      return widget.viewContext.render(item: item);
     } else {
       return Text(
         "No items to label",

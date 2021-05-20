@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
@@ -19,8 +21,9 @@ import 'Database/ItemRecord.dart';
 import 'Database/NavigationStack.dart';
 
 /// The scene controller is specific to a particular `window` of the app. On the iPhone there is usually only one. There may be multiple eg. if multitasking on iPad or multiple windows on mac
-class SceneController {
+class SceneController extends ChangeNotifier {
   AppController appController = AppController.shared;
+  static SceneController sceneController = SceneController();
 
   ViewContextController? topMostContext;
 
@@ -42,11 +45,29 @@ class SceneController {
     }
   }
 
+  toggleEditMode() {
+    var topConfigHolder = topMostContext?.configHolder;
+    var viewArgs = topConfigHolder?.config.viewArguments;
+    if (topConfigHolder == null || viewArgs == null) {
+      return;
+    }
+
+    isInEditMode.value = !isInEditMode.value;
+
+    var currentArgs = viewArgs.args;
+    currentArgs["readOnly"] = CVUValueConstant(CVUConstantBool(!isInEditMode.value));
+    var newArgs = CVUViewArguments(
+        args: currentArgs,
+        argumentItem: viewArgs.argumentItem,
+        parentArguments: viewArgs.parentArguments);
+    topConfigHolder.config.viewArguments = newArgs;
+  }
+
   // @Published
   bool isContentFullscreen = false;
 
   // @Published
-  bool isInEditMode = false;
+  ValueNotifier<bool> isInEditMode = ValueNotifier(false);
 
   ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
   ValueNotifier<bool> shouldUpdate =
@@ -110,6 +131,7 @@ class SceneController {
   }
 
   NavigationStack _navigationStack = NavigationStack();
+
   set navigationStack(NavigationStack newValue) {
     _navigationStack = newValue;
     shouldUpdate.value = !shouldUpdate.value; //TODO dirty hack
@@ -206,6 +228,24 @@ class SceneController {
             .whereType<DatabaseQueryConditionEdgeHasTarget>()
             .toList();
 
+    var properties = filterDef?.subdefinition("properties");
+    List<DatabaseQueryConditionPropertyEquals> propertyConditions = await Future.wait(properties
+            ?.properties.keys
+            .toList()
+            .compactMap<Future<DatabaseQueryConditionPropertyEquals?>>((key) async {
+          dynamic value = await properties.boolean(key);
+          if (value != null) {
+            return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
+          } else {
+            value = await properties.string(key);
+            if (value != null) {
+              return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
+            }
+          }
+          return null;
+        }).whereType() ?? //TODO:
+        []);
+
     var queryConfig = inheritDatasource
         ? (topMostContext?.config.query.clone() ?? DatabaseQueryConfig())
         : DatabaseQueryConfig();
@@ -230,8 +270,8 @@ class SceneController {
       queryConfig.dateModifiedAfter = dateRange.start;
       queryConfig.dateModifiedBefore = dateRange.end;
     }
-    if (edgeTargetConditions.isNotEmpty) {
-      queryConfig.conditions = edgeTargetConditions;
+    if (edgeTargetConditions.isNotEmpty || propertyConditions.isNotEmpty) {
+      queryConfig.conditions = []..addAll(edgeTargetConditions)..addAll(propertyConditions);
     }
 
     var config = ViewContext(
@@ -253,5 +293,25 @@ class SceneController {
     navigationStack = _navigationStack; //TODO
     navigationController.setViewControllers(
         SceneContentView(sceneController: this, viewContext: newViewContextController));
+  }
+
+  late List<BuildContext> closeStack = [];
+
+  addToStack(BuildContext context) {
+    closeStack.add(context);
+  }
+
+  closeLastInStack() {
+    var lastStack = closeStack.removeLast();
+    Navigator.of(lastStack).pop();
+  }
+
+  void scheduleUIUpdate([bool updateWithAnimation = false]) {
+    if (topMostContext == null) {
+      return;
+    }
+
+    topMostContext?.update();
+    notifyListeners();
   }
 }

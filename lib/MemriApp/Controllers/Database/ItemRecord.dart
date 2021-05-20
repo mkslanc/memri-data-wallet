@@ -161,6 +161,21 @@ class ItemRecord extends Equatable {
     return await db.itemRecordInsert(this);
   }
 
+  Future<List<ItemEdgeRecord>> edges(String name, [DatabaseController? db]) async {
+    //TODO: need to test
+    db ??= AppController.shared.databaseController;
+    try {
+      var edges = await db.databasePool.edgeRecordsSelect({"source": rowId, "name": name});
+      return edges
+          .map((edge) => ItemEdgeRecord.fromEdge(edge))
+          .whereType<ItemEdgeRecord>()
+          .toList();
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
   Future<ItemRecord?> edgeItem(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     try {

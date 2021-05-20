@@ -12,7 +12,7 @@ void main() {
 }
 
 class Memri extends StatelessWidget {
-  final SceneController sceneController = SceneController();
+  final SceneController sceneController = SceneController.sceneController;
 
   @override
   Widget build(BuildContext context) {

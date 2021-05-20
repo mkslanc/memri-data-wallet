@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
@@ -42,7 +43,10 @@ class TopBarView extends StatelessWidget {
                                     ),
                                     if (sceneController.canNavigateBack)
                                       IconButton(
-                                        onPressed: () => sceneController.navigateBack(),
+                                        onPressed: () {
+                                          sceneController.navigateBack();
+                                          sceneController.isInEditMode.value = false;
+                                        },
                                         icon: Icon(Icons.arrow_back),
                                       )
                                   ],
@@ -70,6 +74,18 @@ class TopBarView extends StatelessWidget {
                             padding: EdgeInsets.symmetric(horizontal: 10),
                             child: SizedBox(
                               width: 100,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: TextButton(
+                                      onPressed: () => sceneController.toggleEditMode(),
+                                      child: Icon(MemriIcon.getByName('pencil')),
+                                    ),
+                                  )
+                                ],
+                                mainAxisAlignment: MainAxisAlignment.end,
+                              ),
                             ),
                           )
                         ]),

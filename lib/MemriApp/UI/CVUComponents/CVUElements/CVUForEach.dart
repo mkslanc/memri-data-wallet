@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
 
@@ -11,7 +12,9 @@ import '../CVUUINodeResolver.dart';
 class CVUForEach extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
 
-  CVUForEach({required this.nodeResolver});
+  CVUForEach({required this.nodeResolver, required this.getWidget});
+
+  final Widget Function(List<Widget> children) getWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -21,24 +24,37 @@ class CVUForEach extends StatelessWidget {
           if (snapshot.hasData) {
             var items = snapshot.requireData;
             if (items.isNotEmpty) {
-              return Wrap(
-                children: items.map((item) {
-                  var context = nodeResolver.context.replacingItem(item);
-                  return Wrap(
-                    children: nodeResolver.node.children
+              return getWidget(items
+                  .map((item) {
+                    var context = nodeResolver.context.replacingItem(item);
+                    return nodeResolver.node.children
                         .map((child) => CVUElementView(
                             nodeResolver: CVUUINodeResolver(
                                 context: context,
                                 lookup: nodeResolver.lookup,
                                 node: child,
                                 db: nodeResolver.db)))
-                        .toList(),
-                  );
-                }).toList(),
-              );
+                        .toList();
+                  })
+                  .expand((element) => element)
+                  .toList());
             }
           }
           return SizedBox.shrink();
         });
   }
+}
+
+abstract class StackWidget {
+  late final CVUUINodeResolver? nodeResolver;
+
+  Widget initWidget() {
+    if (nodeResolver!.node.children[0].type == CVUUIElementFamily.ForEach) {
+      return nodeResolver!.childrenInForEach(additionalParams: {"getWidget": getWidget})[0];
+    } else {
+      return getWidget(nodeResolver!.childrenInForEach());
+    }
+  }
+
+  Widget getWidget(List<Widget> children);
 }

@@ -147,6 +147,9 @@ abstract class PropertyDatabaseValue {
   }
 
   DateTime? asDate() {
+    if (value is DateTime) {
+      return value;
+    }
     var val = int.tryParse(value); //TODO is this correct @anijanyan
     return val == null ? null : DateTime.fromMicrosecondsSinceEpoch(val);
   }

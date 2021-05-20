@@ -21,11 +21,22 @@ extension MemriIcon on IconData {
       case 'bubble.left.fill':
         return Icons.chat_bubble;
       case 'square.and.pencil':
+      case 'pencil':
         return Icons.edit;
       case 'star.fill':
         return Icons.star;
+      case 'star':
+        return Icons.star_border;
       case "xmark.circle":
         return Icons.close;
+      case "plus":
+        return Icons.add;
+      case "rhombus.fill":
+        return Icons.filter_list;
+      case "arrow_right":
+        return Icons.arrow_right;
+      case "minus.circle.fill":
+        return Icons.remove_circle;
       default:
         return Icons.contact_support_rounded;
     }

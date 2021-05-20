@@ -4,8 +4,12 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
 
@@ -14,12 +18,8 @@ class BottomBarView extends StatelessWidget {
   final ViewContextController viewContext;
 
   final void Function() onSearchPressed;
-  final void Function() onFilterButtonPressed;
 
-  BottomBarView(
-      {required this.viewContext,
-      required this.onSearchPressed,
-      required this.onFilterButtonPressed});
+  BottomBarView({required this.viewContext, required this.onSearchPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -64,15 +64,29 @@ class BottomBarView extends StatelessWidget {
                         )
                     ])),
                     Spacer(),
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: ClipRect(
-                        child: TextButton(
-                          onPressed: onFilterButtonPressed,
-                          child: Icon(Icons.filter_list),
-                        ),
-                      ),
-                    )
+                    FutureBuilder(
+                        future:
+                            viewContext.viewDefinitionPropertyResolver.stringArray("filterButtons"),
+                        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasData) {
+                              List<String> buttons = snapshot.data!;
+                              return Row(
+                                children: buttons.compactMap((el) {
+                                  var action = cvuAction(el);
+                                  if (action != null) {
+                                    Map<String, CVUValue> vars = {};
+                                    return ActionButton(
+                                        action: action(vars: vars),
+                                        viewContext: viewContext.getCVUContext());
+                                  }
+                                  return null;
+                                }).toList(),
+                              );
+                            }
+                          }
+                          return Text("");
+                        })
                   ]))),
         ),
       )
