@@ -54,7 +54,8 @@ MessageChannel {
                messageChannel: {{channelUID}}
             }
         }
-        sortProperty: "dateSent"
+        sortProperty: dateSent
+        sortAscending: false
     }
     
     [renderer = list] {
