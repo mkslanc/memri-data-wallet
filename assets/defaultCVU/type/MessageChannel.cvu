@@ -149,6 +149,7 @@ MessageChannel > list {
     [datasource = pod] {
         query: "MessageChannel"
         sortProperty: dateModified
+        sortAscending: true
     }
 }
 

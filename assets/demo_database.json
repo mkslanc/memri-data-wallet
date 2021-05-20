@@ -3580,6 +3580,7 @@
   {
     "_type": "MessageChannel",
     "uid": 20000000005,
+    "dateCreated": 1589691670005,
     "externalId": "123456789@s.whatsapp.net",
     "name": "",
     "topic": "WhatsApp private chat",
@@ -3595,6 +3596,7 @@
   {
     "_type": "MessageChannel",
     "uid": 20000000006,
+    "dateCreated": 1589691700000,
     "externalId": "987654321@s.whatsapp.net",
     "name": "",
     "topic": "WhatsApp private chat",
