@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
@@ -34,44 +35,21 @@ class _GridRendererViewState extends State<GridRendererView> {
     viewContext = widget.viewContext;
     _init = init();
 
-    sceneController.isInEditMode.addListener(updateIsInEditMode);
-  }
-
-  updateIsInEditMode() async {
-    await init();
-    setState(() {});
-  }
-
-  dispose() {
-    super.dispose();
-    sceneController.isInEditMode.removeListener(updateIsInEditMode);
-  }
-
-  Future init() async {
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
-        .boolean("editMode", sceneController.isInEditMode.value))!;
-
-    selectedIndicesBinding = viewContext.selectedIndicesBinding;
-    selectedIndices = selectedIndicesBinding.get();
-  }
-
-  late Axis scrollDirection;
-  late Color backgroundColor;
-
-  late bool isInEditMode;
-
-  @override
-  initState() {
-    super.initState();
+    sceneController.isInEditMode.addListener(updateState);
     viewContext.addListener(updateState);
   }
 
   dispose() {
     super.dispose();
+    sceneController.isInEditMode.removeListener(updateState);
     viewContext.removeListener(updateState);
   }
 
-  updateState() {
+  late Axis scrollDirection;
+  late Color backgroundColor;
+
+  updateState() async {
+    await init();
     setState(() {});
   }
 
@@ -92,6 +70,9 @@ class _GridRendererViewState extends State<GridRendererView> {
 
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", sceneController.isInEditMode.value))!;
+
+    selectedIndicesBinding = viewContext.selectedIndicesBinding;
+    selectedIndices = selectedIndicesBinding.get();
   }
 
   @override
