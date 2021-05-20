@@ -99,43 +99,44 @@ class _GridRendererViewState extends State<GridRendererView> {
                               crossAxisSpacing: 5,
                               mainAxisSpacing: 5,
                               crossAxisCount: 3,
-                                children: viewContext.items.mapIndexed((index, item) {
-                                  var isSelected = selectedIndices.contains(index);
-                                  return GestureDetector(
-                                    onTap: selectionMode(index),
-                                    child: Stack(
-                                      alignment: Alignment.bottomRight,
-                                      children: [
-                                        viewContext.render(item: item),
-                                        if (isInEditMode && !isSelected)
-                                          SizedBox.expand(
-                                            child: ColoredBox(color: Colors.white.withOpacity(0.15)),
-                                          ),
-                                        if (isSelected)
-                                          Padding(
-                                            padding: const EdgeInsets.all(20),
-                                            child: Container(
-                                              height: 30,
-                                              width: 30,
-                                              child: Stack(
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  Circle(
-                                                      color: Colors.blue,
-                                                      border: Border.all(color: Colors.white, width: 2)),
-                                                  Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 15,
-                                                  )
-                                                ],
-                                              ),
+                              children: viewContext.items.mapIndexed((index, item) {
+                                var isSelected = selectedIndices.contains(index);
+                                return GestureDetector(
+                                  onTap: selectionMode(index),
+                                  child: Stack(
+                                    alignment: Alignment.bottomRight,
+                                    children: [
+                                      viewContext.render(item: item),
+                                      if (isInEditMode && !isSelected)
+                                        SizedBox.expand(
+                                          child: ColoredBox(color: Colors.white.withOpacity(0.15)),
+                                        ),
+                                      if (isSelected)
+                                        Padding(
+                                          padding: const EdgeInsets.all(20),
+                                          child: Container(
+                                            height: 30,
+                                            width: 30,
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Circle(
+                                                    color: Colors.blue,
+                                                    border:
+                                                        Border.all(color: Colors.white, width: 2)),
+                                                Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                  size: 15,
+                                                )
+                                              ],
                                             ),
-                                          )
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                                          ),
+                                        )
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                             ))
                           : Padding(
                               padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
