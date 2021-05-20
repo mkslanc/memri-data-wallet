@@ -35,6 +35,38 @@ extension MemriIcon on IconData {
         return Icons.filter_list;
       case "arrow_right":
         return Icons.arrow_right;
+      case "bold":
+        return Icons.format_bold;
+      case "italic":
+        return Icons.format_italic;
+      case "underline":
+        return Icons.format_underline;
+      case "strikethrough":
+        return Icons.format_strikethrough;
+      case "paintpalette":
+        return Icons.palette;
+      case "highlighter":
+        return Icons.border_color_outlined;
+      case "camera":
+        return Icons.camera_alt_outlined;
+      case "photo":
+        return Icons.image_outlined;
+      case "checkmark.square":
+        return Icons.check_box_outlined;
+      case "list.bullet":
+        return Icons.format_list_bulleted;
+      case "list.number":
+        return Icons.format_list_numbered;
+      case "decrease.indent":
+        return Icons.format_indent_decrease;
+      case "increase.indent":
+        return Icons.format_indent_increase;
+      case "textbox": //TODO:
+        return Icons.article_outlined;
+      case "arrowshape.turn.up.left.circle":
+        return Icons.arrow_back;
+      case "trash":
+        return Icons.delete;
       default:
         return Icons.contact_support_rounded;
     }
