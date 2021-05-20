@@ -23,7 +23,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import 'ViewContext.dart';
 
-class ViewContextController {
+class ViewContextController extends ChangeNotifier {
   late ViewContextHolder configHolder;
 
   late DatabaseController databaseController;
@@ -133,6 +133,7 @@ class ViewContextController {
 
     rendererDefinitionPropertyResolver = rendererDefinition.propertyResolver(
         context: getCVUContext(), lookup: CVULookupController(), db: databaseController);
+    notifyListeners();
   }
 
   Future<Set<String>> get supportedRenderers async {
@@ -211,6 +212,7 @@ class ViewContextController {
   set items(List<ItemRecord> items) {
     _items = items;
     itemsValueNotifier.value = _items;
+    notifyListeners();
   }
 
   ValueNotifier<List<ItemRecord>> itemsValueNotifier =

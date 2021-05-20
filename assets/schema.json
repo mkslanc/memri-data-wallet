@@ -315,6 +315,50 @@
       "property": "name",
       "value_type": "string"
     },
+    { "item_type": "CryptoCurrency",
+      "property": "name",
+      "value_type": "string"
+    },
+    { "item_type": "CryptoCurrency",
+      "property": "topic",
+      "value_type": "string"
+    },
+    { "item_type": "CryptoCurrency",
+      "property": "myToken",
+      "value_type": "double"
+    },
+    { "item_type": "CryptoTransaction",
+      "property": "quantity",
+      "value_type": "double"
+    },
+    { "item_type": "CryptoTransaction",
+      "property": "outward",
+      "value_type": "bool"
+    },
+    { "item_type": "CurrencyOwner",
+      "property": "username",
+      "value_type": "string"
+    },
+    { "item_type": "CurrencyOwner",
+      "property": "isOwner",
+      "value_type": "bool"
+    },
+    { "item_type": "CurrencySetting",
+      "property": "seedPhrase",
+      "value_type": "string"
+    },
+    { "item_type": "CurrencySetting",
+      "property": "deviceAddress",
+      "value_type": "string"
+    },
+    { "item_type": "CurrencySetting",
+      "property": "profileAddress",
+      "value_type": "string"
+    },
+    { "item_type": "CurrencySetting",
+      "property": "tokenAddress",
+      "value_type": "string"
+    },
     {
       "item_type": "Device",
       "property": "deviceID",
@@ -1770,6 +1814,10 @@
       "property": "dateExecuted",
       "value_type": "datetime"
     },
+    { "item_type": "Wallet",
+      "property": "name",
+      "value_type": "string"
+    },
     {
       "item_type": "Website",
       "property": "itemType",
@@ -2091,6 +2139,50 @@
       "source_type": "CreativeWork",
       "edge": "review",
       "target_type": "Review"
+    },
+    { "source_type": "CryptoCurrency",
+      "edge": "picture",
+      "target_type": "Photo"
+    },
+    { "source_type": "CryptoCurrency",
+      "edge": "hasSetting",
+      "target_type": "CurrencySetting"
+    },
+    { "source_type": "CryptoTransaction",
+      "edge": "inCurrency",
+      "target_type": "CryptoCurrency"
+    },
+    { "source_type": "CryptoTransaction",
+      "edge": "relateTo",
+      "target_type": "CurrencyOwner"
+    },
+    { "source_type": "CryptoTransaction",
+      "edge": "ofOwner",
+      "target_type": "CurrencyOwner"
+    },
+    { "source_type": "CurrencyOwner",
+      "edge": "profilePicture",
+      "target_type": "Photo"
+    },
+    { "source_type": "CurrencyOwner",
+      "edge": "trustOwner",
+      "target_type": "CurrencyOwner"
+    },
+    { "source_type": "CurrencyOwner",
+      "edge": "ownCurrency",
+      "target_type": "CryptoCurrency"
+    },
+    { "source_type": "CurrencyOwner",
+      "edge": "belongsTo",
+      "target_type": "Person"
+    },
+    { "source_type": "CurrencyOwner",
+      "edge": "hasTransfer",
+      "target_type": "CryptoTransaction"
+    },
+    { "source_type": "CurrencySetting",
+      "edge": "inWallet",
+      "target_type": "Wallet"
     },
     {
       "source_type": "Diet",
@@ -3236,6 +3328,10 @@
       "source_type": "Video",
       "edge": "thumbnail",
       "target_type": "File"
+    },
+    { "source_type": "Wallet",
+      "edge": "picture",
+      "target_type": "Photo"
     }
   ]
 }

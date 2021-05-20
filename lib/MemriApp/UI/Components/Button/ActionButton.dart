@@ -6,6 +6,9 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 
+import '../../BrowserView.dart';
+import '../../ViewContextController.dart';
+
 class ActionButton extends StatelessWidget {
   final SceneController sceneController = SceneController.sceneController;
 
@@ -44,25 +47,37 @@ class ActionPopupButton extends StatefulWidget {
 }
 
 class _ActionPopupButtonState extends State<ActionPopupButton> {
-  bool isShowing = false;
-
   @override
   Widget build(BuildContext context) {
+    var action = widget.action;
     return TextButton(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Icon(MemriIcon.getByName("plus")),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Icon(MemriIcon.getByName("plus")),
+      ),
+      onPressed: () => showModalBottomSheet<void>(
+        context: context,
+        useRootNavigator: true,
+        isScrollControlled: true,
+        builder: (BuildContext context) => FutureBuilder<ViewContextController?>(
+          future: action
+              .getViewContext(CVUContext(viewName: action.viewName, rendererName: action.renderer)),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return SizedBox.shrink();
+              default:
+                if (snapshot.hasData) {
+                  return BrowserView(
+                    viewContext: snapshot.data!,
+                  );
+                } else {
+                  return Text("TODO: ActionPopupButton");
+                }
+            }
+          },
         ),
-        onPressed: () => setState(() => isShowing = true));
+      ),
+    );
   }
 }
-
-/*
-    .sheet(isPresented: $isShowing) {
-if let viewContext = action.getViewContext(context: CVUContext(viewName: action.viewName, rendererName: action.renderer)) {
-BrowserView(context: viewContext)
-} else {
-Text("TODO: ActionPopupButton")
-}
-}
-}*/

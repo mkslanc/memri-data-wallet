@@ -242,7 +242,7 @@ class ItemRecord extends Equatable {
   }
 
   Future<FutureBinding> propertyBinding(
-      {required String name, dynamic? defaultValue, DatabaseController? db, Type? type}) async {
+      {required String name, dynamic defaultValue, DatabaseController? db, Type? type}) async {
     db ??= AppController.shared.databaseController;
     switch (type) {
       case bool:

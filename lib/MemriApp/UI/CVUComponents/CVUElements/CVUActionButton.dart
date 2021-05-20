@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/ViewContextController.dart';
+import 'package:memri/MemriApp/UI/BrowserView.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -26,20 +29,14 @@ class CVUActionButton extends StatefulWidget {
 class _CVUActionButtonState extends State<CVUActionButton> {
   final SceneController sceneController = SceneController.sceneController;
 
-  var isShowing = false;
-
   CVUAction? get action {
-    var _action = widget.nodeResolver.propertyResolver.action("onPress");
-    if (_action == null) {
-      return null;
-    }
-    return _action;
+    return widget.nodeResolver.propertyResolver.action("onPress");
   }
 
   onPress() {
     var actions = widget.nodeResolver.propertyResolver.actions("onPress");
     if (actions == null) {
-      return null;
+      return;
     }
     for (var action in actions) {
       action.execute(sceneController, widget.nodeResolver.context);
@@ -47,19 +44,15 @@ class _CVUActionButtonState extends State<CVUActionButton> {
   }
 
   String get title {
-    if (action is! CVUActionOpenViewByName) {
+    var _action = action;
+    if (_action is! CVUActionOpenViewByName) {
       return "";
     }
-    var titleVal = (action as CVUActionOpenViewByName).vars["title"];
-    if (titleVal == null) {
+    var titleVal = _action.vars["title"];
+    if (titleVal is! CVUValueConstant || titleVal.value is! CVUConstantString) {
       return "";
     }
-    var _title = titleVal;
-    if (titleVal is! CVUValueConstant ||
-        (titleVal is CVUValueConstant && titleVal.value is! CVUConstantString)) {
-      return "";
-    }
-    return (_title as CVUConstantString).value;
+    return (titleVal.value as CVUConstantString).value;
   }
 
   CVUViewArguments? get viewArguments {
@@ -78,7 +71,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     }
 
     var properties = args.value.properties;
-    properties["subject"] = CVUValueItem(currentItem.uid); //TODO: rowid
+    properties["subject"] = CVUValueItem(currentItem.rowId!);
 
     return CVUViewArguments(
         args: properties, argumentItem: widget.nodeResolver.context.currentItem);
@@ -89,7 +82,33 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     var validAction = action;
     if (validAction is CVUActionOpenViewByName) {
       return TextButton(
-          onPressed: () => isShowing = true,
+          onPressed: () => showModalBottomSheet<void>(
+                context: context,
+                useRootNavigator: true,
+                isScrollControlled: true,
+                builder: (BuildContext context) => FutureBuilder<ViewContextController?>(
+                  future: validAction.getViewContext(CVUContext(
+                      currentItem: widget.nodeResolver.context.currentItem,
+                      viewName: validAction.viewName,
+                      rendererName: validAction.renderer,
+                      viewArguments: viewArguments)),
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return SizedBox.shrink();
+                      default:
+                        if (snapshot.hasData) {
+                          return BrowserView(
+                            viewContext: snapshot.data!,
+                            sceneController: sceneController,
+                          );
+                        } else {
+                          return Text("TODO: ActionPopupButton");
+                        }
+                    }
+                  },
+                ),
+              ),
           child: Text(
             title,
             style: TextStyle(color: Colors.black, fontSize: 15),

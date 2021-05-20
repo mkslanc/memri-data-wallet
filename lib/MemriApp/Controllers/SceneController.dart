@@ -7,7 +7,6 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
-import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
@@ -22,7 +21,7 @@ import 'Database/ItemRecord.dart';
 import 'Database/NavigationStack.dart';
 
 /// The scene controller is specific to a particular `window` of the app. On the iPhone there is usually only one. There may be multiple eg. if multitasking on iPad or multiple windows on mac
-class SceneController {
+class SceneController extends ChangeNotifier {
   AppController appController = AppController.shared;
   static SceneController sceneController = SceneController();
 
@@ -138,6 +137,7 @@ class SceneController {
   }
 
   NavigationStack _navigationStack = NavigationStack();
+
   set navigationStack(NavigationStack newValue) {
     _navigationStack = newValue;
     shouldUpdate.value = !shouldUpdate.value; //TODO dirty hack
@@ -190,7 +190,7 @@ class SceneController {
       String? overrideRenderer,
       String defaultRenderer = "list",
       ItemRecord? targetItem,
-      Set<String>? overrideUIDs,
+      Set<int>? overrideRowIDs,
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
       CVUViewArguments? viewArguments}) async {
@@ -219,13 +219,13 @@ class SceneController {
     var datasourceResolver = datasource?.parsed.propertyResolver(
         context: newContext, lookup: CVULookupController(), db: appController.databaseController);
 
-    var uidList = overrideUIDs ?? Set.of((await datasourceResolver?.stringArray("uids")) ?? []);
+    var rowIdList = overrideRowIDs ?? Set.of((await datasourceResolver?.intArray("uids")) ?? []);
 
     var filterDef = datasourceResolver?.subdefinition("filter");
     var edgeTargets = filterDef?.subdefinition("edgeTargets");
     var edgeTargetConditions =
         (await Future.wait((edgeTargets?.properties.keys.toList() ?? []).map((key) async {
-      var target = await edgeTargets!.string(key);
+      var target = await edgeTargets!.integer(key);
       if (target == null) {
         return null;
       }
@@ -260,13 +260,18 @@ class SceneController {
     if (itemTypes.isNotEmpty) {
       queryConfig.itemTypes = itemTypes;
     }
-    if (uidList.isNotEmpty) {
-      queryConfig.itemUIDs = uidList;
+    if (rowIdList.isNotEmpty) {
+      queryConfig.itemRowIDs = rowIdList;
     }
     var sortProperty = await datasourceResolver?.string("sortProperty");
     if (sortProperty != null) {
       queryConfig.sortProperty = sortProperty;
     }
+    var sortAscending = await datasourceResolver?.boolean("sortAscending");
+    if (sortAscending != null) {
+      queryConfig.sortAscending = sortAscending;
+    }
+
     if (dateRange != null) {
       queryConfig.dateModifiedAfter = dateRange.start;
       queryConfig.dateModifiedBefore = dateRange.end;
@@ -296,38 +301,23 @@ class SceneController {
         SceneContentView(sceneController: this, viewContext: newViewContextController));
   }
 
-  late List<Binding<dynamic>> closeStack = [];
+  late List<BuildContext> closeStack = [];
 
-  /*=
-  [Binding<PresentationMode>]()*/ // A stack of bindings for the display state of presented popups
-
-  addToStack(Binding<dynamic> isPresentedBinding) {
-    closeStack.add(isPresentedBinding);
+  addToStack(BuildContext context) {
+    closeStack.add(context);
   }
 
   closeLastInStack() {
-    /*var lastVisibleIndex = closeStack.lastIndexWhere((element) => element.isPresented);
-    if (lastVisibleIndex > -1) {
-      */ /*closeStack[lastVisibleIndex].wrappedValue.dismiss()
-      closeStack = Array(closeStack.prefix(upTo: lastVisibleIndex))*/ /*
-    }*/ //TODO:
+    var lastStack = closeStack.removeLast();
+    Navigator.of(lastStack).pop();
   }
 
-  /*func scheduleUIUpdate(updateWithAnimation: Bool = false) {
-  guard let _ = topMostContext else {
-  return
-  }
+  void scheduleUIUpdate([bool updateWithAnimation = false]) {
+    if (topMostContext == null) {
+      return;
+    }
 
-  if updateWithAnimation {
-  DispatchQueue.main.async {
-  withAnimation {
-  self.topMostContext?.update()
-  self.objectWillChange.send()
+    topMostContext?.update();
+    notifyListeners();
   }
-  }
-  } else {
-  self.topMostContext?.update()
-  objectWillChange.send()
-  }
-  }*/
 }
