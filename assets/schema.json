@@ -1891,6 +1891,11 @@
       "target_type": "Organization"
     },
     {
+      "source_type": "Account",
+      "edge": "network",
+      "target_type": "Network"
+    },
+    {
       "source_type": "Address",
       "edge": "country",
       "target_type": "Country"
