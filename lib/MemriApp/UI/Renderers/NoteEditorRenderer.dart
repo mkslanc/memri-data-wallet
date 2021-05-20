@@ -17,12 +17,12 @@ class NoteEditorRendererView extends StatelessWidget {
 
   NoteEditorRendererView({required this.sceneController, required this.viewContext});
 
-  Future<FutureBinding<String?>?> get noteTitle async {
+  Future<FutureBinding<String>?> get noteTitle async {
     var item = viewContext.focusedItem;
     if (item != null) {
       var resolver = viewContext.nodePropertyResolver(item);
       if (resolver != null) {
-        var binding = await resolver.binding<String?>("title");
+        var binding = await resolver.binding<String>("title");
         if (binding != null) {
           return binding;
         }
@@ -31,12 +31,12 @@ class NoteEditorRendererView extends StatelessWidget {
     return null;
   }
 
-  Future<FutureBinding<String?>?> get noteContent async {
+  Future<FutureBinding<String>?> get noteContent async {
     var item = viewContext.focusedItem;
     if (item != null) {
       var resolver = viewContext.nodePropertyResolver(item);
       if (resolver != null) {
-        var binding = await resolver.binding<String?>("content", "");
+        var binding = await resolver.binding<String>("content", "");
         if (binding != null) {
           return binding;
         }
@@ -50,12 +50,12 @@ class NoteEditorRendererView extends StatelessWidget {
   }
 
   handleModelUpdate(MemriTextEditorModel newModel) async {
-    FutureBinding<String?>? titleBinding = await noteTitle;
+    FutureBinding<String>? titleBinding = await noteTitle;
     var newModelTitle = await newModel.title;
     if (await titleBinding?.get() != newModelTitle) {
-      titleBinding?.set(newModelTitle);
+      titleBinding?.set(newModelTitle ?? "");
     }
-    FutureBinding<String?>? contentBinding = await noteContent;
+    FutureBinding<String>? contentBinding = await noteContent;
     var newModelBody = await newModel.body;
     if (await contentBinding?.get() != newModelBody) {
       contentBinding?.set(newModelBody);
