@@ -22,7 +22,7 @@ CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
 }
 
 var databaseController = DatabaseController();
-var lookupController = CVULookupController(LookupMock(true, "Memri", 10));
+var lookupController = CVULookupController(LookupMock(true, "Memri", 10, 10));
 
 Future<bool?> interpretAsBool(CVUExpressionNode expr) async {
   return await lookupController.resolve<bool>(

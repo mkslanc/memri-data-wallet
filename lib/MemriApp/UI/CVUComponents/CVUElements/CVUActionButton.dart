@@ -71,7 +71,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     }
 
     var properties = args.value.properties;
-    properties["subject"] = CVUValueItem(currentItem.uid); //TODO: rowid
+    properties["subject"] = CVUValueItem(currentItem.rowId!);
 
     return CVUViewArguments(
         args: properties, argumentItem: widget.nodeResolver.context.currentItem);

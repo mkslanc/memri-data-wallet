@@ -325,8 +325,8 @@ class GeneralEditorSection extends StatelessWidget {
     var args = viewContext.config.viewArguments?.args ?? {};
     args["query"] = CVUValueConstant(CVUConstantString(item.type));
     args["type"] = CVUValueConstant(CVUConstantString(edgeType));
-    args["subject"] = CVUValueItem(item.uid);
-    args["item"] = CVUValueItem(item.uid);
+    args["subject"] = CVUValueItem(item.rowId!);
+    args["item"] = CVUValueItem(item.rowId!);
     args["edgeType"] = CVUValueConstant(CVUConstantString(edgeType));
     args["distinct"] = CVUValueConstant(CVUConstantBool(false));
 
@@ -343,8 +343,8 @@ class GeneralEditorSection extends StatelessWidget {
     Map<String, CVUValue> properties = {
       "query": CVUValueConstant(CVUConstantString(item.type)),
       "type": CVUValueConstant(CVUConstantString(edgeType)),
-      "subject": CVUValueItem(item.uid),
-      "item": CVUValueItem(item.uid),
+      "subject": CVUValueItem(item.rowId!),
+      "item": CVUValueItem(item.rowId!),
       "edgeType": CVUValueConstant(CVUConstantString(edgeType)),
       "distinct": CVUValueConstant(CVUConstantBool(false))
     };

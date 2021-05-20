@@ -132,7 +132,7 @@ class CVUActionOpenView extends CVUAction {
 
   String? viewName;
   String? renderer;
-  Set<String>? uids;
+  Set<int>? uids;
   DateTimeRange? dateRange;
   CVUDefinitionContent? viewDefinition;
 
@@ -168,7 +168,7 @@ class CVUActionOpenView extends CVUAction {
         overrideRenderer: renderer ?? await resolver.string("renderer"),
         defaultRenderer: "singleItem",
         targetItem: context.currentItem,
-        overrideUIDs: uids,
+        overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
         viewArguments: viewArguments);

@@ -15,6 +15,8 @@ abstract class CVUConstant {
       return cvuConstant.value;
     } else if (cvuConstant is CVUConstantNumber) {
       return "${cvuConstant.value}";
+    } else if (cvuConstant is CVUConstantInt) {
+      return "${cvuConstant.value}";
     } else if (cvuConstant is CVUConstantString) {
       return cvuConstant.value;
     } else if (cvuConstant is CVUConstantBool) {
@@ -35,8 +37,32 @@ abstract class CVUConstant {
       return null;
     } else if (cvuConstant is CVUConstantNumber) {
       return cvuConstant.value;
+    } else if (cvuConstant is CVUConstantInt) {
+      return cvuConstant.value.toDouble();
     } else if (cvuConstant is CVUConstantString) {
       return double.tryParse(cvuConstant.value);
+    } else if (cvuConstant is CVUConstantBool) {
+      return cvuConstant.value ? 1 : 0;
+    } else if (cvuConstant is CVUConstantColorHex) {
+      return null;
+    } else if (cvuConstant is CVUConstantNil) {
+      return null;
+    } else {
+      throw Exception("Unknown CVUConstant ${cvuConstant.toString()}");
+    }
+  }
+
+  /// Get a number representation of the value (may return nil)
+  int? asInt() {
+    var cvuConstant = this;
+    if (cvuConstant is CVUConstantArgument) {
+      return null;
+    } else if (cvuConstant is CVUConstantNumber) {
+      return cvuConstant.value.toInt();
+    } else if (cvuConstant is CVUConstantInt) {
+      return cvuConstant.value;
+    } else if (cvuConstant is CVUConstantString) {
+      return int.tryParse(cvuConstant.value);
     } else if (cvuConstant is CVUConstantBool) {
       return cvuConstant.value ? 1 : 0;
     } else if (cvuConstant is CVUConstantColorHex) {
@@ -54,10 +80,10 @@ abstract class CVUConstant {
     if (cvuConstant is CVUConstantArgument) {
       return null;
     } else if (cvuConstant is CVUConstantNumber) {
-      // Number greater than zero = true
+      return cvuConstant.value > 0;
+    } else if (cvuConstant is CVUConstantInt) {
       return cvuConstant.value > 0;
     } else if (cvuConstant is CVUConstantString) {
-      /// Non-empty string = true (unless string is 'false')
       return cvuConstant.value != "" && cvuConstant.value != "false";
     } else if (cvuConstant is CVUConstantBool) {
       return cvuConstant.value;
@@ -74,6 +100,8 @@ abstract class CVUConstant {
     var cvuConstant = this;
     if (cvuConstant is CVUConstantArgument) {
       return cvuConstant.value;
+    } else if (cvuConstant is CVUConstantInt) {
+      return cvuConstant.value.toString();
     } else if (cvuConstant is CVUConstantNumber) {
       double n = cvuConstant.value;
       return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 2);
@@ -102,6 +130,12 @@ class CVUConstantNumber extends CVUConstant {
   final double value;
 
   CVUConstantNumber(this.value);
+}
+
+class CVUConstantInt extends CVUConstant {
+  final int value;
+
+  CVUConstantInt(this.value);
 }
 
 class CVUConstantString extends CVUConstant {
