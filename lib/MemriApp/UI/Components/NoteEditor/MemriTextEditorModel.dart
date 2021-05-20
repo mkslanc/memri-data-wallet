@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 class MemriTextEditorModel {
   late Future<String?>? title;
@@ -47,33 +49,37 @@ class MemriTextEditorModel {
   }
 }
 
-/*
-TODO
-enum MemriTextEditorColor: String, CaseIterable {
-    case `default` = "--text-color"
-    case red = "--text-color-red"
-    case orange = "--text-color-orange"
-    case yellow = "--text-color-yellow"
-    case green = "--text-color-green"
-    case blue = "--text-color-blue"
-    case purple = "--text-color-purple"
-    case pink = "--text-color-pink"
+enum MemriTextEditorColor { red, orange, yellow, green, blue, purple, pink }
 
-    var cssVar: String {
-        "var(\(rawValue))"
-    }
+extension MemriTextEditorColorExtension on MemriTextEditorColor {
+  static Map<MemriTextEditorColor, String> color = {
+    MemriTextEditorColor.red: "--text-color-red",
+    MemriTextEditorColor.orange: "--text-color-orange",
+    MemriTextEditorColor.yellow: "--text-color-yellow",
+    MemriTextEditorColor.green: "--text-color-green",
+    MemriTextEditorColor.blue: "--text-color-blue",
+    MemriTextEditorColor.purple: "--text-color-purple",
+    MemriTextEditorColor.pink: "--text-color-pink"
+  };
 
-    var swiftColor: Color? {
-        switch self {
-        case .blue: return .blue
-        case .green: return .green
-        case .orange: return .orange
-        case .pink: return .pink
-        case .purple: return .purple
-        case .red: return .red
-        case .yellow: return .yellow
-        default: return nil
-        }
+  get cssVar => "var(${MemriTextEditorColorExtension.color[this]})";
+
+  Color? get dartColor {
+    switch (this) {
+      case MemriTextEditorColor.red:
+        return CVUColor.system("red");
+      case MemriTextEditorColor.orange:
+        return CVUColor.system("orange");
+      case MemriTextEditorColor.yellow:
+        return CVUColor.system("yellow");
+      case MemriTextEditorColor.green:
+        return CVUColor.system("green");
+      case MemriTextEditorColor.blue:
+        return CVUColor.system("blue");
+      case MemriTextEditorColor.purple:
+        return CVUColor.system("purple");
+      case MemriTextEditorColor.pink:
+        return CVUColor.system("pink");
     }
+  }
 }
-*/

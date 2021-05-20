@@ -1,29 +1,44 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorModel.dart';
+import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorToolbar.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
-class MemriTextEditor extends StatelessWidget {
+class MemriTextEditor extends StatefulWidget {
   final Future<MemriTextEditorModel> Function() model;
   final Function(MemriTextEditorModel) onModelUpdate;
-  late final WebViewController _controller;
 
   MemriTextEditor({required this.model, required this.onModelUpdate});
 
-  //var imageSelectionHandler: MemriTextEditorImageSelectionHandler? TODO
-  //var fileHandler: MemriWebViewFileHandler? TODO
-  //var searchTerm: String? TODO
-  //var isEditing: Binding<Bool>? TODO
+  @override
+  _MemriTextEditorState createState() => _MemriTextEditorState();
+}
+
+class _MemriTextEditorState extends State<MemriTextEditor> {
+  late final WebViewController _controller;
+
+  late final MemriTextEditorToolbar toolBar;
+
+  var toolbarState = ToolbarState.main;
+
+  late final Future<Uri> _showHtml;
+
+  @override
+  void initState() {
+    super.initState();
+    _showHtml = _initShowHtml();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _showHtml(),
+        future: _showHtml,
         builder: (BuildContext context, AsyncSnapshot<Uri> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var uri = snapshot.data;
@@ -35,10 +50,15 @@ class MemriTextEditor extends StatelessWidget {
                     javascriptChannels: Set.from([
                       JavascriptChannel(
                           name: 'textChange',
-                          onMessageReceived: (JavascriptMessage message) {}),
+                          onMessageReceived: (JavascriptMessage message) {
+                            var model = MemriTextEditorModel.html(message.message);
+                            widget.onModelUpdate(model);
+                          }),
                       JavascriptChannel(
                           name: 'formatChange',
-                          onMessageReceived: (JavascriptMessage message) {})
+                          onMessageReceived: (JavascriptMessage message) {
+                            toolBar.update(jsonDecode(message.message));
+                          })
                     ]),
                     javascriptMode: JavascriptMode.unrestricted,
                     onWebViewCreated: (controller) {
@@ -47,8 +67,22 @@ class MemriTextEditor extends StatelessWidget {
                     onPageFinished: onEditorLoaded,
                   ),
                 ),
-                TextButton(onPressed: () => executeEditorCommand("bold"), child: Text("B"))
+                updateToolbar()
               ],
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Column(
+                children: [
+                  Spacer(),
+                  SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
+                  ),
+                  Spacer()
+                ],
+              ),
             );
           }
           return Column();
@@ -56,7 +90,7 @@ class MemriTextEditor extends StatelessWidget {
   }
 
   onEditorLoaded(url) async {
-    var initialModel = await model();
+    var initialModel = await widget.model();
     setContent(initialModel.html);
     //TODO:
     /*
@@ -66,17 +100,19 @@ class MemriTextEditor extends StatelessWidget {
      */
   }
 
-  executeEditorCommand(String format) {
-    var script = "window.editor.commands.$format('');";
+  executeEditorCommand(String format, [Map<String, dynamic>? info]) {
+    info ??= {};
+    var infoString = jsonEncode(info);
+    var script = "window.editor.commands.$format($infoString);";
     _controller.evaluateJavascript(script);
   }
 
-  Future<Uri> _showHtml() async {
+  Future<Uri> _initShowHtml() async {
     final tempDir = await getTemporaryDirectory();
     final names = {
       "css": "app.21afb81e.css",
-      "jsApp": "app.8d222583.js",
-      "jsChunk": "chunk-vendors.0e5dd11d.js"
+      "jsApp": "app.aa7a2c74.js",
+      "jsChunk": "chunk-vendors.cfa982ac.js"
     };
 
     final htmlPath = join(tempDir.path, 'index.html');
@@ -84,14 +120,14 @@ class MemriTextEditor extends StatelessWidget {
     final jsPathApp = join(tempDir.path, names["jsApp"]);
     final jsPathChunk = join(tempDir.path, names["jsChunk"]);
 
-    String css = await rootBundle
-        .loadString('assets/noteEditor/noteEditorDist/css/${names["css"]}');
+    String css =
+        await rootBundle.loadString('assets/noteEditor/noteEditorDist/css/${names["css"]}');
     File(cssPath).writeAsStringSync(css);
-    String jsApp = await rootBundle
-        .loadString('assets/noteEditor/noteEditorDist/js/${names["jsApp"]}');
+    String jsApp =
+        await rootBundle.loadString('assets/noteEditor/noteEditorDist/js/${names["jsApp"]}');
     File(jsPathApp).writeAsStringSync(jsApp);
-    String jsChunk = await rootBundle
-        .loadString('assets/noteEditor/noteEditorDist/js/${names["jsChunk"]}');
+    String jsChunk =
+        await rootBundle.loadString('assets/noteEditor/noteEditorDist/js/${names["jsChunk"]}');
     File(jsPathChunk).writeAsStringSync(jsChunk);
 
     File(htmlPath).writeAsStringSync("""
@@ -123,5 +159,49 @@ class MemriTextEditor extends StatelessWidget {
     var _content = (await content)?.escapeForJavascript() ?? "";
     _controller.evaluateJavascript(
         "window.editor.options.content = \"$_content\"; window.editor.view.updateState(window.editor.createState());");
+  }
+
+  updateToolbar() {
+    toolBar = MemriTextEditorToolbar(
+      toolbarState: toolbarState,
+      executeEditorCommand: executeEditorCommand,
+    );
+    return toolBar;
+  }
+}
+
+enum ToolbarState { main, color, heading, image }
+
+extension ToolbarStateExtension on ToolbarState {
+  bool get showBackButton {
+    switch (this) {
+      case ToolbarState.main:
+      case ToolbarState.image:
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  ToolbarState onBack() {
+    return ToolbarState.main;
+  }
+
+  ToolbarState toggleHeading() {
+    switch (this) {
+      case ToolbarState.heading:
+        return ToolbarState.main;
+      default:
+        return ToolbarState.heading;
+    }
+  }
+
+  ToolbarState toggleColor() {
+    switch (this) {
+      case ToolbarState.color:
+        return ToolbarState.main;
+      default:
+        return ToolbarState.color;
+    }
   }
 }
