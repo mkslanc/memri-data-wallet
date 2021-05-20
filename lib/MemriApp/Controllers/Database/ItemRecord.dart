@@ -286,4 +286,14 @@ class ItemRecord extends Equatable {
     return await Future.wait(list.map((el) async => ItemRecord.fromItem(
         await dbController.databasePool.itemRecordFetchWithRowId(int.parse(el.item)))));
   }
+
+  static Future<ItemRecord?> get me async {
+    DatabaseController dbController = AppController.shared.databaseController;
+    var edge = await dbController.databasePool.edgeRecordSelect({"name": "me"});
+    if (edge == null) {
+      return null;
+    }
+
+    return await ItemRecord.fetchWithRowID(edge.target, dbController);
+  }
 }

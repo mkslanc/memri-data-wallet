@@ -2590,6 +2590,11 @@
       "target_type": "Photo"
     },
     {
+      "source_type": "Message",
+      "edge": "message",
+      "target_type": "Message"
+    },
+    {
       "source_type": "LabelAnnotation",
       "edge": "annotatedItem",
       "target_type": "Any"
