@@ -263,6 +263,15 @@ class DatabaseQueryConfig extends ChangeNotifier {
       case "dateModified":
         orderBy = "ORDER BY dateModified $sortOrder, dateCreated $sortOrder";
         break;
+      case "dateSent":
+        TableInfo table = dbController.databasePool.integers;
+        String tableName = table.$tableName;
+        joinTables.add(table);
+        join =
+            "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
+
+        orderBy = "ORDER BY $tableName.value";
+        break;
       case "":
       case null:
         break;
