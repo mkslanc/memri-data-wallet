@@ -8,7 +8,7 @@
   <editor-content id="container" :editor="editor" />
 </template>
 
-        
+
 <script>
 import { Editor, EditorContent } from "tiptap";
 
@@ -119,14 +119,14 @@ window.editor = new Editor({
         underline: isActive.underline(),
         strike: isActive.strike(),
         heading: isActive.heading({ level: 1 })
-          ? 1
-          : isActive.heading({ level: 2 })
-          ? 2
-          : isActive.heading({ level: 3 })
-          ? 3
-          : isActive.heading({ level: 4 })
-          ? 4
-          : 0,
+            ? 1
+            : isActive.heading({ level: 2 })
+                ? 2
+                : isActive.heading({ level: 3 })
+                    ? 3
+                    : isActive.heading({ level: 4 })
+                        ? 4
+                        : 0,
         todo_list: isActive.todo_list(),
         ordered_list: isActive.ordered_list(),
         bullet_list: isActive.bullet_list(),
@@ -141,24 +141,28 @@ window.editor = new Editor({
     } catch (err) {
       console.log(err);
     }
-    try {
-      window.webkit.messageHandlers.formatChange.postMessage({
-        format: format,
-      });
-    } catch {
-      console.log("Couldn't send format change event to WebKit");
-      console.log(format);
+    // eslint-disable-next-line
+    if (typeof formatChange !== "undefined" && formatChange != null) {
+      try {
+        // eslint-disable-next-line
+        formatChange.postMessage(JSON.stringify(format));
+      } catch {
+        console.log("Couldn't send format change event to WebKit");
+        console.log(format);
+      }
     }
   },
   onUpdate: (data) => {
     let html = data.getHTML();
-    try {
-      window.webkit.messageHandlers.textChange.postMessage({
-        html: html,
-      });
-    } catch {
-      console.log("Couldn't send textChange event to WebKit");
-      console.log(html);
+    // eslint-disable-next-line
+    if (typeof textChange !== "undefined" && textChange != null) {
+      try {
+        // eslint-disable-next-line
+        textChange.postMessage(html);
+      } catch {
+        console.log("Couldn't send textChange event to WebKit");
+        console.log(html);
+      }
     }
   },
 });
