@@ -52,7 +52,6 @@ extension FormattedDate on DateTime {
 
   String formatted({String dateFormat = "yyyy/MM/dd HH:mm"}) {
     // Compare against 36 hours ago
-    print(this.subtract(Duration(hours: 36)).millisecondsSinceEpoch);
     if (DateTime.now().subtract(Duration(hours: 36)).millisecondsSinceEpoch >
         this.millisecondsSinceEpoch) {
       var dateFormatter = DateFormat(dateFormat, "en_US");

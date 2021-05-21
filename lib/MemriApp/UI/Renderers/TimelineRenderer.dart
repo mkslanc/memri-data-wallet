@@ -15,19 +15,42 @@ import '../ViewContextController.dart';
 
 /// The timeline renderer
 /// This presents the data in chronological order in a vertically scrolling `timeline`
-class TimelineRendererView extends StatelessWidget {
+class TimelineRendererView extends StatefulWidget {
   final SceneController sceneController;
   final ViewContextController viewContext;
 
   TimelineRendererView(
       {required this.sceneController, required this.viewContext, this.minSectionHeight = 40});
 
+  final double minSectionHeight;
+
+  @override
+  _TimelineRendererViewState createState() => _TimelineRendererViewState();
+}
+
+class _TimelineRendererViewState extends State<TimelineRendererView> {
+  @override
+  initState() {
+    super.initState();
+    widget.viewContext.addListener(updateState);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.viewContext.removeListener(updateState);
+  }
+
+  void updateState() {
+    setState(() => {});
+  }
+
   Future<TimelineRendererModel> generateModel() async {
     var timelineRendererModel = TimelineRendererModel();
     await timelineRendererModel.init(
-        dataItems: viewContext.items,
+        dataItems: widget.viewContext.items,
         itemDateTimeResolver: (item) async {
-          return await viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
+          return await widget.viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
               item.dateModified;
         },
         detailLevel: await detailLevel,
@@ -37,15 +60,14 @@ class TimelineRendererView extends StatelessWidget {
 
   Future<TimelineDetailLevel> get detailLevel async {
     return TimelineDetailLevelExtension.init(
-            await viewContext.rendererDefinitionPropertyResolver.string("detailLevel")) ??
+            await widget.viewContext.rendererDefinitionPropertyResolver.string("detailLevel")) ??
         TimelineDetailLevel.hour;
   }
 
   Future<bool> get mostRecentFirst async {
-    return (await viewContext.rendererDefinitionPropertyResolver.boolean("recentFirst", true))!;
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
+        .boolean("recentFirst", true))!;
   }
-
-  final double minSectionHeight;
 
   List<List<Widget>> sections(TimelineRendererModel model) {
     List<List<Widget>> widgetSections = [];
@@ -64,17 +86,19 @@ class TimelineRendererView extends StatelessWidget {
                         CVUActionOpenView(
                                 renderer: "list",
                                 uids: Set.from(element.items.map((item) => item.uid)))
-                            .execute(sceneController, viewContext.getCVUContext());
+                            .execute(widget.sceneController, widget.viewContext.getCVUContext());
                       } else if (element.items.length > 0) {
                         var item = element.items.first;
-                        var press = viewContext.nodePropertyResolver(item)?.action("onPress");
+                        var press =
+                            widget.viewContext.nodePropertyResolver(item)?.action("onPress");
                         if (press != null) {
-                          press.execute(sceneController, viewContext.getCVUContext(item: item));
+                          press.execute(
+                              widget.sceneController, widget.viewContext.getCVUContext(item: item));
                         }
                       }
                     },
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: minSectionHeight),
+                      constraints: BoxConstraints(minHeight: widget.minSectionHeight),
                       child: renderElement(element),
                     ),
                   ),
@@ -98,7 +122,7 @@ class TimelineRendererView extends StatelessWidget {
           backgroundColor: Colors.grey);
     } else if (element.items.length > 0) {
       var item = element.items.first;
-      return viewContext.render(item: item);
+      return widget.viewContext.render(item: item);
     } else {
       return SizedBox.shrink();
     }
@@ -124,10 +148,12 @@ class TimelineRendererView extends StatelessWidget {
               TimelineRendererModel model = snapshot.data!;
               var padding = EdgeInsets.fromLTRB(0, 8, 10, 8);
               var widgetSections = sections(model);
+              var index = 0;
+              var lastIndex = widgetSections.length - 1;
               var children = widgetSections
-                  .expand((element) => element + [Divider(height: 1)])
-                  .toList()
-                    ..removeLast();
+                  .expand((element) => element + (++index > lastIndex ? [] : [Divider(height: 1)]))
+                  .toList();
+
               return Expanded(
                   child: StaggeredGridView.count(
                 physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -138,7 +164,7 @@ class TimelineRendererView extends StatelessWidget {
                 staggeredTiles: tiles(widgetSections),
               ));
             default:
-              return Text("");
+              return Expanded(child: CircularProgressIndicator());
           }
         });
   }

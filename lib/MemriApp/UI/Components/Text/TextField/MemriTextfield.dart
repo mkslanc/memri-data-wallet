@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 
-class MemriTextField<T> extends StatefulWidget {
+class MemriTextField<T> extends StatelessWidget {
   final Binding<T>? binding;
   final FutureBinding<T>? futureBinding;
   final TextStyle? style;
@@ -14,42 +14,38 @@ class MemriTextField<T> extends StatefulWidget {
   MemriTextField.async({required this.futureBinding, this.style, this.isEditing = true})
       : binding = null;
 
-  @override
-  _MemriTextFieldState<T> createState() => _MemriTextFieldState<T>();
-}
-
-class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
-  @override
-  void initState() {
-    super.initState();
-    if (widget.futureBinding != null) init();
-  }
-
-  init() async {
-    await widget.futureBinding?.get().then((newValue) => updateValue(newValue));
-  }
-
-  T? _value;
-
-  get value => _value;
+  late final T? _value;
+  TextEditingController get controller => TextEditingController(text: _value?.toString());
 
   set value(newValue) {
-    if (widget.futureBinding != null) {
-      widget.futureBinding!.set(newValue).whenComplete(() => updateValue(newValue));
+    if (futureBinding != null) {
+      futureBinding!.set(newValue);
     } else {
-      widget.binding!.set(newValue);
+      binding!.set(newValue);
     }
-  }
-
-  void updateValue(newValue) {
-    setState(() {
-      _value = newValue;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    //TODO: make it more flexible
+    if (futureBinding != null) {
+      return FutureBuilder<T>(
+          future: futureBinding!.get(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                _value = snapshot.data;
+                return body(context);
+              default:
+                return SizedBox.shrink();
+            }
+          });
+    } else {
+      _value = binding!.get();
+      return body(context);
+    }
+  }
+
+  Widget body(BuildContext context) {
     switch (T) {
       case int:
         return intTextForm();
@@ -63,10 +59,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
 
   stringTextForm() {
     return TextFormField(
-      readOnly: !widget.isEditing,
-      style: widget.style,
+      readOnly: !isEditing,
+      style: style,
       decoration: InputDecoration(border: InputBorder.none),
-      controller: TextEditingController()..text = value ?? "", //TODO: need to change
+      controller: controller,
       onChanged: (String newValue) async {
         value = newValue;
       },
@@ -75,10 +71,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
 
   intTextForm() {
     return TextFormField(
-      readOnly: !widget.isEditing,
-      style: widget.style,
+      readOnly: !isEditing,
+      style: style,
       decoration: InputDecoration(border: InputBorder.none),
-      controller: TextEditingController()..text = value.toString(), //TODO: need to change
+      controller: controller,
       onChanged: (String newValue) async {
         value = int.tryParse(newValue);
       },
@@ -89,10 +85,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
 
   doubleTextForm() {
     return TextFormField(
-      readOnly: !widget.isEditing,
-      style: widget.style,
+      readOnly: !isEditing,
+      style: style,
       decoration: InputDecoration(border: InputBorder.none),
-      controller: TextEditingController()..text = value.toString(), //TODO: need to change
+      controller: controller,
       onChanged: (String newValue) async {
         value = double.tryParse(newValue);
       },

@@ -12,8 +12,8 @@ class DatabaseQueryConfig extends ChangeNotifier {
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
 
-  /// A list of item UIDs to include. Default is Empty -> don't filter on UID
-  Set<String> itemUIDs; //TODO: we will need to refactor this to use rowIds
+  /// A list of item `rowid` to include. Default is Empty -> don't filter on `rowid`
+  Set<int> itemRowIDs;
 
   /// A property to sort the results by
   String? _sortProperty;
@@ -35,16 +35,44 @@ class DatabaseQueryConfig extends ChangeNotifier {
   }
 
   /// Only include items modified after this date
-  DateTime? dateModifiedAfter;
+  DateTime? _dateModifiedAfter;
+
+  DateTime? get dateModifiedAfter => _dateModifiedAfter;
+
+  set dateModifiedAfter(DateTime? newValue) {
+    _dateModifiedAfter = newValue;
+    notifyListeners();
+  }
 
   /// Only include items modified before this date
-  DateTime? dateModifiedBefore;
+  DateTime? _dateModifiedBefore;
+
+  DateTime? get dateModifiedBefore => _dateModifiedBefore;
+
+  set dateModifiedBefore(DateTime? newValue) {
+    _dateModifiedBefore = newValue;
+    notifyListeners();
+  }
 
   /// Only include items created after this date
-  DateTime? dateCreatedAfter;
+  DateTime? _dateCreatedAfter;
+
+  DateTime? get dateCreatedAfter => _dateCreatedAfter;
+
+  set dateCreatedAfter(DateTime? newValue) {
+    _dateCreatedAfter = newValue;
+    notifyListeners();
+  }
 
   /// Only include items created before this date
-  DateTime? dateCreatedBefore;
+  DateTime? _dateCreatedBefore;
+
+  DateTime? get dateCreatedBefore => _dateCreatedBefore;
+
+  set dateCreatedBefore(DateTime? newValue) {
+    _dateCreatedBefore = newValue;
+    notifyListeners();
+  }
 
   /// The maximum number of items to fetch
   int pageSize;
@@ -65,26 +93,30 @@ class DatabaseQueryConfig extends ChangeNotifier {
 
   DatabaseQueryConfig({
     this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
-    this.itemUIDs = const {},
+    this.itemRowIDs = const {},
     sortProperty = "dateModified",
     sortAscending = false,
-    this.dateModifiedAfter,
-    this.dateModifiedBefore,
-    this.dateCreatedAfter,
-    this.dateCreatedBefore,
+    dateModifiedAfter,
+    dateModifiedBefore,
+    dateCreatedAfter,
+    dateCreatedBefore,
     this.pageSize = 1000,
     this.currentPage = 0,
     this.searchString,
     this.includeImmediateEdgeSearch = true,
     this.conditions = const [],
   })  : _sortAscending = sortAscending,
-        _sortProperty = sortProperty;
+        _sortProperty = sortProperty,
+        _dateModifiedAfter = dateModifiedAfter,
+        _dateModifiedBefore = dateModifiedBefore,
+        _dateCreatedAfter = dateCreatedAfter,
+        _dateCreatedBefore = dateCreatedBefore;
 
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
     return DatabaseQueryConfig(
       itemTypes: itemTypes,
-      itemUIDs: itemUIDs,
+      itemRowIDs: itemRowIDs,
       sortProperty: sortProperty,
       sortAscending: sortAscending,
       dateModifiedAfter: dateModifiedAfter,
@@ -99,7 +131,7 @@ class DatabaseQueryConfig extends ChangeNotifier {
     );
   }
 
-  _constructFilteredRequest([Set<int>? searchIDs]) async {
+  _constructFilteredRequest([Set<int>? searchRowIDs]) async {
     List<dynamic> intersection(List<List<dynamic>> arrays) {
       if (arrays.length == 0) {
         return [];
@@ -123,33 +155,29 @@ class DatabaseQueryConfig extends ChangeNotifier {
     }
 
     /// Filter to only include items matching the search term (AND if already filtered by UID, those that match both)
-    if (searchIDs != null) {
-      if (searchIDs.isEmpty) {
+    if (searchRowIDs != null) {
+      if (searchRowIDs.isEmpty) {
         return [];
       }
-      var itemUIDCondition;
-      if (itemUIDs.isNotEmpty) {
-        //TODO: reimplement this with rowIds
-        var items = await Future.wait(searchIDs
-            .map((id) async => await dbController.databasePool.itemRecordFetchWithRowId(id)));
-        var searchUIDs = items.map((item) => item.id).toSet();
-        itemUIDCondition = searchUIDs.intersection(itemUIDs).map((uid) {
-          queryBindings.add(Variable.withString(uid));
-          return "id = ?";
+      var itemRowIDCondition;
+      if (itemRowIDs.isNotEmpty) {
+        itemRowIDCondition = searchRowIDs.intersection(itemRowIDs).map((rowid) {
+          queryBindings.add(Variable.withInt(rowid));
+          return "row_id = ?";
         });
       } else {
-        itemUIDCondition = searchIDs.map((rowId) {
+        itemRowIDCondition = searchRowIDs.map((rowId) {
           queryBindings.add(Variable.withInt(rowId));
           return "row_id = ?";
         });
       }
-      queryConditions.add("(" + itemUIDCondition.join(" OR ") + ")");
-    } else if (itemUIDs.isNotEmpty) {
-      var itemUIDCondition = itemUIDs.map((uid) {
-        queryBindings.add(Variable.withString(uid));
-        return "id = ?";
+      queryConditions.add("(" + itemRowIDCondition.join(" OR ") + ")");
+    } else if (itemRowIDs.isNotEmpty) {
+      var itemRowIDCondition = itemRowIDs.map((rowId) {
+        queryBindings.add(Variable.withInt(rowId));
+        return "row_id = ?";
       });
-      queryConditions.add("(" + itemUIDCondition.join(" OR ") + ")");
+      queryConditions.add("(" + itemRowIDCondition.join(" OR ") + ")");
     }
 
     /// Filter by date ranges
@@ -323,7 +351,7 @@ class PropertyEquals {
 
 class EdgeHasTarget {
   String edgeName;
-  String target;
+  int target;
 
   EdgeHasTarget(this.edgeName, this.target);
 }

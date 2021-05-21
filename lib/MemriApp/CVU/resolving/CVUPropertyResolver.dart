@@ -106,6 +106,13 @@ class CVUPropertyResolver {
         .toList();
   }
 
+  Future<List<int>> intArray(String key) async {
+    return (await Future.wait(valueArray(key).map((CVUValue element) async =>
+            await lookup.resolve<int>(value: element, context: this.context, db: this.db))))
+        .whereType<int>()
+        .toList();
+  }
+
   Future<bool?> boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) async {
     CVUValue? val = value(key);
     if (val == null) {
@@ -231,7 +238,7 @@ class CVUPropertyResolver {
         if (type == null) {
           return null;
         }
-        return [type(vars: {})];
+        return [type()];
       }
     }
     if (val is CVUValueArray) {
@@ -242,7 +249,7 @@ class CVUPropertyResolver {
         if (action is CVUValueConstant) {
           if (action.value is CVUConstantArgument) {
             Map<String, CVUValue> vars = {};
-            var def = array[i + 1];
+            var def = array.asMap()[i + 1];
             if (def is CVUValueSubdefinition) {
               var keys = def.value.properties.keys;
               for (var key in keys) {

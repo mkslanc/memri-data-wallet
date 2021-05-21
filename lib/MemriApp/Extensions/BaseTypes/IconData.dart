@@ -67,6 +67,8 @@ extension MemriIcon on IconData {
         return Icons.arrow_back;
       case "trash":
         return Icons.delete;
+      case "minus.circle.fill":
+        return Icons.remove_circle;
       default:
         return Icons.contact_support_rounded;
     }

@@ -41,6 +41,8 @@ CVUAction Function({Map? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionAddItem(vars: vars);
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
+    case "openviewbyname":
+      return ({Map? vars}) => CVUActionOpenViewByName(vars: vars);
     case "toggleeditmode":
       return ({Map? vars}) => CVUActionToggleEditMode(vars: vars);
     case "togglefilterpanel":
@@ -130,7 +132,7 @@ class CVUActionOpenView extends CVUAction {
 
   String? viewName;
   String? renderer;
-  Set<String>? uids;
+  Set<int>? uids;
   DateTimeRange? dateRange;
   CVUDefinitionContent? viewDefinition;
 
@@ -166,7 +168,7 @@ class CVUActionOpenView extends CVUAction {
         overrideRenderer: renderer ?? await resolver.string("renderer"),
         defaultRenderer: "singleItem",
         targetItem: context.currentItem,
-        overrideUIDs: uids,
+        overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
         viewArguments: viewArguments);
@@ -399,7 +401,7 @@ class CVUActionLink extends CVUAction {
         sourceRowID: subjectItem.rowId, name: edgeType, targetRowID: currentItem.rowId);
     edge.save(db.databasePool);
 
-    //sceneController.scheduleUIUpdate() TODO:
+    sceneController.scheduleUIUpdate();
   }
 }
 
@@ -445,7 +447,7 @@ class CVUActionUnlink extends CVUAction {
       return;
     }
 
-    //sceneController.scheduleUIUpdate()
+    sceneController.scheduleUIUpdate();
   }
 }
 
