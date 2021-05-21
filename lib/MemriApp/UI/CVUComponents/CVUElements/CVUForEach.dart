@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -40,7 +41,7 @@ class CVUForEach extends StatelessWidget {
                   .toList());
             }
           }
-          return SizedBox.shrink();
+          return Empty();
         });
   }
 }

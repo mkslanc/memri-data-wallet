@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../../BrowserView.dart';
 import '../../ViewContextController.dart';
@@ -65,7 +66,7 @@ class _ActionPopupButtonState extends State<ActionPopupButton> {
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return SizedBox.shrink();
+                return Empty();
               default:
                 if (snapshot.hasData) {
                   return BrowserView(

@@ -10,6 +10,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/UI/BrowserView.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -95,7 +96,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
-                        return SizedBox.shrink();
+                        return Empty();
                       default:
                         if (snapshot.hasData) {
                           return BrowserView(
@@ -125,7 +126,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                     color: CVUColor.system("systemBlue"),
                   );
                 }
-                return Text("");
+                return Empty();
               }),
           onPressed: () async {
             await validAction

@@ -6,6 +6,7 @@ import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
@@ -290,7 +291,7 @@ class _LabelSelectionViewState extends State<LabelSelectionView> {
                             );
                           },
                         )
-                      : SizedBox.shrink(),
+                      : Empty(),
             ),
           ),
         ),

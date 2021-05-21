@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class PhotoViewerView extends StatefulWidget {
   final void Function(bool) onToggleOverlayVisibility;
@@ -41,7 +42,7 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
             var photoItems = snapshot.data;
 
             if (photoItems == null || photoItems.length == 0) {
-              return SizedBox.shrink();
+              return Empty();
             }
             return Expanded(
               child: PageView(controller: _pageController, children: getImages(photoItems)),

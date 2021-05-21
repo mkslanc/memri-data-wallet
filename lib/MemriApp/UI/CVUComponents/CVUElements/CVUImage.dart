@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVU_Other.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// A CVU element for displaying an image
 /// - Use the `image` property to display an Image item
@@ -81,7 +82,7 @@ class CVUImage extends StatelessWidget {
               );
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 }

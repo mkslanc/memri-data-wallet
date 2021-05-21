@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/Components/Email/EmailView.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -19,7 +20,7 @@ class CVUHTMLView extends StatelessWidget {
           if (snapshot.hasData) {
             return EmailView(emailHTML: snapshot.data);
           }
-          return Text("");
+          return Empty();
         });
   }
 }

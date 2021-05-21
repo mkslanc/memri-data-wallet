@@ -3,6 +3,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 import 'CVUTextPropertiesModifier.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// A CVU element for displaying text
 /// - Set the `text` property to the desired content
@@ -27,15 +28,15 @@ class CVUText extends StatelessWidget {
     return FutureBuilder(
         future: init(),
         builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done && content != null) {
             return Text(
-              content ?? "",
+              content!,
               maxLines: resolvedTextProperties.lineLimit,
               style: resolvedTextProperties.textStyle,
               textAlign: resolvedTextProperties.textAlign,
             );
           }
-          return Text("");
+          return Empty();
           // .fixedSize(horizontal: false, vertical: true) TODO
         });
   }
@@ -63,15 +64,15 @@ class CVUSmartText extends StatelessWidget {
     return FutureBuilder(
         future: init(),
         builder: (BuildContext builder, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done && content != null) {
             return Text(
-              content ?? "",
+              content!,
               style: resolvedTextProperties.textStyle,
               textAlign: resolvedTextProperties.textAlign,
               maxLines: resolvedTextProperties.lineLimit,
             );
           } else {
-            return SizedBox.shrink();
+            return Empty();
           }
         });
   }

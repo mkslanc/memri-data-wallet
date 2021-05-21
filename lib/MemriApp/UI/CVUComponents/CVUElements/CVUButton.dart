@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUTextPropertiesModifier.dart';
@@ -42,7 +43,7 @@ class CVUButton extends StatelessWidget {
               style: ElevatedButton.styleFrom(textStyle: resolvedTextProperties.textStyle),
             );
           }
-          return Text("");
+          return Empty();
         });
   }
 }

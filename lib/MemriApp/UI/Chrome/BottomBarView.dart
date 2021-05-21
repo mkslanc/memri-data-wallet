@@ -85,7 +85,7 @@ class BottomBarView extends StatelessWidget {
                               );
                             }
                           }
-                          return Text("");
+                          return Empty();
                         })
                   ]))),
         ),

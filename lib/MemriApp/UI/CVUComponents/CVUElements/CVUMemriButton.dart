@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/Components/Button/MemriButton.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -23,7 +24,7 @@ class CVUMemriButton extends StatelessWidget {
               );
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 }

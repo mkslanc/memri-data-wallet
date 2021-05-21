@@ -17,6 +17,7 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import 'definitions/CVUParsedDefinition.dart';
 import 'definitions/CVUUINode.dart';
@@ -241,6 +242,6 @@ class CVUController {
       return Text("No definition for displaying a `$type` in this context",
           style: TextStyle(fontFamily: "caption"));
     }
-    return Text("");
+    return Empty();
   }
 }

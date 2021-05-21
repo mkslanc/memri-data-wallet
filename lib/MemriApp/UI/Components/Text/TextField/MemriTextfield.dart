@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class MemriTextField<T> extends StatelessWidget {
   final Binding<T>? binding;
@@ -36,7 +37,7 @@ class MemriTextField<T> extends StatelessWidget {
                 _value = snapshot.data;
                 return body(context);
               default:
-                return SizedBox.shrink();
+                return Empty();
             }
           });
     } else {

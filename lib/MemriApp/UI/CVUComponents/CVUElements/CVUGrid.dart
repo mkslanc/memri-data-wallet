@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUForEach.dart';
@@ -54,7 +55,7 @@ class CVUGrid extends StatelessWidget with StackWidget {
               );
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 

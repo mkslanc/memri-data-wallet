@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 
@@ -282,7 +283,7 @@ class ChartRendererView extends StatelessWidget {
               ],
             );
           }
-          return Text("");
+          return Empty();
         });
   }
 
@@ -315,7 +316,7 @@ class ChartRendererView extends StatelessWidget {
                             );
                           }
                         }
-                        return Text("");
+                        return Empty();
                       });
                 case "line":
                   return FutureBuilder(
@@ -334,7 +335,7 @@ class ChartRendererView extends StatelessWidget {
                             );
                           }
                         }
-                        return Text("");
+                        return Empty();
                       });
                 case "pie":
                   return FutureBuilder(
@@ -353,12 +354,12 @@ class ChartRendererView extends StatelessWidget {
                             );
                           }
                         }
-                        return Text("");
+                        return Empty();
                       });
               }
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 }

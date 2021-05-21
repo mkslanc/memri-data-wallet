@@ -7,3 +7,10 @@ List<Widget> space(double gap, Iterable<Widget> children) => children
     })
     .skip(1)
     .toList();
+
+class Empty extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.shrink();
+  }
+}

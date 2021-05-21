@@ -16,6 +16,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/Components/MemriDatePicker.dart';
 import 'package:memri/MemriApp/UI/Components/Text/TextField/MemriTextfield.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 
@@ -369,7 +370,7 @@ class GeneralEditorSection extends StatelessWidget {
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (isEmpty == true) {
-              return Text("");
+              return Empty();
             } else {
               List<Widget> header = [];
               if (shouldShowTitle) {
@@ -431,7 +432,7 @@ class GeneralEditorSection extends StatelessWidget {
               );
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 }
@@ -586,7 +587,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
                   formatter: "MMM d, yyyy",
                   style: generalEditorCaptionStyle(),
                   isEditing: sceneController.isInEditMode.value)
-              : SizedBox.shrink(),
+              : Empty(),
     );
   }
 

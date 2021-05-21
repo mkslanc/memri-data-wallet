@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
@@ -115,7 +116,7 @@ class _GridRendererViewState extends State<GridRendererView> {
                   ),
                 );
               })
-          : SizedBox.shrink(),
+          : Empty(),
     );
   }
 

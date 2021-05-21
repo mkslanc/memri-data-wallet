@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -25,7 +26,7 @@ class CVUEditorRow extends StatelessWidget {
         style: TextStyle(fontWeight: FontWeight.bold),
       );
     }
-    return Text("");
+    return Empty();
   }
 
   List<Widget> get content {
@@ -54,7 +55,7 @@ class CVUEditorRow extends StatelessWidget {
               ),
             );
           }
-          return Text("");
+          return Empty();
         });
   }
 }

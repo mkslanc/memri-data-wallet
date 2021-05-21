@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 // ignore: must_be_immutable
 class MemriButton extends StatelessWidget {
@@ -65,9 +66,9 @@ class MemriButton extends StatelessWidget {
                 ),
               );
             }
-            return Text("");
+            return Empty();
           });
     }
-    return Text("");
+    return Empty();
   }
 }
