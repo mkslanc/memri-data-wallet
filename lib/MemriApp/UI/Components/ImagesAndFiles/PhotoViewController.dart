@@ -60,7 +60,10 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
   }
 
   List<Widget> getImages(List<PhotoViewerControllerPhotoItem?> photoItems) {
-    return photoItems.compactMap((photoItem) => PhotoScalingView(photoItem: photoItem!)).toList();
+    return photoItems
+        .compactMap(
+            (photoItem) => photoItem == null ? null : PhotoScalingView(photoItem: photoItem))
+        .toList();
   }
 //TODO: overlay changing with animations
 }
