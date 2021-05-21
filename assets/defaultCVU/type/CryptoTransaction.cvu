@@ -1,7 +1,7 @@
 CryptoTransaction > list {
     VStack {
         HStack {
-            show: {{.relateTo.username = .ofOwner.username}}
+            show: {{.relateTo.displayName = .ofOwner.displayName}}
 
             Text {
                 text: {{.inCurrency.topic}}
@@ -18,10 +18,10 @@ CryptoTransaction > list {
         }
 
         HStack {
-            show: {{.relateTo.username != .ofOwner.username}}
+            show: {{.relateTo.displayName != .ofOwner.displayName}}
 
             Text {
-                text: {{.outward = true ? "Sent to @" + .relateTo.username : "Received from @" + .relateTo.username}}
+                text: {{.outward = true ? "Sent to @" + .relateTo.displayName : "Received from @" + .relateTo.displayName}}
                 font: 20 regular
                 color: primary
             }
