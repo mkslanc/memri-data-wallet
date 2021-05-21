@@ -10,11 +10,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
+import '../../ViewContextController.dart';
+
 class MemriTextEditor extends StatefulWidget {
   final Future<MemriTextEditorModel> Function() model;
   final Function(MemriTextEditorModel) onModelUpdate;
+  final ViewContextController viewContext;
 
-  MemriTextEditor({required this.model, required this.onModelUpdate});
+  MemriTextEditor({required this.model, required this.onModelUpdate, required this.viewContext});
 
   @override
   _MemriTextEditorState createState() => _MemriTextEditorState();
@@ -33,6 +36,13 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   void initState() {
     super.initState();
     _showHtml = _initShowHtml();
+    widget.viewContext.searchStringNotifier.addListener(updateSearchState);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.viewContext.searchStringNotifier.removeListener(updateSearchState);
   }
 
   @override
@@ -92,12 +102,19 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   onEditorLoaded(url) async {
     var initialModel = await widget.model();
     setContent(initialModel.html);
-    //TODO:
-    /*
-          self.updateToolbar()
-      self.updateSearchState().sink {}.store(in: &self.cancellableBag)
-      self.grabFocus(takeFirstResponder: false)
-     */
+    grabFocus();
+    updateSearchState();
+  }
+
+  grabFocus() {
+    _controller.evaluateJavascript("window.editor.focus();");
+  }
+
+  updateSearchState() {
+    var script = widget.viewContext.searchString != null
+        ? "window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\")"
+        : "window.editor.commands.clearSearch()";
+    return _controller.evaluateJavascript(script);
   }
 
   executeEditorCommand(String format, [Map<String, dynamic>? info]) {

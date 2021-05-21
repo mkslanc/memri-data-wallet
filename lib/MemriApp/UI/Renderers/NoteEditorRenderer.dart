@@ -65,7 +65,11 @@ class NoteEditorRendererView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: MemriTextEditor(model: getEditorModel, onModelUpdate: handleModelUpdate),
+      child: MemriTextEditor(
+        model: getEditorModel,
+        onModelUpdate: handleModelUpdate,
+        viewContext: viewContext,
+      ),
     );
   }
 }
