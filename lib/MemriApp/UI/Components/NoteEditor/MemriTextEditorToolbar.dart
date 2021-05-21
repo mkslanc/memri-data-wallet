@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorModel.dart';
@@ -9,7 +10,6 @@ import 'package:collection/collection.dart';
 import 'MemriTextEditor.dart';
 
 class MemriTextEditorToolbar extends StatefulWidget {
-
   final ToolbarState toolbarState;
   final void Function(String, [Map<String, dynamic>?]) executeEditorCommand;
 
@@ -32,6 +32,7 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
   late ToolbarState toolbarState;
   late final void Function(String, [Map<String, dynamic>?]) executeEditorCommand;
   Map<String, dynamic> _currentFormatting = {};
+  SceneController sceneController = SceneController.sceneController;
 
   @override
   void initState() {
@@ -255,63 +256,63 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 37,
-      width: MediaQuery.of(context).size.width,
-      child: ColoredBox(
-        color: CVUColor.system("secondarySystemBackground"),
-        child: Column(
-          children: [
-            Divider(
-              height: 1,
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: Row(
-                    children: space(2, [
-                      if (toolbarState.showBackButton)
-                        Container(
-                          constraints: BoxConstraints(maxWidth: 30, maxHeight: 36),
-                          //padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: TextButton(
-                            onPressed: () => setState(() {
-                              toolbarState = toolbarState.onBack();
-                            }),
-                            child: Icon(
-                              MemriIcon.getByName("arrowshape.turn.up.left.circle"),
-                              color: CVUColor.system("label"),
-                            ),
+    return ColoredBox(
+      color: CVUColor.system("secondarySystemBackground"),
+      child: Column(
+        children: [
+          Divider(
+            height: 1,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: padding),
+                child: Row(
+                  children: space(2, [
+                    if (toolbarState.showBackButton)
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 30, maxHeight: 36),
+                        child: TextButton(
+                          onPressed: () => setState(() {
+                            toolbarState = toolbarState.onBack();
+                          }),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size(30, 36),
+                          ),
+                          child: Icon(
+                            MemriIcon.getByName("arrowshape.turn.up.left.circle"),
+                            color: CVUColor.system("label"),
                           ),
                         ),
-                      if (toolbarState.showBackButton)
-                        SizedBox(
-                          height: 30,
-                          child: VerticalDivider(
-                            width: 1,
-                          ),
+                      ),
+                    if (toolbarState.showBackButton)
+                      SizedBox(
+                        height: 30,
+                        child: VerticalDivider(
+                          width: 1,
                         ),
-                      ...getToolbarItems()
-                    ]),
-                  ),
+                      ),
+                    ...getToolbarItems()
+                  ]),
                 ),
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
 
   double get padding {
-    //#if targetEnvironment(macCatalyst)
-    //return 15
-    //#else
-    return 4;
-    //#endif
+    if (sceneController.isBigScreen) {
+      return 15;
+    } else {
+      return 4;
+    }
   }
 }
 
@@ -334,10 +335,9 @@ class ToolbarItemButton extends ToolbarItem {
   @override
   Widget build(BuildContext context) {
     if (hideInactive && !isActive) {
-      return Text("");
+      return SizedBox.shrink();
     } else {
       return Container(
-        constraints: BoxConstraints(minWidth: 30, maxHeight: 36),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(4)),
           color: (isActive && !hideInactive) ? Colors.white : Colors.transparent,
@@ -345,6 +345,7 @@ class ToolbarItemButton extends ToolbarItem {
         child: TextButton(
           onPressed: onPress,
           style: TextButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             padding: EdgeInsets.zero,
             minimumSize: Size(30, 36),
           ),
