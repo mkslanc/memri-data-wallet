@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorModel.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorToolbar.dart';
 import 'package:path/path.dart';
@@ -25,8 +26,9 @@ class MemriTextEditor extends StatefulWidget {
 
 class _MemriTextEditorState extends State<MemriTextEditor> {
   late final WebViewController _controller;
+  SceneController sceneController = SceneController.sceneController;
 
-  late final MemriTextEditorToolbar toolBar;
+  late MemriTextEditorToolbar toolBar;
 
   var toolbarState = ToolbarState.main;
 
@@ -37,12 +39,14 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
     super.initState();
     _showHtml = _initShowHtml();
     widget.viewContext.searchStringNotifier.addListener(updateSearchState);
+    sceneController.isInEditMode.addListener(switchEditMode);
   }
 
   @override
   void dispose() {
     super.dispose();
     widget.viewContext.searchStringNotifier.removeListener(updateSearchState);
+    sceneController.isInEditMode.removeListener(switchEditMode);
   }
 
   @override
@@ -77,7 +81,7 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
                     onPageFinished: onEditorLoaded,
                   ),
                 ),
-                updateToolbar()
+                if (sceneController.isInEditMode.value) updateToolbar()
               ],
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
@@ -175,7 +179,14 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   setContent(Future<String?> content) async {
     var _content = (await content)?.escapeForJavascript() ?? "";
     _controller.evaluateJavascript(
-        "window.editor.options.content = \"$_content\"; window.editor.view.updateState(window.editor.createState());");
+        "window.editor.options.content = \"$_content\"; window.editor.view.updateState(window.editor.createState()); window.editor.options.editable = false;");
+  }
+
+  switchEditMode() {
+    setState(() {
+      _controller.evaluateJavascript(
+          "window.editor.options.editable = ${sceneController.isInEditMode.value};");
+    });
   }
 
   updateToolbar() {
