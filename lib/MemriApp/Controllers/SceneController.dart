@@ -64,6 +64,7 @@ class SceneController {
     topConfigHolder.config.viewArguments = newArgs;
   }
 
+  bool isBigScreen = false;
   // @Published
   bool isContentFullscreen = false;
 
