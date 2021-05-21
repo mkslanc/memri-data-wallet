@@ -79,7 +79,8 @@ class CVUVStack extends StatelessWidget {
               return Column(
                 mainAxisAlignment: alignment.mainAxis,
                 crossAxisAlignment: alignment.crossAxis,
-                children: space(spacing?.y.toDouble() ?? 10, nodeResolver.childrenInForEach()),
+                children: space(
+                    spacing?.y.toDouble() ?? 10, nodeResolver.childrenInForEach(), Axis.vertical),
               );
             /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
