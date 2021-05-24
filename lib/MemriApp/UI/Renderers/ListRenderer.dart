@@ -92,9 +92,9 @@ class _ListRendererViewState extends State<ListRendererView> {
                           itemBuilder: (context, index) {
                             var item = value[index];
                             var title = ColoredBox(
-                                  color: backgroundColor,
-                                  child: viewContext.render(item: item),
-                                );
+                              color: backgroundColor,
+                              child: viewContext.render(item: item),
+                            );
                             var callback = selectionMode(index);
                             return isInEditMode
                                 ? CheckboxListTile(
@@ -121,14 +121,16 @@ class _ListRendererViewState extends State<ListRendererView> {
                                           insets.left,
                                           index == 0 ? 0 : spacing.y / 2,
                                           insets.right,
-                                          index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+                                          index == viewContext.items.length - 1
+                                              ? 0
+                                              : spacing.y / 2),
                                       title: title,
                                       onTap: callback,
                                     ),
                                   );
                           },
                           separatorBuilder: (context, index) => Divider(
-                                height: separatorsEnabled ? 1 : 0,,
+                                height: separatorsEnabled ? 1 : 0,
                                 color: separatorsEnabled ? null : Colors.transparent,
                               ),
                           itemCount: value.length));
