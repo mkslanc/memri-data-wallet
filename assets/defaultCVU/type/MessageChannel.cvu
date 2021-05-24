@@ -54,7 +54,8 @@ MessageChannel {
                messageChannel: {{channelUID}}
             }
         }
-        sortProperty: "dateSent"
+        sortProperty: dateSent
+        sortAscending: false
     }
     
     [renderer = list] {
@@ -148,6 +149,7 @@ MessageChannel > list {
     [datasource = pod] {
         query: "MessageChannel"
         sortProperty: dateModified
+        sortAscending: true
     }
 }
 

@@ -3580,6 +3580,7 @@
   {
     "_type": "MessageChannel",
     "uid": 20000000005,
+    "dateCreated": 1589691670005,
     "externalId": "123456789@s.whatsapp.net",
     "name": "",
     "topic": "WhatsApp private chat",
@@ -3595,6 +3596,7 @@
   {
     "_type": "MessageChannel",
     "uid": 20000000006,
+    "dateCreated": 1589691700000,
     "externalId": "987654321@s.whatsapp.net",
     "name": "",
     "topic": "WhatsApp private chat",
@@ -3612,7 +3614,7 @@
     "uid": 20000000009,
     "externalId": "9BDD372B9D4F7486D2A0",
     "content": "Hey, are we still on for the movie night?",
-    "dateSent": 1589691670000,
+    "dateSent": 1589691170000,
     "allEdges": [
       {
         "targetType": "MessageChannel",
@@ -3631,7 +3633,7 @@
     "uid": 20000079111,
     "externalId": "9BDD372B9D4F7486D2A1",
     "content": "YES! Can’t wait. ",
-    "dateSent": 1589691670001,
+    "dateSent": 1589691270001,
     "allEdges": [
       {
         "targetType": "MessageChannel",
@@ -3650,7 +3652,7 @@
     "uid": 20000079112,
     "externalId": "9BDD372B9D4F7486D2A2",
     "content": "You pick the movie. Popcorn is on me",
-    "dateSent": 1589691670002,
+    "dateSent": 1589691370002,
     "allEdges": [
       {
         "targetType": "MessageChannel",
@@ -3669,7 +3671,7 @@
     "uid": 20000079113,
     "externalId": "9BDD372B9D4F7486D2A3",
     "content": "Deal. Meet me downstairs after work then",
-    "dateSent": 1589691670003,
+    "dateSent": 1589691470003,
     "allEdges": [
       {
         "targetType": "MessageChannel",
@@ -3688,7 +3690,7 @@
     "uid": 20000079114,
     "externalId": "9BDD372B9D4F7486D2A4",
     "content": "Should we invite Gina too?",
-    "dateSent": 1589691670004,
+    "dateSent": 1589691570004,
     "allEdges": [
       {
         "targetType": "MessageChannel",
@@ -3747,7 +3749,7 @@
   },
   {
     "_type": "Message",
-    "uid": 20000000011,
+    "uid": 20000000111,
     "externalId": "7A1FCF21F8E4216509EF8300D7C5CC57",
     "content": "Where are you?",
     "dateSent": 1589691690000,
@@ -3766,7 +3768,7 @@
   },
   {
     "_type": "Message",
-    "uid": 20000000012,
+    "uid": 20000000112,
     "externalId": "EE9E22BD54F93EC48CF9",
     "content": "at home",
     "dateSent": 1589691700000,
@@ -3787,7 +3789,7 @@
     "_type": "Message",
     "uid": 20000000012,
     "externalId": "EE9E22BD54F93EC48CF9",
-    "content": "That's cool",
+    "content": "That's cool reply",
     "dateSent": 1589691700000,
     "allEdges": [
       {
@@ -3809,7 +3811,7 @@
   },
   {
     "_type": "MessageChannel",
-    "uid": 200000500010,
+    "uid": 20000000212,
     "externalId": "987654321@s.whatsapp.net",
     "name": "",
     "topic": "WhatsApp private chat",

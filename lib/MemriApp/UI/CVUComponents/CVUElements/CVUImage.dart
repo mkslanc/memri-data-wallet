@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVU_Other.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// A CVU element for displaying an image
 /// - Use the `image` property to display an Image item
@@ -61,7 +62,8 @@ class CVUImage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             if (fileImageURL != null) {
               return Image(
-                image: ResizeImage(AssetImage(fileImageURL!), width: 150), //TODO: to avoid lagging
+                image: ResizeImage(AssetImage(fileImageURL!),
+                    width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
                 fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
               );
             } else if (bundleImage != null) {
@@ -81,7 +83,7 @@ class CVUImage extends StatelessWidget {
               );
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 }

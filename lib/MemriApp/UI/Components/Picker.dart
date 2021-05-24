@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class Picker<T> extends StatefulWidget {
   final String label;
@@ -82,7 +83,7 @@ class _PickerState<T> extends State<Picker<T>> {
                                     .values
                                     .toList(),
                               )
-                            : SizedBox.shrink(),
+                            : Empty(),
                       ),
                     ),
                   );
@@ -99,7 +100,7 @@ class _PickerState<T> extends State<Picker<T>> {
                         widget.group[_selectedValue]!,
                         style: TextStyle(color: Colors.black38),
                       )
-                    : Text(""),
+                    : Empty(),
                 Icon(
                   Icons.chevron_right,
                   color: Colors.black38,

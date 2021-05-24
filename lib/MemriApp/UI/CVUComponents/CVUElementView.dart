@@ -28,6 +28,7 @@ import 'CVUElements/CVUTextField.dart';
 import 'CVUElements/CVUTimelineItem.dart';
 import 'CVUElements/CVUToggle.dart';
 import 'CVUUINodeResolver.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
 class CVUElementView extends StatelessWidget {
@@ -90,7 +91,7 @@ class CVUElementView extends StatelessWidget {
       case CVUUIElementFamily.Spacer:
         return Spacer();
       case CVUUIElementFamily.Empty:
-        return SizedBox.shrink();
+        return Empty();
       case CVUUIElementFamily.FlowStack:
         return CVUFlowStack(nodeResolver: nodeResolver);
       case CVUUIElementFamily.Grid:
@@ -136,7 +137,7 @@ class CVUElementView extends StatelessWidget {
                     resolvedComponent(CVUTextPropertiesModifier(nodeResolver: nodeResolver).init()))
                 : resolvedComponent();
           }
-          return SizedBox.shrink();
+          return Empty();
         });
   }
 }

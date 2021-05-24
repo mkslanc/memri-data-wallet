@@ -13,6 +13,7 @@ import 'package:memri/MemriApp/UI/Chrome/TopBarView.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/FilterPanelView.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationWrapperView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This is the view used to display the browser content of each scene
 class SceneView extends StatelessWidget {
@@ -51,7 +52,7 @@ class SceneView extends StatelessWidget {
                     ],
                   );
                 } else {
-                  return SizedBox.shrink();
+                  return Empty();
                 }
               },
               valueListenable: sceneController.filterPanelIsVisible,

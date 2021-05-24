@@ -1891,6 +1891,11 @@
       "target_type": "Organization"
     },
     {
+      "source_type": "Account",
+      "edge": "network",
+      "target_type": "Network"
+    },
+    {
       "source_type": "Address",
       "edge": "country",
       "target_type": "Country"
@@ -2579,6 +2584,11 @@
       "source_type": "Message",
       "edge": "photo",
       "target_type": "Photo"
+    },
+    {
+      "source_type": "Message",
+      "edge": "message",
+      "target_type": "Message"
     },
     {
       "source_type": "LabelAnnotation",

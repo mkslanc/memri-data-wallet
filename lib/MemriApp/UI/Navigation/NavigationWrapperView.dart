@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view manages displaying the navigation pane, as well as its gestures
 class NavigationWrapperView extends StatelessWidget {
@@ -74,7 +75,7 @@ class NavigationWrapperView extends StatelessWidget {
                 ],
               );
             } else {
-              return SizedBox.shrink();
+              return Empty();
             }
           },
           valueListenable: sceneController.navigationIsVisible,

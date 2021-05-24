@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/Components/Layout/FlowStack.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -33,7 +34,7 @@ class CVUFlowStack extends StatelessWidget {
                 spacing: spacing,
                 content: (listItem) => nodeResolver.childrenInForEach(usingItem: listItem));
           }
-          return Text("");
+          return Empty();
         });
   }
 }

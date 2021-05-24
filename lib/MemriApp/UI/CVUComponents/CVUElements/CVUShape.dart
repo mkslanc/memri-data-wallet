@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -25,7 +26,7 @@ class CVUShapeCircle extends StatelessWidget {
               color: color,
             );
           }
-          return Text("");
+          return Empty();
         });
   }
 }
@@ -57,7 +58,7 @@ class CVUShapeRectangle extends StatelessWidget {
               ),
             );
           }
-          return Text("");
+          return Empty();
         });
   }
 }

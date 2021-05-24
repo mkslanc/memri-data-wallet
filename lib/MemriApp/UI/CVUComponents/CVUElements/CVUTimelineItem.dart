@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -28,7 +29,7 @@ class CVUTimelineItem extends StatelessWidget {
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
           ? TimelineItemView(
               icon: icon, title: title, subtitle: subtitle, backgroundColor: Colors.grey)
-          : SizedBox.shrink(),
+          : Empty(),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:memri/MemriApp/Helpers/CalendarHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 import 'CalendarRendererModel.dart';
@@ -85,7 +86,7 @@ class CalendarRendererView extends StatelessWidget {
                 ],
               ));
             default:
-              return Text("");
+              return Empty();
           }
         });
   }
@@ -147,7 +148,7 @@ class CalendarRendererView extends StatelessWidget {
                   ),
                   calcs.itemsOnDay(day).length > 1
                       ? Text("x${calcs.itemsOnDay(day).length}")
-                      : Text("")
+                      : Empty()
                 ],
               ),
               Spacer(),
@@ -161,7 +162,7 @@ class CalendarRendererView extends StatelessWidget {
         if (day is Widget) {
           return day;
         }
-        return Text("");
+        return Empty();
       }
     }).toList();
   }

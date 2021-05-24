@@ -3,6 +3,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/Components/Picker.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 
@@ -56,7 +57,7 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
                   "vertical": "Vertical",
                   "horizontal": "Horizontal",
                 })
-              : SizedBox.shrink(),
+              : Empty(),
         )
       ],
     );

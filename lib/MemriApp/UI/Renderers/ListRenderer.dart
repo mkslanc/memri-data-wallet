@@ -86,20 +86,15 @@ class _ListRendererViewState extends State<ListRendererView> {
                 if (value.isNotEmpty) {
                   return Expanded(
                       child: ListView.separated(
+                          shrinkWrap: true,
                           physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                           padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
                           itemBuilder: (context, index) {
                             var item = value[index];
-                            var title = Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                    insets.left,
-                                    index == 0 ? 0 : spacing.y / 2,
-                                    insets.right,
-                                    index == value.length - 1 ? 0 : spacing.y / 2),
-                                child: ColoredBox(
-                                  color: backgroundColor,
-                                  child: viewContext.render(item: item),
-                                ));
+                            var title = ColoredBox(
+                              color: backgroundColor,
+                              child: viewContext.render(item: item),
+                            );
                             var callback = selectionMode(index);
                             return isInEditMode
                                 ? CheckboxListTile(
@@ -120,13 +115,22 @@ class _ListRendererViewState extends State<ListRendererView> {
                                     },
                                     child: ListTile(
                                       dense: true,
+                                      minVerticalPadding: 0,
+                                      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                                      contentPadding: EdgeInsets.fromLTRB(
+                                          insets.left,
+                                          index == 0 ? 0 : spacing.y / 2,
+                                          insets.right,
+                                          index == viewContext.items.length - 1
+                                              ? 0
+                                              : spacing.y / 2),
                                       title: title,
                                       onTap: callback,
                                     ),
                                   );
                           },
                           separatorBuilder: (context, index) => Divider(
-                                height: 1,
+                                height: separatorsEnabled ? 1 : 0,
                                 color: separatorsEnabled ? null : Colors.transparent,
                               ),
                           itemCount: value.length));

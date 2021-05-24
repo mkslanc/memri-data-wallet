@@ -95,6 +95,14 @@ class SceneController extends ChangeNotifier {
   Future<List<NavigationElement?>?> get navigationItems async {
     var itemsStream = navigationItemRecords.stream;
     await for (var itemStream in itemsStream) {
+      itemStream.sort((a, b) {
+        var aRowID = a.rowId;
+        var bRowID = b.rowId;
+        if (aRowID == null || bRowID == null) {
+          return 0;
+        }
+        return aRowID - bRowID;
+      });
       return Future.wait<NavigationElement?>(
           itemStream.compactMap<Future<NavigationElement?>>((item) async {
         String? title;

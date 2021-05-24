@@ -124,7 +124,7 @@ class _BrowserViewState extends State<BrowserView> {
                 Divider()
               ],
             )
-          : SizedBox.shrink());
+          : Empty());
 
   @override
   Widget build(BuildContext context) {

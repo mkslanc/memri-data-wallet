@@ -10,6 +10,7 @@ import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import 'package:memri/MemriApp/UI/Renderers/TimelineRendererModel.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 
@@ -124,7 +125,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
       var item = element.items.first;
       return widget.viewContext.render(item: item);
     } else {
-      return SizedBox.shrink();
+      return Empty();
     }
   }
 

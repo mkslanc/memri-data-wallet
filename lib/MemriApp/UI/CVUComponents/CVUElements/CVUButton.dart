@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUTextPropertiesModifier.dart';
@@ -39,10 +40,13 @@ class CVUButton extends StatelessWidget {
             return TextButton(
               onPressed: onPress,
               child: nodeResolver.childrenInForEachWithWrap(),
-              style: ElevatedButton.styleFrom(textStyle: resolvedTextProperties.textStyle),
+              style: TextButton.styleFrom(
+                  textStyle: resolvedTextProperties.textStyle,
+                  padding: EdgeInsets.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             );
           }
-          return Text("");
+          return Empty();
         });
   }
 }

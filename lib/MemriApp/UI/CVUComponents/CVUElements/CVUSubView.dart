@@ -6,6 +6,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/Components/Layout/FlowStack.dart';
 import '../CVUUINodeResolver.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class CVUSubView extends StatelessWidget {
   final CVUUINodeResolver nodeResolver;
@@ -47,7 +48,7 @@ class CVUSubView extends StatelessWidget {
                   content: (listItem) => [nodeResolver.firstChild()!]); //TODO:
             }
           }
-          return Text("");
+          return Empty();
         });
   }
 }
