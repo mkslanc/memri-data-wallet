@@ -52,6 +52,10 @@ class Database extends _$Database {
     return await into(items).insertOnConflictUpdate(record.toCompanion());
   }
 
+  Future<int> itemRecordDelete(ItemRecord record) async {
+    return await (delete(items)..where((tbl) => tbl.rowId.equals(record.rowId))).go();
+  }
+
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
       {String join = "", List<TableInfo>? joinTables}) async {
     if (query == "") {
@@ -66,18 +70,31 @@ class Database extends _$Database {
   }
 
   Future<int> itemPropertyRecordInsert(ItemPropertyRecord record) async {
-    var data = await getItemPropertyRecordTableData(record);
+    var data = getItemPropertyRecordTableData(record);
     return into(data.table).insert(data.companion);
   }
 
   Future<void> itemPropertyRecordDelete(ItemPropertyRecord record) async {
-    ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
-    Item item = await itemRecordFetchWithRowId(record.itemRowID);
-    customStatement("DELETE FROM $table WHERE item = ${item.rowId} AND name = ${record.name}");
+    var data = getItemPropertyRecordTableData(record);
+    TableInfo tbl = data.table;
+    await (delete(tbl)
+          ..where((tbl) {
+            if (tbl is Integers) {
+              //TODO find a way to avoid this?
+              return tbl.item.equals(record.itemRowID) & tbl.name.equals(record.name);
+            } else if (tbl is Strings) {
+              return tbl.item.equals(record.itemRowID) & tbl.name.equals(record.name);
+            } else if (tbl is Reals) {
+              return tbl.item.equals(record.itemRowID) & tbl.name.equals(record.name);
+            } else {
+              throw Exception("Unknown table ${tbl.toString()}");
+            }
+          }))
+        .go();
   }
 
   Future<dynamic> itemPropertyRecordSave(ItemPropertyRecord record) async {
-    var data = await getItemPropertyRecordTableData(record);
+    var data = getItemPropertyRecordTableData(record);
     var property = await itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(record.name), Variable(record.itemRowID)]);
     if (property.length > 0) {
@@ -85,11 +102,11 @@ class Database extends _$Database {
             ..where((tbl) {
               if (tbl is Integers) {
                 //TODO find a way to avoid this?
-                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+                return tbl.item.equals(record.itemRowID) & tbl.name.equals(record.name);
               } else if (tbl is Strings) {
-                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+                return tbl.item.equals(record.itemRowID) & tbl.name.equals(record.name);
               } else if (tbl is Reals) {
-                return (tbl).item.equals(record.itemRowID) & tbl.name.equals(record.name);
+                return tbl.item.equals(record.itemRowID) & tbl.name.equals(record.name);
               } else {
                 throw Exception("Unknown table ${data.table.toString()}");
               }
@@ -136,10 +153,8 @@ class Database extends _$Database {
     }
   }
 
-  Future<ItemPropertyRecordTableData> getItemPropertyRecordTableData(
-      ItemPropertyRecord record) async {
+  ItemPropertyRecordTableData getItemPropertyRecordTableData(ItemPropertyRecord record) {
     ItemRecordPropertyTable table = PropertyDatabaseValue.toDBTableName(record.$value.type);
-    Item item = await itemRecordFetchWithRowId(record.itemRowID);
     switch (table) {
       case ItemRecordPropertyTable.integers:
         var value = record.$value.value;
@@ -151,19 +166,19 @@ class Database extends _$Database {
         return ItemPropertyRecordTableData(
             table: integers,
             companion: IntegersCompanion(
-                item: Value(item.rowId!), name: Value(record.name), value: Value(value)));
+                item: Value(record.itemRowID), name: Value(record.name), value: Value(value)));
       case ItemRecordPropertyTable.reals:
         return ItemPropertyRecordTableData(
             table: reals,
             companion: RealsCompanion(
-                item: Value(item.rowId!),
+                item: Value(record.itemRowID),
                 name: Value(record.name),
                 value: Value(record.$value.value)));
       case ItemRecordPropertyTable.strings:
         return ItemPropertyRecordTableData(
             table: strings,
             companion: StringsCompanion(
-                item: Value(item.rowId!),
+                item: Value(record.itemRowID),
                 name: Value(record.name),
                 value: Value(record.$value.value)));
     }

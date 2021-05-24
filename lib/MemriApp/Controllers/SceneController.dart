@@ -47,12 +47,18 @@ class SceneController extends ChangeNotifier {
 
   toggleEditMode() {
     var topConfigHolder = topMostContext?.configHolder;
-    var viewArgs = topConfigHolder?.config.viewArguments;
-    if (topConfigHolder == null || viewArgs == null) {
+    if (topConfigHolder == null) {
       return;
     }
+    var viewArgs = topConfigHolder.config.viewArguments;
+    viewArgs ??= CVUViewArguments();
 
     isInEditMode.value = !isInEditMode.value;
+
+    if (!isInEditMode.value) {
+      // Clear selection when ending edit mode
+      topMostContext?.selectedItems = [];
+    }
 
     var currentArgs = viewArgs.args;
     currentArgs["readOnly"] = CVUValueConstant(CVUConstantBool(!isInEditMode.value));
@@ -63,6 +69,7 @@ class SceneController extends ChangeNotifier {
     topConfigHolder.config.viewArguments = newArgs;
   }
 
+  bool isBigScreen = false;
   // @Published
   bool isContentFullscreen = false;
 

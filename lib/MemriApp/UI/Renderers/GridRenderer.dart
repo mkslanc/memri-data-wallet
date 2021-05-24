@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -15,32 +17,40 @@ class GridRendererView extends StatefulWidget {
   GridRendererView({required this.sceneController, required this.viewContext});
 
   @override
-  _GridRendererViewState createState() => _GridRendererViewState(sceneController, viewContext);
+  _GridRendererViewState createState() => _GridRendererViewState();
 }
 
 class _GridRendererViewState extends State<GridRendererView> {
-  final SceneController sceneController;
-  final ViewContextController viewContext;
-
-  _GridRendererViewState(this.sceneController, this.viewContext);
-
-  late Axis scrollDirection;
-  late Color backgroundColor;
-
+  late final SceneController sceneController;
+  late final ViewContextController viewContext;
   late bool isInEditMode;
 
-  @override
+  late Binding<Set<int>> selectedIndicesBinding;
+  late Set<int> selectedIndices;
+
+  late Future _init;
+
   initState() {
     super.initState();
+    sceneController = widget.sceneController;
+    viewContext = widget.viewContext;
+    _init = init();
+
+    sceneController.isInEditMode.addListener(updateState);
     viewContext.addListener(updateState);
   }
 
   dispose() {
     super.dispose();
+    sceneController.isInEditMode.removeListener(updateState);
     viewContext.removeListener(updateState);
   }
 
-  updateState() {
+  late Axis scrollDirection;
+  late Color backgroundColor;
+
+  updateState() async {
+    await init();
     setState(() {});
   }
 
@@ -61,12 +71,15 @@ class _GridRendererViewState extends State<GridRendererView> {
 
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", sceneController.isInEditMode.value))!;
+
+    selectedIndicesBinding = viewContext.selectedIndicesBinding;
+    selectedIndices = selectedIndicesBinding.get();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: init(),
+      future: _init,
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
           ? ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
@@ -87,15 +100,44 @@ class _GridRendererViewState extends State<GridRendererView> {
                               crossAxisSpacing: 5,
                               mainAxisSpacing: 5,
                               crossAxisCount: 3,
-                              children: viewContext.items
-                                  .mapIndexed((index, item) => GestureDetector(
-                                        onTap: selectionMode(index),
-                                        child: Stack(
-                                          alignment: Alignment.bottomRight,
-                                          children: [viewContext.render(item: item)],
+                              children: viewContext.items.mapIndexed((index, item) {
+                                var isSelected = selectedIndices.contains(index);
+                                return GestureDetector(
+                                  onTap: selectionMode(index),
+                                  child: Stack(
+                                    alignment: Alignment.bottomRight,
+                                    children: [
+                                      viewContext.render(item: item),
+                                      if (isInEditMode && !isSelected)
+                                        SizedBox.expand(
+                                          child: ColoredBox(color: Colors.white.withOpacity(0.15)),
                                         ),
-                                      ))
-                                  .toList(),
+                                      if (isSelected)
+                                        Padding(
+                                          padding: const EdgeInsets.all(20),
+                                          child: Container(
+                                            height: 30,
+                                            width: 30,
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Circle(
+                                                    color: Colors.blue,
+                                                    border:
+                                                        Border.all(color: Colors.white, width: 2)),
+                                                Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                  size: 15,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                             ))
                           : Padding(
                               padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
@@ -120,10 +162,15 @@ class _GridRendererViewState extends State<GridRendererView> {
     );
   }
 
-  GestureTapCallback selectionMode(index) {
+  selectionMode(index) {
     if (isInEditMode) {
       return () {
-        print(index); //TODO select
+        setState(() {
+          if (!selectedIndices.remove(index)) {
+            selectedIndices.add(index);
+          }
+          selectedIndicesBinding.set(selectedIndices);
+        });
       };
     } else {
       return () {

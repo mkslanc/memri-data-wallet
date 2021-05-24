@@ -76,7 +76,7 @@ class ItemRecord extends Equatable {
     return null;
   }
 
-  Future<List<ItemPropertyRecord?>> properties([DatabaseController? db]) async {
+  Future<List<ItemPropertyRecord>> properties([DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     var properties =
         await db.databasePool.itemPropertyRecordsCustomSelect("item = ?", [Variable(rowId)]);
@@ -159,6 +159,15 @@ class ItemRecord extends Equatable {
 
   Future<int> insert(Database db) async {
     return await db.itemRecordInsert(this);
+  }
+
+  Future<int> delete(Database db) async {
+    List<ItemPropertyRecord> itemPropertyRecords = await properties();
+    await Future.forEach(itemPropertyRecords, (ItemPropertyRecord itemPropertyRecord) async {
+      await itemPropertyRecord.delete(db);
+    });
+
+    return await db.itemRecordDelete(this);
   }
 
   Future<List<ItemEdgeRecord>> edges(String name, [DatabaseController? db]) async {

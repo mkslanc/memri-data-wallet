@@ -329,8 +329,13 @@ class CVUActionDelete extends CVUAction {
   CVUActionDelete({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
-    // TODO: implement execute
+  Future<void> execute(SceneController sceneController, CVUContext context) async {
+    var item = context.currentItem;
+    if (item == null) {
+      return;
+    }
+
+    await item.delete(sceneController.appController.databaseController.databasePool);
   }
 }
 
