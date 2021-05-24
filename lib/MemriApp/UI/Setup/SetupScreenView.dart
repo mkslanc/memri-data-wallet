@@ -40,13 +40,10 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                   brightness: Brightness.dark, primarySwatch: Colors.green),
                               themeMode: ThemeMode.dark,
                               home: FutureBuilder(
-                                  //TODO hack to have another context, should be better way
                                   initialData: true,
                                   builder: (BuildContext context, snapshot) => Scaffold(
                                           body: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
-                                        // direction: Axis.vertical,
-                                        // crossAxisAlignment: WrapCrossAlignment.center,
                                         children: space(10, [
                                           Wrap(
                                             direction: Axis.vertical,
@@ -68,61 +65,64 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                           Text("A place where your data belongs to you.",
                                               textAlign: TextAlign.center),
                                           SizedBox(height: 30),
-                                          Wrap(
-                                            direction: Axis.vertical,
-                                            spacing: 6,
-                                            children: [
-                                              Text("Have a memri pod?"),
-                                              ElevatedButton(
-                                                  onPressed: () => Navigator.of(context).push(
-                                                          MaterialPageRoute(builder: (context) {
-                                                        return Scaffold(
-                                                          resizeToAvoidBottomInset: false,
-                                                          appBar: AppBar(
-                                                            title: Text('Pod setup'),
-                                                          ),
-                                                          body: podSetup,
-                                                        );
-                                                      })),
-                                                  style: ElevatedButton.styleFrom(
-                                                      primary: Colors.green,
-                                                      shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(10))),
-                                                  child: Container(
-                                                      width: MediaQuery.of(context).size.width - 40,
-                                                      height: 50,
-                                                      alignment: Alignment.center,
-                                                      child: Text(
-                                                        "Connect to pod",
-                                                        style: TextStyle(
-                                                          fontFamily: "headline",
-                                                          color: Colors.white,
-                                                        ),
-                                                      ))),
-                                            ],
-                                          ),
                                           Padding(
-                                              padding: EdgeInsets.only(top: 10),
-                                              child: Wrap(
-                                                direction: Axis.vertical,
-                                                spacing: 6,
-                                                children: [
-                                                  Text("Just want to try the app?"),
-                                                  ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                          primary: Colors.grey.shade800,
+                                            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: space(
+                                                  6,
+                                                  [
+                                                    Text("Have a memri pod?"),
+                                                    ElevatedButton(
+                                                        onPressed: () => Navigator.of(context).push(
+                                                                MaterialPageRoute(
+                                                                    builder: (context) {
+                                                              return Scaffold(
+                                                                resizeToAvoidBottomInset: false,
+                                                                appBar: AppBar(
+                                                                  title: Text('Pod setup'),
+                                                                ),
+                                                                body: podSetup,
+                                                              );
+                                                            })),
+                                                        style: ElevatedButton.styleFrom(
+                                                          minimumSize: Size.fromHeight(50),
+                                                          primary: Colors.green,
                                                           shape: RoundedRectangleBorder(
                                                               borderRadius:
-                                                                  BorderRadius.circular(10))),
-                                                      onPressed: onLocalDemoPressed,
-                                                      child: Container(
-                                                          width: MediaQuery.of(context).size.width -
-                                                              40,
-                                                          height: 50,
-                                                          alignment: Alignment.center,
+                                                                  BorderRadius.circular(10)),
+                                                        ),
+                                                        child: Text(
+                                                          "Connect to pod",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        )),
+                                                  ],
+                                                  Axis.vertical),
+                                            ),
+                                          ),
+                                          Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 10, left: 5.0, right: 5.0),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: space(
+                                                    6,
+                                                    [
+                                                      Text("Just want to try the app?"),
+                                                      ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                              minimumSize: Size.fromHeight(50),
+                                                              primary: Colors.grey.shade800,
+                                                              shape: RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(10))),
+                                                          onPressed: onLocalDemoPressed,
                                                           child: Text(
-                                                              "Let me try the app without a pod")))
-                                                ],
+                                                              "Let me try the app without a pod"))
+                                                    ],
+                                                    Axis.vertical),
                                               ))
                                         ]),
                                       ))),
