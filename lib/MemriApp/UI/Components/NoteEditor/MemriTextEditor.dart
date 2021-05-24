@@ -116,7 +116,7 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
 
   updateSearchState() {
     var script = widget.viewContext.searchString != null
-        ? "window.editor.options.editable = true; console.log(window.editor.commands); window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\"); window.editor.options.editable = ${sceneController.isInEditMode.value};"
+        ? "window.editor.options.editable = true; window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\"); window.editor.options.editable = ${sceneController.isInEditMode.value};"
         : "window.editor.commands.clearSearch();";
     return _controller.evaluateJavascript(script);
   }
