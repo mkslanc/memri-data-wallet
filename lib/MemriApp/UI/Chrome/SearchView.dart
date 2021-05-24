@@ -40,9 +40,10 @@ class _SearchViewState extends State<SearchView> {
                       onChanged: (value) => setState(() => widget.viewContext.searchString = value),
                       initialValue: widget.viewContext.searchString,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Search",
-                      ),
+                          isDense: true,
+                          border: InputBorder.none,
+                          hintText: "Search",
+                          contentPadding: EdgeInsets.all(5)),
                     ),
                   ),
                   IconButton(

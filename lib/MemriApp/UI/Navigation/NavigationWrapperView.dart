@@ -39,6 +39,7 @@ class NavigationWrapperView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
       if (constraints.maxWidth > 714) {
+        sceneController.isBigScreen = true;
         return bodyForLargeScreen;
       } else {
         return body(constraints);
