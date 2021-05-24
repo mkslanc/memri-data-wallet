@@ -116,8 +116,8 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
 
   updateSearchState() {
     var script = widget.viewContext.searchString != null
-        ? "window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\")"
-        : "window.editor.commands.clearSearch()";
+        ? "window.editor.options.editable = true; console.log(window.editor.commands); window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\"); window.editor.options.editable = ${sceneController.isInEditMode.value};"
+        : "window.editor.commands.clearSearch();";
     return _controller.evaluateJavascript(script);
   }
 
@@ -186,6 +186,9 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
     setState(() {
       _controller.evaluateJavascript(
           "window.editor.options.editable = ${sceneController.isInEditMode.value};");
+      if (!sceneController.isInEditMode.value) {
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+      }
     });
   }
 

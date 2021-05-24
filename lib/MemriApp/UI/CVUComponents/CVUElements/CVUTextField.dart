@@ -16,7 +16,7 @@ class CVUTextField extends StatelessWidget {
   late final bool? secureMode;
   late final String? hint;
   late final FutureBinding<String?>? contentBinding;
-  final SceneController sceneController = SceneController();
+  final SceneController sceneController = SceneController.sceneController;
 
   CVUTextField({required this.nodeResolver});
 
