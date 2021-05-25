@@ -339,10 +339,6 @@
       "property": "displayName",
       "value_type": "string"
     },
-    { "item_type": "CurrencyOwner",
-      "property": "isOwner",
-      "value_type": "bool"
-    },
     { "item_type": "CurrencySetting",
       "property": "seedPhrase",
       "value_type": "string"

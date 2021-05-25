@@ -11,7 +11,7 @@ CryptoTransaction > list {
             Spacer
 
             Text {
-                text: {{"+" + .quantity}}
+                text: {{"+ " + .quantity}}
                 font: 20 bold
                 color: primary
             }
@@ -28,11 +28,10 @@ CryptoTransaction > list {
             Spacer
 
             Text {
-                text: {{.outward = true ? "-" + .quantity : "+" + .quantity}}
+                text: {{.outward = true ? "- " + .quantity : "+ " + .quantity}}
                 font: 20 bold
                 color: primary
             }
         }
-
     }
 }
