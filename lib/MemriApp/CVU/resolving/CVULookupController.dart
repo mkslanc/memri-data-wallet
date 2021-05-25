@@ -1031,6 +1031,13 @@ class CVULookupController {
       dynamic rhs = await resolve<double>(expression: expression.rhs, context: context, db: db);
       //TODO is this correct? @anijanyan
       if (lhs == null || rhs == null) {
+        lhs = await resolve<ItemRecord>(expression: expression.lhs, context: context, db: db);
+        rhs = await resolve<ItemRecord>(expression: expression.rhs, context: context, db: db);
+        if (lhs != null && rhs != null) {
+          return lhs.rowId != rhs.rowId;
+        }
+      }
+      if (lhs == null || rhs == null) {
         lhs = await resolve<String>(expression: expression.lhs, context: context, db: db);
         rhs = await resolve<String>(expression: expression.rhs, context: context, db: db);
       }
