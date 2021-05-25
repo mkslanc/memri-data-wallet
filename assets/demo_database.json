@@ -4432,7 +4432,6 @@
     "_type": "CurrencyOwner",
     "uid": 22001124924997,
     "displayName": "alice",
-    "isOwner": true,
     "allEdges": [
       {
         "_type": "owner",
@@ -4618,7 +4617,6 @@
     "_type": "CurrencyOwner",
     "uid": 22001124925003,
     "displayName": "0x123456",
-    "isOwner": true,
     "allEdges": [
       {
         "_type": "owner",

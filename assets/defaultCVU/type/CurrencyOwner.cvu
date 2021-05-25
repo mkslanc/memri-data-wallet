@@ -2,7 +2,7 @@ CurrencyOwner > list {
     VStack {
         VStack {
             spacing: 5
-            show: {{.isOwner = true}}
+            show: {{.owner = me}}
 
             Text {
                 text: {{"Balance: " + .ownCurrency.myToken + " " + .ownCurrency.name}}
@@ -69,7 +69,8 @@ CurrencyOwner > list {
                 }
             }
             VStack {
-                show: {{.isOwner != true}}
+                show: {{.owner.uid != me.uid}}
+
                 Image {
                     image: {{.owner.profilePicture}}
                     sizingMode: fill

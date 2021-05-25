@@ -9,7 +9,7 @@
                 ownCurrency: {{currencyUID}}
             }
         }
-        sortProperty: "isOwner"
+        sortProperty: "dateCreated"
     }
 
     [renderer = list] {
