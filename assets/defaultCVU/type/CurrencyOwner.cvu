@@ -69,7 +69,7 @@ CurrencyOwner > list {
                 }
             }
             VStack {
-                show: {{.owner.uid != me.uid}}
+                show: {{.owner != me}}
 
                 Image {
                     image: {{.owner.profilePicture}}
