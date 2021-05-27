@@ -10,7 +10,6 @@ import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:uuid/uuid.dart';
 
 import 'API/PodAPIConnectionDetails.dart';
-import 'AddressBookController.dart';
 import 'Database/DatabaseController.dart';
 import 'Database/DemoData.dart';
 import 'Syncing/SyncController.dart';
@@ -65,7 +64,6 @@ class AppController {
           return;
         }
         await DemoData.importDemoData(databaseController: databaseController);
-        await AddressBookController.sync();
       } on Exception catch (error) {
         onCompletion(error);
         return;
