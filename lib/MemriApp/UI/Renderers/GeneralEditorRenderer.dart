@@ -570,24 +570,22 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   }
 
   Widget dateRow() {
-    var binding = FutureBinding<DateTime>(
-        () async =>
-            (await currentItem.propertyValue(property.property))?.asDate() ?? DateTime.now(),
+    var binding = FutureBinding<DateTime?>(
+        () async => (await currentItem.propertyValue(property.property))?.asDate(),
         (value) async =>
-            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));
-    return FutureBuilder<DateTime>(
+            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value!)));
+    return FutureBuilder<DateTime?>(
       future: binding.get(),
-      builder: (context, snapshot) =>
-          snapshot.connectionState == ConnectionState.done && snapshot.hasData
-              ? MemriDatePicker(
-                  initialSet: snapshot.data!,
-                  onPressed: sceneController.isInEditMode.value
-                      ? (DateTime value) async => await binding.set(value)
-                      : null,
-                  formatter: "MMM d, yyyy",
-                  style: generalEditorCaptionStyle(),
-                  isEditing: sceneController.isInEditMode.value)
-              : Empty(),
+      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+          ? MemriDatePicker(
+              initialSet: snapshot.data,
+              onPressed: sceneController.isInEditMode.value
+                  ? (DateTime value) async => await binding.set(value)
+                  : null,
+              formatter: "MMM d, yyyy",
+              style: generalEditorCaptionStyle(),
+              isEditing: sceneController.isInEditMode.value)
+          : Empty(),
     );
   }
 
