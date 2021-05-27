@@ -9,33 +9,38 @@ class MemriButton extends StatelessWidget {
   final ItemRecord? item;
   final DatabaseController db;
   String title = "";
+  Color bgColor = Color(0xffffffff);
 
   MemriButton({required this.item, required this.db});
 
   Future<void> resolveItemProperties() async {
-    var firstName = (await item?.property("firstName"))?.$value;
-    if (firstName is PropertyDatabaseValueString) {
-      title = firstName.value;
-    }
-    var lastName = (await item?.property("lastName"))?.$value;
-    if (lastName is PropertyDatabaseValueString) {
-      title = "$title ${lastName.value}";
+    switch (item?.type) {
+      case "PhoneNumber":
+        bgColor = Color(0xffeccf23);
+        var phone = (await item?.property("phoneNumber"))?.$value;
+        if (phone is PropertyDatabaseValueString) {
+          title = phone.value;
+        }
+        break;
+      case "Person":
+        bgColor = Color(0xff3A5EB3);
+        var firstName = (await item?.property("firstName"))?.$value;
+        if (firstName is PropertyDatabaseValueString) {
+          title = firstName.value;
+        }
+        var lastName = (await item?.property("lastName"))?.$value;
+        if (lastName is PropertyDatabaseValueString) {
+          title = "$title ${lastName.value}";
+        }
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    var bgColor = Color(0xffffffff);
     var foregroundColor = Colors.white;
     var inputItem = item;
     if (inputItem != null) {
-      switch (inputItem.type) {
-        case "Person":
-          bgColor = Color(0xff3A5EB3);
-          break;
-        default:
-          break;
-      }
       return FutureBuilder(
           future: resolveItemProperties(),
           builder: (BuildContext context, snapshot) {
