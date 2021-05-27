@@ -230,6 +230,7 @@ Address[] {
 
             HStack {
                 Text {
+                width: 200
                     text: "{joinWithComma(.street, .city, .state, .country.name)}"
                     font: 16
                     padding: 0 0 10 0
