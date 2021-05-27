@@ -6,6 +6,7 @@ import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:phone_number/phone_number.dart' as Phone;
 
 class AddressBookController {
   static bool syncing = false;
@@ -39,11 +40,18 @@ class AddressBookController {
       await person.setPropertyValue("addressBookId", PropertyDatabaseValueString(identifier), db);
       existingContact = person;
     }
-    //TODO: format
     var phoneNumbers = contact.phones;
     for (var phoneNumber in phoneNumbers) {
-      await savePhoneNumber(
-          formattedPhoneNumber: phoneNumber.value!, person: existingContact, db: db.databasePool);
+      try {
+        Phone.PhoneNumber formattedPhone = await Phone.PhoneNumberUtil().parse(phoneNumber.value!);
+        await savePhoneNumber(
+            formattedPhoneNumber: formattedPhone.e164,
+            person: existingContact,
+            db: db.databasePool);
+      } catch (e) {
+        //TODO: what should we do with invalid phone numbers?
+        print(e);
+      }
     }
 
     for (var address in contact.postalAddresses) {
