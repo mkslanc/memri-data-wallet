@@ -7,6 +7,8 @@
 //
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/Controllers/AddressBookController.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
@@ -18,6 +20,7 @@ import 'Setup/SetupScreenView.dart';
 /// This depends on whether the app has been setup, and if the user is authenticated.
 class MainView extends StatefulWidget {
   final SceneController sceneController;
+
   MainView({required this.sceneController});
 
   @override
@@ -27,6 +30,7 @@ class MainView extends StatefulWidget {
 class _MainViewState extends State<MainView> {
   final AppController appController = AppController.shared;
   final SceneController sceneController;
+
   _MainViewState(this.sceneController);
 
   @override
@@ -40,6 +44,28 @@ class _MainViewState extends State<MainView> {
             case AppState.authentication:
               return AuthenticationScreen();
             case AppState.authenticated:
+              WidgetsBinding.instance!.addPostFrameCallback((_) {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Contacts importing'),
+                    content: const Text('Do you want to import contacts from Android Contacts?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () async {
+                          await AddressBookController.sync();
+                          Navigator.pop(context, 'OK');
+                        },
+                        child: const Text('OK'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                );
+              });
               return SceneView(sceneController: sceneController);
           }
         });
