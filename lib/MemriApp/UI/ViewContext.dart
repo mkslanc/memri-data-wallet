@@ -6,6 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
@@ -14,33 +15,89 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 
 /// This type is used to hold all the configuration necessary to display a screen.
 /// It is stored as part of the navigation stack, and the whole stack is persisted to the database
-class ViewContext {
-  String? viewName;
+class ViewContext extends ChangeNotifier with EquatableMixin {
+  String? _viewName;
 
-  ValueNotifier<String> rendererName;
+  String _rendererName;
 
-  CVUDefinitionContent viewDefinition;
+  CVUDefinitionContent _viewDefinition;
 
-  DatabaseQueryConfig query;
+  DatabaseQueryConfig _query;
 
-  CVUViewArguments? viewArguments;
+  CVUViewArguments? _viewArguments;
 
-  ItemRecord? focusedItem;
+  ItemRecord? _focusedItem;
+
+  String? get viewName => _viewName;
+
+  set viewName(String? value) {
+    if (_viewName == value) return;
+    _viewName = value;
+    notifyListeners();
+  }
+
+  String get rendererName => _rendererName;
+
+  set rendererName(String value) {
+    if (_rendererName == value) return;
+    _rendererName = value;
+    notifyListeners();
+  }
+
+  CVUDefinitionContent get viewDefinition => _viewDefinition;
+
+  set viewDefinition(CVUDefinitionContent value) {
+    if (_viewDefinition == value) return;
+    _viewDefinition = value;
+    notifyListeners();
+  }
+
+  DatabaseQueryConfig get query => _query;
+
+  set query(DatabaseQueryConfig value) {
+    if (_query == value) return;
+    _query = value;
+    notifyListeners();
+  }
+
+  CVUViewArguments? get viewArguments => _viewArguments;
+
+  set viewArguments(CVUViewArguments? value) {
+    if (_viewArguments == value) return;
+    _viewArguments = value;
+    notifyListeners();
+  }
+
+  ItemRecord? get focusedItem => _focusedItem;
+
+  set focusedItem(ItemRecord? value) {
+    if (_focusedItem == value) return;
+    _focusedItem = value;
+    notifyListeners();
+  }
 
   ViewContext(
-      {required rendererName,
-      required this.query,
-      this.viewName,
-      viewDefinition,
-      this.viewArguments,
-      this.focusedItem})
-      : this.rendererName = ValueNotifier(rendererName),
-        this.viewDefinition = viewDefinition ?? CVUDefinitionContent();
+      {required rendererName, required query, viewName, viewDefinition, viewArguments, focusedItem})
+      : this._rendererName = rendererName,
+        this._query = query,
+        this._viewName = viewName,
+        this._viewDefinition = viewDefinition ?? CVUDefinitionContent(),
+        this._viewArguments = viewArguments,
+        this._focusedItem = focusedItem;
+
+  @override
+  List<Object?> get props =>
+      [_viewName, _rendererName, _viewDefinition, _query, _viewArguments, _focusedItem];
 }
 
 /// A class type that holds a ViewContext struct. This allows the struct to be shared between objects while maintaining value semantics.
-class ViewContextHolder {
+class ViewContextHolder extends ChangeNotifier with EquatableMixin {
   ViewContext config; //TODO configPublisher.send() on set
 
-  ViewContextHolder(this.config);
+  ViewContextHolder(this.config) {
+    config.addListener(notifyListeners);
+  }
+
+  @override
+  List<Object?> get props => [props];
 }

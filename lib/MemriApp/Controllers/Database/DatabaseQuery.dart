@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
@@ -8,7 +9,7 @@ import 'ItemRecord.dart';
 import 'Schema.dart';
 
 /// This type is used to describe a database query.
-class DatabaseQueryConfig extends ChangeNotifier {
+class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
 
@@ -331,6 +332,23 @@ class DatabaseQueryConfig extends ChangeNotifier {
       yield [];
     }
   }
+
+  @override
+  List<Object?> get props => [
+        itemTypes,
+        itemRowIDs,
+        _sortProperty,
+        _sortAscending,
+        _dateModifiedAfter,
+        _dateModifiedBefore,
+        _dateCreatedAfter,
+        _dateCreatedBefore,
+        pageSize,
+        currentPage,
+        searchString,
+        includeImmediateEdgeSearch,
+        conditions
+      ];
 }
 
 abstract class DatabaseQueryCondition {

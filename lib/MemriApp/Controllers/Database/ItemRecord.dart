@@ -12,8 +12,7 @@ import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
 
-// ignore: must_be_immutable
-class ItemRecord extends Equatable {
+class ItemRecord with EquatableMixin {
   int? rowId;
   String uid;
   String type;
@@ -253,7 +252,8 @@ class ItemRecord extends Equatable {
         });
       default:
         return FutureBinding<String>(
-            () async => (await propertyValue(name, db))?.asString() ?? defaultValue.toString(),
+            () async =>
+                (await propertyValue(name, db))?.asString() ?? defaultValue?.toString() ?? "",
             (newValue) async {
           await setPropertyValue(name, PropertyDatabaseValueString(newValue), db);
         });

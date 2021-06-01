@@ -21,6 +21,35 @@ class BottomBarView extends StatelessWidget {
 
   BottomBarView({required this.viewContext, required this.onSearchPressed});
 
+  Future<List<Widget>>? _getActionButtons() async {
+    List<Widget> buttons = [];
+
+    List<CVUAction> actions = [];
+    if (viewContext.focusedItem != null) {
+      actions = viewContext.itemPropertyResolver?.actions("filterButtons") ?? [];
+    }
+
+    if (actions.isNotEmpty) {
+      buttons = actions.map((action) {
+        return ActionButton(
+            action: action, viewContext: viewContext.getCVUContext(item: viewContext.focusedItem));
+      }).toList();
+    } else {
+      var filterButtons =
+          await viewContext.viewDefinitionPropertyResolver.stringArray("filterButtons");
+      buttons = filterButtons.compactMap((el) {
+        var action = cvuAction(el);
+        if (action != null) {
+          return ActionButton(
+              action: action(vars: <String, CVUValue>{}), viewContext: viewContext.getCVUContext());
+        }
+        return null;
+      });
+    }
+
+    return buttons;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -65,24 +94,12 @@ class BottomBarView extends StatelessWidget {
                     ])),
                     Spacer(),
                     FutureBuilder(
-                        future:
-                            viewContext.viewDefinitionPropertyResolver.stringArray("filterButtons"),
-                        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                        future: _getActionButtons(),
+                        builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {
                             if (snapshot.hasData) {
-                              List<String> buttons = snapshot.data!;
-                              return Row(
-                                children: buttons.compactMap((el) {
-                                  var action = cvuAction(el);
-                                  if (action != null) {
-                                    Map<String, CVUValue> vars = {};
-                                    return ActionButton(
-                                        action: action(vars: vars),
-                                        viewContext: viewContext.getCVUContext());
-                                  }
-                                  return null;
-                                }).toList(),
-                              );
+                              List<Widget> buttons = snapshot.data!;
+                              return Row(children: buttons);
                             }
                           }
                           return Empty();

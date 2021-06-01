@@ -37,13 +37,6 @@ class ViewContextController extends ChangeNotifier {
 
   ViewContext get config => configHolder.config;
 
-  set config(ViewContext newValue) {
-    if (configHolder.config != newValue) {
-      configHolder.config = newValue;
-      _updateCachedValues();
-    }
-  }
-
   ViewContextController(
       {required ViewContextHolder config,
       DatabaseController? databaseController,
@@ -58,6 +51,8 @@ class ViewContextController extends ChangeNotifier {
     _updateCachedValues();
 
     setupQueryObservation();
+
+    configHolder.addListener(_updateCachedValues);
 
     // Watch for changes to the config
     // configObservation = configHolder.configPublisher.sink { [weak self] _ in
@@ -119,12 +114,23 @@ class ViewContextController extends ChangeNotifier {
         currentItem: item,
         selector: null,
         viewName: config.viewName,
-        rendererName: overrideRenderer ?? config.rendererName.value,
+        rendererName: overrideRenderer ?? config.rendererName,
         viewDefinition: config.viewDefinition,
         viewArguments: viewArguments ?? config.viewArguments);
   }
 
   _updateCachedValues() {
+    var viewName = config.viewName;
+    var newDef = viewName != null ? cvuController.viewDefinitionFor(viewName: viewName) : null;
+
+    if (newDef == null) {
+      var item = config.focusedItem;
+      newDef = item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
+    }
+    if (newDef != null) {
+      config.viewDefinition = newDef;
+    }
+
     rendererDefinition =
         cvuController.rendererDefinitionFor(getCVUContext())?.parsed ?? CVUDefinitionContent();
 
@@ -316,6 +322,6 @@ class ViewContextController extends ChangeNotifier {
         (el) async => (await ItemRecord.fetchWithRowID(el.rowId!))!));
 
     _updateCachedValues();
-    //objectWillChange.send()
+    notifyListeners();
   }
 }

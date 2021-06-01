@@ -13,19 +13,15 @@ class MemriTextEditorToolbar extends StatefulWidget {
   final ToolbarState toolbarState;
   final void Function(String, [Map<String, dynamic>?]) executeEditorCommand;
 
-  late final _MemriTextEditorToolbarState state;
+  final ValueNotifier<Map<String, dynamic>> currentFormatting;
 
-  void update(currentFormatting) {
-    state.update(currentFormatting);
-  }
-
-  MemriTextEditorToolbar({required this.toolbarState, required this.executeEditorCommand});
+  MemriTextEditorToolbar(
+      {required this.toolbarState,
+      required this.executeEditorCommand,
+      required this.currentFormatting});
 
   @override
-  _MemriTextEditorToolbarState createState() {
-    state = _MemriTextEditorToolbarState();
-    return state;
-  }
+  _MemriTextEditorToolbarState createState() => _MemriTextEditorToolbarState();
 }
 
 class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
@@ -33,18 +29,14 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
   late final void Function(String, [Map<String, dynamic>?]) executeEditorCommand;
   Map<String, dynamic> _currentFormatting = {};
   SceneController sceneController = SceneController.sceneController;
+  late final ValueNotifier<Map<String, dynamic>> currentFormatting;
 
   @override
   void initState() {
     super.initState();
     toolbarState = widget.toolbarState;
     executeEditorCommand = widget.executeEditorCommand;
-  }
-
-  void update(currentFormatting) {
-    setState(() {
-      _currentFormatting = currentFormatting;
-    });
+    currentFormatting = widget.currentFormatting;
   }
 
   final TextStyle toolbarIconFont = TextStyle(fontSize: 17, fontWeight: FontWeight.bold);
@@ -256,54 +248,60 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: CVUColor.system("secondarySystemBackground"),
-      child: Column(
-        children: [
-          Divider(
-            height: 1,
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: padding),
-                child: Row(
-                  children: space(2, [
-                    if (toolbarState.showBackButton)
-                      Container(
-                        constraints: BoxConstraints(maxWidth: 30, maxHeight: 36),
-                        child: TextButton(
-                          onPressed: () => setState(() {
-                            toolbarState = toolbarState.onBack();
-                          }),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size(30, 36),
-                          ),
-                          child: Icon(
-                            MemriIcon.getByName("arrowshape.turn.up.left.circle"),
-                            color: CVUColor.system("label"),
-                          ),
-                        ),
-                      ),
-                    if (toolbarState.showBackButton)
-                      SizedBox(
-                        height: 30,
-                        child: VerticalDivider(
-                          width: 1,
-                        ),
-                      ),
-                    ...getToolbarItems()
-                  ]),
-                ),
+    return ValueListenableBuilder<Map<String, dynamic>>(
+      valueListenable: currentFormatting,
+      builder: (context, value, child) {
+        _currentFormatting = value;
+        return ColoredBox(
+          color: CVUColor.system("secondarySystemBackground"),
+          child: Column(
+            children: [
+              Divider(
+                height: 1,
               ),
-            ),
-          )
-        ],
-      ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: padding),
+                    child: Row(
+                      children: space(2, [
+                        if (toolbarState.showBackButton)
+                          Container(
+                            constraints: BoxConstraints(maxWidth: 30, maxHeight: 36),
+                            child: TextButton(
+                              onPressed: () => setState(() {
+                                toolbarState = toolbarState.onBack();
+                              }),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size(30, 36),
+                              ),
+                              child: Icon(
+                                MemriIcon.getByName("arrowshape.turn.up.left.circle"),
+                                color: CVUColor.system("label"),
+                              ),
+                            ),
+                          ),
+                        if (toolbarState.showBackButton)
+                          SizedBox(
+                            height: 30,
+                            child: VerticalDivider(
+                              width: 1,
+                            ),
+                          ),
+                        ...getToolbarItems()
+                      ]),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 

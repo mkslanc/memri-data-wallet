@@ -5,6 +5,7 @@
 //  Created by T Brennan on 7/12/20.
 //
 
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 
 import 'CVUParsedDefinition.dart';
@@ -48,7 +49,9 @@ class CVUValueSubdefinition extends CVUValue {
 }
 
 /// A value of a CVU property that can be serialised both to CVU format and to JSON
-abstract class CVUValue implements CVUStringConvertible {
+abstract class CVUValue with EquatableMixin implements CVUStringConvertible {
+  get value;
+
   @override
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     var cvuValue = this;
@@ -88,4 +91,7 @@ abstract class CVUValue implements CVUStringConvertible {
       return null;
     }
   }
+
+  @override
+  List<Object?> get props => [value];
 }

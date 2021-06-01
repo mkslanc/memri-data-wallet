@@ -69,7 +69,16 @@ extension MemriIcon on IconData {
         return Icons.delete;
       case "minus.circle.fill":
         return Icons.remove_circle;
+      case 'plus':
+        return Icons.add;
+      case 'increase.indent':
+        return Icons.format_indent_increase;
+      case 'cloud':
+        return Icons.cloud_queue;
+      case 'ellipsis':
+        return Icons.more_horiz;
       default:
+        print("Unknown icon $iconName");
         return Icons.contact_support_rounded;
     }
   }

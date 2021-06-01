@@ -2,6 +2,7 @@
 // CVUParsedDefinition.swift
 // Copyright © 2020 memri. All rights reserved.
 
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
@@ -19,14 +20,17 @@ enum CVUDefinitionDomain { user }
 
 /// A struct holding the content of a CVUDefinition
 /// Contains properties, children, and sub-definitions
-class CVUDefinitionContent extends CVUStringConvertible {
+class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
   List<CVUParsedDefinition> definitions;
   List<CVUUINode> children;
   Map<String, CVUValue> properties;
 
-  CVUDefinitionContent({definitions, children, properties})
-      : this.definitions = definitions ?? List<CVUParsedDefinition>.from([]),
-        this.children = children ?? List<CVUUINode>.from([]),
+  CVUDefinitionContent(
+      {List<CVUParsedDefinition>? definitions,
+      List<CVUUINode>? children,
+      Map<String, CVUValue>? properties})
+      : this.definitions = definitions ?? List<CVUParsedDefinition>.of([]),
+        this.children = children ?? List<CVUUINode>.of([]),
         this.properties = properties ?? Map<String, CVUValue>();
 
   CVUDefinitionContent clone() {
@@ -116,10 +120,13 @@ class CVUDefinitionContent extends CVUStringConvertible {
 
     return result;
   }
+
+  @override
+  List<Object?> get props => [definitions, children, properties];
 }
 
 /// A swift representation of a CVU definition
-class CVUParsedDefinition extends CVUStringConvertible {
+class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
   CVUDefinitionType type = CVUDefinitionType.other;
   CVUDefinitionDomain domain = CVUDefinitionDomain.user;
 
@@ -140,7 +147,7 @@ class CVUParsedDefinition extends CVUStringConvertible {
       this.selector,
       this.renderer,
       this.name,
-      parsed})
+      CVUDefinitionContent? parsed})
       : this.parsed = parsed ?? CVUDefinitionContent();
 
   CVUParsedDefinition clone() {
@@ -184,4 +191,7 @@ class CVUParsedDefinition extends CVUStringConvertible {
     result.parsed = parsed.merge(other.parsed);
     return result;
   }
+
+  @override
+  List<Object?> get props => [type, domain, selector, name, renderer, parsed];
 }

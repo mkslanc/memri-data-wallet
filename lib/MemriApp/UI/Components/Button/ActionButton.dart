@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
@@ -10,31 +8,45 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import '../../BrowserView.dart';
 import '../../ViewContextController.dart';
 
-class ActionButton extends StatelessWidget {
-  final SceneController sceneController = SceneController.sceneController;
-
+class ActionButton extends StatefulWidget {
   final CVUAction action;
   final CVUContext viewContext;
 
   ActionButton({required this.action, required this.viewContext});
 
-  String get _icon {
-    var defaultIcon = action.defaultVars["icon"];
-    if (defaultIcon is! CVUValueConstant || defaultIcon.value is! CVUConstantString) {
-      return "plus";
-    }
+  @override
+  _ActionButtonState createState() => _ActionButtonState();
+}
 
-    return (defaultIcon.value as CVUConstantString).value;
+class _ActionButtonState extends State<ActionButton> {
+  final SceneController sceneController = SceneController.sceneController;
+
+  String _icon = "";
+
+  get icon => _icon;
+
+  set icon(newIcon) => setState(() => _icon = newIcon);
+
+  @override
+  initState() {
+    super.initState();
+    _icon =
+        widget.action.getString("icon", widget.viewContext, sceneController.topMostContext) ?? "";
   }
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Icon(MemriIcon.getByName(_icon)),
-        ),
-        onPressed: () => action.execute(sceneController, viewContext));
+        style: TextButton.styleFrom(
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: const EdgeInsets.all(10.0)),
+        child: Icon(MemriIcon.getByName(icon)),
+        onPressed: () {
+          widget.action.execute(sceneController, widget.viewContext);
+          icon =
+              widget.action.getString("icon", widget.viewContext, sceneController.topMostContext);
+        });
   }
 }
 
