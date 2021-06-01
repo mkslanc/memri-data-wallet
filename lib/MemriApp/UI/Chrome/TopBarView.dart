@@ -3,8 +3,11 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
+import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
@@ -21,6 +24,8 @@ class TopBarView extends StatelessWidget {
         children: [
           ValueListenableBuilder(
             builder: (BuildContext context, bool value, Widget? child) {
+              var viewContext = sceneController.topMostContext;
+              var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
               return ColoredBox(
                 color: Color(0xfff2f2f7),
                 child: Column(
@@ -33,7 +38,7 @@ class TopBarView extends StatelessWidget {
                             children: [
                               SizedBox(
                                 width: 100,
-                                child: Wrap(
+                                child: Row(
                                   children: [
                                     IconButton(
                                       onPressed: () =>
@@ -72,17 +77,33 @@ class TopBarView extends StatelessWidget {
                               }),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: SizedBox(
-                              width: 100,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: 100),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: TextButton(
-                                      onPressed: () => sceneController.toggleEditMode(),
-                                      child: Icon(MemriIcon.getByName('pencil')),
-                                    ),
-                                  )
+                                  FutureBuilder<List<String>?>(
+                                      future: sceneController
+                                          .topMostContext?.viewDefinitionPropertyResolver
+                                          .stringArray("editActionButton"),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.done) {
+                                          var editAction = snapshot.data?.asMap()[0];
+                                          var action = cvuAction(editAction ?? "");
+                                          if (action != null) {
+                                            return ActionButton(
+                                                action: action(vars: {
+                                                  "icon":
+                                                      CVUValueConstant(CVUConstantString("pencil"))
+                                                }),
+                                                viewContext: viewContext!.getCVUContext());
+                                          }
+                                        }
+                                        return Empty();
+                                      }),
+                                  if (actions != null)
+                                    ...actions.map((action) => ActionButton(
+                                        action: action, viewContext: viewContext!.getCVUContext()))
                                 ],
                                 mainAxisAlignment: MainAxisAlignment.end,
                               ),

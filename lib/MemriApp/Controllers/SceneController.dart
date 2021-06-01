@@ -70,10 +70,8 @@ class SceneController extends ChangeNotifier {
   }
 
   bool isBigScreen = false;
-  // @Published
   bool isContentFullscreen = false;
 
-  // @Published
   ValueNotifier<bool> isInEditMode = ValueNotifier(false);
 
   ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
@@ -127,7 +125,6 @@ class SceneController extends ChangeNotifier {
     }
   }
 
-  // @Published
   StreamController<List<ItemRecord>> navigationItemRecords = StreamController.broadcast();
 
   StreamSubscription<List<ItemRecord>>? _queryObservation;

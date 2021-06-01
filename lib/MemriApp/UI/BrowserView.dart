@@ -64,7 +64,7 @@ class _BrowserViewState extends State<BrowserView> {
 
   /// Translates the rendererName to the correct Renderer view
   Widget get renderer {
-    switch (viewContext.config.rendererName.value.toLowerCase()) {
+    switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
         return ListRendererView(viewContext: viewContext, sceneController: sceneController);
       case "grid":

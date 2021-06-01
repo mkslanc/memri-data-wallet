@@ -36,8 +36,15 @@ class _FilterPanelViewState extends State<FilterPanelView> {
   FilterPanelTab get currentTab => _currentTab.value;
 
   set currentTab(FilterPanelTab newValue) => _currentTab.value = newValue;
+  late final Future<Set<String>> _supportedRenderers;
 
   _FilterPanelViewState(this.viewContext);
+
+  @override
+  initState() {
+    super.initState();
+    _supportedRenderers = viewContext.supportedRenderers;
+  }
 
   String get currentTabTitle {
     switch (currentTab) {
@@ -195,47 +202,43 @@ class _FilterPanelViewState extends State<FilterPanelView> {
 
   Widget get rendererTab {
     return FutureBuilder(
-        future: viewContext.supportedRenderers,
+        future: _supportedRenderers,
         builder: (BuildContext context, AsyncSnapshot<Set<String>> snapshot) {
           if (snapshot.hasData) {
             var supportedRenderers = snapshot.data!.toList();
             supportedRenderers.sort();
-            return ValueListenableBuilder(
-                valueListenable: viewContext.config.rendererName,
-                builder: (BuildContext context, String selectedRendererName, Widget? child) =>
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+            var selectedRendererName = viewContext.config.rendererName;
+            return Center(
+                child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: ListView.separated(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) => TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
                         ),
-                        child: ListView.separated(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) => TextButton(
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  onPressed: () => viewContext.config.rendererName.value =
-                                      supportedRenderers[index],
-                                  child: ListTile(
-                                      dense: true,
-                                      minVerticalPadding: 0,
-                                      title: Text(
-                                        supportedRenderers[index].toUpperCase(),
-                                        style: TextStyle(
-                                            fontWeight:
-                                                supportedRenderers[index] == selectedRendererName
-                                                    ? FontWeight.bold
-                                                    : null),
-                                      )),
-                                ),
-                            separatorBuilder: (context, index) => Divider(
-                                  height: 0,
-                                ),
-                            itemCount: supportedRenderers.length),
+                        onPressed: () => setState(
+                            () => viewContext.config.rendererName = supportedRenderers[index]),
+                        child: ListTile(
+                            dense: true,
+                            minVerticalPadding: 0,
+                            title: Text(
+                              supportedRenderers[index].toUpperCase(),
+                              style: TextStyle(
+                                  fontWeight: supportedRenderers[index] == selectedRendererName
+                                      ? FontWeight.bold
+                                      : null),
+                            )),
                       ),
-                    ));
+                  separatorBuilder: (context, index) => Divider(
+                        height: 0,
+                      ),
+                  itemCount: supportedRenderers.length),
+            ));
           } else {
             return Center(
               child: SizedBox(
@@ -249,7 +252,7 @@ class _FilterPanelViewState extends State<FilterPanelView> {
   }
 
   Widget get rendererOptionsTab {
-    switch (viewContext.config.rendererName.value.toLowerCase()) {
+    switch (viewContext.config.rendererName.toLowerCase()) {
       case "timeline":
         return TimelineRendererSettingsView(viewContext: viewContext);
       case "chart":
