@@ -30,7 +30,7 @@ class TimelineRendererView extends StatefulWidget {
 }
 
 class _TimelineRendererViewState extends State<TimelineRendererView> {
-  late final Future<TimelineRendererModel> _generateModel;
+  late Future<TimelineRendererModel> _generateModel;
 
   @override
   initState() {
@@ -46,7 +46,8 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
   }
 
   void updateState() {
-    setState(() => {});
+    _generateModel = generateModel();
+    setState(() {});
   }
 
   Future<TimelineRendererModel> generateModel() async {
