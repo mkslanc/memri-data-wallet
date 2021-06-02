@@ -130,7 +130,7 @@ class Database extends _$Database {
             .get();
         return stringProps;
       } catch (e) {
-        if (e.toString().contains('267')) {
+        /*if (e.toString().contains('267')) {
           //workaround for corrupted fts index until we find better solution
           await customInsert("INSERT INTO strings_search(strings_search) VALUES('rebuild')");
           List<StringsSearchData> stringProps = await customSelect(
@@ -140,7 +140,7 @@ class Database extends _$Database {
               .map((row) => StringsSearchData.fromData(row.data, this))
               .get();
           return stringProps;
-        }
+        }*/
         throw e;
       }
     } else {
