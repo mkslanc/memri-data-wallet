@@ -35,9 +35,12 @@ class _ChartRendererViewState extends State<ChartRendererView> {
   @override
   initState() {
     super.initState();
-    backgroundColor = (() async => await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ?? CVUColor.system("systemBackground"))();
+    backgroundColor = (() async =>
+        await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        CVUColor.system("systemBackground"))();
     _titlesInit = titlesInit();
-    chartType = (() async => await widget.viewContext.rendererDefinitionPropertyResolver.string("chartType") ?? "bar")();
+    chartType = (() async =>
+        await widget.viewContext.rendererDefinitionPropertyResolver.string("chartType") ?? "bar")();
   }
 
   @override
@@ -71,7 +74,8 @@ class _ChartRendererViewState extends State<ChartRendererView> {
   }
 
   Future<Color> get primaryColor async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver.color() ?? CVUColor.system("blue");
+    return await widget.viewContext.rendererDefinitionPropertyResolver.color() ??
+        CVUColor.system("blue");
   }
 
   Future<double> get lineWidth async {
@@ -79,23 +83,28 @@ class _ChartRendererViewState extends State<ChartRendererView> {
   }
 
   Future<bool> get yAxisStartAtZero async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver.boolean("yAxisStartAtZero", false))!;
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
+        .boolean("yAxisStartAtZero", false))!;
   }
 
   Future<bool> get hideGridlines async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver.boolean("hideGridlines", false))!;
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
+        .boolean("hideGridlines", false))!;
   }
 
   Future<CVUFont> get barLabelFont async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver.font("barLabelFont", CVUFont(size: 13));
+    return await widget.viewContext.rendererDefinitionPropertyResolver
+        .font("barLabelFont", CVUFont(size: 13));
   }
 
   Future<bool> get showValueLabels async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver.boolean("yAxisStartAtZero", true))!;
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
+        .boolean("yAxisStartAtZero", true))!;
   }
 
   Future<CVUFont> get valueLabelFont async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver.font("valueLabelFont", CVUFont(size: 14));
+    return await widget.viewContext.rendererDefinitionPropertyResolver
+        .font("valueLabelFont", CVUFont(size: 14));
   }
 
   Future<BarChartData> makeBarChartModel() async {
@@ -108,7 +117,11 @@ class _ChartRendererViewState extends State<ChartRendererView> {
         data.add(BarChartGroupData(
           x: x,
           barRods: [
-            BarChartRodData(colors: [await primaryColor], y: y, width: 30, borderRadius: BorderRadius.all(Radius.zero))
+            BarChartRodData(
+                colors: [await primaryColor],
+                y: y,
+                width: 30,
+                borderRadius: BorderRadius.all(Radius.zero))
           ],
           showingTooltipIndicators: await showValueLabels ? [0] : [],
         ));
@@ -194,7 +207,11 @@ class _ChartRendererViewState extends State<ChartRendererView> {
                 Center(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                        0, itemChartProps[x]!.valueLabelFont.size + itemChartProps[x]!.barLabelFont.size, 0, 0),
+                        0,
+                        itemChartProps[x]!.valueLabelFont.size +
+                            itemChartProps[x]!.barLabelFont.size,
+                        0,
+                        0),
                     child: Text(itemChartProps[x]!.xLabel,
                         style: TextStyle(
                           color: Colors.white,
@@ -209,7 +226,8 @@ class _ChartRendererViewState extends State<ChartRendererView> {
         x++;
       }
     });
-    return PieChartData(sections: data, borderData: FlBorderData(show: false), centerSpaceRadius: double.infinity);
+    return PieChartData(
+        sections: data, borderData: FlBorderData(show: false), centerSpaceRadius: double.infinity);
   }
 
   Future<LineChartData> makeLineChartModel() async {
@@ -309,7 +327,8 @@ class _ChartRendererViewState extends State<ChartRendererView> {
                             }
                             return Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: Column(children: [chartTitleView(), Expanded(child: BarChart(model))]),
+                              child: Column(
+                                  children: [chartTitleView(), Expanded(child: BarChart(model))]),
                             );
                           }
                         }
@@ -327,7 +346,8 @@ class _ChartRendererViewState extends State<ChartRendererView> {
                             }
                             return Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: Column(children: [chartTitleView(), Expanded(child: LineChart(model))]),
+                              child: Column(
+                                  children: [chartTitleView(), Expanded(child: LineChart(model))]),
                             );
                           }
                         }
@@ -345,7 +365,8 @@ class _ChartRendererViewState extends State<ChartRendererView> {
                             }
                             return Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: Column(children: [chartTitleView(), Expanded(child: PieChart(model))]),
+                              child: Column(
+                                  children: [chartTitleView(), Expanded(child: PieChart(model))]),
                             );
                           }
                         }
@@ -366,5 +387,8 @@ class ItemChartProps {
   CVUFont valueLabelFont;
 
   ItemChartProps(
-      {required this.xLabel, required this.yLabel, required this.barLabelFont, required this.valueLabelFont});
+      {required this.xLabel,
+      required this.yLabel,
+      required this.barLabelFont,
+      required this.valueLabelFont});
 }
