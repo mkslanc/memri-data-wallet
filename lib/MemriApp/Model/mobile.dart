@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 
 import 'Database.dart';
 
-Database constructDb({bool logStatements = true, bool inMemory = false, required databaseName}) {
+Database constructDb({bool logStatements = false, bool inMemory = false, required databaseName}) {
   if (!inMemory) {
     if (Platform.isIOS || Platform.isAndroid) {
       final executor = LazyDatabase(() async {

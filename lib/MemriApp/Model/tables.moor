@@ -1,17 +1,17 @@
 CREATE TABLE items
 (
-    row_id              INTEGER PRIMARY KEY,
+    row_id             INTEGER PRIMARY KEY,
     id                 TEXT                    NOT NULL,
     type               TEXT                    NOT NULL,
     dateCreated        DATETIME /* datetime */ NOT NULL,
     dateModified       DATETIME /* datetime */ NOT NULL,
     dateServerModified DATETIME /* datetime */,
-    deleted BOOLEAN /* boolean */ NOT NULL DEFAULT false
+    deleted            BOOLEAN /* boolean */   NOT NULL DEFAULT false
 );
 CREATE
-UNIQUE INDEX idx_items_id on items (id);
-                CREATE
-INDEX idx_items_type_dateServerModified on items (type, dateServerModified);
+    UNIQUE INDEX idx_items_id on items (id);
+CREATE
+    INDEX idx_items_type_dateServerModified on items (type, dateServerModified);
 
 
 CREATE TABLE edges
@@ -25,9 +25,9 @@ CREATE TABLE edges
     FOREIGN KEY (self) REFERENCES items (row_id)
 );
 CREATE
-INDEX idx_edges_source_name on edges (source, name);
-                CREATE
-INDEX idx_edges_target_name on edges (target, name);
+    INDEX idx_edges_source_name on edges (source, name);
+CREATE
+    INDEX idx_edges_target_name on edges (target, name);
 
 
 CREATE TABLE integers
@@ -38,11 +38,11 @@ CREATE TABLE integers
     FOREIGN KEY (item) REFERENCES items (row_id)
 ) AS IntegerDb;
 CREATE
-UNIQUE INDEX idx_integers_item_name on integers (item, name);
-                CREATE
-INDEX idx_integers_name_value on integers (name, value);
-                CREATE
-INDEX idx_integers_name_item on integers (name, item);
+    UNIQUE INDEX idx_integers_item_name on integers (item, name);
+CREATE
+    INDEX idx_integers_name_value on integers (name, value);
+CREATE
+    INDEX idx_integers_name_item on integers (name, item);
 
 
 CREATE TABLE strings
@@ -54,11 +54,11 @@ CREATE TABLE strings
 ) AS StringDb;
 
 CREATE
-UNIQUE INDEX idx_strings_item_name on strings (item, name);
-                CREATE
-INDEX idx_strings_name_value on strings (name, value);
-                CREATE
-INDEX idx_strings_name_item on strings (name, item);
+    UNIQUE INDEX idx_strings_item_name on strings (item, name);
+CREATE
+    INDEX idx_strings_name_value on strings (name, value);
+CREATE
+    INDEX idx_strings_name_item on strings (name, item);
 
 
 CREATE TABLE reals
@@ -69,7 +69,7 @@ CREATE TABLE reals
     FOREIGN KEY (item) REFERENCES items (row_id)
 ) AS RealDb;
 CREATE
-UNIQUE INDEX idx_reals_item_name on reals (item, name);
+    UNIQUE INDEX idx_reals_item_name on reals (item, name);
 CREATE
     INDEX idx_reals_name_value on reals (name, value);
 CREATE
@@ -101,16 +101,20 @@ CREATE TRIGGER tbl_ai
 BEGIN
     INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);
 END;
-CREATE TRIGGER tbl_ad
-    AFTER DELETE
+CREATE TRIGGER tbl_bd
+    BEFORE DELETE
     ON strings
 BEGIN
-    INSERT INTO strings_search(strings_search, item, name, value) VALUES ('delete', old.item, old.name, old.value);
+    DELETE FROM strings_search WHERE name = old.name AND item = old.item;
 END;
 CREATE TRIGGER tbl_au
     AFTER UPDATE
     ON strings
 BEGIN
-    INSERT INTO strings_search(strings_search, item, name, value) VALUES ('delete', old.item, old.name, old.value);
-    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);
+    UPDATE strings_search
+    SET item  = new.item,
+        name  = new.name,
+        value = new.value
+    WHERE item = new.item
+      AND name = new.name;
 END;

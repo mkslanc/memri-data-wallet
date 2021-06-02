@@ -69,8 +69,8 @@ void main() {
     var queryDef = await databaseController.search("trailhead first");
     var result = queryDef[0];
     await result.setPropertyValue(
-        "content", PropertyDatabaseValueString("TESTING 123"), databaseController);
-    var searchResults = await databaseController.search("TESTING 1");
+        "content", PropertyDatabaseValueString("TESTING123"), databaseController);
+    var searchResults = await databaseController.search("TESTING123");
     expect(searchResults.length, equals(1));
   });
 

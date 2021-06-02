@@ -121,28 +121,13 @@ class Database extends _$Database {
       String query, List<Variable<dynamic>> binding,
       [bool isFTS = false]) async {
     if (isFTS) {
-      try {
-        List<StringsSearchData> stringProps = await customSelect(
-                "SELECT * from strings_search WHERE $query",
-                variables: binding,
-                readsFrom: {stringsSearch})
-            .map((row) => StringsSearchData.fromData(row.data, this))
-            .get();
-        return stringProps;
-      } catch (e) {
-        /*if (e.toString().contains('267')) {
-          //workaround for corrupted fts index until we find better solution
-          await customInsert("INSERT INTO strings_search(strings_search) VALUES('rebuild')");
-          List<StringsSearchData> stringProps = await customSelect(
-                  "SELECT * from strings_search WHERE $query",
-                  variables: binding,
-                  readsFrom: {stringsSearch})
-              .map((row) => StringsSearchData.fromData(row.data, this))
-              .get();
-          return stringProps;
-        }*/
-        throw e;
-      }
+      List<StringsSearchData> stringProps = await customSelect(
+              "SELECT * from strings_search WHERE $query",
+              variables: binding,
+              readsFrom: {stringsSearch})
+          .map((row) => StringsSearchData.fromData(row.data, this))
+          .get();
+      return stringProps;
     } else {
       List<IntegerDb> intProps = await customSelect("SELECT * from integers WHERE $query",
           variables: binding,

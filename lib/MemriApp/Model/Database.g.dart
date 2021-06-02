@@ -1742,11 +1742,11 @@ abstract class _$Database extends GeneratedDatabase {
   late final Trigger tblAi = Trigger(
       'CREATE TRIGGER tbl_ai AFTER INSERT ON strings BEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
       'tbl_ai');
-  late final Trigger tblAd = Trigger(
-      'CREATE TRIGGER tbl_ad AFTER DELETE ON strings BEGIN\r\n    INSERT INTO strings_search(strings_search, item, name, value) VALUES(\'delete\', old.item, old.name, old.value);\r\nEND;',
-      'tbl_ad');
+  late final Trigger tblBd = Trigger(
+      'CREATE TRIGGER tbl_bd BEFORE DELETE ON strings BEGIN\r\n     DELETE FROM strings_search WHERE name = old.name AND item = old.item;\r\nEND;',
+      'tbl_bd');
   late final Trigger tblAu = Trigger(
-      'CREATE TRIGGER tbl_au AFTER UPDATE ON strings BEGIN\r\n    INSERT INTO strings_search(strings_search, item, name, value) VALUES(\'delete\', old.item, old.name, old.value);\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
+      'CREATE TRIGGER tbl_au AFTER UPDATE ON strings BEGIN\r\n    UPDATE strings_search SET item = new.item, name = new.name, value = new.value WHERE item = new.item AND name = new.name;\r\nEND;',
       'tbl_au');
   late final NavigationState navigationState = NavigationState(this);
 
@@ -1775,7 +1775,7 @@ abstract class _$Database extends GeneratedDatabase {
         idxRealsNameItem,
         stringsSearch,
         tblAi,
-        tblAd,
+        tblBd,
         tblAu,
         navigationState
       ];
