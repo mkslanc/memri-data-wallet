@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class MemriTextField<T> extends StatefulWidget {
   final Binding<T>? binding;
@@ -20,11 +19,11 @@ class MemriTextField<T> extends StatefulWidget {
 }
 
 class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
-  late T? _value;
+  T? _value;
 
   TextEditingController get controller => TextEditingController(text: _value?.toString());
 
-  late final Future<T> _futureValue;
+  late Future<T> _futureValue;
 
   @override
   initState() {
@@ -34,7 +33,16 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
     }
   }
 
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.futureBinding != null) {
+      _futureValue = widget.futureBinding!.get();
+    }
+  }
+
   set value(newValue) {
+    _value = newValue;
     if (widget.futureBinding != null) {
       widget.futureBinding!.set(newValue);
     } else {
@@ -46,16 +54,13 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   Widget build(BuildContext context) {
     if (widget.futureBinding != null) {
       return FutureBuilder<T>(
-          future: _futureValue,
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                _value = snapshot.data;
-                return body(context);
-              default:
-                return Empty();
-            }
-          });
+        initialData: _value,
+        future: _futureValue,
+        builder: (context, snapshot) {
+            _value = snapshot.data;
+
+            return body(context);
+        });
     } else {
       _value = widget.binding!.get();
       return body(context);

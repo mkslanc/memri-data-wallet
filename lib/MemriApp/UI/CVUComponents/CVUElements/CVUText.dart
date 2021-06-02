@@ -22,15 +22,21 @@ class CVUText extends StatefulWidget {
 class _CVUTextState extends State<CVUText> {
   late final TextProperties resolvedTextProperties;
 
-  late final Color? color;
+  Color? color;
 
-  late final String? content;
+  String? content;
 
-  late final Future _init;
+  late Future _init;
 
   @override
   initState() {
     super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init = init();
   }
 
@@ -44,7 +50,7 @@ class _CVUTextState extends State<CVUText> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && content != null) {
+          if (content != null) {
             return Text(
               content!,
               maxLines: resolvedTextProperties.lineLimit,
@@ -75,13 +81,19 @@ class CVUSmartText extends StatefulWidget {
 class _CVUSmartTextState extends State<CVUSmartText> {
   late final TextProperties resolvedTextProperties;
 
-  late final String? content;
+  String? content;
 
-  late final Future _init;
+  late Future _init;
 
   @override
   initState() {
     super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init = init();
   }
 
@@ -95,16 +107,15 @@ class _CVUSmartTextState extends State<CVUSmartText> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && content != null) {
+          if (content != null) {
             return Text(
               content!,
               style: resolvedTextProperties.textStyle,
               textAlign: resolvedTextProperties.textAlign,
               maxLines: resolvedTextProperties.lineLimit,
             );
-          } else {
-            return Empty();
           }
+          return Empty();
         });
   }
 }
