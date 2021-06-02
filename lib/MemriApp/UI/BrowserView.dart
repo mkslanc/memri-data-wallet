@@ -48,11 +48,14 @@ class _BrowserViewState extends State<BrowserView> {
   set filterPanelIsVisible(bool newValue) => setState(() => _filterPanelIsVisible = newValue);
   double filterPanelGestureOffset = 0;
 
+  late final Future<String?> _title;
+
   @override
   initState() {
     super.initState();
     viewContext = widget.viewContext;
     sceneController = widget.sceneController ?? SceneController.sceneController;
+    _title = widget.viewContext.viewDefinitionPropertyResolver.string("title");
     viewContext.onAppear();
   }
 
@@ -101,7 +104,7 @@ class _BrowserViewState extends State<BrowserView> {
   }
 
   Widget get topBarView => FutureBuilder<String?>(
-      future: widget.viewContext.viewDefinitionPropertyResolver.string("title"),
+      future: _title,
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
           ? Column(
               children: [

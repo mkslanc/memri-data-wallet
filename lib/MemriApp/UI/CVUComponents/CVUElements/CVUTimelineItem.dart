@@ -7,25 +7,41 @@ import '../CVUUINodeResolver.dart';
 
 /// A CVU element for displaying a timeline-style item tag
 /// - Set the `title`, `subtitle`, and `icon` properties
-class CVUTimelineItem extends StatelessWidget {
+class CVUTimelineItem extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
 
   CVUTimelineItem({required this.nodeResolver});
 
+  @override
+  _CVUTimelineItemState createState() => _CVUTimelineItemState();
+}
+
+class _CVUTimelineItemState extends State<CVUTimelineItem> {
   late final IconData icon;
+
   late final String title;
+
   late final String? subtitle;
 
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   Future init() async {
-    icon = MemriIcon.getByName(await nodeResolver.propertyResolver.string("icon") ?? "arrow_right");
-    title = await nodeResolver.propertyResolver.string("title") ?? "-";
-    subtitle = await nodeResolver.propertyResolver.string("text");
+    icon = MemriIcon.getByName(
+        await widget.nodeResolver.propertyResolver.string("icon") ?? "arrow_right");
+    title = await widget.nodeResolver.propertyResolver.string("title") ?? "-";
+    subtitle = await widget.nodeResolver.propertyResolver.string("text");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: init(),
+      future: _init,
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
           ? TimelineItemView(
               icon: icon, title: title, subtitle: subtitle, backgroundColor: Colors.grey)

@@ -78,85 +78,93 @@ class _ListRendererViewState extends State<ListRendererView> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _init,
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-          ? ValueListenableBuilder(
-              valueListenable: viewContext.itemsValueNotifier,
-              builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                if (value.isNotEmpty) {
-                  return Expanded(
-                      child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                          padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                          itemBuilder: (context, index) {
-                            var item = value[index];
-                            var title = ColoredBox(
-                              color: backgroundColor,
-                              child: viewContext.render(item: item),
-                            );
-                            var callback = selectionMode(index);
-                            return isInEditMode
-                                ? CheckboxListTile(
-                                    dense: true,
-                                    title: title,
-                                    onChanged: callback,
-                                    value: selectedIndices.contains(index),
-                                    controlAffinity: ListTileControlAffinity.leading)
-                                : Dismissible(
-                                    direction: DismissDirection.endToStart,
-                                    key: Key(item.uid),
-                                    onDismissed: (direction) async {
-                                      var action = CVUActionDelete();
-                                      await action
-                                          .execute(sceneController,
-                                              viewContext.getCVUContext(item: item))
-                                          .then((value) => viewContext.setupQueryObservation());
-                                    },
-                                    child: ListTile(
-                                      dense: true,
-                                      minVerticalPadding: 0,
-                                      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                                      contentPadding: EdgeInsets.fromLTRB(
-                                          insets.left,
-                                          index == 0 ? 0 : spacing.y / 2,
-                                          insets.right,
-                                          index == viewContext.items.length - 1
-                                              ? 0
-                                              : spacing.y / 2),
-                                      title: title,
-                                      onTap: callback,
-                                    ),
-                                  );
-                          },
-                          separatorBuilder: (context, index) => Divider(
-                                height: separatorsEnabled ? 1 : 0,
-                                color: separatorsEnabled ? null : Colors.transparent,
-                              ),
-                          itemCount: value.length));
-                } else {
-                  return Expanded(
-                      child: Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Center(
-                      child: Text(
-                        "No items",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                            color: Color.fromRGBO(0, 0, 0, 0.7),
-                            backgroundColor: backgroundColor),
+        future: _init,
+        builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+            ? ValueListenableBuilder(
+                valueListenable: viewContext.itemsValueNotifier,
+                builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                  if (viewContext.items.isNotEmpty) {
+                    selectedIndices = selectedIndicesBinding.get();
+                    return Expanded(
+                        /*child: ListView.custom(
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                childrenDelegate: SliverChildListDelegate(
+                    List<Widget>.from(viewContext.items.mapIndexed((index, item) => _buildItem(item, index)))),
+              )*/
+                        child: ListView.separated(
+                            shrinkWrap: true,
+                            // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                            padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                            itemBuilder: (context, index) {
+                              var item = viewContext.items[index];
+                              return _buildItem(item, index);
+                            },
+                            separatorBuilder: (context, index) => Divider(
+                                  height: separatorsEnabled ? 1 : 0,
+                                  color: separatorsEnabled ? null : Colors.transparent,
+                                ),
+                            itemCount: viewContext.items.length));
+                  } else {
+                    return Expanded(
+                        child: Padding(
+                      padding: EdgeInsets.all(30),
+                      child: Center(
+                        child: Text(
+                          "No items",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Color.fromRGBO(0, 0, 0, 0.7),
+                              backgroundColor: backgroundColor),
+                        ),
                       ),
-                    ),
-                  ));
-                }
-              })
-          : SizedBox(
-              child: CircularProgressIndicator(),
-              width: 60,
-              height: 60,
-            ),
+                    ));
+                  }
+                })
+            : SizedBox(
+                child: CircularProgressIndicator(),
+                width: 60,
+                height: 60,
+              ));
+  }
+
+  Widget _buildItem(ItemRecord item, int index) {
+    var title = ColoredBox(
+      key: Key(item.uid),
+      color: backgroundColor,
+      child: viewContext.render(item: item),
     );
+    var callback = selectionMode(index);
+    return isInEditMode
+        ? CheckboxListTile(
+            key: Key(item.uid),
+            dense: true,
+            title: title,
+            onChanged: callback,
+            value: selectedIndices.contains(index),
+            controlAffinity: ListTileControlAffinity.leading)
+        : Dismissible(
+            direction: DismissDirection.endToStart,
+            key: Key(item.uid),
+            onDismissed: (direction) async {
+              var action = CVUActionDelete();
+              await action
+                  .execute(sceneController, viewContext.getCVUContext(item: item))
+                  .then((value) => viewContext.setupQueryObservation());
+            },
+            child: ListTile(
+              key: Key(item.uid),
+              dense: true,
+              minVerticalPadding: 0,
+              visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+              contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2,
+                  insets.right, index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+              title: title,
+              onTap: callback,
+            ),
+          );
   }
 
   selectionMode(index) {

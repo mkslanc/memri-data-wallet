@@ -6,25 +6,43 @@ import 'package:memri/MemriApp/Helpers/MapHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUMap.dart';
 import 'package:memri/MemriApp/UI/Components/Map/MapMarker.dart';
 
-class MapView extends StatelessWidget {
+class MapView extends StatefulWidget {
   final MapViewConfig config;
-  final MapModel _mapModel;
+
+  MapView({required this.config});
+
+  @override
+  _MapViewState createState() => _MapViewState();
+}
+
+class _MapViewState extends State<MapView> {
   late final MapboxMapController mapController;
-  late final LatLng currentCoords;
+  late final MapModel _mapModel;
+
+  late LatLng currentCoords;
+
   final List<MapMarker> _markers = [];
+
   final List<MapMarkerState> _markerStates = [];
+
   late final bool moveable;
 
-  MapView({required this.config})
-      : _mapModel = MapModel(
-            dataItems: config.dataItems,
-            locationResolver: config.locationResolver,
-            addressResolver: config.addressResolver,
-            labelResolver: config.labelResolver);
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _mapModel = MapModel(
+        dataItems: widget.config.dataItems,
+        locationResolver: widget.config.locationResolver,
+        addressResolver: widget.config.addressResolver,
+        labelResolver: widget.config.labelResolver);
+    _init = init();
+  }
 
   Future<void> init() async {
     await _mapModel.updateModel();
-    moveable = (await config.moveable)!;
+    moveable = (await widget.config.moveable)!;
   }
 
   void _addMarkerStates(MapMarkerState markerState) {
@@ -66,7 +84,7 @@ class MapView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var firstItem = _mapModel.items.asMap()[0];
@@ -87,7 +105,7 @@ class MapView extends StatelessWidget {
                     accessToken: MapHelper.accessToken,
                     initialCameraPosition: CameraPosition(
                         target: (firstItem != null) ? firstItem.coordinate : LatLng(0.0, 0.0),
-                        zoom: config.maxInitialZoom),
+                        zoom: widget.config.maxInitialZoom),
                   ),
                   Stack(
                     children: _markers,

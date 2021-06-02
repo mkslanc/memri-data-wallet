@@ -14,100 +14,101 @@ class Picker<T> extends StatefulWidget {
 }
 
 class _PickerState<T> extends State<Picker<T>> {
+  late final Future _init;
+
   @override
   void initState() {
     super.initState();
-    init();
+    _init = init();
   }
 
   T? _selectedValue;
 
   init() async {
-    widget.selection.get().then((value) => setState(() => _selectedValue = value));
+    _selectedValue = await widget.selection.get();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TextButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                  return MaterialApp(
-                    debugShowCheckedModeBanner: false,
-                    home: Scaffold(
-                      appBar: PreferredSize(
-                          preferredSize: Size.fromHeight(32.0),
-                          child: AppBar(
-                            leading: TextButton(
-                              style: TextButton.styleFrom(primary: Colors.black),
-                              child: Icon(
-                                Icons.arrow_back,
-                                size: 24,
-                              ),
-                              onPressed: () => Navigator.of(context).pop(),
+    return FutureBuilder(
+        future: _init,
+        builder: (context, snapshot) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                        return MaterialApp(
+                          debugShowCheckedModeBanner: false,
+                          home: Scaffold(
+                            appBar: PreferredSize(
+                                preferredSize: Size.fromHeight(32.0),
+                                child: AppBar(
+                                  leading: TextButton(
+                                    style: TextButton.styleFrom(primary: Colors.black),
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      size: 24,
+                                    ),
+                                    onPressed: () => Navigator.of(context).pop(),
+                                  ),
+                                  centerTitle: true,
+                                  primary: false,
+                                  backgroundColor: Colors.white,
+                                  excludeHeaderSemantics: true,
+                                  title: Center(
+                                      child: Text(
+                                    widget.label,
+                                    style: TextStyle(color: Colors.black, fontSize: 17),
+                                  )),
+                                )),
+                            body: Column(
+                              children: widget.group
+                                  .map(
+                                    (tag, element) => MapEntry(
+                                        tag,
+                                        ListTile(
+                                          title: Text(element),
+                                          trailing: Radio<T>(
+                                            value: tag,
+                                            groupValue: _selectedValue,
+                                            onChanged: (T? newValue) {
+                                              setState(() {
+                                                _selectedValue = newValue;
+                                                widget.selection.set(newValue!);
+                                                Navigator.of(context).pop();
+                                              });
+                                            },
+                                          ),
+                                        )),
+                                  )
+                                  .values
+                                  .toList(),
                             ),
-                            centerTitle: true,
-                            primary: false,
-                            backgroundColor: Colors.white,
-                            excludeHeaderSemantics: true,
-                            title: Center(
-                                child: Text(
-                              widget.label,
-                              style: TextStyle(color: Colors.black, fontSize: 17),
-                            )),
-                          )),
-                      body: FutureBuilder<T>(
-                        future: widget.selection.get(),
-                        builder: (futureContext, snapshot) => snapshot.hasData
-                            ? Column(
-                                children: widget.group
-                                    .map(
-                                      (tag, element) => MapEntry(
-                                          tag,
-                                          ListTile(
-                                            title: Text(element),
-                                            trailing: Radio<T>(
-                                              value: tag,
-                                              groupValue: snapshot.data,
-                                              onChanged: (T? newValue) {
-                                                setState(() {
-                                                  _selectedValue = newValue;
-                                                  widget.selection.set(newValue!);
-                                                  Navigator.of(context).pop();
-                                                });
-                                              },
-                                            ),
-                                          )),
-                                    )
-                                    .values
-                                    .toList(),
-                              )
-                            : Empty(),
+                          ),
+                        );
+                      })),
+                  child: Row(
+                    children: [
+                      Text(
+                        widget.label,
+                        style: TextStyle(color: Colors.black),
                       ),
-                    ),
-                  );
-                })),
-            child: Row(
-              children: [
-                Text(
-                  widget.label,
-                  style: TextStyle(color: Colors.black),
-                ),
-                Spacer(),
-                _selectedValue != null
-                    ? Text(
-                        widget.group[_selectedValue]!,
-                        style: TextStyle(color: Colors.black38),
+                      Spacer(),
+                      _selectedValue != null
+                          ? Text(
+                              widget.group[_selectedValue]!,
+                              style: TextStyle(color: Colors.black38),
+                            )
+                          : Empty(),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.black38,
                       )
-                    : Empty(),
-                Icon(
-                  Icons.chevron_right,
-                  color: Colors.black38,
-                )
-              ],
-            ))
-      ],
-    );
+                    ],
+                  ))
+            ],
+          );
+        });
   }
 }

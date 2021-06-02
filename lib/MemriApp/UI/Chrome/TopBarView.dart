@@ -26,6 +26,8 @@ class TopBarView extends StatelessWidget {
             builder: (BuildContext context, bool value, Widget? child) {
               var viewContext = sceneController.topMostContext;
               var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
+              var title =
+                  sceneController.topMostContext?.viewDefinitionPropertyResolver.string("title");
               return ColoredBox(
                 color: Color(0xfff2f2f7),
                 child: Column(
@@ -60,8 +62,7 @@ class TopBarView extends StatelessWidget {
                             ],
                           ),
                           FutureBuilder(
-                              future: sceneController.topMostContext?.viewDefinitionPropertyResolver
-                                  .string("title"),
+                              future: title,
                               builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
                                 if (snapshot.hasData) {
                                   return Expanded(
