@@ -54,13 +54,15 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   Widget build(BuildContext context) {
     if (widget.futureBinding != null) {
       return FutureBuilder<T>(
-        initialData: _value,
-        future: _futureValue,
-        builder: (context, snapshot) {
-            _value = snapshot.data;
+          initialData: _value,
+          future: _futureValue,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              _value = snapshot.data;
+            }
 
             return body(context);
-        });
+          });
     } else {
       _value = widget.binding!.get();
       return body(context);
