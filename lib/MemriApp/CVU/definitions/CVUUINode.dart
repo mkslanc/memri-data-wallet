@@ -2,6 +2,7 @@
 // UINode.swift
 // Copyright © 2020 memri. All rights reserved.
 
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 import 'package:uuid/uuid.dart';
 
@@ -9,7 +10,7 @@ import 'CVUUIElementFamily.dart';
 import 'CVUValue.dart';
 
 /// This represents a CVU definition of how to show a data item. It can contain properties (eg. onPress action), and children (eg. UI elements to show)
-class CVUUINode extends CVUStringConvertible {
+class CVUUINode extends CVUStringConvertible with EquatableMixin {
   final CVUUIElementFamily type;
   List<CVUUINode> children = [];
   Map<String, CVUValue> properties = {};
@@ -68,4 +69,7 @@ class CVUUINode extends CVUStringConvertible {
   String get description {
     return toCVUString(0, "    ", true);
   }
+
+  @override
+  List<Object?> get props => [type, children, properties, id];
 }

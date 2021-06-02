@@ -28,18 +28,19 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   late final WebViewController _controller;
   SceneController sceneController = SceneController.sceneController;
 
-  late MemriTextEditorToolbar toolBar;
-
   var toolbarState = ToolbarState.main;
 
   late final Future<Uri> _showHtml;
+
+  late final ValueNotifier<Map<String, dynamic>> currentFormatting;
 
   @override
   void initState() {
     super.initState();
     _showHtml = _initShowHtml();
     widget.viewContext.searchStringNotifier.addListener(updateSearchState);
-    sceneController.isInEditMode.addListener(switchEditMode);
+
+    currentFormatting = ValueNotifier(<String, dynamic>{});
   }
 
   @override
@@ -71,17 +72,22 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
                       JavascriptChannel(
                           name: 'formatChange',
                           onMessageReceived: (JavascriptMessage message) {
-                            toolBar.update(jsonDecode(message.message));
+                            currentFormatting.value = jsonDecode(message.message);
                           })
                     ]),
                     javascriptMode: JavascriptMode.unrestricted,
                     onWebViewCreated: (controller) {
                       _controller = controller;
+                      sceneController.isInEditMode.addListener(switchEditMode);
                     },
                     onPageFinished: onEditorLoaded,
                   ),
                 ),
-                if (sceneController.isInEditMode.value) updateToolbar()
+                if (sceneController.isInEditMode.value)
+                  MemriTextEditorToolbar(
+                      toolbarState: toolbarState,
+                      executeEditorCommand: executeEditorCommand,
+                      currentFormatting: currentFormatting)
               ],
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
@@ -105,7 +111,8 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
 
   onEditorLoaded(url) async {
     var initialModel = await widget.model();
-    setContent(initialModel.html);
+    await setContent(initialModel.html);
+    switchEditMode();
     grabFocus();
     updateSearchState();
   }
@@ -179,7 +186,7 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   setContent(Future<String?> content) async {
     var _content = (await content)?.escapeForJavascript() ?? "";
     _controller.evaluateJavascript(
-        "window.editor.options.content = \"$_content\"; window.editor.view.updateState(window.editor.createState()); window.editor.options.editable = false;");
+        "window.editor.options.content = \"$_content\"; window.editor.view.updateState(window.editor.createState());");
   }
 
   switchEditMode() {
@@ -190,14 +197,6 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
         SystemChannels.textInput.invokeMethod('TextInput.hide');
       }
     });
-  }
-
-  updateToolbar() {
-    toolBar = MemriTextEditorToolbar(
-      toolbarState: toolbarState,
-      executeEditorCommand: executeEditorCommand,
-    );
-    return toolBar;
   }
 }
 

@@ -117,7 +117,7 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
 
     var generalLayout = widget.viewContext.cvuController
         .rendererDefinitionForSelector(
-            selector: "[renderer = ${widget.viewContext.config.rendererName.value}]")
+            selector: "[renderer = ${widget.viewContext.config.rendererName}]")
         ?.properties["layout"];
     List<Map<String, CVUValue>>? generalDefs = [];
     if (generalLayout is CVUValueArray) {
@@ -307,7 +307,7 @@ class GeneralEditorSection extends StatelessWidget {
       return nodeDefinition;
     } else {
       nodeDefinition = viewContext.cvuController
-          .rendererDefinitionForSelector(viewName: viewContext.config.rendererName.value)
+          .rendererDefinitionForSelector(viewName: viewContext.config.rendererName)
           ?.properties[layout.id]
           ?.getSubdefinition();
       if (nodeDefinition != null) {
@@ -323,7 +323,7 @@ class GeneralEditorSection extends StatelessWidget {
       return null;
     }
 
-    var args = viewContext.config.viewArguments?.args ?? {};
+    var args = viewContext.config.viewArguments?.args ?? <String, CVUValue>{};
     args["query"] = CVUValueConstant(CVUConstantString(item.type));
     args["type"] = CVUValueConstant(CVUConstantString(edgeType));
     args["subject"] = CVUValueItem(item.rowId!);
@@ -467,7 +467,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     var propType = property.valueType;
     var nodeDefinition = viewContext.cvuController
-        .rendererDefinitionForSelector(viewName: viewContext.config.rendererName.value)
+        .rendererDefinitionForSelector(viewName: viewContext.config.rendererName)
         ?.properties[prop]
         ?.getSubdefinition();
     Widget currentWidget = defaultRow();
@@ -570,24 +570,22 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   }
 
   Widget dateRow() {
-    var binding = FutureBinding<DateTime>(
-        () async =>
-            (await currentItem.propertyValue(property.property))?.asDate() ?? DateTime.now(),
+    var binding = FutureBinding<DateTime?>(
+        () async => (await currentItem.propertyValue(property.property))?.asDate(),
         (value) async =>
-            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value)));
-    return FutureBuilder<DateTime>(
+            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value!)));
+    return FutureBuilder<DateTime?>(
       future: binding.get(),
-      builder: (context, snapshot) =>
-          snapshot.connectionState == ConnectionState.done && snapshot.hasData
-              ? MemriDatePicker(
-                  initialSet: snapshot.data!,
-                  onPressed: sceneController.isInEditMode.value
-                      ? (DateTime value) async => await binding.set(value)
-                      : null,
-                  formatter: "MMM d, yyyy",
-                  style: generalEditorCaptionStyle(),
-                  isEditing: sceneController.isInEditMode.value)
-              : Empty(),
+      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+          ? MemriDatePicker(
+              initialSet: snapshot.data,
+              onPressed: sceneController.isInEditMode.value
+                  ? (DateTime value) async => await binding.set(value)
+                  : null,
+              formatter: "MMM d, yyyy",
+              style: generalEditorCaptionStyle(),
+              isEditing: sceneController.isInEditMode.value)
+          : Empty(),
     );
   }
 

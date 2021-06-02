@@ -11,34 +11,51 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 /// - Use the `bundleImage` property to display an icon pre-packaged with the Memri App
 /// - Use the `systemName` property to display an iOS SFSymbols (system) icon
 // ignore: must_be_immutable
-class CVUImage extends StatelessWidget {
+class CVUImage extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
 
   CVUImage({required this.nodeResolver});
 
+  @override
+  _CVUImageState createState() => _CVUImageState();
+}
+
+class _CVUImageState extends State<CVUImage> {
   late final String? fileImageURL;
+
   late final ImageProvider? bundleImage;
+
   late final Color? color;
 
   late final CVUFont? font;
+
   late final String? iconName;
+
   late final CVU_SizingMode sizingMode;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
 
   init() async {
     fileImageURL = await getFileImageURL();
-    sizingMode = await nodeResolver.propertyResolver.sizingMode();
+    sizingMode = await widget.nodeResolver.propertyResolver.sizingMode();
     if (fileImageURL == null) {
       bundleImage = await getBundleImage();
       if (bundleImage == null) {
-        font = await nodeResolver.propertyResolver.font();
-        color = await nodeResolver.propertyResolver.color();
-        iconName = await nodeResolver.propertyResolver.string("systemName");
+        font = await widget.nodeResolver.propertyResolver.font();
+        color = await widget.nodeResolver.propertyResolver.color();
+        iconName = await widget.nodeResolver.propertyResolver.string("systemName");
       }
     }
   }
 
   Future<String?> getFileImageURL() async {
-    var imageURI = await nodeResolver.propertyResolver.fileUID("image");
+    var imageURI = await widget.nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
       return null;
     }
@@ -46,7 +63,7 @@ class CVUImage extends StatelessWidget {
   }
 
   Future<ImageProvider?> getBundleImage() async {
-    var imageName = await nodeResolver.propertyResolver.string("bundleImage");
+    var imageName = await widget.nodeResolver.propertyResolver.string("bundleImage");
     if (imageName == null) {
       return null;
     }
@@ -57,29 +74,35 @@ class CVUImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (fileImageURL != null) {
-              return Image(
-                image: ResizeImage(AssetImage(fileImageURL!),
-                    width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
-                fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
+              return Center(
+                child: Image(
+                  image: ResizeImage(AssetImage(fileImageURL!),
+                      width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
+                  fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
+                ),
               );
             } else if (bundleImage != null) {
-              return Image(image: bundleImage!);
+              return Center(child: Image(image: bundleImage!));
             } else if (iconName != null) {
-              return Icon(
-                MemriIcon.getByName(iconName!),
-                color: color,
-                size: font?.size,
+              return Center(
+                child: Icon(
+                  MemriIcon.getByName(iconName!),
+                  color: color,
+                  size: font?.size,
+                ),
               );
               //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
               //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
             } else {
-              return Icon(
-                Icons.error,
-                color: Color(0x993c3c43),
+              return Center(
+                child: Icon(
+                  Icons.error,
+                  color: Color(0x993c3c43),
+                ),
               );
             }
           }

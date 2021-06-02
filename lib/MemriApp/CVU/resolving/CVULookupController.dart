@@ -706,7 +706,7 @@ class CVULookupController {
       return null;
     }
     if (lookupResult is LookupStepItems) {
-      return lookupResult.items[0];
+      return lookupResult.items.asMap()[0];
     } else {
       return null;
     }
@@ -1013,7 +1013,6 @@ class CVULookupController {
           return lhs.rowId == rhs.rowId;
         }
       }
-      //TODO is this correct? @anijanyan
       if (lhs == null || rhs == null) {
         lhs = await resolve<String>(expression: expression.lhs, context: context, db: db);
         rhs = await resolve<String>(expression: expression.rhs, context: context, db: db);
@@ -1029,7 +1028,6 @@ class CVULookupController {
     } else if (expression is CVUExpressionNodeAreNotEqual) {
       dynamic lhs = await resolve<double>(expression: expression.lhs, context: context, db: db);
       dynamic rhs = await resolve<double>(expression: expression.rhs, context: context, db: db);
-      //TODO is this correct? @anijanyan
       if (lhs == null || rhs == null) {
         lhs = await resolve<ItemRecord>(expression: expression.lhs, context: context, db: db);
         rhs = await resolve<ItemRecord>(expression: expression.rhs, context: context, db: db);

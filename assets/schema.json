@@ -1367,8 +1367,8 @@
     },
     {
       "item_type": "Person",
-      "property": "height",
-      "value_type": "double"
+      "property": "addressBookId",
+      "value_type": "string"
     },
     {
       "item_type": "PhoneNumber",

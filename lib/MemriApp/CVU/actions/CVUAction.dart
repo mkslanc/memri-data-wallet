@@ -17,11 +17,14 @@ import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 abstract class CVUAction {
   void execute(SceneController sceneController, CVUContext context);
@@ -29,10 +32,24 @@ abstract class CVUAction {
   Map<String, CVUValue> get defaultVars {
     return {};
   }
+
+  late Map<String, CVUValue> vars;
+
+  String? getString(String key, CVUContext context, ViewContextController? viewContext) {
+    var cvuValue = vars[key] ?? defaultVars[key];
+    if (cvuValue is CVUValueConstant) {
+      var cvuConstant = cvuValue.value;
+      if (cvuConstant is CVUConstantString) {
+        return cvuConstant.value;
+      }
+    }
+
+    return null;
+  }
 }
 
 /// Used to look up the concrete type matching a CVU action name
-CVUAction Function({Map? vars})? cvuAction(String named) {
+CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
   //TODO fix this when when Dart fixes passing constructors as callables https://github.com/dart-lang/language/issues/216
   switch (named.toLowerCase()) {
     case "back":
@@ -141,7 +158,7 @@ class CVUActionOpenView extends CVUAction {
       : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  Future execute(SceneController sceneController, CVUContext context) async {
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -162,7 +179,7 @@ class CVUActionOpenView extends CVUAction {
     DatabaseController db = sceneController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: this.vars);
-    sceneController.navigateToNewContext(
+    await sceneController.navigateToNewContext(
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
         overrideRenderer: renderer ?? await resolver.string("renderer"),
@@ -235,8 +252,11 @@ class CVUActionOpenViewByName extends CVUAction {
       queryConfig.itemTypes = [itemType!];
     } else {
       var query = viewArguments.args["query"];
-      if (query is CVUConstantString) {
-        queryConfig.itemTypes = [(query as CVUConstantString).value]; //TODO: check
+      if (query is CVUValueConstant) {
+        var value = query.value;
+        if (value is CVUConstantString) {
+          queryConfig.itemTypes = [value.value];
+        }
       }
     }
 
@@ -282,11 +302,130 @@ class CVUActionCopyToClipboard extends CVUAction {
 class CVUActionAddItem extends CVUAction {
   Map<String, CVUValue> vars;
 
+  Map<String, CVUValue> get defaultVars {
+    return {"icon": CVUValueConstant(CVUConstantString("plus"))};
+  }
+
   CVUActionAddItem({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
-    // TODO: implement execute
+  Future execute(SceneController sceneController, CVUContext context) async {
+    var db = sceneController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var template = resolver.subdefinition("template");
+    if (template == null) {
+      return;
+    }
+    var type = await template.string("_type");
+
+    if (type != null) {
+      var item = ItemRecord(type: type);
+      try {
+        await item.save(db.databasePool);
+      } catch (error) {
+        print("ERROR Adding item: " + error.toString());
+      }
+
+      var itemRowId = item.rowId;
+      if (itemRowId == null) {
+        return;
+      }
+
+      /// Take all the properties defined in the template definition (in CVU) and map them against the schema. Resolve the CVU based on the type expected by the schema.
+      List<ItemPropertyRecord> properties = (await Future.wait(
+              template.properties.keys.toList().map<Future<ItemPropertyRecord?>>((key) async {
+        ResolvedType? valueType = db.schema.expectedType(type, key);
+        if (valueType == null) {
+          return null;
+        }
+        if (valueType is ResolvedTypeProperty) {
+          var propertyType = valueType.value;
+          var propertyDatabaseValue = await () async {
+            switch (propertyType) {
+              case SchemaValueType.string:
+                var stringValue = await template.string(key);
+                if (stringValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueString(stringValue);
+              case SchemaValueType.bool:
+                var boolValue = await template.boolean(key);
+                if (boolValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueBool(boolValue);
+              case SchemaValueType.int:
+                var intValue = await template.integer(key);
+                if (intValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueInt(intValue);
+              case SchemaValueType.double:
+                var doubleValue = await template.number(key);
+                if (doubleValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueDouble(doubleValue);
+              case SchemaValueType.datetime:
+                var datetimeValue = await template.dateTime(key);
+                if (datetimeValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueDatetime(datetimeValue);
+              default:
+                return null;
+            }
+          }();
+          if (propertyDatabaseValue != null) {
+            return ItemPropertyRecord(
+                itemRowID: itemRowId, name: key, value: propertyDatabaseValue);
+          }
+        } else if (valueType is ResolvedTypeEdge) {
+          // todo migrate: Make sure this passes
+          var target = await template.item(key);
+          var targetRowId = target?.rowId;
+          if (targetRowId == null) {
+            return null;
+          }
+          await ItemEdgeRecord(
+                  selfRowID: itemRowId, sourceRowID: itemRowId, name: key, targetRowID: targetRowId)
+              .save();
+        }
+      })))
+          .compactMap<ItemPropertyRecord>();
+
+      await Future.forEach<ItemPropertyRecord>(properties, (property) async {
+        await property.save(db.databasePool);
+      });
+
+      var renderer = "generalEditor";
+      var viewDefinition =
+          AppController.shared.cvuController.viewDefinitionForItemRecord(itemRecord: item);
+      if (viewDefinition == null) {
+        return;
+      }
+      var defaultRenderer = viewDefinition.properties["defaultRenderer"];
+      if (defaultRenderer is CVUValueConstant) {
+        var defaultRendererValue = defaultRenderer.value;
+        if (defaultRendererValue is CVUConstantArgument) {
+          renderer = defaultRendererValue.value;
+        }
+      }
+
+      var newVars = Map.of(vars);
+      newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
+        "readOnly": CVUValueConstant(CVUConstantBool(false)),
+        "isEditing": CVUValueConstant(CVUConstantBool(true))
+      }));
+
+      await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
+          .execute(sceneController, context.replacingItem(item));
+
+      sceneController.isInEditMode.value = true;
+
+      // AppController.shared.syncController.sync();TODO sync
+    }
   }
 }
 
@@ -297,7 +436,7 @@ class CVUActionToggleEditMode extends CVUAction {
 
   @override
   void execute(SceneController sceneController, CVUContext context) {
-    // TODO: implement execute
+    sceneController.toggleEditMode();
   }
 }
 
@@ -519,6 +658,10 @@ class CVUActionOpenGroup extends CVUAction {
 
 class CVUActionShowContextPane extends CVUAction {
   Map<String, CVUValue> vars;
+
+  Map<String, CVUValue> get defaultVars {
+    return {"icon": CVUValueConstant(CVUConstantString("ellipsis"))};
+  }
 
   CVUActionShowContextPane({vars}) : this.vars = vars ?? {};
 

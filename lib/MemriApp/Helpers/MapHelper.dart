@@ -113,7 +113,7 @@ class MapHelper {
 
 class MapBoxObject {
   String id;
-  String addressNumber;
+  String? addressNumber;
   String text;
   String placeName;
   List<double>? bbox;
