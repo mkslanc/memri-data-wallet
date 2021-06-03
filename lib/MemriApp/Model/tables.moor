@@ -1,12 +1,12 @@
 CREATE TABLE items
 (
     row_id             INTEGER PRIMARY KEY,
-    id                 TEXT                    NOT NULL,
-    type               TEXT                    NOT NULL,
-    dateCreated        DATETIME /* datetime */ NOT NULL,
-    dateModified       DATETIME /* datetime */ NOT NULL,
-    dateServerModified DATETIME /* datetime */,
-    deleted            BOOLEAN /* boolean */   NOT NULL DEFAULT false
+    id                 TEXT     NOT NULL,
+    type               TEXT     NOT NULL,
+    dateCreated        DATETIME NOT NULL,
+    dateModified       DATETIME NOT NULL,
+    dateServerModified DATETIME,
+    deleted            BOOLEAN  NOT NULL DEFAULT false
 );
 CREATE
     UNIQUE INDEX idx_items_id on items (id);
@@ -95,19 +95,19 @@ CREATE VIRTUAL TABLE strings_search USING fts5
 );
 
 -- Triggers to keep the FTS index up to date.
-CREATE TRIGGER tbl_ai
+CREATE TRIGGER strings_search_after_insert
     AFTER INSERT
     ON strings
 BEGIN
     INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);
 END;
-CREATE TRIGGER tbl_bd
+CREATE TRIGGER strings_search_before_delete
     BEFORE DELETE
     ON strings
 BEGIN
     DELETE FROM strings_search WHERE name = old.name AND item = old.item;
 END;
-CREATE TRIGGER tbl_au
+CREATE TRIGGER strings_search_after_update
     AFTER UPDATE
     ON strings
 BEGIN
