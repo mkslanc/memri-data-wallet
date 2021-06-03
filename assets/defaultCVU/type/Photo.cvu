@@ -1,4 +1,11 @@
 Photo > list {
+    onPress: openView {
+        renderer: "photoViewer"
+        viewArguments: {
+            currentItem: {{.}}
+        }
+    }
+
     HStack {
         Image {
             image: {{.file}}
@@ -27,7 +34,7 @@ Photo > grid {
             currentItem: {{.}}
         }
     }
-        
+
     Image {
         image: {{.file}}
         sizingMode: fill
@@ -36,6 +43,13 @@ Photo > grid {
 }
 
 Photo > timeline {
+    onPress: openView {
+        renderer: "photoViewer"
+        viewArguments: {
+            currentItem: {{.}}
+        }
+    }
+
     Image {
         image: {{.}}
         sizingMode: fit

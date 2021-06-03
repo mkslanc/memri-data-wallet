@@ -95,16 +95,42 @@ Person {
         openView {
             icon: "increase.indent"
             title: "{$showtimeline}"
-            
+
             view: {
                 defaultRenderer: timeline
-                
+
                 [datasource = pod] {
-                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                    sortProperty: dateCreated
-                    sortAscending: true
+                    query: AuditItem
+                    filter: {
+                        edgeSources: {
+                            changelog: {{uid}}
+                        }
+                    }
                 }
-                
+
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        openView {
+            icon: "calendar"
+            title: "{$showtimeline}"
+
+            view: {
+                defaultRenderer: timeline
+
+                [datasource = pod] {
+                        query: EmailMessage Message Note Photo
+                        edgeTargetsOperator: "OR"
+                        filter: {
+                            edgeTargets: {
+                                sender: {{.account.uid}}
+                                includes: {{uid}}
+                            }
+                        }
+                    }
+
                 [renderer = timeline] {
                     timeProperty: dateCreated
                 }
@@ -112,57 +138,56 @@ Person {
         }
         showContextPane
     ]
-    
+
     contextPane {
+        title: "{.firstName} {.lastName}"
         buttons: star schedule
-        
-        action: [
-            showOverlay { title: "{$sharewith}" }
-            addToPanel { title: "{$addtolist}" }
-            duplicate { title: "{$duplicate} person" }
-        ]
-        
+        changeLog: "{.describeChangelog()}"
+
         navigate: [
             openView {
-                title: "{$timelineof} person"
+                title: "Person"
+                renderer: generalEditor
                 view: {
                     defaultRenderer: timeline
-                    
+
                      [datasource = pod] {
                         query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
-                    
+
                     [renderer = timeline] {
                         timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
-                title: "{$starred} persons"
+                title: "{$starred} {type.plural()}"
                 viewName: "filter-starred"
+                renderer: "grid"
                 viewArguments: {
-                    include: "all-person"
+                    include: "all-{type}"
                 }
             }
             openSessionByName {
-                title: "{$all} persons"
+                title: "All Persons"
                 sessionName: "all-person"
             }
         ]
+
+        labels: {{ .label[] }}
     }
-    
+
+
     /* end include */
-    
+
     [renderer = generalEditor] {
         layout: [
             { section: profilePicture, exclude: labels }
             { section: names, fields: firstName lastName }
             { section: picturesOfPerson }
             { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber }
-/*            { section: family, edges: family, show: {{ .family[] }} }*/
-/*            { section: relationships, edges: non-family }*/
             { section: relationships, edges: relationship, type: Person }
             { section: addresses, edges: address, type: Address }
             { section: websites, edges: website, type: Website }
@@ -173,16 +198,17 @@ Person {
             { section: onlineProfiles, edges: onlineProfile, type: OnlineProfile }
             { section: other, fields: * }
             { section: dates }
+            { section: changeLog }
         ]
 
         profilePicture {
             showTitle: false
-        
+
             HStack {
                 alignment: center
 				minHeight: 180
 				maxHeight: 180
-                
+
                 ZStack {
                     border: #fff 27
                     padding: 12
@@ -190,18 +216,18 @@ Person {
                     maxHeight: 140
                     cornerRadius: 25
                     alignment: center
-                
+
                     Image {
                         image: {{.profilePicture}}
                         sizingMode: fill
                     }
-                    
+
                     HStack {
                         alignment: center
                         maxWidth: 140
                         maxHeight: 140
                         show: {{!readOnly}}
-                    
+
                         ActionButton {
                             cornerRadius: 25
                             maxWidth: 50
@@ -210,11 +236,11 @@ Person {
                             color: #434343
                             alignment: center
                             font: 14 regular
-                            
+
                             onPress: openViewByName {
                                 renderAs: popup
                                 title: "Edit"
-                                
+
                                 viewName: "itemByQuery"
                                 viewArguments: {
                                     query: "Photo"
@@ -325,6 +351,37 @@ Person {
                 }
             }
         }
+
+        changeLog {
+            title: "Change Log"
+
+            SubView {
+                height: 165
+
+                view {
+                    viewName: AuditItem
+                    defaultRenderer: list
+
+                    [datasource = pod] {
+                        query: AuditItem
+                        filter: {
+                            edgeSources: {
+                                changelog: {{uid}}
+                            }
+                        }
+                    }
+                }
+                arguments: {
+                    showToolbar: false
+                    showBottomBar: false
+                    readOnly: true
+                }
+            }
+        }
+    }
+
+    [renderer = timeline] {
+        timeProperty: dateCreated
     }
 }
 
@@ -387,6 +444,19 @@ Person > list {
         }
     }
  }
+
+Person > timeline {
+    [datasource = pod] {
+        query: EmailMessage Message Note Photo
+        edgeTargetsOperator: "OR"
+        filter: {
+            edgeTargets: {
+                sender: {{.account.uid}}
+                includes: {{uid}}
+            }
+        }
+    }
+}
 
 .allPeople {
     title: "All People"
