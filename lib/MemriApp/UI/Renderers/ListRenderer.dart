@@ -6,6 +6,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
 
@@ -79,63 +80,66 @@ class _ListRendererViewState extends State<ListRendererView> {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: _init,
-        builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-            ? ValueListenableBuilder(
-                valueListenable: viewContext.itemsValueNotifier,
-                builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                  if (viewContext.items.isNotEmpty) {
-                    selectedIndices = selectedIndicesBinding.get();
-                    return Expanded(
-                        /*child: ListView.custom(
-                shrinkWrap: true,
-                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                childrenDelegate: SliverChildListDelegate(
-                    List<Widget>.from(viewContext.items.mapIndexed((index, item) => _buildItem(item, index)))),
-              )*/
-                        child: ListView.separated(
-                            shrinkWrap: true,
-                            // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                            padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                            itemBuilder: (context, index) {
-                              var item = viewContext.items[index];
-                              return _buildItem(item, index);
-                            },
-                            separatorBuilder: (context, index) => Divider(
-                                  height: separatorsEnabled ? 1 : 0,
-                                  color: separatorsEnabled ? null : Colors.transparent,
-                                ),
-                            itemCount: viewContext.items.length));
-                  } else {
-                    return Expanded(
-                        child: Padding(
-                      padding: EdgeInsets.all(30),
-                      child: Center(
-                        child: Text(
-                          "No items",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Color.fromRGBO(0, 0, 0, 0.7),
-                              backgroundColor: backgroundColor),
-                        ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ValueListenableBuilder(
+              valueListenable: viewContext.itemsValueNotifier,
+              builder: (context, value, child) {
+                if (viewContext.items.isNotEmpty) {
+                  selectedIndices = selectedIndicesBinding.get();
+                  var lastIndex = viewContext.items.length - 1;
+                  return Expanded(
+                      child: ListView.custom(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                    childrenDelegate: SliverChildListDelegate(List<Widget>.from(viewContext.items
+                        .mapIndexed((index, item) =>
+                            [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
+                        .expand((element) => element))),
+                  )
+                      //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
+                      /*child: ListView.separated(
+                      shrinkWrap: true,
+                      // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                      padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                      itemBuilder: (context, index) {
+                        var item = viewContext.items[index];
+                        return _buildItem(item, index);
+                      },
+                      separatorBuilder: (context, index) => _buildSeparator(),
+                      itemCount: viewContext.items.length)*/
+                      );
+                } else {
+                  return Expanded(
+                      child: Padding(
+                    padding: EdgeInsets.all(30),
+                    child: Center(
+                      child: Text(
+                        "No items",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                            color: Color.fromRGBO(0, 0, 0, 0.7),
+                            backgroundColor: backgroundColor),
                       ),
-                    ));
-                  }
-                })
-            : SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              ));
+                    ),
+                  ));
+                }
+              },
+            );
+          } else {
+            return SizedBox(
+              child: CircularProgressIndicator(),
+              width: 60,
+              height: 60,
+            );
+          }
+        });
   }
 
   Widget _buildItem(ItemRecord item, int index) {
     var title = ColoredBox(
-      key: Key(item.uid),
-      color: backgroundColor,
-      child: viewContext.render(item: item),
-    );
+        key: Key(item.uid), color: backgroundColor, child: viewContext.render(item: item));
     var callback = selectionMode(index);
     return isInEditMode
         ? CheckboxListTile(
@@ -166,6 +170,11 @@ class _ListRendererViewState extends State<ListRendererView> {
             ),
           );
   }
+
+  _buildSeparator() => Divider(
+        height: separatorsEnabled ? 1 : 0,
+        color: separatorsEnabled ? null : Colors.transparent,
+      );
 
   selectionMode(index) {
     if (isInEditMode) {
