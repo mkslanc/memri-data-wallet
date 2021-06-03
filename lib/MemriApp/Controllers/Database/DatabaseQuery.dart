@@ -96,21 +96,22 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   late DatabaseController dbController;
 
-  DatabaseQueryConfig({
-    this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
-    this.itemRowIDs = const {},
-    sortProperty = "dateModified",
-    sortAscending = false,
-    dateModifiedAfter,
-    dateModifiedBefore,
-    dateCreatedAfter,
-    dateCreatedBefore,
-    this.pageSize = 1000,
-    this.currentPage = 0,
-    this.searchString,
-    this.includeImmediateEdgeSearch = true,
-    this.conditions = const [],
-  })  : _sortAscending = sortAscending,
+  DatabaseQueryConfig(
+      {this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
+      this.itemRowIDs = const {},
+      sortProperty = "dateModified",
+      sortAscending = false,
+      dateModifiedAfter,
+      dateModifiedBefore,
+      dateCreatedAfter,
+      dateCreatedBefore,
+      this.pageSize = 1000,
+      this.currentPage = 0,
+      this.searchString,
+      this.includeImmediateEdgeSearch = true,
+      this.conditions = const [],
+      this.edgeTargetsOperator = ConditionOperator.and})
+      : _sortAscending = sortAscending,
         _sortProperty = sortProperty,
         _dateModifiedAfter = dateModifiedAfter,
         _dateModifiedBefore = dateModifiedBefore,
@@ -120,20 +121,20 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
     return DatabaseQueryConfig(
-      itemTypes: itemTypes,
-      itemRowIDs: itemRowIDs,
-      sortProperty: sortProperty,
-      sortAscending: sortAscending,
-      dateModifiedAfter: dateModifiedAfter,
-      dateModifiedBefore: dateModifiedBefore,
-      dateCreatedAfter: dateCreatedAfter,
-      dateCreatedBefore: dateCreatedBefore,
-      pageSize: pageSize,
-      currentPage: currentPage,
-      searchString: searchString,
-      includeImmediateEdgeSearch: includeImmediateEdgeSearch,
-      conditions: conditions,
-    );
+        itemTypes: itemTypes,
+        itemRowIDs: itemRowIDs,
+        sortProperty: sortProperty,
+        sortAscending: sortAscending,
+        dateModifiedAfter: dateModifiedAfter,
+        dateModifiedBefore: dateModifiedBefore,
+        dateCreatedAfter: dateCreatedAfter,
+        dateCreatedBefore: dateCreatedBefore,
+        pageSize: pageSize,
+        currentPage: currentPage,
+        searchString: searchString,
+        includeImmediateEdgeSearch: includeImmediateEdgeSearch,
+        conditions: conditions,
+        edgeTargetsOperator: edgeTargetsOperator);
   }
 
   _constructFilteredRequest([Set<int>? searchRowIDs]) async {
