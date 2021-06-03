@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUGrid.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUSubView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTextPropertiesModifier.dart';
 
 import 'CVUElements/CVUActionButton.dart';
@@ -99,7 +100,7 @@ class CVUElementView extends StatelessWidget {
       case CVUUIElementFamily.EditorRow:
         return CVUEditorRow(nodeResolver: nodeResolver);
       case CVUUIElementFamily.SubView:
-        return CVUEditorRow(nodeResolver: nodeResolver);
+        return CVUSubView(nodeResolver: nodeResolver);
       case CVUUIElementFamily.MemriButton:
         return CVUMemriButton(nodeResolver: nodeResolver);
       case CVUUIElementFamily.ActionButton:
