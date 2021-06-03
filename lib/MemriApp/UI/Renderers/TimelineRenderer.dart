@@ -90,7 +90,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
                       if (element.isGroup) {
                         CVUActionOpenView(
                                 renderer: "list",
-                                uids: Set.from(element.items.map((item) => item.uid)))
+                                uids: Set.from(element.items.map((item) => item.rowId)))
                             .execute(widget.sceneController, widget.viewContext.getCVUContext());
                       } else if (element.items.length > 0) {
                         var item = element.items.first;
