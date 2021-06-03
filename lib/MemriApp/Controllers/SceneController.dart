@@ -205,7 +205,7 @@ class SceneController extends ChangeNotifier {
         CVUDefinitionContent();
 
     var newContext = CVUContext(
-        currentItem: null,
+        currentItem: targetItem,
         selector: null,
         viewName: viewName,
         viewDefinition: viewDefinition,
@@ -228,6 +228,7 @@ class SceneController extends ChangeNotifier {
     var rowIdList = overrideRowIDs ?? Set.of((await datasourceResolver?.intArray("uids")) ?? []);
 
     var filterDef = datasourceResolver?.subdefinition("filter");
+
     var edgeTargets = filterDef?.subdefinition("edgeTargets");
     var edgeTargetConditions =
         (await Future.wait((edgeTargets?.properties.keys.toList() ?? []).map((key) async {
@@ -238,6 +239,18 @@ class SceneController extends ChangeNotifier {
       return DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target));
     })))
             .whereType<DatabaseQueryConditionEdgeHasTarget>()
+            .toList();
+
+    var edgeSources = filterDef?.subdefinition("edgeSources");
+    var edgeSourceConditions =
+        (await Future.wait((edgeSources?.properties.keys.toList() ?? []).map((key) async {
+      var source = await edgeSources!.integer(key);
+      if (source == null) {
+        return null;
+      }
+      return DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source));
+    })))
+            .whereType<DatabaseQueryConditionEdgeHasSource>()
             .toList();
 
     var properties = filterDef?.subdefinition("properties");
@@ -269,6 +282,15 @@ class SceneController extends ChangeNotifier {
     if (rowIdList.isNotEmpty) {
       queryConfig.itemRowIDs = rowIdList;
     }
+    var edgeTargetsOperator = datasourceResolver?.properties["edgeTargetsOperator"];
+    if (edgeTargetsOperator != null &&
+        edgeTargetsOperator is CVUValueConstant &&
+        edgeTargetsOperator.value is CVUConstantString) {
+      var operator = (edgeTargetsOperator.value as CVUConstantString).value;
+      queryConfig.edgeTargetsOperator =
+          operator == "OR" ? ConditionOperator.or : ConditionOperator.and;
+    }
+
     var sortProperty = await datasourceResolver?.string("sortProperty");
     if (sortProperty != null) {
       queryConfig.sortProperty = sortProperty;
@@ -283,7 +305,10 @@ class SceneController extends ChangeNotifier {
       queryConfig.dateModifiedBefore = dateRange.end;
     }
     if (edgeTargetConditions.isNotEmpty || propertyConditions.isNotEmpty) {
-      queryConfig.conditions = []..addAll(edgeTargetConditions)..addAll(propertyConditions);
+      queryConfig.conditions = []
+        ..addAll(edgeTargetConditions)
+        ..addAll(edgeSourceConditions)
+        ..addAll(propertyConditions);
     }
 
     var config = ViewContext(

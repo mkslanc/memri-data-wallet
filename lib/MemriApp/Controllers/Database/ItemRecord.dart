@@ -124,6 +124,7 @@ class ItemRecord with EquatableMixin {
       if (value != null) {
         itemPropertyRecord.$value = value;
         await itemPropertyRecord.save(db.databasePool);
+        await addChangeLog(name, value, db); //TODO: maybe we need audit for all actions
       } else {
         await itemPropertyRecord.delete(db.databasePool);
       }
@@ -304,5 +305,22 @@ class ItemRecord with EquatableMixin {
     }
 
     return await ItemRecord.fetchWithRowID(edge.target, dbController);
+  }
+
+  addChangeLog(String name, PropertyDatabaseValue? value,
+      [DatabaseController? dbController]) async {
+    dbController ??= AppController.shared.databaseController;
+    var auditItem = ItemRecord(type: "AuditItem");
+    await auditItem.save(dbController.databasePool);
+    if (rowId == null || auditItem.rowId == null) {
+      throw Exception("Add changelog: Item doesn't have row id, possibly not saved?");
+    }
+
+    await auditItem.setPropertyValue(
+        "date", PropertyDatabaseValueDatetime(DateTime.now()), dbController);
+    await auditItem.setPropertyValue("content", PropertyDatabaseValueString(name), dbController);
+    await auditItem.setPropertyValue("action", PropertyDatabaseValueString("edit"), dbController);
+    await ItemEdgeRecord(sourceRowID: rowId, name: "changelog", targetRowID: auditItem.rowId)
+        .save(dbController.databasePool);
   }
 }

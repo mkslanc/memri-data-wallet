@@ -8,6 +8,8 @@ import 'package:moor/moor.dart';
 import 'ItemRecord.dart';
 import 'Schema.dart';
 
+enum ConditionOperator { and, or }
+
 /// This type is used to describe a database query.
 class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of item types to include. Default is Empty -> ALL item types
@@ -89,6 +91,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   /// A list of conditions. eg. property name = "Demo note"
   List<DatabaseQueryCondition> conditions = [];
+
+  ConditionOperator edgeTargetsOperator = ConditionOperator.and;
 
   late DatabaseController dbController;
 
@@ -208,9 +212,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<int> rowIds = [];
     itemRecords.forEach((itemRecord) => rowIds.add(itemRecord.rowId!));
 
-    // Property conditions TODO
     // Property and edges conditions
-    var queryPropertyConditions = [];
+    List<List<int>> allConditionsItemsRowIds = [];
+    List<List<int>> edgeConditionsItemsRowIds = [];
     await Future.forEach(conditions, (DatabaseQueryCondition condition) async {
       var info, query;
       List<Variable<dynamic>> binding = [];
@@ -219,32 +223,43 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         info = condition.value;
         query = "name = ? AND value = ? AND item IN (${rowIds.join(", ")})";
         binding = [Variable.withString(info.name), Variable(info.value)];
-        queryPropertyConditions
-            .add(await dbController.databasePool.itemPropertyRecordsCustomSelect(query, binding));
+        allConditionsItemsRowIds.add(
+            (await dbController.databasePool.itemPropertyRecordsCustomSelect(query, binding))
+                .map((el) => el.item)
+                .whereType<int>()
+                .toList());
       } else if (condition is DatabaseQueryConditionEdgeHasTarget) {
-        //TODO: need to watch use cases
         info = condition.value;
         query = "name = ? AND target = ? AND source IN (${rowIds.join(", ")})";
         binding = [Variable(info.edgeName), Variable(info.target)];
-        queryPropertyConditions
-            .add(await dbController.databasePool.edgeRecordsCustomSelect(query, binding));
+        edgeConditionsItemsRowIds.add(
+            (await dbController.databasePool.edgeRecordsCustomSelect(query, binding))
+                .map((el) => el.source)
+                .whereType<int>()
+                .toList());
+      } else if (condition is DatabaseQueryConditionEdgeHasSource) {
+        info = condition.value;
+        query = "name = ? AND source = ? AND target IN (${rowIds.join(", ")})";
+        binding = [Variable(info.edgeName), Variable(info.source)];
+        edgeConditionsItemsRowIds.add(
+            (await dbController.databasePool.edgeRecordsCustomSelect(query, binding))
+                .map((el) => el.target)
+                .whereType<int>()
+                .toList());
       }
     });
+    if (edgeConditionsItemsRowIds.isNotEmpty) {
+      if (edgeTargetsOperator == ConditionOperator.or) {
+        var uniqueRowIds = <int>{};
+        uniqueRowIds.addAll(edgeConditionsItemsRowIds.expand((element) => element));
+        allConditionsItemsRowIds.addAll([uniqueRowIds.toList()]);
+      } else {
+        allConditionsItemsRowIds.addAll(edgeConditionsItemsRowIds);
+      }
+    }
 
     List<int> filteredIds = [];
-    if (queryPropertyConditions.isNotEmpty) {
-      List<List<int>> allConditionsItemsRowIds = [];
-      queryPropertyConditions.forEach((conditions) {
-        List<int> itemsRowIds = [];
-        conditions.forEach((el) {
-          if (el is Edge) {
-            itemsRowIds.add(el.source);
-          } else {
-            itemsRowIds.add(el.item);
-          }
-        });
-        allConditionsItemsRowIds.add(itemsRowIds);
-      });
+    if (allConditionsItemsRowIds.isNotEmpty) {
       filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
       if (filteredIds.length == 0) {
         return [];
@@ -369,6 +384,12 @@ class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
   DatabaseQueryConditionEdgeHasTarget(this.value);
 }
 
+class DatabaseQueryConditionEdgeHasSource extends DatabaseQueryCondition {
+  EdgeHasSource value;
+
+  DatabaseQueryConditionEdgeHasSource(this.value);
+}
+
 class PropertyEquals {
   String name;
   dynamic value;
@@ -381,4 +402,11 @@ class EdgeHasTarget {
   int target;
 
   EdgeHasTarget(this.edgeName, this.target);
+}
+
+class EdgeHasSource {
+  String edgeName;
+  int source;
+
+  EdgeHasSource(this.edgeName, this.source);
 }
