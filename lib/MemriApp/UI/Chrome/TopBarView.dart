@@ -10,11 +10,22 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
+import '../ViewContextController.dart';
+
 /// This view provides the 'Navigation Bar' for the app interface
+// ignore: must_be_immutable
 class TopBarView extends StatelessWidget {
   final SceneController sceneController;
+  late ViewContextController? viewContext;
 
   TopBarView({required this.sceneController});
+
+  Future<String?> get _title async {
+    return await sceneController.topMostContext?.viewDefinitionPropertyResolver.string("title") ??
+        (viewContext?.focusedItem != null
+            ? await viewContext!.itemPropertyResolver?.string("title")
+            : "");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +35,7 @@ class TopBarView extends StatelessWidget {
         children: [
           ValueListenableBuilder(
             builder: (BuildContext context, bool value, Widget? child) {
-              var viewContext = sceneController.topMostContext;
+              viewContext = sceneController.topMostContext;
               var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
               return ColoredBox(
                 color: Color(0xfff2f2f7),
@@ -60,8 +71,7 @@ class TopBarView extends StatelessWidget {
                             ],
                           ),
                           FutureBuilder(
-                              future: sceneController.topMostContext?.viewDefinitionPropertyResolver
-                                  .string("title"),
+                              future: _title,
                               builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
                                 if (snapshot.hasData) {
                                   return Expanded(

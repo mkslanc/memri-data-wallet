@@ -77,6 +77,8 @@ extension MemriIcon on IconData {
         return Icons.cloud_queue;
       case 'ellipsis':
         return Icons.more_horiz;
+      case 'calendar':
+        return Icons.calendar_today;
       default:
         print("Unknown icon $iconName");
         return Icons.contact_support_rounded;
