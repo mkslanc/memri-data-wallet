@@ -22,6 +22,7 @@ import 'Renderers/NoteEditorRenderer.dart';
 import 'Renderers/PhotoViewerRenderer.dart';
 import 'Renderers/SingleItemRenderer.dart';
 import 'Renderers/TimelineRenderer.dart';
+import 'UIHelpers/utilities.dart';
 import 'ViewContextController.dart';
 
 class SceneContentView extends StatefulWidget {
@@ -37,6 +38,9 @@ class SceneContentView extends StatefulWidget {
 class _SceneContentViewState extends State<SceneContentView> {
   SceneController sceneController;
   ViewContextController viewContext;
+  late final Future _init;
+  late bool showBottomBar;
+  late bool showContextualBottomBar;
 
   _SceneContentViewState(this.sceneController, this.viewContext);
 
@@ -48,6 +52,12 @@ class _SceneContentViewState extends State<SceneContentView> {
     super.initState();
     viewContext.onAppear();
     viewContext.addListener(updateState);
+    _init = init();
+  }
+
+  init() async {
+    showBottomBar = await _showBottomBar;
+    showContextualBottomBar = await _showContextualBottomBar;
   }
 
   @override
@@ -98,6 +108,15 @@ class _SceneContentViewState extends State<SceneContentView> {
 
   //TODO onAppear, onDisappear
 
+  Future<bool> get _showContextualBottomBar async {
+    return await viewContext.viewDefinitionPropertyResolver.boolean("showContextualBottomBar") ??
+        true;
+  }
+
+  Future<bool> get _showBottomBar async {
+    return await viewContext.viewDefinitionPropertyResolver.boolean("showBottomBar") ?? true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -107,12 +126,20 @@ class _SceneContentViewState extends State<SceneContentView> {
             builder: (BuildContext context, value, Widget? child) {
               return value
                   ? SearchView(viewContext: viewContext, isActive: searchBarOpen)
-                  : BottomBarView(
-                      viewContext: viewContext,
-                      onSearchPressed: () {
-                        searchBarOpen.value = true;
-                      },
-                    );
+                  : FutureBuilder(
+                      future: _init,
+                      builder: (BuildContext builder, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (showBottomBar)
+                            return BottomBarView(
+                              viewContext: viewContext,
+                              onSearchPressed: () {
+                                searchBarOpen.value = true;
+                              },
+                            );
+                        }
+                        return Empty();
+                      });
             },
             valueListenable: searchBarOpen)
       ],
