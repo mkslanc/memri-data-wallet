@@ -1739,15 +1739,15 @@ abstract class _$Database extends GeneratedDatabase {
   late final Index idxRealsNameItem =
       Index('idx_reals_name_item', 'CREATE\r\nINDEX idx_reals_name_item on reals(name, item);');
   late final StringsSearch stringsSearch = StringsSearch(this);
-  late final Trigger tblAi = Trigger(
-      'CREATE TRIGGER tbl_ai AFTER INSERT ON strings BEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
-      'tbl_ai');
-  late final Trigger tblAd = Trigger(
-      'CREATE TRIGGER tbl_ad AFTER DELETE ON strings BEGIN\r\n    INSERT INTO strings_search(strings_search, item, name, value) VALUES(\'delete\', old.item, old.name, old.value);\r\nEND;',
-      'tbl_ad');
-  late final Trigger tblAu = Trigger(
-      'CREATE TRIGGER tbl_au AFTER UPDATE ON strings BEGIN\r\n    INSERT INTO strings_search(strings_search, item, name, value) VALUES(\'delete\', old.item, old.name, old.value);\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
-      'tbl_au');
+  late final Trigger stringsSearchAfterInsert = Trigger(
+      'CREATE TRIGGER strings_search_after_insert AFTER INSERT ON strings BEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
+      'strings_search_after_insert');
+  late final Trigger stringsSearchBeforeDelete = Trigger(
+      'CREATE TRIGGER strings_search_before_delete BEFORE DELETE ON strings BEGIN\r\n     DELETE FROM strings_search WHERE name = old.name AND item = old.item;\r\nEND;',
+      'strings_search_before_delete');
+  late final Trigger stringsSearchAfterUpdate = Trigger(
+      'CREATE TRIGGER strings_search_after_update AFTER UPDATE ON strings BEGIN\r\n    UPDATE strings_search SET item = new.item, name = new.name, value = new.value WHERE item = new.item AND name = new.name;\r\nEND;',
+      'strings_search_after_update');
   late final NavigationState navigationState = NavigationState(this);
 
   @override
@@ -1774,9 +1774,9 @@ abstract class _$Database extends GeneratedDatabase {
         idxRealsNameValue,
         idxRealsNameItem,
         stringsSearch,
-        tblAi,
-        tblAd,
-        tblAu,
+        stringsSearchAfterInsert,
+        stringsSearchBeforeDelete,
+        stringsSearchAfterUpdate,
         navigationState
       ];
 

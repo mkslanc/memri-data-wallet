@@ -30,7 +30,7 @@ class AppController {
   static String keychainDatabaseKey = "memri_databaseKey";
 
   AppController() {
-    databaseController = DatabaseController(inMemory: true);
+    databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
     cvuController = CVUController();
     cvuController.init();
@@ -61,9 +61,9 @@ class AppController {
         if (await databaseController.databaseIsSetup) {
           // If there is already data set up, don't import
           onCompletion(null);
-          return;
+        } else {
+          await DemoData.importDemoData(databaseController: databaseController);
         }
-        await DemoData.importDemoData(databaseController: databaseController);
       } on Exception catch (error) {
         onCompletion(error);
         return;

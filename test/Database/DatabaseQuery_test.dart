@@ -56,6 +56,32 @@ void main() {
         "content", PropertyDatabaseValueString("TESTING 123"), databaseController);
   });
 
+  test('testSearchAfterInsert', () async {
+    var newNote = ItemRecord(type: "Note");
+    await newNote.save(databaseController.databasePool);
+    await newNote.setPropertyValue(
+        "content", PropertyDatabaseValueString("TESTING123"), databaseController);
+    var queryDef = await databaseController.search("TESTING123");
+    expect(queryDef.length, equals(1));
+  });
+
+  test('testSearchAfterUpdate', () async {
+    var queryDef = await databaseController.search("trailhead first");
+    var result = queryDef[0];
+    await result.setPropertyValue(
+        "content", PropertyDatabaseValueString("TESTING123"), databaseController);
+    var searchResults = await databaseController.search("TESTING123");
+    expect(searchResults.length, equals(1));
+  });
+
+  test('testSearchAfterDelete', () async {
+    var queryDef = await databaseController.search("trailhead first");
+    var result = queryDef[0];
+    await result.setPropertyValue("content", null, databaseController);
+    var searchResults = await databaseController.search("trailhead");
+    expect(searchResults.length, equals(0));
+  });
+
   tearDown(() async {
     databaseController.databasePool.close();
   });

@@ -98,7 +98,7 @@ class Database extends _$Database {
     var property = await itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(record.name), Variable(record.itemRowID)]);
     if (property.length > 0) {
-      return (update(data.table)
+      return await (update(data.table)
             ..where((tbl) {
               if (tbl is Integers) {
                 //TODO find a way to avoid this?
