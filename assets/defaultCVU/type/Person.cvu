@@ -370,12 +370,14 @@ Person {
                             }
                         }
                     }
+
+                    arguments: {
+                        showToolbar: false
+                        showBottomBar: false
+                        readOnly: true
+                    }
                 }
-                arguments: {
-                    showToolbar: false
-                    showBottomBar: false
-                    readOnly: true
-                }
+
             }
         }
     }

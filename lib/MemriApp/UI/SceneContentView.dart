@@ -114,7 +114,12 @@ class _SceneContentViewState extends State<SceneContentView> {
   }
 
   Future<bool> get _showBottomBar async {
-    return await viewContext.viewDefinitionPropertyResolver.boolean("showBottomBar") ?? true;
+    var subViewShowBottomBar = await viewContext.viewDefinitionPropertyResolver
+        .subdefinition("arguments")
+        ?.boolean("showBottomBar");
+    return await viewContext.viewDefinitionPropertyResolver.boolean("showBottomBar") ??
+        subViewShowBottomBar ??
+        true;
   }
 
   @override
