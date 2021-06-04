@@ -84,9 +84,9 @@ class _CVUImageState extends State<CVUImage> {
         builder: (BuildContext builder, snapshot) {
           if (fileImageURL != null) {
             return Image(
-                image: ResizeImage(AssetImage(fileImageURL!),
-                    width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
-                fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
+              image: ResizeImage(AssetImage(fileImageURL!),
+                  width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
+              fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
             );
           } else if (bundleImage != null) {
             return Image(image: bundleImage!);

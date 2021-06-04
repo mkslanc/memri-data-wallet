@@ -28,16 +28,22 @@ class CVUSubView extends StatefulWidget {
 }
 
 class _CVUSubViewState extends State<CVUSubView> {
-  late final Point spacing;
-  late final List<ItemRecord>? items;
-  late final String? content;
-  late final String? title;
-  late final Future _init;
+  late Point spacing;
+  late List<ItemRecord>? items;
+  late String? content;
+  late String? title;
+  late Future _init;
   late Widget renderer;
 
   @override
   initState() {
     super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init = init();
   }
 

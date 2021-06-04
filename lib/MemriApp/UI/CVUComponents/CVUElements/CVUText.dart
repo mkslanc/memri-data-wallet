@@ -20,7 +20,7 @@ class CVUText extends StatefulWidget {
 }
 
 class _CVUTextState extends State<CVUText> {
-  late final TextProperties resolvedTextProperties;
+  late TextProperties resolvedTextProperties;
 
   Color? color;
 
@@ -79,7 +79,7 @@ class CVUSmartText extends StatefulWidget {
 }
 
 class _CVUSmartTextState extends State<CVUSmartText> {
-  late final TextProperties resolvedTextProperties;
+  late TextProperties resolvedTextProperties;
 
   String? content;
 
