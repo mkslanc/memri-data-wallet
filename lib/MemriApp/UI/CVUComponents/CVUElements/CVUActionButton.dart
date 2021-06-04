@@ -18,7 +18,6 @@ import '../CVUUINodeResolver.dart';
 /// - Use the `onPress` property to provide a CVU Action for the button
 // ignore: must_be_immutable
 class CVUActionButton extends StatefulWidget {
-  //TODO: stateful
   final CVUUINodeResolver nodeResolver;
 
   CVUActionButton({required this.nodeResolver});
