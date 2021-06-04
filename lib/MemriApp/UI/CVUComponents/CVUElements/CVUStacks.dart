@@ -10,46 +10,52 @@ import '../CVUUINodeResolver.dart';
 /// - set the `alignment` property to `top`, `center`, or `bottom`
 /// - set the `fillWidth` property to `true` if the stack should fill all available width
 
-class CVUHStack extends StatelessWidget {
+class CVUHStack extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  late final AlignmentResolver alignment;
-  late final Point? spacing;
-  late final bool fillWidth;
 
   CVUHStack({required this.nodeResolver});
 
-  init(String alignType) async {
-    alignment = await nodeResolver.propertyResolver.alignment(alignType);
-    spacing = await nodeResolver.propertyResolver.spacing;
-    fillWidth = (await nodeResolver.propertyResolver.boolean("fillWidth", false))!;
+  @override
+  _CVUHStackState createState() => _CVUHStackState();
+}
+
+class _CVUHStackState extends State<CVUHStack> {
+  AlignmentResolver? alignment;
+
+  Point? spacing;
+
+  bool fillWidth = false;
+
+  late Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  init() async {
+    alignment = await widget.nodeResolver.propertyResolver.alignment("row");
+    spacing = await widget.nodeResolver.propertyResolver.spacing;
+    fillWidth = (await widget.nodeResolver.propertyResolver.boolean("fillWidth", false))!;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init("row"),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              Widget widget = Row(
-                mainAxisAlignment: alignment.mainAxis,
-                crossAxisAlignment: alignment.crossAxis,
-                children: space(spacing?.x.toDouble() ?? 10 /*TODO default spacing*/,
-                    nodeResolver.childrenInForEach()),
-              );
-              return widget;
-            /* TODO:
+          return Row(
+            mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
+            crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
+            children: space(spacing?.x.toDouble() ?? 10 /*TODO default spacing*/,
+                widget.nodeResolver.childrenInForEach()),
+          );
+          /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillWidth", defaultValue: false)) {
             $0.frame(maxWidth: .infinity, alignment: nodeResolver.propertyResolver.alignment())
         }
     }*/
-            default:
-              return SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              );
-          }
         });
   }
 }
@@ -57,79 +63,90 @@ class CVUHStack extends StatelessWidget {
 /// A CVU element for displaying multiple children in a Vertical Stack
 /// - set the `alignment` property to `leading`, `center`, or `trailing`
 /// - set the `fillHeight` property to `true` if the stack should fill all available height
-class CVUVStack extends StatelessWidget {
+class CVUVStack extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  late final AlignmentResolver alignment;
-  late final Point? spacing;
 
   CVUVStack({required this.nodeResolver});
 
-  init(String alignType) async {
-    alignment = await nodeResolver.propertyResolver.alignment(alignType);
-    spacing = await nodeResolver.propertyResolver.spacing;
+  @override
+  _CVUVStackState createState() => _CVUVStackState();
+}
+
+class _CVUVStackState extends State<CVUVStack> {
+  AlignmentResolver? alignment;
+
+  Point? spacing;
+
+  late Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  init() async {
+    alignment = await widget.nodeResolver.propertyResolver.alignment("column");
+    spacing = await widget.nodeResolver.propertyResolver.spacing;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init("column"),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(
-                mainAxisAlignment: alignment.mainAxis,
-                crossAxisAlignment: alignment.crossAxis,
-                children: space(
-                    spacing?.y.toDouble() ?? 10, nodeResolver.childrenInForEach(), Axis.vertical),
-              );
-            /* TODO:
+          return Column(
+            mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
+            crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
+            children: space(spacing?.y.toDouble() ?? 10, widget.nodeResolver.childrenInForEach(),
+                Axis.vertical),
+          );
+          /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
             $0.frame(maxHeight: .infinity, alignment: nodeResolver.propertyResolver.alignment())
         }
     }*/
-            default:
-              return SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              );
-          }
         });
   }
 }
 
 /// A CVU element for displaying multiple children overlayed on each-other
 /// - set the `alignment` property to align to any corner, edge, or center
-class CVUZStack extends StatelessWidget {
+class CVUZStack extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-
-  //late final AlignmentResolver alignment;
-  late final Point? spacing;
 
   CVUZStack({required this.nodeResolver});
 
+  @override
+  _CVUZStackState createState() => _CVUZStackState();
+}
+
+class _CVUZStackState extends State<CVUZStack> {
+  Point? spacing;
+
+  //late final AlignmentResolver alignment;
+
+  late Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   init() async {
-    spacing = await nodeResolver.propertyResolver.spacing;
+    spacing = await widget.nodeResolver.propertyResolver.spacing;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Stack(
-                alignment: Alignment.center,
-                children: nodeResolver.childrenInForEach(),
-              );
-            default:
-              return SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              );
-          }
+          return Stack(
+            alignment: Alignment.center,
+            children: widget.nodeResolver.childrenInForEach(),
+          );
         });
   }
 }

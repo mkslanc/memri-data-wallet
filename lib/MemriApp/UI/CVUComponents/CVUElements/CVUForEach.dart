@@ -10,7 +10,7 @@ import '../CVUUINodeResolver.dart';
 /// - use this inside a HStack or VStack
 /// - set the `items` property to an expression resolving to a list of items
 /// - any child elements will be repeated for each item. The `.` in any expressions will resolve to each particular item being shown within the ForEach
-class CVUForEach extends StatelessWidget {
+class CVUForEach extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
 
   CVUForEach({required this.nodeResolver, required this.getWidget});
@@ -18,23 +18,36 @@ class CVUForEach extends StatelessWidget {
   final Widget Function(List<Widget> children) getWidget;
 
   @override
+  _CVUForEachState createState() => _CVUForEachState();
+}
+
+class _CVUForEachState extends State<CVUForEach> {
+  late final Future<List<ItemRecord>> _items;
+
+  @override
+  initState() {
+    super.initState();
+    _items = widget.nodeResolver.propertyResolver.items("items");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: nodeResolver.propertyResolver.items("items"),
+        future: _items,
         builder: (BuildContext builder, AsyncSnapshot<List<ItemRecord>> snapshot) {
           if (snapshot.hasData) {
             var items = snapshot.requireData;
             if (items.isNotEmpty) {
-              return getWidget(items
+              return widget.getWidget(items
                   .map((item) {
-                    var context = nodeResolver.context.replacingItem(item);
-                    return nodeResolver.node.children
+                    var context = widget.nodeResolver.context.replacingItem(item);
+                    return widget.nodeResolver.node.children
                         .map((child) => CVUElementView(
                             nodeResolver: CVUUINodeResolver(
                                 context: context,
-                                lookup: nodeResolver.lookup,
+                                lookup: widget.nodeResolver.lookup,
                                 node: child,
-                                db: nodeResolver.db)))
+                                db: widget.nodeResolver.db)))
                         .toList();
                   })
                   .expand((element) => element)

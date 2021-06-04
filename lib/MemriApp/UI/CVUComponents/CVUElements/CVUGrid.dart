@@ -7,27 +7,46 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import '../CVUUINodeResolver.dart';
 import 'CVUForEach.dart';
 
-class CVUGrid extends StatelessWidget with StackWidget {
+class CVUGrid extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  late final List<ItemRecord> items;
-  late final Axis axis;
-  late final String emptyText;
-  late final Point spacing;
 
   CVUGrid({required this.nodeResolver});
 
+  @override
+  _CVUGridState createState() => _CVUGridState();
+}
+
+class _CVUGridState extends State<CVUGrid> with StackWidget {
+  late final List<ItemRecord> items;
+
+  late final Axis axis;
+
+  late final String emptyText;
+
+  late final Point spacing;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    nodeResolver = widget.nodeResolver;
+    _init = init();
+  }
+
   init() async {
-    items = await nodeResolver.propertyResolver.items("items");
+    items = await widget.nodeResolver.propertyResolver.items("items");
     axis = await _axis;
-    emptyText = await nodeResolver.propertyResolver.string("emptyResultText") ?? "No results";
-    spacing = await nodeResolver.propertyResolver.spacing ?? Point(0, 0);
+    emptyText =
+        await widget.nodeResolver.propertyResolver.string("emptyResultText") ?? "No results";
+    spacing = await widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
     //TODO: minColumnHeight, maxColumnHeight
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (items.isNotEmpty) {
@@ -72,7 +91,7 @@ class CVUGrid extends StatelessWidget with StackWidget {
   }
 
   Future<Axis> get _axis async {
-    switch (await nodeResolver.propertyResolver.string("axis")) {
+    switch (await widget.nodeResolver.propertyResolver.string("axis")) {
       case "vertical":
         return Axis.vertical;
       default:

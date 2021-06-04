@@ -1,60 +1,84 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
 /// Modifier used to apply common CVU properties (such as sizing, padding, colors, opacity, etc)
-class CVUAppearanceModifier {
-  CVUUINodeResolver nodeResolver;
+class CVUAppearanceModifier extends StatefulWidget {
+  final CVUUINodeResolver nodeResolver;
+  final Widget child;
 
-  CVUAppearanceModifier({required this.nodeResolver});
+  CVUAppearanceModifier({required this.nodeResolver, required this.child});
 
+  @override
+  _CVUAppearanceModifierState createState() => _CVUAppearanceModifierState();
+}
+
+class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
   late EdgeInsets padding;
+
   late Color backgroundColor;
+
   late double minWidth;
+
   late double maxWidth;
+
   late double minHeight;
+
   late double maxHeight;
+
   late double cornerRadius;
+
   late double opacity;
+
   late double? shadow;
+
   late Color? border;
+
   late Offset offset;
 
-  init() async {
-    padding = await nodeResolver.propertyResolver.padding;
-    backgroundColor =
-        (await nodeResolver.propertyResolver.backgroundColor) ?? CVUColor.system("clear");
-    minWidth = await nodeResolver.propertyResolver.minWidth ?? 0;
-    maxWidth = await nodeResolver.propertyResolver.maxWidth ?? double.infinity;
-    minHeight = await nodeResolver.propertyResolver.minHeight ?? 0;
-    maxHeight = await nodeResolver.propertyResolver.maxHeight ?? double.infinity;
-    cornerRadius = await nodeResolver.propertyResolver.cornerRadius;
-    opacity = await nodeResolver.propertyResolver.opacity;
-    shadow = await nodeResolver.propertyResolver.shadow;
-    border = await nodeResolver.propertyResolver.borderColor;
-    offset = await nodeResolver.propertyResolver.offset;
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
   }
 
-  Widget body(Widget child) {
-    var widget = child;
+  init() async {
+    padding = await widget.nodeResolver.propertyResolver.padding;
+    backgroundColor =
+        (await widget.nodeResolver.propertyResolver.backgroundColor) ?? CVUColor.system("clear");
+    minWidth = await widget.nodeResolver.propertyResolver.minWidth ?? 0;
+    maxWidth = await widget.nodeResolver.propertyResolver.maxWidth ?? double.infinity;
+    minHeight = await widget.nodeResolver.propertyResolver.minHeight ?? 0;
+    maxHeight = await widget.nodeResolver.propertyResolver.maxHeight ?? double.infinity;
+    cornerRadius = await widget.nodeResolver.propertyResolver.cornerRadius;
+    opacity = await widget.nodeResolver.propertyResolver.opacity;
+    shadow = await widget.nodeResolver.propertyResolver.shadow;
+    border = await widget.nodeResolver.propertyResolver.borderColor;
+    offset = await widget.nodeResolver.propertyResolver.offset;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var childWidget = widget.child;
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (shadow != null) {
-              widget = PhysicalModel(
+              childWidget = PhysicalModel(
                 color: backgroundColor,
                 elevation: shadow!,
-                child: widget,
+                child: childWidget,
               );
             }
             if (offset != Offset.zero) {
-              widget = Transform.translate(offset: offset, child: widget);
+              childWidget = Transform.translate(offset: offset, child: childWidget);
             }
-            widget = Container(
+            childWidget = Container(
                 constraints: BoxConstraints(
                     maxHeight: maxHeight,
                     minHeight: minHeight,
@@ -66,18 +90,16 @@ class CVUAppearanceModifier {
                     border: border != null ? Border.all(color: border!) : null),
                 child: Opacity(
                   opacity: opacity,
-                  child: widget,
+                  child: childWidget,
                 ));
             if (cornerRadius > 0) {
-              widget = ClipRRect(
+              childWidget = ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
-                child: widget,
+                child: childWidget,
               );
             }
-            return widget;
-          } else {
-            return Empty();
           }
+          return childWidget;
         });
 
     /* TODO .ifLet(nodeResolver.propertyResolver.zIndex) { $0.zIndex($1) }*/

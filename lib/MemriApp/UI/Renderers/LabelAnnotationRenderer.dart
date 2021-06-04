@@ -215,9 +215,12 @@ class LabelSelectionView extends StatefulWidget {
 }
 
 class _LabelSelectionViewState extends State<LabelSelectionView> {
+  late Future<List<LabelOption>> options;
+
   @override
   void initState() {
     super.initState();
+    options = widget.options;
     widget.onAppear();
   }
 
@@ -250,7 +253,7 @@ class _LabelSelectionViewState extends State<LabelSelectionView> {
           child: Opacity(
             opacity: widget.enabled ? 1 : 0.4,
             child: FutureBuilder<List<LabelOption>>(
-              future: widget.options,
+              future: options,
               builder: (context, AsyncSnapshot<List<LabelOption>> snapshot) =>
                   snapshot.connectionState == ConnectionState.done
                       ? ValueListenableBuilder<Set<String>>(

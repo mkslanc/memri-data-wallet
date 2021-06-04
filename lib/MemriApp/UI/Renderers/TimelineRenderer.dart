@@ -30,10 +30,13 @@ class TimelineRendererView extends StatefulWidget {
 }
 
 class _TimelineRendererViewState extends State<TimelineRendererView> {
+  late Future<TimelineRendererModel> _generateModel;
+
   @override
   initState() {
     super.initState();
     widget.viewContext.addListener(updateState);
+    _generateModel = generateModel();
   }
 
   @override
@@ -43,7 +46,8 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
   }
 
   void updateState() {
-    setState(() => {});
+    _generateModel = generateModel();
+    setState(() {});
   }
 
   Future<TimelineRendererModel> generateModel() async {
@@ -86,7 +90,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
                       if (element.isGroup) {
                         CVUActionOpenView(
                                 renderer: "list",
-                                uids: Set.from(element.items.map((item) => item.uid)))
+                                uids: Set.from(element.items.map((item) => item.rowId)))
                             .execute(widget.sceneController, widget.viewContext.getCVUContext());
                       } else if (element.items.length > 0) {
                         var item = element.items.first;
@@ -142,7 +146,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<TimelineRendererModel>(
-        future: generateModel(),
+        future: _generateModel,
         builder: (BuildContext context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:

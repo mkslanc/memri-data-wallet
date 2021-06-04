@@ -7,32 +7,47 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
-class CVUFlowStack extends StatelessWidget {
+class CVUFlowStack extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  late final List<ItemRecord> content;
-  late final Point spacing;
 
   CVUFlowStack({required this.nodeResolver});
 
+  @override
+  _CVUFlowStackState createState() => _CVUFlowStackState();
+}
+
+class _CVUFlowStackState extends State<CVUFlowStack> {
+  late final List<ItemRecord> content;
+
+  late final Point spacing;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   init() async {
     content = await _content;
-    spacing = await nodeResolver.propertyResolver.spacing ?? Point(0, 0);
+    spacing = await widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
   }
 
   Future<List<ItemRecord>> get _content async {
-    return nodeResolver.propertyResolver.items("list");
+    return widget.nodeResolver.propertyResolver.items("list");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return FlowStack<ItemRecord>(
                 data: content,
                 spacing: spacing,
-                content: (listItem) => nodeResolver.childrenInForEach(usingItem: listItem));
+                content: (listItem) => widget.nodeResolver.childrenInForEach(usingItem: listItem));
           }
           return Empty();
         });

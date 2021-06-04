@@ -5,39 +5,54 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 import '../ViewContextController.dart';
 
-class SingleItemRendererView extends StatelessWidget {
+class SingleItemRendererView extends StatefulWidget {
   final SceneController sceneController;
   final ViewContextController viewContext;
-  late final EdgeInsets insets;
-  late final Color backgroundColor;
 
   SingleItemRendererView({required this.sceneController, required this.viewContext});
 
-  Future<bool> init() async {
-    insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ?? EdgeInsets.zero;
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+  @override
+  _SingleItemRendererViewState createState() => _SingleItemRendererViewState();
+}
+
+class _SingleItemRendererViewState extends State<SingleItemRendererView> {
+  late final EdgeInsets insets;
+
+  late final Color backgroundColor;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  Future init() async {
+    insets =
+        await widget.viewContext.rendererDefinitionPropertyResolver.edgeInsets ?? EdgeInsets.zero;
+    backgroundColor = await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
-    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        future: _init,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               return ValueListenableBuilder(
-                  valueListenable: viewContext.itemsValueNotifier,
+                  valueListenable: widget.viewContext.itemsValueNotifier,
                   builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                    var item = viewContext.focusedItem;
+                    var item = widget.viewContext.focusedItem;
                     if (item != null) {
                       return Expanded(
                           child: ColoredBox(
                         color: backgroundColor,
                         child: Padding(
                           padding: insets,
-                          child: viewContext.render(item: item),
+                          child: widget.viewContext.render(item: item),
                         ),
                       ));
                     } else {

@@ -25,6 +25,14 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
 
   _PhotoViewerViewState(this._initialIndex);
 
+  late final Future<List<PhotoViewerControllerPhotoItem?>> _resolveImages;
+
+  @override
+  initState() {
+    super.initState();
+    _resolveImages = resolveImages();
+  }
+
   Future<List<PhotoViewerControllerPhotoItem?>> resolveImages() async {
     return await Future.wait(widget.viewContext.items.mapIndexed((index, item) async {
       return await widget.photoItemProvider(index);
@@ -35,7 +43,7 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
   Widget build(BuildContext context) {
     _pageController = PageController(initialPage: _initialIndex);
     return FutureBuilder(
-        future: resolveImages(),
+        future: _resolveImages,
         builder:
             (BuildContext context, AsyncSnapshot<List<PhotoViewerControllerPhotoItem?>> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {

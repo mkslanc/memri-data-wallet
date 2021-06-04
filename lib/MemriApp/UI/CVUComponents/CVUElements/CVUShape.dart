@@ -6,20 +6,34 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import '../CVUUINodeResolver.dart';
 
 /// A CVU element for displaying a circle
-class CVUShapeCircle extends StatelessWidget {
+class CVUShapeCircle extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  late final Color color;
 
   CVUShapeCircle({required this.nodeResolver});
 
+  @override
+  _CVUShapeCircleState createState() => _CVUShapeCircleState();
+}
+
+class _CVUShapeCircleState extends State<CVUShapeCircle> {
+  late final Color color;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   init() async {
-    color = await nodeResolver.propertyResolver.color() ?? CVUColor.system("clear");
+    color = await widget.nodeResolver.propertyResolver.color() ?? CVUColor.system("clear");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Circle(
@@ -32,23 +46,37 @@ class CVUShapeCircle extends StatelessWidget {
 }
 
 /// A CVU element for displaying a rectangle
-class CVUShapeRectangle extends StatelessWidget {
+class CVUShapeRectangle extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-
-  late final double cornerRadius;
-  late final Color color;
 
   CVUShapeRectangle({required this.nodeResolver});
 
+  @override
+  _CVUShapeRectangleState createState() => _CVUShapeRectangleState();
+}
+
+class _CVUShapeRectangleState extends State<CVUShapeRectangle> {
+  late final double cornerRadius;
+
+  late final Color color;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   init() async {
-    cornerRadius = await nodeResolver.propertyResolver.cornerRadius;
-    color = await nodeResolver.propertyResolver.color() ?? CVUColor.system("clear");
+    cornerRadius = await widget.nodeResolver.propertyResolver.cornerRadius;
+    color = await widget.nodeResolver.propertyResolver.color() ?? CVUColor.system("clear");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Container(

@@ -9,26 +9,48 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 /// - Set the `text` property to the desired content
 /// - Set the `font` property to change text appearance
 /// - Set the `color` property to change text color
-class CVUText extends StatelessWidget {
+class CVUText extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
   final Future<TextProperties> textProperties;
-  late final TextProperties resolvedTextProperties;
-  late final Color? color;
-  late final String? content;
 
   CVUText({required this.nodeResolver, required this.textProperties});
 
+  @override
+  _CVUTextState createState() => _CVUTextState();
+}
+
+class _CVUTextState extends State<CVUText> {
+  late final TextProperties resolvedTextProperties;
+
+  Color? color;
+
+  String? content;
+
+  late Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
   init() async {
-    content = (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
-    resolvedTextProperties = await textProperties;
+    content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    resolvedTextProperties = await widget.textProperties;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && content != null) {
+          if (content != null) {
             return Text(
               content!,
               maxLines: resolvedTextProperties.lineLimit,
@@ -46,34 +68,54 @@ class CVUText extends StatelessWidget {
 /// - Set the `text` property to the desired content
 /// - Set the `font` property to change text appearance
 /// - Set the `color` property to change text color
-class CVUSmartText extends StatelessWidget {
+class CVUSmartText extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
   final Future<TextProperties> textProperties;
-  late final TextProperties resolvedTextProperties;
-  late final String? content;
 
   CVUSmartText({required this.nodeResolver, required this.textProperties});
 
+  @override
+  _CVUSmartTextState createState() => _CVUSmartTextState();
+}
+
+class _CVUSmartTextState extends State<CVUSmartText> {
+  late final TextProperties resolvedTextProperties;
+
+  String? content;
+
+  late Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
   init() async {
-    resolvedTextProperties = await textProperties;
-    content = (await nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    resolvedTextProperties = await widget.textProperties;
+    content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && content != null) {
+          if (content != null) {
             return Text(
               content!,
               style: resolvedTextProperties.textStyle,
               textAlign: resolvedTextProperties.textAlign,
               maxLines: resolvedTextProperties.lineLimit,
             );
-          } else {
-            return Empty();
           }
+          return Empty();
         });
   }
 }

@@ -14,34 +14,49 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import '../ViewContextController.dart';
 
 /// This view contains the contents of the 'Bottom bar' which is shown below renderer content.
-class BottomBarView extends StatelessWidget {
+class BottomBarView extends StatefulWidget {
   final ViewContextController viewContext;
 
   final void Function() onSearchPressed;
 
   BottomBarView({required this.viewContext, required this.onSearchPressed});
 
+  @override
+  _BottomBarViewState createState() => _BottomBarViewState();
+}
+
+class _BottomBarViewState extends State<BottomBarView> {
+  late Future<List<Widget>>? actionButtons;
+
+  @override
+  initState() {
+    super.initState();
+    actionButtons = _getActionButtons();
+  }
+
   Future<List<Widget>>? _getActionButtons() async {
     List<Widget> buttons = [];
 
     List<CVUAction> actions = [];
-    if (viewContext.focusedItem != null) {
-      actions = viewContext.itemPropertyResolver?.actions("filterButtons") ?? [];
+    if (widget.viewContext.focusedItem != null) {
+      actions = widget.viewContext.itemPropertyResolver?.actions("filterButtons") ?? [];
     }
 
     if (actions.isNotEmpty) {
       buttons = actions.map((action) {
         return ActionButton(
-            action: action, viewContext: viewContext.getCVUContext(item: viewContext.focusedItem));
+            action: action,
+            viewContext: widget.viewContext.getCVUContext(item: widget.viewContext.focusedItem));
       }).toList();
     } else {
       var filterButtons =
-          await viewContext.viewDefinitionPropertyResolver.stringArray("filterButtons");
+          await widget.viewContext.viewDefinitionPropertyResolver.stringArray("filterButtons");
       buttons = filterButtons.compactMap((el) {
         var action = cvuAction(el);
         if (action != null) {
           return ActionButton(
-              action: action(vars: <String, CVUValue>{}), viewContext: viewContext.getCVUContext());
+              action: action(vars: <String, CVUValue>{}),
+              viewContext: widget.viewContext.getCVUContext());
         }
         return null;
       });
@@ -61,40 +76,42 @@ class BottomBarView extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
           child: ValueListenableBuilder(
-              valueListenable: viewContext.searchStringNotifier,
-              builder: (BuildContext context, String? filter, Widget? child) => Row(
+              valueListenable: widget.viewContext.searchStringNotifier,
+              builder: (BuildContext context, String? filter, Widget? child) {
+                return Row(
+                    children: space(4, [
+                  Row(
                       children: space(4, [
-                    Row(
-                        children: space(4, [
-                      TextButton(
-                        style: TextButton.styleFrom(padding: EdgeInsets.fromLTRB(10, 10, 0, 10)),
-                        onPressed: onSearchPressed,
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(right: 7),
-                              child: Icon(Icons.search),
-                            ),
-                            if (filter != null)
-                              Text(
-                                filter,
-                                style: TextStyle(fontSize: 12, color: CVUColor.system("label")),
-                              )
-                          ],
-                        ),
-                      ),
-                      if (filter != null)
-                        IconButton(
-                          onPressed: () => viewContext.searchString = null,
-                          icon: Icon(
-                            Icons.clear,
-                            size: 12,
+                    TextButton(
+                      style: TextButton.styleFrom(padding: EdgeInsets.fromLTRB(10, 10, 0, 10)),
+                      onPressed: widget.onSearchPressed,
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 7),
+                            child: Icon(Icons.search),
                           ),
-                        )
-                    ])),
-                    Spacer(),
+                          if (filter != null)
+                            Text(
+                              filter,
+                              style: TextStyle(fontSize: 12, color: CVUColor.system("label")),
+                            )
+                        ],
+                      ),
+                    ),
+                    if (filter != null)
+                      IconButton(
+                        onPressed: () => widget.viewContext.searchString = null,
+                        icon: Icon(
+                          Icons.clear,
+                          size: 12,
+                        ),
+                      )
+                  ])),
+                  Spacer(),
+                  if (actionButtons != null)
                     FutureBuilder(
-                        future: _getActionButtons(),
+                        future: actionButtons,
                         builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {
                             if (snapshot.hasData) {
@@ -104,7 +121,8 @@ class BottomBarView extends StatelessWidget {
                           }
                           return Empty();
                         })
-                  ]))),
+                ]));
+              }),
         ),
       )
     ]);
