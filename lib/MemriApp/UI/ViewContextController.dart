@@ -99,13 +99,15 @@ class ViewContextController extends ChangeNotifier {
       CVUDefinitionContent? nodeDefinition,
       CVUViewArguments? viewArguments,
       bool blankIfNoDefinition = false}) {
+    var key = Key(item.uid);
     return cvuController.render(
         cvuContext: getCVUContext(
             item: item, overrideRenderer: overrideRenderer, viewArguments: viewArguments),
         nodeDefinition: nodeDefinition,
         lookup: lookupController,
         db: databaseController,
-        blankIfNoDefinition: blankIfNoDefinition);
+        blankIfNoDefinition: blankIfNoDefinition,
+        key: key);
   }
 
   CVUContext getCVUContext(

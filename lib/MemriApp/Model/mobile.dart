@@ -13,7 +13,7 @@ Database constructDb({bool logStatements = false, bool inMemory = false, require
     if (Platform.isIOS || Platform.isAndroid) {
       final executor = LazyDatabase(() async {
         final dataDir = await paths.getApplicationDocumentsDirectory();
-        final dbFile = File(p.join(dataDir.path, databaseName + '.sqlite'));
+        final dbFile = File(p.join(dataDir.path + '/databases', databaseName + '.sqlite'));
         return VmDatabase(dbFile, logStatements: logStatements);
       });
       return Database(executor);

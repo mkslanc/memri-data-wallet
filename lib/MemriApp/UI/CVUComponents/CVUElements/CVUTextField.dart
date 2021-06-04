@@ -11,26 +11,43 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 /// - Set the `hint` property to change the text displayed when the field is empty
 /// - Set the `secure` to `true` to obscure content (eg. password field)
 /// - Set the `color` property to change text color
-class CVUTextField extends StatelessWidget {
+class CVUTextField extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  late final bool? secureMode;
-  late final String? hint;
-  late final FutureBinding<String?>? contentBinding;
-  final SceneController sceneController = SceneController.sceneController;
 
   CVUTextField({required this.nodeResolver});
 
+  @override
+  _CVUTextFieldState createState() => _CVUTextFieldState();
+}
+
+class _CVUTextFieldState extends State<CVUTextField> {
+  late final bool? secureMode;
+
+  late final String? hint;
+
+  late final FutureBinding<String?>? contentBinding;
+
+  final SceneController sceneController = SceneController.sceneController;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   init() async {
     // Secure mode hides the input (eg. for passwords)
-    secureMode = await nodeResolver.propertyResolver.boolean("secure", false);
-    hint = (await nodeResolver.propertyResolver.string("hint"))?.nullIfBlank;
-    contentBinding = await nodeResolver.propertyResolver.binding<String>("value", null);
+    secureMode = await widget.nodeResolver.propertyResolver.boolean("secure", false);
+    hint = (await widget.nodeResolver.propertyResolver.string("hint"))?.nullIfBlank;
+    contentBinding = await widget.nodeResolver.propertyResolver.binding<String>("value", null);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext builder, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:

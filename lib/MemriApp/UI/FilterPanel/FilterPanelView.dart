@@ -11,6 +11,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/OptionalDatePicker.dart';
 import 'package:memri/MemriApp/UI/RendererSettingsViews/GridRendererSettingsView.dart';
 import 'package:memri/MemriApp/UI/RendererSettingsViews/TimelineRendererSettingsView.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 import 'FilterPanelSortItemView.dart';
@@ -36,7 +37,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
   FilterPanelTab get currentTab => _currentTab.value;
 
   set currentTab(FilterPanelTab newValue) => _currentTab.value = newValue;
-  late final Future<Set<String>> _supportedRenderers;
+
+  late Future<Set<String>> _supportedRenderers;
 
   _FilterPanelViewState(this.viewContext);
 
@@ -201,9 +203,9 @@ class _FilterPanelViewState extends State<FilterPanelView> {
   }
 
   Widget get rendererTab {
-    return FutureBuilder(
+    return FutureBuilder<Set<String>>(
         future: _supportedRenderers,
-        builder: (BuildContext context, AsyncSnapshot<Set<String>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var supportedRenderers = snapshot.data!.toList();
             supportedRenderers.sort();
@@ -240,13 +242,7 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                   itemCount: supportedRenderers.length),
             ));
           } else {
-            return Center(
-              child: SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              ),
-            );
+            return Empty();
           }
         });
   }

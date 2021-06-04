@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+
 import '../ViewContextController.dart';
 
 /// This view is displayed when the user presses the search button
@@ -37,7 +39,8 @@ class _SearchViewState extends State<SearchView> {
                   Icon(Icons.search),
                   Expanded(
                     child: TextFormField(
-                      onChanged: (value) => setState(() => widget.viewContext.searchString = value),
+                      onChanged: (value) =>
+                          setState(() => widget.viewContext.searchString = value.nullIfBlank),
                       initialValue: widget.viewContext.searchString,
                       decoration: InputDecoration(
                           isDense: true,

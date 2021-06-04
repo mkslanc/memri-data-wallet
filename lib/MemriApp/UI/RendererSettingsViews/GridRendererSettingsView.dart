@@ -3,7 +3,6 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/Components/Picker.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
 
@@ -19,6 +18,10 @@ class GridRendererSettingsView extends StatefulWidget {
 class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
   late final FutureBinding<String> layoutBinding;
   late final FutureBinding<String> scrollDirectionBinding;
+  String? _layout;
+
+  String get layout => _layout ?? "";
+  set layout(String newValue) => setState(() => _layout = newValue);
 
   @override
   void initState() {
@@ -28,7 +31,7 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
     }, (newValue) async {
       await widget.viewContext
           .setRendererProperty("grid", "layout", CVUValueConstant(CVUConstantArgument(newValue)));
-      setState(() {});
+      layout = newValue;
     });
 
     scrollDirectionBinding = FutureBinding<String>(() async {
@@ -38,6 +41,10 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
     }, (newValue) async {
       await widget.viewContext.setRendererProperty(
           "grid", "scrollDirection", CVUValueConstant(CVUConstantArgument(newValue)));
+    });
+
+    layoutBinding.get().then((value) {
+      layout = value;
     });
   }
 
@@ -50,15 +57,11 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
           "photoGrid": "Photo grid",
           "waterfall": "Waterfall",
         }),
-        FutureBuilder<String>(
-          future: layoutBinding.get(),
-          builder: (context, snapshot) => snapshot.hasData && snapshot.data == "grid"
-              ? Picker<String>("Scroll direction", selection: scrollDirectionBinding, group: {
-                  "vertical": "Vertical",
-                  "horizontal": "Horizontal",
-                })
-              : Empty(),
-        )
+        if (layout == "grid")
+          Picker<String>("Scroll direction", selection: scrollDirectionBinding, group: {
+            "vertical": "Vertical",
+            "horizontal": "Horizontal",
+          })
       ],
     );
   }

@@ -18,7 +18,6 @@ import '../CVUUINodeResolver.dart';
 /// - Use the `onPress` property to provide a CVU Action for the button
 // ignore: must_be_immutable
 class CVUActionButton extends StatefulWidget {
-  //TODO: stateful
   final CVUUINodeResolver nodeResolver;
 
   CVUActionButton({required this.nodeResolver});
@@ -29,6 +28,21 @@ class CVUActionButton extends StatefulWidget {
 
 class _CVUActionButtonState extends State<CVUActionButton> {
   final SceneController sceneController = SceneController.sceneController;
+
+  late Future<PropertyDatabaseValue?>? _starred;
+  PropertyDatabaseValue? starred;
+
+  @override
+  initState() {
+    super.initState();
+    init();
+  }
+
+  init() {
+    if (action is CVUActionStar) {
+      _starred = widget.nodeResolver.context.currentItem?.propertyValue("starred");
+    }
+  }
 
   CVUAction? get action {
     return widget.nodeResolver.propertyResolver.action("onPress");
@@ -117,21 +131,21 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     } else if (validAction is CVUActionStar) {
       return IconButton(
           icon: FutureBuilder(
-              future: widget.nodeResolver.context.currentItem?.propertyValue("starred"),
+              initialData: starred,
+              future: _starred,
               builder: (BuildContext context, AsyncSnapshot<PropertyDatabaseValue?> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  var starred = snapshot.data?.asBool() ?? false;
-                  return Icon(
-                    MemriIcon.getByName(starred ? "star.fill" : "star"),
-                    color: CVUColor.system("systemBlue"),
-                  );
+                  starred = snapshot.data;
                 }
-                return Empty();
+                return Icon(
+                  MemriIcon.getByName((starred?.asBool() ?? false) ? "star.fill" : "star"),
+                  color: CVUColor.system("systemBlue"),
+                );
               }),
           onPressed: () async {
             await validAction
                 .execute(sceneController, widget.nodeResolver.context)
-                .whenComplete(() => setState(() => null));
+                .whenComplete(() => setState(init));
           });
     }
     return Text("TODO: CVU_ActionButton");

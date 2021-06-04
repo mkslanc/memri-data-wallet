@@ -201,15 +201,11 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   }
 }
 
-class GeneralEditorSection extends StatelessWidget {
-  final SceneController sceneController = SceneController.sceneController;
+class GeneralEditorSection extends StatefulWidget {
   final ViewContextController viewContext;
   final GeneralEditorLayoutItem layout;
   final ItemRecord item;
   final Set<String> usedFields;
-
-  late final String? _sectionTitle;
-  late final List<ItemRecord> _edgeItems;
 
   GeneralEditorSection(
       {required this.viewContext,
@@ -217,8 +213,27 @@ class GeneralEditorSection extends StatelessWidget {
       required this.item,
       required this.usedFields});
 
+  @override
+  _GeneralEditorSectionState createState() => _GeneralEditorSectionState();
+}
+
+class _GeneralEditorSectionState extends State<GeneralEditorSection> {
+  final SceneController sceneController = SceneController.sceneController;
+
+  late Future<String?> _sectionTitle;
+  late Future<List<ItemRecord>> _edgeItems;
+
+  String? currentSectionTitle;
+  List<ItemRecord> currentEdgeItems = [];
+
+  @override
+  initState() {
+    super.initState();
+    init();
+  }
+
   SchemaType? get schemaType {
-    var type = item.type;
+    var type = widget.item.type;
     return sceneController.appController.databaseController.schema.types[type];
   }
 
@@ -237,20 +252,20 @@ class GeneralEditorSection extends StatelessWidget {
   }
 
   Future<String?> get sectionTitle async {
-    var title = viewContext.cvuController
-        .viewDefinitionForItemRecord(itemRecord: item)
+    var title = widget.viewContext.cvuController
+        .viewDefinitionForItemRecord(itemRecord: widget.item)
         ?.definitions
         .first
-        .get(layout.id)
+        .get(widget.layout.id)
         ?.getSubdefinition()
         ?.properties["title"];
     if (title == null) {
-      return layout.id;
+      return widget.layout.id;
     }
-    return await viewContext.lookupController.resolve<String>(
+    return await widget.viewContext.lookupController.resolve<String>(
         value: title,
-        context: viewContext.getCVUContext(item: item),
-        db: viewContext.databaseController);
+        context: widget.viewContext.getCVUContext(item: widget.item),
+        db: widget.viewContext.databaseController);
   }
 
   bool get isEditing {
@@ -261,18 +276,19 @@ class GeneralEditorSection extends StatelessWidget {
     if (sceneController.isInEditMode.value) {
       return false;
     }
-    return layout.has("edges") && fields.length == 0 && _edgeItems.length == 0;
+    return widget.layout.has("edges") && fields.length == 0 && currentEdgeItems.length == 0;
   }
 
   List<String> get fields {
     List<String> fields =
-        (layout.get<List>(propName: "fields", additionalType: String) as List<String>?) ?? [];
+        (widget.layout.get<List>(propName: "fields", additionalType: String) as List<String>?) ??
+            [];
     if (fields.isNotEmpty && fields[0] == "*") {
       fields = [];
       var propertyTypes =
-          viewContext.databaseController.schema.types[item.type]?.propertyTypes ?? {};
+          widget.viewContext.databaseController.schema.types[widget.item.type]?.propertyTypes ?? {};
       for (var propertyType in propertyTypes.keys) {
-        if (!usedFields.contains(propertyType)) {
+        if (!widget.usedFields.contains(propertyType)) {
           fields.add(propertyType);
         }
       }
@@ -282,14 +298,16 @@ class GeneralEditorSection extends StatelessWidget {
   }
 
   Future<List<ItemRecord>> get edgeItems async {
-    var edges = layout.get<List>(propName: "edges", additionalType: String);
+    var edges = widget.layout.get<List>(propName: "edges", additionalType: String);
     if (edges == null) {
       return [];
     }
     List<ItemRecord> items = [];
     for (var edge in edges) {
-      List<ItemRecord> edgeItems = await viewContext.lookupController.resolve<List>(
-          edge: edge, item: item, db: viewContext.databaseController) as List<ItemRecord>;
+      List<ItemRecord> edgeItems = await widget.viewContext.lookupController.resolve<List>(
+          edge: edge,
+          item: widget.item,
+          db: widget.viewContext.databaseController) as List<ItemRecord>;
       items.addAll(edgeItems);
     }
 
@@ -297,18 +315,18 @@ class GeneralEditorSection extends StatelessWidget {
   }
 
   CVUDefinitionContent? get nodeDefinition {
-    CVUDefinitionContent? nodeDefinition = viewContext.cvuController
-        .viewDefinitionForItemRecord(itemRecord: item)
+    CVUDefinitionContent? nodeDefinition = widget.viewContext.cvuController
+        .viewDefinitionForItemRecord(itemRecord: widget.item)
         ?.definitions
         .asMap()[0]
-        ?.get(layout.id)
+        ?.get(widget.layout.id)
         ?.getSubdefinition();
     if (nodeDefinition != null) {
       return nodeDefinition;
     } else {
-      nodeDefinition = viewContext.cvuController
-          .rendererDefinitionForSelector(viewName: viewContext.config.rendererName)
-          ?.properties[layout.id]
+      nodeDefinition = widget.viewContext.cvuController
+          .rendererDefinitionForSelector(viewName: widget.viewContext.config.rendererName)
+          ?.properties[widget.layout.id]
           ?.getSubdefinition();
       if (nodeDefinition != null) {
         return nodeDefinition;
@@ -318,34 +336,36 @@ class GeneralEditorSection extends StatelessWidget {
   }
 
   CVUViewArguments? get viewArguments {
-    String? edgeType = layout.get<List>(propName: "edges", additionalType: String)?.asMap()[0];
-    if (!isEditing || edgeType == null || !layout.has("edges")) {
+    String? edgeType =
+        widget.layout.get<List>(propName: "edges", additionalType: String)?.asMap()[0];
+    if (!isEditing || edgeType == null || !widget.layout.has("edges")) {
       return null;
     }
 
-    var args = viewContext.config.viewArguments?.args ?? <String, CVUValue>{};
-    args["query"] = CVUValueConstant(CVUConstantString(item.type));
+    var args = widget.viewContext.config.viewArguments?.args ?? <String, CVUValue>{};
+    args["query"] = CVUValueConstant(CVUConstantString(widget.item.type));
     args["type"] = CVUValueConstant(CVUConstantString(edgeType));
-    args["subject"] = CVUValueItem(item.rowId!);
-    args["item"] = CVUValueItem(item.rowId!);
+    args["subject"] = CVUValueItem(widget.item.rowId!);
+    args["item"] = CVUValueItem(widget.item.rowId!);
     args["edgeType"] = CVUValueConstant(CVUConstantString(edgeType));
     args["distinct"] = CVUValueConstant(CVUConstantBool(false));
 
-    return CVUViewArguments(args: args, argumentItem: item);
+    return CVUViewArguments(args: args, argumentItem: widget.item);
   }
 
   CVUActionOpenViewByName? get action {
-    String? edgeType = layout.get<List>(propName: "edges", additionalType: String)?.asMap()[0];
-    String? itemType = layout.get<String>(propName: "type");
-    if (!isEditing || edgeType == null || itemType == null || !layout.has("edges")) {
+    String? edgeType =
+        widget.layout.get<List>(propName: "edges", additionalType: String)?.asMap()[0];
+    String? itemType = widget.layout.get<String>(propName: "type");
+    if (!isEditing || edgeType == null || itemType == null || !widget.layout.has("edges")) {
       return null;
     }
 
     Map<String, CVUValue> properties = {
-      "query": CVUValueConstant(CVUConstantString(item.type)),
+      "query": CVUValueConstant(CVUConstantString(widget.item.type)),
       "type": CVUValueConstant(CVUConstantString(edgeType)),
-      "subject": CVUValueItem(item.rowId!),
-      "item": CVUValueItem(item.rowId!),
+      "subject": CVUValueItem(widget.item.rowId!),
+      "item": CVUValueItem(widget.item.rowId!),
       "edgeType": CVUValueConstant(CVUConstantString(edgeType)),
       "distinct": CVUValueConstant(CVUConstantBool(false))
     };
@@ -358,81 +378,99 @@ class GeneralEditorSection extends StatelessWidget {
         vars: vars, viewName: "itemByQuery", renderer: "list", itemType: itemType);
   }
 
-  init() async {
-    _sectionTitle = await sectionTitle;
-    _edgeItems = await edgeItems;
+  init() {
+    _sectionTitle = sectionTitle;
+    _edgeItems = edgeItems;
+  }
+
+  @override
+  void didUpdateWidget(covariant GeneralEditorSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    init();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: init(),
-        builder: (BuildContext context, snapshot) {
+    return FutureBuilder<String?>(
+        future: _sectionTitle,
+        initialData: currentSectionTitle,
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (isEmpty == true) {
-              return Empty();
-            } else {
-              List<Widget> header = [];
-              if (shouldShowTitle) {
-                var title = _sectionTitle!;
-                header.add(
-                    _GeneralEditorHeader(content: title.toUpperCase())); // .generalEditorHeader()
-                if (action != null) {
-                  header.add(Spacer());
-                  header.add(ActionPopupButton(action!));
-                }
-              }
-              List<Widget> content = [];
-
-              if (nodeDefinition != null) {
-                content = [viewContext.render(item: item, nodeDefinition: nodeDefinition)];
-              } else {
-                fields.sort();
-                fields.forEach((field) {
-                  var fieldProperty = schemaType?.propertyTypes[field];
-                  if (fieldProperty != null) {
-                    content.add(DefaultGeneralEditorRow(
-                        viewContext: viewContext,
-                        property: fieldProperty,
-                        currentItem: item,
-                        prop: field,
-                        isLast: fields.last == field,
-                        item: item));
-                  }
-                });
-
-                if (_edgeItems.isNotEmpty) {
-                  _edgeItems.forEach((edgeItem) {
-                    var nodeDefinition = viewContext.cvuController.edgeDefinitionFor(edgeItem);
-                    if (nodeDefinition != null) {
-                      content.add(viewContext.render(
-                          item: edgeItem,
-                          nodeDefinition: nodeDefinition,
-                          viewArguments: viewArguments));
-                    }
-                  });
-                }
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: header,
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                  ),
-                  ...content,
-                  Divider(height: 1)
-                ],
-              );
-            }
+            currentSectionTitle = snapshot.data;
           }
-          return Empty();
+          var title = snapshot.data;
+          return FutureBuilder<List<ItemRecord>>(
+              future: _edgeItems,
+              initialData: currentEdgeItems,
+              builder: (BuildContext context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  currentEdgeItems = snapshot.data!;
+                }
+                if (isEmpty == true) {
+                  return Empty();
+                } else {
+                  List<Widget> header = [];
+                  if (shouldShowTitle && title != null) {
+                    header.add(_GeneralEditorHeader(
+                        content: title.toUpperCase())); // .generalEditorHeader()
+                    if (action != null) {
+                      header.add(Spacer());
+                      header.add(ActionPopupButton(action!));
+                    }
+                  }
+                  List<Widget> content = [];
+
+                  if (nodeDefinition != null) {
+                    content = [
+                      widget.viewContext.render(item: widget.item, nodeDefinition: nodeDefinition)
+                    ];
+                  } else {
+                    fields.sort();
+                    fields.forEach((field) {
+                      var fieldProperty = schemaType?.propertyTypes[field];
+                      if (fieldProperty != null) {
+                        content.add(DefaultGeneralEditorRow(
+                            viewContext: widget.viewContext,
+                            property: fieldProperty,
+                            currentItem: widget.item,
+                            prop: field,
+                            isLast: fields.last == field,
+                            item: widget.item));
+                      }
+                    });
+
+                    if (currentEdgeItems.isNotEmpty) {
+                      currentEdgeItems.forEach((edgeItem) {
+                        var nodeDefinition =
+                            widget.viewContext.cvuController.edgeDefinitionFor(edgeItem);
+                        if (nodeDefinition != null) {
+                          content.add(widget.viewContext.render(
+                              item: edgeItem,
+                              nodeDefinition: nodeDefinition,
+                              viewArguments: viewArguments));
+                        }
+                      });
+                    }
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: header,
+                        ),
+                      ),
+                      Divider(
+                        height: 1,
+                      ),
+                      ...content,
+                      Divider(height: 1)
+                    ],
+                  );
+                }
+              });
         });
   }
 }

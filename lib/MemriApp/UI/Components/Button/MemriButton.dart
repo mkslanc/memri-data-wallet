@@ -5,30 +5,45 @@ import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 // ignore: must_be_immutable
-class MemriButton extends StatelessWidget {
+class MemriButton extends StatefulWidget {
   final ItemRecord? item;
   final DatabaseController db;
-  String title = "";
-  Color bgColor = Color(0xffffffff);
 
   MemriButton({required this.item, required this.db});
 
+  @override
+  _MemriButtonState createState() => _MemriButtonState();
+}
+
+class _MemriButtonState extends State<MemriButton> {
+  String title = "";
+
+  Color bgColor = Color(0xffffffff);
+
+  late final Future _resolveItemProperties;
+
+  @override
+  initState() {
+    super.initState();
+    _resolveItemProperties = resolveItemProperties();
+  }
+
   Future<void> resolveItemProperties() async {
-    switch (item?.type) {
+    switch (widget.item?.type) {
       case "PhoneNumber":
         bgColor = Color(0xffeccf23);
-        var phone = (await item?.property("phoneNumber"))?.$value;
+        var phone = (await widget.item?.property("phoneNumber"))?.$value;
         if (phone is PropertyDatabaseValueString) {
           title = phone.value;
         }
         break;
       case "Person":
         bgColor = Color(0xff3A5EB3);
-        var firstName = (await item?.property("firstName"))?.$value;
+        var firstName = (await widget.item?.property("firstName"))?.$value;
         if (firstName is PropertyDatabaseValueString) {
           title = firstName.value;
         }
-        var lastName = (await item?.property("lastName"))?.$value;
+        var lastName = (await widget.item?.property("lastName"))?.$value;
         if (lastName is PropertyDatabaseValueString) {
           title = "$title ${lastName.value}";
         }
@@ -39,10 +54,10 @@ class MemriButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var foregroundColor = Colors.white;
-    var inputItem = item;
+    var inputItem = widget.item;
     if (inputItem != null) {
       return FutureBuilder(
-          future: resolveItemProperties(),
+          future: _resolveItemProperties,
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return Container(
@@ -56,7 +71,7 @@ class MemriButton extends StatelessWidget {
                             color: Color(0xffafafaf),
                             borderRadius: BorderRadius.all(Radius.circular(20))),
                         child: Text(
-                          item?.type ?? "",
+                          widget.item?.type ?? "",
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
                         )),

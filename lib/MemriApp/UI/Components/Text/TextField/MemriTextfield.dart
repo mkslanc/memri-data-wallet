@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
-class MemriTextField<T> extends StatelessWidget {
+class MemriTextField<T> extends StatefulWidget {
   final Binding<T>? binding;
   final FutureBinding<T>? futureBinding;
   final TextStyle? style;
@@ -15,33 +14,57 @@ class MemriTextField<T> extends StatelessWidget {
   MemriTextField.async({required this.futureBinding, this.style, this.isEditing = true})
       : binding = null;
 
-  late final T? _value;
+  @override
+  _MemriTextFieldState<T> createState() => _MemriTextFieldState<T>();
+}
+
+class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
+  T? _value;
+
   TextEditingController get controller => TextEditingController(text: _value?.toString());
 
+  late Future<T> _futureValue;
+
+  @override
+  initState() {
+    super.initState();
+    if (widget.futureBinding != null) {
+      _futureValue = widget.futureBinding!.get();
+    }
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.futureBinding != null) {
+      _futureValue = widget.futureBinding!.get();
+    }
+  }
+
   set value(newValue) {
-    if (futureBinding != null) {
-      futureBinding!.set(newValue);
+    _value = newValue;
+    if (widget.futureBinding != null) {
+      widget.futureBinding!.set(newValue);
     } else {
-      binding!.set(newValue);
+      widget.binding!.set(newValue);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (futureBinding != null) {
+    if (widget.futureBinding != null) {
       return FutureBuilder<T>(
-          future: futureBinding!.get(),
+          initialData: _value,
+          future: _futureValue,
           builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                _value = snapshot.data;
-                return body(context);
-              default:
-                return Empty();
+            if (snapshot.connectionState == ConnectionState.done) {
+              _value = snapshot.data;
             }
+
+            return body(context);
           });
     } else {
-      _value = binding!.get();
+      _value = widget.binding!.get();
       return body(context);
     }
   }
@@ -60,8 +83,8 @@ class MemriTextField<T> extends StatelessWidget {
 
   stringTextForm() {
     return TextFormField(
-      readOnly: !isEditing,
-      style: style,
+      readOnly: !widget.isEditing,
+      style: widget.style,
       decoration: InputDecoration(border: InputBorder.none),
       controller: controller,
       onChanged: (String newValue) async {
@@ -72,8 +95,8 @@ class MemriTextField<T> extends StatelessWidget {
 
   intTextForm() {
     return TextFormField(
-      readOnly: !isEditing,
-      style: style,
+      readOnly: !widget.isEditing,
+      style: widget.style,
       decoration: InputDecoration(border: InputBorder.none),
       controller: controller,
       onChanged: (String newValue) async {
@@ -86,8 +109,8 @@ class MemriTextField<T> extends StatelessWidget {
 
   doubleTextForm() {
     return TextFormField(
-      readOnly: !isEditing,
-      style: style,
+      readOnly: !widget.isEditing,
+      style: widget.style,
       decoration: InputDecoration(border: InputBorder.none),
       controller: controller,
       onChanged: (String newValue) async {

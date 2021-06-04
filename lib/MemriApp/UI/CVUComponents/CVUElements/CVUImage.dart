@@ -21,23 +21,29 @@ class CVUImage extends StatefulWidget {
 }
 
 class _CVUImageState extends State<CVUImage> {
-  late final String? fileImageURL;
+  String? fileImageURL;
 
-  late final ImageProvider? bundleImage;
+  ImageProvider? bundleImage;
 
-  late final Color? color;
+  Color? color;
 
-  late final CVUFont? font;
+  CVUFont? font;
 
-  late final String? iconName;
+  String? iconName;
 
-  late final CVU_SizingMode sizingMode;
+  late CVU_SizingMode sizingMode;
 
-  late final Future _init;
+  late Future _init;
 
   @override
   initState() {
     super.initState();
+    _init = init();
+  }
+
+  @override
+  void didUpdateWidget(covariant CVUImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init = init();
   }
 
@@ -76,35 +82,34 @@ class _CVUImageState extends State<CVUImage> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (fileImageURL != null) {
-              return Image(
+          if (fileImageURL != null) {
+            return Image(
                 image: ResizeImage(AssetImage(fileImageURL!),
                     width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
                 fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
-              );
-            } else if (bundleImage != null) {
-              return Image(image: bundleImage!);
-            } else if (iconName != null) {
-              return Center(
-                child: Icon(
-                  MemriIcon.getByName(iconName!),
-                  color: color,
-                  size: font?.size,
-                ),
-              );
-              //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
-              //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
-            } else {
-              return Center(
-                child: Icon(
-                  Icons.error,
-                  color: Color(0x993c3c43),
-                ),
-              );
-            }
+            );
+          } else if (bundleImage != null) {
+            return Image(image: bundleImage!);
+          } else if (iconName != null) {
+            return Center(
+              child: Icon(
+                MemriIcon.getByName(iconName!),
+                color: color,
+                size: font?.size,
+              ),
+            );
+            //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
+            //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            return Center(
+              child: Icon(
+                Icons.error,
+                color: Color(0x993c3c43),
+              ),
+            );
+          } else {
+            return Empty();
           }
-          return Empty();
         });
   }
 }

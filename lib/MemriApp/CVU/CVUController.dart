@@ -228,22 +228,25 @@ class CVUController {
       required CVUDefinitionContent? nodeDefinition,
       required CVULookupController lookup,
       required DatabaseController db,
-      required bool blankIfNoDefinition}) {
+      required bool blankIfNoDefinition,
+      Key? key}) {
     nodeDefinition ??= nodeDefinitionFor(cvuContext);
     CVUUINode? node = nodeDefinition?.children.asMap()[0];
+    CVUUINodeResolver? nodeResolver;
     if (node != null) {
-      return CVUElementView(
-          nodeResolver: CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node, db: db));
+      nodeResolver = CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node, db: db);
     } else if ((nodeDefinitionFor(cvuContext)?.children ?? []).length > 0) {
       node = nodeDefinitionFor(cvuContext)?.children.first;
-      return CVUElementView(
-          nodeResolver:
-              CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db));
+      nodeResolver = CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db);
     } else if ((defaultViewDefinitionFor(cvuContext)?.children ?? []).length > 0) {
       node = defaultViewDefinitionFor(cvuContext)?.children.first;
+      nodeResolver = CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db);
+    }
+    if (nodeResolver != null) {
       return CVUElementView(
-          nodeResolver:
-              CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db));
+        nodeResolver: nodeResolver,
+        key: key,
+      );
     } else if (!blankIfNoDefinition && cvuContext.currentItem?.type != null) {
       var type = cvuContext.currentItem!.type;
       return Text("No definition for displaying a `$type` in this context",

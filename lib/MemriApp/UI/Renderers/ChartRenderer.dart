@@ -11,20 +11,43 @@ import '../ViewContextController.dart';
 
 /// The chart renderer.
 /// This renderer displays the data in a chart (eg. line, bar, pie)
-class ChartRendererView extends StatelessWidget {
+class ChartRendererView extends StatefulWidget {
   final SceneController sceneController;
   final ViewContextController viewContext;
-  late final String? chartTitle;
-  late final String? chartSubtitle;
-  final Map<int, ItemChartProps> itemChartProps = {};
 
   ChartRendererView({required this.sceneController, required this.viewContext});
 
   @override
+  _ChartRendererViewState createState() => _ChartRendererViewState();
+}
+
+class _ChartRendererViewState extends State<ChartRendererView> {
+  late String? chartTitle;
+
+  late String? chartSubtitle;
+
+  final Map<int, ItemChartProps> itemChartProps = {};
+
+  late Future<Color> backgroundColor;
+  late Future _titlesInit;
+  late Future<String> chartType;
+
+  @override
+  initState() {
+    super.initState();
+    backgroundColor = (() async =>
+        await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        CVUColor.system("systemBackground"))();
+    _titlesInit = titlesInit();
+    chartType = (() async =>
+        await widget.viewContext.rendererDefinitionPropertyResolver.string("chartType") ?? "bar")();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<Color>(
         future: backgroundColor,
-        builder: (BuildContext context, AsyncSnapshot<Color> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               return Expanded(child: ColoredBox(color: snapshot.data!, child: chartView));
@@ -45,53 +68,50 @@ class ChartRendererView extends StatelessWidget {
     );
   }
 
-  Future<Color> get backgroundColor async {
-    return await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        CVUColor.system("systemBackground");
-  }
-
   titlesInit() async {
-    chartTitle = await viewContext.rendererDefinitionPropertyResolver.string("title");
-    chartSubtitle = await viewContext.rendererDefinitionPropertyResolver.string("subtitle");
+    chartTitle = await widget.viewContext.rendererDefinitionPropertyResolver.string("title");
+    chartSubtitle = await widget.viewContext.rendererDefinitionPropertyResolver.string("subtitle");
   }
 
   Future<Color> get primaryColor async {
-    return await viewContext.rendererDefinitionPropertyResolver.color() ?? CVUColor.system("blue");
+    return await widget.viewContext.rendererDefinitionPropertyResolver.color() ??
+        CVUColor.system("blue");
   }
 
   Future<double> get lineWidth async {
-    return await viewContext.rendererDefinitionPropertyResolver.cgFloat("lineWidth") ?? 0;
+    return await widget.viewContext.rendererDefinitionPropertyResolver.cgFloat("lineWidth") ?? 0;
   }
 
   Future<bool> get yAxisStartAtZero async {
-    return (await viewContext.rendererDefinitionPropertyResolver
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
         .boolean("yAxisStartAtZero", false))!;
   }
 
   Future<bool> get hideGridlines async {
-    return (await viewContext.rendererDefinitionPropertyResolver.boolean("hideGridlines", false))!;
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
+        .boolean("hideGridlines", false))!;
   }
 
   Future<CVUFont> get barLabelFont async {
-    return await viewContext.rendererDefinitionPropertyResolver
+    return await widget.viewContext.rendererDefinitionPropertyResolver
         .font("barLabelFont", CVUFont(size: 13));
   }
 
   Future<bool> get showValueLabels async {
-    return (await viewContext.rendererDefinitionPropertyResolver
+    return (await widget.viewContext.rendererDefinitionPropertyResolver
         .boolean("yAxisStartAtZero", true))!;
   }
 
   Future<CVUFont> get valueLabelFont async {
-    return await viewContext.rendererDefinitionPropertyResolver
+    return await widget.viewContext.rendererDefinitionPropertyResolver
         .font("valueLabelFont", CVUFont(size: 14));
   }
 
   Future<BarChartData> makeBarChartModel() async {
-    var resolver = viewContext.rendererDefinitionPropertyResolver;
+    var resolver = widget.viewContext.rendererDefinitionPropertyResolver;
     List<BarChartGroupData> data = [];
     var x = 0;
-    await Future.forEach(viewContext.items, (ItemRecord item) async {
+    await Future.forEach(widget.viewContext.items, (ItemRecord item) async {
       var y = await resolver.replacingItem(item).number("yAxis");
       if (y != null) {
         data.add(BarChartGroupData(
@@ -157,10 +177,10 @@ class ChartRendererView extends StatelessWidget {
   }
 
   Future<PieChartData> makePieChartModel() async {
-    var resolver = viewContext.rendererDefinitionPropertyResolver;
+    var resolver = widget.viewContext.rendererDefinitionPropertyResolver;
     List<PieChartSectionData> data = [];
     var x = 0;
-    await Future.forEach(viewContext.items, (ItemRecord item) async {
+    await Future.forEach(widget.viewContext.items, (ItemRecord item) async {
       var value = await resolver.replacingItem(item).number("yAxis");
       if (value != null) {
         itemChartProps[x] = ItemChartProps(
@@ -211,9 +231,9 @@ class ChartRendererView extends StatelessWidget {
   }
 
   Future<LineChartData> makeLineChartModel() async {
-    var resolver = viewContext.rendererDefinitionPropertyResolver;
+    var resolver = widget.viewContext.rendererDefinitionPropertyResolver;
     List<FlSpot> spots = [];
-    await Future.forEach(viewContext.items, (ItemRecord item) async {
+    await Future.forEach(widget.viewContext.items, (ItemRecord item) async {
       var x = await resolver.replacingItem(item).number("xAxis");
       var y = await resolver.replacingItem(item).number("yAxis");
       if (x != null && y != null) {
@@ -267,7 +287,7 @@ class ChartRendererView extends StatelessWidget {
 
   Widget chartTitleView() {
     return FutureBuilder(
-        future: titlesInit(),
+        future: _titlesInit,
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Column(
@@ -285,10 +305,6 @@ class ChartRendererView extends StatelessWidget {
           }
           return Empty();
         });
-  }
-
-  Future<String> get chartType async {
-    return await viewContext.rendererDefinitionPropertyResolver.string("chartType") ?? "bar";
   }
 
   Widget get chartView {

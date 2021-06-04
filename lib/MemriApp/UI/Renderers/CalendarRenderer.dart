@@ -15,21 +15,38 @@ import 'CalendarRendererModel.dart';
 /// This presents the data in a month-style calendar view
 /// Dots are used to represent days on which items fall
 /// Pressing on a day will show a timeline view focused on that day
-class CalendarRendererView extends StatelessWidget {
+class CalendarRendererView extends StatefulWidget {
   final SceneController sceneController;
   final ViewContextController viewContext;
-  final calendarHelper = CalendarHelper();
-  late final Color backgroundColor;
-  late final Color primaryColor;
-  late final CalendarCalculations model;
 
   CalendarRendererView({required this.sceneController, required this.viewContext});
 
+  @override
+  _CalendarRendererViewState createState() => _CalendarRendererViewState();
+}
+
+class _CalendarRendererViewState extends State<CalendarRendererView> {
+  final calendarHelper = CalendarHelper();
+
+  late final Color backgroundColor;
+
+  late final Color primaryColor;
+
+  late final CalendarCalculations model;
+
+  late final Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
   init() async {
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+    backgroundColor = await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
-    primaryColor =
-        await viewContext.rendererDefinitionPropertyResolver.color() ?? CVUColor.system("red");
+    primaryColor = await widget.viewContext.rendererDefinitionPropertyResolver.color() ??
+        CVUColor.system("red");
     model = await calculateModel();
   }
 
@@ -37,9 +54,9 @@ class CalendarRendererView extends StatelessWidget {
     var calcs = CalendarCalculations();
     await calcs.init(
         calendarHelper: calendarHelper,
-        data: viewContext.items,
+        data: widget.viewContext.items,
         dateResolver: (ItemRecord item) async =>
-            (await viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
+            (await widget.viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
                 item.dateModified));
     return calcs;
   }
@@ -47,7 +64,7 @@ class CalendarRendererView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: init(),
+        future: _init,
         builder: (BuildContext context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -118,7 +135,7 @@ class CalendarRendererView extends StatelessWidget {
                       viewName: "calendarDayView",
                       renderer: "timeline",
                       dateRange: calendarHelper.wholeDay(day))
-                  .execute(sceneController, viewContext.getCVUContext());
+                  .execute(widget.sceneController, widget.viewContext.getCVUContext());
             } else {
               return;
             }
