@@ -129,7 +129,7 @@ abstract class PropertyDatabaseValue {
   }
 
   String? asString() {
-    return value.toString();
+    return value?.toString();
   }
 
   double? asDouble() {

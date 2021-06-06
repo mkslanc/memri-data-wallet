@@ -69,18 +69,18 @@ class _CVUSubViewState extends State<CVUSubView> {
       return null;
     }
     var defaultRenderer = viewDefinition.properties["defaultRenderer"];
-    if (defaultRenderer == null || !(defaultRenderer is CVUValueConstant)) {
+    if (defaultRenderer == null || defaultRenderer is! CVUValueConstant) {
       return null;
     }
-    if (!(defaultRenderer.value is CVUConstantArgument)) {
+    if (defaultRenderer.value is! CVUConstantArgument) {
       return null;
     }
     String rendererName = (defaultRenderer.value as CVUConstantArgument).value;
     var viewNameProp = viewDefinition.properties["viewName"];
-    if (viewNameProp == null || !(viewNameProp is CVUValueConstant)) {
+    if (viewNameProp == null || viewNameProp is! CVUValueConstant) {
       return null;
     }
-    if (!(viewNameProp.value is CVUConstantArgument)) {
+    if (viewNameProp.value is! CVUConstantArgument) {
       return null;
     }
     String viewName = (viewNameProp.value as CVUConstantArgument).value;
