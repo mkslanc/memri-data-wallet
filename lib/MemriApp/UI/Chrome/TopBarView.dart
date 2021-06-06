@@ -10,11 +10,41 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
+import '../ViewContextController.dart';
+
 /// This view provides the 'Navigation Bar' for the app interface
-class TopBarView extends StatelessWidget {
+class TopBarView extends StatefulWidget {
   final SceneController sceneController;
 
   TopBarView({required this.sceneController});
+
+  @override
+  _TopBarViewState createState() => _TopBarViewState();
+}
+
+class _TopBarViewState extends State<TopBarView> {
+  late ViewContextController? viewContext;
+  late Future<String?> title;
+
+  Future<String?> get _title async {
+    return await widget.sceneController.topMostContext?.viewDefinitionPropertyResolver
+            .string("title") ??
+        (viewContext?.focusedItem != null
+            ? await viewContext!.itemPropertyResolver?.string("title")
+            : "");
+  }
+
+  @override
+  initState() {
+    super.initState();
+    title = _title;
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    title = _title;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +54,8 @@ class TopBarView extends StatelessWidget {
         children: [
           ValueListenableBuilder(
             builder: (BuildContext context, bool value, Widget? child) {
-              var viewContext = sceneController.topMostContext;
+              viewContext = widget.sceneController.topMostContext;
               var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
-              var title =
-                  sceneController.topMostContext?.viewDefinitionPropertyResolver.string("title");
               return ColoredBox(
                 color: Color(0xfff2f2f7),
                 child: Column(
@@ -44,15 +72,15 @@ class TopBarView extends StatelessWidget {
                                   children: [
                                     IconButton(
                                       onPressed: () =>
-                                          sceneController.navigationIsVisible.value = true,
+                                          widget.sceneController.navigationIsVisible.value = true,
                                       icon: Icon(Icons.dehaze),
                                       padding: EdgeInsets.all(10),
                                     ),
-                                    if (sceneController.canNavigateBack)
+                                    if (widget.sceneController.canNavigateBack)
                                       IconButton(
                                         onPressed: () {
-                                          sceneController.navigateBack();
-                                          sceneController.isInEditMode.value = false;
+                                          widget.sceneController.navigateBack();
+                                          widget.sceneController.isInEditMode.value = false;
                                         },
                                         icon: Icon(Icons.arrow_back),
                                       )
@@ -84,8 +112,8 @@ class TopBarView extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   FutureBuilder<List<String>?>(
-                                      future: sceneController
-                                          .topMostContext?.viewDefinitionPropertyResolver
+                                      future: widget.sceneController.topMostContext
+                                          ?.viewDefinitionPropertyResolver
                                           .stringArray("editActionButton"),
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState == ConnectionState.done) {
@@ -117,7 +145,7 @@ class TopBarView extends StatelessWidget {
                 ),
               );
             },
-            valueListenable: sceneController.shouldUpdate,
+            valueListenable: widget.sceneController.shouldUpdate,
           ),
           Divider(
             height: 1,

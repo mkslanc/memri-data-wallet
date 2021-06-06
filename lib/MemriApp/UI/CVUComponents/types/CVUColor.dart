@@ -23,6 +23,7 @@ class CVUColor {
       case "tertiary":
       case "tertiaryLabel":
         return Color(0x4c3c3c43);
+      case "secondaryBackground":
       case "tertiarySystemBackground":
       case "secondarySystemGroupedBackground":
       case "background":
@@ -33,7 +34,6 @@ class CVUColor {
         return Color(0xffffffff);
       case "systemFill":
         return Color(0x5b787880);
-      case "secondaryBackground":
       case "secondarySystemBackground":
         return Color(0xfff2f2f7);
       case "gray":

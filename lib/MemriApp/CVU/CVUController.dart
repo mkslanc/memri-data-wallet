@@ -70,6 +70,13 @@ class CVUController {
         rendererName: rendererName);
   }
 
+  CVUDefinitionContent? nodeDefinitionForItem(
+      {required ItemRecord item, String? selector, String? renderer}) {
+    return _definitionFor(
+            type: CVUDefinitionType.uiNode, selector: item.type, rendererName: renderer)
+        ?.parsed;
+  }
+
   CVUDefinitionContent? viewDefinitionFor(
       {required String viewName, CVUDefinitionContent? customDefinition}) {
     var definition = _definitionFor(type: CVUDefinitionType.view, viewName: viewName)?.parsed;

@@ -315,43 +315,53 @@
       "property": "name",
       "value_type": "string"
     },
-    { "item_type": "CryptoCurrency",
+    {
+      "item_type": "CryptoCurrency",
       "property": "name",
       "value_type": "string"
     },
-    { "item_type": "CryptoCurrency",
+    {
+      "item_type": "CryptoCurrency",
       "property": "topic",
       "value_type": "string"
     },
-    { "item_type": "CryptoCurrency",
+    {
+      "item_type": "CryptoCurrency",
       "property": "myToken",
       "value_type": "double"
     },
-    { "item_type": "CryptoTransaction",
+    {
+      "item_type": "CryptoTransaction",
       "property": "quantity",
       "value_type": "double"
     },
-    { "item_type": "CryptoTransaction",
+    {
+      "item_type": "CryptoTransaction",
       "property": "outward",
       "value_type": "bool"
     },
-    { "item_type": "CurrencyOwner",
+    {
+      "item_type": "CurrencyOwner",
       "property": "displayName",
       "value_type": "string"
     },
-    { "item_type": "CurrencySetting",
+    {
+      "item_type": "CurrencySetting",
       "property": "seedPhrase",
       "value_type": "string"
     },
-    { "item_type": "CurrencySetting",
+    {
+      "item_type": "CurrencySetting",
       "property": "deviceAddress",
       "value_type": "string"
     },
-    { "item_type": "CurrencySetting",
+    {
+      "item_type": "CurrencySetting",
       "property": "profileAddress",
       "value_type": "string"
     },
-    { "item_type": "CurrencySetting",
+    {
+      "item_type": "CurrencySetting",
       "property": "tokenAddress",
       "value_type": "string"
     },
@@ -1810,7 +1820,8 @@
       "property": "dateExecuted",
       "value_type": "datetime"
     },
-    { "item_type": "Wallet",
+    {
+      "item_type": "Wallet",
       "property": "name",
       "value_type": "string"
     },
@@ -1892,6 +1903,11 @@
       "target_type": "Network"
     },
     {
+      "source_type": "Account",
+      "edge": "changelog",
+      "target_type": "AuditItem"
+    },
+    {
       "source_type": "Address",
       "edge": "country",
       "target_type": "Country"
@@ -1900,6 +1916,11 @@
       "source_type": "Address",
       "edge": "location",
       "target_type": "Location"
+    },
+    {
+      "source_type": "Address",
+      "edge": "changelog",
+      "target_type": "AuditItem"
     },
     {
       "source_type": "Article",
@@ -1945,6 +1966,11 @@
       "source_type": "Article",
       "edge": "review",
       "target_type": "Review"
+    },
+    {
+      "source_type": "Article",
+      "edge": "changelog",
+      "target_type": "AuditItem"
     },
     {
       "source_type": "VisualArt",
@@ -2141,43 +2167,53 @@
       "edge": "review",
       "target_type": "Review"
     },
-    { "source_type": "CryptoCurrency",
+    {
+      "source_type": "CryptoCurrency",
       "edge": "picture",
       "target_type": "Photo"
     },
-    { "source_type": "CryptoCurrency",
+    {
+      "source_type": "CryptoCurrency",
       "edge": "hasSetting",
       "target_type": "CurrencySetting"
     },
-    { "source_type": "CryptoTransaction",
+    {
+      "source_type": "CryptoTransaction",
       "edge": "inCurrency",
       "target_type": "CryptoCurrency"
     },
-    { "source_type": "CryptoTransaction",
+    {
+      "source_type": "CryptoTransaction",
       "edge": "relateTo",
       "target_type": "CurrencyOwner"
     },
-    { "source_type": "CryptoTransaction",
+    {
+      "source_type": "CryptoTransaction",
       "edge": "ofOwner",
       "target_type": "CurrencyOwner"
     },
-    { "source_type": "CurrencyOwner",
+    {
+      "source_type": "CurrencyOwner",
       "edge": "trust",
       "target_type": "CurrencyOwner"
     },
-    { "source_type": "CurrencyOwner",
+    {
+      "source_type": "CurrencyOwner",
       "edge": "ownCurrency",
       "target_type": "CryptoCurrency"
     },
-    { "source_type": "CurrencyOwner",
+    {
+      "source_type": "CurrencyOwner",
       "edge": "owner",
       "target_type": "Person"
     },
-    { "source_type": "CurrencyOwner",
+    {
+      "source_type": "CurrencyOwner",
       "edge": "hasTransaction",
       "target_type": "CryptoTransaction"
     },
-    { "source_type": "CurrencySetting",
+    {
+      "source_type": "CurrencySetting",
       "edge": "inWallet",
       "target_type": "Wallet"
     },
@@ -3013,6 +3049,11 @@
     },
     {
       "source_type": "Photo",
+      "edge": "changelog",
+      "target_type": "AuditItem"
+    },
+    {
+      "source_type": "Photo",
       "edge": "thumbnail",
       "target_type": "File"
     },
@@ -3331,7 +3372,8 @@
       "edge": "thumbnail",
       "target_type": "File"
     },
-    { "source_type": "Wallet",
+    {
+      "source_type": "Wallet",
       "edge": "picture",
       "target_type": "Photo"
     }

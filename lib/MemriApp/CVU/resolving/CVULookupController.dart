@@ -12,6 +12,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/DateTime.dart';
 import 'package:moor/moor.dart';
 import 'CVUContext.dart';
 import 'CVUViewArguments.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
@@ -439,6 +440,60 @@ class CVULookupController {
               }
             }
             return null;
+          case "camelcasetowords":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var camelCased = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  return PropertyDatabaseValueString(string.camelCaseToWords());
+                }
+              }).toList();
+              currentValue = LookupStepValues(camelCased);
+            } else {
+              return null;
+            }
+            break;
+          case "titlecase":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var titleCased = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  return PropertyDatabaseValueString(string.titleCase());
+                }
+              }).toList();
+              currentValue = LookupStepValues(titleCased);
+            } else {
+              return null;
+            }
+            break;
+          case "firstuppercased":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var titleCased = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  return PropertyDatabaseValueString(string.capitalizingFirst());
+                }
+              }).toList();
+              currentValue = LookupStepValues(titleCased);
+            } else {
+              return null;
+            }
+            break;
           default:
             return null;
         }
@@ -510,6 +565,11 @@ class CVULookupController {
             var me = await ItemRecord.me;
             if (me != null) {
               currentValue = LookupStepItems([me]);
+            }
+          } else if (node.name == "uid") {
+            var item = context.currentItem;
+            if (item != null && item.rowId != null) {
+              currentValue = LookupStepValues([PropertyDatabaseValueInt(item.rowId!)]);
             }
           }
         } else {
