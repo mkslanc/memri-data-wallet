@@ -33,17 +33,49 @@ class CVUUINodeResolver {
 
   List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
     var newContext = usingItem != null ? context.replacingItem(usingItem) : context;
-    return node.children.map((child) {
-      Widget widget = CVUElementView(
-        nodeResolver: CVUUINodeResolver(context: newContext, lookup: lookup, node: child, db: db),
-        additionalParams: additionalParams,
-      );
-      if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
-          (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
-        widget = Expanded(child: widget);
-      }
-      return widget;
-    }).toList();
+    var nodeChildren = node.children.asMap();
+
+    return nodeChildren
+        .map((index, child) {
+          Widget widget = CVUElementView(
+            nodeResolver:
+                CVUUINodeResolver(context: newContext, lookup: lookup, node: child, db: db),
+            additionalParams: additionalParams,
+          );
+          if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
+              (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
+            widget = Expanded(child: widget);
+          }
+          if (child.type == CVUUIElementFamily.Spacer) {
+            if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Text ||
+                nodeChildren[index - 1]?.type == CVUUIElementFamily.Text) {
+              return MapEntry(index, null);
+            }
+          }
+          if (child.type == CVUUIElementFamily.Text && node.type == CVUUIElementFamily.HStack) {
+            if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer ||
+                (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer &&
+                    nodeChildren[index - 2]?.type == CVUUIElementFamily.Text)) {
+              if (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer) {
+                widget = Align(
+                    alignment: nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer
+                        ? Alignment.center
+                        : Alignment.centerRight,
+                    child: widget);
+              }
+              widget = Expanded(child: widget);
+            } else {
+              widget = Flexible(
+                child: widget,
+                flex: 5,
+              );
+            }
+          }
+          return MapEntry(index, widget);
+        })
+        .values
+        .whereType<Widget>()
+        .toList();
   }
 
   Widget? firstChild() {
