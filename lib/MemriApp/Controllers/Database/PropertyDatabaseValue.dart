@@ -114,7 +114,8 @@ abstract class PropertyDatabaseValue {
     }
   }
 
-  static PropertyDatabaseValue? createFromCVUValue(CVUValue cvuValue, SchemaValueType propertyType) {
+  static PropertyDatabaseValue? createFromCVUValue(
+      CVUValue cvuValue, SchemaValueType propertyType) {
     if (cvuValue is! CVUValueConstant) {
       return null;
     }
@@ -146,7 +147,7 @@ abstract class PropertyDatabaseValue {
           return null;
         }
         return PropertyDatabaseValueInt(value.value);
-        //TODO ? return PropertyDatabaseValueDatetime(DateTime.fromMillisecondsSinceEpoch(value.value));
+      //TODO ? return PropertyDatabaseValueDatetime(DateTime.fromMillisecondsSinceEpoch(value.value));
       default:
         return null;
     }
