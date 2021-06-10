@@ -11,7 +11,6 @@ import 'package:uuid/uuid.dart';
 
 import 'API/PodAPIConnectionDetails.dart';
 import 'Database/DatabaseController.dart';
-import 'Database/DemoData.dart';
 import 'Syncing/SyncController.dart';
 
 enum AppState { setup, authentication, authenticated }
@@ -62,7 +61,19 @@ class AppController {
           // If there is already data set up, don't import
           onCompletion(null);
         } else {
-          await DemoData.importDemoData(databaseController: databaseController);
+          if (config is SetupConfigNewPod) {
+            var uri = Uri.parse(config.config.podURL);
+            var connectionConfig =
+                PodAPIConnectionDetails(scheme: uri.scheme, host: uri.host, port: uri.port);
+            if (await syncController.podIsExist(connectionConfig)) {
+              await databaseController.setupWithDemoData();
+              await syncController.sync(connectionConfig: connectionConfig);
+            } else {
+              throw Exception("Pod doesn't respond");
+            }
+          } else {
+            await databaseController.setupWithDemoData();
+          }
         }
       } on Exception catch (error) {
         onCompletion(error);
@@ -73,7 +84,7 @@ class AppController {
     /// During this setup function would be a good place to generate a database encryption key, create a new database with this key, and then import the demo data.
     /// NOTE: This is a temporary placehold until encryption is implemented.
     /// - UUID is not a good option for a randomly generated key, should use an existing generator from CryptoKit
-    var newDatabaseEncryptionKey = Uuid().toString();
+    var newDatabaseEncryptionKey = Uuid().v4();
     setHasBeenSetup(newDatabaseEncryptionKey);
     onCompletion(null);
   }

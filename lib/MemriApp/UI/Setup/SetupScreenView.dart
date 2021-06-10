@@ -77,6 +77,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                                   onPressed: () => Navigator.of(context).push(
                                                           MaterialPageRoute(builder: (context) {
                                                         return Scaffold(
+                                                          resizeToAvoidBottomInset: false,
                                                           appBar: AppBar(
                                                             title: Text('Pod setup'),
                                                           ),
