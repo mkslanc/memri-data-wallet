@@ -1,0 +1,124 @@
+.mergeAndFix {
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+
+    VStack {
+        padding: 15
+        alignment: left
+
+        SubView {
+            view {
+                viewName: SuggestedMerge
+                defaultRenderer: singleItem
+
+                [datasource = pod] {
+                    query: SuggestedMerge
+                    filter: {
+                        properties: {
+                           task: idle
+                        }
+                    }
+                    count: 1
+                }
+
+                arguments: {
+                    showToolbar: false
+                    showBottomBar: false
+                    readOnly: true
+                }
+            }
+        }
+    }
+}
+
+SuggestedMerge > singleItem {
+    VStack {
+        padding: 15
+        alignment: left
+
+        HStack {
+            alignment: left
+            Text {
+               text: "Is this the same person?"
+               lineLimit: 1
+               font: 18 semibold
+               color: #333
+               padding: 0 0 0 0
+            }
+        }
+
+        SubView {
+            view {
+                viewName: Person
+                defaultRenderer: list
+
+                [datasource = pod] {
+                    query: Person
+                    filter: {
+                        edgeSources: {
+                            mergeFrom: {{uid}}
+                        }
+                    }
+                }
+
+                arguments: {
+                    showToolbar: false
+                    showBottomBar: false
+                    readOnly: true
+                }
+            }
+        }
+
+        HStack {
+            Button {
+                background: #000
+                cornerRadius: 30
+                padding: 25 10
+
+                onPress: [
+                    setProperty {
+                        subject: {{.}}
+                        property: "task"
+                        value: "merge"
+                    }
+                ]
+
+                HStack {
+                    Text {
+                        text: "Merge contact"
+                        font: 18
+                        color: #fff
+                    }
+                    Image {
+                        systemName: "checkmark"
+                        color: #fff
+                    }
+                }
+            }
+
+            Button {
+                background: #fff
+                cornerRadius: 30
+                padding: 25 10
+
+                onPress: [
+                    setProperty {
+                        subject: {{.}}
+                        property: "task"
+                        value: "ignore"
+                    }
+                ]
+
+                HStack {
+                    Text {
+                        text: "No, dismiss."
+                        font: 18
+                        color: #000
+                    }
+                }
+            }
+        }
+    }
+}

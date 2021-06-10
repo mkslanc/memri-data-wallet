@@ -135,6 +135,11 @@
   },
   {
     "_type": "NavigationItem",
+    "title": "Merge and fix",
+    "sessionName": "mergeAndFix"
+  },
+  {
+    "_type": "NavigationItem",
     "title": "photos",
     "sessionName": "allPhotos"
   },
