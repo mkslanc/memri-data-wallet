@@ -18,6 +18,7 @@ import 'Renderers/GridRenderer.dart';
 import 'Renderers/LabelAnnotationRenderer.dart';
 import 'Renderers/ListRenderer.dart';
 import 'Renderers/MapRenderer.dart';
+import 'Renderers/CustomRenderer.dart';
 import 'Renderers/NoteEditorRenderer.dart';
 import 'Renderers/PhotoViewerRenderer.dart';
 import 'Renderers/SingleItemRenderer.dart';
@@ -95,6 +96,8 @@ class _SceneContentViewState extends State<SceneContentView> {
       case "labelannotation":
         return LabelAnnotationRendererView(
             viewContext: viewContext, sceneController: sceneController);
+      case "custom":
+        return CustomRendererView(viewContext: viewContext, sceneController: sceneController);
       case "fileviewer":
         return FileRendererView(viewContext: viewContext, sceneController: sceneController);
       case "generaleditor":

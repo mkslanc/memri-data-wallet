@@ -52,8 +52,6 @@ class ViewContextController extends ChangeNotifier {
 
     setupQueryObservation();
 
-    configHolder.addListener(_updateCachedValues);
-
     // Watch for changes to the config
     // configObservation = configHolder.configPublisher.sink { [weak self] _ in
     // self?.setupQueryObservation()
@@ -85,10 +83,23 @@ class ViewContextController extends ChangeNotifier {
 
   onAppear() {
     isObservingQuery = true;
+
+    configHolder.addListener(_updateCachedValues);
   }
 
   onDisappear() {
     isObservingQuery = false;
+
+    configHolder.removeListener(_updateCachedValues);
+  }
+
+  Widget renderNodeDefinition(CVUDefinitionContent nodeDefinition) {
+    return cvuController.render(
+        cvuContext: getCVUContext(),
+        nodeDefinition: nodeDefinition,
+        lookup: lookupController,
+        db: databaseController,
+        blankIfNoDefinition: false);
   }
 
   /// Return a SwiftUI view for the given item based on it's CVU definition.
