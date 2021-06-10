@@ -211,7 +211,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     List<int> rowIds = [];
-    itemRecords.forEach((itemRecord) => rowIds.add(itemRecord.rowId!));
+    itemRecords.forEach((itemRecord) => rowIds.add(itemRecord.rowId));
 
     // Property and edges conditions
     List<List<int>> allConditionsItemsRowIds = [];
@@ -269,16 +269,16 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       }
     }
 
-    var orderBy = "";
+    var orderBy;
     var join = "";
     List<TableInfo> joinTables = [];
     var sortOrder = sortAscending ? "" : "DESC";
     switch (sortProperty) {
       case "dateCreated":
-        orderBy = "ORDER BY dateCreated $sortOrder, dateModified $sortOrder";
+        orderBy = "dateCreated $sortOrder, dateModified $sortOrder";
         break;
       case "dateModified":
-        orderBy = "ORDER BY dateModified $sortOrder, dateCreated $sortOrder";
+        orderBy = "dateModified $sortOrder, dateCreated $sortOrder";
         break;
       case "dateSent":
         TableInfo table = dbController.databasePool.integers;
@@ -287,7 +287,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         join =
             "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
 
-        orderBy = "ORDER BY $tableName.value";
+        orderBy = "$tableName.value";
         break;
       case "":
       case null:
@@ -309,12 +309,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
           propertyOrderBy = "$tableName.value $sortOrder, ";
         }
 
-        orderBy = "ORDER BY $propertyOrderBy dateModified $sortOrder, dateCreated $sortOrder";
+        orderBy = "$propertyOrderBy dateModified $sortOrder, dateCreated $sortOrder";
         break;
     }
-    var finalQuery = "row_id IN (${rowIds.join(", ")}) $orderBy LIMIT $limit OFFSET $offset";
-    return await dbController.databasePool
-        .itemRecordsCustomSelect(finalQuery, [], join: join, joinTables: joinTables);
+    var finalQuery = "row_id IN (${rowIds.join(", ")})";
+    return await dbController.databasePool.itemRecordsCustomSelect(finalQuery, [],
+        join: join, joinTables: joinTables, limit: limit, offset: offset, orderBy: orderBy);
   }
 
   _constructSearchRequest() async {
