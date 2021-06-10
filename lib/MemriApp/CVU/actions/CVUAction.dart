@@ -799,7 +799,31 @@ class CVUActionSetProperty extends CVUAction {
 
   @override
   void execute(SceneController sceneController, CVUContext context) async {
-    // TODO:
+    var lookup = CVULookupController();
+    var db = sceneController.appController.databaseController;
+    var schema = db.schema;
+
+    var subjectVal = vars["subject"];
+    ItemRecord? subjectItem = await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    if (subjectItem == null) return;
+    String? property;
+    var propertyValue = vars["property"];
+    if (propertyValue is CVUValueConstant) {
+      var propertyName = propertyValue.value;
+      if (propertyName is CVUConstantString) {
+        property = propertyName.value;
+      }
+    }
+    if (property == null) return;
+
+    SchemaProperty? expectedType = schema.types[subjectItem.type]?.propertyTypes[property];
+    CVUValue? value = vars["value"];
+    if (expectedType == null || value == null) return;
+    var databaseValue = PropertyDatabaseValue.createFromCVUValue(value, expectedType.valueType);
+    if (databaseValue == null) return;
+
+    subjectItem.setPropertyValue(property, databaseValue);
+    sceneController.scheduleUIUpdate();
   }
 }
 

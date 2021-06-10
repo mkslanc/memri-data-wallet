@@ -26,6 +26,17 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
   initState() {
     super.initState();
     _init = init();
+    widget.sceneController.addListener(updateState);
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    widget.sceneController.removeListener(updateState);
+  }
+
+  updateState() {
+    setState(() {});
   }
 
   Future init() async {
