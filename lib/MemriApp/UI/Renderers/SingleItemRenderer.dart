@@ -56,7 +56,8 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
               return ValueListenableBuilder(
                   valueListenable: widget.viewContext.itemsValueNotifier,
                   builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                    var item = widget.viewContext.focusedItem;
+                    var item =
+                        widget.viewContext.focusedItem ?? widget.viewContext.items.asMap()[0];
                     if (item != null) {
                       return Expanded(
                           child: ColoredBox(
