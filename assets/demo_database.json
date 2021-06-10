@@ -150,6 +150,12 @@
   },
   {
     "_type": "NavigationItem",
+    "type": "item",
+    "title": "crypto keys",
+    "sessionName": "allCryptoKeys"
+  },
+  {
+    "_type": "NavigationItem",
     "title": "labels",
     "sessionName": "allLabels"
   },
