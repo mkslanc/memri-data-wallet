@@ -260,12 +260,16 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     List<int> filteredIds = [];
-    if (allConditionsItemsRowIds.isNotEmpty) {
-      filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
-      if (filteredIds.length == 0) {
-        return [];
+    if (conditions.isNotEmpty) {
+      if (allConditionsItemsRowIds.isNotEmpty) {
+        filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
+        if (filteredIds.length == 0) {
+          return [];
+        } else {
+          rowIds = filteredIds;
+        }
       } else {
-        rowIds = filteredIds;
+        return [];
       }
     }
 
