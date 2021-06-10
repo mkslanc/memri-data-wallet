@@ -175,6 +175,11 @@ class _CVUSubViewState extends State<CVUSubView> {
       ];
     }
 
+    var count = await datasourceResolver.integer("count");
+    if (count != null) {
+      queryConfig.count = count;
+    }
+
     var config = ViewContext(
         viewName: viewName,
         rendererName: rendererName,
@@ -212,7 +217,6 @@ class _CVUSubViewState extends State<CVUSubView> {
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Expanded(
-              // height: 200,
               child: Column(
                 children: [
                   if (title != null)

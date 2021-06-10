@@ -313,6 +313,11 @@ class SceneController extends ChangeNotifier {
         ..addAll(propertyConditions);
     }
 
+    var count = await datasourceResolver?.integer("count");
+    if (count != null) {
+      queryConfig.count = count;
+    }
+
     var config = ViewContext(
         viewName: viewName,
         rendererName: rendererName,

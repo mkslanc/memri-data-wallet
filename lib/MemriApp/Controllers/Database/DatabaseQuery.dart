@@ -96,6 +96,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   late DatabaseController dbController;
 
+  int? count;
+
   DatabaseQueryConfig(
       {this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
       this.itemRowIDs = const {},
@@ -110,7 +112,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.searchString,
       this.includeImmediateEdgeSearch = true,
       this.conditions = const [],
-      this.edgeTargetsOperator = ConditionOperator.and})
+      this.edgeTargetsOperator = ConditionOperator.and,
+      this.count})
       : _sortAscending = sortAscending,
         _sortProperty = sortProperty,
         _dateModifiedAfter = dateModifiedAfter,
@@ -134,7 +137,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         searchString: searchString,
         includeImmediateEdgeSearch: includeImmediateEdgeSearch,
         conditions: conditions,
-        edgeTargetsOperator: edgeTargetsOperator);
+        edgeTargetsOperator: edgeTargetsOperator,
+        count: count);
   }
 
   _constructFilteredRequest([Set<int>? searchRowIDs]) async {
@@ -145,8 +149,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       return [...arrays].reduce((a, c) => a.where((i) => c.contains(i)).toList());
     }
 
-    var limit = pageSize;
-    var offset = pageSize * currentPage;
+    var limit = count ?? pageSize;
+    var offset = count == null ? pageSize * currentPage : 0;
 
     var queryConditions = [];
     List<Variable<dynamic>> queryBindings = [];
