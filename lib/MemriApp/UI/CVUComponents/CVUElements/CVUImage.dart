@@ -35,6 +35,8 @@ class _CVUImageState extends State<CVUImage> {
 
   late Future _init;
 
+  bool isLoaded = false;
+
   @override
   initState() {
     super.initState();
@@ -58,6 +60,7 @@ class _CVUImageState extends State<CVUImage> {
         iconName = await widget.nodeResolver.propertyResolver.string("systemName");
       }
     }
+    isLoaded = true;
   }
 
   Future<String?> getFileImageURL() async {
@@ -100,7 +103,7 @@ class _CVUImageState extends State<CVUImage> {
             );
             //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
             //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
-          } else if (snapshot.connectionState == ConnectionState.done) {
+          } else if (isLoaded) {
             return Center(
               child: Icon(
                 Icons.error,
