@@ -7,6 +7,8 @@
 
 import 'dart:convert';
 
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:moor/moor.dart';
 
 import 'Schema.dart';
@@ -109,6 +111,44 @@ abstract class PropertyDatabaseValue {
           var data = jsonEncode(value);
           return PropertyDatabaseValueBlob(data);
         }
+    }
+  }
+
+  static PropertyDatabaseValue? createFromCVUValue(CVUValue cvuValue, SchemaValueType propertyType) {
+    if (cvuValue is! CVUValueConstant) {
+      return null;
+    }
+    CVUConstant value = cvuValue.value;
+
+    switch (propertyType) {
+      case SchemaValueType.double:
+        if (value is! CVUConstantNumber) {
+          return null;
+        }
+        return PropertyDatabaseValueDouble(value.value);
+      case SchemaValueType.bool:
+        if (value is! CVUConstantBool) {
+          return null;
+        }
+        return PropertyDatabaseValueInt(value.value ? 1 : 0);
+      case SchemaValueType.int:
+        if (value is! CVUConstantInt) {
+          return null;
+        }
+        return PropertyDatabaseValueInt(value.value);
+      case SchemaValueType.string:
+        if (value is! CVUConstantString) {
+          return null;
+        }
+        return PropertyDatabaseValueString(value.value);
+      case SchemaValueType.datetime:
+        if (value is! CVUConstantInt) {
+          return null;
+        }
+        return PropertyDatabaseValueInt(value.value);
+        //TODO ? return PropertyDatabaseValueDatetime(DateTime.fromMillisecondsSinceEpoch(value.value));
+      default:
+        return null;
     }
   }
 
