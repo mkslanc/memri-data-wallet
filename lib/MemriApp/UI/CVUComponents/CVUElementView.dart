@@ -137,7 +137,6 @@ class _CVUElementViewState extends State<CVUElementView> {
       case CVUUIElementFamily.Spacer:
       case CVUUIElementFamily.Divider:
       case CVUUIElementFamily.FlowStack:
-      case CVUUIElementFamily.SubView:
         return false;
       default:
         return true;
