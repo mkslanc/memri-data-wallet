@@ -6,7 +6,9 @@ CREATE TABLE items
     dateCreated        DATETIME NOT NULL,
     dateModified       DATETIME NOT NULL,
     dateServerModified DATETIME,
-    deleted            BOOLEAN  NOT NULL DEFAULT false
+    deleted            BOOLEAN  NOT NULL DEFAULT false,
+    syncState          TEXT     NOT NULL DEFAULT 'create',
+    syncHasPriority    BOOLEAN  NOT NULL DEFAULT false
 );
 CREATE
     UNIQUE INDEX idx_items_id on items (id);
@@ -16,10 +18,12 @@ CREATE
 
 CREATE TABLE edges
 (
-    self   INTEGER PRIMARY KEY,
-    source INTEGER NOT NULL,
-    name   TEXT    NOT NULL,
-    target INTEGER NOT NULL,
+    self            INTEGER PRIMARY KEY,
+    source          INTEGER NOT NULL,
+    name            TEXT    NOT NULL,
+    target          INTEGER NOT NULL,
+    syncState       TEXT    NOT NULL DEFAULT 'create',
+    syncHasPriority BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (source) REFERENCES items (row_id),
     FOREIGN KEY (target) REFERENCES items (row_id),
     FOREIGN KEY (self) REFERENCES items (row_id)
@@ -83,15 +87,11 @@ CREATE TABLE navigationState
 
 CREATE VIRTUAL TABLE strings_search USING fts5
 (
-    content=
-    "strings",
-    item
-    UNINDEXED,
-    name
-    UNINDEXED,
+    content= "strings",
+    item UNINDEXED,
+    name UNINDEXED,
     value,
-    tokenize =
-    'porter'
+    tokenize = 'porter'
 );
 
 -- Triggers to keep the FTS index up to date.
