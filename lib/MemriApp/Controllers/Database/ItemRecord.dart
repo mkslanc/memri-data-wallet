@@ -7,7 +7,6 @@ import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
-
 import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
@@ -157,6 +156,12 @@ class ItemRecord with EquatableMixin {
     }
   }
 
+  static Future<List<ItemRecord>> fetchWithType(String type, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    List<Item> item = await db.databasePool.itemRecordsFetchByType(type);
+    return item.map((e) => ItemRecord.fromItem(e)).toList();
+  }
+
   Future<int> insert(Database db) async {
     return await db.itemRecordInsert(this);
   }
@@ -264,32 +269,6 @@ class ItemRecord with EquatableMixin {
   @override
   List<Object> get props => [uid, type];
 
-/*
-    func syncDict(db: Database, schema: Schema) -> [String: AnyEncodable] {
-        let properties = try! request(for: ItemRecord.properties).fetchAll(db)
-//        let edges = try! request(for: ItemRecord.edges).fetchAll(db)
-        return _syncDict(properties: properties, schema: schema)//, edges: edges)
-    }
-
-    func _syncDict(properties: [ItemPropertyRecord], schema: Schema) -> [String: AnyEncodable] { //, edges: [ItemEdgeRecord]
-        let keyProperties: [String: AnyEncodable] = [
-            "_type": type,
-            "uid": uid,
-            "dateCreated": DatabaseHelperFunctions.encode(dateCreated),
-            "dateModified": DatabaseHelperFunctions.encode(dateModified),
-            "version": version,
-            "deleted": deleted,
-        ].mapValues { AnyEncodable($0) }
-
-        let otherProperties: [(String, AnyEncodable)] = properties.compactMap {
-            guard let propertyValue = $0.value(itemType: type, schema: schema) else { return nil }
-            return ($0.name, AnyEncodable(propertyValue))
-        }
-
-        return keyProperties
-            .merging(otherProperties, uniquingKeysWith: { a, b in a })
-    }
-  */
   static Future<List<ItemRecord>> search(DatabaseController dbController, String pattern) async {
     List<dynamic> list = await dbController.databasePool
         .itemPropertyRecordsCustomSelect("value MATCH ?", [Variable.withString(pattern)], true);
@@ -307,6 +286,15 @@ class ItemRecord with EquatableMixin {
     return await ItemRecord.fetchWithRowID(edge.target, dbController);
   }
 
+  static Future<ItemRecord?> createMe([DatabaseController? dbController]) async {
+    dbController ??= AppController.shared.databaseController;
+    var myself = ItemRecord(type: "Person");
+    await myself.save(dbController.databasePool);
+
+    await ItemEdgeRecord(sourceRowID: myself.rowId, name: "me", targetRowID: myself.rowId).save();
+    return myself;
+  }
+
   addChangeLog(String name, PropertyDatabaseValue? value,
       [DatabaseController? dbController]) async {
     dbController ??= AppController.shared.databaseController;
@@ -322,5 +310,79 @@ class ItemRecord with EquatableMixin {
     await auditItem.setPropertyValue("action", PropertyDatabaseValueString("edit"), dbController);
     await ItemEdgeRecord(sourceRowID: rowId, name: "changelog", targetRowID: auditItem.rowId)
         .save(dbController.databasePool);
+  }
+
+  static mapSchemaValueType(String nativeType) {
+    switch (nativeType) {
+      case "string":
+        return "Text";
+      case "int":
+        return "Integer";
+      case "double":
+        return "Real";
+      case "bool":
+        return "Bool";
+      default:
+        return null;
+    }
+  }
+
+  static mapSchemaPropertyName(String propertyName) {
+    switch (propertyName) {
+      case "action":
+        return "actionName";
+      case "query":
+        return "queryName";
+      case "key":
+        return "keyName";
+      case "type":
+        return "typeName";
+      default:
+        return propertyName;
+    }
+  }
+
+  Future<Map<String, dynamic>?> schemaDict(DatabaseController dbController) async {
+    if (rowId != null) {
+      var itemType = (await property("itemType", dbController))?.$value.value;
+      var propertyName = (await property("propertyName", dbController))?.$value.value;
+      var valueType = (await property("valueType", dbController))?.$value.value;
+      var schemaValueType = ItemRecord.mapSchemaValueType(valueType);
+      if (itemType == null ||
+          propertyName == null ||
+          valueType == null ||
+          schemaValueType == null) {
+        return null;
+      }
+      return {
+        "type": "ItemPropertySchema",
+        "itemType": itemType,
+        "propertyName": ItemRecord.mapSchemaPropertyName(propertyName),
+        "valueType": schemaValueType
+      };
+    }
+    return null;
+  }
+
+  Map<String, dynamic> mergeDict(
+      {required List<ItemPropertyRecord> properties, required Schema schema}) {
+    Map<String, dynamic> keyProperties = {
+      "type": type,
+      "id": uid,
+      "dateCreated": dateCreated.millisecondsSinceEpoch,
+      "dateModified": dateModified.millisecondsSinceEpoch,
+      "deleted": deleted,
+    };
+
+    properties.forEach((element) {
+      var propertyValue = element.$value.value;
+      keyProperties.addEntries([MapEntry(element.name, propertyValue)]);
+    });
+
+    return keyProperties;
+  }
+
+  Future<Map<String, dynamic>> syncDict(DatabaseController dbController, Schema schema) async {
+    return mergeDict(properties: await properties(dbController), schema: schema);
   }
 }

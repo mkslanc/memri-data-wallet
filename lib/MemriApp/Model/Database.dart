@@ -44,6 +44,14 @@ class Database extends _$Database {
     return await (select(items)..limit(1)).getSingleOrNull();
   }
 
+  Future<Item?> itemRecordFetchOneByType(String type) async {
+    return await ((select(items)..where((t) => t.type.equals(type)))..limit(1)).getSingleOrNull();
+  }
+
+  Future<List<Item>> itemRecordsFetchByType(String type) async {
+    return await (select(items)..where((t) => t.type.equals(type))).get();
+  }
+
   Future<int> itemRecordInsert(ItemRecord record) async {
     return await into(items).insert(record.toCompanion());
   }
