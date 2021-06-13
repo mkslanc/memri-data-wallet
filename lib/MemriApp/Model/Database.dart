@@ -32,12 +32,12 @@ class Database extends _$Database {
     }
   }
 
-  Future<Item> itemRecordFetchWithUID(String uid) async {
-    return await (select(items)..where((t) => t.id.equals(uid))).getSingle();
+  Future<Item?> itemRecordFetchWithUID(String uid) async {
+    return await (select(items)..where((t) => t.id.equals(uid))).getSingleOrNull();
   }
 
-  Future<Item> itemRecordFetchWithRowId(int id) async {
-    return await (select(items)..where((t) => t.rowId.equals(id))).getSingle();
+  Future<Item?> itemRecordFetchWithRowId(int id) async {
+    return await (select(items)..where((t) => t.rowId.equals(id))).getSingleOrNull();
   }
 
   Future<Item?> itemRecordFetchOne() async {
