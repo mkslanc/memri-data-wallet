@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
+import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
-import 'package:memri/MemriApp/Controllers/Syncing/SyncController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
@@ -10,6 +10,23 @@ import 'package:uuid/uuid.dart';
 import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+
+enum SyncState {
+  create,
+  update,
+  noChanges,
+  failed,
+}
+
+extension SyncStateExtension on SyncState {
+  static SyncState rawValue(String value) =>
+      SyncState.values.firstWhere((val) => val.inString == value);
+
+  String get inString {
+    return this.toString().split('.').last;
+  }
+}
 
 class ItemRecord with EquatableMixin {
   int? rowId;
@@ -44,20 +61,31 @@ class ItemRecord with EquatableMixin {
         dateModified = item.dateModified,
         dateServerModified = item.dateServerModified,
         deleted = item.deleted,
-        syncState = SyncState.create,
+        syncState = SyncStateExtension.rawValue(item.syncState),
+        syncHasPriority = item.syncHasPriority;
+
+  ItemRecord.fromSyncDict(Map<String, dynamic> dict)
+      : uid = dict["id"],
+        type = dict["type"],
+        dateCreated = DateTime.fromMillisecondsSinceEpoch(dict["dateCreated"]),
+        dateModified = DateTime.fromMillisecondsSinceEpoch(dict["dateModified"]),
+        dateServerModified = DateTime.fromMillisecondsSinceEpoch(dict["dateServerModified"]),
+        deleted = dict["deleted"],
+        syncState = SyncState.noChanges,
         syncHasPriority = false;
 
   ItemsCompanion toCompanion() {
     return ItemsCompanion(
-      rowId: rowId == null ? const Value.absent() : Value(rowId),
-      id: Value(uid),
-      type: Value(type),
-      dateCreated: Value(dateCreated),
-      dateModified: Value(dateModified),
-      dateServerModified:
-          dateServerModified == null ? const Value.absent() : Value(dateServerModified),
-      deleted: Value(deleted),
-    );
+        rowId: rowId == null ? const Value.absent() : Value(rowId!),
+        id: Value(uid),
+        type: Value(type),
+        dateCreated: Value(dateCreated),
+        dateModified: Value(dateModified),
+        dateServerModified:
+            dateServerModified == null ? const Value.absent() : Value(dateServerModified),
+        deleted: Value(deleted),
+        syncState: Value(syncState.inString),
+        syncHasPriority: Value(syncHasPriority));
   }
 
   Future<ItemPropertyRecord?> property(String name, [DatabaseController? db]) async {
@@ -108,22 +136,12 @@ class ItemRecord with EquatableMixin {
   setPropertyValue(String name, PropertyDatabaseValue? value, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
 
-    /// Mark the item as modified, and mark for syncing (unless already marked as a newly created item to be synced)
-    dateModified = DateTime.now();
-    if (syncState != SyncState.create) {
-      syncState = SyncState.update;
-    }
-
-    /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
-    await save(db.databasePool);
-
     /// Create or update the property
     var itemPropertyRecord = await property(name, db);
     if (itemPropertyRecord != null) {
       if (value != null) {
         itemPropertyRecord.$value = value;
         await itemPropertyRecord.save(db.databasePool);
-        await addChangeLog(name, value, db); //TODO: maybe we need audit for all actions
       } else {
         await itemPropertyRecord.delete(db.databasePool);
       }
@@ -132,12 +150,18 @@ class ItemRecord with EquatableMixin {
           ItemPropertyRecord(itemUID: uid, itemRowID: rowId!, name: name, value: value);
       await itemPropertyRecord.save(db.databasePool);
     }
+    syncState = SyncState.update;
+
+    /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
+    await save(db.databasePool);
+    //await addChangeLog(name, value, db); //TODO
   }
 
   static Future<ItemRecord?> fetchWithUID(String uid, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     try {
-      Item item = await db.databasePool.itemRecordFetchWithUID(uid);
+      Item? item = await db.databasePool.itemRecordFetchWithUID(uid);
+      if (item == null) return null;
       return ItemRecord.fromItem(item);
     } catch (e) {
       print(e);
@@ -148,7 +172,8 @@ class ItemRecord with EquatableMixin {
   static Future<ItemRecord?> fetchWithRowID(int id, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     try {
-      Item item = await db.databasePool.itemRecordFetchWithRowId(id);
+      Item? item = await db.databasePool.itemRecordFetchWithRowId(id);
+      if (item == null) return null;
       return ItemRecord.fromItem(item);
     } catch (e) {
       print(e);
@@ -272,8 +297,13 @@ class ItemRecord with EquatableMixin {
   static Future<List<ItemRecord>> search(DatabaseController dbController, String pattern) async {
     List<dynamic> list = await dbController.databasePool
         .itemPropertyRecordsCustomSelect("value MATCH ?", [Variable.withString(pattern)], true);
-    return await Future.wait(list.map((el) async => ItemRecord.fromItem(
-        await dbController.databasePool.itemRecordFetchWithRowId(int.parse(el.item)))));
+    return (await Future.wait(list.map((el) async {
+      Item? item = await dbController.databasePool.itemRecordFetchWithRowId(int.parse(el.item));
+      if (item == null) return null;
+      return ItemRecord.fromItem(item);
+    })))
+        .whereType<ItemRecord>()
+        .toList();
   }
 
   static Future<ItemRecord?> get me async {
@@ -322,6 +352,8 @@ class ItemRecord with EquatableMixin {
         return "Real";
       case "bool":
         return "Bool";
+      case "datetime":
+        return "DateTime";
       default:
         return null;
     }
@@ -342,6 +374,30 @@ class ItemRecord with EquatableMixin {
     }
   }
 
+  static Future<ItemRecord?> fromSyncItemDict(
+      {required Map<String, dynamic> dict, required DatabaseController dbController}) async {
+    var id = dict["id"];
+    if (id == null) {
+      return null;
+    }
+
+    ItemRecord? item = await ItemRecord.fetchWithUID(id, dbController);
+    if (item == null) {
+      item = ItemRecord.fromSyncDict(dict);
+      await item.save(dbController.databasePool);
+    }
+    await Future.forEach(dict.entries, (MapEntry entry) async {
+      var expectedType = dbController.schema.types[item!.type]?.propertyTypes[entry.key];
+      if (expectedType == null) {
+        return;
+      }
+      var databaseValue = PropertyDatabaseValue.create(entry.value, expectedType.valueType);
+      await item.setPropertyValue(entry.key, databaseValue, dbController);
+    });
+
+    return item;
+  }
+
   Future<Map<String, dynamic>?> schemaDict(DatabaseController dbController) async {
     if (rowId != null) {
       var itemType = (await property("itemType", dbController))?.$value.value;
@@ -355,6 +411,7 @@ class ItemRecord with EquatableMixin {
         return null;
       }
       return {
+        "id": uid,
         "type": "ItemPropertySchema",
         "itemType": itemType,
         "propertyName": ItemRecord.mapSchemaPropertyName(propertyName),
@@ -382,7 +439,59 @@ class ItemRecord with EquatableMixin {
     return keyProperties;
   }
 
-  Future<Map<String, dynamic>> syncDict(DatabaseController dbController, Schema schema) async {
-    return mergeDict(properties: await properties(dbController), schema: schema);
+  Future<Map<String, dynamic>> syncDict(DatabaseController dbController) async {
+    return mergeDict(properties: await properties(dbController), schema: dbController.schema);
+  }
+
+  static Future<List<Map<String, dynamic>>> syncItemsWithState(
+      {required SyncState state, int maxItems = 100, DatabaseController? dbController}) async {
+    dbController ??= AppController.shared.databaseController;
+
+    /// Select the items to sync, giving priority to those marked as `syncHasPriority`
+    var items = await dbController.databasePool.itemRecordsCustomSelect(
+        "type != ? AND syncState = ?", [Variable("ItemPropertySchema"), Variable(state.inString)],
+        limit: maxItems);
+    var syncItems = (await Future.wait(
+            items.map((item) async => await ItemRecord.fromItem(item).syncDict(dbController!))))
+        .whereType<Map<String, dynamic>>()
+        .toList();
+    return syncItems;
+  }
+
+  static didSyncItems(PodAPIPayloadBulkAction syncItems, String? error,
+      [DatabaseController? dbController]) async {
+    if (error != null) {
+      throw Exception("Sync Failed");
+    }
+    dbController ??= AppController.shared.databaseController;
+
+    List<String> createItemIDs =
+        syncItems.createItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
+
+    List<String> updateItemIDs =
+        syncItems.updateItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
+
+    var allItems = createItemIDs;
+    allItems.addAll(updateItemIDs);
+    var now = DateTime.now();
+    for (var itemId in allItems) {
+      var item = await fetchWithUID(itemId, dbController);
+      if (item != null) {
+        item.syncState = SyncState.noChanges;
+        item.dateServerModified = now;
+        await item.save(dbController.databasePool);
+      }
+    }
+  }
+
+  static Future<ItemRecord?> lastSyncedItem([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var items = (await db.itemRecordsCustomSelect(
+        "syncState = ?", [Variable(SyncState.noChanges.inString)],
+        orderBy: "dateServerModified DESC"));
+    if (items.length > 0) {
+      return ItemRecord.fromItem(items[0]);
+    }
+    return null;
   }
 }

@@ -79,14 +79,19 @@ class PodAPIPayloadServicePayload extends PodAPIPayload {
 class PodAPIPayloadBulkAction extends PodAPIPayload {
   List<Map<String, dynamic>> createItems;
   List<Map<String, dynamic>> updateItems;
+  List<Map<String, dynamic>> createEdges;
   List<String> deleteItems;
 
   PodAPIPayloadBulkAction(
-      {required this.createItems, required this.updateItems, required this.deleteItems});
+      {required this.createItems,
+      required this.updateItems,
+      required this.deleteItems,
+      required this.createEdges});
 
   toJson() => {
         'createItems': createItems,
         'updateItems': updateItems,
         'deleteItems': deleteItems,
+        'createEdges': createEdges
       };
 }
