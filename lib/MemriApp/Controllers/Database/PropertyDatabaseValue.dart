@@ -32,7 +32,7 @@ abstract class PropertyDatabaseValue {
         if (boolean == null) {
           return null;
         }
-        return PropertyDatabaseValueBool(boolean == 1 ? true : false);
+        return PropertyDatabaseValueBool(boolean);
       case SchemaValueType.int:
         var number = int.tryParse(databaseValue.value);
         if (number == null) {
@@ -72,15 +72,14 @@ abstract class PropertyDatabaseValue {
       case SchemaValueType.bool:
         if (value is! bool && value is! int) {
           throw Exception('Expected Bool: $debugInfo');
-        } //TODO: @mkslanc
-        var intVal;
-        if (value is bool) {
-          intVal = (value) ? 1 : 0;
-        } else {
-          intVal = value;
         }
-        return PropertyDatabaseValueInt(intVal);
-      //return PropertyDatabaseValueBool(value, SchemaValueType.bool);
+        var boolVal;
+        if (value is int) {
+          boolVal = value == 0 ? false : true;
+        } else {
+          boolVal = value;
+        }
+        return PropertyDatabaseValueBool(boolVal);
       case SchemaValueType.int:
         if (value is! int) {
           throw Exception('Expected Int: $debugInfo');
@@ -93,10 +92,7 @@ abstract class PropertyDatabaseValue {
         return PropertyDatabaseValueString(value);
       case SchemaValueType.datetime:
         if (value != null && value is int) {
-          //TODO: @mkslanc
           return PropertyDatabaseValueInt(value);
-          /*var date = DateTime.fromMillisecondsSinceEpoch(value);
-          return PropertyDatabaseValueDatetime(date);*/
         }
         throw Exception('Expected DateTime (Int with milliseconds since 1970): $debugInfo');
       case SchemaValueType.blob:
