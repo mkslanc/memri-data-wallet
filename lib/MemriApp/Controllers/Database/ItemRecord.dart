@@ -12,6 +12,11 @@ import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'ItemRecord.g.dart';
+
+@JsonSerializable()
 class ItemRecord with EquatableMixin {
   int? rowId;
   String uid;
@@ -26,10 +31,10 @@ class ItemRecord with EquatableMixin {
 
   ItemRecord(
       {this.rowId,
-      uid,
+      String? uid,
       required this.type,
-      dateCreated,
-      dateModified,
+      DateTime? dateCreated,
+      DateTime? dateModified,
       this.deleted = false,
       this.syncState = SyncState.create,
       this.syncHasPriority = false})
@@ -50,15 +55,16 @@ class ItemRecord with EquatableMixin {
 
   ItemsCompanion toCompanion() {
     return ItemsCompanion(
-      rowId: rowId == null ? const Value.absent() : Value(rowId),
-      id: Value(uid),
-      type: Value(type),
-      dateCreated: Value(dateCreated),
-      dateModified: Value(dateModified),
-      dateServerModified:
-          dateServerModified == null ? const Value.absent() : Value(dateServerModified),
-      deleted: Value(deleted),
-    );
+        rowId: rowId == null ? const Value.absent() : Value(rowId!),
+        id: Value(uid),
+        type: Value(type),
+        dateCreated: Value(dateCreated),
+        dateModified: Value(dateModified),
+        dateServerModified:
+            dateServerModified == null ? const Value.absent() : Value(dateServerModified),
+        deleted: Value(deleted),
+        syncState: Value(syncState.inString),
+        syncHasPriority: Value(syncHasPriority));
   }
 
   Future<ItemPropertyRecord?> property(String name, [DatabaseController? db]) async {
@@ -260,6 +266,9 @@ class ItemRecord with EquatableMixin {
         });
     }
   }
+
+  factory ItemRecord.fromJson(Map<String, dynamic> json) => _$ItemRecordFromJson(json);
+  Map<String, dynamic> toJson() => _$ItemRecordToJson(this);
 
   @override
   List<Object> get props => [uid, type];
