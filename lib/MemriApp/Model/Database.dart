@@ -1,6 +1,7 @@
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/NavigationStack.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:moor/moor.dart';
 
@@ -218,6 +219,10 @@ class Database extends _$Database {
 
   Future<NavigationStateData?> navigationStateFetchOne() async {
     return await select(navigationState).getSingleOrNull();
+  }
+
+  Future<int> navigationStateSave(NavigationStack record) async {
+    return await into(navigationState).insertOnConflictUpdate(record.toCompanion());
   }
 }
 
