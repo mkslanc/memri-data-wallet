@@ -38,6 +38,18 @@ class _TopBarViewState extends State<TopBarView> {
   initState() {
     super.initState();
     title = _title;
+    widget.sceneController.addListener(updateState);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.sceneController.removeListener(updateState);
+  }
+
+  void updateState() {
+    title = _title;
+    setState(() {});
   }
 
   @override
@@ -48,104 +60,98 @@ class _TopBarViewState extends State<TopBarView> {
 
   @override
   Widget build(BuildContext context) {
+    viewContext = widget.sceneController.topMostContext;
+    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     return Padding(
       padding: EdgeInsets.only(top: 20),
       child: Column(
         children: [
-          ValueListenableBuilder(
-            builder: (BuildContext context, bool value, Widget? child) {
-              viewContext = widget.sceneController.topMostContext;
-              var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
-              return ColoredBox(
-                color: Color(0xfff2f2f7),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 60,
-                      child: Row(
-                        children: space(4, [
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 100,
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () =>
-                                          widget.sceneController.navigationIsVisible.value = true,
-                                      icon: Icon(Icons.dehaze),
-                                      padding: EdgeInsets.all(10),
-                                    ),
-                                    if (widget.sceneController.canNavigateBack)
-                                      IconButton(
-                                        onPressed: () {
-                                          widget.sceneController.navigateBack();
-                                          widget.sceneController.isInEditMode.value = false;
-                                        },
-                                        icon: Icon(Icons.arrow_back),
-                                      )
-                                  ],
+          ColoredBox(
+            color: Color(0xfff2f2f7),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 60,
+                  child: Row(
+                    children: space(4, [
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () =>
+                                      widget.sceneController.navigationIsVisible.value = true,
+                                  icon: Icon(Icons.dehaze),
+                                  padding: EdgeInsets.all(10),
                                 ),
-                              )
-                            ],
-                          ),
-                          FutureBuilder(
-                              future: title,
-                              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                                if (snapshot.hasData) {
-                                  return Expanded(
-                                      child: Center(
-                                    child: Text(
-                                      snapshot.data!,
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-                                    ),
-                                  ));
-                                } else {
-                                  return Spacer();
-                                }
-                              }),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(minWidth: 100),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  FutureBuilder<List<String>?>(
-                                      future: widget.sceneController.topMostContext
-                                          ?.viewDefinitionPropertyResolver
-                                          .stringArray("editActionButton"),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.done) {
-                                          var editAction = snapshot.data?.asMap()[0];
-                                          var action = cvuAction(editAction ?? "");
-                                          if (action != null) {
-                                            return ActionButton(
-                                                action: action(vars: {
-                                                  "icon":
-                                                      CVUValueConstant(CVUConstantString("pencil"))
-                                                }),
-                                                viewContext: viewContext!.getCVUContext());
-                                          }
-                                        }
-                                        return Empty();
-                                      }),
-                                  if (actions != null)
-                                    ...actions.map((action) => ActionButton(
-                                        action: action, viewContext: viewContext!.getCVUContext()))
-                                ],
-                                mainAxisAlignment: MainAxisAlignment.end,
-                              ),
+                                if (widget.sceneController.canNavigateBack)
+                                  IconButton(
+                                    onPressed: () {
+                                      widget.sceneController.navigateBack();
+                                      widget.sceneController.isInEditMode.value = false;
+                                    },
+                                    icon: Icon(Icons.arrow_back),
+                                  )
+                              ],
                             ),
                           )
-                        ]),
+                        ],
                       ),
-                    )
-                  ],
-                ),
-              );
-            },
-            valueListenable: widget.sceneController.shouldUpdate,
+                      FutureBuilder(
+                          future: title,
+                          builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                            if (snapshot.hasData) {
+                              return Expanded(
+                                  child: Center(
+                                child: Text(
+                                  snapshot.data!,
+                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                                ),
+                              ));
+                            } else {
+                              return Spacer();
+                            }
+                          }),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: 100),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FutureBuilder<List<String>?>(
+                                  future: widget.sceneController.topMostContext
+                                      ?.viewDefinitionPropertyResolver
+                                      .stringArray("editActionButton"),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.done) {
+                                      var editAction = snapshot.data?.asMap()[0];
+                                      var action = cvuAction(editAction ?? "");
+                                      if (action != null) {
+                                        return ActionButton(
+                                            action: action(vars: {
+                                              "icon": CVUValueConstant(CVUConstantString("pencil"))
+                                            }),
+                                            viewContext: viewContext!.getCVUContext());
+                                      }
+                                    }
+                                    return Empty();
+                                  }),
+                              if (actions != null)
+                                ...actions.map((action) => ActionButton(
+                                    action: action, viewContext: viewContext!.getCVUContext()))
+                            ],
+                            mainAxisAlignment: MainAxisAlignment.end,
+                          ),
+                        ),
+                      )
+                    ]),
+                  ),
+                )
+              ],
+            ),
           ),
           Divider(
             height: 1,
