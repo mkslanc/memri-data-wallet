@@ -23,7 +23,9 @@ class AppController {
   late CVUController cvuController;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
+
   get state => _state;
+
   set state(newValue) => _state.value = newValue;
 
   static String keychainDatabaseKey = "memri_databaseKey";
@@ -65,7 +67,12 @@ class AppController {
             var uri = Uri.parse(config.config.podURL);
             var connectionConfig =
                 PodAPIConnectionDetails(scheme: uri.scheme, host: uri.host, port: uri.port);
-            if (await syncController.podIsExist(connectionConfig)) {
+            if (await syncController.podIsExist(connectionConfig).timeout(
+              Duration(seconds: 3),
+              onTimeout: () {
+                throw Exception("Pod doesn't respond");
+              },
+            )) {
               await databaseController.setupWithDemoData();
               await syncController.sync(connectionConfig: connectionConfig);
             } else {

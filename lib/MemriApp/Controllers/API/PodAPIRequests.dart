@@ -103,7 +103,7 @@ class PodAPIStandardRequest<Payload> {
   }
 
   static PodAPIStandardRequest getVersion() {
-    return PodAPIStandardRequest(path: "version", payload: {});
+    return PodAPIStandardRequest(method: HTTPMethod.get, path: "version", payload: {});
   }
 }
 
