@@ -34,14 +34,16 @@ class SceneController extends ChangeNotifier {
     setupObservations(); //TODO
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {
-      navigationStack = navStack;
+      _navigationStack = navStack;
       var topView = navStack.state.last;
       var context = makeContext(topView);
       topMostContext = context;
       navigationController
           .setViewControllers(SceneContentView(sceneController: this, viewContext: context));
     } else {
-      // navigationController.setViewControllers(Text("Welcome to Memri"));//TODO
+      navigationController.setViewControllers(Center(
+        child: Text("Welcome to Memri"),
+      ));
     }
   }
 
@@ -75,8 +77,6 @@ class SceneController extends ChangeNotifier {
   ValueNotifier<bool> isInEditMode = ValueNotifier(false);
 
   ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
-  ValueNotifier<bool> shouldUpdate =
-      ValueNotifier(false); //TODO dirty hack, delete as soon as good solution is found @anijanyan
 
   String? get navigationFilterText => _navigationQuery.searchString;
 
@@ -144,25 +144,13 @@ class SceneController extends ChangeNotifier {
 
   NavigationStack _navigationStack = NavigationStack();
 
+  NavigationStack get navigationStack => _navigationStack;
+
   set navigationStack(NavigationStack newValue) {
     _navigationStack = newValue;
-    shouldUpdate.value = !shouldUpdate.value; //TODO dirty hack
+    notifyListeners();
+    _navigationStack.save();
   }
-
-  /* = NavigationStack() {
-  willSet {
-  if newValue != navigationStack {
-  objectWillChange.send()
-  }
-  }
-  didSet {
-  if navigationStack != oldValue {
-  try? appController.databaseController.writeSync {
-  try .save($0)
-  }navigationStack
-  }
-  }
-  }*/
 
   ViewContextController makeContext(ViewContextHolder config) {
     return ViewContextController(
@@ -171,18 +159,20 @@ class SceneController extends ChangeNotifier {
         cvuController: appController.cvuController);
   }
 
-  bool get canNavigateBack => _navigationStack.state.length > 1;
+  bool get canNavigateBack => navigationStack.state.length > 1;
 
   navigateBack() {
-    if (_navigationStack.state.length <= 1) {
+    var navStack = navigationStack;
+    if (navStack.state.length <= 1) {
       return;
     }
-    var newTopConfig = _navigationStack.state[_navigationStack.state.length - 2];
-    _navigationStack.state.removeLast();
-    navigationStack = _navigationStack; //TODO
+    var newTopConfig = navStack.state[navStack.state.length - 2];
+    navStack.state.removeLast();
 
     var context = makeContext(newTopConfig);
     topMostContext = context;
+
+    navigationStack = navStack;
 
     var vc = SceneContentView(sceneController: this, viewContext: context);
     navigationController.setViewControllers(vc); //TODO this is not right
@@ -322,12 +312,13 @@ class SceneController extends ChangeNotifier {
 
     var newViewContextController = makeContext(holder);
     topMostContext = newViewContextController;
+    var navStack = navigationStack;
     if (clearStack) {
-      _navigationStack.state = [holder];
+      navStack.state = [holder];
     } else {
-      _navigationStack.state.add(holder);
+      navStack.state.add(holder);
     }
-    navigationStack = _navigationStack; //TODO
+    navigationStack = navStack; //TODO
     navigationController.setViewControllers(
         SceneContentView(sceneController: this, viewContext: newViewContextController));
   }
