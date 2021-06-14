@@ -4,6 +4,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
@@ -30,6 +31,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
   void initState() {
     super.initState();
     podUrlController.addListener(_setPodUrl);
+    podUrlController.text = model.defaultPodURL;
     podPublicKeyController.addListener(_setPodPublicKey);
     podPrivateKeyController.addListener(_setPodPrivateKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
@@ -315,6 +317,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
   }
 
   void onConnectPressed() async {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
     if (model.setupAsNewPod) {
       setState(newPodWarning);
     } else {

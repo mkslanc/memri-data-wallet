@@ -87,6 +87,25 @@ class AppController {
         return;
       }
     }
+    if (config is SetupConfigExistingPod) {
+      var uri = Uri.parse(config.config.podURL);
+      var connectionConfig = PodAPIConnectionDetails(
+          scheme: uri.scheme,
+          host: uri.host,
+          port: uri.port,
+          ownerKey: config.config.podPublicKey,
+          databaseKey: config.config.podDatabaseKey);
+      if (await syncController.podIsExist(connectionConfig).timeout(
+        Duration(seconds: 3),
+        onTimeout: () {
+          throw Exception("Pod doesn't respond");
+        },
+      )) {
+        await syncController.sync(connectionConfig: connectionConfig);
+      } else {
+        throw Exception("Pod doesn't respond");
+      }
+    }
 
     /// During this setup function would be a good place to generate a database encryption key, create a new database with this key, and then import the demo data.
     /// NOTE: This is a temporary placehold until encryption is implemented.
