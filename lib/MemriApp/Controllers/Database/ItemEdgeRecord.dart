@@ -34,15 +34,15 @@ class ItemEdgeRecord {
   Future<EdgesCompanion> toCompanion(Database db) async {
     if (selfRowID == null) {
       Item self = await db.itemRecordFetchWithUID(selfUID!);
-      selfRowID = self.rowId!;
+      selfRowID = self.rowId;
     }
     if (sourceRowID == null) {
       Item source = await db.itemRecordFetchWithUID(sourceUID!);
-      sourceRowID = source.rowId!;
+      sourceRowID = source.rowId;
     }
     if (targetRowID == null) {
       Item target = await db.itemRecordFetchWithUID(targetUID!);
-      targetRowID = target.rowId!;
+      targetRowID = target.rowId;
     }
     return EdgesCompanion(
       self: Value(selfRowID!),
