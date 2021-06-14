@@ -19,8 +19,46 @@ class SetupScreenView extends StatefulWidget {
 class _SetupScreenViewState extends State<SetupScreenView> {
   AppController appController = AppController.shared;
   SetupScreenModel model = SetupScreenModel();
+  final podUrlController = TextEditingController();
+  final podPublicKeyController = TextEditingController();
+  final podPrivateKeyController = TextEditingController();
+  final podDatabaseKeyController = TextEditingController();
 
   _SetupScreenViewState();
+
+  @override
+  void initState() {
+    super.initState();
+    podUrlController.addListener(_setPodUrl);
+    podPublicKeyController.addListener(_setPodPublicKey);
+    podPrivateKeyController.addListener(_setPodPrivateKey);
+    podDatabaseKeyController.addListener(_setPodDatabaseKey);
+  }
+
+  @override
+  void dispose() {
+    podUrlController.dispose();
+    podPublicKeyController.dispose();
+    podPrivateKeyController.dispose();
+    podDatabaseKeyController.dispose();
+    super.dispose();
+  }
+
+  void _setPodUrl() {
+    setState(() => model.podURL = podUrlController.text);
+  }
+
+  void _setPodPublicKey() {
+    setState(() => model.podPublicKey = podPublicKeyController.text);
+  }
+
+  void _setPodPrivateKey() {
+    setState(() => model.podPrivateKey = podPrivateKeyController.text);
+  }
+
+  void _setPodDatabaseKey() {
+    setState(() => model.podDatabaseKey = podDatabaseKeyController.text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,8 +216,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                 ),
                 children: [
                   TextFormField(
-                    controller: TextEditingController(text: model.podURL),
-                    onChanged: (value) => setState(() => model.podURL = value),
+                    controller: podUrlController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Pod URL",
@@ -217,8 +254,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                 footer: !model.setupAsNewPod ? connectButton : null,
                 children: [
                   TextFormField(
-                    controller: TextEditingController(text: model.podPublicKey),
-                    onChanged: (value) => setState(() => model.podPublicKey = value),
+                    controller: podPublicKeyController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Public Key",
@@ -228,8 +264,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    controller: TextEditingController(text: model.podPrivateKey),
-                    onChanged: (value) => setState(() => model.podPrivateKey = value),
+                    controller: podPrivateKeyController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Private Key",
@@ -239,8 +274,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    controller: TextEditingController(text: model.podDatabaseKey),
-                    onChanged: (value) => setState(() => model.podDatabaseKey = value),
+                    controller: podDatabaseKeyController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Database Key",
