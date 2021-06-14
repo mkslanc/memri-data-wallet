@@ -13,8 +13,13 @@ import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'ViewContext.g.dart';
+
 /// This type is used to hold all the configuration necessary to display a screen.
 /// It is stored as part of the navigation stack, and the whole stack is persisted to the database
+@JsonSerializable()
 class ViewContext extends ChangeNotifier with EquatableMixin {
   String? _viewName;
 
@@ -77,7 +82,12 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
   }
 
   ViewContext(
-      {required rendererName, required query, viewName, viewDefinition, viewArguments, focusedItem})
+      {required String rendererName,
+      required DatabaseQueryConfig query,
+      String? viewName,
+      CVUDefinitionContent? viewDefinition,
+      CVUViewArguments? viewArguments,
+      ItemRecord? focusedItem})
       : this._rendererName = rendererName,
         this._query = query,
         this._viewName = viewName,
@@ -85,12 +95,16 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
         this._viewArguments = viewArguments,
         this._focusedItem = focusedItem;
 
+  factory ViewContext.fromJson(Map<String, dynamic> json) => _$ViewContextFromJson(json);
+  Map<String, dynamic> toJson() => _$ViewContextToJson(this);
+
   @override
   List<Object?> get props =>
       [_viewName, _rendererName, _viewDefinition, _query, _viewArguments, _focusedItem];
 }
 
 /// A class type that holds a ViewContext struct. This allows the struct to be shared between objects while maintaining value semantics.
+@JsonSerializable()
 class ViewContextHolder extends ChangeNotifier with EquatableMixin {
   ViewContext config; //TODO configPublisher.send() on set
 
@@ -98,6 +112,10 @@ class ViewContextHolder extends ChangeNotifier with EquatableMixin {
     config.addListener(notifyListeners);
   }
 
+  factory ViewContextHolder.fromJson(Map<String, dynamic> json) =>
+      _$ViewContextHolderFromJson(json);
+  Map<String, dynamic> toJson() => _$ViewContextHolderToJson(this);
+
   @override
-  List<Object?> get props => [props];
+  List<Object?> get props => [config];
 }
