@@ -28,6 +28,15 @@ enum SyncControllerState {
   failed
 }
 
+extension SyncStateExtension on SyncState {
+  static SyncState rawValue(String value) =>
+      SyncState.values.firstWhere((val) => val.inString == value);
+
+  String get inString {
+    return this.toString().split('.').last;
+  }
+}
+
 class SyncController {
   bool syncing = false;
   String? lastError;

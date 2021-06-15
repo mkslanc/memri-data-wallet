@@ -37,8 +37,8 @@ class AppController {
     cvuController.init();
   }
 
-  void onLaunch() {
-    requestAuthentication();
+  Future onLaunch() async {
+    await requestAuthentication();
   }
 
   updateState() async {
@@ -48,7 +48,7 @@ class AppController {
     }
     if (!isAuthenticated) {
       state = AppState.authentication;
-      requestAuthentication();
+      await requestAuthentication();
       return;
     }
 

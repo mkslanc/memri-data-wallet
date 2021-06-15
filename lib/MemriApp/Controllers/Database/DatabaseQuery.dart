@@ -7,10 +7,14 @@ import 'package:moor/moor.dart';
 
 import 'ItemRecord.dart';
 import 'Schema.dart';
+import 'package:json_annotation/json_annotation.dart' as annotation;
+
+part 'DatabaseQuery.g.dart';
 
 enum ConditionOperator { and, or }
 
 /// This type is used to describe a database query.
+@annotation.JsonSerializable()
 class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
@@ -94,29 +98,33 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   ConditionOperator edgeTargetsOperator = ConditionOperator.and;
 
+  @annotation.JsonKey(ignore: true)
   late DatabaseController dbController;
 
   DatabaseQueryConfig(
-      {this.itemTypes = const ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
-      this.itemRowIDs = const {},
-      sortProperty = "dateModified",
-      sortAscending = false,
-      dateModifiedAfter,
-      dateModifiedBefore,
-      dateCreatedAfter,
-      dateCreatedBefore,
+      {List<String>? itemTypes,
+      Set<int>? itemRowIDs,
+      String? sortProperty = "dateModified",
+      bool sortAscending = false,
+      DateTime? dateModifiedAfter,
+      DateTime? dateModifiedBefore,
+      DateTime? dateCreatedAfter,
+      DateTime? dateCreatedBefore,
       this.pageSize = 1000,
       this.currentPage = 0,
       this.searchString,
       this.includeImmediateEdgeSearch = true,
-      this.conditions = const [],
+      List<DatabaseQueryCondition>? conditions,
       this.edgeTargetsOperator = ConditionOperator.and})
-      : _sortAscending = sortAscending,
+      : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
+        itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
+        _sortAscending = sortAscending,
         _sortProperty = sortProperty,
         _dateModifiedAfter = dateModifiedAfter,
         _dateModifiedBefore = dateModifiedBefore,
         _dateCreatedAfter = dateCreatedAfter,
-        _dateCreatedBefore = dateCreatedBefore;
+        _dateCreatedBefore = dateCreatedBefore,
+        conditions = conditions ?? [];
 
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
@@ -349,6 +357,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
+  factory DatabaseQueryConfig.fromJson(Map<String, dynamic> json) =>
+      _$DatabaseQueryConfigFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DatabaseQueryConfigToJson(this);
+
   @override
   List<Object?> get props => [
         itemTypes,
@@ -369,45 +382,98 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
 abstract class DatabaseQueryCondition {
   dynamic get value;
+
+  Map<String, dynamic> toJson();
+
+  DatabaseQueryCondition();
+
+  factory DatabaseQueryCondition.fromJson(json) {
+    switch (json["type"]) {
+      case "DatabaseQueryConditionPropertyEquals":
+        return DatabaseQueryConditionPropertyEquals.fromJson(json);
+      case "DatabaseQueryConditionEdgeHasTarget":
+        return DatabaseQueryConditionEdgeHasTarget.fromJson(json);
+      case "DatabaseQueryConditionEdgeHasSource":
+        return DatabaseQueryConditionEdgeHasSource.fromJson(json);
+      default:
+        throw Exception("Unknown DatabaseQueryCondition: ${json["type"]}");
+    }
+  }
 }
 
 // A property of this item equals a particular value
+@annotation.JsonSerializable()
 class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
   PropertyEquals value;
 
   DatabaseQueryConditionPropertyEquals(this.value);
+
+  factory DatabaseQueryConditionPropertyEquals.fromJson(Map<String, dynamic> json) =>
+      _$DatabaseQueryConditionPropertyEqualsFromJson(json);
+
+  Map<String, dynamic> toJson() =>
+      _$DatabaseQueryConditionPropertyEqualsToJson(this)..addAll({"type": runtimeType.toString()});
 }
 
 // This item has an edge pointing to 'x' item
+@annotation.JsonSerializable()
 class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
   EdgeHasTarget value;
 
   DatabaseQueryConditionEdgeHasTarget(this.value);
+
+  factory DatabaseQueryConditionEdgeHasTarget.fromJson(Map<String, dynamic> json) =>
+      _$DatabaseQueryConditionEdgeHasTargetFromJson(json);
+
+  Map<String, dynamic> toJson() =>
+      _$DatabaseQueryConditionEdgeHasTargetToJson(this)..addAll({"type": runtimeType.toString()});
 }
 
+@annotation.JsonSerializable()
 class DatabaseQueryConditionEdgeHasSource extends DatabaseQueryCondition {
   EdgeHasSource value;
 
   DatabaseQueryConditionEdgeHasSource(this.value);
+
+  factory DatabaseQueryConditionEdgeHasSource.fromJson(Map<String, dynamic> json) =>
+      _$DatabaseQueryConditionEdgeHasSourceFromJson(json);
+
+  Map<String, dynamic> toJson() =>
+      _$DatabaseQueryConditionEdgeHasSourceToJson(this)..addAll({"type": runtimeType.toString()});
 }
 
+@annotation.JsonSerializable()
 class PropertyEquals {
   String name;
   dynamic value;
 
   PropertyEquals(this.name, this.value);
+
+  factory PropertyEquals.fromJson(Map<String, dynamic> json) => _$PropertyEqualsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PropertyEqualsToJson(this);
 }
 
+@annotation.JsonSerializable()
 class EdgeHasTarget {
   String edgeName;
   int target;
 
   EdgeHasTarget(this.edgeName, this.target);
+
+  factory EdgeHasTarget.fromJson(Map<String, dynamic> json) => _$EdgeHasTargetFromJson(json);
+
+  Map<String, dynamic> toJson() => _$EdgeHasTargetToJson(this);
 }
 
+@annotation.JsonSerializable()
 class EdgeHasSource {
   String edgeName;
   int source;
 
   EdgeHasSource(this.edgeName, this.source);
+
+  factory EdgeHasSource.fromJson(Map<String, dynamic> json) => _$EdgeHasSourceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$EdgeHasSourceToJson(this);
 }

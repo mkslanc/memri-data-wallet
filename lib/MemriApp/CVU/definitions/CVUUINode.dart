@@ -9,7 +9,12 @@ import 'package:uuid/uuid.dart';
 import 'CVUUIElementFamily.dart';
 import 'CVUValue.dart';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'CVUUINode.g.dart';
+
 /// This represents a CVU definition of how to show a data item. It can contain properties (eg. onPress action), and children (eg. UI elements to show)
+@JsonSerializable()
 class CVUUINode extends CVUStringConvertible with EquatableMixin {
   final CVUUIElementFamily type;
   List<CVUUINode> children = [];
@@ -19,7 +24,7 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
       false; //TODO maybe there is a better way to handle flutter layout constraints and expands?
   bool shouldExpandHeight = false;
 
-  var id = Uuid();
+  String id = Uuid().v4();
 
   CVUUINode({required this.type, required this.children, required this.properties}) {
     children.forEach((element) {
@@ -69,6 +74,9 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
   String get description {
     return toCVUString(0, "    ", true);
   }
+
+  factory CVUUINode.fromJson(Map<String, dynamic> json) => _$CVUUINodeFromJson(json);
+  Map<String, dynamic> toJson() => _$CVUUINodeToJson(this);
 
   @override
   List<Object?> get props => [type, children, properties, id];

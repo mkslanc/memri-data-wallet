@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
+import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
 
 import '../AppController.dart';
@@ -10,16 +12,18 @@ import 'DatabaseController.dart';
 
 // ignore: must_be_immutable
 class NavigationStack extends Equatable {
-  String sessionID;
-  List<ViewContextHolder> state;
+  late String sessionID;
+  late List<ViewContextHolder> state;
 
   NavigationStack({sessionID, state})
       : this.sessionID = sessionID ?? Uuid().v4(),
         this.state = state ?? [];
 
-  NavigationStack.fromNavigationStateData(NavigationStateData stateData)
-      : sessionID = stateData.sessionID,
-        state = stateData.state as List<ViewContextHolder>;
+  NavigationStack.fromNavigationStateData(NavigationStateData stateData) {
+    sessionID = stateData.sessionID;
+    List jsonData = jsonDecode(String.fromCharCodes(stateData.state));
+    state = jsonData.map((stateElement) => ViewContextHolder.fromJson(stateElement)).toList();
+  }
 
   static Future<NavigationStack?> fetchOne([DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
@@ -30,6 +34,18 @@ class NavigationStack extends Equatable {
     return NavigationStack.fromNavigationStateData(navigationState);
   }
 
+  save([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    await db.navigationStateSave(this);
+  }
+
+  NavigationStateCompanion toCompanion() {
+    return NavigationStateCompanion(
+      sessionID: Value(sessionID),
+      state: Value(Uint8List.fromList(jsonEncode(state).codeUnits)),
+    );
+  }
+
   @override
-  List<Object> get props => [sessionID];
+  List<Object> get props => [sessionID, state];
 }

@@ -28,6 +28,11 @@ extension SyncStateExtension on SyncState {
   }
 }
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'ItemRecord.g.dart';
+
+@JsonSerializable()
 class ItemRecord with EquatableMixin {
   int? rowId;
   String uid;
@@ -42,10 +47,10 @@ class ItemRecord with EquatableMixin {
 
   ItemRecord(
       {this.rowId,
-      uid,
+      String? uid,
       required this.type,
-      dateCreated,
-      dateModified,
+      DateTime? dateCreated,
+      DateTime? dateModified,
       this.deleted = false,
       this.syncState = SyncState.create,
       this.syncHasPriority = false})
@@ -290,6 +295,9 @@ class ItemRecord with EquatableMixin {
         });
     }
   }
+
+  factory ItemRecord.fromJson(Map<String, dynamic> json) => _$ItemRecordFromJson(json);
+  Map<String, dynamic> toJson() => _$ItemRecordToJson(this);
 
   @override
   List<Object> get props => [uid, type];
