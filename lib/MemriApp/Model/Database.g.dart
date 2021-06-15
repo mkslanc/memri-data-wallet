@@ -8,46 +8,47 @@ part of 'Database.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Item extends DataClass implements Insertable<Item> {
-  final int? rowId;
+  final int rowId;
   final String id;
   final String type;
   final DateTime dateCreated;
   final DateTime dateModified;
   final DateTime? dateServerModified;
   final bool deleted;
-
+  final String syncState;
+  final bool syncHasPriority;
   Item(
-      {this.rowId,
+      {required this.rowId,
       required this.id,
       required this.type,
       required this.dateCreated,
       required this.dateModified,
       this.dateServerModified,
-      required this.deleted});
-
+      required this.deleted,
+      required this.syncState,
+      required this.syncHasPriority});
   factory Item.fromData(Map<String, dynamic> data, GeneratedDatabase db, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return Item(
-      rowId: intType.mapFromDatabaseResponse(data['${effectivePrefix}row_id']),
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      type: stringType.mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
-      dateCreated: dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}dateCreated'])!,
-      dateModified: dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}dateModified'])!,
-      dateServerModified:
-          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}dateServerModified']),
-      deleted: boolType.mapFromDatabaseResponse(data['${effectivePrefix}deleted'])!,
+      rowId: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}row_id'])!,
+      id: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      type: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
+      dateCreated:
+          const DateTimeType().mapFromDatabaseResponse(data['${effectivePrefix}dateCreated'])!,
+      dateModified:
+          const DateTimeType().mapFromDatabaseResponse(data['${effectivePrefix}dateModified'])!,
+      dateServerModified: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}dateServerModified']),
+      deleted: const BoolType().mapFromDatabaseResponse(data['${effectivePrefix}deleted'])!,
+      syncState: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}syncState'])!,
+      syncHasPriority:
+          const BoolType().mapFromDatabaseResponse(data['${effectivePrefix}syncHasPriority'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || rowId != null) {
-      map['row_id'] = Variable<int?>(rowId);
-    }
+    map['row_id'] = Variable<int>(rowId);
     map['id'] = Variable<String>(id);
     map['type'] = Variable<String>(type);
     map['dateCreated'] = Variable<DateTime>(dateCreated);
@@ -56,12 +57,14 @@ class Item extends DataClass implements Insertable<Item> {
       map['dateServerModified'] = Variable<DateTime?>(dateServerModified);
     }
     map['deleted'] = Variable<bool>(deleted);
+    map['syncState'] = Variable<String>(syncState);
+    map['syncHasPriority'] = Variable<bool>(syncHasPriority);
     return map;
   }
 
   ItemsCompanion toCompanion(bool nullToAbsent) {
     return ItemsCompanion(
-      rowId: rowId == null && nullToAbsent ? const Value.absent() : Value(rowId),
+      rowId: Value(rowId),
       id: Value(id),
       type: Value(type),
       dateCreated: Value(dateCreated),
@@ -70,32 +73,38 @@ class Item extends DataClass implements Insertable<Item> {
           ? const Value.absent()
           : Value(dateServerModified),
       deleted: Value(deleted),
+      syncState: Value(syncState),
+      syncHasPriority: Value(syncHasPriority),
     );
   }
 
   factory Item.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Item(
-      rowId: serializer.fromJson<int?>(json['row_id']),
+      rowId: serializer.fromJson<int>(json['row_id']),
       id: serializer.fromJson<String>(json['id']),
       type: serializer.fromJson<String>(json['type']),
       dateCreated: serializer.fromJson<DateTime>(json['dateCreated']),
       dateModified: serializer.fromJson<DateTime>(json['dateModified']),
       dateServerModified: serializer.fromJson<DateTime?>(json['dateServerModified']),
       deleted: serializer.fromJson<bool>(json['deleted']),
+      syncState: serializer.fromJson<String>(json['syncState']),
+      syncHasPriority: serializer.fromJson<bool>(json['syncHasPriority']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'row_id': serializer.toJson<int?>(rowId),
+      'row_id': serializer.toJson<int>(rowId),
       'id': serializer.toJson<String>(id),
       'type': serializer.toJson<String>(type),
       'dateCreated': serializer.toJson<DateTime>(dateCreated),
       'dateModified': serializer.toJson<DateTime>(dateModified),
       'dateServerModified': serializer.toJson<DateTime?>(dateServerModified),
       'deleted': serializer.toJson<bool>(deleted),
+      'syncState': serializer.toJson<String>(syncState),
+      'syncHasPriority': serializer.toJson<bool>(syncHasPriority),
     };
   }
 
@@ -106,7 +115,9 @@ class Item extends DataClass implements Insertable<Item> {
           DateTime? dateCreated,
           DateTime? dateModified,
           DateTime? dateServerModified,
-          bool? deleted}) =>
+          bool? deleted,
+          String? syncState,
+          bool? syncHasPriority}) =>
       Item(
         rowId: rowId ?? this.rowId,
         id: id ?? this.id,
@@ -115,6 +126,8 @@ class Item extends DataClass implements Insertable<Item> {
         dateModified: dateModified ?? this.dateModified,
         dateServerModified: dateServerModified ?? this.dateServerModified,
         deleted: deleted ?? this.deleted,
+        syncState: syncState ?? this.syncState,
+        syncHasPriority: syncHasPriority ?? this.syncHasPriority,
       );
   @override
   String toString() {
@@ -125,7 +138,9 @@ class Item extends DataClass implements Insertable<Item> {
           ..write('dateCreated: $dateCreated, ')
           ..write('dateModified: $dateModified, ')
           ..write('dateServerModified: $dateServerModified, ')
-          ..write('deleted: $deleted')
+          ..write('deleted: $deleted, ')
+          ..write('syncState: $syncState, ')
+          ..write('syncHasPriority: $syncHasPriority')
           ..write(')'))
         .toString();
   }
@@ -139,10 +154,14 @@ class Item extends DataClass implements Insertable<Item> {
               type.hashCode,
               $mrjc(
                   dateCreated.hashCode,
-                  $mrjc(dateModified.hashCode,
-                      $mrjc(dateServerModified.hashCode, deleted.hashCode)))))));
+                  $mrjc(
+                      dateModified.hashCode,
+                      $mrjc(
+                          dateServerModified.hashCode,
+                          $mrjc(deleted.hashCode,
+                              $mrjc(syncState.hashCode, syncHasPriority.hashCode)))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Item &&
           other.rowId == this.rowId &&
@@ -151,17 +170,21 @@ class Item extends DataClass implements Insertable<Item> {
           other.dateCreated == this.dateCreated &&
           other.dateModified == this.dateModified &&
           other.dateServerModified == this.dateServerModified &&
-          other.deleted == this.deleted);
+          other.deleted == this.deleted &&
+          other.syncState == this.syncState &&
+          other.syncHasPriority == this.syncHasPriority);
 }
 
 class ItemsCompanion extends UpdateCompanion<Item> {
-  final Value<int?> rowId;
+  final Value<int> rowId;
   final Value<String> id;
   final Value<String> type;
   final Value<DateTime> dateCreated;
   final Value<DateTime> dateModified;
   final Value<DateTime?> dateServerModified;
   final Value<bool> deleted;
+  final Value<String> syncState;
+  final Value<bool> syncHasPriority;
   const ItemsCompanion({
     this.rowId = const Value.absent(),
     this.id = const Value.absent(),
@@ -170,6 +193,8 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     this.dateModified = const Value.absent(),
     this.dateServerModified = const Value.absent(),
     this.deleted = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.syncHasPriority = const Value.absent(),
   });
   ItemsCompanion.insert({
     this.rowId = const Value.absent(),
@@ -179,18 +204,22 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     required DateTime dateModified,
     this.dateServerModified = const Value.absent(),
     this.deleted = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.syncHasPriority = const Value.absent(),
   })  : id = Value(id),
         type = Value(type),
         dateCreated = Value(dateCreated),
         dateModified = Value(dateModified);
   static Insertable<Item> custom({
-    Expression<int?>? rowId,
+    Expression<int>? rowId,
     Expression<String>? id,
     Expression<String>? type,
     Expression<DateTime>? dateCreated,
     Expression<DateTime>? dateModified,
     Expression<DateTime?>? dateServerModified,
     Expression<bool>? deleted,
+    Expression<String>? syncState,
+    Expression<bool>? syncHasPriority,
   }) {
     return RawValuesInsertable({
       if (rowId != null) 'row_id': rowId,
@@ -200,17 +229,21 @@ class ItemsCompanion extends UpdateCompanion<Item> {
       if (dateModified != null) 'dateModified': dateModified,
       if (dateServerModified != null) 'dateServerModified': dateServerModified,
       if (deleted != null) 'deleted': deleted,
+      if (syncState != null) 'syncState': syncState,
+      if (syncHasPriority != null) 'syncHasPriority': syncHasPriority,
     });
   }
 
   ItemsCompanion copyWith(
-      {Value<int?>? rowId,
+      {Value<int>? rowId,
       Value<String>? id,
       Value<String>? type,
       Value<DateTime>? dateCreated,
       Value<DateTime>? dateModified,
       Value<DateTime?>? dateServerModified,
-      Value<bool>? deleted}) {
+      Value<bool>? deleted,
+      Value<String>? syncState,
+      Value<bool>? syncHasPriority}) {
     return ItemsCompanion(
       rowId: rowId ?? this.rowId,
       id: id ?? this.id,
@@ -219,6 +252,8 @@ class ItemsCompanion extends UpdateCompanion<Item> {
       dateModified: dateModified ?? this.dateModified,
       dateServerModified: dateServerModified ?? this.dateServerModified,
       deleted: deleted ?? this.deleted,
+      syncState: syncState ?? this.syncState,
+      syncHasPriority: syncHasPriority ?? this.syncHasPriority,
     );
   }
 
@@ -226,7 +261,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (rowId.present) {
-      map['row_id'] = Variable<int?>(rowId.value);
+      map['row_id'] = Variable<int>(rowId.value);
     }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
@@ -246,6 +281,12 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     if (deleted.present) {
       map['deleted'] = Variable<bool>(deleted.value);
     }
+    if (syncState.present) {
+      map['syncState'] = Variable<String>(syncState.value);
+    }
+    if (syncHasPriority.present) {
+      map['syncHasPriority'] = Variable<bool>(syncHasPriority.value);
+    }
     return map;
   }
 
@@ -258,7 +299,9 @@ class ItemsCompanion extends UpdateCompanion<Item> {
           ..write('dateCreated: $dateCreated, ')
           ..write('dateModified: $dateModified, ')
           ..write('dateServerModified: $dateServerModified, ')
-          ..write('deleted: $deleted')
+          ..write('deleted: $deleted, ')
+          ..write('syncState: $syncState, ')
+          ..write('syncHasPriority: $syncHasPriority')
           ..write(')'))
         .toString();
   }
@@ -271,7 +314,7 @@ class Items extends Table with TableInfo<Items, Item> {
   final VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
   late final GeneratedIntColumn rowId = _constructRowId();
   GeneratedIntColumn _constructRowId() {
-    return GeneratedIntColumn('row_id', $tableName, true,
+    return GeneratedIntColumn('row_id', $tableName, false,
         declaredAsPrimaryKey: true, $customConstraints: 'PRIMARY KEY');
   }
 
@@ -283,14 +326,12 @@ class Items extends Table with TableInfo<Items, Item> {
 
   final VerificationMeta _typeMeta = const VerificationMeta('type');
   late final GeneratedTextColumn type = _constructType();
-
   GeneratedTextColumn _constructType() {
     return GeneratedTextColumn('type', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _dateCreatedMeta = const VerificationMeta('dateCreated');
   late final GeneratedDateTimeColumn dateCreated = _constructDateCreated();
-
   GeneratedDateTimeColumn _constructDateCreated() {
     return GeneratedDateTimeColumn('dateCreated', $tableName, false,
         $customConstraints: 'NOT NULL');
@@ -298,7 +339,6 @@ class Items extends Table with TableInfo<Items, Item> {
 
   final VerificationMeta _dateModifiedMeta = const VerificationMeta('dateModified');
   late final GeneratedDateTimeColumn dateModified = _constructDateModified();
-
   GeneratedDateTimeColumn _constructDateModified() {
     return GeneratedDateTimeColumn('dateModified', $tableName, false,
         $customConstraints: 'NOT NULL');
@@ -306,30 +346,52 @@ class Items extends Table with TableInfo<Items, Item> {
 
   final VerificationMeta _dateServerModifiedMeta = const VerificationMeta('dateServerModified');
   late final GeneratedDateTimeColumn dateServerModified = _constructDateServerModified();
-
   GeneratedDateTimeColumn _constructDateServerModified() {
     return GeneratedDateTimeColumn('dateServerModified', $tableName, true, $customConstraints: '');
   }
 
   final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
   late final GeneratedBoolColumn deleted = _constructDeleted();
-
   GeneratedBoolColumn _constructDeleted() {
     return GeneratedBoolColumn('deleted', $tableName, false,
         $customConstraints: 'NOT NULL DEFAULT false',
         defaultValue: const CustomExpression<bool>('false'));
   }
 
+  final VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
+  late final GeneratedTextColumn syncState = _constructSyncState();
+  GeneratedTextColumn _constructSyncState() {
+    return GeneratedTextColumn('syncState', $tableName, false,
+        $customConstraints: 'NOT NULL DEFAULT \'create\'',
+        defaultValue: const CustomExpression<String>('\'create\''));
+  }
+
+  final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
+  late final GeneratedBoolColumn syncHasPriority = _constructSyncHasPriority();
+  GeneratedBoolColumn _constructSyncHasPriority() {
+    return GeneratedBoolColumn('syncHasPriority', $tableName, false,
+        $customConstraints: 'NOT NULL DEFAULT false',
+        defaultValue: const CustomExpression<bool>('false'));
+  }
+
   @override
-  List<GeneratedColumn> get $columns =>
-      [rowId, id, type, dateCreated, dateModified, dateServerModified, deleted];
+  List<GeneratedColumn> get $columns => [
+        rowId,
+        id,
+        type,
+        dateCreated,
+        dateModified,
+        dateServerModified,
+        deleted,
+        syncState,
+        syncHasPriority
+      ];
   @override
   Items get asDslTable => this;
   @override
   String get $tableName => _alias ?? 'items';
   @override
   final String actualTableName = 'items';
-
   @override
   VerificationContext validateIntegrity(Insertable<Item> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -368,6 +430,14 @@ class Items extends Table with TableInfo<Items, Item> {
     if (data.containsKey('deleted')) {
       context.handle(_deletedMeta, deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta));
     }
+    if (data.containsKey('syncState')) {
+      context.handle(
+          _syncStateMeta, syncState.isAcceptableOrUnknown(data['syncState']!, _syncStateMeta));
+    }
+    if (data.containsKey('syncHasPriority')) {
+      context.handle(_syncHasPriorityMeta,
+          syncHasPriority.isAcceptableOrUnknown(data['syncHasPriority']!, _syncHasPriorityMeta));
+    }
     return context;
   }
 
@@ -375,8 +445,7 @@ class Items extends Table with TableInfo<Items, Item> {
   Set<GeneratedColumn> get $primaryKey => {rowId};
   @override
   Item map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Item.fromData(data, _db, prefix: effectivePrefix);
+    return Item.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -389,71 +458,92 @@ class Items extends Table with TableInfo<Items, Item> {
 }
 
 class Edge extends DataClass implements Insertable<Edge> {
-  final int? self;
+  final int self;
   final int source;
   final String name;
   final int target;
-
-  Edge({this.self, required this.source, required this.name, required this.target});
-
+  final String syncState;
+  final bool syncHasPriority;
+  Edge(
+      {required this.self,
+      required this.source,
+      required this.name,
+      required this.target,
+      required this.syncState,
+      required this.syncHasPriority});
   factory Edge.fromData(Map<String, dynamic> data, GeneratedDatabase db, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return Edge(
-      self: intType.mapFromDatabaseResponse(data['${effectivePrefix}self']),
-      source: intType.mapFromDatabaseResponse(data['${effectivePrefix}source'])!,
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      target: intType.mapFromDatabaseResponse(data['${effectivePrefix}target'])!,
+      self: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}self'])!,
+      source: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}source'])!,
+      name: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      target: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}target'])!,
+      syncState: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}syncState'])!,
+      syncHasPriority:
+          const BoolType().mapFromDatabaseResponse(data['${effectivePrefix}syncHasPriority'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || self != null) {
-      map['self'] = Variable<int?>(self);
-    }
+    map['self'] = Variable<int>(self);
     map['source'] = Variable<int>(source);
     map['name'] = Variable<String>(name);
     map['target'] = Variable<int>(target);
+    map['syncState'] = Variable<String>(syncState);
+    map['syncHasPriority'] = Variable<bool>(syncHasPriority);
     return map;
   }
 
   EdgesCompanion toCompanion(bool nullToAbsent) {
     return EdgesCompanion(
-      self: self == null && nullToAbsent ? const Value.absent() : Value(self),
+      self: Value(self),
       source: Value(source),
       name: Value(name),
       target: Value(target),
+      syncState: Value(syncState),
+      syncHasPriority: Value(syncHasPriority),
     );
   }
 
   factory Edge.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Edge(
-      self: serializer.fromJson<int?>(json['self']),
+      self: serializer.fromJson<int>(json['self']),
       source: serializer.fromJson<int>(json['source']),
       name: serializer.fromJson<String>(json['name']),
       target: serializer.fromJson<int>(json['target']),
+      syncState: serializer.fromJson<String>(json['syncState']),
+      syncHasPriority: serializer.fromJson<bool>(json['syncHasPriority']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'self': serializer.toJson<int?>(self),
+      'self': serializer.toJson<int>(self),
       'source': serializer.toJson<int>(source),
       'name': serializer.toJson<String>(name),
       'target': serializer.toJson<int>(target),
+      'syncState': serializer.toJson<String>(syncState),
+      'syncHasPriority': serializer.toJson<bool>(syncHasPriority),
     };
   }
 
-  Edge copyWith({int? self, int? source, String? name, int? target}) => Edge(
+  Edge copyWith(
+          {int? self,
+          int? source,
+          String? name,
+          int? target,
+          String? syncState,
+          bool? syncHasPriority}) =>
+      Edge(
         self: self ?? this.self,
         source: source ?? this.source,
         name: name ?? this.name,
         target: target ?? this.target,
+        syncState: syncState ?? this.syncState,
+        syncHasPriority: syncHasPriority ?? this.syncHasPriority,
       );
   @override
   String toString() {
@@ -461,64 +551,89 @@ class Edge extends DataClass implements Insertable<Edge> {
           ..write('self: $self, ')
           ..write('source: $source, ')
           ..write('name: $name, ')
-          ..write('target: $target')
+          ..write('target: $target, ')
+          ..write('syncState: $syncState, ')
+          ..write('syncHasPriority: $syncHasPriority')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(self.hashCode, $mrjc(source.hashCode, $mrjc(name.hashCode, target.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      self.hashCode,
+      $mrjc(
+          source.hashCode,
+          $mrjc(name.hashCode,
+              $mrjc(target.hashCode, $mrjc(syncState.hashCode, syncHasPriority.hashCode))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Edge &&
           other.self == this.self &&
           other.source == this.source &&
           other.name == this.name &&
-          other.target == this.target);
+          other.target == this.target &&
+          other.syncState == this.syncState &&
+          other.syncHasPriority == this.syncHasPriority);
 }
 
 class EdgesCompanion extends UpdateCompanion<Edge> {
-  final Value<int?> self;
+  final Value<int> self;
   final Value<int> source;
   final Value<String> name;
   final Value<int> target;
+  final Value<String> syncState;
+  final Value<bool> syncHasPriority;
   const EdgesCompanion({
     this.self = const Value.absent(),
     this.source = const Value.absent(),
     this.name = const Value.absent(),
     this.target = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.syncHasPriority = const Value.absent(),
   });
   EdgesCompanion.insert({
     this.self = const Value.absent(),
     required int source,
     required String name,
     required int target,
+    this.syncState = const Value.absent(),
+    this.syncHasPriority = const Value.absent(),
   })  : source = Value(source),
         name = Value(name),
         target = Value(target);
   static Insertable<Edge> custom({
-    Expression<int?>? self,
+    Expression<int>? self,
     Expression<int>? source,
     Expression<String>? name,
     Expression<int>? target,
+    Expression<String>? syncState,
+    Expression<bool>? syncHasPriority,
   }) {
     return RawValuesInsertable({
       if (self != null) 'self': self,
       if (source != null) 'source': source,
       if (name != null) 'name': name,
       if (target != null) 'target': target,
+      if (syncState != null) 'syncState': syncState,
+      if (syncHasPriority != null) 'syncHasPriority': syncHasPriority,
     });
   }
 
   EdgesCompanion copyWith(
-      {Value<int?>? self, Value<int>? source, Value<String>? name, Value<int>? target}) {
+      {Value<int>? self,
+      Value<int>? source,
+      Value<String>? name,
+      Value<int>? target,
+      Value<String>? syncState,
+      Value<bool>? syncHasPriority}) {
     return EdgesCompanion(
       self: self ?? this.self,
       source: source ?? this.source,
       name: name ?? this.name,
       target: target ?? this.target,
+      syncState: syncState ?? this.syncState,
+      syncHasPriority: syncHasPriority ?? this.syncHasPriority,
     );
   }
 
@@ -526,7 +641,7 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (self.present) {
-      map['self'] = Variable<int?>(self.value);
+      map['self'] = Variable<int>(self.value);
     }
     if (source.present) {
       map['source'] = Variable<int>(source.value);
@@ -537,6 +652,12 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
     if (target.present) {
       map['target'] = Variable<int>(target.value);
     }
+    if (syncState.present) {
+      map['syncState'] = Variable<String>(syncState.value);
+    }
+    if (syncHasPriority.present) {
+      map['syncHasPriority'] = Variable<bool>(syncHasPriority.value);
+    }
     return map;
   }
 
@@ -546,7 +667,9 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
           ..write('self: $self, ')
           ..write('source: $source, ')
           ..write('name: $name, ')
-          ..write('target: $target')
+          ..write('target: $target, ')
+          ..write('syncState: $syncState, ')
+          ..write('syncHasPriority: $syncHasPriority')
           ..write(')'))
         .toString();
   }
@@ -559,7 +682,7 @@ class Edges extends Table with TableInfo<Edges, Edge> {
   final VerificationMeta _selfMeta = const VerificationMeta('self');
   late final GeneratedIntColumn self = _constructSelf();
   GeneratedIntColumn _constructSelf() {
-    return GeneratedIntColumn('self', $tableName, true,
+    return GeneratedIntColumn('self', $tableName, false,
         declaredAsPrimaryKey: true, $customConstraints: 'PRIMARY KEY');
   }
 
@@ -581,15 +704,30 @@ class Edges extends Table with TableInfo<Edges, Edge> {
     return GeneratedIntColumn('target', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
+  final VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
+  late final GeneratedTextColumn syncState = _constructSyncState();
+  GeneratedTextColumn _constructSyncState() {
+    return GeneratedTextColumn('syncState', $tableName, false,
+        $customConstraints: 'NOT NULL DEFAULT \'create\'',
+        defaultValue: const CustomExpression<String>('\'create\''));
+  }
+
+  final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
+  late final GeneratedBoolColumn syncHasPriority = _constructSyncHasPriority();
+  GeneratedBoolColumn _constructSyncHasPriority() {
+    return GeneratedBoolColumn('syncHasPriority', $tableName, false,
+        $customConstraints: 'NOT NULL DEFAULT false',
+        defaultValue: const CustomExpression<bool>('false'));
+  }
+
   @override
-  List<GeneratedColumn> get $columns => [self, source, name, target];
+  List<GeneratedColumn> get $columns => [self, source, name, target, syncState, syncHasPriority];
   @override
   Edges get asDslTable => this;
   @override
   String get $tableName => _alias ?? 'edges';
   @override
   final String actualTableName = 'edges';
-
   @override
   VerificationContext validateIntegrity(Insertable<Edge> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -612,6 +750,14 @@ class Edges extends Table with TableInfo<Edges, Edge> {
     } else if (isInserting) {
       context.missing(_targetMeta);
     }
+    if (data.containsKey('syncState')) {
+      context.handle(
+          _syncStateMeta, syncState.isAcceptableOrUnknown(data['syncState']!, _syncStateMeta));
+    }
+    if (data.containsKey('syncHasPriority')) {
+      context.handle(_syncHasPriorityMeta,
+          syncHasPriority.isAcceptableOrUnknown(data['syncHasPriority']!, _syncHasPriorityMeta));
+    }
     return context;
   }
 
@@ -619,8 +765,7 @@ class Edges extends Table with TableInfo<Edges, Edge> {
   Set<GeneratedColumn> get $primaryKey => {self};
   @override
   Edge map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Edge.fromData(data, _db, prefix: effectivePrefix);
+    return Edge.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -642,20 +787,15 @@ class IntegerDb extends DataClass implements Insertable<IntegerDb> {
   final int item;
   final String name;
   final int value;
-
   IntegerDb({required this.item, required this.name, required this.value});
-
   factory IntegerDb.fromData(Map<String, dynamic> data, GeneratedDatabase db, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return IntegerDb(
-      item: intType.mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      value: intType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
+      item: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
+      name: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      value: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -681,7 +821,6 @@ class IntegerDb extends DataClass implements Insertable<IntegerDb> {
       value: serializer.fromJson<int>(json['value']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -710,7 +849,7 @@ class IntegerDb extends DataClass implements Insertable<IntegerDb> {
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is IntegerDb &&
           other.item == this.item &&
@@ -837,8 +976,7 @@ class Integers extends Table with TableInfo<Integers, IntegerDb> {
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   IntegerDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return IntegerDb.fromData(data, _db, prefix: effectivePrefix);
+    return IntegerDb.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -848,7 +986,6 @@ class Integers extends Table with TableInfo<Integers, IntegerDb> {
 
   @override
   List<String> get customConstraints => const ['FOREIGN KEY (item) REFERENCES items (row_id)'];
-
   @override
   bool get dontWriteConstraints => true;
 }
@@ -857,17 +994,13 @@ class StringDb extends DataClass implements Insertable<StringDb> {
   final int item;
   final String name;
   final String value;
-
   StringDb({required this.item, required this.name, required this.value});
-
   factory StringDb.fromData(Map<String, dynamic> data, GeneratedDatabase db, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return StringDb(
-      item: intType.mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      value: stringType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
+      item: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
+      name: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      value: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
     );
   }
   @override
@@ -895,7 +1028,6 @@ class StringDb extends DataClass implements Insertable<StringDb> {
       value: serializer.fromJson<String>(json['value']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -924,7 +1056,7 @@ class StringDb extends DataClass implements Insertable<StringDb> {
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is StringDb &&
           other.item == this.item &&
@@ -1024,7 +1156,6 @@ class Strings extends Table with TableInfo<Strings, StringDb> {
   String get $tableName => _alias ?? 'strings';
   @override
   final String actualTableName = 'strings';
-
   @override
   VerificationContext validateIntegrity(Insertable<StringDb> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -1051,8 +1182,7 @@ class Strings extends Table with TableInfo<Strings, StringDb> {
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   StringDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return StringDb.fromData(data, _db, prefix: effectivePrefix);
+    return StringDb.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1062,7 +1192,6 @@ class Strings extends Table with TableInfo<Strings, StringDb> {
 
   @override
   List<String> get customConstraints => const ['FOREIGN KEY (item) REFERENCES items (row_id)'];
-
   @override
   bool get dontWriteConstraints => true;
 }
@@ -1071,18 +1200,13 @@ class RealDb extends DataClass implements Insertable<RealDb> {
   final int item;
   final String name;
   final double value;
-
   RealDb({required this.item, required this.name, required this.value});
-
   factory RealDb.fromData(Map<String, dynamic> data, GeneratedDatabase db, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
-    final doubleType = db.typeSystem.forDartType<double>();
     return RealDb(
-      item: intType.mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      value: doubleType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
+      item: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
+      name: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      value: const RealType().mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
     );
   }
   @override
@@ -1110,7 +1234,6 @@ class RealDb extends DataClass implements Insertable<RealDb> {
       value: serializer.fromJson<double>(json['value']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -1139,7 +1262,7 @@ class RealDb extends DataClass implements Insertable<RealDb> {
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RealDb &&
           other.item == this.item &&
@@ -1239,7 +1362,6 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
   String get $tableName => _alias ?? 'reals';
   @override
   final String actualTableName = 'reals';
-
   @override
   VerificationContext validateIntegrity(Insertable<RealDb> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -1266,8 +1388,7 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   RealDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return RealDb.fromData(data, _db, prefix: effectivePrefix);
+    return RealDb.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1277,7 +1398,6 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
 
   @override
   List<String> get customConstraints => const ['FOREIGN KEY (item) REFERENCES items (row_id)'];
-
   @override
   bool get dontWriteConstraints => true;
 }
@@ -1286,20 +1406,16 @@ class StringsSearchData extends DataClass implements Insertable<StringsSearchDat
   final String item;
   final String name;
   final String value;
-
   StringsSearchData({required this.item, required this.name, required this.value});
-
   factory StringsSearchData.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     return StringsSearchData(
-      item: stringType.mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      value: stringType.mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
+      item: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}item'])!,
+      name: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      value: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}value'])!,
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1325,7 +1441,6 @@ class StringsSearchData extends DataClass implements Insertable<StringsSearchDat
       value: serializer.fromJson<String>(json['value']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -1341,7 +1456,6 @@ class StringsSearchData extends DataClass implements Insertable<StringsSearchDat
         name: name ?? this.name,
         value: value ?? this.value,
       );
-
   @override
   String toString() {
     return (StringBuffer('StringsSearchData(')
@@ -1354,9 +1468,8 @@ class StringsSearchData extends DataClass implements Insertable<StringsSearchDat
 
   @override
   int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
-
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is StringsSearchData &&
           other.item == this.item &&
@@ -1368,13 +1481,11 @@ class StringsSearchCompanion extends UpdateCompanion<StringsSearchData> {
   final Value<String> item;
   final Value<String> name;
   final Value<String> value;
-
   const StringsSearchCompanion({
     this.item = const Value.absent(),
     this.name = const Value.absent(),
     this.value = const Value.absent(),
   });
-
   StringsSearchCompanion.insert({
     required String item,
     required String name,
@@ -1382,7 +1493,6 @@ class StringsSearchCompanion extends UpdateCompanion<StringsSearchData> {
   })  : item = Value(item),
         name = Value(name),
         value = Value(value);
-
   static Insertable<StringsSearchData> custom({
     Expression<String>? item,
     Expression<String>? name,
@@ -1436,41 +1546,33 @@ class StringsSearch extends Table
         VirtualTableInfo<StringsSearch, StringsSearchData> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   StringsSearch(this._db, [this._alias]);
-
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedTextColumn item = _constructItem();
-
   GeneratedTextColumn _constructItem() {
     return GeneratedTextColumn('item', $tableName, false, $customConstraints: '');
   }
 
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedTextColumn name = _constructName();
-
   GeneratedTextColumn _constructName() {
     return GeneratedTextColumn('name', $tableName, false, $customConstraints: '');
   }
 
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedTextColumn value = _constructValue();
-
   GeneratedTextColumn _constructValue() {
     return GeneratedTextColumn('value', $tableName, false, $customConstraints: '');
   }
 
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
-
   @override
   StringsSearch get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'strings_search';
   @override
   final String actualTableName = 'strings_search';
-
   @override
   VerificationContext validateIntegrity(Insertable<StringsSearchData> instance,
       {bool isInserting = false}) {
@@ -1496,11 +1598,10 @@ class StringsSearch extends Table
 
   @override
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
-
   @override
   StringsSearchData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return StringsSearchData.fromData(data, _db, prefix: effectivePrefix);
+    return StringsSearchData.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1510,26 +1611,21 @@ class StringsSearch extends Table
 
   @override
   bool get dontWriteConstraints => true;
-
   @override
   String get moduleAndArgs =>
-      'fts5(content="strings", item UNINDEXED, name UNINDEXED, value, tokenize = \'porter\')';
+      'fts5(content= "strings", item UNINDEXED, name UNINDEXED, value, tokenize = \'porter\')';
 }
 
 class NavigationStateData extends DataClass implements Insertable<NavigationStateData> {
   final String sessionID;
   final Uint8List state;
-
   NavigationStateData({required this.sessionID, required this.state});
-
   factory NavigationStateData.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final uint8ListType = db.typeSystem.forDartType<Uint8List>();
     return NavigationStateData(
-      sessionID: stringType.mapFromDatabaseResponse(data['${effectivePrefix}sessionID'])!,
-      state: uint8ListType.mapFromDatabaseResponse(data['${effectivePrefix}state'])!,
+      sessionID: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}sessionID'])!,
+      state: const BlobType().mapFromDatabaseResponse(data['${effectivePrefix}state'])!,
     );
   }
   @override
@@ -1554,7 +1650,6 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
       state: serializer.fromJson<Uint8List>(json['state']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -1568,7 +1663,6 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
         sessionID: sessionID ?? this.sessionID,
         state: state ?? this.state,
       );
-
   @override
   String toString() {
     return (StringBuffer('NavigationStateData(')
@@ -1581,7 +1675,7 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
   @override
   int get hashCode => $mrjf($mrjc(sessionID.hashCode, state.hashCode));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is NavigationStateData &&
           other.sessionID == this.sessionID &&
@@ -1600,7 +1694,6 @@ class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
     required Uint8List state,
   })  : sessionID = Value(sessionID),
         state = Value(state);
-
   static Insertable<NavigationStateData> custom({
     Expression<String>? sessionID,
     Expression<Uint8List>? state,
@@ -1643,12 +1736,9 @@ class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
 class NavigationState extends Table with TableInfo<NavigationState, NavigationStateData> {
   final GeneratedDatabase _db;
   final String? _alias;
-
   NavigationState(this._db, [this._alias]);
-
   final VerificationMeta _sessionIDMeta = const VerificationMeta('sessionID');
   late final GeneratedTextColumn sessionID = _constructSessionID();
-
   GeneratedTextColumn _constructSessionID() {
     return GeneratedTextColumn('sessionID', $tableName, false,
         $customConstraints: 'PRIMARY KEY NOT NULL');
@@ -1668,7 +1758,6 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
   String get $tableName => _alias ?? 'navigationState';
   @override
   final String actualTableName = 'navigationState';
-
   @override
   VerificationContext validateIntegrity(Insertable<NavigationStateData> instance,
       {bool isInserting = false}) {
@@ -1692,8 +1781,8 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
   Set<GeneratedColumn> get $primaryKey => {sessionID};
   @override
   NavigationStateData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return NavigationStateData.fromData(data, _db, prefix: effectivePrefix);
+    return NavigationStateData.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1709,50 +1798,48 @@ abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final Items items = Items(this);
   late final Index idxItemsId =
-      Index('idx_items_id', 'CREATE\r\nUNIQUE INDEX idx_items_id on items (id);');
+      Index('idx_items_id', 'CREATE\r\n    UNIQUE INDEX idx_items_id on items (id);');
   late final Index idxItemsTypeDateServerModified = Index('idx_items_type_dateServerModified',
-      'CREATE\r\nINDEX idx_items_type_dateServerModified on items (type, dateServerModified);');
+      'CREATE\r\n    INDEX idx_items_type_dateServerModified on items (type, dateServerModified);');
   late final Edges edges = Edges(this);
-  late final Index idxEdgesSourceName = Index(
-      'idx_edges_source_name', 'CREATE\r\nINDEX idx_edges_source_name on edges (source, name);');
-  late final Index idxEdgesTargetName = Index(
-      'idx_edges_target_name', 'CREATE\r\nINDEX idx_edges_target_name on edges (target, name);');
+  late final Index idxEdgesSourceName = Index('idx_edges_source_name',
+      'CREATE\r\n    INDEX idx_edges_source_name on edges (source, name);');
+  late final Index idxEdgesTargetName = Index('idx_edges_target_name',
+      'CREATE\r\n    INDEX idx_edges_target_name on edges (target, name);');
   late final Integers integers = Integers(this);
   late final Index idxIntegersItemName = Index('idx_integers_item_name',
-      'CREATE\r\nUNIQUE INDEX idx_integers_item_name on integers (item, name);');
+      'CREATE\r\n    UNIQUE INDEX idx_integers_item_name on integers (item, name);');
   late final Index idxIntegersNameValue = Index('idx_integers_name_value',
-      'CREATE\r\nINDEX idx_integers_name_value on integers (name, value);');
-  late final Index idxIntegersNameItem = Index(
-      'idx_integers_name_item', 'CREATE\r\nINDEX idx_integers_name_item on integers (name, item);');
+      'CREATE\r\n    INDEX idx_integers_name_value on integers (name, value);');
+  late final Index idxIntegersNameItem = Index('idx_integers_name_item',
+      'CREATE\r\n    INDEX idx_integers_name_item on integers (name, item);');
   late final Strings strings = Strings(this);
   late final Index idxStringsItemName = Index('idx_strings_item_name',
-      'CREATE\r\nUNIQUE INDEX idx_strings_item_name on strings (item, name);');
-  late final Index idxStringsNameValue = Index(
-      'idx_strings_name_value', 'CREATE\r\nINDEX idx_strings_name_value on strings (name, value);');
-  late final Index idxStringsNameItem = Index(
-      'idx_strings_name_item', 'CREATE\r\nINDEX idx_strings_name_item on strings (name, item);');
+      'CREATE\r\n    UNIQUE INDEX idx_strings_item_name on strings (item, name);');
+  late final Index idxStringsNameValue = Index('idx_strings_name_value',
+      'CREATE\r\n    INDEX idx_strings_name_value on strings (name, value);');
+  late final Index idxStringsNameItem = Index('idx_strings_name_item',
+      'CREATE\r\n    INDEX idx_strings_name_item on strings (name, item);');
   late final Reals reals = Reals(this);
-  late final Index idxRealsItemName = Index(
-      'idx_reals_item_name', 'CREATE\r\nUNIQUE INDEX idx_reals_item_name on reals (item, name);');
-  late final Index idxRealsNameValue =
-      Index('idx_reals_name_value', 'CREATE\r\nINDEX idx_reals_name_value on reals(name, value);');
-  late final Index idxRealsNameItem =
-      Index('idx_reals_name_item', 'CREATE\r\nINDEX idx_reals_name_item on reals(name, item);');
+  late final Index idxRealsItemName = Index('idx_reals_item_name',
+      'CREATE\r\n    UNIQUE INDEX idx_reals_item_name on reals (item, name);');
+  late final Index idxRealsNameValue = Index(
+      'idx_reals_name_value', 'CREATE\r\n    INDEX idx_reals_name_value on reals (name, value);');
+  late final Index idxRealsNameItem = Index(
+      'idx_reals_name_item', 'CREATE\r\n    INDEX idx_reals_name_item on reals (name, item);');
   late final StringsSearch stringsSearch = StringsSearch(this);
   late final Trigger stringsSearchAfterInsert = Trigger(
-      'CREATE TRIGGER strings_search_after_insert AFTER INSERT ON strings BEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
+      'CREATE TRIGGER strings_search_after_insert\r\n    AFTER INSERT\r\n    ON strings\r\nBEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
       'strings_search_after_insert');
   late final Trigger stringsSearchBeforeDelete = Trigger(
-      'CREATE TRIGGER strings_search_before_delete BEFORE DELETE ON strings BEGIN\r\n     DELETE FROM strings_search WHERE name = old.name AND item = old.item;\r\nEND;',
+      'CREATE TRIGGER strings_search_before_delete\r\n    BEFORE DELETE\r\n    ON strings\r\nBEGIN\r\n    DELETE FROM strings_search WHERE name = old.name AND item = old.item;\r\nEND;',
       'strings_search_before_delete');
   late final Trigger stringsSearchAfterUpdate = Trigger(
-      'CREATE TRIGGER strings_search_after_update AFTER UPDATE ON strings BEGIN\r\n    UPDATE strings_search SET item = new.item, name = new.name, value = new.value WHERE item = new.item AND name = new.name;\r\nEND;',
+      'CREATE TRIGGER strings_search_after_update\r\n    AFTER UPDATE\r\n    ON strings\r\nBEGIN\r\n    UPDATE strings_search\r\n    SET item  = new.item,\r\n        name  = new.name,\r\n        value = new.value\r\n    WHERE item = new.item\r\n      AND name = new.name;\r\nEND;',
       'strings_search_after_update');
   late final NavigationState navigationState = NavigationState(this);
-
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
-
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         items,
@@ -1779,7 +1866,6 @@ abstract class _$Database extends GeneratedDatabase {
         stringsSearchAfterUpdate,
         navigationState
       ];
-
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
         [
@@ -1792,13 +1878,13 @@ abstract class _$Database extends GeneratedDatabase {
           WritePropagation(
             on: TableUpdateQuery.onTableName('strings', limitUpdateKind: UpdateKind.delete),
             result: [
-              TableUpdate('strings_search', kind: UpdateKind.insert),
+              TableUpdate('strings_search', kind: UpdateKind.delete),
             ],
           ),
           WritePropagation(
             on: TableUpdateQuery.onTableName('strings', limitUpdateKind: UpdateKind.update),
             result: [
-              TableUpdate('strings_search', kind: UpdateKind.insert),
+              TableUpdate('strings_search', kind: UpdateKind.update),
             ],
           ),
         ],

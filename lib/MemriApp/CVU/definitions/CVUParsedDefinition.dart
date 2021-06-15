@@ -12,6 +12,10 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'CVUUINode.dart';
 import 'CVUValue.dart';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'CVUParsedDefinition.g.dart';
+
 /// An enum describing the different types of definition in CVU.
 /// These have different ways of being expressed in CVU eg. [renderer = ...], Text, .someViewName
 enum CVUDefinitionType { view, views, uiNode, sessions, renderer, datasource, language, other }
@@ -20,6 +24,7 @@ enum CVUDefinitionDomain { user }
 
 /// A struct holding the content of a CVUDefinition
 /// Contains properties, children, and sub-definitions
+@JsonSerializable()
 class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
   List<CVUParsedDefinition> definitions;
   List<CVUUINode> children;
@@ -121,11 +126,16 @@ class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
     return result;
   }
 
+  factory CVUDefinitionContent.fromJson(Map<String, dynamic> json) =>
+      _$CVUDefinitionContentFromJson(json);
+  Map<String, dynamic> toJson() => _$CVUDefinitionContentToJson(this);
+
   @override
   List<Object?> get props => [definitions, children, properties];
 }
 
 /// A swift representation of a CVU definition
+@JsonSerializable()
 class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
   CVUDefinitionType type = CVUDefinitionType.other;
   CVUDefinitionDomain domain = CVUDefinitionDomain.user;
@@ -191,6 +201,10 @@ class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
     result.parsed = parsed.merge(other.parsed);
     return result;
   }
+
+  factory CVUParsedDefinition.fromJson(Map<String, dynamic> json) =>
+      _$CVUParsedDefinitionFromJson(json);
+  Map<String, dynamic> toJson() => _$CVUParsedDefinitionToJson(this);
 
   @override
   List<Object?> get props => [type, domain, selector, name, renderer, parsed];

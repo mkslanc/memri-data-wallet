@@ -18,8 +18,14 @@ class NavigationHolder extends StatelessWidget {
 // ignore: must_be_immutable
 class MemriUINavigationController extends StatelessWidget {
   //TODO must_be_immutable
+  Widget? childWidget;
+
   setViewControllers(Widget widget) {
-    Navigator.pushReplacement(_context!, MaterialPageRoute(
+    if (_context == null) {
+      childWidget = widget;
+      return;
+    }
+    Navigator.maybeOf(_context!)?.pushReplacement(MaterialPageRoute(
       builder: (context) {
         _context = context;
         return Scaffold(
@@ -37,9 +43,8 @@ class MemriUINavigationController extends StatelessWidget {
     _context = context;
 
     return Scaffold(
-      body: Center(
-        child: Text("Welcome to Memri"),
-      ), //TODO
+      resizeToAvoidBottomInset: false,
+      body: childWidget,
     );
   }
 }
