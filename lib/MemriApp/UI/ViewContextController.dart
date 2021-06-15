@@ -95,27 +95,22 @@ class ViewContextController extends ChangeNotifier {
     configHolder.removeListener(_updateCachedValues);
   }
 
-  Widget renderNodeDefinition(CVUDefinitionContent nodeDefinition) {
-    return cvuController.render(
-        cvuContext: getCVUContext(),
-        nodeDefinition: nodeDefinition,
-        lookup: lookupController,
-        db: databaseController,
-        blankIfNoDefinition: false);
-  }
-
   /// Return a SwiftUI view for the given item based on it's CVU definition.
   /// Set `overrideRenderer` if you want to render the item as though it is in a different renderer to the context (eg. "list" to get the list-specific appearance)
   Widget render(
-      {required ItemRecord item,
+      {ItemRecord? item,
+      List<ItemRecord>? items,
       String? overrideRenderer,
       CVUDefinitionContent? nodeDefinition,
       CVUViewArguments? viewArguments,
       bool blankIfNoDefinition = false}) {
-    var key = Key(item.uid);
+    var key = item != null ? Key(item.uid) : null;
     return cvuController.render(
         cvuContext: getCVUContext(
-            item: item, overrideRenderer: overrideRenderer, viewArguments: viewArguments),
+            item: item,
+            items: items,
+            overrideRenderer: overrideRenderer,
+            viewArguments: viewArguments),
         nodeDefinition: nodeDefinition,
         lookup: lookupController,
         db: databaseController,
@@ -124,9 +119,13 @@ class ViewContextController extends ChangeNotifier {
   }
 
   CVUContext getCVUContext(
-      {ItemRecord? item, CVUViewArguments? viewArguments, String? overrideRenderer}) {
+      {ItemRecord? item,
+      List<ItemRecord>? items,
+      CVUViewArguments? viewArguments,
+      String? overrideRenderer}) {
     return CVUContext(
         currentItem: item,
+        items: items,
         selector: null,
         viewName: config.viewName,
         rendererName: overrideRenderer ?? config.rendererName,
@@ -231,6 +230,12 @@ class ViewContextController extends ChangeNotifier {
   List<ItemRecord> get items => _items;
 
   set items(List<ItemRecord> items) {
+    if (config.focusedItem != null) {
+      if (items.indexOf(config.focusedItem!) < 0) {
+        config.focusedItem = null;
+      }
+    }
+
     _items = items;
     itemsValueNotifier.value = _items;
     notifyListeners();
@@ -308,21 +313,6 @@ class ViewContextController extends ChangeNotifier {
         queryConfig.executeRequest(databaseController).asBroadcastStream().listen((records) {
       items = records;
     });
-
-    // var observation = ValueObservation
-    //     .tracking { db in
-    // try queryConfig.executeRequest(db: db)
-    // }
-
-    /// Subscribe to changes in the value, with the first result being reported immediately
-    /*queryObservation = observation.publisher(
-    in: databaseController.databasePool,
-    scheduling: .immediate)
-        .sink(
-    receiveCompletion: { completion in },
-    receiveValue: { result in
-    self.items = result
-    })*/
   }
 
   update() async {

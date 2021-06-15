@@ -16,11 +16,11 @@ class SingleItemRendererView extends StatefulWidget {
 }
 
 class _SingleItemRendererViewState extends State<SingleItemRendererView> {
-  late final EdgeInsets insets;
+  EdgeInsets? insets;
 
-  late final Color backgroundColor;
+  Color? backgroundColor;
 
-  late final Future _init;
+  late Future _init;
 
   @override
   initState() {
@@ -51,42 +51,32 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return ValueListenableBuilder(
-                  valueListenable: widget.viewContext.itemsValueNotifier,
-                  builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                    var item =
-                        widget.viewContext.focusedItem ?? widget.viewContext.items.asMap()[0];
-                    if (item != null) {
-                      return Expanded(
-                          child: ColoredBox(
-                        color: backgroundColor,
-                        child: Padding(
-                          padding: insets,
-                          child: widget.viewContext.render(item: item),
-                        ),
-                      ));
-                    } else {
-                      return Expanded(
-                          child: ColoredBox(
-                        color: backgroundColor,
-                        child: Padding(
-                          padding: insets,
-                          child: Center(
-                            child: Text("No item selected"),
-                          ),
-                        ),
-                      ));
-                    }
-                  });
-            default:
-              return SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              );
-          }
+          return ValueListenableBuilder(
+              valueListenable: widget.viewContext.itemsValueNotifier,
+              builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                var item = widget.viewContext.focusedItem ?? widget.viewContext.items.asMap()[0];
+                Widget group;
+                if (item != null) {
+                  group = widget.viewContext.render(item: item, items: widget.viewContext.items);
+                } else {
+                  group = Center(
+                    child: Text("No item selected"),
+                  );
+                }
+                if (insets != null) {
+                  group = Padding(
+                    padding: insets!,
+                    child: group,
+                  );
+                }
+                if (backgroundColor != null) {
+                  ColoredBox(
+                    color: backgroundColor!,
+                    child: group,
+                  );
+                }
+                return Expanded(child: group);
+              });
         });
   }
 }
