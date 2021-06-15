@@ -11,6 +11,9 @@ import '../AppController.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'ItemRecord.g.dart';
 
 enum SyncState {
   create,
@@ -27,10 +30,6 @@ extension SyncStateExtension on SyncState {
     return this.toString().split('.').last;
   }
 }
-
-import 'package:json_annotation/json_annotation.dart';
-
-part 'ItemRecord.g.dart';
 
 @JsonSerializable()
 class ItemRecord with EquatableMixin {
