@@ -376,6 +376,21 @@ class CVULookupController {
               return null;
             }
             break;
+          case "count":
+            if (currentValue == null) {
+              return null;
+            }
+
+            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
+              currentValue =
+                  LookupStepValues([PropertyDatabaseValueInt(currentValue.values.length)]);
+            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
+              currentValue =
+                  LookupStepValues([PropertyDatabaseValueInt(currentValue.items.length)]);
+            } else {
+              return null;
+            }
+            break;
           case "fullname":
             if (currentValue is LookupStepItems) {
               if (currentValue.items.isEmpty) {
