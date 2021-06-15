@@ -118,7 +118,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.includeImmediateEdgeSearch = true,
       List<DatabaseQueryCondition>? conditions,
       this.edgeTargetsOperator = ConditionOperator.and,
-        this.count})
+      this.count})
       : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
         itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
         _sortAscending = sortAscending,
