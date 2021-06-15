@@ -1,6 +1,7 @@
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/NavigationStack.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:moor/moor.dart';
 
@@ -32,16 +33,24 @@ class Database extends _$Database {
     }
   }
 
-  Future<Item> itemRecordFetchWithUID(String uid) async {
-    return await (select(items)..where((t) => t.id.equals(uid))).getSingle();
+  Future<Item?> itemRecordFetchWithUID(String uid) async {
+    return await (select(items)..where((t) => t.id.equals(uid))).getSingleOrNull();
   }
 
-  Future<Item> itemRecordFetchWithRowId(int id) async {
-    return await (select(items)..where((t) => t.rowId.equals(id))).getSingle();
+  Future<Item?> itemRecordFetchWithRowId(int id) async {
+    return await (select(items)..where((t) => t.rowId.equals(id))).getSingleOrNull();
   }
 
   Future<Item?> itemRecordFetchOne() async {
     return await (select(items)..limit(1)).getSingleOrNull();
+  }
+
+  Future<Item?> itemRecordFetchOneByType(String type) async {
+    return await ((select(items)..where((t) => t.type.equals(type)))..limit(1)).getSingleOrNull();
+  }
+
+  Future<List<Item>> itemRecordsFetchByType(String type) async {
+    return await (select(items)..where((t) => t.type.equals(type))).get();
   }
 
   Future<int> itemRecordInsert(ItemRecord record) async {
@@ -57,14 +66,20 @@ class Database extends _$Database {
   }
 
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
-      {String join = "", List<TableInfo>? joinTables}) async {
+      {String join = "",
+      List<TableInfo>? joinTables,
+      int? limit,
+      int? offset,
+      String? orderBy}) async {
     if (query == "") {
-      return await customSelect("SELECT * from items", variables: binding, readsFrom: {items})
-          .map((row) => Item.fromData(row.data, this))
-          .get();
+      return await customSelect(
+          "SELECT * from items ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != null ? "LIMIT $limit" : ""} ${limit != null ? "LIMIT $limit" : ""}",
+          variables: binding,
+          readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
     }
     joinTables ??= [];
-    return await customSelect("SELECT * from items $join WHERE $query",
+    return await customSelect(
+        "SELECT * from items $join WHERE $query ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != null ? "LIMIT $limit" : ""} ${offset != null ? "OFFSET $offset" : ""}",
         variables: binding,
         readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }
@@ -204,9 +219,9 @@ class Database extends _$Database {
         readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).getSingleOrNull();
   }
 
-  Future<List<Edge>> edgeRecordsSelect(Map<String, dynamic> properties) async {
+  Future<List<Edge>> edgeRecordsSelect(Map<String, dynamic> properties, [int? limit]) async {
     return await customSelect(
-        "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"}",
+        "SELECT * from edges WHERE ${properties.keys.join(" = ? AND ") + " = ?"} ${limit != null ? "LIMIT $limit" : ""}",
         variables: properties.values.map((property) => Variable(property)).toList(),
         readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
@@ -218,6 +233,10 @@ class Database extends _$Database {
 
   Future<NavigationStateData?> navigationStateFetchOne() async {
     return await select(navigationState).getSingleOrNull();
+  }
+
+  Future<int> navigationStateSave(NavigationStack record) async {
+    return await into(navigationState).insertOnConflictUpdate(record.toCompanion());
   }
 }
 

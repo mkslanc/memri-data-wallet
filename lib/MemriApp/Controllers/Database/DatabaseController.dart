@@ -1,6 +1,6 @@
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
-
+import 'DemoData.dart';
 import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
@@ -33,7 +33,7 @@ class DatabaseController {
 
   /// Check if the database has been setup
   Future<bool> get databaseIsSetup async {
-    var item = await this.databasePool.itemRecordFetchOne();
+    var item = await this.databasePool.itemRecordFetchOneByType("ItemPropertySchema");
     return (item != null);
   }
 
@@ -44,5 +44,14 @@ class DatabaseController {
     }
     var refinedQuery = "$searchQuery*";
     return await ItemRecord.search(this, refinedQuery);
+  }
+
+  setupWithDemoData() async {
+    if (await databaseIsSetup) {
+      // If there is already data set up, don't import
+      return;
+    }
+    await DemoData.importSchema(databaseController: this);
+    await DemoData.importDemoData(databaseController: this);
   }
 }

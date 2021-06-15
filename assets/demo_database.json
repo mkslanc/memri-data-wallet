@@ -1,74 +1,5 @@
 [
-  {
-    "_type": "Setting",
-    "key": "defaults/general/gui/showEditButton",
-    "json": {
-      "value": true
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/general/gui/showDateAgo",
-    "json": {
-      "value": true
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/general/gui/useMapBox",
-    "json": {
-      "value": false
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/sensors/location/track",
-    "json": {
-      "value": false
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/formatting/date",
-    "json": {
-      "value": "yyyy/MM/dd HH:mm"
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/pod/host",
-    "json": {
-      "value": "http://localhost:3030"
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/pod/username",
-    "json": {
-      "value": ""
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/pod/password",
-    "json": {
-      "value": ""
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/debug/autoShowErrorConsole",
-    "json": {
-      "value": false
-    }
-  },
-  {
-    "_type": "Setting",
-    "key": "defaults/debug/autoReloadCVU",
-    "json": {
-      "value": true
-    }
-  },
+
   {
     "_type": "NavigationItem",
     "itemType": "heading",
@@ -152,6 +83,12 @@
     "_type": "NavigationItem",
     "title": "addresses",
     "sessionName": "allAddresses"
+  },
+  {
+    "_type": "NavigationItem",
+    "itemType": "item",
+    "title": "crypto keys",
+    "sessionName": "allCryptoKeys"
   },
   {
     "_type": "NavigationItem",
@@ -258,7 +195,7 @@
   {
     "_type": "Indexer",
     "name": "Note Label Indexer",
-    "query": "Note",
+    "querystr": "Note",
     "runDestination": "ios",
     "itemDescription": "This indexer extracts labels from notes. You can specify aliases in the labels to add keywords that are used to match against.",
     "icon": "tag"
@@ -266,7 +203,7 @@
   {
     "_type": "Indexer",
     "name": "Note List Indexer",
-    "query": "Note",
+    "querystr": "Note",
     "indexerClass": "NotesListIndexer",
     "itemDescription": "This indexer extracts lists from notes. It detects both structured and unstructured lists",
     "icon": "text.badge.plus"

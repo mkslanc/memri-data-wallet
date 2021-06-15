@@ -1,6 +1,21 @@
 {
   "properties": [
     {
+      "item_type": "ItemPropertySchema",
+      "property": "itemType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "ItemPropertySchema",
+      "property": "propertyName",
+      "value_type": "string"
+    },
+    {
+      "item_type": "ItemPropertySchema",
+      "property": "valueType",
+      "value_type": "string"
+    },
+    {
       "item_type": "Account",
       "property": "handle",
       "value_type": "string"
@@ -162,7 +177,7 @@
     },
     {
       "item_type": "AuditItem",
-      "property": "action",
+      "property": "actionname",
       "value_type": "string"
     },
     {
@@ -182,7 +197,7 @@
     },
     {
       "item_type": "CVUStoredDefinition",
-      "property": "query",
+      "property": "querystr",
       "value_type": "string"
     },
     {
@@ -302,7 +317,7 @@
     },
     {
       "item_type": "CryptoKey",
-      "property": "key",
+      "property": "keystr",
       "value_type": "string"
     },
     {
@@ -314,6 +329,11 @@
       "item_type": "CryptoKey",
       "property": "name",
       "value_type": "string"
+    },
+    {
+      "item_type": "CryptoKey",
+      "property": "starred",
+      "value_type": "bool"
     },
     {
       "item_type": "CryptoCurrency",
@@ -607,7 +627,7 @@
     },
     {
       "item_type": "File",
-      "property": "key",
+      "property": "keystr",
       "value_type": "string"
     },
     {
@@ -822,7 +842,7 @@
     },
     {
       "item_type": "Indexer",
-      "property": "query",
+      "property": "querystr",
       "value_type": "string"
     },
     {
@@ -857,7 +877,7 @@
     },
     {
       "item_type": "IndexerRun",
-      "property": "query",
+      "property": "querystr",
       "value_type": "string"
     },
     {
@@ -1012,7 +1032,7 @@
     },
     {
       "item_type": "MedicalCondition",
-      "property": "type",
+      "property": "conditiontype",
       "value_type": "string"
     },
     {
@@ -1657,7 +1677,7 @@
     },
     {
       "item_type": "Setting",
-      "property": "key",
+      "property": "keystr",
       "value_type": "string"
     },
     {
@@ -2176,6 +2196,11 @@
       "source_type": "CreativeWork",
       "edge": "review",
       "target_type": "Review"
+    },
+    {
+      "source_type": "CryptoKey",
+      "edge": "owner",
+      "target_type": "Person"
     },
     {
       "source_type": "CryptoCurrency",

@@ -5,10 +5,16 @@
 //  Created by T Brennan on 28/1/21.
 //
 
+import 'package:equatable/equatable.dart';
+
 import 'CVUValue_Expression.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'CVUValue_LookupNode.g.dart';
 
 /// A single node in a CVU Expression lookup. The `default` node (`.` in CVU) represents the current item in the CVU context
-class CVULookupNode {
+@JsonSerializable()
+class CVULookupNode with EquatableMixin {
   String name;
   bool isArray;
   CVULookupType type;
@@ -29,20 +35,66 @@ class CVULookupNode {
       return '$name${isArray ? "[]" : ""}';
     }
   }
+
+  factory CVULookupNode.fromJson(Map<String, dynamic> json) => _$CVULookupNodeFromJson(json);
+  Map<String, dynamic> toJson() => _$CVULookupNodeToJson(this);
+
+  @override
+  List<Object?> get props => [name, isArray, type];
 }
 
-class CVULookupTypeDefault extends CVULookupType {}
+class CVULookupTypeDefault extends CVULookupType {
+  Map<String, dynamic> toJson() => {"type": runtimeType.toString()};
 
+  @override
+  List<Object?> get props => [];
+}
+
+@JsonSerializable()
 class CVULookupTypeLookup extends CVULookupType {
   final CVUExpressionNode? subExpression;
 
   CVULookupTypeLookup([this.subExpression]);
+
+  factory CVULookupTypeLookup.fromJson(Map<String, dynamic> json) =>
+      _$CVULookupTypeLookupFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$CVULookupTypeLookupToJson(this)..addAll({"type": runtimeType.toString()});
+
+  @override
+  List<Object?> get props => [subExpression];
 }
 
+@JsonSerializable()
 class CVULookupTypeFunction extends CVULookupType {
   final List<CVUExpressionNode> args;
 
   CVULookupTypeFunction(this.args);
+
+  factory CVULookupTypeFunction.fromJson(Map<String, dynamic> json) =>
+      _$CVULookupTypeFunctionFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$CVULookupTypeFunctionToJson(this)..addAll({"type": runtimeType.toString()});
+
+  @override
+  List<Object?> get props => [args];
 }
 
-abstract class CVULookupType {}
+abstract class CVULookupType with EquatableMixin {
+  CVULookupType();
+
+  factory CVULookupType.fromJson(json) {
+    switch (json["type"]) {
+      case "CVULookupTypeDefault":
+        return CVULookupTypeDefault();
+      case "CVULookupTypeLookup":
+        return CVULookupTypeLookup.fromJson(json);
+      case "CVULookupTypeFunction":
+        return CVULookupTypeFunction.fromJson(json);
+      default:
+        throw Exception("Unknown CVULookupType: ${json["type"]}");
+    }
+  }
+
+  Map<String, dynamic> toJson();
+}

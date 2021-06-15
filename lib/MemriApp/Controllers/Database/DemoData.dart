@@ -13,6 +13,43 @@ import 'PropertyDatabaseValue.dart';
 import 'Schema.dart';
 
 class DemoData {
+  static importSchema(
+      {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
+    databaseController ??= AppController.shared.databaseController;
+    var fileURL = "assets/schema.json";
+    var fileData = await rootBundle.loadString(fileURL);
+    var items = jsonDecode(fileData);
+    if (items == null || items["properties"] == null || items["properties"] is! List) {
+      throw Exception("Could not locate schema file");
+    }
+    var properties = items["properties"];
+
+    for (var property in properties) {
+      var itemType = property["item_type"];
+      var propertyName = property["property"];
+      var propertyValue = property["value_type"];
+      if (itemType is String && propertyName is String && propertyValue is String) {
+        var record = ItemRecord(type: "ItemPropertySchema");
+        var recordRowId = await record.insert(databaseController.databasePool);
+        await ItemPropertyRecord(
+                itemRowID: recordRowId,
+                name: "itemType",
+                value: PropertyDatabaseValue.create(itemType, SchemaValueType.string))
+            .insert(databaseController.databasePool);
+        await ItemPropertyRecord(
+                itemRowID: recordRowId,
+                name: "propertyName",
+                value: PropertyDatabaseValue.create(propertyName, SchemaValueType.string))
+            .insert(databaseController.databasePool);
+        await ItemPropertyRecord(
+                itemRowID: recordRowId,
+                name: "valueType",
+                value: PropertyDatabaseValue.create(propertyValue, SchemaValueType.string))
+            .insert(databaseController.databasePool);
+      }
+    }
+  }
+
   static Future<void> importDemoData(
       {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;

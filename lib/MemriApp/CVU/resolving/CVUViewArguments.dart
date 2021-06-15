@@ -9,6 +9,11 @@ import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'CVUViewArguments.g.dart';
+
+@JsonSerializable()
 class CVUViewArguments with EquatableMixin {
   // The view arguments
   Map<String, CVUValue> args;
@@ -21,6 +26,9 @@ class CVUViewArguments with EquatableMixin {
 
   CVUViewArguments({Map<String, CVUValue>? args, this.argumentItem, this.parentArguments})
       : this.args = args ?? {};
+
+  factory CVUViewArguments.fromJson(Map<String, dynamic> json) => _$CVUViewArgumentsFromJson(json);
+  Map<String, dynamic> toJson() => _$CVUViewArgumentsToJson(this);
 
   @override
   List<Object?> get props => [args, argumentItem, parentArguments];

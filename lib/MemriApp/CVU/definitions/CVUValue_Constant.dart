@@ -5,9 +5,19 @@
 //  Created by T Brennan on 28/1/21.
 //
 
+import 'package:equatable/equatable.dart';
+
+import 'package:json_annotation/json_annotation.dart';
+
+part 'CVUValue_Constant.g.dart';
+
 /// A constant value that can be serialised to/from CVU and JSON
 /// This can be an argument (single word string with no quotes), string, number, bool, colorHex (eg. #FFFFFF), or nil
-abstract class CVUConstant {
+abstract class CVUConstant with EquatableMixin {
+  get value => null;
+
+  CVUConstant();
+
   /// Get a string representation of the value
   String asString() {
     var cvuConstant = this;
@@ -118,42 +128,90 @@ abstract class CVUConstant {
       throw Exception("Unknown CVUConstant ${cvuConstant.toString()}");
     }
   }
+
+  factory CVUConstant.fromJson(json) {
+    switch (json["type"]) {
+      case "CVUConstantArgument":
+        return CVUConstantArgument.fromJson(json);
+      case "CVUConstantNumber":
+        return CVUConstantNumber.fromJson(json);
+      case "CVUConstantInt":
+        return CVUConstantInt.fromJson(json);
+      case "CVUConstantString":
+        return CVUConstantString.fromJson(json);
+      case "CVUConstantBool":
+        return CVUConstantBool.fromJson(json);
+      case "CVUConstantColorHex":
+        return CVUConstantColorHex.fromJson(json);
+      case "CVUConstantNil":
+        return CVUConstantNil();
+      default:
+        throw Exception("Unknown CVUConstant: ${json["type"]}");
+    }
+  }
+
+  Map<String, dynamic> toJson() => {'value': value, 'type': runtimeType.toString()};
+
+  @override
+  List<Object?> get props => [value];
 }
 
+@JsonSerializable(createToJson: false)
 class CVUConstantArgument extends CVUConstant {
   final String value;
 
   CVUConstantArgument(this.value);
+
+  factory CVUConstantArgument.fromJson(Map<String, dynamic> json) =>
+      _$CVUConstantArgumentFromJson(json);
 }
 
+@JsonSerializable(createToJson: false)
 class CVUConstantNumber extends CVUConstant {
   final double value;
 
   CVUConstantNumber(this.value);
+
+  factory CVUConstantNumber.fromJson(Map<String, dynamic> json) =>
+      _$CVUConstantNumberFromJson(json);
 }
 
+@JsonSerializable(createToJson: false)
 class CVUConstantInt extends CVUConstant {
   final int value;
 
   CVUConstantInt(this.value);
+
+  factory CVUConstantInt.fromJson(Map<String, dynamic> json) => _$CVUConstantIntFromJson(json);
 }
 
+@JsonSerializable(createToJson: false)
 class CVUConstantString extends CVUConstant {
   final String value;
 
   CVUConstantString(this.value);
+
+  factory CVUConstantString.fromJson(Map<String, dynamic> json) =>
+      _$CVUConstantStringFromJson(json);
 }
 
+@JsonSerializable(createToJson: false)
 class CVUConstantBool extends CVUConstant {
   final bool value;
 
   CVUConstantBool(this.value);
+
+  factory CVUConstantBool.fromJson(Map<String, dynamic> json) => _$CVUConstantBoolFromJson(json);
 }
 
+@JsonSerializable(createToJson: false)
 class CVUConstantColorHex extends CVUConstant {
   final String value;
 
   CVUConstantColorHex(this.value);
+
+  factory CVUConstantColorHex.fromJson(Map<String, dynamic> json) =>
+      _$CVUConstantColorHexFromJson(json);
 }
 
 class CVUConstantNil extends CVUConstant {}

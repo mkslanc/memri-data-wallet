@@ -56,6 +56,8 @@ class ViewContextController extends ChangeNotifier {
     // configObservation = configHolder.configPublisher.sink { [weak self] _ in
     // self?.setupQueryObservation()
     // }
+
+    searchStringNotifier = ValueNotifier(configHolder.config.query.searchString);
   }
 
   int get focusedIndex {
