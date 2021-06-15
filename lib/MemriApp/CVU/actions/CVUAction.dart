@@ -118,6 +118,10 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionSelectAll(vars: vars);
     case "deselectall":
       return ({Map? vars}) => CVUActionDeselectAll(vars: vars);
+    case "tonextitem":
+      return ({Map? vars}) => CVUActionToNextItem(vars: vars);
+    case "topreviousitem":
+      return ({Map? vars}) => CVUActionToPreviousItem(vars: vars);
     default:
       return null;
   }
@@ -836,6 +840,40 @@ class CVUActionSetSetting extends CVUAction {
   @override
   void execute(SceneController sceneController, CVUContext context) async {
     // TODO:
+  }
+}
+
+class CVUActionToNextItem extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionToNextItem({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) {
+    if (sceneController.topMostContext == null) {
+      return;
+    }
+    var index = sceneController.topMostContext!.focusedIndex;
+    sceneController.topMostContext?.focusedIndex =
+        index <= 0 ? sceneController.topMostContext!.items.length - 1 : index - 1;
+    sceneController.scheduleUIUpdate();
+  }
+}
+
+class CVUActionToPreviousItem extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionToPreviousItem({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) {
+    if (sceneController.topMostContext == null) {
+      return;
+    }
+    var index = sceneController.topMostContext!.focusedIndex;
+    sceneController.topMostContext?.focusedIndex =
+        index >= sceneController.topMostContext!.items.length - 1 ? 0 : index + 1;
+    sceneController.scheduleUIUpdate();
   }
 }
 
