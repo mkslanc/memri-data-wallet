@@ -33,12 +33,12 @@ class Item extends DataClass implements Insertable<Item> {
       rowId: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}row_id'])!,
       id: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       type: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
-      dateCreated:
-          const DateTimeType().mapFromDatabaseResponse(data['${effectivePrefix}dateCreated'])!,
-      dateModified:
-          const DateTimeType().mapFromDatabaseResponse(data['${effectivePrefix}dateModified'])!,
-      dateServerModified: const DateTimeType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}dateServerModified']),
+      dateCreated: Items.$converter0.mapToDart(
+          const IntType().mapFromDatabaseResponse(data['${effectivePrefix}dateCreated']))!,
+      dateModified: Items.$converter1.mapToDart(
+          const IntType().mapFromDatabaseResponse(data['${effectivePrefix}dateModified']))!,
+      dateServerModified: Items.$converter2.mapToDart(
+          const IntType().mapFromDatabaseResponse(data['${effectivePrefix}dateServerModified'])),
       deleted: const BoolType().mapFromDatabaseResponse(data['${effectivePrefix}deleted'])!,
       syncState: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}syncState'])!,
       syncHasPriority:
@@ -51,10 +51,17 @@ class Item extends DataClass implements Insertable<Item> {
     map['row_id'] = Variable<int>(rowId);
     map['id'] = Variable<String>(id);
     map['type'] = Variable<String>(type);
-    map['dateCreated'] = Variable<DateTime>(dateCreated);
-    map['dateModified'] = Variable<DateTime>(dateModified);
+    {
+      final converter = Items.$converter0;
+      map['dateCreated'] = Variable<int>(converter.mapToSql(dateCreated)!);
+    }
+    {
+      final converter = Items.$converter1;
+      map['dateModified'] = Variable<int>(converter.mapToSql(dateModified)!);
+    }
     if (!nullToAbsent || dateServerModified != null) {
-      map['dateServerModified'] = Variable<DateTime?>(dateServerModified);
+      final converter = Items.$converter2;
+      map['dateServerModified'] = Variable<int?>(converter.mapToSql(dateServerModified));
     }
     map['deleted'] = Variable<bool>(deleted);
     map['syncState'] = Variable<String>(syncState);
@@ -270,13 +277,16 @@ class ItemsCompanion extends UpdateCompanion<Item> {
       map['type'] = Variable<String>(type.value);
     }
     if (dateCreated.present) {
-      map['dateCreated'] = Variable<DateTime>(dateCreated.value);
+      final converter = Items.$converter0;
+      map['dateCreated'] = Variable<int>(converter.mapToSql(dateCreated.value)!);
     }
     if (dateModified.present) {
-      map['dateModified'] = Variable<DateTime>(dateModified.value);
+      final converter = Items.$converter1;
+      map['dateModified'] = Variable<int>(converter.mapToSql(dateModified.value)!);
     }
     if (dateServerModified.present) {
-      map['dateServerModified'] = Variable<DateTime?>(dateServerModified.value);
+      final converter = Items.$converter2;
+      map['dateServerModified'] = Variable<int?>(converter.mapToSql(dateServerModified.value));
     }
     if (deleted.present) {
       map['deleted'] = Variable<bool>(deleted.value);
@@ -331,23 +341,21 @@ class Items extends Table with TableInfo<Items, Item> {
   }
 
   final VerificationMeta _dateCreatedMeta = const VerificationMeta('dateCreated');
-  late final GeneratedDateTimeColumn dateCreated = _constructDateCreated();
-  GeneratedDateTimeColumn _constructDateCreated() {
-    return GeneratedDateTimeColumn('dateCreated', $tableName, false,
-        $customConstraints: 'NOT NULL');
+  late final GeneratedIntColumn dateCreated = _constructDateCreated();
+  GeneratedIntColumn _constructDateCreated() {
+    return GeneratedIntColumn('dateCreated', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _dateModifiedMeta = const VerificationMeta('dateModified');
-  late final GeneratedDateTimeColumn dateModified = _constructDateModified();
-  GeneratedDateTimeColumn _constructDateModified() {
-    return GeneratedDateTimeColumn('dateModified', $tableName, false,
-        $customConstraints: 'NOT NULL');
+  late final GeneratedIntColumn dateModified = _constructDateModified();
+  GeneratedIntColumn _constructDateModified() {
+    return GeneratedIntColumn('dateModified', $tableName, false, $customConstraints: 'NOT NULL');
   }
 
   final VerificationMeta _dateServerModifiedMeta = const VerificationMeta('dateServerModified');
-  late final GeneratedDateTimeColumn dateServerModified = _constructDateServerModified();
-  GeneratedDateTimeColumn _constructDateServerModified() {
-    return GeneratedDateTimeColumn('dateServerModified', $tableName, true, $customConstraints: '');
+  late final GeneratedIntColumn dateServerModified = _constructDateServerModified();
+  GeneratedIntColumn _constructDateServerModified() {
+    return GeneratedIntColumn('dateServerModified', $tableName, true, $customConstraints: '');
   }
 
   final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
@@ -409,24 +417,9 @@ class Items extends Table with TableInfo<Items, Item> {
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
-    if (data.containsKey('dateCreated')) {
-      context.handle(_dateCreatedMeta,
-          dateCreated.isAcceptableOrUnknown(data['dateCreated']!, _dateCreatedMeta));
-    } else if (isInserting) {
-      context.missing(_dateCreatedMeta);
-    }
-    if (data.containsKey('dateModified')) {
-      context.handle(_dateModifiedMeta,
-          dateModified.isAcceptableOrUnknown(data['dateModified']!, _dateModifiedMeta));
-    } else if (isInserting) {
-      context.missing(_dateModifiedMeta);
-    }
-    if (data.containsKey('dateServerModified')) {
-      context.handle(
-          _dateServerModifiedMeta,
-          dateServerModified.isAcceptableOrUnknown(
-              data['dateServerModified']!, _dateServerModifiedMeta));
-    }
+    context.handle(_dateCreatedMeta, const VerificationResult.success());
+    context.handle(_dateModifiedMeta, const VerificationResult.success());
+    context.handle(_dateServerModifiedMeta, const VerificationResult.success());
     if (data.containsKey('deleted')) {
       context.handle(_deletedMeta, deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta));
     }
@@ -453,6 +446,9 @@ class Items extends Table with TableInfo<Items, Item> {
     return Items(_db, alias);
   }
 
+  static TypeConverter<DateTime, int> $converter0 = const DateTimeConverter();
+  static TypeConverter<DateTime, int> $converter1 = const DateTimeConverter();
+  static TypeConverter<DateTime, int> $converter2 = const DateTimeConverter();
   @override
   bool get dontWriteConstraints => true;
 }

@@ -1,15 +1,18 @@
+import 'DateTimeConverter.dart';
+
 CREATE TABLE items
 (
     row_id             INTEGER PRIMARY KEY,
     id                 TEXT     NOT NULL,
     type               TEXT     NOT NULL,
-    dateCreated        DATETIME NOT NULL,
-    dateModified       DATETIME NOT NULL,
-    dateServerModified DATETIME,
+    dateCreated        INTEGER MAPPED BY `const DateTimeConverter()` NOT NULL,
+    dateModified       INTEGER MAPPED BY `const DateTimeConverter()` NOT NULL,
+    dateServerModified INTEGER MAPPED BY `const DateTimeConverter()`,
     deleted            BOOLEAN  NOT NULL DEFAULT false,
     syncState          TEXT     NOT NULL DEFAULT 'create',
     syncHasPriority    BOOLEAN  NOT NULL DEFAULT false
 );
+
 CREATE
     UNIQUE INDEX idx_items_id on items (id);
 CREATE

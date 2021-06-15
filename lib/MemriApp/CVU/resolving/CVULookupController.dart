@@ -141,8 +141,8 @@ class CVULookupController {
 
   Future<DateTime?> _resolveDate(CVUValue value, CVUContext context, DatabaseController db) async {
     if (value is CVUValueConstant) {
-      return DateTime.fromMicrosecondsSinceEpoch(
-          int.parse(value.value.asNumber().toString()) * 1000); //TODO is this right? @anijanyan
+      return DateTime.fromMillisecondsSinceEpoch(
+          int.parse(value.value.asNumber().toString()));
     } else if (value is CVUValueExpression) {
       return await resolve<DateTime>(expression: value.value, context: context, db: db);
     } else {

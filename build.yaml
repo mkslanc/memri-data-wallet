@@ -3,6 +3,7 @@ targets:
     builders:
       moor_generator:
         options:
+          apply_converters_on_variables: true
           sqlite:
             modules:
               - fts5
