@@ -1,33 +1,15 @@
 .mergeAndFix {
-    defaultRenderer: custom
+    title: "Merge and fix"
+    defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
 
-    VStack {
-        padding: 15
-        alignment: left
-
-        SubView {
-            view {
-                viewName: SuggestedMerge
-                defaultRenderer: singleItem
-
-                [datasource = pod] {
-                    query: SuggestedMerge
-                    filter: {
-                        properties: {
-                           task: idle
-                        }
-                    }
-                    count: 1
-                }
-
-                arguments: {
-                    showToolbar: false
-                    showBottomBar: false
-                    readOnly: true
-                }
+    [datasource = pod] {
+        query: SuggestedMerge
+        filter: {
+            properties: {
+               task: idle
             }
         }
     }
@@ -37,6 +19,22 @@ SuggestedMerge > singleItem {
     VStack {
         padding: 15
         alignment: left
+
+        HStack {
+            alignment: left
+            Text {
+               text: "Merge and fix "
+               font: 20 semibold
+               color: #333
+               padding: 0 0 0 0
+            }
+            Text {
+               text: "{currentIndex} of {items.count()}"
+               font: 16
+               color: #333
+               padding: 0 0 0 0
+            }
+        }
 
         HStack {
             alignment: left
@@ -53,6 +51,13 @@ SuggestedMerge > singleItem {
             view {
                 viewName: Person
                 defaultRenderer: list
+
+                [renderer = list] {
+                    onPress: openView {
+                        renderer: generalEditor
+                        inheritDatasource: false
+                    }
+                }
 
                 [datasource = pod] {
                     query: Person
@@ -83,6 +88,7 @@ SuggestedMerge > singleItem {
                         property: "task"
                         value: "merge"
                     }
+                    toNextItem
                 ]
 
                 HStack {
@@ -109,11 +115,29 @@ SuggestedMerge > singleItem {
                         property: "task"
                         value: "ignore"
                     }
+                    toNextItem
                 ]
 
                 HStack {
                     Text {
                         text: "No, dismiss."
+                        font: 18
+                        color: #000
+                    }
+                }
+            }
+        }
+
+        HStack {
+            Button {
+                cornerRadius: 30
+                padding: 25 10
+
+                onPress: toNextItem
+
+                HStack {
+                    Text {
+                        text: "Let's skip this, I'm not sure."
                         font: 18
                         color: #000
                     }
