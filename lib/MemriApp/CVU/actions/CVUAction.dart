@@ -827,7 +827,11 @@ class CVUActionSetProperty extends CVUAction {
     var databaseValue = PropertyDatabaseValue.createFromCVUValue(value, expectedType.valueType);
     if (databaseValue == null) return;
 
-    subjectItem.setPropertyValue(property, databaseValue);
+    await subjectItem.setPropertyValue(property, databaseValue);
+
+    sceneController.topMostContext
+        ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
+
     sceneController.scheduleUIUpdate();
   }
 }
