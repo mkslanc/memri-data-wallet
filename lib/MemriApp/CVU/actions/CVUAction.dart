@@ -859,7 +859,7 @@ class CVUActionToNextItem extends CVUAction {
     }
     var index = sceneController.topMostContext!.focusedIndex;
     sceneController.topMostContext?.focusedIndex =
-        index <= 0 ? sceneController.topMostContext!.items.length - 1 : index - 1;
+        index >= sceneController.topMostContext!.items.length - 1 ? 0 : index + 1;
     sceneController.scheduleUIUpdate();
   }
 }
@@ -876,7 +876,7 @@ class CVUActionToPreviousItem extends CVUAction {
     }
     var index = sceneController.topMostContext!.focusedIndex;
     sceneController.topMostContext?.focusedIndex =
-        index >= sceneController.topMostContext!.items.length - 1 ? 0 : index + 1;
+        index <= 0 ? sceneController.topMostContext!.items.length - 1 : index - 1;
     sceneController.scheduleUIUpdate();
   }
 }
