@@ -52,15 +52,15 @@ void main() {
   test('testWriteInRead', () async {
     var queryDef = await databaseController.search("trailhead first");
     var result = queryDef[0];
-    await result.setPropertyValue(
-        "content", PropertyDatabaseValueString("TESTING 123"), databaseController);
+    await result.setPropertyValue("content", PropertyDatabaseValueString("TESTING 123"),
+        db: databaseController);
   });
 
   test('testSearchAfterInsert', () async {
     var newNote = ItemRecord(type: "Note");
     await newNote.save(databaseController.databasePool);
-    await newNote.setPropertyValue(
-        "content", PropertyDatabaseValueString("TESTING123"), databaseController);
+    await newNote.setPropertyValue("content", PropertyDatabaseValueString("TESTING123"),
+        db: databaseController);
     var queryDef = await databaseController.search("TESTING123");
     expect(queryDef.length, equals(1));
   });
@@ -68,8 +68,8 @@ void main() {
   test('testSearchAfterUpdate', () async {
     var queryDef = await databaseController.search("trailhead first");
     var result = queryDef[0];
-    await result.setPropertyValue(
-        "content", PropertyDatabaseValueString("TESTING123"), databaseController);
+    await result.setPropertyValue("content", PropertyDatabaseValueString("TESTING123"),
+        db: databaseController);
     var searchResults = await databaseController.search("TESTING123");
     expect(searchResults.length, equals(1));
   });
@@ -77,7 +77,7 @@ void main() {
   test('testSearchAfterDelete', () async {
     var queryDef = await databaseController.search("trailhead first");
     var result = queryDef[0];
-    await result.setPropertyValue("content", null, databaseController);
+    await result.setPropertyValue("content", null, db: databaseController);
     var searchResults = await databaseController.search("trailhead");
     expect(searchResults.length, equals(0));
   });
