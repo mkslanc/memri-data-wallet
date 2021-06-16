@@ -101,6 +101,21 @@ class SyncController {
     }*/ //TODO: auth keys
     currentConnection ??= connectionConfig ?? AppController.shared.podConnectionConfig;
 
+    if (!await podIsExist(currentConnection!).timeout(
+      Duration(seconds: 3),
+      onTimeout: () async {
+        try {
+          await setState(SyncControllerState.failed);
+          throw Exception("Pod doesn't respond");
+        } catch (e) {
+          print(e);
+          return false;
+        }
+      },
+    )) {
+      return;
+    }
+
     if (syncing) {
       print("Already syncing");
       return;
