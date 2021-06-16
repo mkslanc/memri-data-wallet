@@ -221,6 +221,9 @@ class ViewContextController extends ChangeNotifier {
 
   set items(List<ItemRecord> items) {
     _items = items;
+    if (focusedItem != null) {
+      focusedItem = items[focusedIndex];
+    }
     itemsValueNotifier.value = _items;
     notifyListeners();
   }
