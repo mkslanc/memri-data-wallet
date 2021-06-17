@@ -664,6 +664,9 @@ class CVULookupController {
           case "uid":
             return LookupStepValues(
                 items.map((element) => PropertyDatabaseValueInt(element.rowId!)).toList());
+          case "id":
+            return LookupStepValues(
+                items.map((element) => PropertyDatabaseValueString(element.uid)).toList());
           case "dateModified":
             return LookupStepValues(items
                 .map((element) => PropertyDatabaseValueDatetime(element.dateModified))

@@ -132,7 +132,8 @@ class ItemRecord with EquatableMixin {
     return itemPropertyRecord.value(type, db.schema);
   }
 
-  save(Database db) async {
+  save([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
     var savedRowID = await db.itemRecordSave(this);
     if (rowId == null) rowId = savedRowID;
   }

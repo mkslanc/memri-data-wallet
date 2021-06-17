@@ -96,6 +96,11 @@
     "sessionName": "allLabels"
   },
   {
+    "_type":"NavigationItem",
+    "title":"plugins",
+    "sessionName":"allPlugins"
+  },
+  {
     "_type": "NavigationItem",
     "title": "importers",
     "sessionName": "allImporters"
@@ -184,6 +189,13 @@
     "dataType": "whatsapp",
     "repository": "memri-rustintegrators:latest",
     "icon": "message"
+  },
+  {
+    "_type":"Plugin",
+    "name":"Deduplication",
+    "container":"test",
+    "icon":"message",
+    "itemDescription":"Removes duplicate contacts from your pod"
   },
   {
     "_type": "Indexer",

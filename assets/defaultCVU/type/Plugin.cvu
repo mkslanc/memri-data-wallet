@@ -1,0 +1,189 @@
+Plugin {
+    title: "{.name}"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+            
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        showContextPane
+    ]
+    
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "Timeline of this plugin"
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName {
+                title: "Starred plugins"
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
+                }
+            }
+            openSessionByName {
+                title: "All plugins"
+                sessionName: "all-plugins"
+            }
+        ]
+    }
+}
+
+Plugin > list {
+    onPress: runPlugin {
+        name: {{.name}}
+        plugin: {{.}}
+        container: {{.container}}
+        targetItemId: {{.id}}
+    }
+    
+    HStack {
+        alignment: center
+        Image {
+            show: {{.icon or .bundleImage}}
+            systemName: {{.icon}}
+            bundleImage: {{.bundleImage}}
+            font: 30
+            color: blue
+            width: 90
+        }
+    
+        VStack {
+            alignment: left
+            rowInset: 12 20 -12 20
+
+
+            HStack {
+                Text {
+                    text: "{.name}"
+                    font: 18 semibold
+                    color: primary
+                    padding: 0 0 3 0
+                }
+                Text {
+                    show: {{.runDestination="ios"}}
+                    text: "   (Local)"
+                }
+            }
+            HStack {
+                Text {
+                    text: "{.itemDescription}"
+                    removeWhiteSpace: true
+                    maxChar: 100
+                    color: secondary
+                    font: 14 regular
+                    padding: 0 20 0 0
+                }
+            }
+            Text {
+                text: "{.dateModified}"
+                font: 11 regular
+                color: secondary
+                padding: 8 0 5 0
+            }
+        }
+    }
+}
+
+Plugin > grid {
+    onPress: runPlugin {
+        name: {{.name}}
+        plugin: {{.}}
+        container: {{.container}}
+        targetItemId: {{.id}}
+    }
+    
+    ZStack {
+        Rectangle {
+            color: secondaryBackground
+            cornerRadius: 5
+        }
+
+        VStack {
+            alignment: center
+            spacing: 5
+        
+            Image {
+                    show: {{.icon or .bundleImage}}
+                    systemName: {{.icon}}
+                    bundleImage: {{.bundleImage}}
+                    resizable: true
+                    color: blue
+                    width: 40
+                    height: 40
+                    padding: 5
+            }
+            
+            Text {
+                text: "{.name}"
+                font: 16 semibold
+                color: primary
+                padding: 5 0 0 0
+            }
+            
+            Text {
+                text: "{.dateModified}"
+                font: 11 regular
+                color: secondary
+                padding: 8 0 5 0
+            }
+        }
+    }
+}
+
+.allPlugins {
+    name: "all-plugins"
+    title: "All Plugins"
+    emptyResultText: "There are no Plugins"
+    defaultRenderer: grid
+    sortFields: datatype dateModified dateAccessed dateCreated
+    
+    [datasource = pod] {
+        query: "Plugin"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+    
+    filterButtons: showStarred toggleFilterPanel
+    
+    [renderer = grid] {
+        spacing: 10
+        edgeInset: 10
+    }
+}

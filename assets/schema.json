@@ -1446,6 +1446,31 @@
       "value_type": "string"
     },
     {
+      "item_type": "Plugin",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "container",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "icon",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "bundleImage",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "itemDescription",
+      "value_type": "string"
+    },
+    {
       "item_type": "Product",
       "property": "audience",
       "value_type": "string"
@@ -1703,6 +1728,16 @@
     {
       "item_type": "SuggestedMerge",
       "property": "task",
+      "value_type": "string"
+    },
+    {
+      "item_type": "StartPlugin",
+      "property": "container",
+      "value_type": "string"
+    },
+    {
+      "item_type": "StartPlugin",
+      "property": "targetItemId",
       "value_type": "string"
     },
     {

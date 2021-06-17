@@ -81,6 +81,8 @@ extension MemriIcon on IconData {
         return Icons.calendar_today;
       case 'checkmark':
         return Icons.check;
+      case 'message':
+        return Icons.chat;
       default:
         print("Unknown icon $iconName");
         return Icons.contact_support_rounded;
