@@ -214,7 +214,7 @@ class CVUPropertyResolver {
   }
 
   Future<FutureBinding<String>?> _bindingWithString(String key, String? defaultValue) async {
-    var val = this.value(key);
+    var val = value(key);
     if (val == null) {
       return null;
     }
@@ -227,7 +227,7 @@ class CVUPropertyResolver {
   }
 
   List<CVUAction>? actions(String key) {
-    var val = this.value(key);
+    var val = value(key);
     if (val == null) {
       return null;
     }

@@ -175,6 +175,11 @@ class _CVUSubViewState extends State<CVUSubView> {
       ];
     }
 
+    var count = await datasourceResolver.integer("count");
+    if (count != null) {
+      queryConfig.count = count;
+    }
+
     var config = ViewContext(
         viewName: viewName,
         rendererName: rendererName,
@@ -211,19 +216,21 @@ class _CVUSubViewState extends State<CVUSubView> {
         future: _init,
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Column(
-              children: [
-                if (title != null)
-                  Column(
-                    children: space(10, [
-                      Text(
-                        title!,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      )
-                    ]),
-                  ),
-                Expanded(child: renderer)
-              ],
+            return Expanded(
+              child: Column(
+                children: [
+                  if (title != null)
+                    Column(
+                      children: space(10, [
+                        Text(
+                          title!,
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        )
+                      ]),
+                    ),
+                  Expanded(child: renderer)
+                ],
+              ),
             );
           }
           return Empty();

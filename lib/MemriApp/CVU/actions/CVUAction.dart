@@ -118,6 +118,10 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionSelectAll(vars: vars);
     case "deselectall":
       return ({Map? vars}) => CVUActionDeselectAll(vars: vars);
+    case "tonextitem":
+      return ({Map? vars}) => CVUActionToNextItem(vars: vars);
+    case "topreviousitem":
+      return ({Map? vars}) => CVUActionToPreviousItem(vars: vars);
     default:
       return null;
   }
@@ -799,7 +803,36 @@ class CVUActionSetProperty extends CVUAction {
 
   @override
   void execute(SceneController sceneController, CVUContext context) async {
-    // TODO:
+    var lookup = CVULookupController();
+    var db = sceneController.appController.databaseController;
+    var schema = db.schema;
+
+    var subjectVal = vars["subject"];
+    ItemRecord? subjectItem =
+        await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    if (subjectItem == null) return;
+    String? property;
+    var propertyValue = vars["property"];
+    if (propertyValue is CVUValueConstant) {
+      var propertyName = propertyValue.value;
+      if (propertyName is CVUConstantString) {
+        property = propertyName.value;
+      }
+    }
+    if (property == null) return;
+
+    SchemaProperty? expectedType = schema.types[subjectItem.type]?.propertyTypes[property];
+    CVUValue? value = vars["value"];
+    if (expectedType == null || value == null) return;
+    var databaseValue = PropertyDatabaseValue.createFromCVUValue(value, expectedType.valueType);
+    if (databaseValue == null) return;
+
+    await subjectItem.setPropertyValue(property, databaseValue);
+
+    sceneController.topMostContext
+        ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
+
+    sceneController.scheduleUIUpdate();
   }
 }
 
@@ -811,6 +844,40 @@ class CVUActionSetSetting extends CVUAction {
   @override
   void execute(SceneController sceneController, CVUContext context) async {
     // TODO:
+  }
+}
+
+class CVUActionToNextItem extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionToNextItem({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) {
+    if (sceneController.topMostContext == null) {
+      return;
+    }
+    var index = sceneController.topMostContext!.focusedIndex;
+    sceneController.topMostContext?.focusedIndex =
+        index >= sceneController.topMostContext!.items.length - 1 ? 0 : index + 1;
+    sceneController.scheduleUIUpdate();
+  }
+}
+
+class CVUActionToPreviousItem extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionToPreviousItem({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) {
+    if (sceneController.topMostContext == null) {
+      return;
+    }
+    var index = sceneController.topMostContext!.focusedIndex;
+    sceneController.topMostContext?.focusedIndex =
+        index <= 0 ? sceneController.topMostContext!.items.length - 1 : index - 1;
+    sceneController.scheduleUIUpdate();
   }
 }
 

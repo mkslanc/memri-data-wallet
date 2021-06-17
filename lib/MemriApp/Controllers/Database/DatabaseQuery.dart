@@ -101,6 +101,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   @annotation.JsonKey(ignore: true)
   late DatabaseController dbController;
 
+  int? count;
+
   DatabaseQueryConfig(
       {List<String>? itemTypes,
       Set<int>? itemRowIDs,
@@ -115,7 +117,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.searchString,
       this.includeImmediateEdgeSearch = true,
       List<DatabaseQueryCondition>? conditions,
-      this.edgeTargetsOperator = ConditionOperator.and})
+      this.edgeTargetsOperator = ConditionOperator.and,
+      this.count})
       : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
         itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
         _sortAscending = sortAscending,
@@ -142,7 +145,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         searchString: searchString,
         includeImmediateEdgeSearch: includeImmediateEdgeSearch,
         conditions: conditions,
-        edgeTargetsOperator: edgeTargetsOperator);
+        edgeTargetsOperator: edgeTargetsOperator,
+        count: count);
   }
 
   _constructFilteredRequest([Set<int>? searchRowIDs]) async {
@@ -153,8 +157,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       return [...arrays].reduce((a, c) => a.where((i) => c.contains(i)).toList());
     }
 
-    var limit = pageSize;
-    var offset = pageSize * currentPage;
+    var limit = count ?? pageSize;
+    var offset = count == null ? pageSize * currentPage : 0;
 
     var queryConditions = [];
     List<Variable<dynamic>> queryBindings = [];
@@ -268,12 +272,16 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     List<int> filteredIds = [];
-    if (allConditionsItemsRowIds.isNotEmpty) {
-      filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
-      if (filteredIds.length == 0) {
-        return [];
+    if (conditions.isNotEmpty) {
+      if (allConditionsItemsRowIds.isNotEmpty) {
+        filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
+        if (filteredIds.length == 0) {
+          return [];
+        } else {
+          rowIds = filteredIds;
+        }
       } else {
-        rowIds = filteredIds;
+        return [];
       }
     }
 

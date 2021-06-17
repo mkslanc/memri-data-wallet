@@ -33,7 +33,9 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
         shouldExpandWidth = true;
       }
       if (element.shouldExpandHeight ||
-          (element.type == CVUUIElementFamily.Spacer && type == CVUUIElementFamily.VStack)) {
+          ((element.type == CVUUIElementFamily.Spacer ||
+                  element.type == CVUUIElementFamily.SubView) &&
+              type == CVUUIElementFamily.VStack)) {
         shouldExpandHeight = true;
       }
     });

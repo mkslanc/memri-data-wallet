@@ -244,22 +244,24 @@ class SceneController extends ChangeNotifier {
             .toList();
 
     var properties = filterDef?.subdefinition("properties");
-    List<DatabaseQueryConditionPropertyEquals> propertyConditions = await Future.wait(properties
-            ?.properties.keys
-            .toList()
-            .compactMap<Future<DatabaseQueryConditionPropertyEquals?>>((key) async {
-          dynamic value = await properties.boolean(key);
-          if (value != null) {
-            return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-          } else {
-            value = await properties.string(key);
-            if (value != null) {
-              return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-            }
-          }
-          return null;
-        }).whereType() ?? //TODO:
-        []);
+    List<DatabaseQueryConditionPropertyEquals> propertyConditions =
+        (await Future.wait<DatabaseQueryConditionPropertyEquals?>(properties?.properties.keys
+                    .toList()
+                    .map<Future<DatabaseQueryConditionPropertyEquals?>>((key) async {
+                  dynamic value = await properties.boolean(key);
+                  if (value != null) {
+                    return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
+                  } else {
+                    value = await properties.string(key);
+                    if (value != null) {
+                      return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
+                    }
+                  }
+                  return null;
+                }) ??
+                []))
+            .whereType<DatabaseQueryConditionPropertyEquals>()
+            .toList();
 
     var queryConfig = inheritDatasource
         ? (topMostContext?.config.query.clone() ?? DatabaseQueryConfig())
@@ -299,6 +301,11 @@ class SceneController extends ChangeNotifier {
         ..addAll(edgeTargetConditions)
         ..addAll(edgeSourceConditions)
         ..addAll(propertyConditions);
+    }
+
+    var count = await datasourceResolver?.integer("count");
+    if (count != null) {
+      queryConfig.count = count;
     }
 
     var config = ViewContext(

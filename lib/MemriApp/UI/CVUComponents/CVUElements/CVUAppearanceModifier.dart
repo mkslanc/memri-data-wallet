@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 
 import '../CVUUINodeResolver.dart';
@@ -68,6 +69,13 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
         future: _init,
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
+            if (widget.nodeResolver.node.type == CVUUIElementFamily.SubView) {
+              //TODO this is a really bad workaround
+              if (maxHeight == double.infinity) {
+                return childWidget;
+              }
+              childWidget = SizedBox.expand(child: Column(children: [childWidget]));
+            }
             if (shadow != null) {
               childWidget = PhysicalModel(
                 color: backgroundColor,
