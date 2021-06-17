@@ -237,6 +237,9 @@ class ViewContextController extends ChangeNotifier {
     }
 
     _items = items;
+    if (focusedItem != null) {
+      focusedItem = items[focusedIndex];
+    }
     itemsValueNotifier.value = _items;
     notifyListeners();
   }

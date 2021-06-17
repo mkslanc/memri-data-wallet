@@ -43,23 +43,38 @@ class SyncController {
     switch (value) {
       case SyncControllerState.started:
         syncing = true;
-        print("Downloading items");
-        await downloadItems();
+        try {
+          await downloadItems();
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
         break;
       case SyncControllerState.downloadedItems:
-        print("Uploading schema");
-        await uploadSchema();
-        break;
+        try {
+          await uploadSchema();
+          break;
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
       case SyncControllerState.uploadedSchema:
-        print("Uploading items");
-        await uploadItems();
-        break;
+        try {
+          await uploadItems();
+          break;
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
       case SyncControllerState.uploadedItems:
-        print("Uploading edges");
-        await uploadEdges();
-        break;
+        try {
+          await uploadEdges();
+          break;
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
       case SyncControllerState.uploadedEdges:
-        print("Finishing");
         await finishSync();
         break;
       case SyncControllerState.failed:
@@ -87,8 +102,25 @@ class SyncController {
     currentConnection ??= connectionConfig ?? AppController.shared.podConnectionConfig;
 
     if (syncing) {
-      throw Exception("Already syncing");
+      print("Already syncing");
+      return;
     }
+
+    if (!await podIsExist(currentConnection!).timeout(
+      Duration(seconds: 3),
+      onTimeout: () async {
+        try {
+          await setState(SyncControllerState.failed);
+          throw Exception("Pod doesn't respond");
+        } catch (e) {
+          print(e);
+          return false;
+        }
+      },
+    )) {
+      return;
+    }
+
     this.completion = completion;
     await setState(SyncControllerState.started);
   }
@@ -171,12 +203,13 @@ class SyncController {
   }
 
   downloadItems() async {
-    var dateServerModified =
-        (await ItemRecord.lastSyncedItem(databaseController.databasePool))?.dateServerModified ??
-            DateTime.fromMillisecondsSinceEpoch(0);
+    var lastItem = await ItemRecord.lastSyncedItem(databaseController.databasePool);
+    var dateServerModifiedTimestamp = lastItem != null
+        ? lastItem.dateServerModified!.millisecondsSinceEpoch + 1
+        : DateTime.fromMillisecondsSinceEpoch(0).millisecondsSinceEpoch;
 
     await searchAction(
-        dateServerModified: dateServerModified,
+        dateServerModifiedTimestamp: dateServerModifiedTimestamp,
         completion: (data, error) async {
           if (error != null || data == null) {
             lastError = error;
@@ -253,13 +286,13 @@ class SyncController {
   }
 
   searchAction(
-      {required DateTime dateServerModified,
+      {required int dateServerModifiedTimestamp,
       required Function(String?, String?)? completion}) async {
     if (currentConnection == null) {
       throw Exception("No pod connection config");
     }
-    var timestamp = dateServerModified.millisecondsSinceEpoch;
-    var request = PodAPIStandardRequest.searchAction({"dateServerModified>=": timestamp});
+    var request =
+        PodAPIStandardRequest.searchAction({"dateServerModified>=": dateServerModifiedTimestamp});
 
     var networkCall = await request.execute(currentConnection!);
     var error;

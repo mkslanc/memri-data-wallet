@@ -89,13 +89,16 @@ class _ListRendererViewState extends State<ListRendererView> {
                   selectedIndices = selectedIndicesBinding.get();
                   var lastIndex = viewContext.items.length - 1;
                   return Expanded(
-                      child: ListView.custom(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
-                    childrenDelegate: SliverChildListDelegate(List<Widget>.from(viewContext.items
-                        .mapIndexed((index, item) =>
-                            [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
-                        .expand((element) => element))),
+                      child: RefreshIndicator(
+                    onRefresh: () async => setState(() {}),
+                    child: ListView.custom(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                      childrenDelegate: SliverChildListDelegate(List<Widget>.from(viewContext.items
+                          .mapIndexed((index, item) =>
+                              [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
+                          .expand((element) => element))),
+                    ),
                   )
                       //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
                       /*child: ListView.separated(

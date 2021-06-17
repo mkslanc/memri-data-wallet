@@ -37,7 +37,8 @@ class AddressBookController {
     if (existingContact == null) {
       var person = ItemRecord(type: "Person");
       await person.save(db.databasePool);
-      await person.setPropertyValue("addressBookId", PropertyDatabaseValueString(identifier), db);
+      await person.setPropertyValue("addressBookId", PropertyDatabaseValueString(identifier),
+          db: db);
       existingContact = person;
     }
     var phoneNumbers = contact.phones;
@@ -59,12 +60,12 @@ class AddressBookController {
     }
 
     if (contact.givenName != null) {
-      await existingContact.setPropertyValue(
-          "firstName", PropertyDatabaseValueString(contact.givenName!), db);
+      await existingContact
+          .setPropertyValue("firstName", PropertyDatabaseValueString(contact.givenName!), db: db);
     }
     if (contact.familyName != null) {
-      await existingContact.setPropertyValue(
-          "lastName", PropertyDatabaseValueString(contact.familyName!), db);
+      await existingContact
+          .setPropertyValue("lastName", PropertyDatabaseValueString(contact.familyName!), db: db);
     }
     if (contact.dates.isNotEmpty) {
       for (var date in contact.dates) {
@@ -76,7 +77,7 @@ class AddressBookController {
               "birthDate",
               PropertyDatabaseValueDatetime(
                   DateTime(date.date!.year!, date.date!.month!, date.date!.day!)),
-              db);
+              db: db);
         }
       }
     }
@@ -84,7 +85,8 @@ class AddressBookController {
       //TODO: in android person could have few emails
       if (contact.emails[0].value != null) {
         await existingContact.setPropertyValue(
-            "email", PropertyDatabaseValueString(contact.emails[0].value!), db);
+            "email", PropertyDatabaseValueString(contact.emails[0].value!),
+            db: db);
       }
     }
   }

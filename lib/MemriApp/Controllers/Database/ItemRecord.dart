@@ -138,7 +138,8 @@ class ItemRecord with EquatableMixin {
     if (rowId == null) rowId = savedRowID;
   }
 
-  setPropertyValue(String name, PropertyDatabaseValue? value, [DatabaseController? db]) async {
+  setPropertyValue(String name, PropertyDatabaseValue? value,
+      {SyncState state = SyncState.update, DatabaseController? db}) async {
     db ??= AppController.shared.databaseController;
 
     /// Create or update the property
@@ -155,7 +156,7 @@ class ItemRecord with EquatableMixin {
           ItemPropertyRecord(itemUID: uid, itemRowID: rowId!, name: name, value: value);
       await itemPropertyRecord.save(db.databasePool);
     }
-    syncState = SyncState.update;
+    syncState = state;
 
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
     await save(db.databasePool);
@@ -284,14 +285,14 @@ class ItemRecord with EquatableMixin {
         return FutureBinding<bool>(
             () async => (await propertyValue(name, db))?.asBool() ?? defaultValue,
             (newValue) async {
-          await setPropertyValue(name, PropertyDatabaseValueBool(newValue), db);
+          await setPropertyValue(name, PropertyDatabaseValueBool(newValue), db: db);
         });
       default:
         return FutureBinding<String>(
             () async =>
                 (await propertyValue(name, db))?.asString() ?? defaultValue?.toString() ?? "",
             (newValue) async {
-          await setPropertyValue(name, PropertyDatabaseValueString(newValue), db);
+          await setPropertyValue(name, PropertyDatabaseValueString(newValue), db: db);
         });
     }
   }
@@ -342,10 +343,12 @@ class ItemRecord with EquatableMixin {
       throw Exception("Add changelog: Item doesn't have row id, possibly not saved?");
     }
 
-    await auditItem.setPropertyValue(
-        "date", PropertyDatabaseValueDatetime(DateTime.now()), dbController);
-    await auditItem.setPropertyValue("content", PropertyDatabaseValueString(name), dbController);
-    await auditItem.setPropertyValue("action", PropertyDatabaseValueString("edit"), dbController);
+    await auditItem.setPropertyValue("date", PropertyDatabaseValueDatetime(DateTime.now()),
+        db: dbController);
+    await auditItem.setPropertyValue("content", PropertyDatabaseValueString(name),
+        db: dbController);
+    await auditItem.setPropertyValue("action", PropertyDatabaseValueString("edit"),
+        db: dbController);
     await ItemEdgeRecord(sourceRowID: rowId, name: "changelog", targetRowID: auditItem.rowId)
         .save(dbController.databasePool);
   }
@@ -390,20 +393,21 @@ class ItemRecord with EquatableMixin {
     }
 
     ItemRecord? item = await ItemRecord.fetchWithUID(id, dbController);
-    if (item == null) {
-      item = ItemRecord.fromSyncDict(dict);
-      await item.save(dbController.databasePool);
-    }
+    ItemRecord newItem = ItemRecord.fromSyncDict(dict);
+    newItem.rowId = item?.rowId;
+    await newItem.save(dbController.databasePool);
+
     await Future.forEach(dict.entries, (MapEntry entry) async {
-      var expectedType = dbController.schema.types[item!.type]?.propertyTypes[entry.key];
+      var expectedType = dbController.schema.types[newItem.type]?.propertyTypes[entry.key];
       if (expectedType == null) {
         return;
       }
       var databaseValue = PropertyDatabaseValue.create(entry.value, expectedType.valueType);
-      await item.setPropertyValue(entry.key, databaseValue, dbController);
+      await newItem.setPropertyValue(entry.key, databaseValue,
+          db: dbController, state: SyncState.noChanges);
     });
 
-    return item;
+    return newItem;
   }
 
   Future<Map<String, dynamic>?> schemaDict(DatabaseController dbController) async {
@@ -494,9 +498,7 @@ class ItemRecord with EquatableMixin {
 
   static Future<ItemRecord?> lastSyncedItem([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
-    var items = (await db.itemRecordsCustomSelect(
-        "syncState = ?", [Variable(SyncState.noChanges.inString)],
-        orderBy: "dateServerModified DESC"));
+    var items = (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC"));
     if (items.length > 0) {
       return ItemRecord.fromItem(items[0]);
     }

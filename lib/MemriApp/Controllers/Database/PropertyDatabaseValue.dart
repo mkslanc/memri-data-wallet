@@ -188,7 +188,7 @@ abstract class PropertyDatabaseValue {
       return value;
     }
     var val = int.tryParse(value); //TODO is this correct @anijanyan
-    return val == null ? null : DateTime.fromMicrosecondsSinceEpoch(val);
+    return val == null ? null : DateTime.fromMillisecondsSinceEpoch(val);
   }
 
   double? asCGFloat() {
