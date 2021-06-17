@@ -122,6 +122,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionToNextItem(vars: vars);
     case "topreviousitem":
       return ({Map? vars}) => CVUActionToPreviousItem(vars: vars);
+    case "runplugin":
+      return ({Map? vars}) => CVUActionRunPlugin(vars: vars);
     default:
       return null;
   }
@@ -429,6 +431,40 @@ class CVUActionAddItem extends CVUAction {
       sceneController.isInEditMode.value = true;
 
       // AppController.shared.syncController.sync();TODO sync
+    }
+  }
+}
+
+class CVUActionRunPlugin extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionRunPlugin({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = sceneController.appController.databaseController;
+
+    var targetItemIdValue = vars["targetItemId"];
+    var containerValue = vars["container"];
+    if (targetItemIdValue == null || containerValue == null) return;
+
+    String? targetItemId =
+        await lookup.resolve<String>(value: targetItemIdValue, context: context, db: db);
+    String? container =
+        await lookup.resolve<String>(value: containerValue, context: context, db: db);
+    if (targetItemId == null || container == null) return;
+
+    try {
+      var startPluginItem = ItemRecord(type: "StartPlugin");
+      await startPluginItem.save();
+      await startPluginItem.setPropertyValue("container", PropertyDatabaseValueString(container));
+      await startPluginItem.setPropertyValue(
+          "targetItemId", PropertyDatabaseValueString(targetItemId));
+
+      await AppController.shared.syncController.sync();
+    } catch (error) {
+      print("Error starting plugin: $error");
     }
   }
 }
