@@ -1696,6 +1696,16 @@
       "value_type": "int"
     },
     {
+      "item_type": "SuggestedMerge",
+      "property": "score",
+      "value_type": "double"
+    },
+    {
+      "item_type": "SuggestedMerge",
+      "property": "task",
+      "value_type": "string"
+    },
+    {
       "item_type": "TimeFrame",
       "property": "startTime",
       "value_type": "datetime"
@@ -3061,6 +3071,16 @@
       "source_type": "Person",
       "edge": "seller",
       "target_type": "Transaction"
+    },
+    {
+      "source_type": "Person",
+      "edge": "mergedFrom",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "SuggestedMerge",
+      "edge": "mergeFrom",
+      "target_type": "Any"
     },
     {
       "source_type": "Photo",

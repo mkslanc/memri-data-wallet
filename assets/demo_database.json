@@ -66,6 +66,11 @@
   },
   {
     "_type": "NavigationItem",
+    "title": "Merge and fix",
+    "sessionName": "mergeAndFix"
+  },
+  {
+    "_type": "NavigationItem",
     "title": "photos",
     "sessionName": "allPhotos"
   },
@@ -1760,6 +1765,116 @@
         "_type": "account",
         "targetType": "Account",
         "uid": 20000000000
+      }
+    ],
+    "version": 1
+  },
+  {
+    "uid": 19,
+    "_type": "Person",
+    "firstName": "A.",
+    "lastName": "Awesom",
+    "birthDate": 543777745298,
+    "height": 165,
+    "allEdges": [
+      {
+        "_type": "relationship",
+        "targetType": "Person",
+        "uid": 2
+      },
+      {
+        "_type": "label",
+        "targetType": "Label",
+        "uid": 1000
+      }
+    ],
+    "version": 1
+  },
+  {
+    "_type": "SuggestedMerge",
+    "score": 0.9,
+    "task": "idle",
+    "allEdges": [
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 1
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 19
+      }
+    ],
+    "version": 1
+  },
+  {
+    "_type": "SuggestedMerge",
+    "score": 0.85,
+    "task": "idle",
+    "allEdges": [
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 2
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 1
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 3
+      }
+    ],
+    "version": 1
+  },
+  {
+    "_type": "SuggestedMerge",
+    "score": 0.89,
+    "task": "idle",
+    "allEdges": [
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 1
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 2
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 3
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 4
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 5
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 6
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 7
+      },
+      {
+        "_type": "mergeFrom",
+        "targetType": "Person",
+        "uid": 8
       }
     ],
     "version": 1

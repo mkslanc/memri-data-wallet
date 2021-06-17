@@ -276,7 +276,10 @@ class CVULookupController {
         List<CVUExpressionNode> args = nodeType.args;
         switch (node.name.toLowerCase()) {
           case "item":
-            var exp = nodeType.args[0];
+            var exp = nodeType.args.asMap()[0];
+            if (exp == null) {
+              return null;
+            }
             int? itemRowId = await resolve<int>(expression: exp, context: context, db: db);
             if (itemRowId == null) {
               return null;
@@ -368,6 +371,21 @@ class CVULookupController {
               currentValue = LookupStepValues([currentValue.values.last]);
             } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
               currentValue = LookupStepItems([currentValue.items.last]);
+            } else {
+              return null;
+            }
+            break;
+          case "count":
+            if (currentValue == null) {
+              return null;
+            }
+
+            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
+              currentValue =
+                  LookupStepValues([PropertyDatabaseValueInt(currentValue.values.length)]);
+            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
+              currentValue =
+                  LookupStepValues([PropertyDatabaseValueInt(currentValue.items.length)]);
             } else {
               return null;
             }
@@ -570,6 +588,14 @@ class CVULookupController {
             if (item != null && item.rowId != null) {
               currentValue = LookupStepValues([PropertyDatabaseValueInt(item.rowId!)]);
             }
+          } else if (node.name == "items") {
+            List<ItemRecord>? items = context.items;
+            if (items == null) {
+              return null;
+            }
+            currentValue = LookupStepItems(items);
+          } else if (node.name == "currentIndex") {
+            currentValue = LookupStepValues([PropertyDatabaseValueInt(context.currentIndex + 1)]);
           }
         } else {
           return null;
