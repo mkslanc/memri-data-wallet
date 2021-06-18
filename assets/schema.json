@@ -1737,6 +1737,11 @@
     },
     {
       "item_type": "StartPlugin",
+      "property": "state",
+      "value_type": "string"
+    },
+    {
+      "item_type": "StartPlugin",
       "property": "targetItemId",
       "value_type": "string"
     },
