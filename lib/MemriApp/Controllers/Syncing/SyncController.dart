@@ -204,7 +204,7 @@ class SyncController {
 
   downloadItems() async {
     var lastItem = await ItemRecord.lastSyncedItem(databaseController.databasePool);
-    var dateServerModifiedTimestamp = lastItem != null
+    var dateServerModifiedTimestamp = lastItem != null && lastItem.dateServerModified != null
         ? lastItem.dateServerModified!.millisecondsSinceEpoch + 1
         : DateTime.fromMillisecondsSinceEpoch(0).millisecondsSinceEpoch;
 
