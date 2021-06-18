@@ -153,8 +153,37 @@ class Database extends _$Database {
           readsFrom: {strings}).map((row) => StringDb.fromData(row.data, this)).get();
       List<RealDb> realProps = await customSelect("SELECT * from reals WHERE $query",
           variables: binding,
-          readsFrom: {integers}).map((row) => RealDb.fromData(row.data, this)).get();
+          readsFrom: {reals}).map((row) => RealDb.fromData(row.data, this)).get();
       return [...intProps, ...stringProps, ...realProps];
+    }
+  }
+
+  //TODO: reimplement all select queries as streams
+  Stream<List<dynamic>> itemPropertyRecordsCustomSelectStream(
+      String query, List<Variable<dynamic>> binding,
+      [bool isFTS = false]) {
+    if (isFTS) {
+      return customSelect("SELECT * from strings_search WHERE $query",
+              variables: binding, readsFrom: {stringsSearch})
+          .map((row) => StringsSearchData.fromData(row.data, this))
+          .watch();
+    } else {
+      return customSelect(
+          "SELECT * FROM strings WHERE $query UNION SELECT * FROM integers WHERE $query UNION SELECT * FROM reals WHERE $query",
+          variables: [...binding, ...binding, ...binding],
+          readsFrom: {integers, strings, reals}).map((row) {
+        if (row.data.isEmpty) {
+          return [];
+        } else {
+          if (row.data["value"] is int) {
+            return IntegerDb.fromData(row.data, this);
+          } else if (row.data["value"] is double) {
+            return RealDb.fromData(row.data, this);
+          } else {
+            return StringDb.fromData(row.data, this);
+          }
+        }
+      }).watch();
     }
   }
 
