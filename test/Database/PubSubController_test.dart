@@ -12,7 +12,7 @@ void main() {
     await appController.databaseController.setupWithDemoData();
   });
 
-  test('testPluginAuthorisationFlow', () async {
+  test('testPluginAuthenticationFlow', () async {
     var record = ItemRecord(type: "StartPlugin");
     await record.save();
     await record.setPropertyValue("state", PropertyDatabaseValueString("idle"));
@@ -35,7 +35,7 @@ void main() {
                 if (newValue == null) {
                   return;
                 }
-                print("get `ready`");
+                print("got `ready`");
                 expect(newValue.value, equals("ready"));
               });
         });
