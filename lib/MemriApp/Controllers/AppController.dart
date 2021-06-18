@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
+import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
 import 'package:uuid/uuid.dart';
 
 import 'API/PodAPIConnectionDetails.dart';
@@ -30,6 +31,9 @@ class AppController {
 
   static String keychainDatabaseKey = "memri_databaseKey";
 
+  PodAPIConnectionDetails? _podConnectionConfig;
+  bool isInDemoMode = false;
+
   AppController() {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
@@ -39,6 +43,9 @@ class AppController {
 
   Future onLaunch() async {
     await requestAuthentication();
+    if (isAuthenticated) {
+      isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
+    }
   }
 
   updateState() async {
@@ -57,62 +64,75 @@ class AppController {
 
   // MARK: Setup
   setupApp(SetupConfig config, void Function(Exception? error) onCompletion) async {
-    if (config is SetupConfigLocal || config is SetupConfigNewPod) {
-      try {
-        if (await databaseController.databaseIsSetup) {
-          // If there is already data set up, don't import
-          onCompletion(null);
-        } else {
-          if (config is SetupConfigNewPod) {
-            var uri = Uri.parse(config.config.podURL);
-            var connectionConfig =
-                PodAPIConnectionDetails(scheme: uri.scheme, host: uri.host, port: uri.port);
-            if (await syncController.podIsExist(connectionConfig).timeout(
-              Duration(seconds: 3),
-              onTimeout: () {
-                throw Exception("Pod doesn't respond");
-              },
-            )) {
-              await databaseController.setupWithDemoData();
-              await syncController.sync(connectionConfig: connectionConfig);
-            } else {
-              throw Exception("Pod doesn't respond");
-            }
-          } else {
+    await Future.delayed(Duration(
+        milliseconds:
+            200)); //TODO find the reason why setstate rebuilds widget too late without this in SetupScreenView
+    try {
+      if (!await databaseController.databaseIsSetup) {
+        await connectToPod(config, () async {
+          if (config is SetupConfigLocal || config is SetupConfigNewPod) {
             await databaseController.setupWithDemoData();
           }
-        }
-      } on Exception catch (error) {
-        onCompletion(error);
-        return;
+          if (config is SetupConfigLocal) {
+            isInDemoMode = true;
+            await Settings.shared.set("defaults/general/isInDemoMode", true);
+          }
+          if (_podConnectionConfig != null) {
+            await syncController.sync();
+
+            if (config is SetupConfigNewPod) {
+              await Settings.shared.set("defaults/pod/url", config.config.podURL);
+            } else if (config is SetupConfigExistingPod) {
+              await Settings.shared.set("defaults/pod/url", config.config.podURL);
+            }
+
+            //TODO owner and database key should not be stored in settings
+            await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
+            await Settings.shared
+                .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
+          }
+        });
       }
-    }
-    if (config is SetupConfigExistingPod) {
-      var uri = Uri.parse(config.config.podURL);
-      var connectionConfig = PodAPIConnectionDetails(
-          scheme: uri.scheme,
-          host: uri.host,
-          port: uri.port,
-          ownerKey: config.config.podPublicKey,
-          databaseKey: config.config.podDatabaseKey);
-      if (await syncController.podIsExist(connectionConfig).timeout(
-        Duration(seconds: 3),
-        onTimeout: () {
-          throw Exception("Pod doesn't respond");
-        },
-      )) {
-        await syncController.sync(connectionConfig: connectionConfig);
-      } else {
-        throw Exception("Pod doesn't respond");
-      }
+    } on Exception catch (error) {
+      onCompletion(error);
+      return;
     }
 
     /// During this setup function would be a good place to generate a database encryption key, create a new database with this key, and then import the demo data.
     /// NOTE: This is a temporary placehold until encryption is implemented.
     /// - UUID is not a good option for a randomly generated key, should use an existing generator from CryptoKit
     var newDatabaseEncryptionKey = Uuid().v4();
-    setHasBeenSetup(newDatabaseEncryptionKey);
+    await setHasBeenSetup(newDatabaseEncryptionKey);
     onCompletion(null);
+  }
+
+  connectToPod(SetupConfig config, Future Function() callback) async {
+    if (config is SetupConfigExistingPod) {
+      var uri = Uri.parse(config.config.podURL);
+      _podConnectionConfig = PodAPIConnectionDetails(
+          scheme: uri.scheme,
+          host: uri.host,
+          port: uri.port,
+          ownerKey: config.config.podPublicKey,
+          databaseKey: config.config.podDatabaseKey);
+    } else if (config is SetupConfigNewPod) {
+      var uri = Uri.parse(config.config.podURL);
+      _podConnectionConfig =
+          PodAPIConnectionDetails(scheme: uri.scheme, host: uri.host, port: uri.port);
+    }
+
+    if (_podConnectionConfig != null) {
+      if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
+        Duration(seconds: 3),
+        onTimeout: () {
+          throw Exception("Pod doesn't respond");
+        },
+      )) {
+        throw Exception("Pod doesn't respond");
+      }
+    }
+
+    await callback();
   }
 
   // MARK: Authentication
@@ -134,7 +154,6 @@ class AppController {
     }
     isAuthenticated = true;
     // var dbKey = Keychain().getString(AppController.keychainDatabaseKey);
-    //TODO @anijanyan
     /*if (dbKey != null) {
         print(`GOT KEY: $dbKey`);
         isAuthenticated = true;
@@ -154,22 +173,37 @@ class AppController {
     return true;
   }
 
-  setHasBeenSetup(String? databaseKey) {
+  setHasBeenSetup(String? databaseKey) async {
     if (databaseKey != null) {
       // Keychain().set(databaseKey, key: AppController.keychainDatabaseKey);
     } else {
       // Keychain().remove(AppController.keychainDatabaseKey);
     }
-    updateState();
+    await updateState();
   }
 
   // MARK: Pod connection
-  PodAPIConnectionDetails? get podConnectionConfig {
+  Future<PodAPIConnectionDetails?> get podConnectionConfig async {
+    if (isInDemoMode) return null;
     try {
       // Here you should retrieve the connection details stored in the database
-      return PodAPIConnectionDetails();
+      if (_podConnectionConfig == null) {
+        var podURL = await Settings.shared.get("defaults/pod/url");
+        var ownerKey = await Settings.shared.get("defaults/pod/publicKey");
+        var databaseKey = await Settings.shared.get("defaults/pod/databaseKey");
+        if (podURL == null || ownerKey == null || databaseKey == null) return null;
+        var uri = Uri.parse(podURL);
+        _podConnectionConfig = PodAPIConnectionDetails(
+            scheme: uri.scheme,
+            host: uri.host,
+            port: uri.port,
+            ownerKey: ownerKey,
+            databaseKey: databaseKey);
+      }
+      return _podConnectionConfig!;
     } on Exception catch (error) {
       print(error);
+      return null;
     }
   }
 }
