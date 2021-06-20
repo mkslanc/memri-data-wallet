@@ -7,6 +7,7 @@
 
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:moor/moor.dart';
@@ -15,7 +16,7 @@ import 'Schema.dart';
 
 /// This type is used as an intermediate for storing and retrieving values from the database
 /// It makes use of the dynamic schema to determine what type to resolve the data as.
-abstract class PropertyDatabaseValue {
+abstract class PropertyDatabaseValue with EquatableMixin {
   dynamic get value;
 
   SchemaValueType get type;
@@ -194,6 +195,9 @@ abstract class PropertyDatabaseValue {
   double? asCGFloat() {
     return double.tryParse(value);
   }
+
+  @override
+  List<Object?> get props => [value, type];
 }
 
 enum ItemRecordPropertyTable { strings, integers, reals }

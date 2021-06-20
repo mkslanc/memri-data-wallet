@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 
 import 'API/PodAPIConnectionDetails.dart';
 import 'Database/DatabaseController.dart';
+import 'PubSubController.dart';
 import 'Syncing/SyncController.dart';
 
 enum AppState { setup, authentication, authenticated }
@@ -21,6 +22,7 @@ class AppController {
   late DatabaseController databaseController;
   late SyncController syncController;
   late CVUController cvuController;
+  late PubSubController pubsubController;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -34,6 +36,7 @@ class AppController {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
     cvuController = CVUController();
+    pubsubController = PubSubController(databaseController);
     cvuController.init();
   }
 

@@ -30,3 +30,13 @@ extension IndexedMapExtension<T> on List<T> {
     }
   }
 }
+
+extension SetExtension<E> on Set<E> {
+  E? firstWhereOrNull(bool test(E element)) {
+    //TODO https://github.com/dart-lang/sdk/issues/42947
+    for (E element in this) {
+      if (test(element)) return element;
+    }
+    return null;
+  }
+}
