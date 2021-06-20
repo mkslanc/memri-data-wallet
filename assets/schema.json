@@ -1708,7 +1708,7 @@
     {
       "item_type": "Setting",
       "property": "json",
-      "value_type": "blob"
+      "value_type": "string"
     },
     {
       "item_type": "Span",

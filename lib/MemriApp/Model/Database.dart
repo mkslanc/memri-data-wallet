@@ -133,9 +133,9 @@ class Database extends _$Database {
     }
   }
 
-  Future<List<dynamic>> itemPropertyRecordsCustomSelect(
-      String query, List<Variable<dynamic>> binding,
-      [bool isFTS = false]) async {
+  Future<List<dynamic>> itemPropertyRecordsCustomSelect(String query,
+      [List<Variable<dynamic>>? binding, bool isFTS = false]) async {
+    binding ??= [];
     if (isFTS) {
       List<StringsSearchData> stringProps = await customSelect(
               "SELECT * from strings_search WHERE $query",

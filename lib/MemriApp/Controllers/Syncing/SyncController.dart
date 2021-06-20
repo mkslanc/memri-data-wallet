@@ -99,7 +99,10 @@ class SyncController {
     /*guard (try? ItemRecord.getOwnerAndDBKey()) != nil else {
     throw StringError(description: "Not Setup")
     }*/ //TODO: auth keys
-    currentConnection ??= connectionConfig ?? AppController.shared.podConnectionConfig;
+    currentConnection ??= connectionConfig ?? await AppController.shared.podConnectionConfig;
+    if (currentConnection == null) {
+      return;
+    }
 
     if (syncing) {
       print("Already syncing");
@@ -270,7 +273,7 @@ class SyncController {
       {required PodAPIPayloadBulkAction bulkPayload,
       required Function(String?) completion,
       PodAPIConnectionDetails? connectionConfig}) async {
-    connectionConfig ??= currentConnection ?? AppController.shared.podConnectionConfig;
+    connectionConfig ??= currentConnection ?? await AppController.shared.podConnectionConfig;
     if (connectionConfig == null) {
       throw Exception("No pod connection config");
     }

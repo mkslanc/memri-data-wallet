@@ -340,7 +340,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
       if (error != null) {
         setState(() {
           model.state = PodSetupState.error;
-          model.errorString = "$error";
+          model.errorString = "${error.toString()}";
         });
       } else {
         setState(() => model.state = PodSetupState.idle);
