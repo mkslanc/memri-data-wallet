@@ -70,7 +70,7 @@ Wallet > grid {
         query: CurrencySetting
         filter: {
             edgeTargets: {
-                inWallet: {{walletUID}}
+                wallet: {{walletUID}}
             }
         }
     }

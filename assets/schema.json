@@ -2249,22 +2249,22 @@
     },
     {
       "source_type": "CryptoCurrency",
-      "edge": "hasSetting",
+      "edge": "setting",
       "target_type": "CurrencySetting"
     },
     {
       "source_type": "CryptoTransaction",
-      "edge": "inCurrency",
+      "edge": "cryptoCurrency",
       "target_type": "CryptoCurrency"
     },
     {
       "source_type": "CryptoTransaction",
-      "edge": "relateTo",
+      "edge": "relateToOther",
       "target_type": "CurrencyOwner"
     },
     {
       "source_type": "CryptoTransaction",
-      "edge": "ofOwner",
+      "edge": "relateToOwner",
       "target_type": "CurrencyOwner"
     },
     {
@@ -2284,12 +2284,12 @@
     },
     {
       "source_type": "CurrencyOwner",
-      "edge": "hasTransaction",
+      "edge": "cryptoTransaction",
       "target_type": "CryptoTransaction"
     },
     {
       "source_type": "CurrencySetting",
-      "edge": "inWallet",
+      "edge": "wallet",
       "target_type": "Wallet"
     },
     {

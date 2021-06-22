@@ -1,10 +1,10 @@
 CryptoTransaction > list {
     VStack {
         HStack {
-            show: {{.relateTo.displayName = .ofOwner.displayName}}
+            show: {{.relateToOther.displayName = .relateToOwner.displayName}}
 
             Text {
-                text: {{.inCurrency.topic}}
+                text: {{.cryptoCurrency.topic}}
                 font: 20 regular
                 color: primary
             }
@@ -18,10 +18,10 @@ CryptoTransaction > list {
         }
 
         HStack {
-            show: {{.relateTo.displayName != .ofOwner.displayName}}
+            show: {{.relateToOther.displayName != .relateToOwner.displayName}}
 
             Text {
-                text: {{.outward = true ? "Sent to @" + .relateTo.displayName : "Received from @" + .relateTo.displayName}}
+                text: {{.outward = true ? "Sent to @" + .relateToOther.displayName : "Received from @" + .relateToOther.displayName}}
                 font: 20 regular
                 color: primary
             }

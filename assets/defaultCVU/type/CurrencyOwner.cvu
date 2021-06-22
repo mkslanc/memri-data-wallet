@@ -122,8 +122,8 @@ CurrencyOwner > grid {
         edgeTargetsOperator: "OR"
         filter: {
             edgeTargets: {              
-                relateTo: {{ownerUID}}
-                ofOwner: {{ownerUID}}
+                relateToOther: {{ownerUID}}
+                relateToOwner: {{ownerUID}}
             }
         }
         sortProperty: "dateCreated"
