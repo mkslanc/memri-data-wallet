@@ -440,6 +440,7 @@ class ItemRecord with EquatableMixin {
       "id": uid,
       "dateCreated": dateCreated.millisecondsSinceEpoch,
       "dateModified": dateModified.millisecondsSinceEpoch,
+      "dateServerModified": dateServerModified?.millisecondsSinceEpoch,
       "deleted": deleted,
     };
 
