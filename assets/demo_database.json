@@ -4635,11 +4635,6 @@
         "uid": 22001124924999
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
-        "uid": 22001124924997
-      },
-      {
         "_type": "ofOwner",
         "targetType": "CurrencyOwner",
         "uid": 22001124924997
@@ -4686,11 +4681,6 @@
         "uid": 22001124924998
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
-        "uid": 22001124924997
-      },
-      {
         "_type": "ofOwner",
         "targetType": "CurrencyOwner",
         "uid": 22001124924997
@@ -4729,11 +4719,6 @@
         "_type": "relateTo",
         "targetType": "CurrencyOwner",
         "uid": 22001124924998
-      },
-      {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
-        "uid": 22001124924997
       },
       {
         "_type": "ofOwner",

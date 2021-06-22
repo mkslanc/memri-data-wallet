@@ -119,9 +119,11 @@ CurrencyOwner > grid {
 
     [datasource = pod] {
         query: "CryptoTransaction"
+        edgeTargetsOperator: "OR"
         filter: {
             edgeTargets: {              
                 relateTo: {{ownerUID}}
+                ofOwner: {{ownerUID}}
             }
         }
         sortProperty: "dateCreated"
