@@ -3,7 +3,7 @@
     title: {{currency.topic or currency.name}}
 
     [datasource = pod] {
-        query: CurrencyOwner
+        query: Account
         filter: {
             edgeTargets: {
                 ownCurrency: {{currencyUID}}
@@ -16,7 +16,7 @@
         hideSeparators: true
     }
 
-    CurrencyOwner > list {
+    Account > list {
     }
 }
 

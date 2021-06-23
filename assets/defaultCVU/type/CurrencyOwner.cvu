@@ -1,4 +1,4 @@
-CurrencyOwner > list {
+Account > list {
     VStack {
         VStack {
             spacing: 5
@@ -92,7 +92,7 @@ CurrencyOwner > list {
     }
 }
 
-CurrencyOwner > grid {
+Account > grid {
     VStack {
         Image {
             image: {{.owner.profilePicture}}
@@ -142,7 +142,7 @@ CurrencyOwner > grid {
     defaultRenderer: grid
 
     [datasource = pod] {
-        query: "CurrencyOwner"
+        query: "Account"
         filter: {
             edgeTargets: {              
                 trust: {{receiverUID}}
@@ -155,6 +155,6 @@ CurrencyOwner > grid {
         hideSeparators: true
     }
 
-    CurrencyOwner > grid {
+    Account > grid {
     }
 }

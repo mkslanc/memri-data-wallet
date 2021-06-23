@@ -361,11 +361,6 @@
       "value_type": "bool"
     },
     {
-      "item_type": "CurrencyOwner",
-      "property": "displayName",
-      "value_type": "string"
-    },
-    {
       "item_type": "CurrencySetting",
       "property": "seedPhrase",
       "value_type": "string"
@@ -1978,6 +1973,26 @@
       "target_type": "AuditItem"
     },
     {
+      "source_type": "Account",
+      "edge": "trust",
+      "target_type": "Account"
+    },
+    {
+      "source_type": "Account",
+      "edge": "ownCurrency",
+      "target_type": "CryptoCurrency"
+    },
+    {
+      "source_type": "Account",
+      "edge": "owner",
+      "target_type": "Person"
+    },
+    {
+      "source_type": "Account",
+      "edge": "cryptoTransaction",
+      "target_type": "CryptoTransaction"
+    },
+    {
       "source_type": "Address",
       "edge": "country",
       "target_type": "Country"
@@ -2260,32 +2275,12 @@
     {
       "source_type": "CryptoTransaction",
       "edge": "relateToOther",
-      "target_type": "CurrencyOwner"
+      "target_type": "Account"
     },
     {
       "source_type": "CryptoTransaction",
       "edge": "relateToOwner",
-      "target_type": "CurrencyOwner"
-    },
-    {
-      "source_type": "CurrencyOwner",
-      "edge": "trust",
-      "target_type": "CurrencyOwner"
-    },
-    {
-      "source_type": "CurrencyOwner",
-      "edge": "ownCurrency",
-      "target_type": "CryptoCurrency"
-    },
-    {
-      "source_type": "CurrencyOwner",
-      "edge": "owner",
-      "target_type": "Person"
-    },
-    {
-      "source_type": "CurrencyOwner",
-      "edge": "cryptoTransaction",
-      "target_type": "CryptoTransaction"
+      "target_type": "Account"
     },
     {
       "source_type": "CurrencySetting",

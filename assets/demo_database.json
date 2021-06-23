@@ -4513,7 +4513,7 @@
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124924997,
     "displayName": "alice",
     "allEdges": [
@@ -4529,12 +4529,12 @@
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924998
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924999
       },
       {
@@ -4560,7 +4560,7 @@
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124924998,
     "displayName": "eve",
     "allEdges": [
@@ -4576,7 +4576,7 @@
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       },
       {
@@ -4592,7 +4592,7 @@
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124924999,
     "displayName": "bob",
     "allEdges": [
@@ -4608,7 +4608,7 @@
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       },
       {
@@ -4631,12 +4631,12 @@
       },
       {
         "_type": "relateToOther",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924999
       },
       {
         "_type": "relateToOwner",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
@@ -4654,12 +4654,12 @@
       },
       {
         "_type": "relateToOther",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       },
       {
         "_type": "relateToOwner",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
@@ -4677,18 +4677,18 @@
       },
       {
         "_type": "relateToOther",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924998
       },
       {
         "_type": "relateToOwner",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124925003,
     "displayName": "0x123456",
     "allEdges": [
@@ -4717,12 +4717,12 @@
       },
       {
         "_type": "relateToOther",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924998
       },
       {
         "_type": "relateToOwner",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
