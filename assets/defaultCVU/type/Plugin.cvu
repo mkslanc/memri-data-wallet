@@ -66,13 +66,13 @@ Plugin {
 }
 
 Plugin > list {
-    onPress: runPlugin {
+    onPress: startPlugin {
         name: {{.name}}
         plugin: {{.}}
         container: {{.container}}
         targetItemId: {{.id}}
     }
-    
+
     HStack {
         alignment: center
         Image {
@@ -83,7 +83,7 @@ Plugin > list {
             color: blue
             width: 90
         }
-    
+
         VStack {
             alignment: left
             rowInset: 12 20 -12 20
@@ -122,7 +122,7 @@ Plugin > list {
 }
 
 Plugin > grid {
-    onPress: runPlugin {
+    onPress: startPlugin {
         name: {{.name}}
         plugin: {{.}}
         container: {{.container}}
