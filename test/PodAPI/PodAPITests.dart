@@ -35,7 +35,6 @@ void main() {
 
   setupPodForTesting() async {
     var noteItem = ItemRecord(rowId: noteRowId, uid: noteUID, type: "Note");
-    var importerItem = ItemRecord(rowId: importerRowId, uid: importerUID, type: "Importer");
     var indexerItem = ItemRecord(rowId: indexerRowId, uid: indexerUID, type: "Indexer");
     //var fileItem = ItemRecord(rowId: fileRowId, uid: fileUID, type: "File");
 
@@ -54,17 +53,6 @@ void main() {
       return noteItem.mergeDict(properties: testItemProperties, schema: schema);
     }();
 
-    Map<String, dynamic> testImporterItem = () {
-      List<ItemPropertyRecord> testItemProperties = [
-        ItemPropertyRecord(
-            itemRowID: importerRowId,
-            name: "repository",
-            value: PropertyDatabaseValueString("importerRepo")),
-      ];
-
-      return importerItem.mergeDict(properties: testItemProperties, schema: schema);
-    }();
-
     Map<String, dynamic> testIndexerItem = () {
       List<ItemPropertyRecord> testItemProperties = [
         ItemPropertyRecord(
@@ -77,7 +65,7 @@ void main() {
     }();
 
     var bulkAction = PodAPIPayloadBulkAction(
-        createItems: [testNoteItem, testImporterItem, testIndexerItem],
+        createItems: [testNoteItem, testIndexerItem],
         updateItems: [],
         deleteItems: [],
         createEdges: []);

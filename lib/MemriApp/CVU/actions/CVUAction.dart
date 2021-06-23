@@ -100,8 +100,6 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionMultiAction(vars: vars);
     case "runindexer":
       return ({Map? vars}) => CVUActionRunIndexer(vars: vars);
-    case "runimporter":
-      return ({Map? vars}) => CVUActionRunImporter(vars: vars);
     case "setproperty":
       return ({Map? vars}) => CVUActionSetProperty(vars: vars);
     case "setsetting":
@@ -122,8 +120,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionToNextItem(vars: vars);
     case "topreviousitem":
       return ({Map? vars}) => CVUActionToPreviousItem(vars: vars);
-    case "runplugin":
-      return ({Map? vars}) => CVUActionRunPlugin(vars: vars);
+    case "startplugin":
+      return ({Map? vars}) => CVUActionStartPlugin(vars: vars);
     default:
       return null;
   }
@@ -435,10 +433,10 @@ class CVUActionAddItem extends CVUAction {
   }
 }
 
-class CVUActionRunPlugin extends CVUAction {
+class CVUActionStartPlugin extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUActionRunPlugin({vars}) : this.vars = vars ?? {};
+  CVUActionStartPlugin({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) async {
@@ -814,17 +812,6 @@ class CVUActionRunIndexer extends CVUAction {
   Map<String, CVUValue> vars;
 
   CVUActionRunIndexer({vars}) : this.vars = vars ?? {};
-
-  @override
-  void execute(SceneController sceneController, CVUContext context) async {
-    // TODO:
-  }
-}
-
-class CVUActionRunImporter extends CVUAction {
-  Map<String, CVUValue> vars;
-
-  CVUActionRunImporter({vars}) : this.vars = vars ?? {};
 
   @override
   void execute(SceneController sceneController, CVUContext context) async {

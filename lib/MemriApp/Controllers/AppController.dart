@@ -66,15 +66,19 @@ class AppController {
   }
 
   // MARK: Setup
-  setupApp(SetupConfig config, void Function(Exception? error) onCompletion) async {
+  setupApp(
+      {required SetupConfig config,
+      bool useDemoData = true,
+      required void Function(Exception? error) onCompletion}) async {
     await Future.delayed(Duration(
         milliseconds:
             200)); //TODO find the reason why setstate rebuilds widget too late without this in SetupScreenView
     try {
-      if (!await databaseController.databaseIsSetup) {
+      if (!await databaseController.hasImportedDefaultData) {
         await connectToPod(config, () async {
           if (config is SetupConfigLocal || config is SetupConfigNewPod) {
-            await databaseController.setupWithDemoData();
+            await databaseController.importRequiredData();
+            if (useDemoData) await databaseController.setupWithDemoData();
           }
           if (config is SetupConfigLocal) {
             isInDemoMode = true;
@@ -170,7 +174,7 @@ class AppController {
     /*if (!(new Keychain().contains(AppController.keychainDatabaseKey, true))) {
         return false
     }*/
-    if (!await AppController.shared.databaseController.databaseIsSetup) {
+    if (!await AppController.shared.databaseController.hasImportedSchema) {
       return false;
     }
     return true;

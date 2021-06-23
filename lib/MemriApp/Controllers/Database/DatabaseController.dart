@@ -31,12 +31,6 @@ class DatabaseController {
     isInited = true;
   }
 
-  /// Check if the database has been setup
-  Future<bool> get databaseIsSetup async {
-    var item = await this.databasePool.itemRecordFetchOneByType("ItemPropertySchema");
-    return (item != null);
-  }
-
   Future<List<ItemRecord>> search(String? searchString) async {
     var searchQuery = searchString;
     if (searchQuery == null) {
@@ -46,12 +40,36 @@ class DatabaseController {
     return await ItemRecord.search(this, refinedQuery);
   }
 
+  Future<bool> get hasImportedSchema async {
+    var item = await this.databasePool.itemRecordFetchOneByType("ItemPropertySchema");
+    return (item != null);
+  }
+
+  Future<bool> get hasImportedDefaultData async {
+    var item = await this.databasePool.itemRecordFetchOneByType("NavigationItem");
+    return (item != null);
+  }
+
+  Future<bool> get hasImportedDemoData async {
+    var item = await this.databasePool.itemRecordFetchOneByType("Photo");
+    return (item != null);
+  }
+
+  importRequiredData() async {
+    if (!await hasImportedSchema) {
+      await DemoData.importSchema();
+    }
+
+    if (!await hasImportedDefaultData) {
+      await DemoData.importDefaultData();
+    }
+  }
+
   setupWithDemoData() async {
-    if (await databaseIsSetup) {
+    if (await hasImportedDemoData) {
       // If there is already data set up, don't import
       return;
     }
-    await DemoData.importSchema(databaseController: this);
     await DemoData.importDemoData(databaseController: this);
   }
 }

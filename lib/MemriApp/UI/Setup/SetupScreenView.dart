@@ -163,6 +163,31 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                                               "Let me try the app without a pod"))
                                                     ],
                                                     Axis.vertical),
+                                              )),
+                                          Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 10, left: 5.0, right: 5.0),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: space(
+                                                    6,
+                                                    [
+                                                      Row(
+                                                        children: [
+                                                          Switch(
+                                                              value: model.useDemoData,
+                                                              onChanged: (value) => setState(() {
+                                                                    model.useDemoData = value;
+                                                                  })),
+                                                          Text("Use demo data?"),
+                                                        ],
+                                                      ),
+                                                      Text(
+                                                        "If enabled this will insert demo data.",
+                                                        style: captionFont,
+                                                      ),
+                                                    ],
+                                                    Axis.vertical),
                                               ))
                                         ]),
                                       ))),
@@ -353,7 +378,8 @@ class _SetupScreenViewState extends State<SetupScreenView> {
       handleCompletion(null);
       return;
     }
-    await appController.setupApp(config, handleCompletion);
+    await appController.setupApp(
+        config: config, useDemoData: model.useDemoData, onCompletion: handleCompletion);
   }
 
   void newPodWarning() {

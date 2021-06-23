@@ -10,12 +10,13 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 
 /// A model struct used by the setup screen to hold configuration until the user completes the setup
 class SetupScreenModel {
-  var defaultPodURL = "http://localhost:3030";
+  var defaultPodURL = "http://192.168.88.17:3030";
   String? podURL;
   String? podPrivateKey;
   String? podPublicKey;
   String? podDatabaseKey;
   bool setupAsNewPod = true;
+  bool useDemoData = true;
 
   PodSetupState state = PodSetupState.idle;
   String? errorString; //this is instead of PodSetupState error(String)
