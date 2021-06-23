@@ -4482,7 +4482,7 @@
     "myToken": 100,
     "allEdges": [
       {
-        "_type": "setting",
+        "_type": "currencySetting",
         "targetType": "CurrencySetting",
         "uid": 22001124925005
       },
@@ -4501,7 +4501,7 @@
     "myToken": 3000,
     "allEdges": [
       {
-        "_type": "setting",
+        "_type": "currencySetting",
         "targetType": "CurrencySetting",
         "uid": 22001124925006
       },
