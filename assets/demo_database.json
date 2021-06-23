@@ -4482,7 +4482,7 @@
     "myToken": 100,
     "allEdges": [
       {
-        "_type": "hasSetting",
+        "_type": "currencySetting",
         "targetType": "CurrencySetting",
         "uid": 22001124925005
       },
@@ -4501,7 +4501,7 @@
     "myToken": 3000,
     "allEdges": [
       {
-        "_type": "hasSetting",
+        "_type": "currencySetting",
         "targetType": "CurrencySetting",
         "uid": 22001124925006
       },
@@ -4513,7 +4513,7 @@
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124924997,
     "displayName": "alice",
     "allEdges": [
@@ -4529,38 +4529,38 @@
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924998
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924999
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925000
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925001
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925002
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925004
       }
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124924998,
     "displayName": "eve",
     "allEdges": [
@@ -4576,23 +4576,23 @@
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925002
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925004
       }
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124924999,
     "displayName": "bob",
     "allEdges": [
@@ -4608,11 +4608,11 @@
       },
       {
         "_type": "trust",
-        "targetType": "CurrencyOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       },
       {
-        "_type": "hasTransaction",
+        "_type": "cryptoTransaction",
         "targetType": "CryptoTransaction",
         "uid": 22001124925000
       }
@@ -4625,23 +4625,18 @@
     "outward": true,
     "allEdges": [
       {
-        "_type": "inCurrency",
+        "_type": "cryptoCurrency",
         "targetType": "CryptoCurrency",
         "uid": 22001124924996
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOther",
+        "targetType": "Account",
         "uid": 22001124924999
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
-        "uid": 22001124924997
-      },
-      {
-        "_type": "ofOwner",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
@@ -4653,18 +4648,18 @@
     "outward": true,
     "allEdges": [
       {
-        "_type": "inCurrency",
+        "_type": "cryptoCurrency",
         "targetType": "CryptoCurrency",
         "uid": 22001124924996
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOther",
+        "targetType": "Account",
         "uid": 22001124924997
       },
       {
-        "_type": "ofOwner",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
@@ -4676,29 +4671,24 @@
     "outward": false,
     "allEdges": [
       {
-        "_type": "inCurrency",
+        "_type": "cryptoCurrency",
         "targetType": "CryptoCurrency",
         "uid": 22001124924996
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOther",
+        "targetType": "Account",
         "uid": 22001124924998
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
-        "uid": 22001124924997
-      },
-      {
-        "_type": "ofOwner",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
   },
   {
-    "_type": "CurrencyOwner",
+    "_type": "Account",
     "uid": 22001124925003,
     "displayName": "0x123456",
     "allEdges": [
@@ -4721,23 +4711,18 @@
     "outward": true,
     "allEdges": [
       {
-        "_type": "inCurrency",
+        "_type": "cryptoCurrency",
         "targetType": "CryptoCurrency",
         "uid": 22001124924996
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOther",
+        "targetType": "Account",
         "uid": 22001124924998
       },
       {
-        "_type": "relateTo",
-        "targetType": "CurrencyOwner",
-        "uid": 22001124924997
-      },
-      {
-        "_type": "ofOwner",
-        "targetType": "CurrencyOwner",
+        "_type": "relateToOwner",
+        "targetType": "Account",
         "uid": 22001124924997
       }
     ]
@@ -4748,7 +4733,7 @@
     "seedPhrase": "",
     "allEdges": [
       {
-        "_type": "inWallet",
+        "_type": "wallet",
         "targetType": "Wallet",
         "uid": 22001124924993
       }
@@ -4763,7 +4748,7 @@
     "tokenAddress": "0xopqrst",
     "allEdges": [
       {
-        "_type": "inWallet",
+        "_type": "wallet",
         "targetType": "Wallet",
         "uid": 22001124924994
       }
