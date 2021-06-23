@@ -81,8 +81,6 @@ class AppController {
             await Settings.shared.set("defaults/general/isInDemoMode", true);
           }
           if (_podConnectionConfig != null) {
-            await syncController.sync();
-
             if (config is SetupConfigNewPod) {
               await Settings.shared.set("defaults/pod/url", config.config.podURL);
             } else if (config is SetupConfigExistingPod) {
@@ -93,6 +91,8 @@ class AppController {
             await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
             await Settings.shared
                 .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
+
+            await syncController.sync();
           }
         });
       }

@@ -250,8 +250,18 @@ class SyncController {
   Future<PodAPIPayloadBulkAction> makeSyncUploadData([int maxItems = 100]) async {
     var createItems = await ItemRecord.syncItemsWithState(
         state: SyncState.create, maxItems: maxItems, dbController: databaseController);
-    var updateItems = await ItemRecord.syncItemsWithState(
+    var updatedItems = await ItemRecord.syncItemsWithState(
         state: SyncState.update, maxItems: maxItems, dbController: databaseController);
+
+    var updateItems = <Map<String, dynamic>>[];
+
+    updatedItems.forEach((itemRecord) {
+      if (itemRecord["dateServerModified"] != null) {
+        updateItems.add(itemRecord);
+      } else {
+        createItems.add(itemRecord);
+      }
+    });
 
     var bulkAction = PodAPIPayloadBulkAction(
         createItems: createItems, updateItems: updateItems, deleteItems: [], createEdges: []);

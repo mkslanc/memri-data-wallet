@@ -67,7 +67,6 @@ class _MainViewState extends State<MainView> {
                 );
               });
 
-              //TODO: this should not run without pod
               if (!AppController.shared.isInDemoMode) {
                 Stream.periodic(const Duration(milliseconds: 10000))
                     .listen((_) => AppController.shared.syncController.sync());
