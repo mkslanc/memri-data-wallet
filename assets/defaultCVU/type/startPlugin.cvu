@@ -1,30 +1,30 @@
-[session = all-importer-instances] {
+[session = all-plugin-instances] {
     [view] {
-        title: "All ImporterRuns"
+        title: "All StartPlugin"
         [datasource = pod] {
-            query: "ImporterRun"
+            query: "StartPlugin"
         }
     }
 }
 
-ImporterRun {
-    title: "{.name} importer run"
+StartPlugin {
+    title: "{.name} start plugin"
     defaultRenderer: generalEditor
     editActionButton: toggleEditMode
     filterButtons: [
         openView {
             icon: "increase.indent"
             title: "Show Timeline"
-            
+
             view: {
                 defaultRenderer: timeline
-                
+
                 [datasource = pod] {
                     query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
-                
+
                 [renderer = timeline] {
                     timeProperty: dateCreated
                 }
@@ -32,47 +32,47 @@ ImporterRun {
         }
         showContextPane
     ]
-    
+
     contextPane {
         buttons: star schedule
-        
+
         actions: [
             showOverlay { title: "Share with..." }
             addToPanel { title: "Add to list..." }
             duplicate { title: "Duplicate Note" }
         ]
-        
+
         navigate: [
             openView {
-                title: "Timeline of this importer run"
+                title: "Timeline of this start plugin"
                 view: {
                     defaultRenderer: timeline
-                    
+
                      [datasource = pod] {
                         query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
-                    
+
                     [renderer = timeline] {
                         timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
-                title: "Starred importer runs"
+                title: "Starred start plugins"
                 viewName: "filter-starred"
                 viewArguments: {
                     include: "all-notes"
                 }
             }
             openSessionByName {
-                title: "All importer runs"
-                viewName: "all-importer-instances"
+                title: "All start plugins"
+                viewName: "all-plugin-instances"
             }
         ]
     }
-    
+
     [renderer = generalEditor] {
         layout: [
             { section: iconHeading }
@@ -81,11 +81,11 @@ ImporterRun {
             { section: other, fields: * }
             { section: dates }
         ]
-        
+
         iconHeading {
             showTitle: false
             dividers: false
-            
+
             HStack {
                 alignment: leading
                 fillWidth: true
@@ -95,54 +95,39 @@ ImporterRun {
                 Image {
                     padding: 8 0 8 0
                     alignment: center
-                    show: {{.importer.icon or .importer.bundleImage}}
-                    systemName: {{.importer.icon}}
-                    bundleImage: {{.importer.bundleImage}}
+                    show: {{.plugin.icon or .plugin.bundleImage}}
+                    systemName: {{.plugin.icon}}
+                    bundleImage: {{.plugin.bundleImage}}
                     resizable: true
                     color: #2480d6
                     width: 30
                     height: 30
                 }
-                
+
                 Text {
                         text: {{.name}}
                         font: 25 bold
                     }
             }
         }
-        
-        
+
+
         info {
             showTitle: false
             dividers: false
-            
+
             VStack {
                 EditorRow {
                     alignment: left
                     readOnly: true
                     padding: 0 10
                     background: secondaryBackground
-                    
-                    Button {
-                        onPress: runImporter {
-                            importer: {{.}}
-                        }
-                        
-                        Text {
-                            text: "START RUN"
-                            font: 16 semibold
-                            color: #fff
-                            padding: 5 8 5 8
-                            cornerRadius: 5
-                            background: #70ba6c
-                        }
-                    }
                 }
                 Divider
 
                 EditorRow {
                     Text {
-                        text: {{.importer.itemDescription}}
+                        text: {{.plugin.itemDescription}}
                         font: 14 regular
                         color: #555
                         padding: 8 36 8 0
@@ -150,65 +135,27 @@ ImporterRun {
                 }
             }
         }
-
-/*        run {*/
-/*            showTitle: false*/
-/*            */
-/*            VStack {*/
-/*                HStack {*/
-/*                    align: left*/
-/*                    background: #f9f9f9*/
-/*                    */
-/*                    Button {*/
-/*                        margin: 5 5 5 35*/
-/*                        */
-/*                        onPress: runImporter {*/
-/*                            importer: {{.}}*/
-/*                        }*/
-/*                        */
-/*                        Text {*/
-/*                            text: "START RUN"*/
-/*                            font: 16 semibold*/
-/*                            color: #fff*/
-/*                            padding: 5 8 5 8*/
-/*                            cornerRadius: 5*/
-/*                            background: #70ba6c*/
-/*                        }*/
-/*                    }*/
-/*                }*/
-/*                Divider*/
-/*            }*/
-/*        }*/
     }
 }
 
-.allImporterRuns {
-    name: "all-importer-instances"
-    title: "All ImporterRuns"
-    emptyResultText: "There are no ImporterRuns"
+.allStartPlugins {
+    name: "all-plugin-instances"
+    title: "All StartPlugins"
+    emptyResultText: "There are no StartPlugins"
     defaultRenderer: list
     sortFields: datatype dateModified dateAccessed dateCreated
-    
+
     [datasource = pod] {
-        query: "ImporterRun"
+        query: "StartPlugin"
         sortProperty: dateModified
         sortAscending: false
     }
-    
-    actionButton:
-        addItem {
-            template {
-                _type: ImporterRunInstance
-                name: {{.name}}
-            }
-        }
 
     editActionButton: toggleEditMode
     filterButtons: showStarred toggleFilterPanel
-    
 }
 
-ImporterRun > list {
+StartPlugin > list {
     onPress: openView {
         renderer: generaleditor
     }
@@ -216,9 +163,9 @@ ImporterRun > list {
         alignment: left
         spacing: 10
         Image {
-            show: {{.importer.icon or .importer.bundleImage}}
-            systemName: {{.importer.icon}}
-            bundleImage: {{.importer.bundleImage}}
+            show: {{.plugin.icon or .plugin.bundleImage}}
+            systemName: {{.plugin.icon}}
+            bundleImage: {{.plugin.bundleImage}}
             resizable: true
             color: #2480d6
             width: 30

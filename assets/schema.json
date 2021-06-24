@@ -746,81 +746,6 @@
       "value_type": "string"
     },
     {
-      "item_type": "Importer",
-      "property": "name",
-      "value_type": "string"
-    },
-    {
-      "item_type": "Importer",
-      "property": "repository",
-      "value_type": "string"
-    },
-    {
-      "item_type": "Importer",
-      "property": "dataType",
-      "value_type": "string"
-    },
-    {
-      "item_type": "Importer",
-      "property": "icon",
-      "value_type": "string"
-    },
-    {
-      "item_type": "Importer",
-      "property": "bundleImage",
-      "value_type": "string"
-    },
-    {
-      "item_type": "Importer",
-      "property": "itemDescription",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "name",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "repository",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "progress",
-      "value_type": "double"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "dataType",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "username",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "password",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "runStatus",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "errorMessage",
-      "value_type": "string"
-    },
-    {
-      "item_type": "ImporterRun",
-      "property": "progressMessage",
-      "value_type": "string"
-    },
-    {
       "item_type": "Indexer",
       "property": "name",
       "value_type": "string"
@@ -1463,6 +1388,16 @@
     {
       "item_type": "Plugin",
       "property": "itemDescription",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "pluginType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "dataType",
       "value_type": "string"
     },
     {
@@ -2586,16 +2521,6 @@
       "source_type": "HowTo",
       "edge": "review",
       "target_type": "Review"
-    },
-    {
-      "source_type": "Importer",
-      "edge": "importerRun",
-      "target_type": "ImporterRun"
-    },
-    {
-      "source_type": "ImporterRun",
-      "edge": "importer",
-      "target_type": "Importer"
     },
     {
       "source_type": "Indexer",

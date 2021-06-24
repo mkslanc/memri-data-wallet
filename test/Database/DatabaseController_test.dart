@@ -20,6 +20,11 @@ void main() {
     expect(tables.length, 11);
   });
 
+  test('testDefaultDataImport', () async {
+    await DemoData.importDefaultData(
+        databaseController: databaseController, throwIfAgainstSchema: true);
+  });
+
   test('testDemoDataImport', () async {
     await DemoData.importDemoData(
         databaseController: databaseController, throwIfAgainstSchema: true);

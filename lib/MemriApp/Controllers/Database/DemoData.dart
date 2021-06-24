@@ -50,10 +50,29 @@ class DemoData {
     }
   }
 
-  static Future<void> importDemoData(
+  static importDefaultData(
       {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
-    var fileURL = "assets/demo_database.json";
+    await importData(
+        fileName: "default_database",
+        databaseController: databaseController,
+        throwIfAgainstSchema: throwIfAgainstSchema);
+  }
+
+  static importDemoData(
+      {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
+    databaseController ??= AppController.shared.databaseController;
+    await importData(
+        fileName: "demo_database",
+        databaseController: databaseController,
+        throwIfAgainstSchema: throwIfAgainstSchema);
+  }
+
+  static Future<void> importData(
+      {required String fileName,
+      required DatabaseController databaseController,
+      bool throwIfAgainstSchema = false}) async {
+    var fileURL = "assets/$fileName.json";
     var fileData = await rootBundle.loadString(fileURL);
     var items = jsonDecode(fileData);
     if (items == null || items is! List) {
@@ -61,7 +80,8 @@ class DemoData {
     }
 
     List<DemoDataItem> processedItems = items
-        .expand((item) => processItemJSON(item: item, schema: databaseController!.schema))
+        .expand((item) => processItemJSON(
+            item: item, schema: databaseController.schema, isRunningTests: throwIfAgainstSchema))
         .toList();
 
     Map<String, int> tempIDLookup = {};
@@ -171,7 +191,10 @@ class DemoData {
                 items = [
                   ...items,
                   ...processItemJSON(
-                      item: subitem as Map<String, dynamic>, schema: schema, overrideUID: targetUID)
+                      item: subitem as Map<String, dynamic>,
+                      schema: schema,
+                      overrideUID: targetUID,
+                      isRunningTests: isRunningTests)
                 ];
               }
             }

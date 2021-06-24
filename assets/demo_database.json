@@ -1,5 +1,4 @@
 [
-
   {
     "_type": "NavigationItem",
     "itemType": "heading",
@@ -17,65 +16,6 @@
   },
   {
     "_type": "NavigationItem",
-    "itemType": "heading",
-    "title": "Inbox"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "item",
-    "title": "Inbox",
-    "sessionName": "inbox"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "item",
-    "title": "Calendar",
-    "sessionName": "calendar"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "item",
-    "title": "Messages",
-    "sessionName": "allMessageChannels"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "item",
-    "title": "email",
-    "sessionName": "allEmails"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "heading",
-    "title": "General"
-  },
-  {
-    "_type": "NavigationItem",
-    "sessionName": "allItems",
-    "title": "All Items"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "notes",
-    "sessionName": "allNotes"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "people",
-    "sessionName": "allPeople"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Merge and fix",
-    "sessionName": "mergeAndFix"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "photos",
-    "sessionName": "allPhotos"
-  },
-  {
-    "_type": "NavigationItem",
     "title": "Receipts",
     "sessionName": "allReceipts"
   },
@@ -86,44 +26,13 @@
   },
   {
     "_type": "NavigationItem",
-    "itemType": "item",
-    "title": "crypto keys",
-    "sessionName": "allCryptoKeys"
+    "title": "location",
+    "sessionName": "allLocations"
   },
   {
     "_type": "NavigationItem",
     "title": "labels",
     "sessionName": "allLabels"
-  },
-  {
-    "_type":"NavigationItem",
-    "title":"plugins",
-    "sessionName":"allPlugins"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "importers",
-    "sessionName": "allImporters"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "importer instances",
-    "sessionName": "allImporterRuns"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "indexers",
-    "sessionName": "allIndexers"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "indexer instances",
-    "sessionName": "allIndexerRuns"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "location",
-    "sessionName": "allLocations"
   },
   {
     "_type": "NavigationItem",
@@ -132,7 +41,7 @@
   },
   {
     "_type": "NavigationItem",
-    "itemType": "item",
+    "itemType": "items",
     "title": "Pie Chart",
     "sessionName": "expenseChart"
   },
@@ -162,40 +71,15 @@
     "sessionName": "annotationListExample"
   },
   {
-    "_type": "Importer",
-    "name": "iCloud notes",
-    "dataType": "Note",
-    "repository": "memri-nodeintegrators:latest",
-    "icon": "cloud"
+    "_type": "NavigationItem",
+    "itemType": "heading",
+    "title": "Inbox"
   },
   {
-    "_type": "Importer",
-    "name": "Evernote notes",
-    "dataType": "Note",
-    "repository": "memri-pyintegrators:latest",
-    "bundleImage": "evernote-icon"
-  },
-  {
-    "_type": "Importer",
-    "name": "Gmail",
-    "dataType": "Email",
-    "repository": "memri-pyintegrators:latest",
-    "icon": "envelope",
-    "itemDescription": "To run this importer you need a to fill in an email address and an app password below, and enable IMAP in your email settings, for gmail that is under \nhttps://mail.google.com/mail/u/0/#settings/fwdandpop \nThe recommended usage is with an app password, for which you need to enable 2FA (Google), which you can do under Security at \nhttps://myaccount.google.com/security"
-  },
-  {
-    "_type": "Importer",
-    "name": "WhatsApp",
-    "dataType": "whatsapp",
-    "repository": "memri-rustintegrators:latest",
-    "icon": "message"
-  },
-  {
-    "_type":"Plugin",
-    "name":"Deduplication",
-    "container":"test",
-    "icon":"message",
-    "itemDescription":"Removes duplicate contacts from your pod"
+    "_type": "NavigationItem",
+    "itemType": "items",
+    "title": "Inbox",
+    "sessionName": "inbox"
   },
   {
     "_type": "Indexer",
@@ -1929,8 +1813,7 @@
         "targetType": "Account",
         "uid": 20000000001
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 3,
@@ -1965,8 +1848,7 @@
         "targetType": "Account",
         "uid": 20000000003
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 4,
@@ -2001,8 +1883,7 @@
         "targetType": "Account",
         "uid": 20000000002
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 5,
@@ -2032,8 +1913,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 6,
@@ -2063,8 +1943,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 7,
@@ -2093,8 +1972,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 8,
@@ -2123,8 +2001,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 9,
@@ -2153,8 +2030,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 10,
@@ -2183,8 +2059,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 11,
@@ -2213,8 +2088,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 12,
@@ -2243,8 +2117,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 13,
@@ -2273,8 +2146,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 14,
@@ -2303,8 +2175,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 15,
@@ -2333,8 +2204,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 16,
@@ -2363,8 +2233,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 17,
@@ -2393,8 +2262,7 @@
         "targetType": "Label",
         "uid": 1016
       }
-    ],
-    "version": 1
+    ]
   },
   {
     "uid": 18,
@@ -2440,1036 +2308,6 @@
     "_type": "File",
     "uid": 219603712100,
     "filename": "szabo-viktor-tarTTEaiIx4-unsplash"
-  },
-  {
-    "name": "Afghanistan",
-    "_type": "Country"
-  },
-  {
-    "name": "Akrotiri",
-    "_type": "Country"
-  },
-  {
-    "name": "Albania",
-    "_type": "Country"
-  },
-  {
-    "name": "Algeria",
-    "_type": "Country"
-  },
-  {
-    "name": "American Samoa",
-    "_type": "Country"
-  },
-  {
-    "name": "Andorra",
-    "_type": "Country"
-  },
-  {
-    "name": "Angola",
-    "_type": "Country"
-  },
-  {
-    "name": "Anguilla",
-    "_type": "Country"
-  },
-  {
-    "name": "Antarctica",
-    "_type": "Country"
-  },
-  {
-    "name": "Antigua and Barbuda",
-    "_type": "Country"
-  },
-  {
-    "name": "Argentina",
-    "_type": "Country"
-  },
-  {
-    "name": "Armenia",
-    "_type": "Country"
-  },
-  {
-    "name": "Aruba",
-    "_type": "Country"
-  },
-  {
-    "name": "Ashmore and Cartier Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Australia",
-    "_type": "Country"
-  },
-  {
-    "name": "Austria",
-    "_type": "Country"
-  },
-  {
-    "name": "Azerbaijan",
-    "_type": "Country"
-  },
-  {
-    "name": "Bahamas, The",
-    "_type": "Country"
-  },
-  {
-    "name": "Bahrain",
-    "_type": "Country"
-  },
-  {
-    "name": "Bangladesh",
-    "_type": "Country"
-  },
-  {
-    "name": "Barbados",
-    "_type": "Country"
-  },
-  {
-    "name": "Bassas da India",
-    "_type": "Country"
-  },
-  {
-    "name": "Belarus",
-    "_type": "Country"
-  },
-  {
-    "name": "Belgium",
-    "_type": "Country"
-  },
-  {
-    "name": "Belize",
-    "_type": "Country"
-  },
-  {
-    "name": "Benin",
-    "_type": "Country"
-  },
-  {
-    "name": "Bermuda",
-    "_type": "Country"
-  },
-  {
-    "name": "Bhutan",
-    "_type": "Country"
-  },
-  {
-    "name": "Bolivia",
-    "_type": "Country"
-  },
-  {
-    "name": "Bosnia and Herzegovina",
-    "_type": "Country"
-  },
-  {
-    "name": "Botswana",
-    "_type": "Country"
-  },
-  {
-    "name": "Bouvet Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Brazil",
-    "_type": "Country"
-  },
-  {
-    "name": "British Indian Ocean Territory",
-    "_type": "Country"
-  },
-  {
-    "name": "British Virgin Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Brunei",
-    "_type": "Country"
-  },
-  {
-    "name": "Bulgaria",
-    "_type": "Country"
-  },
-  {
-    "name": "Burkina Faso",
-    "_type": "Country"
-  },
-  {
-    "name": "Burma",
-    "_type": "Country"
-  },
-  {
-    "name": "Burundi",
-    "_type": "Country"
-  },
-  {
-    "name": "Cambodia",
-    "_type": "Country"
-  },
-  {
-    "name": "Cameroon",
-    "_type": "Country"
-  },
-  {
-    "name": "Canada",
-    "_type": "Country"
-  },
-  {
-    "name": "Cape Verde",
-    "_type": "Country"
-  },
-  {
-    "name": "Cayman Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Central African Republic",
-    "_type": "Country"
-  },
-  {
-    "name": "Chad",
-    "_type": "Country"
-  },
-  {
-    "name": "Chile",
-    "_type": "Country"
-  },
-  {
-    "name": "China",
-    "_type": "Country"
-  },
-  {
-    "name": "Christmas Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Clipperton Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Cocos (Keeling) Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Colombia",
-    "_type": "Country"
-  },
-  {
-    "name": "Comoros",
-    "_type": "Country"
-  },
-  {
-    "name": "Congo, Democratic Republic of the",
-    "_type": "Country"
-  },
-  {
-    "name": "Congo, Republic of the",
-    "_type": "Country"
-  },
-  {
-    "name": "Cook Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Coral Sea Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Costa Rica",
-    "_type": "Country"
-  },
-  {
-    "name": "Cote d'Ivoire",
-    "_type": "Country"
-  },
-  {
-    "name": "Croatia",
-    "_type": "Country"
-  },
-  {
-    "name": "Cuba",
-    "_type": "Country"
-  },
-  {
-    "name": "Cyprus",
-    "_type": "Country"
-  },
-  {
-    "name": "Czech Republic",
-    "_type": "Country"
-  },
-  {
-    "name": "Denmark",
-    "_type": "Country"
-  },
-  {
-    "name": "Dhekelia",
-    "_type": "Country"
-  },
-  {
-    "name": "Djibouti",
-    "_type": "Country"
-  },
-  {
-    "name": "Dominica",
-    "_type": "Country"
-  },
-  {
-    "name": "Dominican Republic",
-    "_type": "Country"
-  },
-  {
-    "name": "Ecuador",
-    "_type": "Country"
-  },
-  {
-    "name": "Egypt",
-    "_type": "Country"
-  },
-  {
-    "name": "El Salvador",
-    "_type": "Country"
-  },
-  {
-    "name": "Equatorial Guinea",
-    "_type": "Country"
-  },
-  {
-    "name": "Eritrea",
-    "_type": "Country"
-  },
-  {
-    "name": "Estonia",
-    "_type": "Country"
-  },
-  {
-    "name": "Ethiopia",
-    "_type": "Country"
-  },
-  {
-    "name": "Europa Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Falkland Islands (Islas Malvinas)",
-    "_type": "Country"
-  },
-  {
-    "name": "Faroe Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Fiji",
-    "_type": "Country"
-  },
-  {
-    "name": "Finland",
-    "_type": "Country"
-  },
-  {
-    "name": "France",
-    "_type": "Country",
-    "uid": 1402
-  },
-  {
-    "name": "French Guiana",
-    "_type": "Country"
-  },
-  {
-    "name": "French Polynesia",
-    "_type": "Country"
-  },
-  {
-    "name": "French Southern and Antarctic Lands",
-    "_type": "Country"
-  },
-  {
-    "name": "Gabon",
-    "_type": "Country"
-  },
-  {
-    "name": "Gambia, The",
-    "_type": "Country"
-  },
-  {
-    "name": "Gaza Strip",
-    "_type": "Country"
-  },
-  {
-    "name": "Georgia",
-    "_type": "Country"
-  },
-  {
-    "name": "Germany",
-    "_type": "Country"
-  },
-  {
-    "name": "Ghana",
-    "_type": "Country"
-  },
-  {
-    "name": "Gibraltar",
-    "_type": "Country"
-  },
-  {
-    "name": "Glorioso Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Greece",
-    "_type": "Country"
-  },
-  {
-    "name": "Greenland",
-    "_type": "Country"
-  },
-  {
-    "name": "Grenada",
-    "_type": "Country"
-  },
-  {
-    "name": "Guadeloupe",
-    "_type": "Country"
-  },
-  {
-    "name": "Guam",
-    "_type": "Country"
-  },
-  {
-    "name": "Guatemala",
-    "_type": "Country"
-  },
-  {
-    "name": "Guernsey",
-    "_type": "Country"
-  },
-  {
-    "name": "Guinea",
-    "_type": "Country"
-  },
-  {
-    "name": "Guinea-Bissau",
-    "_type": "Country"
-  },
-  {
-    "name": "Guyana",
-    "_type": "Country"
-  },
-  {
-    "name": "Haiti",
-    "_type": "Country"
-  },
-  {
-    "name": "Heard Island and McDonald Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Holy See (Vatican City)",
-    "_type": "Country"
-  },
-  {
-    "name": "Honduras",
-    "_type": "Country"
-  },
-  {
-    "name": "Hong Kong",
-    "_type": "Country"
-  },
-  {
-    "name": "Hungary",
-    "_type": "Country"
-  },
-  {
-    "name": "Iceland",
-    "_type": "Country"
-  },
-  {
-    "name": "India",
-    "_type": "Country"
-  },
-  {
-    "name": "Indonesia",
-    "_type": "Country"
-  },
-  {
-    "name": "Iran",
-    "_type": "Country"
-  },
-  {
-    "name": "Iraq",
-    "_type": "Country"
-  },
-  {
-    "name": "Ireland",
-    "_type": "Country"
-  },
-  {
-    "name": "Isle of Man",
-    "_type": "Country"
-  },
-  {
-    "name": "Israel",
-    "_type": "Country"
-  },
-  {
-    "name": "Italy",
-    "_type": "Country"
-  },
-  {
-    "name": "Jamaica",
-    "_type": "Country"
-  },
-  {
-    "name": "Jan Mayen",
-    "_type": "Country"
-  },
-  {
-    "name": "Japan",
-    "_type": "Country"
-  },
-  {
-    "name": "Jersey",
-    "_type": "Country"
-  },
-  {
-    "name": "Jordan",
-    "_type": "Country"
-  },
-  {
-    "name": "Juan de Nova Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Kazakhstan",
-    "_type": "Country"
-  },
-  {
-    "name": "Kenya",
-    "_type": "Country"
-  },
-  {
-    "name": "Kiribati",
-    "_type": "Country"
-  },
-  {
-    "name": "Korea, North",
-    "_type": "Country"
-  },
-  {
-    "name": "Korea, South",
-    "_type": "Country"
-  },
-  {
-    "name": "Kuwait",
-    "_type": "Country"
-  },
-  {
-    "name": "Kyrgyzstan",
-    "_type": "Country"
-  },
-  {
-    "name": "Laos",
-    "_type": "Country"
-  },
-  {
-    "name": "Latvia",
-    "_type": "Country"
-  },
-  {
-    "name": "Lebanon",
-    "_type": "Country"
-  },
-  {
-    "name": "Lesotho",
-    "_type": "Country"
-  },
-  {
-    "name": "Liberia",
-    "_type": "Country"
-  },
-  {
-    "name": "Libya",
-    "_type": "Country"
-  },
-  {
-    "name": "Liechtenstein",
-    "_type": "Country"
-  },
-  {
-    "name": "Lithuania",
-    "_type": "Country"
-  },
-  {
-    "name": "Luxembourg",
-    "_type": "Country"
-  },
-  {
-    "name": "Macau",
-    "_type": "Country"
-  },
-  {
-    "name": "Macedonia",
-    "_type": "Country"
-  },
-  {
-    "name": "Madagascar",
-    "_type": "Country"
-  },
-  {
-    "name": "Malawi",
-    "_type": "Country"
-  },
-  {
-    "name": "Malaysia",
-    "_type": "Country"
-  },
-  {
-    "name": "Maldives",
-    "_type": "Country"
-  },
-  {
-    "name": "Mali",
-    "_type": "Country"
-  },
-  {
-    "name": "Malta",
-    "_type": "Country"
-  },
-  {
-    "name": "Marshall Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Martinique",
-    "_type": "Country"
-  },
-  {
-    "name": "Mauritania",
-    "_type": "Country"
-  },
-  {
-    "name": "Mauritius",
-    "_type": "Country"
-  },
-  {
-    "name": "Mayotte",
-    "_type": "Country"
-  },
-  {
-    "name": "Mexico",
-    "_type": "Country"
-  },
-  {
-    "name": "Micronesia, Federated States of",
-    "_type": "Country"
-  },
-  {
-    "name": "Moldova",
-    "_type": "Country"
-  },
-  {
-    "name": "Monaco",
-    "_type": "Country"
-  },
-  {
-    "name": "Mongolia",
-    "_type": "Country"
-  },
-  {
-    "name": "Montserrat",
-    "_type": "Country"
-  },
-  {
-    "name": "Morocco",
-    "_type": "Country"
-  },
-  {
-    "name": "Mozambique",
-    "_type": "Country"
-  },
-  {
-    "name": "Namibia",
-    "_type": "Country"
-  },
-  {
-    "name": "Nauru",
-    "_type": "Country"
-  },
-  {
-    "name": "Navassa Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Nepal",
-    "_type": "Country"
-  },
-  {
-    "name": "Netherlands",
-    "_type": "Country"
-  },
-  {
-    "name": "Netherlands Antilles",
-    "_type": "Country"
-  },
-  {
-    "name": "New Caledonia",
-    "_type": "Country"
-  },
-  {
-    "name": "New Zealand",
-    "_type": "Country"
-  },
-  {
-    "name": "Nicaragua",
-    "_type": "Country"
-  },
-  {
-    "name": "Niger",
-    "_type": "Country"
-  },
-  {
-    "name": "Nigeria",
-    "_type": "Country"
-  },
-  {
-    "name": "Niue",
-    "_type": "Country"
-  },
-  {
-    "name": "Norfolk Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Northern Mariana Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Norway",
-    "_type": "Country"
-  },
-  {
-    "name": "Oman",
-    "_type": "Country"
-  },
-  {
-    "name": "Pakistan",
-    "_type": "Country"
-  },
-  {
-    "name": "Palau",
-    "_type": "Country"
-  },
-  {
-    "name": "Panama",
-    "_type": "Country"
-  },
-  {
-    "name": "Papua New Guinea",
-    "_type": "Country"
-  },
-  {
-    "name": "Paracel Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Paraguay",
-    "_type": "Country"
-  },
-  {
-    "name": "Peru",
-    "_type": "Country"
-  },
-  {
-    "name": "Philippines",
-    "_type": "Country"
-  },
-  {
-    "name": "Pitcairn Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Poland",
-    "_type": "Country"
-  },
-  {
-    "name": "Portugal",
-    "_type": "Country"
-  },
-  {
-    "name": "Puerto Rico",
-    "_type": "Country"
-  },
-  {
-    "name": "Qatar",
-    "_type": "Country"
-  },
-  {
-    "name": "Reunion",
-    "_type": "Country"
-  },
-  {
-    "name": "Romania",
-    "_type": "Country"
-  },
-  {
-    "name": "Russia",
-    "_type": "Country"
-  },
-  {
-    "name": "Rwanda",
-    "_type": "Country"
-  },
-  {
-    "name": "Saint Helena",
-    "_type": "Country"
-  },
-  {
-    "name": "Saint Kitts and Nevis",
-    "_type": "Country"
-  },
-  {
-    "name": "Saint Lucia",
-    "_type": "Country"
-  },
-  {
-    "name": "Saint Pierre and Miquelon",
-    "_type": "Country"
-  },
-  {
-    "name": "Saint Vincent and the Grenadines",
-    "_type": "Country"
-  },
-  {
-    "name": "Samoa",
-    "_type": "Country"
-  },
-  {
-    "name": "San Marino",
-    "_type": "Country"
-  },
-  {
-    "name": "Sao Tome and Principe",
-    "_type": "Country"
-  },
-  {
-    "name": "Saudi Arabia",
-    "_type": "Country"
-  },
-  {
-    "name": "Senegal",
-    "_type": "Country"
-  },
-  {
-    "name": "Serbia and Montenegro",
-    "_type": "Country"
-  },
-  {
-    "name": "Seychelles",
-    "_type": "Country"
-  },
-  {
-    "name": "Sierra Leone",
-    "_type": "Country"
-  },
-  {
-    "name": "Singapore",
-    "_type": "Country"
-  },
-  {
-    "name": "Slovakia",
-    "_type": "Country"
-  },
-  {
-    "name": "Slovenia",
-    "_type": "Country"
-  },
-  {
-    "name": "Solomon Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Somalia",
-    "_type": "Country"
-  },
-  {
-    "name": "South Africa",
-    "_type": "Country"
-  },
-  {
-    "name": "South Georgia and the South Sandwich Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Spain",
-    "_type": "Country"
-  },
-  {
-    "name": "Spratly Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Sri Lanka",
-    "_type": "Country"
-  },
-  {
-    "name": "Sudan",
-    "_type": "Country"
-  },
-  {
-    "name": "Suriname",
-    "_type": "Country"
-  },
-  {
-    "name": "Svalbard",
-    "_type": "Country"
-  },
-  {
-    "name": "Swaziland",
-    "_type": "Country"
-  },
-  {
-    "name": "Sweden",
-    "_type": "Country"
-  },
-  {
-    "name": "Switzerland",
-    "_type": "Country"
-  },
-  {
-    "name": "Syria",
-    "_type": "Country"
-  },
-  {
-    "name": "Taiwan",
-    "_type": "Country"
-  },
-  {
-    "name": "Tajikistan",
-    "_type": "Country"
-  },
-  {
-    "name": "Tanzania",
-    "_type": "Country"
-  },
-  {
-    "name": "Thailand",
-    "_type": "Country"
-  },
-  {
-    "name": "Timor-Leste",
-    "_type": "Country"
-  },
-  {
-    "name": "Togo",
-    "_type": "Country"
-  },
-  {
-    "name": "Tokelau",
-    "_type": "Country"
-  },
-  {
-    "name": "Tonga",
-    "_type": "Country"
-  },
-  {
-    "name": "Trinidad and Tobago",
-    "_type": "Country"
-  },
-  {
-    "name": "Tromelin Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Tunisia",
-    "_type": "Country"
-  },
-  {
-    "name": "Turkey",
-    "_type": "Country"
-  },
-  {
-    "name": "Turkmenistan",
-    "_type": "Country"
-  },
-  {
-    "name": "Turks and Caicos Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Tuvalu",
-    "_type": "Country"
-  },
-  {
-    "name": "Uganda",
-    "_type": "Country"
-  },
-  {
-    "name": "Ukraine",
-    "_type": "Country"
-  },
-  {
-    "name": "United Arab Emirates",
-    "_type": "Country"
-  },
-  {
-    "name": "United Kingdom",
-    "_type": "Country"
-  },
-  {
-    "name": "United States",
-    "_type": "Country",
-    "uid": 1401
-  },
-  {
-    "name": "Uruguay",
-    "_type": "Country"
-  },
-  {
-    "name": "Uzbekistan",
-    "_type": "Country"
-  },
-  {
-    "name": "Vanuatu",
-    "_type": "Country"
-  },
-  {
-    "name": "Venezuela",
-    "_type": "Country"
-  },
-  {
-    "name": "Vietnam",
-    "_type": "Country"
-  },
-  {
-    "name": "Virgin Islands",
-    "_type": "Country"
-  },
-  {
-    "name": "Wake Island",
-    "_type": "Country"
-  },
-  {
-    "name": "Wallis and Futuna",
-    "_type": "Country"
-  },
-  {
-    "name": "West Bank",
-    "_type": "Country"
-  },
-  {
-    "name": "Western Sahara",
-    "_type": "Country"
-  },
-  {
-    "name": "Yemen",
-    "_type": "Country"
-  },
-  {
-    "name": "Zambia",
-    "_type": "Country"
-  },
-  {
-    "name": "Zimbabwe",
-    "_type": "Country"
   },
   {
     "_type": "Note",
