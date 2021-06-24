@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 
 import 'API/PodAPIConnectionDetails.dart';
 import 'Database/DatabaseController.dart';
+import 'PermissionController.dart';
 import 'PubSubController.dart';
 import 'Syncing/SyncController.dart';
 
@@ -24,6 +25,7 @@ class AppController {
   late SyncController syncController;
   late CVUController cvuController;
   late PubSubController pubsubController;
+  late PermissionsController permissionController;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -41,6 +43,7 @@ class AppController {
     syncController = SyncController(databaseController);
     cvuController = CVUController();
     pubsubController = PubSubController(databaseController);
+    permissionController = PermissionsController();
     cvuController.init();
   }
 
