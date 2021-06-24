@@ -1,32 +1,6 @@
 [
   {
     "_type": "NavigationItem",
-    "itemType": "heading",
-    "title": "Crypto"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Cryptocurrency",
-    "sessionName": "allCryptoCurrencies"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Wallet",
-    "sessionName": "allWallets"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "heading",
-    "title": "Inbox"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "items",
-    "title": "Inbox",
-    "sessionName": "inbox"
-  },
-  {
-    "_type": "NavigationItem",
     "itemType": "items",
     "title": "Calendar",
     "sessionName": "calendar"
@@ -70,24 +44,8 @@
   },
   {
     "_type": "NavigationItem",
-    "title": "Receipts",
-    "sessionName": "allReceipts"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "addresses",
-    "sessionName": "allAddresses"
-  },
-  {
-    "_type": "NavigationItem",
-    "_type": "item",
     "title": "crypto keys",
     "sessionName": "allCryptoKeys"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "labels",
-    "sessionName": "allLabels"
   },
   {
     "_type": "NavigationItem",
@@ -111,49 +69,8 @@
   },
   {
     "_type": "NavigationItem",
-    "title": "location",
-    "sessionName": "allLocations"
-  },
-  {
-    "_type": "NavigationItem",
     "title": "Merge and fix",
     "sessionName": "mergeAndFix"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "heading",
-    "title": "Charts"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "items",
-    "title": "Pie Chart",
-    "sessionName": "expenseChart"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Bar chart",
-    "sessionName": "personHeightChart"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "XY chart",
-    "sessionName": "xyChart"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "heading",
-    "title": "Annotation"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Email Annotation UI",
-    "sessionName": "annotationUIExample"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Email Annotation List",
-    "sessionName": "annotationListExample"
   },
   {
     "_type": "Plugin",
@@ -170,23 +87,6 @@
     "dataType": "Note",
     "container": "memri-nodeintegrators:latest",
     "icon": "cloud"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "importer",
-    "name": "Evernote notes",
-    "dataType": "Note",
-    "container": "memri-pyintegrators:latest",
-    "bundleImage": "evernote-icon"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "importer",
-    "name": "Gmail",
-    "dataType": "Email",
-    "container": "memri-pyintegrators:latest",
-    "icon": "envelope",
-    "itemDescription": "To run this importer you need a to fill in an email address and an app password below, and enable IMAP in your email settings, for gmail that is under \nhttps://mail.google.com/mail/u/0/#settings/fwdandpop \nThe recommended usage is with an app password, for which you need to enable 2FA (Google), which you can do under Security at \nhttps://myaccount.google.com/security"
   },
   {
     "_type": "Plugin",
