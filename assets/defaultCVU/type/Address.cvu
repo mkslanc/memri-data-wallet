@@ -21,7 +21,6 @@
             HStack {
                 show: {{readOnly}}
                 Text {
-                    width: 200
                     text: "{.computedTitle()}"
                     font: 16
                     padding: 0 0 10 0
@@ -65,7 +64,6 @@
 Address > list {
     HStack {
         Text {
-        width: 200
             text: "{joinWithComma(.street, .city, .state, .country.name)}"
             font: 16
             padding: 0 0 10 0
@@ -230,7 +228,6 @@ Address[] {
 
             HStack {
                 Text {
-                width: 200
                     text: "{joinWithComma(.street, .city, .state, .country.name)}"
                     font: 16
                     padding: 0 0 10 0

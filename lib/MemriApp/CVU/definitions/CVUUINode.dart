@@ -29,7 +29,8 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
   CVUUINode({required this.type, required this.children, required this.properties}) {
     children.forEach((element) {
       if (element.shouldExpandWidth ||
-          (element.type == CVUUIElementFamily.Spacer && type == CVUUIElementFamily.HStack)) {
+          ((element.type == CVUUIElementFamily.Spacer || element.type == CVUUIElementFamily.Text) &&
+              type == CVUUIElementFamily.HStack)) {
         shouldExpandWidth = true;
       }
       if (element.shouldExpandHeight ||

@@ -53,6 +53,10 @@ class _CVUTextState extends State<CVUText> {
           if (content != null) {
             return Text(
               content!,
+              overflow: resolvedTextProperties.lineLimit == 1
+                  ? TextOverflow.ellipsis
+                  : TextOverflow.visible,
+              softWrap: true,
               maxLines: resolvedTextProperties.lineLimit,
               style: resolvedTextProperties.textStyle,
               textAlign: resolvedTextProperties.textAlign,
@@ -110,6 +114,10 @@ class _CVUSmartTextState extends State<CVUSmartText> {
           if (content != null) {
             return Text(
               content!,
+              overflow: resolvedTextProperties.lineLimit == 1
+                  ? TextOverflow.ellipsis
+                  : TextOverflow.visible,
+              softWrap: true,
               style: resolvedTextProperties.textStyle,
               textAlign: resolvedTextProperties.textAlign,
               maxLines: resolvedTextProperties.lineLimit,
