@@ -298,6 +298,7 @@ class ItemRecord with EquatableMixin {
   }
 
   factory ItemRecord.fromJson(Map<String, dynamic> json) => _$ItemRecordFromJson(json);
+
   Map<String, dynamic> toJson() => _$ItemRecordToJson(this);
 
   @override
@@ -396,16 +397,41 @@ class ItemRecord with EquatableMixin {
     ItemRecord newItem = ItemRecord.fromSyncDict(dict);
     newItem.rowId = item?.rowId;
     await newItem.save(dbController.databasePool);
+    if (dict["_item"] == null) {
+      await Future.forEach(dict.entries, (MapEntry entry) async {
+        var expectedType = dbController.schema.types[newItem.type]?.propertyTypes[entry.key];
+        if (expectedType == null) {
+          return;
+        }
+        var databaseValue = PropertyDatabaseValue.create(entry.value, expectedType.valueType);
+        await newItem.setPropertyValue(entry.key, databaseValue,
+            db: dbController, state: SyncState.noChanges);
+      });
+    }
 
-    await Future.forEach(dict.entries, (MapEntry entry) async {
-      var expectedType = dbController.schema.types[newItem.type]?.propertyTypes[entry.key];
-      if (expectedType == null) {
-        return;
-      }
-      var databaseValue = PropertyDatabaseValue.create(entry.value, expectedType.valueType);
-      await newItem.setPropertyValue(entry.key, databaseValue,
-          db: dbController, state: SyncState.noChanges);
-    });
+    var edges = dict["[[edges]]"];
+    if (edges is List && edges.isNotEmpty) {
+      await Future.forEach(edges, (edge) async {
+        if (edge is! Map<String, dynamic>) {
+          return;
+        }
+        var edgeDict = {
+          "self": edge["id"],
+          "source": dict["id"],
+          "name": edge["_edge"],
+          "target": edge["_item"]["id"]
+        };
+        ItemRecord? item = await ItemRecord.fetchWithUID(edge["_item"]["id"], dbController);
+        if (item == null) {
+          await ItemRecord.fromSyncItemDict(dict: edge["_item"], dbController: dbController);
+        }
+        ItemRecord? self = await ItemRecord.fetchWithUID(edge["id"], dbController);
+        if (self == null) {
+          await ItemRecord.fromSyncItemDict(dict: edge, dbController: dbController);
+        }
+        await ItemEdgeRecord.fromSyncEdgeDict(dict: edgeDict, dbController: dbController);
+      });
+    }
 
     return newItem;
   }

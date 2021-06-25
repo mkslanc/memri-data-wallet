@@ -304,8 +304,8 @@ class SyncController {
     if (currentConnection == null) {
       throw Exception("No pod connection config");
     }
-    var request =
-        PodAPIStandardRequest.searchAction({"dateServerModified>=": dateServerModifiedTimestamp});
+    var request = PodAPIStandardRequest.searchAction(
+        {"dateServerModified>=": dateServerModifiedTimestamp, "[[edges]]": {}});
 
     var networkCall = await request.execute(currentConnection!);
     var error;

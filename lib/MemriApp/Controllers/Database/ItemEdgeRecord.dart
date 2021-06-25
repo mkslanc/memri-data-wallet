@@ -39,6 +39,14 @@ class ItemEdgeRecord {
         syncState = SyncStateExtension.rawValue(edge.syncState),
         syncHasPriority = edge.syncHasPriority;
 
+  ItemEdgeRecord.fromSyncDict(Map<String, dynamic> dict)
+      : name = dict["name"],
+        selfUID = dict["self"],
+        sourceUID = dict["source"],
+        targetUID = dict["target"],
+        syncState = SyncState.noChanges,
+        syncHasPriority = false;
+
   Future<EdgesCompanion> toCompanion(Database db) async {
     if (selfRowID == null) {
       Item self = (await db.itemRecordFetchWithUID(selfUID!))!;
@@ -110,19 +118,27 @@ class ItemEdgeRecord {
   }
 
   Future<Map<String, dynamic>?> syncDict([DatabaseController? dbController]) async {
-    if (sourceRowID == null || targetRowID == null) {
+    if (sourceRowID == null || targetRowID == null || selfRowID == null) {
       return null;
     }
     var sourceItem = await ItemRecord.fetchWithRowID(sourceRowID!, dbController);
     var targetItem = await ItemRecord.fetchWithRowID(targetRowID!, dbController);
+    var selfItem = await ItemRecord.fetchWithRowID(selfRowID!, dbController);
     if (sourceItem == null ||
         targetItem == null ||
+        selfItem == null ||
         sourceItem.syncState == SyncState.create ||
-        targetItem.syncState == SyncState.create) {
+        targetItem.syncState == SyncState.create ||
+        selfItem.syncState == SyncState.create) {
       return null;
     }
 
-    return {"_source": sourceItem.uid, "_target": targetItem.uid, "_name": name};
+    return {
+      "_source": sourceItem.uid,
+      "_target": targetItem.uid,
+      "_self": selfItem.uid,
+      "_name": name
+    };
   }
 
   static didSyncEdges(PodAPIPayloadBulkAction syncItems, String? error,
@@ -146,11 +162,21 @@ class ItemEdgeRecord {
           edgeRecord.syncState = SyncState.noChanges;
           await edgeRecord.save(dbController.databasePool);
         } else {
-          print("ERROR: Count not locate edge for synced edge: $syncedEdge");
+          print("ERROR: Could not locate edge for synced edge: $syncedEdge");
         }
       } else {
-        print("ERROR: Count not locate edge for synced edge: $syncedEdge");
+        print("ERROR: Could not locate edge for synced edge: $syncedEdge");
       }
+    }
+  }
+
+  static Future<ItemRecord?> fromSyncEdgeDict(
+      {required Map<String, dynamic> dict, required DatabaseController dbController}) async {
+    if (dict["source"] != null && dict["target"] != null && dict["name"] != null) {
+      ItemEdgeRecord newEdge = ItemEdgeRecord.fromSyncDict(dict);
+      await newEdge.save(dbController.databasePool);
+    } else {
+      print("ERROR: Source, target or name is missing for edge");
     }
   }
 }

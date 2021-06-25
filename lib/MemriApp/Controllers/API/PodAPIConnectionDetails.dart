@@ -18,7 +18,7 @@ class PodAPIConnectionDetails {
       {this.scheme = "http",
       this.host = "localhost",
       this.port = 3030,
-      this.apiVersion = "v3",
+      this.apiVersion = "v4",
       this.ownerKey = "ownerKeyHere",
       this.databaseKey = "databaseKeyHere"});
 }
