@@ -13,8 +13,7 @@ import 'package:memri/MemriApp/Controllers/Syncing/SyncController.dart';
 import 'package:uuid/uuid.dart';
 
 /// This connection config is used to connect to the pod for the tests. You can change url scheme/path/port etc here
-var connectionConfig =
-    PodAPIConnectionDetails(ownerKey: Uuid().v4(), databaseKey: "DBKEY", host: "192.168.88.17");
+var connectionConfig = PodAPIConnectionDetails(ownerKey: Uuid().v4(), host: "192.168.88.17");
 
 /// These are used to create test items in the pod for use in later tests
 var noteRowId = 100;
@@ -108,5 +107,6 @@ void main() {
   test('testSyncing', () async {
     syncController.currentConnection = connectionConfig;
     await syncController.sync(connectionConfig: connectionConfig);
+    expect(syncController.lastError, equals(null));
   });
 }
