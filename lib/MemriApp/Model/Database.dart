@@ -54,6 +54,10 @@ class Database extends _$Database {
     return await (select(items)..where((t) => t.type.equals(type))).get();
   }
 
+  Stream<List<dynamic>> itemRecordsFetchByTypeStream(String type) {
+    return (select(items)..where((t) => t.type.equals(type))).watch();
+  }
+
   Future<int> itemRecordInsert(ItemRecord record) async {
     return await into(items).insert(record.toCompanion());
   }
@@ -159,9 +163,9 @@ class Database extends _$Database {
   }
 
   //TODO: reimplement all select queries as streams
-  Stream<List<dynamic>> itemPropertyRecordsCustomSelectStream(
-      String query, List<Variable<dynamic>> binding,
-      [bool isFTS = false]) {
+  Stream<List<dynamic>> itemPropertyRecordsCustomSelectStream(String query,
+      [List<Variable<dynamic>>? binding, bool isFTS = false]) {
+    binding ??= [];
     if (isFTS) {
       return customSelect("SELECT * from strings_search WHERE $query",
               variables: binding, readsFrom: {stringsSearch})

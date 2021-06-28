@@ -44,13 +44,14 @@ class AppController {
     cvuController = CVUController();
     pubsubController = PubSubController(databaseController);
     permissionController = PermissionsController();
-    cvuController.init();
   }
 
   Future onLaunch() async {
     await requestAuthentication();
     if (isAuthenticated) {
       isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
+      await AppController.shared.databaseController.schema
+          .load(AppController.shared.databaseController.databasePool);
     }
   }
 
@@ -82,22 +83,17 @@ class AppController {
           if (config is SetupConfigLocal || config is SetupConfigNewPod) {
             await databaseController.importRequiredData();
             if (useDemoData) await databaseController.setupWithDemoData();
-          }
-          if (config is SetupConfigLocal) {
-            isInDemoMode = true;
-            await Settings.shared.set("defaults/general/isInDemoMode", true);
+            if (config is SetupConfigLocal) isInDemoMode = true;
+            await Settings.shared.set("defaults/general/isInDemoMode", isInDemoMode);
           }
           if (_podConnectionConfig != null) {
             if (config is SetupConfigNewPod) {
               await Settings.shared.set("defaults/pod/url", config.config.podURL);
-            } else if (config is SetupConfigExistingPod) {
-              await Settings.shared.set("defaults/pod/url", config.config.podURL);
+              //TODO owner and database key should not be stored in settings
+              await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
+              await Settings.shared
+                  .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
             }
-
-            //TODO owner and database key should not be stored in settings
-            await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
-            await Settings.shared
-                .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
 
             await syncController.sync();
           }

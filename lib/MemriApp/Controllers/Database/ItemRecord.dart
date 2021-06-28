@@ -112,12 +112,14 @@ class ItemRecord with EquatableMixin {
         await db.databasePool.itemPropertyRecordsCustomSelect("item = ?", [Variable(rowId)]);
     if (properties.length > 0) {
       return properties.map((property) {
-        SchemaValueType? valueType =
-            db?.schema.types[type]?.propertyTypes[property.name]?.valueType;
+        SchemaValueType? valueType = db?.schema.expectedPropertyType(type, property.name);
+        if (valueType == null) {
+          throw Exception("Not found property type ${property.name} for item $type");
+        }
         return ItemPropertyRecord(
             itemRowID: property.item,
             name: property.name,
-            value: PropertyDatabaseValue.create(property.value, valueType!));
+            value: PropertyDatabaseValue.create(property.value, valueType));
       }).toList();
     }
     return [];
@@ -354,36 +356,69 @@ class ItemRecord with EquatableMixin {
         .save(dbController.databasePool);
   }
 
-  static mapSchemaValueType(String nativeType) {
-    switch (nativeType) {
-      case "string":
-        return "Text";
-      case "int":
-        return "Integer";
-      case "double":
-        return "Real";
-      case "bool":
-        return "Bool";
-      case "datetime":
-        return "DateTime";
-      default:
-        return null;
-    }
+  static Map<String, String> _mapSchemaValueType = {
+    "string": "Text",
+    "int": "Integer",
+    "double": "Real",
+    "bool": "Bool",
+    "datetime": "DateTime",
+  };
+
+  static String? mapSchemaValueType(String nativeType) {
+    return _mapSchemaValueType[nativeType];
   }
 
-  static mapSchemaPropertyName(String propertyName) {
-    switch (propertyName) {
-      case "action":
-        return "actionName";
-      case "query":
-        return "queryName";
-      case "key":
-        return "keyName";
-      case "type":
-        return "typeName";
-      default:
-        return propertyName;
+  static String? reverseMapSchemaValueType(String propertyValue) {
+    return _mapSchemaValueType.keys.firstWhere(
+        (nativeType) =>
+            _mapSchemaValueType[nativeType]?.toLowerCase() == propertyValue.toLowerCase(),
+        orElse: () => propertyValue);
+  }
+
+  static Map<String, String> _mapSchemaPropertyName = {
+    "action": "actionName",
+    "query": "queryName",
+    "key": "keyName",
+    "type": "typeName",
+  };
+
+  static String mapSchemaPropertyName(String propertyName) {
+    return _mapSchemaPropertyName[propertyName] ?? propertyName;
+  }
+
+  static String reverseMapSchemaPropertyName(String propertyName) {
+    return _mapSchemaPropertyName.keys.firstWhere(
+        (nativePropertyName) =>
+            _mapSchemaPropertyName[nativePropertyName]?.toLowerCase() == propertyName.toLowerCase(),
+        orElse: () => propertyName);
+  }
+
+  static getPropertyFromSync(itemType, propertyName, propertyValue) {
+    switch (itemType) {
+      case "ItemPropertySchema":
+        switch (propertyName) {
+          case "valueType":
+            propertyValue = reverseMapSchemaValueType(propertyValue);
+            break;
+          case "propertyName":
+            propertyValue = reverseMapSchemaPropertyName(propertyValue);
+            break;
+        }
+        break;
+      case "ItemEdgeSchema":
+        switch (propertyName) {
+          case "edgeName":
+            propertyValue = reverseMapSchemaPropertyName(propertyValue);
+            break;
+          case "sourceType":
+          case "targetType":
+            propertyValue = reverseMapSchemaValueType(propertyValue);
+            break;
+        }
+        break;
     }
+
+    return propertyValue;
   }
 
   static Future<ItemRecord?> fromSyncItemDict(
@@ -397,14 +432,23 @@ class ItemRecord with EquatableMixin {
     ItemRecord newItem = ItemRecord.fromSyncDict(dict);
     newItem.rowId = item?.rowId;
     await newItem.save(dbController.databasePool);
+
     if (dict["_item"] == null) {
       await Future.forEach(dict.entries, (MapEntry entry) async {
-        var expectedType = dbController.schema.types[newItem.type]?.propertyTypes[entry.key];
+        String propertyName = entry.key;
+        var expectedType = dbController.schema.expectedPropertyType(newItem.type, propertyName);
         if (expectedType == null) {
-          return;
+          //first initialization with existing pod crashes without this
+          if (newItem.type == "ItemPropertySchema" &&
+              ["itemType", "propertyName", "valueType"].contains(propertyName)) {
+            expectedType = SchemaValueType.string;
+          } else {
+            return;
+          }
         }
-        var databaseValue = PropertyDatabaseValue.create(entry.value, expectedType.valueType);
-        await newItem.setPropertyValue(entry.key, databaseValue,
+        var propertyValue = getPropertyFromSync(newItem.type, propertyName, entry.value);
+        var databaseValue = PropertyDatabaseValue.create(propertyValue, expectedType);
+        await newItem.setPropertyValue(propertyName, databaseValue,
             db: dbController, state: SyncState.noChanges);
       });
     }
@@ -433,10 +477,14 @@ class ItemRecord with EquatableMixin {
       });
     }
 
+    if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
+      await dbController.schema.load(dbController.databasePool);
+    }
+
     return newItem;
   }
 
-  Future<Map<String, dynamic>?> schemaDict(DatabaseController dbController) async {
+  Future<Map<String, dynamic>?> schemaPropertyDict(DatabaseController dbController) async {
     if (rowId != null) {
       var itemType = (await property("itemType", dbController))?.$value.value;
       var propertyName = (await property("propertyName", dbController))?.$value.value;
@@ -456,6 +504,28 @@ class ItemRecord with EquatableMixin {
         "valueType": schemaValueType
       };
     }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> schemaEdgeDict(DatabaseController dbController) async {
+    if (rowId != null) {
+      var edgeName = (await property("edgeName", dbController))?.$value.value;
+      var sourceType = (await property("sourceType", dbController))?.$value.value;
+      var targetType = (await property("targetType", dbController))?.$value.value;
+
+      if (edgeName == null || sourceType == null || targetType == null) {
+        return null;
+      }
+
+      return {
+        "id": uid,
+        "type": "ItemEdgeSchema",
+        "sourceType": sourceType,
+        "edgeName": ItemRecord.mapSchemaPropertyName(edgeName),
+        "targetType": targetType
+      };
+    }
+
     return null;
   }
 
@@ -488,7 +558,8 @@ class ItemRecord with EquatableMixin {
 
     /// Select the items to sync, giving priority to those marked as `syncHasPriority`
     var items = await dbController.databasePool.itemRecordsCustomSelect(
-        "type != ? AND syncState = ?", [Variable("ItemPropertySchema"), Variable(state.inString)],
+        "type != ? AND type != ? AND syncState = ?",
+        [Variable("ItemPropertySchema"), Variable("ItemEdgeSchema"), Variable(state.inString)],
         limit: maxItems);
     var syncItems = (await Future.wait(
             items.map((item) async => await ItemRecord.fromItem(item).syncDict(dbController!))))

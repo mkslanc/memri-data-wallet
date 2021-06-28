@@ -20,7 +20,8 @@ import '../AppController.dart';
 enum SyncControllerState {
   idle,
   started,
-  uploadedSchema,
+  uploadedSchemaProperties,
+  uploadedSchemaEdges,
   uploadedItems,
   uploadedEdges,
   downloadedItems,
@@ -52,13 +53,21 @@ class SyncController {
         break;
       case SyncControllerState.downloadedItems:
         try {
-          await uploadSchema();
+          await uploadSchemaProperties();
           break;
         } catch (e) {
           await finishSync();
           throw (e);
         }
-      case SyncControllerState.uploadedSchema:
+      case SyncControllerState.uploadedSchemaProperties:
+        try {
+          await uploadSchemaEdges();
+          break;
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
+      case SyncControllerState.uploadedSchemaEdges:
         try {
           await uploadItems();
           break;
@@ -136,12 +145,12 @@ class SyncController {
     completion = null;
   }
 
-  uploadSchema() async {
-    var syncPayload = await makeSyncSchemaData();
+  uploadSchemaProperties() async {
+    var syncPayload = await makeSyncSchemaPropertiesData();
     if (syncPayload.createItems.isEmpty &&
         syncPayload.updateItems.isEmpty &&
         syncPayload.deleteItems.isEmpty) {
-      await setState(SyncControllerState.uploadedSchema);
+      await setState(SyncControllerState.uploadedSchemaProperties);
       return;
     }
     await bulkAction(
@@ -154,7 +163,29 @@ class SyncController {
             return;
           }
 
-          await setState(SyncControllerState.uploadedSchema);
+          await setState(SyncControllerState.uploadedSchemaProperties);
+        }));
+  }
+
+  uploadSchemaEdges() async {
+    var syncPayload = await makeSyncSchemaEdgesData();
+    if (syncPayload.createItems.isEmpty &&
+        syncPayload.updateItems.isEmpty &&
+        syncPayload.deleteItems.isEmpty) {
+      await setState(SyncControllerState.uploadedSchemaEdges);
+      return;
+    }
+    await bulkAction(
+        bulkPayload: syncPayload,
+        completion: ((error) async {
+          await ItemRecord.didSyncItems(syncPayload, error, databaseController);
+          if (error != null) {
+            lastError = error;
+            await setState(SyncControllerState.failed);
+            return;
+          }
+
+          await setState(SyncControllerState.uploadedSchemaEdges);
         }));
   }
 
@@ -233,17 +264,33 @@ class SyncController {
         });
   }
 
-  Future<PodAPIPayloadBulkAction> makeSyncSchemaData() async {
-    var schemaItems = (await databaseController.databasePool.itemRecordsCustomSelect(
+  Future<PodAPIPayloadBulkAction> makeSyncSchemaPropertiesData() async {
+    var schemaPropertyItems = (await databaseController.databasePool.itemRecordsCustomSelect(
             "type = ? AND syncState = ?",
             [Variable("ItemPropertySchema"), Variable(SyncState.create.inString)]))
         .map((item) => ItemRecord.fromItem(item));
-    var syncItems =
-        (await Future.wait(schemaItems.map((e) async => await e.schemaDict(databaseController))))
-            .whereType<Map<String, dynamic>>()
-            .toList();
+    var syncPropertyItems = (await Future.wait(
+            schemaPropertyItems.map((e) async => await e.schemaPropertyDict(databaseController))))
+        .whereType<Map<String, dynamic>>()
+        .toList();
+
     var bulkAction = PodAPIPayloadBulkAction(
-        createItems: syncItems, updateItems: [], deleteItems: [], createEdges: []);
+        createItems: syncPropertyItems, updateItems: [], deleteItems: [], createEdges: []);
+    return bulkAction;
+  }
+
+  Future<PodAPIPayloadBulkAction> makeSyncSchemaEdgesData() async {
+    var schemaEdgeItems = (await databaseController.databasePool.itemRecordsCustomSelect(
+            "type = ? AND syncState = ?",
+            [Variable("ItemEdgeSchema"), Variable(SyncState.create.inString)]))
+        .map((item) => ItemRecord.fromItem(item));
+    var syncEdgeItems = (await Future.wait(
+            schemaEdgeItems.map((e) async => await e.schemaEdgeDict(databaseController))))
+        .whereType<Map<String, dynamic>>()
+        .toList();
+
+    var bulkAction = PodAPIPayloadBulkAction(
+        createItems: syncEdgeItems, updateItems: [], deleteItems: [], createEdges: []);
     return bulkAction;
   }
 
