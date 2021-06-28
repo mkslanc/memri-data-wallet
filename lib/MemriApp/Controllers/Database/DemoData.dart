@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:uuid/uuid.dart';
 
 import '../AppController.dart';
@@ -13,16 +14,33 @@ import 'PropertyDatabaseValue.dart';
 import 'Schema.dart';
 
 class DemoData {
-  static importSchema(
+  static Map<String, SchemaType> types = {};
+
+  static importSchemaOnce(
       {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
+
+    var schemaItems = await ItemRecord.fetchWithType("ItemPropertySchema", databaseController);
+    if (schemaItems.isEmpty) {
+      schemaItems = await ItemRecord.fetchWithType("ItemEdgeSchema", databaseController);
+    }
+
+    if (schemaItems.isNotEmpty) {
+      return;
+    }
+
     var fileURL = "assets/schema.json";
     var fileData = await rootBundle.loadString(fileURL);
     var items = jsonDecode(fileData);
-    if (items == null || items["properties"] == null || items["properties"] is! List) {
+    if (items == null ||
+        items["properties"] == null ||
+        items["properties"] is! List ||
+        items["edges"] == null ||
+        items["edges"] is! List) {
       throw Exception("Could not locate schema file");
     }
     var properties = items["properties"];
+    var edges = items["edges"];
 
     for (var property in properties) {
       var itemType = property["item_type"];
@@ -48,6 +66,80 @@ class DemoData {
             .insert(databaseController.databasePool);
       }
     }
+
+    for (var edge in edges) {
+      var sourceType = edge["source_type"];
+      var edgeName = edge["edge"];
+      var targetType = edge["target_type"];
+      if (sourceType is String && edgeName is String && targetType is String) {
+        var record = ItemRecord(type: "ItemEdgeSchema");
+        var recordRowId = await record.insert(databaseController.databasePool);
+        await ItemPropertyRecord(
+                itemRowID: recordRowId,
+                name: "sourceType",
+                value: PropertyDatabaseValue.create(sourceType, SchemaValueType.string))
+            .insert(databaseController.databasePool);
+        await ItemPropertyRecord(
+                itemRowID: recordRowId,
+                name: "edgeName",
+                value: PropertyDatabaseValue.create(edgeName, SchemaValueType.string))
+            .insert(databaseController.databasePool);
+        await ItemPropertyRecord(
+                itemRowID: recordRowId,
+                name: "targetType",
+                value: PropertyDatabaseValue.create(targetType, SchemaValueType.string))
+            .insert(databaseController.databasePool);
+      }
+    }
+
+    databaseController.schema.load(databaseController.databasePool);
+  }
+
+  static loadSchema({isRunningTests = false}) async {
+    handleError(String string) {
+      if (isRunningTests) {
+        throw (string);
+      } else {
+        print(string);
+      }
+    }
+
+    var fileURL = 'assets/schema.json';
+
+    var fileData = await rootBundle.loadString(fileURL);
+    var jsonFile = jsonDecode(fileData);
+    var fileDecoded = SchemaFile.fromJson(jsonFile);
+
+    var groupedProperties =
+        Dictionary.groupBy(fileDecoded.properties, (SchemaProperty $0) => $0.itemType);
+    var groupedEdges = Dictionary.groupBy(fileDecoded.edges, (SchemaEdge $0) => $0.sourceType);
+    var allTypes = Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
+
+    // Confirm that all edge target types actually exist in the schema
+    var allEdgeTargetTypes = Set.of(fileDecoded.edges.map(($0) => $0.targetType));
+    var undefinedEdgeTargetTypes =
+        allEdgeTargetTypes.difference(allTypes).difference(Set.of(["Any"]));
+    if (undefinedEdgeTargetTypes.isNotEmpty) {
+      handleError(
+          "Edge target types in schema for types that don't exist: $undefinedEdgeTargetTypes");
+    }
+
+    // Collate the schema into a format we can efficiently traverse
+    types = Map.fromEntries(allTypes.map((type) {
+      var schemaType = SchemaType(
+          type: type,
+          propertyTypes: Map.fromEntries(groupedProperties[type]?.map(($0) {
+                var schemaProperty = SchemaProperty($0.itemType, $0.property, $0.valueType);
+                return MapEntry($0.property, schemaProperty);
+              }) ??
+              []),
+          edgeTypes: Map.fromEntries(groupedEdges[type]?.map(($0) {
+                var schemaEdge = SchemaEdge($0.sourceType, $0.edge, $0.targetType);
+                return MapEntry($0.edge, schemaEdge);
+              }) ??
+              []));
+      return MapEntry(type, schemaType);
+    }));
   }
 
   static importDefaultData(
@@ -79,9 +171,10 @@ class DemoData {
       return;
     }
 
+    await loadSchema();
+
     List<DemoDataItem> processedItems = items
-        .expand((item) => processItemJSON(
-            item: item, schema: databaseController.schema, isRunningTests: throwIfAgainstSchema))
+        .expand((item) => processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))
         .toList();
 
     Map<String, int> tempIDLookup = {};
@@ -125,10 +218,7 @@ class DemoData {
   }
 
   static List<DemoDataItem> processItemJSON(
-      {required Map<String, dynamic> item,
-      required Schema schema,
-      String? overrideUID,
-      isRunningTests = false}) {
+      {required Map<String, dynamic> item, String? overrideUID, isRunningTests = false}) {
     handleError(String string) {
       if (isRunningTests) {
         // Used for testing: throw an error if error in demo data
@@ -145,7 +235,7 @@ class DemoData {
       return [];
     }
 
-    if (schema.types[itemType] == null) {
+    if (types[itemType] == null) {
       print("$itemType not in schema");
       return [];
     }
@@ -192,7 +282,6 @@ class DemoData {
                   ...items,
                   ...processItemJSON(
                       item: subitem as Map<String, dynamic>,
-                      schema: schema,
                       overrideUID: targetUID,
                       isRunningTests: isRunningTests)
                 ];
@@ -208,7 +297,7 @@ class DemoData {
           dateModified = date;
           break;
         default:
-          var expectedType = schema.types[itemType]?.propertyTypes[propertyName];
+          var expectedType = types[itemType]?.propertyTypes[propertyName];
           if (expectedType == null) {
             handleError("$itemType.$propertyName property not in schema");
             return;
@@ -267,4 +356,22 @@ class DemoDataEdge {
   String targetTempUID;
 
   DemoDataEdge({required this.name, required this.targetTempUID});
+}
+
+class SchemaFile {
+  List<SchemaProperty> properties;
+  List<SchemaEdge> edges;
+
+  SchemaFile(this.properties, this.edges);
+
+  SchemaFile.fromJson(Map<String, dynamic> json)
+      : properties = (json['properties'] as List)
+            .map((property) => SchemaProperty.fromJson(property))
+            .toList(),
+        edges = (json['edges'] as List).map((edge) => SchemaEdge.fromJson(edge)).toList();
+
+  Map<String, dynamic> toJson() => {
+        'properties': properties,
+        'edges': edges,
+      };
 }

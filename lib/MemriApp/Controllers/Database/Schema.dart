@@ -1,47 +1,24 @@
-import 'dart:convert';
+import 'dart:async';
+
+import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
-import 'package:flutter/services.dart';
+import 'package:memri/MemriApp/Model/Database.dart';
 
 /// A schema definition. This is used to dynamically enforce supported types and properties
 class Schema {
   /// Supported types in the schema
-  Map<String, SchemaType> types;
-
-  Schema(this.types);
+  Map<String, SchemaType> types = {};
 
   /// Load a Schema struct from the given file URL. Default URL of nil loads `schema.json` from the app bundle
-  static Future<Schema> loadFromFile({String? url, isRunningTests = false}) async {
-    handleError(String string) {
-      if (isRunningTests) {
-        throw (string);
-      } else {
-        print(string);
-      }
-    }
+  load([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var groupedProperties = await getSchemaProperties(db);
+    var groupedEdges = await getSchemaEdges(db);
 
-    var fileURL = url ?? 'assets/schema.json';
-
-    var fileData = await rootBundle.loadString(fileURL);
-    var jsonFile = jsonDecode(fileData);
-    var fileDecoded = SchemaFile.fromJson(jsonFile);
-
-    var groupedProperties =
-        Dictionary.groupBy(fileDecoded.properties, (SchemaProperty $0) => $0.itemType);
-    var groupedEdges = Dictionary.groupBy(fileDecoded.edges, (SchemaEdge $0) => $0.sourceType);
     var allTypes = Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
 
-    // Confirm that all edge target types actually exist in the schema
-    var allEdgeTargetTypes = Set.of(fileDecoded.edges.map(($0) => $0.targetType));
-    var undefinedEdgeTargetTypes =
-        allEdgeTargetTypes.difference(allTypes).difference(Set.of(["Any"]));
-    if (undefinedEdgeTargetTypes.isNotEmpty) {
-      handleError(
-          "Edge target types in schema for types that don't exist: $undefinedEdgeTargetTypes");
-    }
-
-    // Collate the schema into a format we can efficiently traverse
-    Map<String, SchemaType> types = Map.fromEntries(allTypes.map((type) {
+    types = Map.fromEntries(allTypes.map((type) {
       var schemaType = SchemaType(
           type: type,
           propertyTypes: Map.fromEntries(groupedProperties[type]?.map(($0) {
@@ -56,7 +33,69 @@ class Schema {
               []));
       return MapEntry(type, schemaType);
     }));
-    return Schema(types);
+  }
+
+  Future<Map<String, List<SchemaProperty>>> getSchemaProperties([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var itemRecords = await db.itemRecordsFetchByType("ItemPropertySchema");
+    var itemRowIDs = itemRecords.map((itemRecord) => itemRecord.rowId).whereType<int>().toList();
+    var query = "item IN (${itemRowIDs.join(", ")})";
+    var schemaPropertyRecords = await db.itemPropertyRecordsCustomSelect(query);
+
+    var groupedItemPropertyRecords = <int, Map<String, String>>{};
+
+    schemaPropertyRecords.forEach((itemPropertyRecord) {
+      var rowID = itemPropertyRecord.item;
+      if (groupedItemPropertyRecords[rowID] == null) {
+        groupedItemPropertyRecords[rowID] = {};
+      }
+
+      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] = itemPropertyRecord.value;
+    });
+
+    return Dictionary.groupBy(
+        groupedItemPropertyRecords.values.toList().compactMap((itemPropertyRecord) =>
+            itemPropertyRecord["itemType"] == null ||
+                    itemPropertyRecord["propertyName"] == null ||
+                    itemPropertyRecord["valueType"] == null
+                ? null
+                : SchemaProperty(
+                    itemPropertyRecord["itemType"]!,
+                    itemPropertyRecord["propertyName"]!,
+                    SchemaValueTypeExtension.rawValue(itemPropertyRecord["valueType"]!))),
+        (SchemaProperty $0) => $0.itemType);
+  }
+
+  Future<Map<String, List<SchemaEdge>>> getSchemaEdges([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var itemRecords = await db.itemRecordsFetchByType("ItemEdgeSchema");
+    var itemRowIDs = itemRecords.map((itemRecord) => itemRecord.rowId).whereType<int>().toList();
+    var query = "item IN (${itemRowIDs.join(", ")})";
+    var schemaEdgeRecords = await db.itemPropertyRecordsCustomSelect(query);
+    var groupedItemPropertyRecords = <int, Map<String, String>>{};
+
+    schemaEdgeRecords.forEach((itemPropertyRecord) {
+      var rowID = itemPropertyRecord.item;
+      if (groupedItemPropertyRecords[rowID] == null) {
+        groupedItemPropertyRecords[rowID] = {};
+      }
+
+      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] = itemPropertyRecord.value;
+    });
+
+    return Dictionary.groupBy(
+        groupedItemPropertyRecords.values.toList().compactMap((itemPropertyRecord) =>
+            itemPropertyRecord["sourceType"] == null ||
+                    itemPropertyRecord["edgeName"] == null ||
+                    itemPropertyRecord["targetType"] == null
+                ? null
+                : SchemaEdge(itemPropertyRecord["sourceType"]!, itemPropertyRecord["edgeName"]!,
+                    itemPropertyRecord["targetType"]!)),
+        (SchemaEdge $0) => $0.sourceType);
+  }
+
+  List<String> propertyNamesForItemType(String itemType) {
+    return types[itemType]?.propertyTypes.keys.toList() ?? [];
   }
 
   ResolvedType? expectedType(String itemType, String propertyOrEdgeName) {
@@ -175,25 +214,5 @@ class SchemaEdge {
         'source_type': sourceType,
         'edge': edge,
         'target_type': '$targetType${allowsMultiple ? "[]" : ""}',
-      };
-}
-
-/// A simple struct used for decoding the schema json.
-/// The schema is stored in a diff-friendly format, however the app loads it into memory as dictionaries that can be efficiently queried.
-class SchemaFile {
-  List<SchemaProperty> properties;
-  List<SchemaEdge> edges;
-
-  SchemaFile(this.properties, this.edges);
-
-  SchemaFile.fromJson(Map<String, dynamic> json)
-      : properties = (json['properties'] as List)
-            .map((property) => SchemaProperty.fromJson(property))
-            .toList(),
-        edges = (json['edges'] as List).map((edge) => SchemaEdge.fromJson(edge)).toList();
-
-  Map<String, dynamic> toJson() => {
-        'properties': properties,
-        'edges': edges,
       };
 }

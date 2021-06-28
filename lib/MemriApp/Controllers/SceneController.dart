@@ -31,6 +31,8 @@ class SceneController extends ChangeNotifier {
 
   init() async {
     await appController.databaseController.init();
+    await appController.cvuController.init();
+
     setupObservations(); //TODO
     var navStack = await NavigationStack.fetchOne(appController.databaseController);
     if (navStack != null && navStack.state.length > 0) {

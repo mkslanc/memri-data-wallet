@@ -16,6 +16,21 @@
       "value_type": "string"
     },
     {
+      "item_type": "ItemEdgeSchema",
+      "property": "sourceType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "ItemEdgeSchema",
+      "property": "edgeName",
+      "value_type": "string"
+    },
+    {
+      "item_type": "ItemEdgeSchema",
+      "property": "targetType",
+      "value_type": "string"
+    },
+    {
       "item_type": "Account",
       "property": "handle",
       "value_type": "string"

@@ -75,10 +75,10 @@ void main() {
 
   setUpAll(() async {
     HttpOverrides.global = null;
-    schema = await Schema.loadFromFile();
-    databaseController = DatabaseController(inMemory: true, schema: schema);
+    databaseController = DatabaseController(inMemory: true);
     syncController = SyncController(databaseController);
     await databaseController.init();
+    schema = databaseController.schema;
     await databaseController.setupWithDemoData();
     await setupPodForTesting();
   });

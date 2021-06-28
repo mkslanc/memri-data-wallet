@@ -9,7 +9,8 @@ void main() {
   setUp(() async {
     appController = AppController.shared;
     await appController.databaseController.init();
-    await appController.databaseController.setupWithDemoData();
+    await appController.databaseController.importRequiredData(throwIfAgainstSchema: true);
+    await appController.databaseController.setupWithDemoData(throwIfAgainstSchema: true);
   });
 
   test('testPluginAuthenticationFlow', () async {
@@ -46,6 +47,10 @@ void main() {
     print("`userActionNeeded` passed");
     await record.setPropertyValue("state", PropertyDatabaseValueString("ready"));
     print("`ready` passed");
+
+    var recordNotd = ItemRecord(type: "Note");
+    await recordNotd.save();
+    await recordNotd.setPropertyValue("title", PropertyDatabaseValueString("by Ani"));
   });
 
   tearDown(() async {

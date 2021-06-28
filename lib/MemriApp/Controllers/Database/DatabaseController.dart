@@ -5,7 +5,7 @@ import 'Schema.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
-  late Schema? _schema;
+  Schema schema;
 
   /// This is the connection to the database used throughout the app
   late Database databasePool;
@@ -13,21 +13,19 @@ class DatabaseController {
   bool inMemory;
   bool isInited = false;
 
-  Schema get schema => _schema!; //TODO this is done because constructors can't be async
-
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(
       {this.databaseName = "memri", //TODO:
-      schema,
+      Schema? schema,
       this.inMemory = false})
-      : this._schema = schema;
+      : this.schema = schema ?? Schema();
 
   init() async {
     if (isInited) return;
     databasePool = await () async {
       return constructDb(inMemory: inMemory, databaseName: databaseName);
     }();
-    _schema ??= await Schema.loadFromFile();
+
     isInited = true;
   }
 
@@ -41,35 +39,38 @@ class DatabaseController {
   }
 
   Future<bool> get hasImportedSchema async {
-    var item = await this.databasePool.itemRecordFetchOneByType("ItemPropertySchema");
+    var item = await databasePool.itemRecordFetchOneByType("ItemPropertySchema");
     return (item != null);
   }
 
   Future<bool> get hasImportedDefaultData async {
-    var item = await this.databasePool.itemRecordFetchOneByType("NavigationItem");
+    var item = await databasePool.itemRecordFetchOneByType("NavigationItem");
     return (item != null);
   }
 
   Future<bool> get hasImportedDemoData async {
-    var item = await this.databasePool.itemRecordFetchOneByType("Photo");
+    var item = await databasePool.itemRecordFetchOneByType("Photo");
     return (item != null);
   }
 
-  importRequiredData() async {
+  importRequiredData({bool throwIfAgainstSchema = false}) async {
     if (!await hasImportedSchema) {
-      await DemoData.importSchema();
+      await DemoData.importSchemaOnce(
+          databaseController: this, throwIfAgainstSchema: throwIfAgainstSchema);
     }
 
     if (!await hasImportedDefaultData) {
-      await DemoData.importDefaultData();
+      await DemoData.importDefaultData(
+          databaseController: this, throwIfAgainstSchema: throwIfAgainstSchema);
     }
   }
 
-  setupWithDemoData() async {
+  setupWithDemoData({bool throwIfAgainstSchema = false}) async {
     if (await hasImportedDemoData) {
       // If there is already data set up, don't import
       return;
     }
-    await DemoData.importDemoData(databaseController: this);
+    await DemoData.importDemoData(
+        databaseController: this, throwIfAgainstSchema: throwIfAgainstSchema);
   }
 }

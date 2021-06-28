@@ -232,11 +232,6 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
     init();
   }
 
-  SchemaType? get schemaType {
-    var type = widget.item.type;
-    return sceneController.appController.databaseController.schema.types[type];
-  }
-
   bool get shouldShowTitle {
     var showTitle = nodeDefinition?.properties["showTitle"];
     if (showTitle == null) {
@@ -286,8 +281,8 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
     if (fields.isNotEmpty && fields[0] == "*") {
       fields = [];
       var propertyTypes =
-          widget.viewContext.databaseController.schema.types[widget.item.type]?.propertyTypes ?? {};
-      for (var propertyType in propertyTypes.keys) {
+          widget.viewContext.databaseController.schema.propertyNamesForItemType(widget.item.type);
+      for (var propertyType in propertyTypes) {
         if (!widget.usedFields.contains(propertyType)) {
           fields.add(propertyType);
         }
@@ -427,11 +422,14 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                   } else {
                     fields.sort();
                     fields.forEach((field) {
-                      var fieldProperty = schemaType?.propertyTypes[field];
+                      var fieldProperty = sceneController.appController.databaseController.schema
+                          .expectedPropertyType(widget.item.type, field);
+
                       if (fieldProperty != null) {
+                        var schemaProperty = SchemaProperty(widget.item.type, field, fieldProperty);
                         content.add(DefaultGeneralEditorRow(
                             viewContext: widget.viewContext,
-                            property: fieldProperty,
+                            property: schemaProperty,
                             currentItem: widget.item,
                             prop: field,
                             isLast: fields.last == field,

@@ -1,6 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/DemoData.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 
 void main() {
@@ -60,6 +65,44 @@ void main() {
   });
 
   test('testLoadSchemaFromJSON', () async {
-    await Schema.loadFromFile(isRunningTests: true);
+    await DemoData.loadSchema(isRunningTests: true);
+    var titleType = DemoData.types["Note"]!.propertyTypes["title"]!.valueType;
+    expect(titleType, SchemaValueType.string);
+  });
+
+  test('testImportSchema', () async {
+    var databaseController = DatabaseController(inMemory: true);
+    await databaseController.init();
+    await databaseController.importRequiredData();
+    var titleType = databaseController.schema.expectedPropertyType("Note", "title");
+    expect(titleType, SchemaValueType.string);
+  });
+
+  test('testReloadSchema', () async {
+    var databaseController = DatabaseController(inMemory: true);
+    await databaseController.init();
+    await databaseController.importRequiredData();
+    var record = ItemRecord(type: "ItemEdgeSchema");
+    var recordRowId = await record.insert(databaseController.databasePool);
+    await ItemPropertyRecord(
+            itemRowID: recordRowId,
+            name: "sourceType",
+            value: PropertyDatabaseValue.create("Email", SchemaValueType.string))
+        .insert(databaseController.databasePool);
+    await ItemPropertyRecord(
+            itemRowID: recordRowId,
+            name: "edgeName",
+            value: PropertyDatabaseValue.create("test", SchemaValueType.string))
+        .insert(databaseController.databasePool);
+    await ItemPropertyRecord(
+            itemRowID: recordRowId,
+            name: "targetType",
+            value: PropertyDatabaseValue.create("Any", SchemaValueType.string))
+        .insert(databaseController.databasePool);
+    String? targetType = databaseController.schema.expectedTargetType("Email", "test");
+    expect(targetType, null);
+    await databaseController.schema.load(databaseController.databasePool);
+    targetType = databaseController.schema.expectedTargetType("Email", "test");
+    expect(targetType, "Any");
   });
 }

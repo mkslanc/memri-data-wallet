@@ -111,12 +111,12 @@ class PubSubController {
       return false;
     }
     var schema = AppController.shared.databaseController.schema;
-    var expectedType = schema.types[itemType]?.propertyTypes[property];
+    var expectedType = schema.expectedPropertyType(itemType, property);
     if (expectedType == null) {
       return false;
     }
 
-    var databaseValue = PropertyDatabaseValue.create(decodableValue, expectedType.valueType);
+    var databaseValue = PropertyDatabaseValue.create(decodableValue, expectedType);
     return databaseValue == expectedValue;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
-import 'package:memri/MemriApp/Controllers/Database/DemoData.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 
@@ -12,8 +11,8 @@ void main() {
   setUp(() async {
     databaseController = DatabaseController(inMemory: true);
     await databaseController.init();
-    await DemoData.importDemoData(
-        databaseController: databaseController, throwIfAgainstSchema: true);
+    await databaseController.importRequiredData(throwIfAgainstSchema: true);
+    await databaseController.setupWithDemoData(throwIfAgainstSchema: true);
   });
 
   test('testQuery', () {

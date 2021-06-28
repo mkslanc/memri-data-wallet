@@ -844,10 +844,10 @@ class CVUActionSetProperty extends CVUAction {
     }
     if (property == null) return;
 
-    SchemaProperty? expectedType = schema.types[subjectItem.type]?.propertyTypes[property];
+    SchemaValueType? expectedType = schema.expectedPropertyType(subjectItem.type, property);
     CVUValue? value = vars["value"];
     if (expectedType == null || value == null) return;
-    var databaseValue = PropertyDatabaseValue.createFromCVUValue(value, expectedType.valueType);
+    var databaseValue = PropertyDatabaseValue.createFromCVUValue(value, expectedType);
     if (databaseValue == null) return;
 
     await subjectItem.setPropertyValue(property, databaseValue);
