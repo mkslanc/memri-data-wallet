@@ -44,7 +44,6 @@ class AppController {
     cvuController = CVUController();
     pubsubController = PubSubController(databaseController);
     permissionController = PermissionsController();
-    cvuController.init();
   }
 
   Future onLaunch() async {

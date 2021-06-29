@@ -7,11 +7,23 @@ class MemriTextField<T> extends StatefulWidget {
   final FutureBinding<T>? futureBinding;
   final TextStyle? style;
   final bool isEditing;
+  final String? hint;
+  final bool secureMode;
 
-  MemriTextField.sync({required this.binding, this.style, this.isEditing = true})
+  MemriTextField.sync(
+      {required this.binding,
+      this.style,
+      this.hint,
+      this.secureMode = false,
+      this.isEditing = true})
       : futureBinding = null;
 
-  MemriTextField.async({required this.futureBinding, this.style, this.isEditing = true})
+  MemriTextField.async(
+      {required this.futureBinding,
+      this.style,
+      this.hint,
+      this.secureMode = false,
+      this.isEditing = true})
       : binding = null;
 
   @override
@@ -64,7 +76,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
             return body(context);
           });
     } else {
-      _value = widget.binding!.get();
+      _value = widget.binding?.get();
       return body(context);
     }
   }
@@ -83,9 +95,13 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
 
   stringTextForm() {
     return TextFormField(
+      obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration(border: InputBorder.none),
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        hintText: widget.hint,
+      ),
       controller: controller,
       onChanged: (String newValue) async {
         value = newValue;
@@ -95,9 +111,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
 
   intTextForm() {
     return TextFormField(
+      obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration(border: InputBorder.none),
+      decoration: InputDecoration(border: InputBorder.none, hintText: widget.hint),
       controller: controller,
       onChanged: (String newValue) async {
         value = int.tryParse(newValue);
@@ -109,9 +126,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
 
   doubleTextForm() {
     return TextFormField(
+      obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration(border: InputBorder.none),
+      decoration: InputDecoration(border: InputBorder.none, hintText: widget.hint),
       controller: controller,
       onChanged: (String newValue) async {
         value = double.tryParse(newValue);

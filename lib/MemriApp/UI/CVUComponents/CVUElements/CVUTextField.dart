@@ -21,15 +21,16 @@ class CVUTextField extends StatefulWidget {
 }
 
 class _CVUTextFieldState extends State<CVUTextField> {
-  late final bool? secureMode;
+  bool? secureMode;
 
-  late final String? hint;
+  String? hint;
+  Color? color;
 
-  late final FutureBinding<String?>? contentBinding;
+  FutureBinding<String?>? contentBinding;
 
-  final SceneController sceneController = SceneController.sceneController;
+  SceneController sceneController = SceneController.sceneController;
 
-  late final Future _init;
+  late Future _init;
 
   @override
   initState() {
@@ -42,6 +43,7 @@ class _CVUTextFieldState extends State<CVUTextField> {
     secureMode = await widget.nodeResolver.propertyResolver.boolean("secure", false);
     hint = (await widget.nodeResolver.propertyResolver.string("hint"))?.nullIfBlank;
     contentBinding = await widget.nodeResolver.propertyResolver.binding<String>("value", null);
+    color = await widget.nodeResolver.propertyResolver.color();
   }
 
   @override
@@ -52,23 +54,12 @@ class _CVUTextFieldState extends State<CVUTextField> {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               return MemriTextField.async(
-                futureBinding: contentBinding,
-                style: TextStyle(color: Color(0xff8a66bc)),
-                isEditing: sceneController.isInEditMode.value,
-              );
-            /* TODO:
-            InputDecoration(
-                  hintText: hint,
-                  hintStyle:
-                      TextStyle(color: Color.fromRGBO(255, 255, 255, 0.4)),
-                  fillColor: Color.fromRGBO(0, 0, 0, 0.4),
-                  filled: true,
-                ),
-              textColor: nodeResolver.propertyResolver.color()?.uiColor,
-            isEditing: $sceneController.isInEditMode,
-            isSharedEditingBinding: true,
-            secureMode: secureMode
-               */
+                  futureBinding: contentBinding,
+                  style: TextStyle(
+                    color: color,
+                  ),
+                  hint: hint,
+                  secureMode: secureMode!);
             default:
               return SizedBox(
                 child: CircularProgressIndicator(),
