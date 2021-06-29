@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:memri/MemriApp/Controllers/API/Authentication.dart';
 import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
@@ -530,5 +531,108 @@ class ItemRecord with EquatableMixin {
       return ItemRecord.fromItem(items[0]);
     }
     return null;
+  }
+
+  static deleteExistingDBKeys([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var dbKeys = await db.itemRecordsFetchByType("CryptoKey");
+    if (dbKeys.isNotEmpty) {
+      await Future.forEach(
+          dbKeys, (Item item) async => await ItemRecord.fromItem(item).delete(db!));
+    }
+  }
+
+  static setOwnerAndDBKey(
+      {required String privateKey,
+      required String publicKey,
+      required String dbKey,
+      Database? db}) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    try {
+      await ItemRecord.deleteExistingDBKeys();
+      var meRowId = (await ItemRecord.me)?.rowId ?? (await ItemRecord.createMe())?.rowId;
+      if (meRowId == null) {
+        throw Exception("Could not find me user");
+      }
+
+      await AuthKey(
+              ownerId: meRowId,
+              type: "64CharacterRandomHex",
+              role: null,
+              key: dbKey,
+              name: "Memri Database Key",
+              active: true)
+          .save(db);
+      var privateKeyItem = await AuthKey(
+              ownerId: meRowId,
+              type: "ED25519",
+              role: "private",
+              key: privateKey,
+              name: "Memri Owner Key",
+              active: true)
+          .save(db);
+      var publicKeyItem = await AuthKey(
+              ownerId: meRowId,
+              type: "ED25519",
+              role: "public",
+              key: publicKey,
+              name: "Memri Owner Key",
+              active: true)
+          .save(db);
+
+      await ItemEdgeRecord(sourceRowID: privateKeyItem!.rowId, name: "owner", targetRowID: meRowId)
+          .save(db);
+      await ItemEdgeRecord(sourceRowID: publicKeyItem!.rowId, name: "owner", targetRowID: meRowId)
+          .save(db);
+      await ItemEdgeRecord(
+              sourceRowID: privateKeyItem.rowId,
+              name: "publicKey",
+              targetRowID: publicKeyItem.rowId)
+          .save(db);
+      await ItemEdgeRecord(
+              sourceRowID: publicKeyItem.rowId,
+              name: "privateKey",
+              targetRowID: privateKeyItem.rowId)
+          .save(db);
+    } catch (error) {
+      print("ERROR: setOwnerAndDBKey $error");
+      throw Exception("Error deleting existing db keys");
+    }
+  }
+
+  static Future<AuthKeys> getOwnerAndDBKey([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var meRowId = (await ItemRecord.me)?.rowId;
+    if (meRowId == null) {
+      throw Exception("Could not find me user");
+    }
+
+    var items = await db.itemRecordsFetchByType("CryptoKey");
+    ItemRecord? ownerKey, dbKey;
+    var ownerKeyValue, dbKeyValue;
+    if (items.isNotEmpty) {
+      for (var item in items) {
+        var itemRecord = ItemRecord.fromItem(item);
+        if (await itemRecord.propertyValue("role") == PropertyDatabaseValueString("public")) {
+          if (await itemRecord.propertyValue("active") == PropertyDatabaseValueBool(true)) {
+            if ((await itemRecord.edgeItem("owner"))?.rowId == meRowId) {
+              ownerKey = itemRecord;
+              ownerKeyValue = (await ownerKey.propertyValue("keystr"))?.value;
+            }
+          }
+        }
+        if (await itemRecord.propertyValue("name") ==
+            PropertyDatabaseValueString("Memri Database Key")) {
+          if (await itemRecord.propertyValue("active") == PropertyDatabaseValueBool(true)) {
+            dbKey = itemRecord;
+            dbKeyValue = (await dbKey.propertyValue("keystr"))?.value;
+          }
+        }
+      }
+    }
+    if (ownerKey == null || dbKey == null || ownerKeyValue == null || dbKeyValue == null) {
+      throw Exception("Keys not found");
+    }
+    return AuthKeys(ownerKey: ownerKeyValue, dbKey: dbKeyValue);
   }
 }

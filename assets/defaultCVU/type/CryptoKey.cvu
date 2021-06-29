@@ -1,3 +1,4 @@
+
 CryptoKey {
     title: "CryptoKey"
     defaultRenderer: generalEditor
@@ -122,11 +123,11 @@ CryptoKey {
     title: "All Crypto Keys"
     emptyResultText: "There are no keys here yet"
     defaultRenderer: list
-    sortFields: title dateModified dateAccessed dateCreated
+    sortFields: title dateModified dateCreated
 
     [datasource = pod] {
         query: "CryptoKey"
-        sortProperty: dateAccessed
+        sortProperty: dateModified
         sortAscending: false
     }
 
@@ -155,11 +156,10 @@ CryptoKey > list {
                 alignment: left
 
                 Text {
-                    /* TODO: Bug when .role is not set still displays - {.role ? ' — ' : ''}{.role ? .role : ''} */
                     text: "{.active ? '' : '[INACTIVE] '}{.name or .itemType or '<Unnamed Key>'}"
                     lineLimit: 1
                     font: 18 semibold
-                    color: {{.active ? "#333" : "#999"}}
+                    color: {{.active ? "#333333" : "#999999"}}
                     padding: 0 0 0 0
                 }
                 Image {

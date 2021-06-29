@@ -10,6 +10,7 @@ import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
 import 'package:uuid/uuid.dart';
 
+import 'API/Authentication.dart';
 import 'API/PodAPIConnectionDetails.dart';
 import 'Database/DatabaseController.dart';
 import 'PermissionController.dart';
@@ -94,11 +95,6 @@ class AppController {
               await Settings.shared.set("defaults/pod/url", config.config.podURL);
             }
 
-            //TODO owner and database key should not be stored in settings
-            await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
-            await Settings.shared
-                .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
-
             await syncController.sync();
           }
         });
@@ -127,8 +123,16 @@ class AppController {
           databaseKey: config.config.podDatabaseKey);
     } else if (config is SetupConfigNewPod) {
       var uri = Uri.parse(config.config.podURL);
-      _podConnectionConfig =
-          PodAPIConnectionDetails(scheme: uri.scheme, host: uri.host, port: uri.port);
+      await Authentication.createOwnerAndDBKey();
+      var keys = await Authentication.getOwnerAndDBKey();
+      var ownerKey = keys.ownerKey;
+      var databaseKey = keys.dbKey;
+      _podConnectionConfig = PodAPIConnectionDetails(
+          scheme: uri.scheme,
+          host: uri.host,
+          port: uri.port,
+          ownerKey: ownerKey,
+          databaseKey: databaseKey);
     }
 
     if (_podConnectionConfig != null) {
@@ -163,20 +167,9 @@ class AppController {
       return;
     }
     isAuthenticated = true;
-    // var dbKey = Keychain().getString(AppController.keychainDatabaseKey);
-    /*if (dbKey != null) {
-        print(`GOT KEY: $dbKey`);
-        isAuthenticated = true;
-    } else {
-        isAuthenticated = false;
-        print("NEEDS AUTH");
-    }*/
   }
 
   Future<bool> checkHasBeenSetup() async {
-    /*if (!(new Keychain().contains(AppController.keychainDatabaseKey, true))) {
-        return false
-    }*/
     if (!await AppController.shared.databaseController.hasImportedSchema) {
       return false;
     }
@@ -199,9 +192,10 @@ class AppController {
       // Here you should retrieve the connection details stored in the database
       if (_podConnectionConfig == null) {
         var podURL = await Settings.shared.get("defaults/pod/url");
-        var ownerKey = await Settings.shared.get("defaults/pod/publicKey");
-        var databaseKey = await Settings.shared.get("defaults/pod/databaseKey");
-        if (podURL == null || ownerKey == null || databaseKey == null) return null;
+        var keys = await Authentication.getOwnerAndDBKey();
+        var ownerKey = keys.ownerKey;
+        var databaseKey = keys.dbKey;
+        if (podURL == null) return null;
         var uri = Uri.parse(podURL);
         _podConnectionConfig = PodAPIConnectionDetails(
             scheme: uri.scheme,
