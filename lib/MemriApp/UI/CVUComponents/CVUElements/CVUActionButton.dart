@@ -48,13 +48,13 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     return widget.nodeResolver.propertyResolver.action("onPress");
   }
 
-  onPress() {
+  onPress() async {
     var actions = widget.nodeResolver.propertyResolver.actions("onPress");
     if (actions == null) {
       return;
     }
     for (var action in actions) {
-      action.execute(sceneController, widget.nodeResolver.context);
+      await action.execute(sceneController, widget.nodeResolver.context);
     }
   }
 

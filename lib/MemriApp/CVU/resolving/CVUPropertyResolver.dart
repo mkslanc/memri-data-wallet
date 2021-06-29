@@ -244,7 +244,8 @@ class CVUPropertyResolver {
     if (val is CVUValueArray) {
       var array = val.value;
       List<CVUAction> actions = [];
-      for (var i = 0; i < array.length; i += 2) {
+      //TODO: hasSubDefinition? Need some use cases
+      for (var i = 0; i < array.length; i++) {
         var action = array[i];
         if (action is CVUValueConstant) {
           if (action.value is CVUConstantArgument) {
@@ -414,7 +415,7 @@ class CVUPropertyResolver {
               mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.start);
         case "top":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.center);
         case "right":
         case "trailing":
           return AlignmentResolver(

@@ -27,7 +27,7 @@ import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 abstract class CVUAction {
-  void execute(SceneController sceneController, CVUContext context);
+  execute(SceneController sceneController, CVUContext context);
 
   Map<String, CVUValue> get defaultVars {
     return {};
@@ -122,6 +122,14 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionToPreviousItem(vars: vars);
     case "startplugin":
       return ({Map? vars}) => CVUActionStartPlugin(vars: vars);
+    case "requestcontacts":
+      return ({Map? vars}) => CVUActionRequestContactsPermission(vars: vars);
+    case "requestlocation":
+      return ({Map? vars}) => CVUActionRequestLocationPermission(vars: vars);
+    case "requeststorage":
+      return ({Map? vars}) => CVUActionRequestStoragePermission(vars: vars);
+    case "openpopup":
+      return ({Map? vars}) => CVUActionOpenPopup(vars: vars);
     default:
       return null;
   }
@@ -137,7 +145,7 @@ class CVUActionShowStarred extends CVUAction {
   CVUActionShowStarred({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
     CVUActionOpenView(
             vars: newVars,
@@ -207,7 +215,7 @@ class CVUActionOpenViewByName extends CVUAction {
       : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {}
+  execute(SceneController sceneController, CVUContext context) async {}
 
   Future<ViewContextController?> getViewContext(CVUContext context) async {
     CVUDefinitionContent? customDefinition;
@@ -287,8 +295,8 @@ class CVUActionNavigateBack extends CVUAction {
   CVUActionNavigateBack({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) {
-    // sceneController.navigateBack();
+  execute(SceneController sceneController, CVUContext context) async {
+    await sceneController.navigateBack();
   }
 }
 
@@ -298,7 +306,7 @@ class CVUActionCopyToClipboard extends CVUAction {
   CVUActionCopyToClipboard({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -439,7 +447,7 @@ class CVUActionStartPlugin extends CVUAction {
   CVUActionStartPlugin({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = sceneController.appController.databaseController;
 
@@ -473,7 +481,7 @@ class CVUActionToggleEditMode extends CVUAction {
   CVUActionToggleEditMode({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     sceneController.toggleEditMode();
   }
 }
@@ -484,7 +492,7 @@ class CVUActionToggleNavigation extends CVUAction {
   CVUActionToggleNavigation({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -495,7 +503,7 @@ class CVUActionToggleFullScreen extends CVUAction {
   CVUActionToggleFullScreen({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -522,7 +530,7 @@ class CVUActionSelectAll extends CVUAction {
   CVUActionSelectAll({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -533,7 +541,7 @@ class CVUActionDeselectAll extends CVUAction {
   CVUActionDeselectAll({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -544,7 +552,7 @@ class CVUActionLink extends CVUAction {
   CVUActionLink({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = sceneController.appController.databaseController;
 
@@ -593,7 +601,7 @@ class CVUActionUnlink extends CVUAction {
   CVUActionUnlink({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = sceneController.appController.databaseController;
 
@@ -663,7 +671,7 @@ class CVUActionClosePopup extends CVUAction {
   CVUActionClosePopup({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     sceneController.closeLastInStack();
   }
 }
@@ -678,7 +686,7 @@ class CVUActionToggleFilterPanel extends CVUAction {
   CVUActionToggleFilterPanel({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     sceneController.filterPanelIsVisible.value = !sceneController.filterPanelIsVisible.value;
   }
 }
@@ -689,7 +697,7 @@ class CVUActionOpenGroup extends CVUAction {
   CVUActionOpenGroup({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -704,7 +712,7 @@ class CVUActionShowContextPane extends CVUAction {
   CVUActionShowContextPane({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -715,7 +723,7 @@ class CVUActionShowNavigation extends CVUAction {
   CVUActionShowNavigation({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -726,7 +734,7 @@ class CVUActionDuplicate extends CVUAction {
   CVUActionDuplicate({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -737,7 +745,7 @@ class CVUActionSchedule extends CVUAction {
   CVUActionSchedule({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -748,7 +756,7 @@ class CVUActionShowSessionSwitcher extends CVUAction {
   CVUActionShowSessionSwitcher({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -759,7 +767,7 @@ class CVUActionForwardToFront extends CVUAction {
   CVUActionForwardToFront({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -770,7 +778,7 @@ class CVUActionBackAsSession extends CVUAction {
   CVUActionBackAsSession({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -781,7 +789,7 @@ class CVUActionOpenSession extends CVUAction {
   CVUActionOpenSession({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -792,7 +800,7 @@ class CVUActionOpenSessionByName extends CVUAction {
   CVUActionOpenSessionByName({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -803,7 +811,7 @@ class CVUActionMultiAction extends CVUAction {
   CVUActionMultiAction({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -814,7 +822,7 @@ class CVUActionRunIndexer extends CVUAction {
   CVUActionRunIndexer({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -825,7 +833,7 @@ class CVUActionSetProperty extends CVUAction {
   CVUActionSetProperty({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = sceneController.appController.databaseController;
     var schema = db.schema;
@@ -865,7 +873,7 @@ class CVUActionSetSetting extends CVUAction {
   CVUActionSetSetting({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
 }
@@ -876,7 +884,7 @@ class CVUActionToNextItem extends CVUAction {
   CVUActionToNextItem({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     if (sceneController.topMostContext == null) {
       return;
     }
@@ -893,7 +901,7 @@ class CVUActionToPreviousItem extends CVUAction {
   CVUActionToPreviousItem({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) {
+  execute(SceneController sceneController, CVUContext context) async {
     if (sceneController.topMostContext == null) {
       return;
     }
@@ -910,7 +918,67 @@ class CVUActionNoop extends CVUAction {
   CVUActionNoop({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  execute(SceneController sceneController, CVUContext context) async {
     // TODO:
   }
+}
+
+class CVUActionRequestContactsPermission extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionRequestContactsPermission({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(SceneController sceneController, CVUContext context) async {
+    await sceneController.appController.permissionController.requestContacts();
+  }
+}
+
+class CVUActionRequestLocationPermission extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionRequestLocationPermission({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(SceneController sceneController, CVUContext context) async {
+    await sceneController.appController.permissionController.requestLocation();
+  }
+}
+
+class CVUActionRequestStoragePermission extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionRequestStoragePermission({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(SceneController sceneController, CVUContext context) async {
+    await sceneController.appController.permissionController.requestStorage();
+  }
+}
+
+class CVUActionOpenPopup extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenPopup({vars}) : this.vars = vars ?? {};
+
+  Future<Map<String, dynamic>?> setPopupSettings(
+      SceneController sceneController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = sceneController.appController.databaseController;
+
+    var titleProp = vars["title"];
+    var textProp = vars["text"];
+    if (titleProp == null || textProp == null) return null;
+
+    String? title = await lookup.resolve<String>(value: titleProp, context: context, db: db);
+    String? text = await lookup.resolve<String>(value: textProp, context: context, db: db);
+    if (title == null || text == null) return null;
+    var resolver =
+        CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: this.vars);
+    var resolvedActions = resolver.actions("actions");
+    return {"title": title, "text": text, "actions": resolvedActions};
+  }
+
+  @override
+  execute(SceneController sceneController, CVUContext context) async {}
 }

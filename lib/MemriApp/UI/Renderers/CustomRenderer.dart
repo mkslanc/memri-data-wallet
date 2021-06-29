@@ -48,7 +48,8 @@ class _CustomRendererViewState extends State<CustomRendererView> {
     if (nodeDefinition == null) {
       return Expanded(child: Text("No view defined"));
     } else {
-      return Expanded(child: viewContext.render(nodeDefinition: nodeDefinition));
+      return Expanded(
+          child: SingleChildScrollView(child: viewContext.render(nodeDefinition: nodeDefinition)));
     }
   }
 }

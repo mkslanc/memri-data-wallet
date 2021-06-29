@@ -1,6 +1,11 @@
 [
   {
     "_type": "NavigationItem",
+    "title": "Onboarding",
+    "sessionName": "onboarding"
+  },
+  {
+    "_type": "NavigationItem",
     "itemType": "heading",
     "title": "Crypto"
   },

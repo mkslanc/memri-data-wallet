@@ -42,8 +42,8 @@ class _ActionButtonState extends State<ActionButton> {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             padding: const EdgeInsets.all(10.0)),
         child: Icon(MemriIcon.getByName(icon)),
-        onPressed: () {
-          widget.action.execute(sceneController, widget.viewContext);
+        onPressed: () async {
+          await widget.action.execute(sceneController, widget.viewContext);
           icon =
               widget.action.getString("icon", widget.viewContext, sceneController.topMostContext);
         });

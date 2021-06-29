@@ -184,8 +184,8 @@ class _GridRendererViewState extends State<GridRendererView> {
           var presses = viewContext.rendererDefinitionPropertyResolver.actions("onPress") ??
               viewContext.nodePropertyResolver(item)?.actions("onPress");
           if (presses != null) {
-            presses.forEach(
-                (press) => press.execute(sceneController, viewContext.getCVUContext(item: item)));
+            presses.forEach((press) async =>
+                await press.execute(sceneController, viewContext.getCVUContext(item: item)));
           }
         }
       };
