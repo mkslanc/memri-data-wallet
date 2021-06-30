@@ -90,7 +90,8 @@ class _GridRendererViewState extends State<GridRendererView> {
                       viewContext.hasItems
                           ? Expanded(
                               child: RefreshIndicator(
-                              onRefresh: () async => setState(() {}),
+                              onRefresh: () async => setState(
+                                  () => sceneController.topMostContext?.setupQueryObservation()),
                               child: GridView.count(
                                 //TODO layout
                                 physics: AlwaysScrollableScrollPhysics(),

@@ -245,13 +245,13 @@ class CVULookupController {
   /// Lookup an edge from an ItemRecord
   Future<ItemRecord?> _resolveEdgeItemRecord(
       String edge, ItemRecord item, DatabaseController db) async {
-    return await item.edgeItem(edge, db);
+    return await item.edgeItem(edge, db: db);
   }
 
   /// Lookup an edge array from an ItemRecord
   Future<List<ItemRecord>> _resolveEdgeItemRecordArray(
       String edge, ItemRecord item, DatabaseController db) async {
-    return await item.edgeItems(edge, db);
+    return await item.edgeItems(edge, db: db);
   }
 
   /// Lookup a property from an ItemRecord
@@ -642,13 +642,13 @@ class CVULookupController {
         /// LOOKUP REVERSE EDGE FOR EACH ITEM
         if (node.isArray) {
           List<ItemRecord> result = (await Future.wait(
-                  items.map((item) async => await item.reverseEdgeItems(trimmedName, db))))
+                  items.map((item) async => await item.reverseEdgeItems(trimmedName, db: db))))
               .expand((element) => element)
               .toList();
           return LookupStepItems(await filter(result, subexpression, db));
         } else {
           List<ItemRecord> result = (await Future.wait(
-                  items.map((item) async => await item.reverseEdgeItem(trimmedName, db))))
+                  items.map((item) async => await item.reverseEdgeItem(trimmedName, db: db))))
               .whereType<ItemRecord>()
               .toList();
           return LookupStepItems(await filter(result, subexpression, db));
@@ -697,14 +697,14 @@ class CVULookupController {
           /// LOOKUP EDGE FOR EACH ITEM
           if (node.isArray) {
             List<ItemRecord> result = (await Future.wait(
-                    items.map((item) async => await item.edgeItems(trimmedName, db))))
+                    items.map((item) async => await item.edgeItems(trimmedName, db: db))))
                 .expand((element) => element)
                 .toList();
             return LookupStepItems(await filter(result, subexpression, db));
           } else {
             List<ItemRecord> result = [];
             await Future.forEach(items, (ItemRecord item) async {
-              var itemRecord = await item.edgeItem(trimmedName, db);
+              var itemRecord = await item.edgeItem(trimmedName, db: db);
               if (itemRecord != null) result.add(itemRecord);
             });
 

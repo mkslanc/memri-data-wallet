@@ -520,7 +520,7 @@ class CVUActionDelete extends CVUAction {
       return;
     }
 
-    await item.delete(sceneController.appController.databaseController.databasePool);
+    await item.delete(sceneController.appController.databaseController);
   }
 }
 

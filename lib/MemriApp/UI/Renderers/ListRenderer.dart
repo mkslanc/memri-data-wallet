@@ -90,7 +90,8 @@ class _ListRendererViewState extends State<ListRendererView> {
                   var lastIndex = viewContext.items.length - 1;
                   return Expanded(
                       child: RefreshIndicator(
-                    onRefresh: () async => setState(() {}),
+                    onRefresh: () async =>
+                        setState(() => sceneController.topMostContext?.setupQueryObservation()),
                     child: ListView.custom(
                       shrinkWrap: true,
                       padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),

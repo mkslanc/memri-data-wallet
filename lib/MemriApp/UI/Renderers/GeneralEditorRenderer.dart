@@ -192,9 +192,12 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
         valueListenable: widget.sceneController.isInEditMode,
         builder: (BuildContext context, bool value, Widget? child) {
           return Expanded(
-              child: SingleChildScrollView(
-            child: Column(
-              children: stackContent,
+              child: RefreshIndicator(
+            onRefresh: () async => updateState(),
+            child: SingleChildScrollView(
+              child: Column(
+                children: stackContent,
+              ),
             ),
           ));
         });
