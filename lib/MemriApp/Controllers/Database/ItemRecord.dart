@@ -613,9 +613,9 @@ class ItemRecord with EquatableMixin {
     return null;
   }
 
-  static deleteExistingDBKeys([Database? db]) async {
-    db ??= AppController.shared.databaseController.databasePool;
-    var dbKeys = await db.itemRecordsFetchByType("CryptoKey");
+  static deleteExistingDBKeys([DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var dbKeys = await db.databasePool.itemRecordsFetchByType("CryptoKey");
     if (dbKeys.isNotEmpty) {
       await Future.forEach(
           dbKeys, (Item item) async => await ItemRecord.fromItem(item).delete(db!));
