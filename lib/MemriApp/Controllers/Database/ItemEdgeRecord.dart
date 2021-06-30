@@ -74,6 +74,10 @@ class ItemEdgeRecord {
     return await db.itemEdgeRecordInsert(this);
   }
 
+  Future<ItemRecord> selfItem(DatabaseController db) async {
+    return (await ItemRecord.fetchWithRowID(selfRowID!, db))!;
+  }
+
   Future<ItemRecord?> owningItem(DatabaseController db) async {
     return await ItemRecord.fetchWithRowID(sourceRowID!, db);
   }
@@ -96,10 +100,10 @@ class ItemEdgeRecord {
     }
   }
 
-  Future<bool> delete([Database? db]) async {
-    db ??= AppController.shared.databaseController.databasePool;
-    var rows = await db.itemEdgeRecordDelete(this);
-    return rows > 0;
+  Future<bool> delete([DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var selfRecord = await selfItem(db);
+    return await selfRecord.delete(db) > 0;
   }
 
   static Future<List<Map<String, dynamic>>> syncEdgesWithState(
@@ -149,24 +153,19 @@ class ItemEdgeRecord {
     dbController ??= AppController.shared.databaseController;
 
     for (var syncedEdge in syncItems.createEdges) {
-      var sourceItemId = syncedEdge["_source"];
-      var targetItemId = syncedEdge["_target"];
-      var name = syncedEdge["_name"];
-      if (sourceItemId != null && targetItemId != null && name != null) {
-        var sourceItem = await ItemRecord.fetchWithUID(sourceItemId, dbController);
-        var targetItem = await ItemRecord.fetchWithUID(targetItemId, dbController);
-        var edge = await dbController.databasePool.edgeRecordSelect(
-            {"source": sourceItem?.rowId, "target": targetItem?.rowId, "name": name});
-        if (sourceItem != null && targetItem != null && edge != null) {
+      var selfItemId = syncedEdge["_self"];
+      if (selfItemId != null) {
+        var selfItem = await ItemRecord.fetchWithUID(selfItemId, dbController);
+        var edge = await dbController.databasePool.edgeRecordSelect({"self": selfItem?.rowId});
+        if (edge != null) {
           var edgeRecord = ItemEdgeRecord.fromEdge(edge);
           edgeRecord.syncState = SyncState.noChanges;
           await edgeRecord.save(dbController.databasePool);
-        } else {
-          print("ERROR: Could not locate edge for synced edge: $syncedEdge");
+          continue;
         }
-      } else {
-        print("ERROR: Could not locate edge for synced edge: $syncedEdge");
       }
+
+      print("ERROR: Could not locate edge for synced edge: $syncedEdge");
     }
   }
 

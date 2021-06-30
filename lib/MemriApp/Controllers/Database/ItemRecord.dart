@@ -134,10 +134,11 @@ class ItemRecord with EquatableMixin {
     return itemPropertyRecord.value(type, db.schema);
   }
 
-  save([Database? db]) async {
+  Future<int> save([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
     var savedRowID = await db.itemRecordSave(this);
     if (rowId == null) rowId = savedRowID;
+    return rowId!;
   }
 
   setPropertyValue(String name, PropertyDatabaseValue? value,
@@ -199,84 +200,92 @@ class ItemRecord with EquatableMixin {
     return await db.itemRecordInsert(this);
   }
 
-  Future<int> delete(Database db) async {
-    List<ItemPropertyRecord> itemPropertyRecords = await properties();
-    await Future.forEach(itemPropertyRecords, (ItemPropertyRecord itemPropertyRecord) async {
-      await itemPropertyRecord.delete(db);
-    });
+  Future<int> delete(DatabaseController db) async {
+    deleted = true;
+    syncState = SyncState.update;
+    var targetEdges = await edges(null, db: db, deleted: null);
+    var sourceEdges = await reverseEdges(null, db: db, deleted: null);
+    List<ItemEdgeRecord> relatedEdges = targetEdges + sourceEdges;
 
-    return await db.itemRecordDelete(this);
+    await Future.forEach(relatedEdges, (ItemEdgeRecord edge) async => await edge.delete(db));
+
+    return await save(db.databasePool);
   }
 
-  Future<List<ItemEdgeRecord>> edges(String name, [DatabaseController? db]) async {
-    //TODO: need to test
+  Future<List<ItemEdgeRecord>> edges(String? name,
+      {DatabaseController? db, bool? deleted = false}) async {
     db ??= AppController.shared.databaseController;
     try {
-      var edges = await db.databasePool.edgeRecordsSelect({"source": rowId, "name": name});
-      return edges
-          .map((edge) => ItemEdgeRecord.fromEdge(edge))
-          .whereType<ItemEdgeRecord>()
-          .toList();
-    } catch (e) {
-      print(e);
-      return [];
-    }
-  }
-
-  Future<ItemRecord?> edgeItem(String name, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
-    try {
-      var edge = await db.databasePool.edgeRecordSelect({"source": rowId, "name": name});
-      if (edge != null) {
-        return await ItemEdgeRecord.fromEdge(edge).targetItem(db);
+      Map<String, dynamic> properties = {"source": rowId};
+      if (name != null) {
+        properties["name"] = name;
       }
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  Future<List<ItemRecord>> edgeItems(String name, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
-    try {
-      var edges = await db.databasePool.edgeRecordsSelect({"source": rowId, "name": name});
-      return (await Future.wait(
-              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).targetItem(db!))))
-          .whereType<ItemRecord>()
-          .toList();
-    } catch (e) {
-      print(e);
-      return [];
-    }
-  }
-
-  Future<ItemRecord?> reverseEdgeItem(String name, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
-
-    try {
-      var edge = await db.databasePool.edgeRecordSelect({"target": rowId, "name": name});
-      if (edge != null) {
-        return await ItemEdgeRecord.fromEdge(edge).owningItem(db);
+      var edges = await db.databasePool.edgeRecordsSelect(properties);
+      var edgeRecords = edges.map<ItemEdgeRecord>((edge) => ItemEdgeRecord.fromEdge(edge)).toList();
+      if (deleted != null) {
+        edgeRecords = (await Future.wait(edgeRecords.map((edge) async {
+          var itemRecord = await edge.selfItem(db!);
+          return itemRecord.deleted == deleted ? edge : null;
+        })))
+            .compactMap<ItemEdgeRecord>();
       }
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
 
-  Future<List<ItemRecord>> reverseEdgeItems(String name, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
-
-    try {
-      var edges = await db.databasePool.edgeRecordsSelect({"target": rowId, "name": name});
-      return (await Future.wait(
-              edges.map((edge) async => await ItemEdgeRecord.fromEdge(edge).owningItem(db!))))
-          .whereType<ItemRecord>()
-          .toList();
+      return edgeRecords;
     } catch (e) {
       print(e);
       return [];
     }
+  }
+
+  Future<ItemRecord?> edgeItem(String? name,
+      {DatabaseController? db, bool? deleted = false}) async {
+    var edgeItemRecords = await edgeItems(name, db: db, deleted: deleted);
+    return edgeItemRecords.asMap()[0];
+  }
+
+  Future<List<ItemRecord>> edgeItems(String? name,
+      {DatabaseController? db, bool? deleted = false}) async {
+    db ??= AppController.shared.databaseController;
+    var edgeRecords = await edges(name, db: db, deleted: deleted);
+    return (await Future.wait(edgeRecords.map((edge) async => edge.targetItem(db!)))).compactMap();
+  }
+
+  Future<List<ItemEdgeRecord>> reverseEdges(String? name,
+      {DatabaseController? db, bool? deleted = false}) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      Map<String, dynamic> properties = {"target": rowId};
+      if (name != null) {
+        properties["name"] = name;
+      }
+      var edges = await db.databasePool.edgeRecordsSelect(properties);
+      var edgeRecords = edges.map<ItemEdgeRecord>((edge) => ItemEdgeRecord.fromEdge(edge)).toList();
+      if (deleted != null) {
+        edgeRecords = (await Future.wait(edgeRecords.map((edge) async {
+          var itemRecord = await edge.selfItem(db!);
+          return itemRecord.deleted == deleted ? edge : null;
+        })))
+            .compactMap<ItemEdgeRecord>();
+      }
+
+      return edgeRecords;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<ItemRecord?> reverseEdgeItem(String? name,
+      {DatabaseController? db, bool? deleted = false}) async {
+    var edgeItemRecords = await reverseEdgeItems(name, db: db, deleted: deleted);
+    return edgeItemRecords.asMap()[0];
+  }
+
+  Future<List<ItemRecord>> reverseEdgeItems(String? name,
+      {DatabaseController? db, bool? deleted = false}) async {
+    db ??= AppController.shared.databaseController;
+    var edgeRecords = await edges(name, db: db, deleted: deleted);
+    return (await Future.wait(edgeRecords.map((edge) async => edge.owningItem(db!)))).compactMap();
   }
 
   Future<FutureBinding> propertyBinding(

@@ -71,6 +71,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     notifyListeners();
   }
 
+  bool? deleted = false;
+
   /// Only include items created before this date
   DateTime? _dateCreatedBefore;
 
@@ -214,6 +216,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     if (dateCreatedAfter != null) {
       queryConditions.add("dateCreated >= ?");
       queryBindings.add(Variable.withDateTime(dateCreatedAfter!));
+    }
+    if (deleted != null) {
+      queryConditions.add("deleted = ?");
+      queryBindings.add(Variable.withBool(deleted!));
     }
 
     var itemRecords = await dbController.databasePool
