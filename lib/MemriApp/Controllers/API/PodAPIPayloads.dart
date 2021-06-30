@@ -7,10 +7,7 @@ class PodAPIRequestBody<Payload> {
   Payload payload;
 
   PodAPIRequestBody({required PodAPIConnectionDetails connectionConfig, required this.payload})
-      : auth = {
-          "type": "ClientAuth",
-          "databaseKey": connectionConfig.databaseKey
-        }; //TODO: change to pair, when encrypt will be implemented
+      : auth = {"type": "ClientAuth", "databaseKey": connectionConfig.databaseKey};
 
   Map toJson() => {'auth': auth, 'payload': payload};
 }
