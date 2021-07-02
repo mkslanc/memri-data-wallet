@@ -21,7 +21,7 @@ void main() {
         item: record,
         property: "state",
         desiredValue: PropertyDatabaseValueString("userActionNeeded"),
-        completion: (newValue, [error]) async {
+        completion: (newValue, [error]) {
           if (newValue == null) {
             return;
           }
