@@ -13,8 +13,8 @@ class ItemSubscription with EquatableMixin {
   ItemRecord item;
   String property;
   int retryCount;
-  PropertyDatabaseValue desiredValue;
-  Function(PropertyDatabaseValue?, [String?]) completion;
+  PropertyDatabaseValue? desiredValue;
+  void Function(PropertyDatabaseValue?, [String?]) completion;
   StreamSubscription? streamSubscription;
 
   ItemSubscription(
@@ -41,8 +41,8 @@ class PubSubController {
   startObservingItemProperty(
       {required ItemRecord item,
       required String property,
-      required PropertyDatabaseValue desiredValue,
-      required Function(PropertyDatabaseValue?, [String?]) completion}) {
+      required PropertyDatabaseValue? desiredValue,
+      required void Function(PropertyDatabaseValue?, [String?]) completion}) {
     var subscription = ItemSubscription(
         item: item, property: property, desiredValue: desiredValue, completion: completion);
     _subscribers.add(subscription);
@@ -58,8 +58,7 @@ class PubSubController {
   }
 
   ItemSubscription? _subscriptionForItem({required ItemRecord item, required String property}) {
-    return _subscribers.firstWhereOrNull(
-        (element) => element.item.uid == item.uid && element.property == property);
+    return _subscribers.firstWhereOrNull((element) => element.item.uid == item.uid);
   }
 
   _cancelSubscription({required ItemSubscription subscription, String? error}) {
@@ -89,7 +88,7 @@ class PubSubController {
     var stream = databaseController.databasePool
         .itemPropertyRecordsCustomSelectStream("name = ? AND value = ? AND item = ?", [
       Variable(subscription.property),
-      Variable(subscription.desiredValue.value),
+      Variable(subscription.desiredValue?.value),
       Variable(subscription.item.rowId)
     ]);
     var streamSubscription = stream.listen((List<dynamic> records) {
@@ -105,7 +104,7 @@ class PubSubController {
       {required dynamic itemProperty,
       required String itemType,
       required String property,
-      required PropertyDatabaseValue expectedValue}) {
+      required PropertyDatabaseValue? expectedValue}) {
     var decodableValue = itemProperty.value;
     if (decodableValue == null) {
       return false;
