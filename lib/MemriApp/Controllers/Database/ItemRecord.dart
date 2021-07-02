@@ -285,7 +285,7 @@ class ItemRecord with EquatableMixin {
   Future<List<ItemRecord>> reverseEdgeItems(String? name,
       {DatabaseController? db, bool? deleted = false}) async {
     db ??= AppController.shared.databaseController;
-    var edgeRecords = await edges(name, db: db, deleted: deleted);
+    var edgeRecords = await reverseEdges(name, db: db, deleted: deleted);
     return (await Future.wait(edgeRecords.map((edge) async => edge.owningItem(db!)))).compactMap();
   }
 
