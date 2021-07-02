@@ -104,10 +104,15 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
       return [];
     }
     var viewLayout = widget.viewContext.cvuController
-        .viewDefinitionForItemRecord(itemRecord: currentItem)
-        ?.definitions
-        .asMap()[0]
-        ?.get("layout");
+            .viewDefinitionForItemRecord(itemRecord: currentItem)
+            ?.definitions
+            .asMap()[0]
+            ?.get("layout") ??
+        widget.viewContext.cvuController
+            .viewDefinitionFor(viewName: widget.viewContext.config.viewName ?? "")
+            ?.definitions
+            .asMap()[0]
+            ?.get("layout");
     List<Map<String, CVUValue>>? viewDefs = [];
 
     if (viewLayout is CVUValueArray) {
@@ -128,9 +133,21 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
       return [];
     }
 
+    var showDefaultLayout = true;
+    var showDefaultLayoutValue =
+        widget.viewContext.config.viewDefinition.properties["showDefaultLayout"];
+    if (showDefaultLayoutValue is CVUValueConstant) {
+      if (showDefaultLayoutValue.value is CVUConstantBool) {
+        showDefaultLayout = (showDefaultLayoutValue.value as CVUConstantBool).value;
+      }
+    }
+
     var mergedDefinitions = [];
     mergedDefinitions.addAll(viewDefs);
-    mergedDefinitions.addAll(generalDefs);
+    if (showDefaultLayout) {
+      // Merge layout from default generalEditor cvu
+      mergedDefinitions.addAll(generalDefs);
+    }
 
     var sections = [];
     Map<String, Map<String, CVUValue>> sectionInfos = {};
@@ -328,6 +345,15 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
           ?.getSubdefinition();
       if (nodeDefinition != null) {
         return nodeDefinition;
+      } else {
+        var viewName = widget.viewContext.config.viewName;
+        if (viewName != null) {
+          var nodeDefinition = widget.viewContext.cvuController
+              .viewDefinitionFor(viewName: viewName)
+              ?.properties[widget.layout.id]
+              ?.getSubdefinition();
+          return nodeDefinition;
+        }
       }
     }
     return null;
@@ -502,13 +528,33 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     return false;
   }
 
+  CVUDefinitionContent? get _nodeDefinition {
+    var nodeDefinition = viewContext.cvuController
+        .viewDefinitionFor(viewName: viewContext.config.rendererName)
+        ?.properties[prop]
+        ?.getSubdefinition();
+    if (nodeDefinition == null) {
+      nodeDefinition = viewContext.cvuController
+          .rendererDefinitionForSelector(viewName: viewContext.config.rendererName)
+          ?.properties[prop]
+          ?.getSubdefinition();
+    }
+    if (nodeDefinition == null) {
+      var viewName = viewContext.config.viewName;
+      if (viewName != null) {
+        nodeDefinition = viewContext.cvuController
+            .viewDefinitionFor(viewName: viewName)
+            ?.properties[prop]
+            ?.getSubdefinition();
+      }
+    }
+    return nodeDefinition;
+  }
+
   @override
   Widget build(BuildContext context) {
     var propType = property.valueType;
-    var nodeDefinition = viewContext.cvuController
-        .rendererDefinitionForSelector(viewName: viewContext.config.rendererName)
-        ?.properties[prop]
-        ?.getSubdefinition();
+    var nodeDefinition = _nodeDefinition;
     Widget currentWidget = defaultRow();
     if (nodeDefinition == null) {
       switch (propType) {
