@@ -382,8 +382,7 @@ class ItemRecord with EquatableMixin {
 
   static String? reverseMapSchemaValueType(String propertyValue) {
     return _mapSchemaValueType.keys.firstWhere(
-        (nativeType) =>
-            _mapSchemaValueType[nativeType] == propertyValue,
+        (nativeType) => _mapSchemaValueType[nativeType] == propertyValue,
         orElse: () => propertyValue);
   }
 
