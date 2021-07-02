@@ -104,7 +104,8 @@ class Settings {
     var settings = await db.itemPropertyRecordsCustomSelect(query);
 
     StringDb? setting = settings.firstWhere(
-        (setting) => setting is StringDb && setting.name == "keystr" && setting.value == path);
+        (setting) => setting is StringDb && setting.name == "keystr" && setting.value == path,
+        orElse: () => null);
     if (setting == null) return null;
     var settingRowID = setting.item;
 
