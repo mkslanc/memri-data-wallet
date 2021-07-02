@@ -16,6 +16,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'ItemRecord.g.dart';
 
 enum SyncState {
+  skip,
   create,
   update,
   noChanges,
@@ -159,7 +160,9 @@ class ItemRecord with EquatableMixin {
           ItemPropertyRecord(itemUID: uid, itemRowID: rowId!, name: name, value: value);
       await itemPropertyRecord.save(db.databasePool);
     }
-    syncState = state;
+    if (syncState != SyncState.skip) {
+      syncState = state;
+    }
 
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
     await save(db.databasePool);
@@ -380,7 +383,7 @@ class ItemRecord with EquatableMixin {
   static String? reverseMapSchemaValueType(String propertyValue) {
     return _mapSchemaValueType.keys.firstWhere(
         (nativeType) =>
-            _mapSchemaValueType[nativeType]?.toLowerCase() == propertyValue.toLowerCase(),
+            _mapSchemaValueType[nativeType] == propertyValue,
         orElse: () => propertyValue);
   }
 
@@ -418,10 +421,6 @@ class ItemRecord with EquatableMixin {
         switch (propertyName) {
           case "edgeName":
             propertyValue = reverseMapSchemaPropertyName(propertyValue);
-            break;
-          case "sourceType":
-          case "targetType":
-            propertyValue = reverseMapSchemaValueType(propertyValue);
             break;
         }
         break;
