@@ -21,7 +21,7 @@ class CVUImage extends StatefulWidget {
 }
 
 class _CVUImageState extends State<CVUImage> {
-  String? fileImageURL;
+  ImageProvider? fileImage;
 
   ImageProvider? bundleImage;
 
@@ -50,9 +50,9 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   init() async {
-    fileImageURL = await getFileImageURL();
+    fileImage = await getFileImage();
     sizingMode = await widget.nodeResolver.propertyResolver.sizingMode();
-    if (fileImageURL == null) {
+    if (fileImage == null) {
       bundleImage = await getBundleImage();
       if (bundleImage == null) {
         font = await widget.nodeResolver.propertyResolver.font();
@@ -63,12 +63,12 @@ class _CVUImageState extends State<CVUImage> {
     isLoaded = true;
   }
 
-  Future<String?> getFileImageURL() async {
+  Future<ImageProvider?> getFileImage() async {
     var imageURI = await widget.nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
       return null;
     }
-    return FileStorageController.getURLForFile(imageURI);
+    return await FileStorageController.getImage(imageURI);
   }
 
   Future<ImageProvider?> getBundleImage() async {
@@ -85,9 +85,9 @@ class _CVUImageState extends State<CVUImage> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          if (fileImageURL != null) {
+          if (fileImage != null) {
             return Image(
-              image: ResizeImage(AssetImage(fileImageURL!),
+              image: ResizeImage(fileImage!,
                   width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
               fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
             );
