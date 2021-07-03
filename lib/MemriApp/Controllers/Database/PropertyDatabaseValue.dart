@@ -8,6 +8,7 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:moor/moor.dart';
@@ -243,6 +244,11 @@ class PropertyDatabaseValueDatetime extends PropertyDatabaseValue {
   final DateTime value;
   @override
   final SchemaValueType type = SchemaValueType.datetime;
+
+  @override
+  String? asString() {
+    return Jiffy(value).format("dd/MM/yyyy H:m:s"); //TODO
+  }
 
   PropertyDatabaseValueDatetime(this.value);
 }
