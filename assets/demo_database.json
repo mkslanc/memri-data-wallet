@@ -3624,6 +3624,7 @@
   {
     "_type": "Post",
     "message": "#nature #sprint #travel",
+    "uid": 89200,
     "postDate": 1589691657000,
     "allEdges": [
       {
@@ -3635,18 +3636,29 @@
         "_type": "photo",
         "targetType": "Photo",
         "uid": 79202
+      },
+      {
+        "_type": "parent",
+        "targetType": "Post",
+        "uid": 89201
       }
     ]
   },
   {
     "_type": "Post",
     "message": "This morning we went exploring a bit closer to our hotel. First we found an amazing bakery just around the corner - their pastries where amazing!",
+    "uid": 89201,
     "postDate": 1589691657000,
     "allEdges": [
       {
         "_type": "author",
         "targetType": "Account",
         "uid": 20000000002
+      },
+      {
+        "_type": "comment",
+        "targetType": "Post",
+        "uid": 89200
       }
     ]
   },
