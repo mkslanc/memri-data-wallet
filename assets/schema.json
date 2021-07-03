@@ -1889,6 +1889,26 @@
       "item_type": "WrittenWork",
       "property": "itemType",
       "value_type": "string"
+    },
+    {
+      "item_type": "Post",
+      "property": "message",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Post",
+      "property": "postDate",
+      "value_type": "datetime"
+    },
+    {
+      "item_type": "Post",
+      "property": "type",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Post",
+      "property": "externalId",
+      "value_type": "string"
     }
   ],
   "edges": [
@@ -3395,6 +3415,26 @@
     {
       "source_type": "Wallet",
       "edge": "picture",
+      "target_type": "Photo"
+    },
+    {
+      "source_type": "Post",
+      "edge": "author",
+      "target_type": "Account"
+    },
+    {
+      "source_type": "Post",
+      "edge": "parent",
+      "target_type": "Post"
+    },
+    {
+      "source_type": "Post",
+      "edge": "comment",
+      "target_type": "Post"
+    },
+    {
+      "source_type": "Post",
+      "edge": "photo",
       "target_type": "Photo"
     }
   ]
