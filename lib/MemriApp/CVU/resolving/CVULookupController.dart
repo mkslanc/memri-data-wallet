@@ -380,10 +380,10 @@ class CVULookupController {
               return null;
             }
 
-            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
+            if (currentValue is LookupStepValues) {
               currentValue =
                   LookupStepValues([PropertyDatabaseValueInt(currentValue.values.length)]);
-            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
+            } else if (currentValue is LookupStepItems) {
               currentValue =
                   LookupStepValues([PropertyDatabaseValueInt(currentValue.items.length)]);
             } else {
