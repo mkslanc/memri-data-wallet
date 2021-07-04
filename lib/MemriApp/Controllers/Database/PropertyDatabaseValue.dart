@@ -247,7 +247,7 @@ class PropertyDatabaseValueDatetime extends PropertyDatabaseValue {
 
   @override
   String? asString() {
-    return Jiffy(value).format("dd/MM/yyyy H:m:s"); //TODO
+    return Jiffy(value).format("dd/MM/yyyy HH:mm:s"); //TODO
   }
 
   PropertyDatabaseValueDatetime(this.value);
