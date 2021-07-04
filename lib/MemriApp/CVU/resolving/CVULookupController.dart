@@ -579,7 +579,7 @@ class CVULookupController {
               return null;
             }
           } else if (node.name == "me") {
-            var me = await ItemRecord.me;
+            var me = await ItemRecord.me();
             if (me != null) {
               currentValue = LookupStepItems([me]);
             }

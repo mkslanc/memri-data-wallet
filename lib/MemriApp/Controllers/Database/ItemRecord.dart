@@ -328,8 +328,8 @@ class ItemRecord with EquatableMixin {
         .toList();
   }
 
-  static Future<ItemRecord?> get me async {
-    DatabaseController dbController = AppController.shared.databaseController;
+  static Future<ItemRecord?> me([DatabaseController? dbController]) async {
+    dbController ??= AppController.shared.databaseController;
     var edge = await dbController.databasePool.edgeRecordSelect({"name": "me"});
     if (edge == null) {
       return null;
@@ -343,7 +343,8 @@ class ItemRecord with EquatableMixin {
     var myself = ItemRecord(type: "Person");
     await myself.save(dbController.databasePool);
 
-    await ItemEdgeRecord(sourceRowID: myself.rowId, name: "me", targetRowID: myself.rowId).save();
+    await ItemEdgeRecord(sourceRowID: myself.rowId, name: "me", targetRowID: myself.rowId)
+        .save(dbController.databasePool);
     return myself;
   }
 
@@ -630,7 +631,7 @@ class ItemRecord with EquatableMixin {
     db ??= AppController.shared.databaseController.databasePool;
     try {
       await ItemRecord.deleteExistingDBKeys();
-      var meRowId = (await ItemRecord.me)?.rowId ?? (await ItemRecord.createMe())?.rowId;
+      var meRowId = (await ItemRecord.me())?.rowId ?? (await ItemRecord.createMe())?.rowId;
       if (meRowId == null) {
         throw Exception("Could not find me user");
       }
@@ -682,7 +683,7 @@ class ItemRecord with EquatableMixin {
 
   static Future<AuthKeys> getOwnerAndDBKey([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
-    var meRowId = (await ItemRecord.me)?.rowId;
+    var meRowId = (await ItemRecord.me())?.rowId;
     if (meRowId == null) {
       throw Exception("Could not find me user");
     }
