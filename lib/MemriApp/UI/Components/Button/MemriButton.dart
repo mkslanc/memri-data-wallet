@@ -48,6 +48,21 @@ class _MemriButtonState extends State<MemriButton> {
           title = "$title ${lastName.value}";
         }
         break;
+      case "Relationship":
+        bgColor = Color(0xff3A5EB3);
+        var edgeItem = await widget.item?.edgeItem("relationship");
+        if (edgeItem != null) {
+          var firstName = (await edgeItem.property("firstName"))?.$value;
+          if (firstName is PropertyDatabaseValueString) {
+            title = firstName.value;
+          }
+          var lastName = (await edgeItem.property("lastName"))?.$value;
+          if (lastName is PropertyDatabaseValueString) {
+            title = "$title ${lastName.value}";
+          }
+        }
+
+        break;
     }
   }
 
