@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
@@ -98,6 +99,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of conditions. eg. property name = "Demo note"
   List<DatabaseQueryCondition> conditions = [];
 
+  /// A list of conditions. eg. property name = "Demo note"
+  List<JoinQueryStruct>? sortEdges;
+
   ConditionOperator edgeTargetsOperator = ConditionOperator.and;
 
   @annotation.JsonKey(ignore: true)
@@ -120,7 +124,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.includeImmediateEdgeSearch = true,
       List<DatabaseQueryCondition>? conditions,
       this.edgeTargetsOperator = ConditionOperator.and,
-      this.count})
+      this.count,
+      this.sortEdges})
       : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo", "Indexer", "Importer"],
         itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
         _sortAscending = sortAscending,
@@ -148,7 +153,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         includeImmediateEdgeSearch: includeImmediateEdgeSearch,
         conditions: conditions,
         edgeTargetsOperator: edgeTargetsOperator,
-        count: count);
+        count: count,
+        sortEdges: sortEdges);
   }
 
   _constructFilteredRequest([Set<int>? searchRowIDs]) async {
@@ -293,7 +299,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     var orderBy;
     var join = "";
-    List<TableInfo> joinTables = [];
+    Set<TableInfo> joinTables = {};
     var sortOrder = sortAscending ? "" : "DESC";
     switch (sortProperty) {
       case "dateCreated":
@@ -314,6 +320,17 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       case "":
       case null:
         break;
+      case "edge":
+        if (sortEdges != null && sortEdges!.isNotEmpty) {
+          sortEdges!.forEach((element) {
+            join += " " + element.joinQuery;
+            joinTables.add(dbController.databasePool.getTable(element.table));
+          });
+          orderBy = "prop.value $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
+        } else {
+          orderBy = "dateModified $sortOrder, dateCreated $sortOrder";
+        }
+        break;
       default:
         var propertyOrderBy = "";
         //TODO multiple itemTypes?
@@ -327,7 +344,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
           String tableName = table.$tableName;
           joinTables.add(table);
           join =
-              "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
+              "LEFT JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
           propertyOrderBy = "$tableName.value $sortOrder, ";
         }
 
@@ -336,7 +353,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
     var finalQuery = "row_id IN (${rowIds.join(", ")})";
     return await dbController.databasePool.itemRecordsCustomSelect(finalQuery, [],
-        join: join, joinTables: joinTables, limit: limit, offset: offset, orderBy: orderBy);
+        join: join,
+        joinTables: joinTables.toList(),
+        limit: limit,
+        offset: offset,
+        orderBy: orderBy);
   }
 
   _constructSearchRequest() async {
@@ -371,6 +392,119 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
+  Future<List<JoinQueryStruct>?> combineSortEdgesQuery(
+      {required CVUPropertyResolver sortResolver,
+      required DatabaseController dbController,
+      List<JoinQueryStruct>? conditions,
+      String? targetType}) async {
+    conditions ??= [];
+    String? targetItemType;
+    if (itemTypes.isNotEmpty) {
+      //Assigning sortProperty to special type - edge
+      this.sortProperty = "edge";
+
+      var edgeSorting =
+          sortResolver.subdefinition("edgeTarget") ?? sortResolver.subdefinition("edgeSource");
+      if (edgeSorting != null) {
+        var direction = "source";
+        var oppositeDirection = "target";
+        if (sortResolver.subdefinition("edgeTarget") != null) {
+          direction = "target";
+          oppositeDirection = "source";
+        }
+
+        var tableAliasName = 'e' + conditions.length.toString();
+        var subCond = [];
+        await Future.forEach(edgeSorting.properties.keys, (String key) async {
+          if (key == "name" ||
+              key == "sortProperty" ||
+              key == "sortAscending" ||
+              key == "edgeTarget" ||
+              key == "edgeSource") return;
+          if (targetType != null) {
+            ResolvedType? valueType = dbController.schema.expectedType(targetType, key);
+            if (valueType != null) {
+              var val = await edgeSorting.integer(key);
+              if (val != null) {
+                subCond.add("$tableAliasName.$oppositeDirection = '${val.toString()}'");
+              }
+            }
+          }
+        });
+
+        if (edgeSorting.properties["name"] != null) {
+          var sortPropertyName = await edgeSorting.string("name");
+
+          var join;
+          if (conditions.isEmpty || conditions.last.direction == null) {
+            join =
+                "LEFT JOIN edges $tableAliasName ON items.row_id = $tableAliasName.$oppositeDirection AND $tableAliasName.name = '$sortPropertyName'"; //TODO: source/target
+          } else {
+            join =
+                "LEFT JOIN edges $tableAliasName ON ${conditions.last.direction} = $tableAliasName.$direction AND $tableAliasName.name = '$sortPropertyName'"; //TODO: source/target
+          }
+          if (subCond.isNotEmpty) {
+            join += ' AND (${subCond.join(" OR ")})';
+          }
+
+          conditions.add(JoinQueryStruct(
+              table: "edges", joinQuery: join, direction: "$tableAliasName.$direction"));
+
+          if (edgeSorting.properties["sortProperty"] != null) {
+            var sortPropertyCondition = await edgeSorting.string("sortProperty");
+            targetItemType = dbController.schema
+                .expectedTargetType(targetType ?? itemTypes.first, sortPropertyName!);
+            if (targetItemType == null) {
+              print("No target type for $sortPropertyName");
+              return conditions;
+            }
+            SchemaValueType? schemaValueType =
+                dbController.schema.expectedPropertyType(targetItemType, sortPropertyCondition!);
+            if (schemaValueType == null) {
+              print("No schema type for property $sortPropertyCondition");
+              return conditions;
+            }
+            ItemRecordPropertyTable itemRecordPropertyTable =
+                PropertyDatabaseValue.toDBTableName(schemaValueType);
+            TableInfo table =
+                dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+            String tableName = table.$tableName;
+            var join =
+                "LEFT JOIN $tableName prop on $tableAliasName.$direction = prop.item AND prop.name = '$sortPropertyCondition'";
+
+            conditions.add(JoinQueryStruct(
+                table: tableName, joinQuery: join, direction: "$tableAliasName.$direction"));
+          }
+          if (edgeSorting.properties["sortAscending"] != null) {
+            var sortAscending = await edgeSorting.boolean("sortAscending");
+            if (sortAscending != null) {
+              this.sortAscending = sortAscending;
+            }
+          }
+        } else {
+          var join;
+          if (conditions.isEmpty || conditions.last.direction == null) {
+            join = "LEFT JOIN edges $tableAliasName ON items.row_id = $tableAliasName.$direction";
+          } else {
+            join =
+                "LEFT JOIN edges $tableAliasName ON ${conditions.last.direction} = $tableAliasName.$direction";
+          }
+          if (subCond.isNotEmpty) {
+            join += ' AND (${subCond.join(" OR ")})';
+          }
+          conditions.add(JoinQueryStruct(
+              table: "edges", joinQuery: join, direction: "$tableAliasName.$direction"));
+        }
+        return combineSortEdgesQuery(
+            sortResolver: edgeSorting,
+            dbController: dbController,
+            conditions: conditions,
+            targetType: targetItemType);
+      }
+    }
+    return conditions;
+  }
+
   factory DatabaseQueryConfig.fromJson(Map<String, dynamic> json) =>
       _$DatabaseQueryConfigFromJson(json);
 
@@ -390,8 +524,22 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         currentPage,
         searchString,
         includeImmediateEdgeSearch,
-        conditions
+        conditions,
+        sortEdges
       ];
+}
+
+@annotation.JsonSerializable()
+class JoinQueryStruct {
+  String table;
+  String joinQuery;
+  String? direction;
+
+  JoinQueryStruct({required this.table, required this.joinQuery, this.direction});
+
+  factory JoinQueryStruct.fromJson(Map<String, dynamic> json) => _$JoinQueryStructFromJson(json);
+
+  Map<String, dynamic> toJson() => _$JoinQueryStructToJson(this);
 }
 
 abstract class DatabaseQueryCondition {
