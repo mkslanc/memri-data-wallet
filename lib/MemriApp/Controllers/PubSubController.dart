@@ -43,6 +43,7 @@ class PubSubController {
       required String property,
       required PropertyDatabaseValue? desiredValue,
       required void Function(PropertyDatabaseValue?, [String?]) completion}) {
+    stopObservingItemProperty(item: item, property: property);
     var subscription = ItemSubscription(
         item: item, property: property, desiredValue: desiredValue, completion: completion);
     _subscribers.add(subscription);
@@ -63,6 +64,10 @@ class PubSubController {
 
   _cancelSubscription({required ItemSubscription subscription, String? error}) {
     subscription.completion(null, error ?? "Cancelled");
+    _removeSubscription(subscription);
+  }
+
+  _removeSubscription(subscription) {
     _subscribers.remove(subscription);
     if (subscription.streamSubscription != null) {
       subscription.streamSubscription?.cancel();
@@ -71,51 +76,59 @@ class PubSubController {
   }
 
   _checkSubscriptionFulfilled(
-      {required dynamic itemProperty, required ItemSubscription subscription}) {
-    var containsValue = _containsExpectedValue(
-        itemProperty: itemProperty,
-        itemType: subscription.item.type,
-        property: subscription.property,
-        expectedValue: subscription.desiredValue);
-    if (containsValue) {
-      subscription.completion(subscription.desiredValue);
-      stopObservingItemProperty(item: subscription.item, property: subscription.property);
+      {required List<dynamic> dicts, required ItemSubscription subscription}) async {
+    var dict = dicts.asMap()[0];
+    if (dict == null) {
       return;
+    }
+
+    var newValue = _propertyValueFromDict(
+        dict: dict, type: subscription.item.type, property: subscription.property);
+
+    if (newValue == null) {
+      _cancelSubscription(subscription: subscription, error: "Property not found");
+      return;
+    }
+    subscription.completion(newValue, null);
+
+    // If we have expected value to look for, check if new value is same as that of expected value
+    var expectedValue = subscription.desiredValue;
+    if (expectedValue == newValue) {
+      _removeSubscription(subscription);
     }
   }
 
   _startObserver(ItemSubscription subscription) {
-    var stream = databaseController.databasePool
-        .itemPropertyRecordsCustomSelectStream("name = ? AND value = ? AND item = ?", [
-      Variable(subscription.property),
-      Variable(subscription.desiredValue?.value),
-      Variable(subscription.item.rowId)
-    ]);
+    var query = "name = ? AND item = ?";
+    var binding = [Variable(subscription.property), Variable(subscription.item.rowId)];
+    if (subscription.desiredValue != null) {
+      query += " AND value = ?";
+      binding.add(Variable(subscription.desiredValue!.value));
+    }
+    var stream =
+        databaseController.databasePool.itemPropertyRecordsCustomSelectStream(query, binding);
     var streamSubscription = stream.listen((List<dynamic> records) {
       if (records.isNotEmpty) {
-        _checkSubscriptionFulfilled(itemProperty: records[0], subscription: subscription);
+        _checkSubscriptionFulfilled(dicts: records, subscription: subscription);
       }
     });
     subscription.streamSubscription = streamSubscription;
     _subscriptions.add(streamSubscription);
   }
 
-  bool _containsExpectedValue(
-      {required dynamic itemProperty,
-      required String itemType,
-      required String property,
-      required PropertyDatabaseValue? expectedValue}) {
-    var decodableValue = itemProperty.value;
+  PropertyDatabaseValue? _propertyValueFromDict(
+      {required String property, required String type, required dynamic dict}) {
+    var decodableValue = dict.value;
     if (decodableValue == null) {
-      return false;
-    }
-    var schema = AppController.shared.databaseController.schema;
-    var expectedType = schema.expectedPropertyType(itemType, property);
-    if (expectedType == null) {
-      return false;
+      return null;
     }
 
-    var databaseValue = PropertyDatabaseValue.create(decodableValue, expectedType);
-    return databaseValue == expectedValue;
+    var schema = AppController.shared.databaseController.schema;
+    var expectedType = schema.expectedPropertyType(type, property);
+    if (expectedType == null) {
+      return null;
+    }
+
+    return PropertyDatabaseValue.create(decodableValue, expectedType);
   }
 }
