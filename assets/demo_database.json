@@ -2278,8 +2278,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2298,6 +2298,19 @@
       }
     ],
     "version": 1
+  },
+  {
+    "uid": 500,
+    "_type": "Relationship",
+    "label": "Friend",
+    "value": 1000,
+    "allEdges": [
+      {
+        "_type": "relationship",
+        "targetType": "Person",
+        "uid": 1
+      }
+    ]
   },
   {
     "_type": "File",

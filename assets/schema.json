@@ -1581,6 +1581,16 @@
       "value_type": "string"
     },
     {
+      "item_type": "Relationship",
+      "property": "label",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Relationship",
+      "property": "value",
+      "value_type": "int"
+    },
+    {
       "item_type": "Reservation",
       "property": "dateReserved",
       "value_type": "datetime"
@@ -2975,7 +2985,7 @@
     {
       "source_type": "Person",
       "edge": "relationship",
-      "target_type": "Person"
+      "target_type": "Relationship"
     },
     {
       "source_type": "Person",
@@ -3236,6 +3246,11 @@
       "source_type": "Recording",
       "edge": "review",
       "target_type": "Review"
+    },
+    {
+      "source_type": "Relationship",
+      "edge": "relationship",
+      "target_type": "Person"
     },
     {
       "source_type": "Reservation",
