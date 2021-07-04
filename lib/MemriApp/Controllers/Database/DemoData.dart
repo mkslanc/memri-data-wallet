@@ -177,6 +177,10 @@ class DemoData {
         .expand((item) => processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))
         .toList();
 
+    //we need this to point persons to current device owner
+    var meRowId = (await ItemRecord.me(databaseController))?.rowId ??
+        (await ItemRecord.createMe(databaseController))?.rowId;
+
     Map<String, int> tempIDLookup = {};
     Map<String, int> sourceIDLookup = {};
 
@@ -192,6 +196,23 @@ class DemoData {
         tempIDLookup[tempUID] = recordID;
       }
       sourceIDLookup[item.uid] = recordID;
+
+      if (item.type == "Person") {
+        var record = ItemRecord(
+            type: "Relationship", dateCreated: item.dateCreated, dateModified: item.dateModified);
+        var recordRowID = await record.insert(databaseController.databasePool);
+        record.rowId = recordRowID;
+        await record.setPropertyValue("label", PropertyDatabaseValueString("Friend"),
+            db: databaseController);
+        await record.setPropertyValue("value", PropertyDatabaseValueInt(Random().nextInt(10000)),
+            db: databaseController);
+        var edge =
+            ItemEdgeRecord(sourceRowID: meRowId, name: "relationship", targetRowID: recordRowID);
+        await edge.insert(databaseController.databasePool);
+        edge =
+            ItemEdgeRecord(sourceRowID: recordRowID, name: "relationship", targetRowID: recordID);
+        await edge.insert(databaseController.databasePool);
+      }
     }
 
     for (var item in processedItems) {
