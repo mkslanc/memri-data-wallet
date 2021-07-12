@@ -82,7 +82,7 @@ class _CVUGridState extends State<CVUGrid> with StackWidget {
   Widget getWidget(List<Widget> children) {
     return GridView.count(
       physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      crossAxisCount: 2,
+      crossAxisCount: axis == Axis.horizontal ? 2 : 3, //TODO calculate from height/width?
       scrollDirection: axis,
       mainAxisSpacing: spacing.x.toDouble(),
       crossAxisSpacing: spacing.y.toDouble(),

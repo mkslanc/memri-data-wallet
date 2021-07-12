@@ -34,6 +34,11 @@
   },
   {
     "_type": "NavigationItem",
+    "title": "Social media",
+    "sessionName": "allPosts"
+  },
+  {
+    "_type": "NavigationItem",
     "title": "people",
     "sessionName": "allPeople"
   },
