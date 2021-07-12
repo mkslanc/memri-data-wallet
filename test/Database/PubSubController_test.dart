@@ -21,7 +21,7 @@ void main() {
         item: record,
         property: "state",
         desiredValue: PropertyDatabaseValueString("userActionNeeded"),
-        completion: (newValue, [error]) async {
+        completion: (newValue, [error]) {
           if (newValue == null) {
             return;
           }
@@ -45,15 +45,48 @@ void main() {
     print("`started` passed");
     await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
     print("`userActionNeeded` passed");
+    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    print("`userActionNeeded` passed");
     await record.setPropertyValue("state", PropertyDatabaseValueString("ready"));
     print("`ready` passed");
-
-    var recordNotd = ItemRecord(type: "Note");
-    await recordNotd.save();
-    await recordNotd.setPropertyValue("title", PropertyDatabaseValueString("by Ani"));
   });
 
-  tearDown(() async {
+  test('testPluginAuthenticationFlow2', () async {
+    var record = ItemRecord(type: "StartPlugin");
+    await record.save();
+    await record.setPropertyValue("state", PropertyDatabaseValueString("idle"));
+    appController.pubsubController.startObservingItemProperty(
+        item: record,
+        property: "state",
+        desiredValue: null,
+        completion: (newValue, [error]) async {
+          if (newValue is PropertyDatabaseValueString) {
+            var state = newValue.value;
+
+            print("got `$state`");
+
+            switch (state) {
+              case "userActionNeeded":
+                print("presentCVUforPlugin");
+                break;
+              default:
+                break;
+            }
+            return;
+          }
+        });
+
+    await record.setPropertyValue("state", PropertyDatabaseValueString("started"));
+    print("`started` passed");
+    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    print("`userActionNeeded` passed");
+    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    print("`userActionNeeded` passed");
+    await record.setPropertyValue("state", PropertyDatabaseValueString("ready"));
+    print("`ready` passed");
+  });
+
+  tearDownAll(() async {
     appController.databaseController.databasePool.close();
   });
 }

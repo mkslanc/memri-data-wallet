@@ -47,6 +47,21 @@
     },
     {
       "item_type": "Account",
+      "property": "identifier",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Account",
+      "property": "secret",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Account",
+      "property": "code",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Account",
       "property": "itemType",
       "value_type": "string"
     },
@@ -1673,6 +1688,16 @@
     {
       "item_type": "SuggestedMerge",
       "property": "task",
+      "value_type": "string"
+    },
+    {
+      "item_type": "StartPlugin",
+      "property": "state",
+      "value_type": "string"
+    },
+    {
+      "item_type": "StartPlugin",
+      "property": "oAuthUrl",
       "value_type": "string"
     },
     {

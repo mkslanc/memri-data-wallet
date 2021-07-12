@@ -21,6 +21,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
+import 'package:memri/MemriApp/Controllers/Plugins/PluginHandler.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
@@ -100,6 +101,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionMultiAction(vars: vars);
     case "runindexer":
       return ({Map? vars}) => CVUActionRunIndexer(vars: vars);
+    case "startplugin":
+      return ({Map? vars}) => CVUActionStartPlugin(vars: vars);
     case "setproperty":
       return ({Map? vars}) => CVUActionSetProperty(vars: vars);
     case "setsetting":
@@ -114,14 +117,14 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionToggleFullScreen(vars: vars);
     case "selectall":
       return ({Map? vars}) => CVUActionSelectAll(vars: vars);
+    case "sync":
+      return ({Map? vars}) => CVUActionSync(vars: vars);
     case "deselectall":
       return ({Map? vars}) => CVUActionDeselectAll(vars: vars);
     case "tonextitem":
       return ({Map? vars}) => CVUActionToNextItem(vars: vars);
     case "topreviousitem":
       return ({Map? vars}) => CVUActionToPreviousItem(vars: vars);
-    case "startplugin":
-      return ({Map? vars}) => CVUActionStartPlugin(vars: vars);
     case "requestcontacts":
       return ({Map? vars}) => CVUActionRequestContactsPermission(vars: vars);
     case "requestlocation":
@@ -451,9 +454,10 @@ class CVUActionStartPlugin extends CVUAction {
     var lookup = CVULookupController();
     var db = sceneController.appController.databaseController;
 
+    var plugin = context.currentItem;
     var targetItemIdValue = vars["targetItemId"];
     var containerValue = vars["container"];
-    if (targetItemIdValue == null || containerValue == null) return;
+    if (plugin == null || targetItemIdValue == null || containerValue == null) return;
 
     String? targetItemId =
         await lookup.resolve<String>(value: targetItemIdValue, context: context, db: db);
@@ -464,13 +468,74 @@ class CVUActionStartPlugin extends CVUAction {
     try {
       var startPluginItem = ItemRecord(type: "StartPlugin");
       await startPluginItem.save();
-      await startPluginItem.setPropertyValue("container", PropertyDatabaseValueString(container));
       await startPluginItem.setPropertyValue(
           "targetItemId", PropertyDatabaseValueString(targetItemId));
+      await startPluginItem.setPropertyValue("container", PropertyDatabaseValueString(container));
+      await startPluginItem.setPropertyValue("state", PropertyDatabaseValueString("idle"));
 
-      await AppController.shared.syncController.sync();
+      await PluginHandler.start(
+          plugin: plugin,
+          runner: startPluginItem,
+          sceneController: sceneController,
+          context: context);
     } catch (error) {
       print("Error starting plugin: $error");
+    }
+  }
+}
+
+class CVUActionSync extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionSync({vars}) : this.vars = vars ?? {};
+
+  @override
+  void execute(SceneController sceneController, CVUContext context) async {
+    try {
+      var pendingItems = <ItemRecord>[];
+      var pendingEdges = <ItemEdgeRecord>[];
+
+      var item = context.currentItem;
+
+      if (item != null) {
+        if (item.syncState == SyncState.skip) {
+          item.syncState = SyncState.create;
+          pendingItems.add(item);
+        }
+
+        var edges = await item.edges(null) + await item.reverseEdges(null);
+
+        for (var edge in edges) {
+          if (edge.syncState == SyncState.skip) {
+            edge.syncState = SyncState.create;
+            pendingEdges.add(edge);
+          }
+        }
+
+        var edgeItems = await item.edgeItems(null) + await item.reverseEdgeItems(null);
+
+        for (var edgeItem in edgeItems) {
+          if (edgeItem.syncState == SyncState.skip) {
+            edgeItem.syncState = SyncState.create;
+            pendingItems.add(edgeItem);
+          }
+        }
+      }
+
+      for (var item in pendingItems) {
+        await item.save();
+      }
+
+      for (var edge in pendingEdges) {
+        await edge.save();
+      }
+
+      await AppController.shared.syncController.sync();
+      if (sceneController.isInEditMode.value) {
+        sceneController.toggleEditMode();
+      }
+    } catch (error) {
+      print("Error starting sync: $error");
     }
   }
 }
