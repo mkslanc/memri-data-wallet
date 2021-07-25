@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
-import 'package:uuid/uuid.dart';
 
 import 'API/Authentication.dart';
 import 'API/PodAPIConnectionDetails.dart';
@@ -79,6 +78,11 @@ class AppController {
         milliseconds:
             200)); //TODO find the reason why setstate rebuilds widget too late without this in SetupScreenView
     try {
+      if (await Authentication.storageIsNotExists) {
+        await Authentication.createRootKey();
+      } else {
+        await Authentication.authenticateOwner();
+      }
       if (!await databaseController.hasImportedDefaultData) {
         await connectToPod(config, () async {
           if (config is SetupConfigLocal || config is SetupConfigNewPod) {
@@ -105,11 +109,7 @@ class AppController {
       return;
     }
 
-    /// During this setup function would be a good place to generate a database encryption key, create a new database with this key, and then import the demo data.
-    /// NOTE: This is a temporary placehold until encryption is implemented.
-    /// - UUID is not a good option for a randomly generated key, should use an existing generator from CryptoKit
-    var newDatabaseEncryptionKey = Uuid().v4();
-    await setHasBeenSetup(newDatabaseEncryptionKey);
+    await updateState();
     onCompletion(null);
   }
 
@@ -167,6 +167,9 @@ class AppController {
     if (!await checkHasBeenSetup()) {
       return;
     }
+    if (!Authentication.isOwnerAuthenticated) {
+      await Authentication.authenticateOwner();
+    }
     isAuthenticated = true;
   }
 
@@ -175,15 +178,6 @@ class AppController {
       return false;
     }
     return true;
-  }
-
-  setHasBeenSetup(String? databaseKey) async {
-    if (databaseKey != null) {
-      // Keychain().set(databaseKey, key: AppController.keychainDatabaseKey);
-    } else {
-      // Keychain().remove(AppController.keychainDatabaseKey);
-    }
-    await updateState();
   }
 
   // MARK: Pod connection

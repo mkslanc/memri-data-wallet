@@ -3,8 +3,55 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:uuid/uuid.dart';
+import 'package:biometric_storage/biometric_storage.dart';
 
 class Authentication {
+  static String RootKeyTag = "memriPrivateKey";
+  static bool isOwnerAuthenticated = false;
+  static BiometricStorageFile? storage;
+
+  static Future<bool> get hasSecureEnclave async {
+    return hasBiometrics;
+  }
+
+  /// Check that this device has Biometrics features available
+  static Future<bool> get hasBiometrics async {
+    var canAuthenticate = await BiometricStorage().canAuthenticate();
+    if (canAuthenticate == CanAuthenticateResponse.success) {
+      return true;
+    }
+    return false;
+  }
+
+  static authenticateOwner() async {
+    if (await hasBiometrics) {
+      if (await storageIsNotExists) {
+        throw Exception("Couldn't read value from storage");
+      }
+      isOwnerAuthenticated = true;
+    } else {
+      //TODO: when https://github.com/authpass/biometric_storage/pull/28 PR will be accepted, we could implement authentication without biometric
+      throw Exception("Couldn't authenticate user without biometric");
+    }
+  }
+
+  static Future<bool> get storageIsNotExists async {
+    try {
+      if (storage == null) storage = await BiometricStorage().getStorage(RootKeyTag);
+      var result = await storage!.read();
+      if (result == null) {
+        return true;
+      }
+      return false;
+    } on Exception catch (e) {
+      if (e is AuthException) {
+        throw Exception(e.message);
+      } else {
+        throw Exception("Unknown error");
+      }
+    }
+  }
+
   static createOwnerAndDBKey() async {
     var dbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "").toUpperCase();
 
@@ -12,6 +59,12 @@ class Authentication {
     var publicKey = Uuid().v4().replaceAll("-", "").toUpperCase();
 
     await setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
+  }
+
+  static Future<void> createRootKey() async {
+    if (storage == null) storage = await BiometricStorage().getStorage(RootKeyTag);
+    await storage!.write(""); //TODO: place for your key
+    isOwnerAuthenticated = true;
   }
 
   static setOwnerAndDBKey(
