@@ -24,6 +24,8 @@ class _SetupScreenViewState extends State<SetupScreenView> {
   final podPublicKeyController = TextEditingController();
   final podPrivateKeyController = TextEditingController();
   final podDatabaseKeyController = TextEditingController();
+  bool isSetup = false;
+  late Future _init;
 
   _SetupScreenViewState();
 
@@ -35,6 +37,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     podPublicKeyController.addListener(_setPodPublicKey);
     podPrivateKeyController.addListener(_setPodPrivateKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
+    _init = init();
   }
 
   @override
@@ -44,6 +47,16 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     podPrivateKeyController.dispose();
     podDatabaseKeyController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
+  init() async {
+    isSetup = await appController.checkHasBeenSetup();
   }
 
   void _setPodUrl() {
@@ -81,6 +94,7 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                               themeMode: ThemeMode.dark,
                               home: FutureBuilder(
                                   initialData: true,
+                                  future: _init,
                                   builder: (BuildContext context, snapshot) => Scaffold(
                                           body: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -105,90 +119,141 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                           Text("A place where your data belongs to you.",
                                               textAlign: TextAlign.center),
                                           SizedBox(height: 30),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: space(
-                                                  6,
-                                                  [
-                                                    Text("Have a memri pod?"),
-                                                    ElevatedButton(
-                                                        onPressed: () => Navigator.of(context).push(
-                                                                MaterialPageRoute(
-                                                                    builder: (context) {
-                                                              return Scaffold(
-                                                                resizeToAvoidBottomInset: false,
-                                                                appBar: AppBar(
-                                                                  title: Text('Pod setup'),
-                                                                ),
-                                                                body: podSetup,
-                                                              );
-                                                            })),
-                                                        style: ElevatedButton.styleFrom(
-                                                          minimumSize: Size.fromHeight(50),
-                                                          primary: Colors.green,
-                                                          shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(10)),
-                                                        ),
-                                                        child: Text(
-                                                          "Connect to pod",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        )),
-                                                  ],
-                                                  Axis.vertical),
-                                            ),
-                                          ),
-                                          Padding(
-                                              padding:
-                                                  EdgeInsets.only(top: 10, left: 5.0, right: 5.0),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: space(
-                                                    6,
-                                                    [
-                                                      Text("Just want to try the app?"),
-                                                      ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                              minimumSize: Size.fromHeight(50),
-                                                              primary: Colors.grey.shade800,
-                                                              shape: RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(10))),
-                                                          onPressed: onLocalDemoPressed,
-                                                          child: Text(
-                                                              "Let me try the app without a pod"))
-                                                    ],
-                                                    Axis.vertical),
-                                              )),
-                                          Padding(
-                                              padding:
-                                                  EdgeInsets.only(top: 10, left: 5.0, right: 5.0),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: space(
-                                                    6,
-                                                    [
-                                                      Row(
+                                          isSetup
+                                              ? Column(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.symmetric(
+                                                          horizontal: 5.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment.start,
                                                         children: [
-                                                          Switch(
-                                                              value: model.useDemoData,
-                                                              onChanged: (value) => setState(() {
-                                                                    model.useDemoData = value;
-                                                                  })),
-                                                          Text("Use demo data?"),
+                                                          ElevatedButton(
+                                                              onPressed: appController
+                                                                  .requestAuthentication,
+                                                              style: ElevatedButton.styleFrom(
+                                                                minimumSize: Size.fromHeight(50),
+                                                                primary: Colors.green,
+                                                                shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(10)),
+                                                              ),
+                                                              child: Text(
+                                                                "Authorise",
+                                                                style: TextStyle(
+                                                                  color: Colors.white,
+                                                                ),
+                                                              )),
                                                         ],
                                                       ),
-                                                      Text(
-                                                        "If enabled this will insert demo data.",
-                                                        style: captionFont,
+                                                    ),
+                                                  ],
+                                                )
+                                              : Column(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.symmetric(
+                                                          horizontal: 5.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment.start,
+                                                        children: space(
+                                                            6,
+                                                            [
+                                                              Text("Have a memri pod?"),
+                                                              ElevatedButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.of(context).push(
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) {
+                                                                        return Scaffold(
+                                                                          resizeToAvoidBottomInset:
+                                                                              false,
+                                                                          appBar: AppBar(
+                                                                            title:
+                                                                                Text('Pod setup'),
+                                                                          ),
+                                                                          body: podSetup,
+                                                                        );
+                                                                      })),
+                                                                  style: ElevatedButton.styleFrom(
+                                                                    minimumSize:
+                                                                        Size.fromHeight(50),
+                                                                    primary: Colors.green,
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                                10)),
+                                                                  ),
+                                                                  child: Text(
+                                                                    "Connect to pod",
+                                                                    style: TextStyle(
+                                                                      color: Colors.white,
+                                                                    ),
+                                                                  )),
+                                                            ],
+                                                            Axis.vertical),
                                                       ),
-                                                    ],
-                                                    Axis.vertical),
-                                              ))
+                                                    ),
+                                                    Padding(
+                                                        padding: EdgeInsets.only(
+                                                            top: 10, left: 5.0, right: 5.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment.start,
+                                                          children: space(
+                                                              6,
+                                                              [
+                                                                Text("Just want to try the app?"),
+                                                                ElevatedButton(
+                                                                    style: ElevatedButton.styleFrom(
+                                                                        minimumSize:
+                                                                            Size.fromHeight(50),
+                                                                        primary:
+                                                                            Colors.grey.shade800,
+                                                                        shape:
+                                                                            RoundedRectangleBorder(
+                                                                                borderRadius:
+                                                                                    BorderRadius
+                                                                                        .circular(
+                                                                                            10))),
+                                                                    onPressed: onLocalDemoPressed,
+                                                                    child: Text(
+                                                                        "Let me try the app without a pod"))
+                                                              ],
+                                                              Axis.vertical),
+                                                        )),
+                                                    Padding(
+                                                        padding: EdgeInsets.only(
+                                                            top: 10, left: 5.0, right: 5.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment.start,
+                                                          children: space(
+                                                              6,
+                                                              [
+                                                                Row(
+                                                                  children: [
+                                                                    Switch(
+                                                                        value: model.useDemoData,
+                                                                        onChanged: (value) =>
+                                                                            setState(() {
+                                                                              model.useDemoData =
+                                                                                  value;
+                                                                            })),
+                                                                    Text("Use demo data?"),
+                                                                  ],
+                                                                ),
+                                                                Text(
+                                                                  "If enabled this will insert demo data.",
+                                                                  style: captionFont,
+                                                                ),
+                                                              ],
+                                                              Axis.vertical),
+                                                        )),
+                                                  ],
+                                                )
                                         ]),
                                       ))),
                             ),
