@@ -30,11 +30,11 @@ class DatabaseController {
   }
 
   Future<List<ItemRecord>> search(String? searchString) async {
-    var searchQuery = searchString;
+    var searchQuery = searchString?.replaceAll('"', "");
     if (searchQuery == null) {
       throw Exception("Invalid search string: $searchString");
     }
-    var refinedQuery = "$searchQuery*";
+    var refinedQuery = '"$searchQuery*"';
     return await ItemRecord.search(this, refinedQuery);
   }
 
