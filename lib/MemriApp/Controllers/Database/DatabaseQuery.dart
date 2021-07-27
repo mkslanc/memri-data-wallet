@@ -8,6 +8,8 @@ import 'package:moor/moor.dart';
 import 'ItemRecord.dart';
 import 'Schema.dart';
 import 'package:json_annotation/json_annotation.dart' as annotation;
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 part 'DatabaseQuery.g.dart';
 
@@ -340,10 +342,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   _constructSearchRequest() async {
-    var refinedQuery = "$searchString*";
-    if (searchString == null || searchString == "") {
-      return;
-    }
+    var searchQuery = searchString?.replaceAll('"', "").nullIfBlank;
+    if (searchQuery == null) return;
+    searchQuery =
+        searchQuery.split(" ").compactMap((e) => e.nullIfBlank == null ? null : '"$e"').join(" ");
+    var refinedQuery = '$searchQuery*';
     return await dbController.databasePool.itemPropertyRecordsCustomSelect(
         "value MATCH ?", [Variable.withString(refinedQuery)], true);
   }
