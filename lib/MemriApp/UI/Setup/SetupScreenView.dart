@@ -253,7 +253,12 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                                               Axis.vertical),
                                                         )),
                                                   ],
-                                                )
+                                                ),
+                                          if (model.state == PodSetupState.error)
+                                            Text(
+                                              "Error: ${model.errorString}",
+                                              style: TextStyle(color: Colors.red),
+                                            ),
                                         ]),
                                       ))),
                             ),

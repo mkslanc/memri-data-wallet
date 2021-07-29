@@ -45,7 +45,19 @@ class Authentication {
       return false;
     } on Exception catch (e) {
       if (e is AuthException) {
-        throw Exception(e.message);
+        switch (e.code) {
+          case AuthExceptionCode.userCanceled:
+            throw Exception("Authorisation was cancelled");
+          case AuthExceptionCode.unknown:
+            if (e.message == "Cancel") {
+              throw Exception("Authorisation was cancelled");
+            }
+            throw Exception(e.message);
+          case AuthExceptionCode.timeout:
+            throw Exception("Exceeded authorisation timeout");
+          default:
+            throw Exception(e.message);
+        }
       } else {
         throw Exception("Unknown error");
       }
