@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:biometric_storage/biometric_storage.dart';
 
 class Authentication {
-  static String RootKeyTag = "memriPrivateKey";
+  static String rootKeyTag = "memriPrivateKey";
   static bool isOwnerAuthenticated = false;
   static BiometricStorageFile? storage;
 
@@ -37,7 +37,7 @@ class Authentication {
 
   static Future<bool> get storageIsNotExists async {
     try {
-      if (storage == null) storage = await BiometricStorage().getStorage(RootKeyTag);
+      if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
       var result = await storage!.read();
       if (result == null) {
         return true;
@@ -74,7 +74,7 @@ class Authentication {
   }
 
   static Future<void> createRootKey() async {
-    if (storage == null) storage = await BiometricStorage().getStorage(RootKeyTag);
+    if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
     await storage!.write(""); //TODO: place for your key
     isOwnerAuthenticated = true;
   }
