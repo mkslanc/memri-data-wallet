@@ -273,6 +273,13 @@ class SceneController extends ChangeNotifier {
     if (itemTypes.isNotEmpty) {
       queryConfig.itemTypes = itemTypes;
     }
+
+    var sortDef = datasourceResolver?.subdefinition("sort");
+    if (sortDef != null) {
+      queryConfig.sortEdges = await queryConfig.combineSortEdgesQuery(
+          sortResolver: sortDef, dbController: appController.databaseController);
+    }
+
     if (rowIdList.isNotEmpty) {
       queryConfig.itemRowIDs = rowIdList;
     }
