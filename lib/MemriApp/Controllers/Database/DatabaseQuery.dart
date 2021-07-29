@@ -99,7 +99,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of conditions. eg. property name = "Demo note"
   List<DatabaseQueryCondition> conditions = [];
 
-  /// A list of conditions. eg. property name = "Demo note"
+  /// A list of `join` queries with edge conditions.
   List<JoinQueryStruct>? sortEdges;
 
   ConditionOperator edgeTargetsOperator = ConditionOperator.and;
@@ -401,14 +401,14 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     String? targetItemType;
     if (itemTypes.isNotEmpty) {
       //Assigning sortProperty to special type - edge
-      this.sortProperty = "edge";
-
-      var edgeSorting =
-          sortResolver.subdefinition("edgeTarget") ?? sortResolver.subdefinition("edgeSource");
+      sortProperty = "edge";
+      var edgeTarget = sortResolver.subdefinition("edgeTarget");
+      var edgeSource = sortResolver.subdefinition("edgeSource");
+      var edgeSorting = edgeTarget ?? edgeSource;
       if (edgeSorting != null) {
         var direction = "source";
         var oppositeDirection = "target";
-        if (sortResolver.subdefinition("edgeTarget") != null) {
+        if (edgeTarget != null) {
           direction = "target";
           oppositeDirection = "source";
         }
