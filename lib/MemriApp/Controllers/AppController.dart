@@ -163,14 +163,22 @@ class AppController {
     }
   }
 
-  requestAuthentication() async {
-    if (!await checkHasBeenSetup()) {
-      return;
+  requestAuthentication([Function(Exception? error)? callback]) async {
+    try {
+      if (!await checkHasBeenSetup()) {
+        return;
+      }
+      if (!Authentication.isOwnerAuthenticated) {
+        await Authentication.authenticateOwner();
+      }
+      isAuthenticated = true;
+    } on Exception catch (e) {
+      if (callback != null) {
+        callback(e);
+      } else {
+        throw e;
+      }
     }
-    if (!Authentication.isOwnerAuthenticated) {
-      await Authentication.authenticateOwner();
-    }
-    isAuthenticated = true;
   }
 
   Future<bool> checkHasBeenSetup() async {

@@ -130,8 +130,10 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                                             CrossAxisAlignment.start,
                                                         children: [
                                                           ElevatedButton(
-                                                              onPressed: appController
-                                                                  .requestAuthentication,
+                                                              onPressed: () async =>
+                                                                  await appController
+                                                                      .requestAuthentication(
+                                                                          handleCompletion),
                                                               style: ElevatedButton.styleFrom(
                                                                 minimumSize: Size.fromHeight(50),
                                                                 primary: Colors.green,
@@ -428,20 +430,19 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     await handleSetup(false);
   }
 
+  void handleCompletion(Exception? error) {
+    if (error != null) {
+      setState(() {
+        model.state = PodSetupState.error;
+        model.errorString = "${error.toString()}";
+      });
+    } else {
+      setState(() => model.state = PodSetupState.idle);
+    }
+  }
+
   handleSetup(bool localOnly) async {
     setState(() => model.state = PodSetupState.loading);
-
-    void handleCompletion(Exception? error) {
-      if (error != null) {
-        setState(() {
-          model.state = PodSetupState.error;
-          model.errorString = "${error.toString()}";
-        });
-      } else {
-        setState(() => model.state = PodSetupState.idle);
-      }
-    }
-
     var config = model.getSetupConfig(localOnly);
 
     if (config == null) {
