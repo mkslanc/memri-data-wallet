@@ -1,7 +1,11 @@
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
 import 'package:biometric_storage/biometric_storage.dart';
 
@@ -64,13 +68,36 @@ class Authentication {
     }
   }
 
-  static createOwnerAndDBKey() async {
+  static SecureRandom getSecureRandom() {
+    var secureRandom = FortunaRandom();
+    var random = Random.secure();
+    List<int> seeds = [];
+    for (int i = 0; i < 32; i++) {
+      seeds.add(random.nextInt(255));
+    }
+    secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
+    return secureRandom;
+  }
+
+  static GeneratedKeys generateAllKeys() {
     var dbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "").toUpperCase();
+    var rsapars = ECKeyGeneratorParameters(ECCurve_secp256k1());
+    var params = ParametersWithRandom(rsapars, getSecureRandom());
+    var keyGenerator = ECKeyGenerator();
+    keyGenerator.init(params);
+    var keyPair = keyGenerator.generateKeyPair();
+    var privateKey = keyPair.privateKey as ECPrivateKey;
+    var publicKey = keyPair.publicKey as ECPublicKey;
+    var privateKeyStr = privateKey.d!.toRadixString(16).toUpperCase();
+    var publicKeyStr = publicKey.Q!.x!.toBigInteger()!.toRadixString(16).toUpperCase();
+    return GeneratedKeys(privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
+  }
 
-    var privateKey = Uuid().v4().replaceAll("-", "").toUpperCase();
-    var publicKey = Uuid().v4().replaceAll("-", "").toUpperCase();
-
-    await setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
+  static Future<GeneratedKeys> createOwnerAndDBKey() async {
+    var keys = generateAllKeys();
+    await setOwnerAndDBKey(
+        privateKey: keys.privateKey, publicKey: keys.publicKey, dbKey: keys.dbKey);
+    return keys;
   }
 
   static Future<void> createRootKey() async {
@@ -140,4 +167,12 @@ class AuthKeys {
   String dbKey;
 
   AuthKeys({required this.ownerKey, required this.dbKey});
+}
+
+class GeneratedKeys {
+  String publicKey;
+  String privateKey;
+  String dbKey;
+
+  GeneratedKeys({required this.publicKey, required this.privateKey, required this.dbKey});
 }

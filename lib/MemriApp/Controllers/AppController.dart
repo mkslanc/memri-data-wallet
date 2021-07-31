@@ -124,9 +124,9 @@ class AppController {
           databaseKey: config.config.podDatabaseKey);
     } else if (config is SetupConfigNewPod) {
       var uri = Uri.parse(config.config.podURL);
-      await Authentication.createOwnerAndDBKey();
-      var keys = await Authentication.getOwnerAndDBKey();
-      var ownerKey = keys.ownerKey;
+
+      var keys = await Authentication.createOwnerAndDBKey();
+      var ownerKey = keys.publicKey;
       var databaseKey = keys.dbKey;
       _podConnectionConfig = PodAPIConnectionDetails(
           scheme: uri.scheme,
