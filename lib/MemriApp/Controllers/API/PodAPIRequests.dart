@@ -34,14 +34,14 @@ class PodAPIStandardRequest<Payload> {
     var body = jsonEncode(PodAPIRequestBody(connectionConfig: connectionConfig, payload: payload));
     switch (method) {
       case HTTPMethod.get:
-        if (payload is PodAPIPayload) {
-          if (path == "version") {
-            url = Uri(
-                scheme: connectionConfig.scheme,
-                host: connectionConfig.host,
-                port: connectionConfig.port,
-                path: "/$path");
-          } else {
+        if (path == "version") {
+          url = Uri(
+              scheme: connectionConfig.scheme,
+              host: connectionConfig.host,
+              port: connectionConfig.port,
+              path: "/$path");
+        } else {
+          if (payload is PodAPIPayload) {
             url = Uri(
                 scheme: connectionConfig.scheme,
                 host: connectionConfig.host,
