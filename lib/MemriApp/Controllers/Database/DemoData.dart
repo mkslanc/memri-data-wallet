@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:uuid/uuid.dart';
 
 import '../AppController.dart';
@@ -173,8 +175,9 @@ class DemoData {
 
     await loadSchema();
 
-    List<DemoDataItem> processedItems = items
-        .expand((item) => processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))
+    List<DemoDataItem> processedItems = (await Future.wait(items.map((item) async =>
+            await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))))
+        .expand((element) => element)
         .toList();
 
     Map<String, int> tempIDLookup = {};
@@ -187,6 +190,11 @@ class DemoData {
           dateCreated: item.dateCreated,
           dateModified: item.dateModified);
       var tempUID = item.tempUID;
+
+      if (record.type == "File") {
+        record.fileState = FileState.needsUpload;
+      }
+
       var recordID = await record.insert(databaseController.databasePool);
       if (tempUID != null) {
         tempIDLookup[tempUID] = recordID;
@@ -217,8 +225,8 @@ class DemoData {
     }
   }
 
-  static List<DemoDataItem> processItemJSON(
-      {required Map<String, dynamic> item, String? overrideUID, isRunningTests = false}) {
+  static Future<List<DemoDataItem>> processItemJSON(
+      {required Map<String, dynamic> item, String? overrideUID, isRunningTests = false}) async {
     handleError(String string) {
       if (isRunningTests) {
         // Used for testing: throw an error if error in demo data
@@ -251,7 +259,9 @@ class DemoData {
         DateTime.now().subtract(Duration(milliseconds: Random().nextInt(1814400 * 1000)));
     var dateModified = dateCreated;
 
-    item.forEach((propertyName, propertyValue) {
+    await Future.forEach(item.entries, (MapEntry itemProperty) async {
+      var propertyName = itemProperty.key;
+      var propertyValue = itemProperty.value;
       switch (propertyName) {
         case "_type":
         case "uid":
@@ -280,7 +290,7 @@ class DemoData {
                 edges.add(DemoDataEdge(name: edgeName, targetTempUID: targetUID));
                 items = [
                   ...items,
-                  ...processItemJSON(
+                  ...await processItemJSON(
                       item: subitem as Map<String, dynamic>,
                       overrideUID: targetUID,
                       isRunningTests: isRunningTests)
@@ -303,9 +313,33 @@ class DemoData {
             return;
           }
           try {
-            var result = PropertyDatabaseValue.create(
+            var databaseValue = PropertyDatabaseValue.create(
                 propertyValue, expectedType.valueType, "$itemType.$propertyName");
-            properties.add(DemoDataProperty(name: propertyName, value: result));
+
+            if (itemType == "File" &&
+                propertyName == "filename" &&
+                databaseValue is PropertyDatabaseValueString) {
+              var fileName = databaseValue.value;
+              var newFileName =
+                  "${Uuid().v4()}.${fileName.fileExtension ?? "jpg"}"; //TODO do we need this?
+              var url = (await FileStorageController.getFileStorageURL()) + "/" + newFileName;
+
+              var demoDirectory = "assets/demoAssets";
+              var sourcePath = demoDirectory +
+                  "/" +
+                  ("${fileName.fileName ?? ""}.${fileName.fileExtension ?? "jpg"}");
+              // FileManager.default.copyItem(atPath: sourcePath.path, toPath: url.path);
+              await FileStorageController.copy(sourcePath, url);
+
+              // Also add sha256 property for item
+              var sha256 = await FileStorageController.getHashForFile(fileURL: url);
+              properties.add(
+                  DemoDataProperty(name: "sha256", value: PropertyDatabaseValueString(sha256)));
+
+              databaseValue = PropertyDatabaseValueString(newFileName);
+            }
+
+            properties.add(DemoDataProperty(name: propertyName, value: databaseValue));
           } catch (error) {
             handleError(error.toString());
             return;
