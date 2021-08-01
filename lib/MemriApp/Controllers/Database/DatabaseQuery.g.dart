@@ -32,7 +32,8 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) {
         ?.map((e) => DatabaseQueryCondition.fromJson(e))
         .toList(),
     edgeTargetsOperator: _$enumDecode(_$ConditionOperatorEnumMap, json['edgeTargetsOperator']),
-  );
+    count: json['count'] as int?,
+  )..deleted = json['deleted'] as bool?;
 }
 
 Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) => <String, dynamic>{
@@ -43,6 +44,7 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) =
       'dateModifiedAfter': instance.dateModifiedAfter?.toIso8601String(),
       'dateModifiedBefore': instance.dateModifiedBefore?.toIso8601String(),
       'dateCreatedAfter': instance.dateCreatedAfter?.toIso8601String(),
+      'deleted': instance.deleted,
       'dateCreatedBefore': instance.dateCreatedBefore?.toIso8601String(),
       'pageSize': instance.pageSize,
       'currentPage': instance.currentPage,
@@ -50,6 +52,7 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) =
       'includeImmediateEdgeSearch': instance.includeImmediateEdgeSearch,
       'conditions': instance.conditions,
       'edgeTargetsOperator': _$ConditionOperatorEnumMap[instance.edgeTargetsOperator],
+      'count': instance.count,
     };
 
 K _$enumDecode<K, V>(
