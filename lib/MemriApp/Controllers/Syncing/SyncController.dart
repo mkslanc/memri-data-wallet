@@ -13,6 +13,7 @@ import 'package:memri/MemriApp/Controllers/API/PodAPIRequests.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:moor/moor.dart';
 
 import '../AppController.dart';
@@ -25,6 +26,8 @@ enum SyncControllerState {
   uploadedItems,
   uploadedEdges,
   downloadedItems,
+  uploadedFiles,
+  downloadedFiles,
   done,
   failed
 }
@@ -84,6 +87,22 @@ class SyncController {
           throw (e);
         }
       case SyncControllerState.uploadedEdges:
+        try {
+          await uploadFiles();
+          break;
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
+      case SyncControllerState.uploadedFiles:
+        try {
+          await downloadFiles();
+          break;
+        } catch (e) {
+          await finishSync();
+          throw (e);
+        }
+      case SyncControllerState.downloadedFiles:
         await finishSync();
         break;
       case SyncControllerState.failed:
@@ -135,6 +154,54 @@ class SyncController {
 
     this.completion = completion;
     await setState(SyncControllerState.started);
+  }
+
+  uploadFiles() async {
+    var fileItemRecordToUpload = await ItemRecord.fileItemRecordToUpload();
+    if (fileItemRecordToUpload == null) {
+      await setState(SyncControllerState.uploadedFiles);
+      return;
+    }
+
+    var item = fileItemRecordToUpload["item"];
+    var fileName = fileItemRecordToUpload["fileName"];
+
+    print("Uploading File: $fileName");
+
+    await uploadFile(fileName, (data, error) async {
+      if (error != null) {
+        lastError = error;
+        await setState(SyncControllerState.failed);
+        return;
+      }
+
+      await ItemRecord.didUploadFileForItem(item);
+      await uploadFiles();
+    });
+  }
+
+  downloadFiles() async {
+    var fileItemRecordToDownload = await ItemRecord.fileItemRecordToDownload();
+    if (fileItemRecordToDownload == null) {
+      await setState(SyncControllerState.downloadedFiles);
+      return;
+    }
+    var item = fileItemRecordToDownload["item"];
+    var sha256 = fileItemRecordToDownload["sha256"];
+    var fileName = fileItemRecordToDownload["fileName"];
+
+    print("Downloading File: $fileName");
+
+    await downloadFile(sha256, fileName, (error) async {
+      if (error != null) {
+        lastError = error;
+        await setState(SyncControllerState.failed);
+        return;
+      }
+
+      await ItemRecord.didDownloadFileForItem(item);
+      await downloadFiles();
+    });
   }
 
   finishSync() async {
@@ -361,5 +428,50 @@ class SyncController {
       error = networkCall.reasonPhrase;
     }
     if (completion != null) await completion(networkCall.body, error);
+  }
+
+  uploadFile(String uuid, Future<void> Function(String? data, String? error)? completion) async {
+    var connectionConfig = currentConnection ?? await AppController.shared.podConnectionConfig;
+
+    if (connectionConfig == null) {
+      throw Exception("No pod connection config");
+    }
+
+    var fileURL = await FileStorageController.getURLForFile(uuid);
+    var request =
+        await PodAPIUploadRequest.uploadFile(fileURL: fileURL, connectionConfig: connectionConfig);
+
+    var networkCall = await request.execute(connectionConfig);
+
+    var error;
+    if (networkCall.statusCode != 200) {
+      error = networkCall.reasonPhrase;
+      if (error == "Conflict") {
+        if (completion != null) await completion(networkCall.body, null);
+        return;
+      }
+      print("ERROR: ${networkCall.statusCode} $error on file $fileURL");
+    }
+    if (completion != null) await completion(networkCall.body, error);
+  }
+
+  downloadFile(
+      String sha256, String fileName, Future<void> Function(String? error)? completion) async {
+    var connectionConfig = currentConnection ?? await AppController.shared.podConnectionConfig;
+
+    if (connectionConfig == null) {
+      throw Exception("No pod connection config");
+    }
+
+    var request = PodAPIDownloadRequest.downloadFile(sha256, fileName);
+
+    var networkCall = await request.execute(connectionConfig);
+
+    var error;
+    if (networkCall.statusCode != 200) {
+      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      error = networkCall.reasonPhrase;
+    }
+    if (completion != null) await completion(error);
   }
 }
