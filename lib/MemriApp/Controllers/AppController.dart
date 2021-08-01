@@ -50,8 +50,6 @@ class AppController {
     await updateState();
     if (isAuthenticated) {
       isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
-      await AppController.shared.databaseController.schema
-          .load(AppController.shared.databaseController.databasePool);
     }
   }
 
