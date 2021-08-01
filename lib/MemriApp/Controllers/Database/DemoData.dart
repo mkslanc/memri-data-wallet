@@ -316,7 +316,8 @@ class DemoData {
             var databaseValue = PropertyDatabaseValue.create(
                 propertyValue, expectedType.valueType, "$itemType.$propertyName");
 
-            if (itemType == "File" &&
+            if (!isRunningTests &&
+                itemType == "File" &&
                 propertyName == "filename" &&
                 databaseValue is PropertyDatabaseValueString) {
               var fileName = databaseValue.value;
@@ -328,7 +329,6 @@ class DemoData {
               var sourcePath = demoDirectory +
                   "/" +
                   ("${fileName.fileName ?? ""}.${fileName.fileExtension ?? "jpg"}");
-              // FileManager.default.copyItem(atPath: sourcePath.path, toPath: url.path);
               await FileStorageController.copy(sourcePath, url);
 
               // Also add sha256 property for item
