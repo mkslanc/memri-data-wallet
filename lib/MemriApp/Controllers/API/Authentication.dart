@@ -12,6 +12,7 @@ class Authentication {
     var publicKey = Uuid().v4().replaceAll("-", "").toUpperCase();
 
     await setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
+    return AuthKeys(ownerKey: publicKey, dbKey: dbKey);
   }
 
   static setOwnerAndDBKey(
