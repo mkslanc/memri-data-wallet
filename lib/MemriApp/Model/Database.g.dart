@@ -16,6 +16,7 @@ class Item extends DataClass implements Insertable<Item> {
   final DateTime? dateServerModified;
   final bool deleted;
   final String syncState;
+  final String fileState;
   final bool syncHasPriority;
   Item(
       {required this.rowId,
@@ -26,6 +27,7 @@ class Item extends DataClass implements Insertable<Item> {
       this.dateServerModified,
       required this.deleted,
       required this.syncState,
+      required this.fileState,
       required this.syncHasPriority});
   factory Item.fromData(Map<String, dynamic> data, GeneratedDatabase db, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -41,6 +43,7 @@ class Item extends DataClass implements Insertable<Item> {
           const IntType().mapFromDatabaseResponse(data['${effectivePrefix}dateServerModified'])),
       deleted: const BoolType().mapFromDatabaseResponse(data['${effectivePrefix}deleted'])!,
       syncState: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}syncState'])!,
+      fileState: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}fileState'])!,
       syncHasPriority:
           const BoolType().mapFromDatabaseResponse(data['${effectivePrefix}syncHasPriority'])!,
     );
@@ -65,6 +68,7 @@ class Item extends DataClass implements Insertable<Item> {
     }
     map['deleted'] = Variable<bool>(deleted);
     map['syncState'] = Variable<String>(syncState);
+    map['fileState'] = Variable<String>(fileState);
     map['syncHasPriority'] = Variable<bool>(syncHasPriority);
     return map;
   }
@@ -81,6 +85,7 @@ class Item extends DataClass implements Insertable<Item> {
           : Value(dateServerModified),
       deleted: Value(deleted),
       syncState: Value(syncState),
+      fileState: Value(fileState),
       syncHasPriority: Value(syncHasPriority),
     );
   }
@@ -96,6 +101,7 @@ class Item extends DataClass implements Insertable<Item> {
       dateServerModified: serializer.fromJson<DateTime?>(json['dateServerModified']),
       deleted: serializer.fromJson<bool>(json['deleted']),
       syncState: serializer.fromJson<String>(json['syncState']),
+      fileState: serializer.fromJson<String>(json['fileState']),
       syncHasPriority: serializer.fromJson<bool>(json['syncHasPriority']),
     );
   }
@@ -111,6 +117,7 @@ class Item extends DataClass implements Insertable<Item> {
       'dateServerModified': serializer.toJson<DateTime?>(dateServerModified),
       'deleted': serializer.toJson<bool>(deleted),
       'syncState': serializer.toJson<String>(syncState),
+      'fileState': serializer.toJson<String>(fileState),
       'syncHasPriority': serializer.toJson<bool>(syncHasPriority),
     };
   }
@@ -124,6 +131,7 @@ class Item extends DataClass implements Insertable<Item> {
           DateTime? dateServerModified,
           bool? deleted,
           String? syncState,
+          String? fileState,
           bool? syncHasPriority}) =>
       Item(
         rowId: rowId ?? this.rowId,
@@ -134,6 +142,7 @@ class Item extends DataClass implements Insertable<Item> {
         dateServerModified: dateServerModified ?? this.dateServerModified,
         deleted: deleted ?? this.deleted,
         syncState: syncState ?? this.syncState,
+        fileState: fileState ?? this.fileState,
         syncHasPriority: syncHasPriority ?? this.syncHasPriority,
       );
   @override
@@ -147,6 +156,7 @@ class Item extends DataClass implements Insertable<Item> {
           ..write('dateServerModified: $dateServerModified, ')
           ..write('deleted: $deleted, ')
           ..write('syncState: $syncState, ')
+          ..write('fileState: $fileState, ')
           ..write('syncHasPriority: $syncHasPriority')
           ..write(')'))
         .toString();
@@ -165,8 +175,10 @@ class Item extends DataClass implements Insertable<Item> {
                       dateModified.hashCode,
                       $mrjc(
                           dateServerModified.hashCode,
-                          $mrjc(deleted.hashCode,
-                              $mrjc(syncState.hashCode, syncHasPriority.hashCode)))))))));
+                          $mrjc(
+                              deleted.hashCode,
+                              $mrjc(syncState.hashCode,
+                                  $mrjc(fileState.hashCode, syncHasPriority.hashCode))))))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -179,6 +191,7 @@ class Item extends DataClass implements Insertable<Item> {
           other.dateServerModified == this.dateServerModified &&
           other.deleted == this.deleted &&
           other.syncState == this.syncState &&
+          other.fileState == this.fileState &&
           other.syncHasPriority == this.syncHasPriority);
 }
 
@@ -191,6 +204,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
   final Value<DateTime?> dateServerModified;
   final Value<bool> deleted;
   final Value<String> syncState;
+  final Value<String> fileState;
   final Value<bool> syncHasPriority;
   const ItemsCompanion({
     this.rowId = const Value.absent(),
@@ -201,6 +215,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     this.dateServerModified = const Value.absent(),
     this.deleted = const Value.absent(),
     this.syncState = const Value.absent(),
+    this.fileState = const Value.absent(),
     this.syncHasPriority = const Value.absent(),
   });
   ItemsCompanion.insert({
@@ -212,6 +227,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     this.dateServerModified = const Value.absent(),
     this.deleted = const Value.absent(),
     this.syncState = const Value.absent(),
+    this.fileState = const Value.absent(),
     this.syncHasPriority = const Value.absent(),
   })  : id = Value(id),
         type = Value(type),
@@ -226,6 +242,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     Expression<DateTime?>? dateServerModified,
     Expression<bool>? deleted,
     Expression<String>? syncState,
+    Expression<String>? fileState,
     Expression<bool>? syncHasPriority,
   }) {
     return RawValuesInsertable({
@@ -237,6 +254,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
       if (dateServerModified != null) 'dateServerModified': dateServerModified,
       if (deleted != null) 'deleted': deleted,
       if (syncState != null) 'syncState': syncState,
+      if (fileState != null) 'fileState': fileState,
       if (syncHasPriority != null) 'syncHasPriority': syncHasPriority,
     });
   }
@@ -250,6 +268,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
       Value<DateTime?>? dateServerModified,
       Value<bool>? deleted,
       Value<String>? syncState,
+      Value<String>? fileState,
       Value<bool>? syncHasPriority}) {
     return ItemsCompanion(
       rowId: rowId ?? this.rowId,
@@ -260,6 +279,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
       dateServerModified: dateServerModified ?? this.dateServerModified,
       deleted: deleted ?? this.deleted,
       syncState: syncState ?? this.syncState,
+      fileState: fileState ?? this.fileState,
       syncHasPriority: syncHasPriority ?? this.syncHasPriority,
     );
   }
@@ -294,6 +314,9 @@ class ItemsCompanion extends UpdateCompanion<Item> {
     if (syncState.present) {
       map['syncState'] = Variable<String>(syncState.value);
     }
+    if (fileState.present) {
+      map['fileState'] = Variable<String>(fileState.value);
+    }
     if (syncHasPriority.present) {
       map['syncHasPriority'] = Variable<bool>(syncHasPriority.value);
     }
@@ -311,6 +334,7 @@ class ItemsCompanion extends UpdateCompanion<Item> {
           ..write('dateServerModified: $dateServerModified, ')
           ..write('deleted: $deleted, ')
           ..write('syncState: $syncState, ')
+          ..write('fileState: $fileState, ')
           ..write('syncHasPriority: $syncHasPriority')
           ..write(')'))
         .toString();
@@ -374,6 +398,14 @@ class Items extends Table with TableInfo<Items, Item> {
         defaultValue: const CustomExpression<String>('\'create\''));
   }
 
+  final VerificationMeta _fileStateMeta = const VerificationMeta('fileState');
+  late final GeneratedTextColumn fileState = _constructFileState();
+  GeneratedTextColumn _constructFileState() {
+    return GeneratedTextColumn('fileState', $tableName, false,
+        $customConstraints: 'NOT NULL DEFAULT \'skip\'',
+        defaultValue: const CustomExpression<String>('\'skip\''));
+  }
+
   final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
   late final GeneratedBoolColumn syncHasPriority = _constructSyncHasPriority();
   GeneratedBoolColumn _constructSyncHasPriority() {
@@ -392,6 +424,7 @@ class Items extends Table with TableInfo<Items, Item> {
         dateServerModified,
         deleted,
         syncState,
+        fileState,
         syncHasPriority
       ];
   @override
@@ -426,6 +459,10 @@ class Items extends Table with TableInfo<Items, Item> {
     if (data.containsKey('syncState')) {
       context.handle(
           _syncStateMeta, syncState.isAcceptableOrUnknown(data['syncState']!, _syncStateMeta));
+    }
+    if (data.containsKey('fileState')) {
+      context.handle(
+          _fileStateMeta, fileState.isAcceptableOrUnknown(data['fileState']!, _fileStateMeta));
     }
     if (data.containsKey('syncHasPriority')) {
       context.handle(_syncHasPriorityMeta,
