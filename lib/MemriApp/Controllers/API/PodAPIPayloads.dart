@@ -20,12 +20,12 @@ abstract class PodAPIPayload {
 class PodAPIPayloadEmptyPayload extends PodAPIPayload {}
 
 class PodAPIPayloadFileSHA extends PodAPIPayload {
-  String sha;
+  String sha256;
 
-  PodAPIPayloadFileSHA(this.sha);
+  PodAPIPayloadFileSHA(this.sha256);
 
   toJson() => {
-        'sha': sha,
+        'sha256': sha256,
       };
 }
 
