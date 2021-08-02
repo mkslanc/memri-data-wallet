@@ -2,6 +2,8 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'DemoData.dart';
 import 'Schema.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
@@ -34,11 +36,13 @@ class DatabaseController {
   }
 
   Future<List<ItemRecord>> search(String? searchString) async {
-    var searchQuery = searchString;
+    var searchQuery = searchString?.replaceAll('"', "");
     if (searchQuery == null) {
       throw Exception("Invalid search string: $searchString");
     }
-    var refinedQuery = "$searchQuery*";
+    searchQuery =
+        searchQuery.split(" ").compactMap((e) => e.nullIfBlank == null ? null : '"$e"').join(" ");
+    var refinedQuery = '$searchQuery*';
     return await ItemRecord.search(this, refinedQuery);
   }
 

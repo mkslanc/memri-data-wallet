@@ -32,7 +32,11 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) {
         ?.map((e) => DatabaseQueryCondition.fromJson(e))
         .toList(),
     edgeTargetsOperator: _$enumDecode(_$ConditionOperatorEnumMap, json['edgeTargetsOperator']),
-  );
+    count: json['count'] as int?,
+    sortEdges: (json['sortEdges'] as List<dynamic>?)
+        ?.map((e) => JoinQueryStruct.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  )..deleted = json['deleted'] as bool?;
 }
 
 Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) => <String, dynamic>{
@@ -43,13 +47,16 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) =
       'dateModifiedAfter': instance.dateModifiedAfter?.toIso8601String(),
       'dateModifiedBefore': instance.dateModifiedBefore?.toIso8601String(),
       'dateCreatedAfter': instance.dateCreatedAfter?.toIso8601String(),
+      'deleted': instance.deleted,
       'dateCreatedBefore': instance.dateCreatedBefore?.toIso8601String(),
       'pageSize': instance.pageSize,
       'currentPage': instance.currentPage,
       'searchString': instance.searchString,
       'includeImmediateEdgeSearch': instance.includeImmediateEdgeSearch,
       'conditions': instance.conditions,
+      'sortEdges': instance.sortEdges,
       'edgeTargetsOperator': _$ConditionOperatorEnumMap[instance.edgeTargetsOperator],
+      'count': instance.count,
     };
 
 K _$enumDecode<K, V>(
@@ -82,6 +89,20 @@ const _$ConditionOperatorEnumMap = {
   ConditionOperator.and: 'and',
   ConditionOperator.or: 'or',
 };
+
+JoinQueryStruct _$JoinQueryStructFromJson(Map<String, dynamic> json) {
+  return JoinQueryStruct(
+    table: json['table'] as String,
+    joinQuery: json['joinQuery'] as String,
+    direction: json['direction'] as String?,
+  );
+}
+
+Map<String, dynamic> _$JoinQueryStructToJson(JoinQueryStruct instance) => <String, dynamic>{
+      'table': instance.table,
+      'joinQuery': instance.joinQuery,
+      'direction': instance.direction,
+    };
 
 DatabaseQueryConditionPropertyEquals _$DatabaseQueryConditionPropertyEqualsFromJson(
     Map<String, dynamic> json) {

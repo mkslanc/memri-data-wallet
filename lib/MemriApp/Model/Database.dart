@@ -84,7 +84,7 @@ class Database extends _$Database {
     }
     joinTables ??= [];
     return await customSelect(
-        "SELECT * from items $join WHERE $query ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != null ? "LIMIT $limit" : ""} ${offset != null ? "OFFSET $offset" : ""}",
+        "SELECT items.* from items $join WHERE $query ${orderBy != null ? "GROUP BY row_id ORDER BY $orderBy" : ""} ${limit != null ? "LIMIT $limit" : ""} ${offset != null ? "OFFSET $offset" : ""}",
         variables: binding,
         readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }
@@ -199,6 +199,23 @@ class Database extends _$Database {
         return reals;
       case ItemRecordPropertyTable.strings:
         return strings;
+    }
+  }
+
+  TableInfo getTable(String tableName) {
+    switch (tableName) {
+      case "integers":
+        return integers;
+      case "reals":
+        return reals;
+      case "strings":
+        return strings;
+      case "edges":
+        return edges;
+      case "items":
+        return items;
+      default:
+        throw ("No such table");
     }
   }
 

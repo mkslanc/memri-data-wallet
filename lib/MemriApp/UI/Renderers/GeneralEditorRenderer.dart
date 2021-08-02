@@ -366,7 +366,8 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
       return null;
     }
 
-    var args = widget.viewContext.config.viewArguments?.args ?? <String, CVUValue>{};
+    var args = <String, CVUValue>{};
+    args.addAll(widget.viewContext.config.viewArguments?.args ?? {});
     args["query"] = CVUValueConstant(CVUConstantString(widget.item.type));
     args["type"] = CVUValueConstant(CVUConstantString(edgeType));
     args["subject"] = CVUValueItem(widget.item.rowId!);
