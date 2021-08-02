@@ -42,7 +42,7 @@ class _MainViewState extends State<MainView> {
 
   Future<void> init() async {
     try {
-      if (await Authentication.storageIsNotExists) {
+      if (await Authentication.storageDoesNotExist) {
         await Authentication.createRootKey();
       }
       await sceneController.init();
