@@ -47,11 +47,9 @@ class AppController {
   }
 
   Future onLaunch() async {
-    await requestAuthentication();
+    await updateState();
     if (isAuthenticated) {
       isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
-      await AppController.shared.databaseController.schema
-          .load(AppController.shared.databaseController.databasePool);
     }
   }
 
@@ -78,11 +76,6 @@ class AppController {
         milliseconds:
             200)); //TODO find the reason why setstate rebuilds widget too late without this in SetupScreenView
     try {
-      if (await Authentication.storageDoesNotExist) {
-        await Authentication.createRootKey();
-      } else {
-        await Authentication.authenticateOwner();
-      }
       if (!await databaseController.hasImportedDefaultData) {
         await connectToPod(config, () async {
           if (config is SetupConfigLocal || config is SetupConfigNewPod) {
@@ -163,22 +156,11 @@ class AppController {
     }
   }
 
-  requestAuthentication([Function(Exception? error)? callback]) async {
-    try {
-      if (!await checkHasBeenSetup()) {
-        return;
-      }
-      if (!Authentication.isOwnerAuthenticated) {
-        await Authentication.authenticateOwner();
-      }
-      isAuthenticated = true;
-    } on Exception catch (e) {
-      if (callback != null) {
-        callback(e);
-      } else {
-        throw e;
-      }
+  requestAuthentication() async {
+    if (!await checkHasBeenSetup()) {
+      return;
     }
+    isAuthenticated = true;
   }
 
   Future<bool> checkHasBeenSetup() async {

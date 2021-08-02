@@ -657,6 +657,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.1"
+  sqlcipher_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: sqlcipher_flutter_libs
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   sqlite3:
     dependency: transitive
     description:
@@ -664,13 +671,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.2"
-  sqlite3_flutter_libs:
-    dependency: "direct main"
-    description:
-      name: sqlite3_flutter_libs
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.3"
   sqlparser:
     dependency: transitive
     description:

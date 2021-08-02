@@ -13,6 +13,7 @@ class Authentication {
   static String rootKeyTag = "memriPrivateKey";
   static bool isOwnerAuthenticated = false;
   static BiometricStorageFile? storage;
+  static String? lastRootPublicKey;
 
   static Future<bool> get hasSecureEnclave async {
     return hasBiometrics;
@@ -28,42 +29,40 @@ class Authentication {
   }
 
   static authenticateOwner() async {
-    if (await hasBiometrics) {
-      if (await storageDoesNotExist) {
-        throw Exception("Couldn't read value from storage");
-      }
-      isOwnerAuthenticated = true;
-    } else {
-      //TODO: when https://github.com/authpass/biometric_storage/pull/28 PR will be accepted, we could implement authentication without biometric
-      throw Exception("Couldn't authenticate user without biometric");
+    if (await storageDoesNotExist) {
+      throw Exception("Couldn't read value from storage");
     }
+    isOwnerAuthenticated = true;
   }
 
   static Future<bool> get storageDoesNotExist async {
     try {
-      if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
-      var result = await storage!.read();
-      if (result == null) {
-        return true;
-      }
-      return false;
-    } on Exception catch (e) {
-      if (e is AuthException) {
-        switch (e.code) {
-          case AuthExceptionCode.userCanceled:
-            throw Exception("Authorisation was cancelled");
-          case AuthExceptionCode.unknown:
-            if (e.message == "Cancel") {
-              throw Exception("Authorisation was cancelled");
-            }
-            throw Exception(e.message);
-          case AuthExceptionCode.timeout:
-            throw Exception("Exceeded authorisation timeout");
-          default:
-            throw Exception(e.message);
+      if (await hasBiometrics) {
+        if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
+        var result = await storage!.read();
+        if (result == null) {
+          return true;
         }
+        lastRootPublicKey = result;
+        isOwnerAuthenticated = true;
+        return false;
       } else {
-        throw Exception("Unknown error");
+        //TODO: when https://github.com/authpass/biometric_storage/pull/28 PR will be accepted, we could implement authentication without biometric
+        throw Exception("Couldn't authenticate user without biometric");
+      }
+    } on AuthException catch (e) {
+      switch (e.code) {
+        case AuthExceptionCode.userCanceled:
+          throw Exception("Authorisation was cancelled");
+        case AuthExceptionCode.unknown:
+          if (e.message == "Cancel") {
+            throw Exception("Authorisation was cancelled");
+          }
+          throw Exception(e.message);
+        case AuthExceptionCode.timeout:
+          throw Exception("Exceeded authorisation timeout");
+        default:
+          throw Exception(e.message);
       }
     }
   }
@@ -102,7 +101,9 @@ class Authentication {
 
   static Future<void> createRootKey() async {
     if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
-    await storage!.write(""); //TODO: place for your key
+    var localDbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "").toUpperCase();
+    await storage!.write(localDbKey);
+    lastRootPublicKey = localDbKey;
     isOwnerAuthenticated = true;
   }
 
