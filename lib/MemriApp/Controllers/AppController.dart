@@ -78,7 +78,7 @@ class AppController {
         milliseconds:
             200)); //TODO find the reason why setstate rebuilds widget too late without this in SetupScreenView
     try {
-      if (await Authentication.storageIsNotExists) {
+      if (await Authentication.storageDoesNotExist) {
         await Authentication.createRootKey();
       } else {
         await Authentication.authenticateOwner();

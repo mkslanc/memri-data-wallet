@@ -29,7 +29,7 @@ class Authentication {
 
   static authenticateOwner() async {
     if (await hasBiometrics) {
-      if (await storageIsNotExists) {
+      if (await storageDoesNotExist) {
         throw Exception("Couldn't read value from storage");
       }
       isOwnerAuthenticated = true;
@@ -39,7 +39,7 @@ class Authentication {
     }
   }
 
-  static Future<bool> get storageIsNotExists async {
+  static Future<bool> get storageDoesNotExist async {
     try {
       if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
       var result = await storage!.read();
