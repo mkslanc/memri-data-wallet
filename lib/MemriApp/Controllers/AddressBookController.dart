@@ -1,5 +1,6 @@
 import 'package:flutter_contact/contacts.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
+import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
@@ -7,6 +8,9 @@ import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:phone_number/phone_number.dart' as Phone;
+import 'package:uuid/uuid.dart';
+
+import 'FileStorageController.dart';
 
 class AddressBookController {
   static bool syncing = false;
@@ -88,6 +92,9 @@ class AddressBookController {
             "email", PropertyDatabaseValueString(contact.emails[0].value!),
             db: db);
       }
+    }
+    if (contact.hasAvatar) {
+      await saveAvatar(avatar: contact.avatar!, person: existingContact, dbController: db);
     }
   }
 
@@ -212,6 +219,38 @@ class AddressBookController {
                 sourceRowID: person.rowId, name: "address", targetRowID: newAddressItem.rowId)
             .save(db);
       }
+    }
+  }
+
+  static saveAvatar(
+      {required Uint8List avatar,
+      required ItemRecord person,
+      required DatabaseController dbController}) async {
+    if (person.rowId != null) {
+      var newImageItem = ItemRecord(type: "Image");
+      await newImageItem.save(dbController.databasePool);
+      await ItemEdgeRecord(
+              sourceRowID: person.rowId, name: "profilePicture", targetRowID: newImageItem.rowId)
+          .save(dbController.databasePool);
+
+      var newFileItem = ItemRecord(type: "File");
+      await newFileItem.save(dbController.databasePool);
+
+      try {
+        var fileName = "${Uuid().v4()}.jpg";
+        var url = (await FileStorageController.getFileStorageURL()) + "/" + fileName;
+        await FileStorageController.write(url, avatar);
+        var sha256 = await FileStorageController.getHashForFile(fileURL: url);
+        await newFileItem.setPropertyValue("sha256", PropertyDatabaseValueString(sha256),
+            db: dbController);
+        await newFileItem.setPropertyValue("filename", PropertyDatabaseValueString(fileName),
+            db: dbController);
+      } catch (e) {
+        print(e.toString());
+      }
+      await ItemEdgeRecord(
+              sourceRowID: newImageItem.rowId, name: "file", targetRowID: newFileItem.rowId)
+          .save(dbController.databasePool);
     }
   }
 
