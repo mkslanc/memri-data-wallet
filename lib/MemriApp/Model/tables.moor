@@ -10,6 +10,7 @@ CREATE TABLE items
     dateServerModified INTEGER MAPPED BY `const DateTimeConverter()`,
     deleted            BOOLEAN  NOT NULL DEFAULT false,
     syncState          TEXT     NOT NULL DEFAULT 'create',
+    fileState          TEXT     NOT NULL DEFAULT 'skip',
     syncHasPriority    BOOLEAN  NOT NULL DEFAULT false
 );
 

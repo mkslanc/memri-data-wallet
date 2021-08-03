@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'dart:io';
+
 extension StringExtension on String {
   String? get nullIfBlank {
     return RegExp(r"^\s*$").hasMatch(this) ? null : this;
@@ -25,5 +27,15 @@ extension StringExtension on String {
   String escapeForJavascript() {
     var str = jsonEncode([this]);
     return str.substring(2, str.length - 2);
+  }
+
+  String? get fileName {
+    var name = this.split(Platform.pathSeparator).last.split(".").asMap()[0] ?? "";
+    return name.isEmpty ? null : name;
+  }
+
+  String? get fileExtension {
+    var ext = this.split(Platform.pathSeparator).last.split(".").asMap()[1] ?? "";
+    return ext.isEmpty ? null : ext;
   }
 }

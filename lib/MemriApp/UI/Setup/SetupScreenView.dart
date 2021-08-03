@@ -105,90 +105,102 @@ class _SetupScreenViewState extends State<SetupScreenView> {
                                           Text("A place where your data belongs to you.",
                                               textAlign: TextAlign.center),
                                           SizedBox(height: 30),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: space(
-                                                  6,
-                                                  [
-                                                    Text("Have a memri pod?"),
-                                                    ElevatedButton(
-                                                        onPressed: () => Navigator.of(context).push(
-                                                                MaterialPageRoute(
-                                                                    builder: (context) {
-                                                              return Scaffold(
-                                                                resizeToAvoidBottomInset: false,
-                                                                appBar: AppBar(
-                                                                  title: Text('Pod setup'),
-                                                                ),
-                                                                body: podSetup,
-                                                              );
-                                                            })),
-                                                        style: ElevatedButton.styleFrom(
-                                                          minimumSize: Size.fromHeight(50),
-                                                          primary: Colors.green,
-                                                          shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(10)),
-                                                        ),
-                                                        child: Text(
-                                                          "Connect to pod",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        )),
-                                                  ],
-                                                  Axis.vertical),
-                                            ),
-                                          ),
-                                          Padding(
-                                              padding:
-                                                  EdgeInsets.only(top: 10, left: 5.0, right: 5.0),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: space(
-                                                    6,
-                                                    [
-                                                      Text("Just want to try the app?"),
-                                                      ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
+                                          Column(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(horizontal: 5.0),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: space(
+                                                      6,
+                                                      [
+                                                        Text("Have a memri pod?"),
+                                                        ElevatedButton(
+                                                            onPressed: () => Navigator.of(context)
+                                                                    .push(MaterialPageRoute(
+                                                                        builder: (context) {
+                                                                  return Scaffold(
+                                                                    resizeToAvoidBottomInset: false,
+                                                                    appBar: AppBar(
+                                                                      title: Text('Pod setup'),
+                                                                    ),
+                                                                    body: podSetup,
+                                                                  );
+                                                                })),
+                                                            style: ElevatedButton.styleFrom(
                                                               minimumSize: Size.fromHeight(50),
-                                                              primary: Colors.grey.shade800,
+                                                              primary: Colors.green,
                                                               shape: RoundedRectangleBorder(
                                                                   borderRadius:
-                                                                      BorderRadius.circular(10))),
-                                                          onPressed: onLocalDemoPressed,
-                                                          child: Text(
-                                                              "Let me try the app without a pod"))
-                                                    ],
-                                                    Axis.vertical),
-                                              )),
-                                          Padding(
-                                              padding:
-                                                  EdgeInsets.only(top: 10, left: 5.0, right: 5.0),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: space(
-                                                    6,
-                                                    [
-                                                      Row(
-                                                        children: [
-                                                          Switch(
-                                                              value: model.useDemoData,
-                                                              onChanged: (value) => setState(() {
-                                                                    model.useDemoData = value;
-                                                                  })),
-                                                          Text("Use demo data?"),
+                                                                      BorderRadius.circular(10)),
+                                                            ),
+                                                            child: Text(
+                                                              "Connect to pod",
+                                                              style: TextStyle(
+                                                                color: Colors.white,
+                                                              ),
+                                                            )),
+                                                      ],
+                                                      Axis.vertical),
+                                                ),
+                                              ),
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: 10, left: 5.0, right: 5.0),
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: space(
+                                                        6,
+                                                        [
+                                                          Text("Just want to try the app?"),
+                                                          ElevatedButton(
+                                                              style: ElevatedButton.styleFrom(
+                                                                  minimumSize: Size.fromHeight(50),
+                                                                  primary: Colors.grey.shade800,
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10))),
+                                                              onPressed: onLocalDemoPressed,
+                                                              child: Text(
+                                                                  "Let me try the app without a pod"))
                                                         ],
-                                                      ),
-                                                      Text(
-                                                        "If enabled this will insert demo data.",
-                                                        style: captionFont,
-                                                      ),
-                                                    ],
-                                                    Axis.vertical),
-                                              ))
+                                                        Axis.vertical),
+                                                  )),
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: 10, left: 5.0, right: 5.0),
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: space(
+                                                        6,
+                                                        [
+                                                          Row(
+                                                            children: [
+                                                              Switch(
+                                                                  value: model.useDemoData,
+                                                                  onChanged: (value) =>
+                                                                      setState(() {
+                                                                        model.useDemoData = value;
+                                                                      })),
+                                                              Text("Use demo data?"),
+                                                            ],
+                                                          ),
+                                                          Text(
+                                                            "If enabled this will insert demo data.",
+                                                            style: captionFont,
+                                                          ),
+                                                        ],
+                                                        Axis.vertical),
+                                                  )),
+                                            ],
+                                          ),
+                                          if (model.state == PodSetupState.error)
+                                            Text(
+                                              "Error: ${model.errorString}",
+                                              style: TextStyle(color: Colors.red),
+                                            ),
                                         ]),
                                       ))),
                             ),
@@ -358,20 +370,19 @@ class _SetupScreenViewState extends State<SetupScreenView> {
     await handleSetup(false);
   }
 
+  void handleCompletion(Exception? error) {
+    if (error != null) {
+      setState(() {
+        model.state = PodSetupState.error;
+        model.errorString = "${error.toString()}";
+      });
+    } else {
+      setState(() => model.state = PodSetupState.idle);
+    }
+  }
+
   handleSetup(bool localOnly) async {
     setState(() => model.state = PodSetupState.loading);
-
-    void handleCompletion(Exception? error) {
-      if (error != null) {
-        setState(() {
-          model.state = PodSetupState.error;
-          model.errorString = "${error.toString()}";
-        });
-      } else {
-        setState(() => model.state = PodSetupState.idle);
-      }
-    }
-
     var config = model.getSetupConfig(localOnly);
 
     if (config == null) {

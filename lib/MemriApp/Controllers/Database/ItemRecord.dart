@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
@@ -24,9 +25,20 @@ enum SyncState {
   failed,
 }
 
+enum FileState { skip, needsUpload, needsDownload, noChanges }
+
 extension SyncStateExtension on SyncState {
   static SyncState rawValue(String value) =>
       SyncState.values.firstWhere((val) => val.inString == value);
+
+  String get inString {
+    return this.toString().split('.').last;
+  }
+}
+
+extension FileStateExtension on FileState {
+  static FileState rawValue(String value) =>
+      FileState.values.firstWhere((val) => val.inString == value);
 
   String get inString {
     return this.toString().split('.').last;
@@ -44,6 +56,7 @@ class ItemRecord with EquatableMixin {
   bool deleted;
 
   SyncState syncState;
+  FileState fileState;
   bool syncHasPriority;
 
   ItemRecord(
@@ -54,6 +67,7 @@ class ItemRecord with EquatableMixin {
       DateTime? dateModified,
       this.deleted = false,
       this.syncState = SyncState.create,
+      this.fileState = FileState.skip,
       this.syncHasPriority = false})
       : this.dateModified = dateModified ?? DateTime.now(),
         this.dateCreated = dateCreated ?? DateTime.now(),
@@ -68,6 +82,7 @@ class ItemRecord with EquatableMixin {
         dateServerModified = item.dateServerModified,
         deleted = item.deleted,
         syncState = SyncStateExtension.rawValue(item.syncState),
+        fileState = FileStateExtension.rawValue(item.fileState),
         syncHasPriority = item.syncHasPriority;
 
   ItemRecord.fromSyncDict(Map<String, dynamic> dict)
@@ -78,6 +93,7 @@ class ItemRecord with EquatableMixin {
         dateServerModified = DateTime.fromMillisecondsSinceEpoch(dict["dateServerModified"]),
         deleted = dict["deleted"],
         syncState = SyncState.noChanges,
+        fileState = FileState.noChanges,
         syncHasPriority = false;
 
   ItemsCompanion toCompanion() {
@@ -91,6 +107,7 @@ class ItemRecord with EquatableMixin {
             dateServerModified == null ? const Value.absent() : Value(dateServerModified),
         deleted: Value(deleted),
         syncState: Value(syncState.inString),
+        fileState: Value(fileState.inString),
         syncHasPriority: Value(syncHasPriority));
   }
 
@@ -99,11 +116,14 @@ class ItemRecord with EquatableMixin {
     var properties = await db.databasePool.itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(name), Variable(rowId)]);
     if (properties.length > 0) {
-      SchemaValueType? valueType = db.schema.types[type]?.propertyTypes[name]?.valueType;
+      SchemaValueType? valueType = db.schema.expectedPropertyType(type, name);
+      if (valueType == null) {
+        throw Exception("Not found property $name for $type");
+      }
       return ItemPropertyRecord(
           itemRowID: properties[0].item,
           name: properties[0].name,
-          value: PropertyDatabaseValue.create(properties[0].value, valueType!));
+          value: PropertyDatabaseValue.create(properties[0].value, valueType));
     }
     return null;
   }
@@ -459,6 +479,17 @@ class ItemRecord with EquatableMixin {
         var databaseValue = PropertyDatabaseValue.create(propertyValue, expectedType);
         await newItem.setPropertyValue(propertyName, databaseValue,
             db: dbController, state: SyncState.noChanges);
+
+        // If the item has file and it does not exist on disk, mark the file to be downloaded
+        if (newItem.type == "File" && propertyName == "filename") {
+          String? fileName = entry.value;
+          if (fileName != null &&
+              !(await FileStorageController.fileExists(
+                  (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
+            newItem.fileState = FileState.needsDownload;
+            newItem.save(dbController.databasePool);
+          }
+        }
       });
     }
 
@@ -610,6 +641,76 @@ class ItemRecord with EquatableMixin {
       return ItemRecord.fromItem(items[0]);
     }
     return null;
+  }
+
+  static Future<Map?> fileItemRecordToUpload() async {
+    var itemList = await ItemRecord.fetchWithType("File");
+    var item =
+        itemList.firstWhereOrNull((itemRecord) => itemRecord.fileState == FileState.needsUpload);
+
+    if (item == null) {
+      return null;
+    }
+
+    String? fileName;
+    var fileNameValue = await item.propertyValue("filename");
+    if (fileNameValue is PropertyDatabaseValueString) {
+      fileName = fileNameValue.value;
+    }
+
+    if (fileName == null) {
+      return null;
+    }
+
+    return {"item": item, "fileName": fileName};
+  }
+
+  static didUploadFileForItem(ItemRecord item) async {
+    var rowId = item.rowId;
+    if (rowId == null) return;
+    var fetchedItem = await ItemRecord.fetchWithRowID(rowId);
+    if (fetchedItem == null) return;
+
+    fetchedItem.fileState = FileState.noChanges;
+    await fetchedItem.save();
+  }
+
+  static Future<Map?> fileItemRecordToDownload() async {
+    var itemList = await ItemRecord.fetchWithType("File");
+    var item =
+        itemList.firstWhereOrNull((itemRecord) => itemRecord.fileState == FileState.needsDownload);
+
+    if (item == null) {
+      return null;
+    }
+
+    String? sha256;
+    String? fileName;
+    var sha256Value = await item.propertyValue("sha256");
+    var fileNameValue = await item.propertyValue("filename");
+    if (fileNameValue is PropertyDatabaseValueString &&
+        sha256Value is PropertyDatabaseValueString) {
+      sha256 = sha256Value.value;
+      fileName = fileNameValue.value;
+    }
+
+    if (sha256 == null || fileName == null) {
+      return null;
+    }
+
+    return {"item": item, "sha256": sha256, "fileName": fileName};
+  }
+
+  static didDownloadFileForItem(ItemRecord item) async {
+    var rowId = item.rowId;
+    if (rowId == null) return;
+    var fetchedItem = await ItemRecord.fetchWithRowID(rowId);
+    if (fetchedItem == null) {
+      return;
+    }
+
+    fetchedItem.fileState = FileState.noChanges;
+    fetchedItem.save();
   }
 
   static deleteExistingDBKeys([DatabaseController? db]) async {

@@ -8,6 +8,7 @@ void main() {
   late AppController appController;
   setUp(() async {
     appController = AppController.shared;
+    appController.databaseController.inMemory = true;
     await appController.databaseController.init();
     await appController.databaseController.importRequiredData(throwIfAgainstSchema: true);
     await appController.databaseController.setupWithDemoData(throwIfAgainstSchema: true);

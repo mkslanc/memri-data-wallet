@@ -28,6 +28,10 @@ class DatabaseController {
       return constructDb(inMemory: inMemory, databaseName: databaseName);
     }();
 
+    if (await hasImportedSchema) {
+      await schema.load(databasePool);
+    }
+
     isInited = true;
   }
 
