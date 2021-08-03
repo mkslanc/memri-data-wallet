@@ -16,6 +16,7 @@ ItemRecord _$ItemRecordFromJson(Map<String, dynamic> json) {
         json['dateModified'] == null ? null : DateTime.parse(json['dateModified'] as String),
     deleted: json['deleted'] as bool,
     syncState: _$enumDecode(_$SyncStateEnumMap, json['syncState']),
+    fileState: _$enumDecode(_$FileStateEnumMap, json['fileState']),
     syncHasPriority: json['syncHasPriority'] as bool,
   )..dateServerModified = json['dateServerModified'] == null
       ? null
@@ -31,6 +32,7 @@ Map<String, dynamic> _$ItemRecordToJson(ItemRecord instance) => <String, dynamic
       'dateModified': instance.dateModified.toIso8601String(),
       'deleted': instance.deleted,
       'syncState': _$SyncStateEnumMap[instance.syncState],
+      'fileState': _$FileStateEnumMap[instance.fileState],
       'syncHasPriority': instance.syncHasPriority,
     };
 
@@ -66,4 +68,11 @@ const _$SyncStateEnumMap = {
   SyncState.update: 'update',
   SyncState.noChanges: 'noChanges',
   SyncState.failed: 'failed',
+};
+
+const _$FileStateEnumMap = {
+  FileState.skip: 'skip',
+  FileState.needsUpload: 'needsUpload',
+  FileState.needsDownload: 'needsDownload',
+  FileState.noChanges: 'noChanges',
 };
