@@ -467,7 +467,16 @@ Person > timeline {
     
     [datasource = pod] {
         query: "Person"
-        sortProperty: dateModified
+        sort: {
+            edgeSource: {
+                edgeTarget: {
+                    relationship: {{me.uid}}
+                }
+                name: relationship
+                sortProperty: value
+                sortAscending: false
+            }
+        }
     }
     
     actionButton:

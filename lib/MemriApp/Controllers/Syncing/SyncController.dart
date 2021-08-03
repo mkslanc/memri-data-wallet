@@ -124,9 +124,7 @@ class SyncController {
   }
 
   sync({PodAPIConnectionDetails? connectionConfig, Function(String?)? completion}) async {
-    /*guard (try? ItemRecord.getOwnerAndDBKey()) != nil else {
-    throw StringError(description: "Not Setup")
-    }*/ //TODO: auth keys
+    await ItemRecord.getOwnerAndDBKey();
     currentConnection ??= connectionConfig ?? await AppController.shared.podConnectionConfig;
     if (currentConnection == null) {
       return;

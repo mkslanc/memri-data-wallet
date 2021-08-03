@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
-import 'package:uuid/uuid.dart';
 
 import 'API/Authentication.dart';
 import 'API/PodAPIConnectionDetails.dart';
@@ -48,11 +47,9 @@ class AppController {
   }
 
   Future onLaunch() async {
-    await requestAuthentication();
+    await updateState();
     if (isAuthenticated) {
       isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
-      await AppController.shared.databaseController.schema
-          .load(AppController.shared.databaseController.databasePool);
     }
   }
 
@@ -105,11 +102,7 @@ class AppController {
       return;
     }
 
-    /// During this setup function would be a good place to generate a database encryption key, create a new database with this key, and then import the demo data.
-    /// NOTE: This is a temporary placehold until encryption is implemented.
-    /// - UUID is not a good option for a randomly generated key, should use an existing generator from CryptoKit
-    var newDatabaseEncryptionKey = Uuid().v4();
-    await setHasBeenSetup(newDatabaseEncryptionKey);
+    await updateState();
     onCompletion(null);
   }
 
@@ -124,8 +117,9 @@ class AppController {
           databaseKey: config.config.podDatabaseKey);
     } else if (config is SetupConfigNewPod) {
       var uri = Uri.parse(config.config.podURL);
+
       var keys = await Authentication.createOwnerAndDBKey();
-      var ownerKey = keys.ownerKey;
+      var ownerKey = keys.publicKey;
       var databaseKey = keys.dbKey;
       _podConnectionConfig = PodAPIConnectionDetails(
           scheme: uri.scheme,
@@ -174,15 +168,6 @@ class AppController {
       return false;
     }
     return true;
-  }
-
-  setHasBeenSetup(String? databaseKey) async {
-    if (databaseKey != null) {
-      // Keychain().set(databaseKey, key: AppController.keychainDatabaseKey);
-    } else {
-      // Keychain().remove(AppController.keychainDatabaseKey);
-    }
-    await updateState();
   }
 
   // MARK: Pod connection
