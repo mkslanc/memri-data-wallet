@@ -61,6 +61,7 @@ K _$enumDecode<K, V>(
 }
 
 const _$SyncStateEnumMap = {
+  SyncState.skip: 'skip',
   SyncState.create: 'create',
   SyncState.update: 'update',
   SyncState.noChanges: 'noChanges',
