@@ -21,6 +21,7 @@ enum CVUUIElementFamily {
   Toggle,
   Picker,
   MemriButton,
+  MessageComposer,
   Button,
   ActionButton,
   Map,
