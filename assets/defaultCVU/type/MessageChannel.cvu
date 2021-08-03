@@ -46,7 +46,11 @@ MessageChannel {
     titleActionButton: openView {
         item: {{channel}}
     }
-    
+
+    bottomBar: {
+        messageComposer
+    }
+
     [datasource = pod] {
         query: Message
         filter: {
