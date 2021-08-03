@@ -16,8 +16,6 @@ class CVUMessageComposer extends StatefulWidget {
 }
 
 class _CVUMessageComposerState extends State<CVUMessageComposer> {
-  // bool _isEditingComposedMessage = false;
-
   String? composedMessage;
 
   late final contentController;
@@ -36,15 +34,13 @@ class _CVUMessageComposerState extends State<CVUMessageComposer> {
   }
 
   void _setComposedMessage() {
-    print(contentController.text);
     setState(() => composedMessage = contentController.text);
   }
 
   bool get canSend => composedMessage?.nullIfBlank != null;
 
   onPressSend() {
-    print("send");
-    // setState(() => _isEditingComposedMessage = false);
+    contentController.text = "";
   }
 
   @override
