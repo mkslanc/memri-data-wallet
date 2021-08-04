@@ -45,20 +45,23 @@ class _CVUMessageComposerState extends State<CVUMessageComposer> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: Column(
-        children: [
-          Divider(),
-          Row(
+    return Column(
+      children: [
+        Divider(height: 1),
+        Container(
+          color: CVUColor.system("secondarySystemBackground"),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          child: Row(
             children: space(6, [
               Flexible(
                 child: TextFormField(
                   controller: contentController,
                   style: TextStyle(backgroundColor: CVUColor.system("systemBackground")),
                   decoration: InputDecoration(
+                    isDense: true,
                     border: OutlineInputBorder(),
                     hintText: "Type a message...",
+                    contentPadding: EdgeInsets.all(5)
                   ),
                 ),
               ),
@@ -66,9 +69,9 @@ class _CVUMessageComposerState extends State<CVUMessageComposer> {
                   onPressed: canSend ? onPressSend : null, child: Icon(Icons.arrow_circle_up))
             ]),
           ),
-          Divider(),
-        ],
-      ),
+        ),
+        Divider(height: 1),
+      ],
     );
   }
 }
