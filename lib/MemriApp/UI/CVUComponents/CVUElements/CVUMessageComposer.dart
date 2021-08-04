@@ -58,11 +58,10 @@ class _CVUMessageComposerState extends State<CVUMessageComposer> {
                   controller: contentController,
                   style: TextStyle(backgroundColor: CVUColor.system("systemBackground")),
                   decoration: InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(),
-                    hintText: "Type a message...",
-                    contentPadding: EdgeInsets.all(5)
-                  ),
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                      hintText: "Type a message...",
+                      contentPadding: EdgeInsets.all(5)),
                 ),
               ),
               TextButton(
