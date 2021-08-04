@@ -8,17 +8,7 @@ import 'package:crypto/crypto.dart';
 /// The FileStorageController class provides methods to store and retrieve files locally
 class FileStorageController {
   static Future<String> getURLForFile(String uuid) async {
-    // Little hack to make our demo data work
-    var split = uuid.split(".");
-    var fileExt = split.length > 1 ? split.last : "jpg";
-    var fileName = split[0];
-    var url = "assets/demoAssets/$fileName.$fileExt";
-    try {
-      await rootBundle.load(url);
-      return url;
-    } catch (_) {
-      return await getFileStorageURL() + "/" + uuid;
-    }
+    return await getFileStorageURL() + "/" + uuid;
   }
 
   static getFileStorageURL() async {
@@ -27,14 +17,31 @@ class FileStorageController {
     return (await Directory(memriFileURL).create(recursive: true)).path;
   }
 
-  static Future<Uint8List?> getData(String uuid) async {
-    var fileURL = await getURLForFile(uuid);
+  static Future<bool> fileExists(String path) async {
+    var file = File(path);
+    return await file.exists();
+  }
+
+  static Future<Uint8List?> getData({String? uuid, String? fileURL}) async {
+    fileURL ??= await getURLForFile(uuid!);
     var file = File(fileURL);
     if (await file.exists()) return file.readAsBytes();
   }
 
-  static Future<String> getHashForFile(String uuid) async {
-    var data = await getData(uuid);
+  static Future<File> copy(String oldPath, String newPath) async {
+    var byteData = await rootBundle.load(oldPath);
+    return await write(
+        newPath, byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  }
+
+  static Future<File> write(String path, Uint8List byteData) async {
+    return await File(
+      path,
+    ).writeAsBytes(byteData);
+  }
+
+  static Future<String> getHashForFile({String? uuid, String? fileURL}) async {
+    var data = await getData(uuid: uuid, fileURL: fileURL);
     if (data == null) {
       return "";
     }
