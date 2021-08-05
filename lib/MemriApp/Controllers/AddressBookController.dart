@@ -227,7 +227,7 @@ class AddressBookController {
       required ItemRecord person,
       required DatabaseController dbController}) async {
     if (person.rowId != null) {
-      var newImageItem = ItemRecord(type: "Image");
+      var newImageItem = ItemRecord(type: "Photo");
       await newImageItem.save(dbController.databasePool);
       await ItemEdgeRecord(
               sourceRowID: person.rowId, name: "profilePicture", targetRowID: newImageItem.rowId)
