@@ -18,12 +18,13 @@ class _CustomRendererViewState extends State<CustomRendererView> {
   late final ViewContextController viewContext;
 
   CVUDefinitionContent? get nodeDefinition {
+    var viewDefinition;
     var viewName = viewContext.config.viewName;
-    if (viewName == null) {
-      return null;
+    if (viewName != null) {
+      viewDefinition = viewContext.cvuController.viewDefinitionFor(viewName: viewName);
     }
 
-    return viewContext.cvuController.viewDefinitionFor(viewName: viewName);
+    return viewDefinition ?? viewContext.config.viewDefinition.definitions.asMap()[0]?.parsed;
   }
 
   @override
