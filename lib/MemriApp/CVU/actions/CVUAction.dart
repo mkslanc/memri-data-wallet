@@ -6,6 +6,7 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -310,7 +311,13 @@ class CVUActionCopyToClipboard extends CVUAction {
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
-    // TODO: implement execute
+    var db = sceneController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var value = await resolver.string("value");
+    if (value != null) {
+      Clipboard.setData(ClipboardData(text: value));
+    }
   }
 }
 
