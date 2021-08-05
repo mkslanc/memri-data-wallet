@@ -473,11 +473,22 @@ class CVUActionStartPlugin extends CVUAction {
       await startPluginItem.setPropertyValue("container", PropertyDatabaseValueString(container));
       await startPluginItem.setPropertyValue("state", PropertyDatabaseValueString("idle"));
 
-      await PluginHandler.start(
-          plugin: plugin,
-          runner: startPluginItem,
-          sceneController: sceneController,
-          context: context);
+      // This is test code to render cvu for a plugin locally without connecting to pod
+      // Ideally plugins will contain more detailed container name
+      // We can remove this once plugins are able to send CVUs in stored definition
+      if (container == "cvu") {
+        await PluginHandler.presentCVUforPlugin(
+            plugin: plugin,
+            runner: startPluginItem,
+            sceneController: sceneController,
+            context: context);
+      } else {
+        await PluginHandler.start(
+            plugin: plugin,
+            runner: startPluginItem,
+            sceneController: sceneController,
+            context: context);
+      }
     } catch (error) {
       print("Error starting plugin: $error");
     }
