@@ -6,6 +6,7 @@
 //
 
 import 'package:flutter/cupertino.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import 'Chrome/BottomBarView.dart';
@@ -125,6 +126,16 @@ class _SceneContentViewState extends State<SceneContentView> {
         true;
   }
 
+  CVUDefinitionContent? get bottomBar {
+    var bottomBarDef = viewContext.cvuController
+        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
+        ?.properties["bottomBar"];
+
+    var bottomBarSubdef = bottomBarDef?.getSubdefinition();
+
+    return bottomBarSubdef;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -138,13 +149,19 @@ class _SceneContentViewState extends State<SceneContentView> {
                       future: _init,
                       builder: (BuildContext builder, snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
-                          if (showBottomBar)
-                            return BottomBarView(
-                              viewContext: viewContext,
-                              onSearchPressed: () {
-                                searchBarOpen.value = true;
-                              },
-                            );
+                          if (showBottomBar) {
+                            var nodeDefinition = bottomBar;
+                            if (nodeDefinition == null) {
+                              return BottomBarView(
+                                viewContext: viewContext,
+                                onSearchPressed: () {
+                                  searchBarOpen.value = true;
+                                },
+                              );
+                            } else {
+                              return viewContext.render(nodeDefinition: nodeDefinition);
+                            }
+                          }
                         }
                         return Empty();
                       });
