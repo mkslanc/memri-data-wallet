@@ -1,18 +1,21 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
-import 'package:biometric_storage/biometric_storage.dart';
+import 'package:local_auth/local_auth.dart';
 
 class Authentication {
   static String rootKeyTag = "memriPrivateKey";
   static bool isOwnerAuthenticated = false;
-  static BiometricStorageFile? storage;
+  static FlutterSecureStorage storage = FlutterSecureStorage();
+  static LocalAuthentication localAuth = LocalAuthentication();
   static String? lastRootPublicKey;
 
   static Future<bool> get hasSecureEnclave async {
@@ -21,11 +24,7 @@ class Authentication {
 
   /// Check that this device has Biometrics features available
   static Future<bool> get hasBiometrics async {
-    var canAuthenticate = await BiometricStorage().canAuthenticate();
-    if (canAuthenticate == CanAuthenticateResponse.success) {
-      return true;
-    }
-    return false;
+    return await localAuth.canCheckBiometrics;
   }
 
   static authenticateOwner() async {
@@ -38,32 +37,22 @@ class Authentication {
   static Future<bool> get storageDoesNotExist async {
     try {
       if (await hasBiometrics) {
-        if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
-        var result = await storage!.read();
-        if (result == null) {
-          return true;
-        }
-        lastRootPublicKey = result;
-        isOwnerAuthenticated = true;
-        return false;
-      } else {
-        //TODO: when https://github.com/authpass/biometric_storage/pull/28 PR will be accepted, we could implement authentication without biometric
-        throw Exception("Couldn't authenticate user without biometric");
-      }
-    } on AuthException catch (e) {
-      switch (e.code) {
-        case AuthExceptionCode.userCanceled:
-          throw Exception("Authorisation was cancelled");
-        case AuthExceptionCode.unknown:
-          if (e.message == "Cancel") {
-            throw Exception("Authorisation was cancelled");
+        bool didAuthenticate = await localAuth.authenticate(localizedReason: ' ');
+        if (didAuthenticate) {
+          var result = await storage.read(key: rootKeyTag);
+          if (result == null) {
+            return true;
           }
-          throw Exception(e.message);
-        case AuthExceptionCode.timeout:
-          throw Exception("Exceeded authorisation timeout");
-        default:
-          throw Exception(e.message);
+          lastRootPublicKey = result;
+          isOwnerAuthenticated = true;
+          return false;
+        } else {
+          throw Exception("User cancelled authentication");
+        }
       }
+      throw Exception("Couldn't authenticate user");
+    } on PlatformException catch (e) {
+      throw Exception(e.message);
     }
   }
 
@@ -100,9 +89,8 @@ class Authentication {
   }
 
   static Future<void> createRootKey() async {
-    if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
     var localDbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "").toUpperCase();
-    await storage!.write(localDbKey);
+    await storage.write(key: rootKeyTag, value: localDbKey);
     lastRootPublicKey = localDbKey;
     isOwnerAuthenticated = true;
   }
