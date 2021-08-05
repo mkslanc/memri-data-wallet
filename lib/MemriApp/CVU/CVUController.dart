@@ -34,8 +34,8 @@ class CVUController {
     }
   }
 
-  static Future<List<CVUParsedDefinition>> parseCVU() async {
-    var string = await CVUController.readCVUString();
+  static Future<List<CVUParsedDefinition>> parseCVU([String? string]) async {
+    string ??= await CVUController.readCVUString();
     var lexer = CVULexer(string);
     var tokens = lexer.tokenize();
     var parser = CVUParser(tokens);
