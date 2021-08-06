@@ -7,6 +7,7 @@ import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
@@ -15,8 +16,9 @@ import '../ViewContextController.dart';
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
   final SceneController sceneController;
+  final void Function() onSearchPressed;
 
-  TopBarView({required this.sceneController});
+  TopBarView({required this.sceneController, required this.onSearchPressed});
 
   @override
   _TopBarViewState createState() => _TopBarViewState();
@@ -66,92 +68,92 @@ class _TopBarViewState extends State<TopBarView> {
       padding: EdgeInsets.only(top: 20),
       child: Column(
         children: [
-          ColoredBox(
-            color: Color(0xfff2f2f7),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 60,
-                  child: Row(
-                    children: space(4, [
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 100,
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () =>
-                                      widget.sceneController.navigationIsVisible.value = true,
-                                  icon: Icon(Icons.dehaze),
-                                  padding: EdgeInsets.all(10),
+          SizedBox(
+            height: 80,
+            child: Row(children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 80,
+                    child: Row(
+                      children: [
+                        (widget.sceneController.canNavigateBack)
+                            ? TextButton(
+                                style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
+                                onPressed: () {
+                                  widget.sceneController.navigateBack();
+                                  widget.sceneController.isInEditMode.value = false;
+                                },
+                                child: Icon(Icons.arrow_back, size: 24),
+                              )
+                            : TextButton(
+                                style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
+                                onPressed: () =>
+                                    widget.sceneController.navigationIsVisible.value = true,
+                                child: Icon(
+                                  Icons.dehaze,
+                                  size: 24,
                                 ),
-                                if (widget.sceneController.canNavigateBack)
-                                  IconButton(
-                                    onPressed: () {
-                                      widget.sceneController.navigateBack();
-                                      widget.sceneController.isInEditMode.value = false;
-                                    },
-                                    icon: Icon(Icons.arrow_back),
-                                  )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      FutureBuilder(
-                          future: title,
-                          builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                            if (snapshot.hasData) {
-                              return Expanded(
-                                  child: Center(
-                                child: Text(
-                                  snapshot.data!,
-                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-                                ),
-                              ));
-                            } else {
-                              return Spacer();
-                            }
-                          }),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(minWidth: 100),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              FutureBuilder<List<String>?>(
-                                  future: widget.sceneController.topMostContext
-                                      ?.viewDefinitionPropertyResolver
-                                      .stringArray("editActionButton"),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.done) {
-                                      var editAction = snapshot.data?.asMap()[0];
-                                      var action = cvuAction(editAction ?? "");
-                                      if (action != null) {
-                                        return ActionButton(
-                                            action: action(vars: {
-                                              "icon": CVUValueConstant(CVUConstantString("pencil"))
-                                            }),
-                                            viewContext: viewContext!.getCVUContext());
-                                      }
-                                    }
-                                    return Empty();
-                                  }),
-                              if (actions != null)
-                                ...actions.map((action) => ActionButton(
-                                    action: action, viewContext: viewContext!.getCVUContext()))
-                            ],
-                            mainAxisAlignment: MainAxisAlignment.end,
-                          ),
-                        ),
-                      )
-                    ]),
+                              ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 78,
+                  child: TextButton(
+                    style: TextButton.styleFrom(padding: EdgeInsets.all(0)),
+                    onPressed: widget.onSearchPressed,
+                    child: Row(
+                      children: [
+                        Text(
+                          "Search in App",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1!
+                              .copyWith(color: CVUColor.textGrey),
+                        )
+                      ],
+                    ),
                   ),
-                )
-              ],
-            ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: 100),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FutureBuilder<List<String>?>(
+                          future: widget
+                              .sceneController.topMostContext?.viewDefinitionPropertyResolver
+                              .stringArray("editActionButton"),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              var editAction = snapshot.data?.asMap()[0];
+                              var action = cvuAction(editAction ?? "");
+                              if (action != null) {
+                                return ActionButton(
+                                    action: action(vars: {
+                                      "icon": CVUValueConstant(CVUConstantString("pencil"))
+                                    }),
+                                    viewContext: viewContext!.getCVUContext());
+                              }
+                            }
+                            return Empty();
+                          }),
+                      if (actions != null)
+                        ...actions.map((action) =>
+                            ActionButton(action: action, viewContext: viewContext!.getCVUContext()))
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.end,
+                  ),
+                ),
+              ),
+            ]),
           ),
           Divider(
             height: 1,
