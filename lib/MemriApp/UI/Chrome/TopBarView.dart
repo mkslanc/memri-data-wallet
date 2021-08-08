@@ -77,24 +77,16 @@ class _TopBarViewState extends State<TopBarView> {
                     width: 80,
                     child: Row(
                       children: [
-                        (widget.sceneController.canNavigateBack)
-                            ? TextButton(
-                                style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
-                                onPressed: () {
-                                  widget.sceneController.navigateBack();
-                                  widget.sceneController.isInEditMode.value = false;
-                                },
-                                child: Icon(Icons.arrow_back, size: 24),
-                              )
-                            : TextButton(
-                                style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
-                                onPressed: () =>
-                                    widget.sceneController.navigationIsVisible.value = true,
-                                child: Icon(
-                                  Icons.dehaze,
-                                  size: 24,
-                                ),
-                              ),
+                        if (!widget.sceneController.canNavigateBack)
+                          TextButton(
+                            style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
+                            onPressed: () =>
+                                widget.sceneController.navigationIsVisible.value = true,
+                            child: Icon(
+                              Icons.dehaze,
+                              size: 24,
+                            ),
+                          ),
                       ],
                     ),
                   )

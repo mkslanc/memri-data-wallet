@@ -18,48 +18,91 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import 'Chrome/SearchView.dart';
 
 /// This is the view used to display the browser content of each scene
-class SceneView extends StatelessWidget {
+class SceneView extends StatefulWidget {
   final SceneController sceneController;
-  final double filterPanelGestureOffset = 0;
-
-  /// Keep track of whether the search bar is currently open (keyboard shown)
-  final searchBarOpen = ValueNotifier<bool>(false);
 
   SceneView({required this.sceneController});
 
   @override
+  _SceneViewState createState() => _SceneViewState();
+}
+
+class _SceneViewState extends State<SceneView> {
+  final double filterPanelGestureOffset = 0;
+  late Future<bool> _showTopBar;
+  bool showTopBar = true;
+
+  /// Keep track of whether the search bar is currently open (keyboard shown)
+  final searchBarOpen = ValueNotifier<bool>(false);
+
+  Future<bool> _initShowTopBar() async {
+    return await widget.sceneController.topMostContext?.viewDefinitionPropertyResolver
+            .boolean("showTopBar") ??
+        true;
+  }
+
+  @override
+  initState() {
+    super.initState();
+    _showTopBar = _initShowTopBar();
+    widget.sceneController.addListener(updateState);
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    widget.sceneController.removeListener(updateState);
+  }
+
+  updateState() {
+    setState(() {
+      _showTopBar = _initShowTopBar();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return NavigationWrapperView(
-        sceneController: sceneController,
+        sceneController: widget.sceneController,
         child: Stack(
           children: [
             Column(
               children: [
-                ValueListenableBuilder<bool>(
-                    builder: (BuildContext context, value, Widget? child) {
-                      var currentContext = sceneController.topMostContext;
-                      return value
-                          ? SearchView(viewContext: currentContext!, isActive: searchBarOpen)
-                          : TopBarView(
-                              sceneController: sceneController,
-                              onSearchPressed: () {
-                                searchBarOpen.value = true;
-                              },
-                            );
-                    },
-                    valueListenable: searchBarOpen),
-                NavigationHolder(sceneController.navigationController)
+                FutureBuilder<bool>(
+                  future: _showTopBar,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done)
+                      showTopBar = snapshot.data!;
+                    return showTopBar
+                        ? ValueListenableBuilder<bool>(
+                            builder: (BuildContext context, value, Widget? child) {
+                              var currentContext = widget.sceneController.topMostContext;
+                              return value
+                                  ? SearchView(
+                                      viewContext: currentContext!, isActive: searchBarOpen)
+                                  : TopBarView(
+                                      sceneController: widget.sceneController,
+                                      onSearchPressed: () {
+                                        searchBarOpen.value = true;
+                                      },
+                                    );
+                            },
+                            valueListenable: searchBarOpen)
+                        : Empty();
+                  },
+                ),
+                NavigationHolder(widget.sceneController.navigationController)
               ],
             ),
             ValueListenableBuilder(
               builder: (BuildContext context, bool value, Widget? child) {
-                var currentContext = sceneController.topMostContext;
+                var currentContext = widget.sceneController.topMostContext;
                 if (value && currentContext != null) {
                   return Stack(
                     alignment: Alignment.bottomCenter,
                     children: [
                       GestureDetector(
-                        onTap: () => sceneController.filterPanelIsVisible.value = false,
+                        onTap: () => widget.sceneController.filterPanelIsVisible.value = false,
                         child: ColoredBox(
                           color: Colors.black45,
                           child: SizedBox.expand(),
@@ -72,8 +115,22 @@ class SceneView extends StatelessWidget {
                   return Empty();
                 }
               },
-              valueListenable: sceneController.filterPanelIsVisible,
+              valueListenable: widget.sceneController.filterPanelIsVisible,
             ),
+            if (widget.sceneController.canNavigateBack)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 30, 0, 0),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    widget.sceneController.navigateBack();
+                  },
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
           ],
         ));
   }
