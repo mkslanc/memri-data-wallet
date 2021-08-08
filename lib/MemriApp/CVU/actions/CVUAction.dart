@@ -195,7 +195,9 @@ class CVUActionOpenView extends CVUAction {
     DatabaseController db = sceneController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: this.vars);
+
     await sceneController.navigateToNewContext(
+        clearStack: await resolver.boolean("clearStack") ?? false,
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
         overrideRenderer: renderer ?? await resolver.string("renderer"),
