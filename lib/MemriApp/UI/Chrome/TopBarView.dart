@@ -26,20 +26,10 @@ class TopBarView extends StatefulWidget {
 
 class _TopBarViewState extends State<TopBarView> {
   late ViewContextController? viewContext;
-  late Future<String?> title;
-
-  Future<String?> get _title async {
-    return await widget.sceneController.topMostContext?.viewDefinitionPropertyResolver
-            .string("title") ??
-        (viewContext?.focusedItem != null
-            ? await viewContext!.itemPropertyResolver?.string("title")
-            : "");
-  }
 
   @override
   initState() {
     super.initState();
-    title = _title;
     widget.sceneController.addListener(updateState);
   }
 
@@ -50,14 +40,7 @@ class _TopBarViewState extends State<TopBarView> {
   }
 
   void updateState() {
-    title = _title;
     setState(() {});
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    title = _title;
   }
 
   @override
@@ -149,7 +132,7 @@ class _TopBarViewState extends State<TopBarView> {
           ),
           Divider(
             height: 1,
-          )
+          ),
         ],
       ),
     );

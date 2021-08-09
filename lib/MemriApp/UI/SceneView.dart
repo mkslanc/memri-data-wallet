@@ -9,6 +9,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/Chrome/TopBarView.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/FilterPanelView.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationWrapperView.dart';
@@ -31,6 +32,13 @@ class _SceneViewState extends State<SceneView> {
   final double filterPanelGestureOffset = 0;
   late Future<bool> _showTopBar;
   bool showTopBar = true;
+  late Future<String?> title;
+
+  Future<String?> get _title async {
+    return await widget.sceneController.topMostContext?.viewDefinitionPropertyResolver
+            .string("title") ??
+        "";
+  }
 
   /// Keep track of whether the search bar is currently open (keyboard shown)
   final searchBarOpen = ValueNotifier<bool>(false);
@@ -45,6 +53,7 @@ class _SceneViewState extends State<SceneView> {
   initState() {
     super.initState();
     _showTopBar = _initShowTopBar();
+    title = _title;
     widget.sceneController.addListener(updateState);
   }
 
@@ -54,8 +63,15 @@ class _SceneViewState extends State<SceneView> {
     widget.sceneController.removeListener(updateState);
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    title = _title;
+  }
+
   updateState() {
     setState(() {
+      title = _title;
       _showTopBar = _initShowTopBar();
     });
   }
@@ -91,7 +107,27 @@ class _SceneViewState extends State<SceneView> {
                         : Empty();
                   },
                 ),
-                NavigationHolder(widget.sceneController.navigationController)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(27, 10, 0, 10),
+                  child: FutureBuilder(
+                      future: title,
+                      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                        if (snapshot.hasData) {
+                          return Container(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              snapshot.data!.toUpperCase(),
+                              style: CVUFont.headline3,
+                            ),
+                          );
+                        } else {
+                          return Empty();
+                        }
+                      }),
+                ),
+                NavigationHolder(
+                  widget.sceneController.navigationController,
+                )
               ],
             ),
             ValueListenableBuilder(
@@ -119,15 +155,19 @@ class _SceneViewState extends State<SceneView> {
             ),
             if (widget.sceneController.canNavigateBack)
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 30, 0, 0),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    widget.sceneController.navigateBack();
-                  },
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.arrow_back,
-                    color: Colors.black,
+                padding: const EdgeInsets.fromLTRB(23, 35, 0, 0),
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      widget.sceneController.navigateBack();
+                    },
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),
