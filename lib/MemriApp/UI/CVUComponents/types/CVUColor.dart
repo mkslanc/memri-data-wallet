@@ -84,6 +84,16 @@ class CVUColor {
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
+  static Map<String, Color> predefined = {
+    "memriBlue": blue,
+    "blueTxt": blueTxt,
+    "memriBlack": black,
+    "textGrey": textGrey,
+    "memriWhite": white,
+    "greyInactive": greyInactive,
+    "textLight": textLight,
+  };
+
   static const blue = const Color(0xff4abff1);
   static const blueTxt = const Color(0xff17a4e0);
   static const black = const Color(0xff333333);

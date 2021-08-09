@@ -28,6 +28,20 @@ class CVUFont {
     "thin": FontWeight.w200,
     "ultraLight": FontWeight.w100,
   };
-}
 
-//TODO extension FontWeight
+  static Map<String, CVUFont> predefined = {
+    "headline1": CVUFont(size: headline1.fontSize!, weight: headline1.fontWeight),
+    "headline2": CVUFont(size: headline2.fontSize!, weight: headline2.fontWeight),
+    "headline3": CVUFont(size: headline3.fontSize!, weight: headline3.fontWeight),
+    "headline4": CVUFont(size: headline4.fontSize!, weight: headline4.fontWeight),
+    "bodyText1": CVUFont(size: bodyText1.fontSize!, weight: bodyText1.fontWeight),
+    "bodyText2": CVUFont(size: bodyText2.fontSize!, weight: bodyText2.fontWeight),
+  };
+
+  static const headline1 = TextStyle(fontSize: 44, fontWeight: FontWeight.w300);
+  static const headline2 = TextStyle(fontSize: 30, fontWeight: FontWeight.w400);
+  static const headline3 = TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
+  static const headline4 = TextStyle(fontSize: 16, fontWeight: FontWeight.w300);
+  static const bodyText1 = TextStyle(fontSize: 16, fontWeight: FontWeight.w400);
+  static const bodyText2 = TextStyle(fontSize: 13, fontWeight: FontWeight.w400);
+}
