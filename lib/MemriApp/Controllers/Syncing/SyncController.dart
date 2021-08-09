@@ -125,7 +125,7 @@ class SyncController {
 
   sync({PodAPIConnectionDetails? connectionConfig, Function(String?)? completion}) async {
     await ItemRecord.getOwnerAndDBKey();
-    currentConnection ??= connectionConfig ?? await AppController.shared.podConnectionConfig;
+    currentConnection = connectionConfig ?? await AppController.shared.podConnectionConfig;
     if (currentConnection == null) {
       return;
     }
@@ -163,8 +163,6 @@ class SyncController {
 
     var item = fileItemRecordToUpload["item"];
     var fileName = fileItemRecordToUpload["fileName"];
-
-    print("Uploading File: $fileName");
 
     await uploadFile(fileName, (data, error) async {
       if (error != null) {

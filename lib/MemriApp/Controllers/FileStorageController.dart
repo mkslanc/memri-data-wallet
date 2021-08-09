@@ -11,10 +11,18 @@ class FileStorageController {
     return await getFileStorageURL() + "/" + uuid;
   }
 
-  static getFileStorageURL() async {
+  static Future<Directory> getFileStorage() async {
     var documentsDirectory = (await getApplicationDocumentsDirectory()).path;
     var memriFileURL = documentsDirectory + "/fileStore";
-    return (await Directory(memriFileURL).create(recursive: true)).path;
+    return (await Directory(memriFileURL).create(recursive: true));
+  }
+
+  static getFileStorageURL() async {
+    return (await getFileStorage()).path;
+  }
+
+  static deleteFileStorage() async {
+    (await getFileStorage()).delete(recursive: true);
   }
 
   static Future<bool> fileExists(String path) async {
