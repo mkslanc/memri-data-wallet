@@ -63,8 +63,7 @@ class _TopBarViewState extends State<TopBarView> {
                         if (!widget.sceneController.canNavigateBack)
                           TextButton(
                             style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
-                            onPressed: () =>
-                                widget.sceneController.navigationIsVisible.value = true,
+                            onPressed: () {},
                             child: Icon(
                               Icons.dehaze,
                               size: 24,
