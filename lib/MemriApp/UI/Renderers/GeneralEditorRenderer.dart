@@ -531,8 +531,10 @@ class DefaultGeneralEditorRow extends StatelessWidget {
 
   CVUDefinitionContent? get _nodeDefinition {
     var nodeDefinition = viewContext.cvuController
-        .viewDefinitionFor(viewName: viewContext.config.rendererName)
-        ?.properties[prop]
+        .viewDefinitionForItemRecord(itemRecord: currentItem)
+        ?.definitions
+        .asMap()[0]
+        ?.get(prop)
         ?.getSubdefinition();
     if (nodeDefinition == null) {
       nodeDefinition = viewContext.cvuController

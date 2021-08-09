@@ -171,11 +171,11 @@ class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
         parsed: parsed);
   }
 
-  get(propName) {
+  CVUValue? get(propName) {
     return parsed.properties[propName];
   }
 
-  set(String propName, value) {
+  set(String propName, CVUValue value) {
     parsed.properties[propName] = value;
   }
 
