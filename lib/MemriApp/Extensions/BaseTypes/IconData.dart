@@ -85,6 +85,8 @@ extension MemriIcon on IconData {
         return Icons.chat;
       case 'arrow.forward.circle.fill':
         return Icons.arrow_forward_rounded;
+      case 'doc':
+        return Icons.insert_drive_file_outlined;
       default:
         print("Unknown icon $iconName");
         return Icons.contact_support_rounded;
