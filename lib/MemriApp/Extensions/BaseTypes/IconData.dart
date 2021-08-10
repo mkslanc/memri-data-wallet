@@ -89,6 +89,8 @@ extension MemriIcon on IconData {
         return Icons.arrow_forward_rounded;
       case 'arrow.up.right':
         return Icons.north_east;
+      case 'doc':
+        return Icons.insert_drive_file_outlined;
       default:
         print("Unknown icon $iconName");
         return Icons.contact_support_rounded;

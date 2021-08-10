@@ -5,7 +5,6 @@ import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
-import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
@@ -94,91 +93,9 @@ class _CVUSubViewState extends State<CVUSubView> {
 
     var newContext = CVUContext(
         currentItem: nodeItem, selector: null, viewName: viewName, viewDefinition: viewDefinition);
-    var datasourceResolver = datasource.parsed.propertyResolver(
-        context: newContext,
-        lookup: CVULookupController(),
-        db: AppController.shared.databaseController);
-    var filterDef = datasourceResolver.subdefinition("filter");
-    var edgeTargets = filterDef?.subdefinition("edgeTargets");
-    var edgeTargetConditions = [];
-    if (edgeTargets != null) {
-      edgeTargetConditions = (await Future.wait(edgeTargets.properties.keys.map((key) async {
-        var target = await edgeTargets.integer(key);
-        if (target == null) {
-          return null;
-        }
-        return DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target));
-      })))
-          .whereType<DatabaseQueryConditionEdgeHasTarget>()
-          .toList();
-    }
-    var edgeSources = filterDef?.subdefinition("edgeSources");
-    var edgeSourceConditions = [];
-    if (edgeSources != null) {
-      edgeSourceConditions = (await Future.wait(edgeSources.properties.keys.map((key) async {
-        var source = await edgeSources.integer(key);
-        if (source == null) {
-          return null;
-        }
-        return DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source));
-      })))
-          .whereType<DatabaseQueryConditionEdgeHasSource>()
-          .toList();
-    }
 
-    var properties = filterDef?.subdefinition("properties");
-    var propertyConditions = [];
-    if (properties != null) {
-      propertyConditions = (await Future.wait(properties.properties.keys.map((key) async {
-        var value = await properties.boolean(key);
-        if (value != null) {
-          return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-        } else {
-          var value = await properties.string(key);
-          if (value != null) {
-            return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-          }
-        }
-        return null;
-      })))
-          .whereType<DatabaseQueryConditionPropertyEquals>()
-          .toList();
-    }
-
-    var queryConfig = DatabaseQueryConfig();
-    queryConfig.itemTypes = await datasourceResolver.stringArray("query");
-
-    var edgeTargetsOperator = datasourceResolver.properties["edgeTargetsOperator"];
-    if (edgeTargetsOperator != null &&
-        edgeTargetsOperator.value is CVUValueConstant &&
-        (edgeTargetsOperator.value as CVUValueConstant).value is CVUConstantString) {
-      queryConfig.edgeTargetsOperator =
-          edgeTargetsOperator.value.value.value == ConditionOperator.or
-              ? ConditionOperator.or
-              : ConditionOperator.and;
-    }
-    var sortProperty = await datasourceResolver.string("sortProperty");
-    if (sortProperty != null) {
-      queryConfig.sortProperty = sortProperty;
-    }
-    var sortAscending = await datasourceResolver.boolean("sortAscending");
-    if (sortAscending != null) {
-      queryConfig.sortAscending = sortAscending;
-    }
-    if (edgeTargetConditions.isNotEmpty ||
-        edgeSourceConditions.isNotEmpty ||
-        propertyConditions.isNotEmpty) {
-      queryConfig.conditions = [
-        ...edgeTargetConditions,
-        ...edgeSourceConditions,
-        ...propertyConditions
-      ];
-    }
-
-    var count = await datasourceResolver.integer("count");
-    if (count != null) {
-      queryConfig.count = count;
-    }
+    var queryConfig =
+        await DatabaseQueryConfig.queryConfigWith(context: newContext, datasource: datasource);
 
     var config = ViewContext(
         viewName: viewName,
