@@ -10,8 +10,14 @@ class CVUFont {
   double size;
   FontWeight? weight;
   bool italic;
+  double? letterSpacing;
 
-  CVUFont({this.name, this.size = 15, this.weight = FontWeight.normal, this.italic = false});
+  CVUFont(
+      {this.name,
+      this.size = 15,
+      this.weight = FontWeight.normal,
+      this.italic = false,
+      this.letterSpacing});
 
   Map<String, dynamic> get font {
     return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};
@@ -30,18 +36,46 @@ class CVUFont {
   };
 
   static Map<String, CVUFont> predefined = {
-    "headline1": CVUFont(size: headline1.fontSize!, weight: headline1.fontWeight),
-    "headline2": CVUFont(size: headline2.fontSize!, weight: headline2.fontWeight),
-    "headline3": CVUFont(size: headline3.fontSize!, weight: headline3.fontWeight),
-    "headline4": CVUFont(size: headline4.fontSize!, weight: headline4.fontWeight),
-    "bodyText1": CVUFont(size: bodyText1.fontSize!, weight: bodyText1.fontWeight),
-    "bodyText2": CVUFont(size: bodyText2.fontSize!, weight: bodyText2.fontWeight),
+    "headline1": CVUFont(
+        size: headline1.fontSize!,
+        weight: headline1.fontWeight,
+        letterSpacing: headline1.letterSpacing),
+    "headline2": CVUFont(
+        size: headline2.fontSize!,
+        weight: headline2.fontWeight,
+        letterSpacing: headline2.letterSpacing),
+    "headline3": CVUFont(
+        size: headline3.fontSize!,
+        weight: headline3.fontWeight,
+        letterSpacing: headline3.letterSpacing),
+    "headline4": CVUFont(
+        size: headline4.fontSize!,
+        weight: headline4.fontWeight,
+        letterSpacing: headline4.letterSpacing),
+    "bodyText1": CVUFont(
+        size: bodyText1.fontSize!,
+        weight: bodyText1.fontWeight,
+        letterSpacing: bodyText1.letterSpacing),
+    "bodyText2": CVUFont(
+        size: bodyText2.fontSize!,
+        weight: bodyText2.fontWeight,
+        letterSpacing: bodyText2.letterSpacing),
+    "button_label": CVUFont(
+        size: buttonLabel.fontSize!,
+        weight: buttonLabel.fontWeight,
+        letterSpacing: buttonLabel.letterSpacing),
   };
 
-  static const headline1 = TextStyle(fontSize: 44, fontWeight: FontWeight.w300);
-  static const headline2 = TextStyle(fontSize: 30, fontWeight: FontWeight.w400);
-  static const headline3 = TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
-  static const headline4 = TextStyle(fontSize: 16, fontWeight: FontWeight.w300);
+  static const headline1 =
+      TextStyle(fontSize: 44, fontWeight: FontWeight.w300, letterSpacing: -0.88);
+  static const headline2 =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.w400, letterSpacing: -0.3);
+  static const headline3 = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1.4);
+  static const headline4 =
+      TextStyle(fontSize: 16, fontWeight: FontWeight.w300, letterSpacing: 0.16);
   static const bodyText1 = TextStyle(fontSize: 16, fontWeight: FontWeight.w400);
-  static const bodyText2 = TextStyle(fontSize: 13, fontWeight: FontWeight.w400);
+  static const bodyText2 =
+      TextStyle(fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 0.13);
+  static const buttonLabel =
+      TextStyle(fontSize: 16, fontWeight: FontWeight.normal, letterSpacing: 0.16);
 }
