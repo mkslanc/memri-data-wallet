@@ -96,10 +96,14 @@ class Authentication {
   }
 
   static Future<void> deleteRootKey() async {
-    if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
-    await storage!.delete();
-    lastRootPublicKey = null;
-    isOwnerAuthenticated = false;
+    bool didAuthenticate = await localAuth.authenticate(localizedReason: ' ');
+    if (didAuthenticate) {
+      await storage.delete(key: rootKeyTag);
+      lastRootPublicKey = null;
+      isOwnerAuthenticated = false;
+    } else {
+      throw Exception("User cancelled authentication");
+    }
   }
 
   static setOwnerAndDBKey(
