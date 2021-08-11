@@ -490,6 +490,7 @@
         alignment: top
         background: #F6F5F5
         spacing: 10
+        padding: 150 0 0 0
 
         Text {
             alignment: left
@@ -581,6 +582,7 @@
 
             onPress: openView {
                 viewName: "allPeople"
+                clearStack: true
             }
         }
 

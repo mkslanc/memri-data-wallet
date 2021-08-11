@@ -5,7 +5,9 @@ extension MemriIcon on IconData {
     //TODO: need to discuss with team @mkslanc
     switch (iconName) {
       case 'person.circle':
-        return Icons.person;
+        return Icons.person_outline;
+      case 'person.2.fill':
+        return Icons.people_outline;
       case 'bell':
         return Icons.notifications_none;
       case 'creditcard':
@@ -85,6 +87,8 @@ extension MemriIcon on IconData {
         return Icons.chat;
       case 'arrow.forward.circle.fill':
         return Icons.arrow_forward_rounded;
+      case 'arrow.up.right':
+        return Icons.north_east;
       case 'doc':
         return Icons.insert_drive_file_outlined;
       default:

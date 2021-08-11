@@ -8,9 +8,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-
 import 'Chrome/BottomBarView.dart';
-import 'Chrome/SearchView.dart';
 import 'Renderers/CalendarRenderer.dart';
 import 'Renderers/ChartRenderer.dart';
 import 'Renderers/FileRenderer.dart';
@@ -45,9 +43,6 @@ class _SceneContentViewState extends State<SceneContentView> {
   late bool showContextualBottomBar;
 
   _SceneContentViewState(this.sceneController, this.viewContext);
-
-  /// Keep track of whether the search bar is currently open (keyboard shown)
-  final searchBarOpen = ValueNotifier<bool>(false);
 
   @override
   initState() {
@@ -123,7 +118,7 @@ class _SceneContentViewState extends State<SceneContentView> {
         ?.boolean("showBottomBar");
     return await viewContext.viewDefinitionPropertyResolver.boolean("showBottomBar") ??
         subViewShowBottomBar ??
-        true;
+        false;
   }
 
   CVUDefinitionContent? get bottomBar {
@@ -141,32 +136,23 @@ class _SceneContentViewState extends State<SceneContentView> {
     return Column(
       children: [
         renderer,
-        ValueListenableBuilder<bool>(
-            builder: (BuildContext context, value, Widget? child) {
-              return value
-                  ? SearchView(viewContext: viewContext, isActive: searchBarOpen)
-                  : FutureBuilder(
-                      future: _init,
-                      builder: (BuildContext builder, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          if (showBottomBar) {
-                            var nodeDefinition = bottomBar;
-                            if (nodeDefinition == null) {
-                              return BottomBarView(
-                                viewContext: viewContext,
-                                onSearchPressed: () {
-                                  searchBarOpen.value = true;
-                                },
-                              );
-                            } else {
-                              return viewContext.render(nodeDefinition: nodeDefinition);
-                            }
-                          }
-                        }
-                        return Empty();
-                      });
-            },
-            valueListenable: searchBarOpen)
+        FutureBuilder(
+            future: _init,
+            builder: (BuildContext builder, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (showBottomBar) {
+                  var nodeDefinition = bottomBar;
+                  if (nodeDefinition == null) {
+                    return BottomBarView(
+                      viewContext: viewContext,
+                    );
+                  } else {
+                    return viewContext.render(nodeDefinition: nodeDefinition);
+                  }
+                }
+              }
+              return Empty();
+            })
       ],
     );
   }

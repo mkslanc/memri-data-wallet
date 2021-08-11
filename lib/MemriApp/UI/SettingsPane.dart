@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:memri/MemriApp/Controllers/AddressBookController.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class SettingsPane extends StatelessWidget {
@@ -10,7 +11,7 @@ class SettingsPane extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Color(0xff333333),
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.fromLTRB(30, 50, 25, 25),
       child: Stack(
         children: [
           Column(
@@ -21,7 +22,9 @@ class SettingsPane extends StatelessWidget {
                   SizedBox(
                     height: 50,
                   ),
-                  Text("Connected accounts", style: TextStyle(color: CVUColor.white, fontSize: 18)),
+                  Text("Connected accounts",
+                      style: TextStyle(
+                          color: CVUColor.white, fontSize: 18, fontWeight: FontWeight.w600)),
                   Row(
                     children: [
                       Expanded(
@@ -29,9 +32,10 @@ class SettingsPane extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("WhatsApp", style: TextStyle(color: CVUColor.white, fontSize: 16)),
+                          Text("WhatsApp",
+                              style: CVUFont.buttonLabel.copyWith(color: Colors.white)),
                           Text("Contacts, Messages",
-                              style: TextStyle(color: CVUColor.textGrey, fontSize: 13)),
+                              style: CVUFont.bodyText2.copyWith(color: CVUColor.textGrey)),
                         ],
                       )),
                       TextButton(
@@ -47,7 +51,7 @@ class SettingsPane extends StatelessWidget {
                       Flexible(
                           child: Text(
                               "I consent to sharing my usage data for the purpose of enhancing user experience.",
-                              style: TextStyle(color: CVUColor.white, fontSize: 16))),
+                              style: CVUFont.buttonLabel.copyWith(color: Colors.white))),
                       Switch(
                         value: false,
                         onChanged: null,
@@ -56,7 +60,7 @@ class SettingsPane extends StatelessWidget {
                   ),
                   Text(
                       "When this setting is on, you consent for memri to report information on app usage (for example, which of the features are most frequently used). Learn more.",
-                      style: TextStyle(color: CVUColor.textGrey, fontSize: 13)),
+                      style: CVUFont.bodyText2.copyWith(color: CVUColor.textGrey)),
                   TextButton(
                       onPressed: () => showDialog<String>(
                             context: context,
