@@ -1,6 +1,7 @@
 Post > list {
     VStack {
         alignment: left
+        padding: 0 0 0 18
 
         HStack {
             alignment: center
@@ -78,9 +79,10 @@ Post > list {
 }
 
 .allPosts {
-    title: "Social updates"
+    title: "YOUR SOCIAL UPDATES"
     emptyResultText: "There are no posts here yet"
     defaultRenderer: list
+    showTopBar: false
 
     [datasource = pod] {
         query: "Post"

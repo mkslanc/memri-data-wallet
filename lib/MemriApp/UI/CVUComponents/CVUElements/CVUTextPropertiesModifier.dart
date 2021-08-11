@@ -16,6 +16,7 @@ class CVUTextPropertiesModifier {
     var lineLimit = await nodeResolver.propertyResolver.lineLimit;
     return TextProperties(
         textStyle: TextStyle(
+          fontFamily: font.name,
           fontSize: font.size,
           fontWeight: font.weight,
           fontStyle: font.italic ? FontStyle.italic : FontStyle.normal,

@@ -21,7 +21,7 @@ class NavigationStack extends Equatable {
 
   NavigationStack.fromNavigationStateData(NavigationStateData stateData) {
     sessionID = stateData.sessionID;
-    List jsonData = jsonDecode(String.fromCharCodes(stateData.state));
+    List jsonData = jsonDecode(Utf8Decoder().convert(stateData.state));
     state = jsonData.map((stateElement) => ViewContextHolder.fromJson(stateElement)).toList();
   }
 
@@ -42,7 +42,7 @@ class NavigationStack extends Equatable {
   NavigationStateCompanion toCompanion() {
     return NavigationStateCompanion(
       sessionID: Value(sessionID),
-      state: Value(Uint8List.fromList(jsonEncode(state).codeUnits)),
+      state: Value(Utf8Encoder().convert(jsonEncode(state))),
     );
   }
 

@@ -37,10 +37,6 @@ class _ActionButtonState extends State<ActionButton> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        style: TextButton.styleFrom(
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            padding: const EdgeInsets.all(10.0)),
         child: Icon(MemriIcon.getByName(icon)),
         onPressed: () async {
           await widget.action.execute(sceneController, widget.viewContext);

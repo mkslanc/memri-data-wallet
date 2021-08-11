@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -43,9 +44,18 @@ class SceneController extends ChangeNotifier {
       navigationController
           .setViewControllers(SceneContentView(sceneController: this, viewContext: context));
     } else {
-      navigationController.setViewControllers(Center(
-        child: Text("Welcome to Memri"),
-      ));
+      var viewName = "onboarding";
+      var viewContext = await CVUActionOpenViewByName(viewName: viewName)
+          .getViewContext(CVUContext(viewName: viewName, rendererName: "custom"));
+      if (viewContext != null) {
+        topMostContext = viewContext;
+        navigationController
+            .setViewControllers(SceneContentView(sceneController: this, viewContext: viewContext));
+      } else {
+        navigationController.setViewControllers(Center(
+          child: Text("Welcome to Memri"),
+        ));
+      }
     }
   }
 

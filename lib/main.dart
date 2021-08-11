@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/MainView.dart';
 import 'MemriApp/Controllers/SceneController.dart';
 
@@ -9,13 +10,14 @@ void main() {
       home: Memri(),
       theme: ThemeData(
           fontFamily: 'WorkSans',
+          backgroundColor: Color(0xffE5E5E5),
           textTheme: const TextTheme(
-            headline1: TextStyle(fontSize: 44.0, fontWeight: FontWeight.w300),
-            headline2: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w400),
-            headline3: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
-            headline4: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
-            bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400),
-            bodyText2: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w400),
+            headline1: CVUFont.headline1,
+            headline2: CVUFont.headline2,
+            headline3: CVUFont.headline3,
+            headline4: CVUFont.headline4,
+            bodyText1: CVUFont.bodyText1,
+            bodyText2: CVUFont.bodyText2,
           ),
           textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
