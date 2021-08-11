@@ -1,7 +1,4 @@
-import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
@@ -48,8 +45,10 @@ class PluginHandler {
       required CVUContext context}) async {
     var runnerRowId = runner.rowId;
     var view = await plugin.edgeItem("view");
-    var viewName = (await view?.propertyValue("definition"))?.value;
-    if (runnerRowId == null || viewName == null) {
+    var cvuContent = (await view?.propertyValue("definition"))?.value;
+    var cvuDefinition =
+        cvuContent != null ? (await CVUController.parseCVU(cvuContent)).asMap()[0]?.parsed : null;
+    if (cvuDefinition == null) {
       AppController.shared.pubsubController
           .stopObservingItemProperty(item: runner, property: "state");
       return;
@@ -67,11 +66,6 @@ class PluginHandler {
     edge.syncState = SyncState.skip; // Don't sync it yet
     await edge.save();
 
-    var newVars = <String, CVUValue>{};
-    newVars["viewArguments"] = CVUValueSubdefinition(
-        CVUDefinitionContent(properties: {"readOnly": CVUValueConstant(CVUConstantBool(false))}));
-    await CVUActionOpenView(viewName: viewName, renderer: "generalEditor")
-        .execute(sceneController, context.replacingItem(item));
-    sceneController.isInEditMode.value = true;
+    await sceneController.navigateToNewContext(defaultDefinition: cvuDefinition);
   }
 }

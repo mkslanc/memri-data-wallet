@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/UI/SettingsPane.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
@@ -37,7 +38,12 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                     child: Row(
                       children: space(20, [
                         IconButton(
-                            onPressed: () => setState(() => showSettings = true),
+                            onPressed: () => showModalBottomSheet<void>(
+                                  context: context,
+                                  useRootNavigator: true,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) => SettingsPane(),
+                                ),
                             icon: Icon(
                               Icons.settings,
                               size: 22,

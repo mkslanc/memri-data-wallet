@@ -710,7 +710,7 @@ class ItemRecord with EquatableMixin {
     }
 
     fetchedItem.fileState = FileState.noChanges;
-    fetchedItem.save();
+    await fetchedItem.save();
   }
 
   static deleteExistingDBKeys([DatabaseController? db]) async {

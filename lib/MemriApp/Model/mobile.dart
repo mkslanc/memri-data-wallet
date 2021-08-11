@@ -37,3 +37,10 @@ Database constructDb({bool logStatements = false, bool inMemory = false, require
   }
   return Database(VmDatabase.memory(logStatements: logStatements));
 }
+
+Future<void> deleteDb(databaseName) async {
+  final dataDir = await paths.getApplicationDocumentsDirectory();
+  final dbFile = File(p.join(dataDir.path + '/databases', databaseName + '.sqlite'));
+
+  await dbFile.delete();
+}

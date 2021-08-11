@@ -1,6 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
+import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
@@ -506,6 +512,113 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       }
     }
     return conditions;
+  }
+
+  static Future<DatabaseQueryConfig> queryConfigWith(
+      {required CVUContext context,
+      CVUParsedDefinition? datasource,
+      DatabaseQueryConfig? inheritQuery,
+      Set<int>? overrideUIDs,
+      ItemRecord? targetItem,
+      DateTimeRange? dateRange,
+      DatabaseController? databaseController}) async {
+    var datasourceResolver = datasource?.parsed.propertyResolver(
+        context: context,
+        lookup: CVULookupController(),
+        db: AppController.shared.databaseController);
+    var uidList = overrideUIDs ?? Set.from(await datasourceResolver?.intArray("uids") ?? []);
+    var filterDef = datasourceResolver?.subdefinition("filter");
+
+    var edgeTargets = filterDef?.subdefinition("edgeTargets");
+    List<DatabaseQueryCondition> edgeTargetConditions = (await Future.wait<DatabaseQueryCondition?>(
+            (edgeTargets?.properties.keys.toList() ?? [])
+                .map<Future<DatabaseQueryCondition?>>((key) async {
+      var target = await edgeTargets?.integer(key);
+      if (target == null) return null;
+      return DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target));
+    })))
+        .compactMap();
+
+    var edgeSources = filterDef?.subdefinition("edgeSources");
+    List<DatabaseQueryCondition> edgeSourceConditions = (await Future.wait<DatabaseQueryCondition?>(
+            (edgeSources?.properties.keys.toList() ?? [])
+                .map<Future<DatabaseQueryCondition?>>((key) async {
+      var source = await edgeSources?.integer(key);
+      if (source == null) return null;
+      return DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source));
+    })))
+        .compactMap();
+
+    var properties = filterDef?.subdefinition("properties");
+    List<DatabaseQueryCondition> propertyConditions = (await Future.wait<DatabaseQueryCondition?>(
+            (properties?.properties.keys.toList() ?? [])
+                .map<Future<DatabaseQueryCondition?>>((key) async {
+      dynamic value = await properties?.boolean(key);
+      if (value == null) {
+        value = await properties?.string(key);
+      }
+      if (value != null) {
+        return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
+      }
+      return null;
+    })))
+        .compactMap();
+
+    var queryConfig = inheritQuery?.clone() ?? DatabaseQueryConfig();
+    var itemTypes =
+        await datasourceResolver?.stringArray("query") ?? [targetItem?.type].compactMap();
+    if (itemTypes.isNotEmpty) {
+      queryConfig.itemTypes = itemTypes;
+    }
+
+    if (uidList.isNotEmpty) {
+      queryConfig.itemRowIDs = uidList;
+    }
+
+    var sortDef = datasourceResolver?.subdefinition("sort");
+    if (sortDef != null) {
+      queryConfig.sortEdges = await queryConfig.combineSortEdgesQuery(
+          sortResolver: sortDef,
+          dbController: databaseController ?? AppController.shared.databaseController);
+    }
+
+    var edgeTargetsOperator = datasourceResolver?.properties["edgeTargetsOperator"];
+    if (edgeTargetsOperator != null &&
+        edgeTargetsOperator is CVUValueConstant &&
+        edgeTargetsOperator.value is CVUConstantString) {
+      var operator = (edgeTargetsOperator.value as CVUConstantString).value;
+      queryConfig.edgeTargetsOperator =
+          operator == "OR" ? ConditionOperator.or : ConditionOperator.and;
+    }
+
+    var sortProperty = await datasourceResolver?.string("sortProperty");
+    if (sortProperty != null) {
+      queryConfig.sortProperty = sortProperty;
+    }
+    var sortAscending = await datasourceResolver?.boolean("sortAscending");
+    if (sortAscending != null) {
+      queryConfig.sortAscending = sortAscending;
+    }
+
+    if (dateRange != null) {
+      queryConfig.dateModifiedAfter = dateRange.start;
+      queryConfig.dateModifiedBefore = dateRange.end;
+    }
+    if (edgeTargetConditions.isNotEmpty ||
+        edgeSourceConditions.isNotEmpty ||
+        propertyConditions.isNotEmpty) {
+      queryConfig.conditions = []
+        ..addAll(edgeTargetConditions)
+        ..addAll(edgeSourceConditions)
+        ..addAll(propertyConditions);
+    }
+
+    var count = await datasourceResolver?.integer("count");
+    if (count != null) {
+      queryConfig.count = count;
+    }
+
+    return queryConfig;
   }
 
   factory DatabaseQueryConfig.fromJson(Map<String, dynamic> json) =>

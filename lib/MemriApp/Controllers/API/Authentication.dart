@@ -95,6 +95,13 @@ class Authentication {
     isOwnerAuthenticated = true;
   }
 
+  static Future<void> deleteRootKey() async {
+    if (storage == null) storage = await BiometricStorage().getStorage(rootKeyTag);
+    await storage!.delete();
+    lastRootPublicKey = null;
+    isOwnerAuthenticated = false;
+  }
+
   static setOwnerAndDBKey(
       {required String privateKey, required String publicKey, required String dbKey}) async {
     await ItemRecord.setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);

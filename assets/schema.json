@@ -3476,6 +3476,11 @@
       "source_type": "Post",
       "edge": "photo",
       "target_type": "Photo"
+    },
+    {
+      "source_type": "Plugin",
+      "edge": "view",
+      "target_type": "CVUStoredDefinition"
     }
   ]
 }
