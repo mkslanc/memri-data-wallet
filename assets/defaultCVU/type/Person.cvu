@@ -84,8 +84,8 @@
 }
 
 Person {
-    title: "{.firstName} {.lastName}"
-    defaultRenderer: generalEditor
+    defaultRenderer: singleitem
+    showTopBar: false
 
     /*include:
     "defaultButtonsForItem" { type: Person }*/
@@ -387,9 +387,169 @@ Person {
         }
 }
 
+Person > singleitem {
+    VStack {
+        alignment: topleft
+
+        VStack {
+            alignment: left
+            ZStack {
+                alignment: bottomright
+                Image {
+                    image: {{.profilePicture}}
+                    sizingMode: fill
+                }
+
+
+                ActionButton {
+                    onPress: star
+
+                }
+
+            }
+
+            Text {
+                padding: 27 0 0 33
+                font: headline1
+                text: "{.firstName} {.lastName}"
+            }
+
+            HStack {
+                padding: 31 0 0 20
+                spacing: 10
+
+                Button {
+                    background: white
+                    width: 172
+                    height: 80
+
+                    VStack {
+                        padding: 27 0 0 10
+
+                        Text {
+                            text: "CONTACT DETAILS"
+                            font: tile_label
+                            color: black
+                        }
+                    }
+
+                    onPress: openView {
+                        renderer: generalEditor
+                    }
+                }
+
+                Button {
+                    background: white
+                    width: 172
+                    height: 80
+
+                    VStack {
+                        alignment: topright
+                        padding: 27 0 0 10
+
+                        Text {
+                            text: "SOCIAL MEDIA UPDATES"
+                            font: tile_label
+                            color: black
+                        }
+                    }
+
+                    onPress: openView {
+                        view: {
+                            defaultRenderer: list
+
+                            [datasource = pod] {
+                                query: Post
+                                edgeTargetsOperator: "OR"
+                                filter: {
+                                    edgeTargets: {
+                                        author: {{.account[]}}
+                                        author: {{.~owner[]}}
+                                    }
+                                }
+                            }
+
+                            [renderer = timeline] {
+                                timeProperty: dateCreated
+                            }
+                        }
+                    }
+                }
+            }
+
+            HStack {
+                padding: 10 0 0 20
+                spacing: 10
+
+                Button {
+                    background: white
+                    width: 172
+                    height: 80
+
+                    VStack {
+                        alignment: topright
+                        padding: 10 0 0 31
+
+                        Text {
+                            text: "INTERACTIONS"
+                            font: tile_label
+                            color: black
+                        }
+                    }
+
+                    onPress: openView {
+                        viewName: "allPosts"
+                    }
+                }
+
+                Button {
+                    background: white
+                    width: 172
+                    height: 80
+
+                    VStack {
+                        alignment: topright
+                        padding: 10 0 0 31
+
+                        Text {
+                            text: "TIMELINE"
+                            font: tile_label
+                            color: black
+                        }
+                    }
+
+                    onPress: openView {
+                        title: "{$showtimeline}"
+
+                        view: {
+                            defaultRenderer: timeline
+
+                            [datasource = pod] {
+                                query: EmailMessage Message Note Photo
+                                edgeTargetsOperator: "OR"
+                                filter: {
+                                    edgeTargets: {
+                                        sender: {{.account.uid}}
+                                        includes: {{uid}}
+                                    }
+                                }
+                            }
+
+                            [renderer = timeline] {
+                                timeProperty: dateCreated
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}
+
 Person > list {
     onPress: openView {
-        renderer: generalEditor
+        renderer: singleitem
     }
     VStack {
         alignment: left
