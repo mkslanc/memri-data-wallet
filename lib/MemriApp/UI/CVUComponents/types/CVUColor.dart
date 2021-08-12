@@ -44,6 +44,8 @@ class CVUColor {
         return Color(0xff543184);
       case "MemriUI-purpleBackSecondary":
         return Color(0xff532a84);
+      case "memriBlue":
+        return blue;
       case "blue":
       case "systemBlue":
         return Color(0xff007aff);
@@ -81,4 +83,23 @@ class CVUColor {
     buffer.write(value.replaceFirst('#', ''));
     return Color(int.parse(buffer.toString(), radix: 16));
   }
+
+  static Map<String, Color> predefined = {
+    "memriBlue": blue,
+    "blueTxt": blueTxt,
+    "memriBlack": black,
+    "textGrey": textGrey,
+    "memriWhite": white,
+    "greyInactive": greyInactive,
+    "textLight": textLight,
+  };
+
+  static const blue = const Color(0xff4abff1);
+  static const blueTxt = const Color(0xff17a4e0);
+  static const black = const Color(0xff333333);
+  static const textGrey = const Color(0xff828282);
+  static const white = const Color(0xfff5f5f5);
+  static const fff = const Color(0xffffffff);
+  static const greyInactive = const Color(0xffd0d0d0);
+  static const textLight = const Color(0xffc0c0c0);
 }

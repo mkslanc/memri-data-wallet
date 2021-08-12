@@ -139,7 +139,7 @@ class _BrowserViewState extends State<BrowserView> {
         children: [
           topBarView,
           renderer,
-          BottomBarView(viewContext: viewContext, onSearchPressed: () => searchBarOpen = true),
+          BottomBarView(viewContext: viewContext),
           if (filterPanelIsVisible) ...[
             GestureDetector(
               child: ColoredBox(

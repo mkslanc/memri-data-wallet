@@ -6,6 +6,7 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -194,7 +195,9 @@ class CVUActionOpenView extends CVUAction {
     DatabaseController db = sceneController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: this.vars);
+
     await sceneController.navigateToNewContext(
+        clearStack: await resolver.boolean("clearStack") ?? false,
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
         overrideRenderer: renderer ?? await resolver.string("renderer"),
@@ -310,7 +313,13 @@ class CVUActionCopyToClipboard extends CVUAction {
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
-    // TODO: implement execute
+    var db = sceneController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var value = await resolver.string("value");
+    if (value != null) {
+      Clipboard.setData(ClipboardData(text: value));
+    }
   }
 }
 
@@ -473,11 +482,22 @@ class CVUActionStartPlugin extends CVUAction {
       await startPluginItem.setPropertyValue("container", PropertyDatabaseValueString(container));
       await startPluginItem.setPropertyValue("state", PropertyDatabaseValueString("idle"));
 
-      await PluginHandler.start(
-          plugin: plugin,
-          runner: startPluginItem,
-          sceneController: sceneController,
-          context: context);
+      // This is test code to render cvu for a plugin locally without connecting to pod
+      // Ideally plugins will contain more detailed container name
+      // We can remove this once plugins are able to send CVUs in stored definition
+      if (container == "cvu") {
+        await PluginHandler.presentCVUforPlugin(
+            plugin: plugin,
+            runner: startPluginItem,
+            sceneController: sceneController,
+            context: context);
+      } else {
+        await PluginHandler.start(
+            plugin: plugin,
+            runner: startPluginItem,
+            sceneController: sceneController,
+            context: context);
+      }
     } catch (error) {
       print("Error starting plugin: $error");
     }

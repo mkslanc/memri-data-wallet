@@ -5,8 +5,11 @@
 //  Created by T Brennan on 14/12/20.
 //
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
 
 import 'API/Authentication.dart';
@@ -26,6 +29,7 @@ class AppController {
   late CVUController cvuController;
   late PubSubController pubsubController;
   late PermissionsController permissionController;
+  late StreamSubscription? syncStream;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -48,9 +52,6 @@ class AppController {
 
   Future onLaunch() async {
     await updateState();
-    if (isAuthenticated) {
-      isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
-    }
   }
 
   updateState() async {
@@ -65,6 +66,12 @@ class AppController {
     }
 
     state = AppState.authenticated;
+
+    isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
+    if (!isInDemoMode) {
+      syncStream = Stream.periodic(const Duration(milliseconds: 3000))
+          .listen((_) => AppController.shared.syncController.sync());
+    }
   }
 
   // MARK: Setup
@@ -149,10 +156,10 @@ class AppController {
     return _isAuthenticated;
   }
 
-  set isAuthenticated(bool newValue) {
+  Future<void> setIsAuthenticated(bool newValue) async {
     if (_isAuthenticated != newValue) {
       _isAuthenticated = newValue;
-      updateState();
+      await updateState();
     }
   }
 
@@ -160,7 +167,7 @@ class AppController {
     if (!await checkHasBeenSetup()) {
       return;
     }
-    isAuthenticated = true;
+    await setIsAuthenticated(true);
   }
 
   Future<bool> checkHasBeenSetup() async {
@@ -194,6 +201,23 @@ class AppController {
       print(error);
       return null;
     }
+  }
+
+  resetApp() async {
+    await Authentication.deleteRootKey();
+    await Authentication.createRootKey();
+
+    if (!isInDemoMode) {
+      await syncStream?.cancel();
+      syncStream = null;
+      _podConnectionConfig = null;
+    }
+
+    await databaseController.resetDb();
+    await FileStorageController.deleteFileStorage();
+
+    await setIsAuthenticated(false);
+    isInDemoMode = false;
   }
 }
 

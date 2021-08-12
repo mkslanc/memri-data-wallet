@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUGrid.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUMessageComposer.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUSubView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTextPropertiesModifier.dart';
 
@@ -121,6 +122,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUMemriButton(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.ActionButton:
         return CVUActionButton(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.MessageComposer:
+        return CVUMessageComposer(nodeResolver: widget.nodeResolver);
 //        case CVUUIElementFamily.Picker:
 //            picker
 //        case CVUUIElementFamily.EditorSection:

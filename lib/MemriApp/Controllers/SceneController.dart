@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -43,9 +44,18 @@ class SceneController extends ChangeNotifier {
       navigationController
           .setViewControllers(SceneContentView(sceneController: this, viewContext: context));
     } else {
-      navigationController.setViewControllers(Center(
-        child: Text("Welcome to Memri"),
-      ));
+      var viewName = "onboarding";
+      var viewContext = await CVUActionOpenViewByName(viewName: viewName)
+          .getViewContext(CVUContext(viewName: viewName, rendererName: "custom"));
+      if (viewContext != null) {
+        topMostContext = viewContext;
+        navigationController
+            .setViewControllers(SceneContentView(sceneController: this, viewContext: viewContext));
+      } else {
+        navigationController.setViewControllers(Center(
+          child: Text("Welcome to Memri"),
+        ));
+      }
     }
   }
 
@@ -181,9 +191,11 @@ class SceneController extends ChangeNotifier {
   }
 
   navigateToNewContext(
-      {bool clearStack = false,
+      {CVUDefinitionContent? defaultDefinition,
+      CVUContext? defaultContext,
+      bool clearStack = false,
       bool animated = true,
-      required String viewName,
+      String? viewName,
       bool inheritDatasource = false,
       String? overrideRenderer,
       String defaultRenderer = "list",
@@ -192,11 +204,14 @@ class SceneController extends ChangeNotifier {
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
       CVUViewArguments? viewArguments}) async {
-    CVUDefinitionContent viewDefinition = appController.cvuController
-            .viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
+    CVUDefinitionContent viewDefinition = defaultDefinition ??
+        appController.cvuController
+            .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
 
-    var newContext = CVUContext(
+    viewArguments?.args["readOnly"] ??= CVUValueConstant(CVUConstantBool(!isInEditMode.value));
+
+    var cvuContext = CVUContext(
         currentItem: targetItem,
         selector: null,
         viewName: viewName,
@@ -206,7 +221,7 @@ class SceneController extends ChangeNotifier {
     var rendererName = overrideRenderer ??
         await viewDefinition
             .propertyResolver(
-                context: newContext,
+                context: cvuContext,
                 lookup: CVULookupController(),
                 db: appController.databaseController)
             .string("defaultRenderer") ??
@@ -214,108 +229,13 @@ class SceneController extends ChangeNotifier {
 
     var datasource = viewDefinition.definitions
         .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
-    var datasourceResolver = datasource?.parsed.propertyResolver(
-        context: newContext, lookup: CVULookupController(), db: appController.databaseController);
-
-    var rowIdList = overrideRowIDs ?? Set.of((await datasourceResolver?.intArray("uids")) ?? []);
-
-    var filterDef = datasourceResolver?.subdefinition("filter");
-
-    var edgeTargets = filterDef?.subdefinition("edgeTargets");
-    var edgeTargetConditions =
-        (await Future.wait((edgeTargets?.properties.keys.toList() ?? []).map((key) async {
-      var target = await edgeTargets!.integer(key);
-      if (target == null) {
-        return null;
-      }
-      return DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target));
-    })))
-            .whereType<DatabaseQueryConditionEdgeHasTarget>()
-            .toList();
-
-    var edgeSources = filterDef?.subdefinition("edgeSources");
-    var edgeSourceConditions =
-        (await Future.wait((edgeSources?.properties.keys.toList() ?? []).map((key) async {
-      var source = await edgeSources!.integer(key);
-      if (source == null) {
-        return null;
-      }
-      return DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source));
-    })))
-            .whereType<DatabaseQueryConditionEdgeHasSource>()
-            .toList();
-
-    var properties = filterDef?.subdefinition("properties");
-    List<DatabaseQueryConditionPropertyEquals> propertyConditions =
-        (await Future.wait<DatabaseQueryConditionPropertyEquals?>(properties?.properties.keys
-                    .toList()
-                    .map<Future<DatabaseQueryConditionPropertyEquals?>>((key) async {
-                  dynamic value = await properties.boolean(key);
-                  if (value != null) {
-                    return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-                  } else {
-                    value = await properties.string(key);
-                    if (value != null) {
-                      return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-                    }
-                  }
-                  return null;
-                }) ??
-                []))
-            .whereType<DatabaseQueryConditionPropertyEquals>()
-            .toList();
-
-    var queryConfig = inheritDatasource
-        ? (topMostContext?.config.query.clone() ?? DatabaseQueryConfig())
-        : DatabaseQueryConfig();
-    var itemTypes =
-        await datasourceResolver?.stringArray("query") ?? [targetItem?.type].compactMap();
-    if (itemTypes.isNotEmpty) {
-      queryConfig.itemTypes = itemTypes;
-    }
-
-    var sortDef = datasourceResolver?.subdefinition("sort");
-    if (sortDef != null) {
-      queryConfig.sortEdges = await queryConfig.combineSortEdgesQuery(
-          sortResolver: sortDef, dbController: appController.databaseController);
-    }
-
-    if (rowIdList.isNotEmpty) {
-      queryConfig.itemRowIDs = rowIdList;
-    }
-    var edgeTargetsOperator = datasourceResolver?.properties["edgeTargetsOperator"];
-    if (edgeTargetsOperator != null &&
-        edgeTargetsOperator is CVUValueConstant &&
-        edgeTargetsOperator.value is CVUConstantString) {
-      var operator = (edgeTargetsOperator.value as CVUConstantString).value;
-      queryConfig.edgeTargetsOperator =
-          operator == "OR" ? ConditionOperator.or : ConditionOperator.and;
-    }
-
-    var sortProperty = await datasourceResolver?.string("sortProperty");
-    if (sortProperty != null) {
-      queryConfig.sortProperty = sortProperty;
-    }
-    var sortAscending = await datasourceResolver?.boolean("sortAscending");
-    if (sortAscending != null) {
-      queryConfig.sortAscending = sortAscending;
-    }
-
-    if (dateRange != null) {
-      queryConfig.dateModifiedAfter = dateRange.start;
-      queryConfig.dateModifiedBefore = dateRange.end;
-    }
-    if (edgeTargetConditions.isNotEmpty || propertyConditions.isNotEmpty) {
-      queryConfig.conditions = []
-        ..addAll(edgeTargetConditions)
-        ..addAll(edgeSourceConditions)
-        ..addAll(propertyConditions);
-    }
-
-    var count = await datasourceResolver?.integer("count");
-    if (count != null) {
-      queryConfig.count = count;
-    }
+    var queryConfig = await DatabaseQueryConfig.queryConfigWith(
+        context: cvuContext,
+        datasource: datasource,
+        inheritQuery: inheritDatasource ? topMostContext?.config.query : null,
+        overrideUIDs: overrideRowIDs,
+        targetItem: targetItem,
+        dateRange: dateRange);
 
     var config = ViewContext(
         viewName: viewName,

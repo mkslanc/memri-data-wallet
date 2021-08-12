@@ -69,6 +69,7 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.Toggle: 'Toggle',
   CVUUIElementFamily.Picker: 'Picker',
   CVUUIElementFamily.MemriButton: 'MemriButton',
+  CVUUIElementFamily.MessageComposer: 'MessageComposer',
   CVUUIElementFamily.Button: 'Button',
   CVUUIElementFamily.ActionButton: 'ActionButton',
   CVUUIElementFamily.Map: 'Map',

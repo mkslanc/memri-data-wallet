@@ -357,6 +357,10 @@ class CVUPropertyResolver {
     if (string == null) {
       return null;
     }
+    var predefined = CVUColor.predefined[string];
+    if (predefined != null) {
+      return predefined;
+    }
     return CVUColor(color: string).value;
   }
 
@@ -560,20 +564,26 @@ class CVUPropertyResolver {
     } else {
       if (values.isNotEmpty) {
         var val = values[0];
-        double? size = await lookup.resolve<double>(value: val, context: this.context, db: this.db);
-
-        if (size != null) {
-          return CVUFont(
-              name: name,
-              size: size,
-              weight: CVUFont.Weight[await lookup.resolve<String>(
-                      value: values[0], context: this.context, db: this.db)] ??
-                  defaultValue.weight); //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
+        String? defaultStyle =
+            await lookup.resolve<String>(value: val, context: this.context, db: this.db);
+        if (defaultStyle != null && CVUFont.predefined[defaultStyle] != null) {
+          return CVUFont.predefined[defaultStyle]!;
         } else {
-          var weight = CVUFont.Weight[await lookup.resolve<String>(
-              value: val, context: this.context, db: this.db)]; //.flatMap(Font.Weight.init) TODO:
-          if (weight != null) {
-            return CVUFont(name: defaultValue.name, size: defaultValue.size, weight: weight);
+          double? size =
+              await lookup.resolve<double>(value: val, context: this.context, db: this.db);
+          if (size != null) {
+            return CVUFont(
+                name: name,
+                size: size,
+                weight: CVUFont.Weight[await lookup.resolve<String>(
+                        value: values[0], context: this.context, db: this.db)] ??
+                    defaultValue.weight);
+          } else {
+            var weight = CVUFont.Weight[
+                await lookup.resolve<String>(value: val, context: this.context, db: this.db)];
+            if (weight != null) {
+              return CVUFont(name: defaultValue.name, size: defaultValue.size, weight: weight);
+            }
           }
         }
       }
