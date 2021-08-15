@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
 
@@ -46,6 +48,18 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
         CVUColor.system("systemBackground");
   }
 
+  CVUDefinitionContent? get nodeDefinition {
+    CVUDefinitionContent? viewDefinition;
+    var viewName = widget.viewContext.config.viewName;
+    if (viewName != null) {
+      viewDefinition = widget.viewContext.cvuController.viewDefinitionFor(viewName: viewName);
+    }
+    viewDefinition ??= widget.viewContext.config.viewDefinition;
+
+    return viewDefinition.definitions.firstWhereOrNull(
+            (definition) => definition.selector == "[renderer = singleItem]")?.parsed;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -57,7 +71,8 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
                 var item = widget.viewContext.focusedItem ?? widget.viewContext.items.asMap()[0];
                 Widget group;
                 if (item != null) {
-                  group = widget.viewContext.render(item: item, items: widget.viewContext.items);
+                  group = widget.viewContext.render(
+                      item: item, items: widget.viewContext.items, nodeDefinition: nodeDefinition);
                 } else {
                   group = Center(
                     child: Text("No item selected"),
