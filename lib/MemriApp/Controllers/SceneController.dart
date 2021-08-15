@@ -215,7 +215,9 @@ class SceneController extends ChangeNotifier {
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
 
-    viewArguments?.args["readOnly"] ??= CVUValueConstant(CVUConstantBool(!isInEditMode.value));
+    viewArguments ??= CVUViewArguments();
+    viewArguments.args["readOnly"] ??= viewDefinition.properties["readOnly"] ??
+        CVUValueConstant(CVUConstantBool(!isInEditMode.value));
 
     var cvuContext = CVUContext(
         currentItem: targetItem,
