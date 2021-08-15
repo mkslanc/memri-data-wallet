@@ -103,19 +103,16 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
     if (currentItem == null) {
       return [];
     }
-    var viewLayout =
+    var viewLayout = widget.viewContext.cvuController
+            .viewDefinitionForItemRecord(itemRecord: currentItem)
+            ?.definitions
+            .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+            ?.get("layout") ??
         widget.viewContext.cvuController
-                .viewDefinitionForItemRecord(itemRecord: currentItem)
-                ?.definitions
-                .firstWhereOrNull(
-                    (definition) => definition.selector == "[renderer = generalEditor]")
-                ?.get("layout") ??
-            widget.viewContext.cvuController
-                .viewDefinitionFor(viewName: widget.viewContext.config.viewName ?? "")
-                ?.definitions
-                .firstWhereOrNull(
-                    (definition) => definition.selector == "[renderer = generalEditor]")
-                ?.get("layout");
+            .viewDefinitionFor(viewName: widget.viewContext.config.viewName ?? "")
+            ?.definitions
+            .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+            ?.get("layout");
     List<Map<String, CVUValue>>? viewDefs = [];
 
     if (viewLayout is CVUValueArray) {

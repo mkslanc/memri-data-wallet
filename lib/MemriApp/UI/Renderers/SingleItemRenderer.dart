@@ -56,8 +56,9 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
     }
     viewDefinition ??= widget.viewContext.config.viewDefinition;
 
-    return viewDefinition.definitions.firstWhereOrNull(
-            (definition) => definition.selector == "[renderer = singleItem]")?.parsed;
+    return viewDefinition.definitions
+        .firstWhereOrNull((definition) => definition.selector == "[renderer = singleItem]")
+        ?.parsed;
   }
 
   @override

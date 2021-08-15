@@ -509,8 +509,10 @@ class CVUActionPluginRun extends CVUAction {
 
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
-      await pluginRunItem.setPropertyValue("targetItemId",
-          PropertyDatabaseValueString(pluginRunItem.uid)); //TODO plugin makers request, need to change this later
+      await pluginRunItem.setPropertyValue(
+          "targetItemId",
+          PropertyDatabaseValueString(
+              pluginRunItem.uid)); //TODO plugin makers request, need to change this later
       await pluginRunItem.setPropertyValue(
           "pluginModule", PropertyDatabaseValueString(pluginModule));
       await pluginRunItem.setPropertyValue("pluginName", PropertyDatabaseValueString(pluginName));
