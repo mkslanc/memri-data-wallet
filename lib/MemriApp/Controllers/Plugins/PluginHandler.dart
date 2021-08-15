@@ -1,4 +1,6 @@
 import 'package:memri/MemriApp/CVU/CVUController.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVUParseErrors.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
@@ -7,26 +9,29 @@ import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import '../SceneController.dart';
 
 class PluginHandler {
-  static start(
+  static run(
       {required ItemRecord plugin,
       required ItemRecord runner,
       required SceneController sceneController,
       required CVUContext context}) async {
     AppController.shared.pubsubController.startObservingItemProperty(
         item: runner,
-        property: "state",
+        property: "status",
         desiredValue: null,
         completion: (newValue, [error]) async {
           if (newValue is PropertyDatabaseValueString) {
-            var state = newValue.value;
+            var status = newValue.value;
 
-            switch (state) {
+            switch (status) {
               case "userActionNeeded":
                 presentCVUforPlugin(
                     plugin: plugin,
                     runner: runner,
                     sceneController: sceneController,
                     context: context);
+                break;
+              case "done":
+                stopPlugin(runner);
                 break;
               default:
                 break;
@@ -38,34 +43,54 @@ class PluginHandler {
     await AppController.shared.syncController.sync();
   }
 
+  static stopPlugin(ItemRecord runner) {
+    AppController.shared.pubsubController
+        .stopObservingItemProperty(item: runner, property: "status");
+  }
+
   static presentCVUforPlugin(
       {required ItemRecord plugin,
       required ItemRecord runner,
       required SceneController sceneController,
       required CVUContext context}) async {
     var runnerRowId = runner.rowId;
-    var view = await plugin.edgeItem("view");
+    var view = await runner.edgeItem("view");
     var cvuContent = (await view?.propertyValue("definition"))?.value;
-    var cvuDefinition =
-        cvuContent != null ? (await CVUController.parseCVU(cvuContent)).asMap()[0]?.parsed : null;
-    if (cvuDefinition == null) {
-      AppController.shared.pubsubController
-          .stopObservingItemProperty(item: runner, property: "state");
+    List<CVUParsedDefinition>? parsedDefinitions;
+    if (cvuContent != null) {
+      try {
+        parsedDefinitions = await CVUController.parseCVU(cvuContent);
+      } on CVUParseErrors catch (error) {
+        print(error.toString());
+      }
+    }
+    var parsedDefinition = parsedDefinitions?.asMap()[0];
+    var cvuDefinition = parsedDefinition?.parsed;
+    if (parsedDefinitions == null || parsedDefinition == null || cvuDefinition == null) {
       return;
     }
 
-    var item = ItemRecord(type: "Account");
-    item.syncState = SyncState.skip; // Don't sync it yet
-    await item.save();
-    var itemRowId = item.rowId;
-    if (itemRowId == null) {
-      return;
+    AppController.shared.cvuController.storedDefinitions = parsedDefinitions;
+
+    var item = await runner.edgeItem("account");
+
+    if (item == null) {
+      item = ItemRecord(type: "Account");
+      item.syncState = SyncState.skip; // Don't sync it yet
+      await item.save();
+      var itemRowId = item.rowId;
+      if (itemRowId == null) {
+        return;
+      }
+
+      var edge = ItemEdgeRecord(sourceRowID: runnerRowId, name: "account", targetRowID: itemRowId);
+      edge.syncState = SyncState.skip; // Don't sync it yet
+      await edge.save();
     }
 
-    var edge = ItemEdgeRecord(sourceRowID: runnerRowId, name: "account", targetRowID: itemRowId);
-    edge.syncState = SyncState.skip; // Don't sync it yet
-    await edge.save();
+    await runner.setPropertyValue("status", PropertyDatabaseValueString("cvuPresented"));
 
-    await sceneController.navigateToNewContext(defaultDefinition: cvuDefinition);
+    await sceneController.navigateToNewContext(
+        targetItem: item, viewName: parsedDefinition.name, defaultDefinition: cvuDefinition);
   }
 }
