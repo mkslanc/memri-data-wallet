@@ -1701,27 +1701,27 @@
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
-      "property": "state",
+      "item_type": "PluginRun",
+      "property": "status",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
+      "item_type": "PluginRun",
       "property": "oAuthUrl",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
-      "property": "container",
+      "item_type": "PluginRun",
+      "property": "containerImage",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
-      "property": "state",
+      "item_type": "PluginRun",
+      "property": "status",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
+      "item_type": "PluginRun",
       "property": "targetItemId",
       "value_type": "string"
     },

@@ -15,12 +15,12 @@ void main() {
   });
 
   test('testPluginAuthenticationFlow', () async {
-    var record = ItemRecord(type: "StartPlugin");
+    var record = ItemRecord(type: "PluginRun");
     await record.save();
-    await record.setPropertyValue("state", PropertyDatabaseValueString("idle"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("idle"));
     appController.pubsubController.startObservingItemProperty(
         item: record,
-        property: "state",
+        property: "status",
         desiredValue: PropertyDatabaseValueString("userActionNeeded"),
         completion: (newValue, [error]) {
           if (newValue == null) {
@@ -31,7 +31,7 @@ void main() {
 
           appController.pubsubController.startObservingItemProperty(
               item: record,
-              property: "state",
+              property: "status",
               desiredValue: PropertyDatabaseValueString("ready"),
               completion: (newValue, [error]) {
                 if (newValue == null) {
@@ -42,31 +42,31 @@ void main() {
               });
         });
 
-    await record.setPropertyValue("state", PropertyDatabaseValueString("started"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("started"));
     print("`started` passed");
-    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
     print("`userActionNeeded` passed");
-    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
     print("`userActionNeeded` passed");
-    await record.setPropertyValue("state", PropertyDatabaseValueString("ready"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("ready"));
     print("`ready` passed");
   });
 
   test('testPluginAuthenticationFlow2', () async {
-    var record = ItemRecord(type: "StartPlugin");
+    var record = ItemRecord(type: "PluginRun");
     await record.save();
-    await record.setPropertyValue("state", PropertyDatabaseValueString("idle"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("idle"));
     appController.pubsubController.startObservingItemProperty(
         item: record,
-        property: "state",
+        property: "status",
         desiredValue: null,
         completion: (newValue, [error]) async {
           if (newValue is PropertyDatabaseValueString) {
-            var state = newValue.value;
+            var status = newValue.value;
 
-            print("got `$state`");
+            print("got `$status`");
 
-            switch (state) {
+            switch (status) {
               case "userActionNeeded":
                 print("presentCVUforPlugin");
                 break;
@@ -77,13 +77,13 @@ void main() {
           }
         });
 
-    await record.setPropertyValue("state", PropertyDatabaseValueString("started"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("started"));
     print("`started` passed");
-    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
     print("`userActionNeeded` passed");
-    await record.setPropertyValue("state", PropertyDatabaseValueString("userActionNeeded"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
     print("`userActionNeeded` passed");
-    await record.setPropertyValue("state", PropertyDatabaseValueString("ready"));
+    await record.setPropertyValue("status", PropertyDatabaseValueString("ready"));
     print("`ready` passed");
   });
 
