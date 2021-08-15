@@ -23,14 +23,18 @@ import 'definitions/CVUParsedDefinition.dart';
 import 'definitions/CVUUINode.dart';
 
 class CVUController {
-  late List<CVUParsedDefinition> definitions;
+  late List<CVUParsedDefinition> _definitions;
+  List<CVUParsedDefinition> storedDefinitions = [];
+  List<CVUParsedDefinition> get definitions {
+    return []..addAll(_definitions)..addAll(storedDefinitions);
+  }
 
   init() async {
     try {
-      definitions = await CVUController.parseCVU();
+      _definitions = await CVUController.parseCVU();
     } catch (error) {
       print(error);
-      this.definitions = [];
+      this._definitions = [];
     }
   }
 
@@ -43,14 +47,15 @@ class CVUController {
   }
 
   static Future<String> readCVUString() async {
-    var manifestJson = await rootBundle.loadString('AssetManifest.json');
+    var manifestJson = await rootBundle.loadString('AssetManifest.json', cache: false);
     List<String> cvus = json
         .decode(manifestJson)
         .keys
         .where((String key) => key.startsWith('assets/defaultCVU'))
         .toList();
 
-    cvus = await Future.wait(cvus.map((cvu) async => await rootBundle.loadString(cvu)).toList());
+    cvus = await Future.wait(
+        cvus.map((cvu) async => await rootBundle.loadString(cvu, cache: false)).toList());
 
     return cvus.join("\n").replaceAll("\r", "");
   }
