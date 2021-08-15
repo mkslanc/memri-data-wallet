@@ -3335,7 +3335,26 @@
   {
     "_type":"CVUStoredDefinition",
     "uid": 202108041600,
-    "definition": "* {\n    title: \"TEST CVU\"\n    defaultRenderer: custom\n    showContextualBottomBar: false\n    showBottomBar: false\n    showDefaultLayout: false\n\n    [renderer = custom] {\n        HStack {\n                Text {\n                    text: \"Demo View Rendered from CVUStoredDefinition\"\n                    font: 16 semibold\n                    color: #000\n                    padding: 5 8 5 8\n                }\n            }\n    }\n}\n"
+    "definition": ".demo-plugin {\n    title: \"TEST CVU\"\n    defaultRenderer: custom\n    showContextualBottomBar: false\n    showBottomBar: false\n    showDefaultLayout: false\n\n    [renderer = custom] {\n        HStack {\n                Text {\n                    text: \"Demo View Rendered from CVUStoredDefinition\"\n                    font: 16 semibold\n                    color: #000\n                    padding: 5 8 5 8\n                }\n            }\n    }\n}\n"
+  },
+  {
+    "_type":"Plugin",
+    "name":"Gmail plugin",
+    "container":"cvu",
+    "icon":"doc",
+    "itemDescription":"Render CVU from Stored Definition",
+    "allEdges":[
+      {
+        "_type":"view",
+        "targetType":"CVUStoredDefinition",
+        "uid": 202108041601
+      }
+    ]
+  },
+  {
+    "_type":"CVUStoredDefinition",
+    "uid": 202108041601,
+    "definition": ".gmail-auth {\n    title: \"Login\"\n    defaultRenderer: generalEditor\n    showContextualBottomBar: false\n    showBottomBar: false\n    showDefaultLayout: false\n    readOnly: false\n\n    [renderer = generalEditor] {\n        layout: [\n            { section: username, fields: identifier, exclude: labels }\n            { section: password, fields: secret, exclude: labels }\n            { section: login }\n        ]\n\n        login {\n            showTitle: false\n            HStack {\n                alignment: center\n                Spacer\n                Button {\n                    padding: 20 0 20 0\n                    onPress: [sync back]\n\n                    VStack {\n                        background: #218721\n                        cornerRadius: 5\n\n                        Text {\n                            text: \"Login\"\n                            font: 16 semibold\n                            color: #fff\n                            padding: 5 8 5 8\n                        }\n                    }\n                }\n                Spacer\n            }\n        }\n    }\n}"
   },
   {
     "_type": "Wallet",

@@ -1431,6 +1431,16 @@
       "value_type": "string"
     },
     {
+      "item_type": "Plugin",
+      "property": "pluginModule",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "pluginName",
+      "value_type": "string"
+    },
+    {
       "item_type": "Product",
       "property": "audience",
       "value_type": "string"
@@ -1723,6 +1733,16 @@
     {
       "item_type": "PluginRun",
       "property": "targetItemId",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
+      "property": "pluginModule",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
+      "property": "pluginName",
       "value_type": "string"
     },
     {
@@ -3481,6 +3501,16 @@
       "source_type": "Plugin",
       "edge": "view",
       "target_type": "CVUStoredDefinition"
+    },
+    {
+      "source_type": "PluginRun",
+      "edge": "view",
+      "target_type": "CVUStoredDefinition"
+    },
+    {
+      "source_type": "Plugin",
+      "edge": "pluginRun",
+      "target_type": "PluginRun"
     }
   ]
 }

@@ -98,8 +98,18 @@
     "pluginType": "importer",
     "name": "WhatsApp",
     "dataType": "whatsapp",
-    "container": "memri-rustintegrators:latest",
-    "icon": "message"
+    "container": "whatsapp:latest",
+    "icon": "message",
+    "pluginModule": "whatsapp.plugin",
+    "pluginName": "WhatsappPlugin"
+  },
+  {
+    "_type":"Plugin",
+    "name":"Gmail plugin",
+    "container":"gmail_importer",
+    "pluginModule": "gmail_importer.plugin",
+    "pluginName": "GmailImporter",
+    "icon":"mail"
   },
   {
     "_type": "Setting",

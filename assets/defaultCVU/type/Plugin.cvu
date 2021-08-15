@@ -70,6 +70,8 @@ Plugin > list {
         name: {{.name}}
         plugin: {{.}}
         container: {{.container}}
+        pluginModule: {{.pluginModule}}
+        pluginName: {{.pluginName}}
         targetItemId: {{.id}}
     }
 
@@ -126,6 +128,8 @@ Plugin > grid {
         name: {{.name}}
         plugin: {{.}}
         container: {{.container}}
+        pluginModule: {{.pluginModule}}
+        pluginName: {{.pluginName}}
         targetItemId: {{.id}}
     }
     
