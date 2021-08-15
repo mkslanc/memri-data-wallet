@@ -91,6 +91,8 @@ extension MemriIcon on IconData {
         return Icons.north_east;
       case 'doc':
         return Icons.insert_drive_file_outlined;
+      case 'mail':
+        return Icons.mail;
       default:
         print("Unknown icon $iconName");
         return Icons.contact_support_rounded;
