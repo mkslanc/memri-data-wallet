@@ -59,6 +59,12 @@ class SceneController extends ChangeNotifier {
     }
   }
 
+  reset() async {
+    navigationIsVisible.value = false;
+    topMostContext = null;
+    await init();
+  }
+
   toggleEditMode() {
     var topConfigHolder = topMostContext?.configHolder;
     if (topConfigHolder == null) {
