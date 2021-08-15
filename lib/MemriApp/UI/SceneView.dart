@@ -36,8 +36,7 @@ class _SceneViewState extends State<SceneView> {
 
   Future<String?> get _title async {
     return await widget.sceneController.topMostContext?.viewDefinitionPropertyResolver
-            .string("title") ??
-        "";
+        .string("title");
   }
 
   /// Keep track of whether the search bar is currently open (keyboard shown)
@@ -107,24 +106,22 @@ class _SceneViewState extends State<SceneView> {
                         : Empty();
                   },
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(27, 10, 0, 10),
-                  child: FutureBuilder(
-                      future: title,
-                      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                        if (snapshot.hasData) {
-                          return Container(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              snapshot.data!.toUpperCase(),
-                              style: CVUFont.headline3,
-                            ),
-                          );
-                        } else {
-                          return Empty();
-                        }
-                      }),
-                ),
+                FutureBuilder(
+                    future: title,
+                    builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                      if (snapshot.hasData) {
+                        return Container(
+                          alignment: Alignment.topLeft,
+                          padding: const EdgeInsets.fromLTRB(27, 10, 0, 10),
+                          child: Text(
+                            snapshot.data!.toUpperCase(),
+                            style: CVUFont.headline3,
+                          ),
+                        );
+                      } else {
+                        return Empty();
+                      }
+                    }),
                 NavigationHolder(
                   widget.sceneController.navigationController,
                 )

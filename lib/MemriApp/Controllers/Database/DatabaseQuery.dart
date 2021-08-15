@@ -263,8 +263,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
                 .toList());
       } else if (condition is DatabaseQueryConditionEdgeHasTarget) {
         info = condition.value;
-        query = "name = ? AND target = ? AND source IN (${rowIds.join(", ")})";
-        binding = [Variable(info.edgeName), Variable(info.target)];
+        query =
+            "name = ? AND target IN (${info.target.join(", ")}) AND source IN (${rowIds.join(", ")})";
+        binding = [Variable(info.edgeName)];
         edgeConditionsItemsRowIds.add(
             (await dbController.databasePool.edgeRecordsCustomSelect(query, binding))
                 .map((el) => el.source)
@@ -272,8 +273,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
                 .toList());
       } else if (condition is DatabaseQueryConditionEdgeHasSource) {
         info = condition.value;
-        query = "name = ? AND source = ? AND target IN (${rowIds.join(", ")})";
-        binding = [Variable(info.edgeName), Variable(info.source)];
+        query =
+            "name = ? AND source IN (${info.source.join(", ")}) AND target IN (${rowIds.join(", ")})";
+        binding = [Variable(info.edgeName)];
         edgeConditionsItemsRowIds.add(
             (await dbController.databasePool.edgeRecordsCustomSelect(query, binding))
                 .map((el) => el.target)
@@ -533,8 +535,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> edgeTargetConditions = (await Future.wait<DatabaseQueryCondition?>(
             (edgeTargets?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      var target = await edgeTargets?.integer(key);
-      if (target == null) return null;
+      var target = (await edgeTargets?.items(key))?.compactMap((e) => e.rowId);
+      if (target == null || target.isEmpty) {
+        target = [(await edgeTargets?.integer(key)) ?? 0];
+      }
       return DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target));
     })))
         .compactMap();
@@ -543,8 +547,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> edgeSourceConditions = (await Future.wait<DatabaseQueryCondition?>(
             (edgeSources?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      var source = await edgeSources?.integer(key);
-      if (source == null) return null;
+      var source = (await edgeSources?.items(key))?.compactMap((e) => e.rowId);
+      if (source == null || source.isEmpty) {
+        source = [(await edgeSources?.integer(key)) ?? 0];
+      }
       return DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source));
     })))
         .compactMap();
@@ -555,12 +561,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
                 .map<Future<DatabaseQueryCondition?>>((key) async {
       dynamic value = await properties?.boolean(key);
       if (value == null) {
-        value = await properties?.string(key);
+        value = await properties?.string(key) ?? "";
       }
-      if (value != null) {
-        return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-      }
-      return null;
+      return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
     })))
         .compactMap();
 
@@ -735,7 +738,7 @@ class PropertyEquals {
 @annotation.JsonSerializable()
 class EdgeHasTarget {
   String edgeName;
-  int target;
+  List<int> target;
 
   EdgeHasTarget(this.edgeName, this.target);
 
@@ -747,7 +750,7 @@ class EdgeHasTarget {
 @annotation.JsonSerializable()
 class EdgeHasSource {
   String edgeName;
-  int source;
+  List<int> source;
 
   EdgeHasSource(this.edgeName, this.source);
 

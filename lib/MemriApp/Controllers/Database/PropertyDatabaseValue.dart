@@ -176,7 +176,7 @@ abstract class PropertyDatabaseValue with EquatableMixin {
   }
 
   int? asInt() {
-    return int.tryParse(value);
+    return value is int ? value : int.tryParse(value);
   }
 
   bool? asBool() {

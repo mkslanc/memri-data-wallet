@@ -455,6 +455,43 @@ class CVUPropertyResolver {
     }
   }
 
+  Future<Alignment> alignmentForStack([String propertyName = "alignment"]) async {
+    var val = value(propertyName);
+    if (val == null) {
+      return Alignment.center;
+    }
+    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+      case "left":
+      case "leading":
+        return Alignment.centerLeft;
+      case "top":
+        return Alignment.topCenter;
+      case "right":
+      case "trailing":
+        return Alignment.centerRight;
+      case "bottom":
+        return Alignment.bottomCenter;
+      case "center":
+      case "centre":
+      case "middle":
+        return Alignment.center;
+      case "lefttop":
+      case "topleft":
+        return Alignment.topLeft;
+      case "righttop":
+      case "topright":
+        return Alignment.topRight;
+      case "leftbottom":
+      case "bottomleft":
+        return Alignment.bottomLeft;
+      case "rightbottom":
+      case "bottomright":
+        return Alignment.bottomRight;
+      default:
+        return Alignment.topLeft;
+    }
+  }
+
   Future<TextAlign> textAlignment([String propertyName = "textAlign"]) async {
     var val = value(propertyName);
     if (val == null) {
