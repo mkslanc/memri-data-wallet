@@ -485,6 +485,28 @@ class CVUActionPluginRun extends CVUAction {
     if (targetItemId == null || container == null) return;
 
     try {
+      var existingPluginRunItem = await plugin.edgeItem("pluginRun");
+      if (existingPluginRunItem != null) {
+        var pluginRunStatus = (await existingPluginRunItem.propertyValue("status"))?.asString();
+        switch (pluginRunStatus) {
+          case "idle":
+            return;
+          case "userActionNeeded":
+            PluginHandler.presentCVUforPlugin(
+                plugin: plugin,
+                runner: existingPluginRunItem,
+                sceneController: sceneController,
+                context: context);
+            return;
+          case "cvuPresented":
+            await existingPluginRunItem.setPropertyValue(
+                "status", PropertyDatabaseValueString("userActionNeeded"));
+            return;
+          default:
+            break;
+        }
+      }
+
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
       await pluginRunItem.setPropertyValue("targetItemId",
