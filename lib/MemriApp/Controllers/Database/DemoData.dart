@@ -32,7 +32,7 @@ class DemoData {
     }
 
     var fileURL = "assets/schema.json";
-    var fileData = await rootBundle.loadString(fileURL);
+    var fileData = await rootBundle.loadString(fileURL, cache: false);
     var items = jsonDecode(fileData);
     if (items == null ||
         items["properties"] == null ||
@@ -108,7 +108,7 @@ class DemoData {
 
     var fileURL = 'assets/schema.json';
 
-    var fileData = await rootBundle.loadString(fileURL);
+    var fileData = await rootBundle.loadString(fileURL, cache: false);
     var jsonFile = jsonDecode(fileData);
     var fileDecoded = SchemaFile.fromJson(jsonFile);
 
@@ -167,7 +167,7 @@ class DemoData {
       required DatabaseController databaseController,
       bool throwIfAgainstSchema = false}) async {
     var fileURL = "assets/$fileName.json";
-    var fileData = await rootBundle.loadString(fileURL);
+    var fileData = await rootBundle.loadString(fileURL, cache: false);
     var items = jsonDecode(fileData);
     if (items == null || items is! List) {
       return;
