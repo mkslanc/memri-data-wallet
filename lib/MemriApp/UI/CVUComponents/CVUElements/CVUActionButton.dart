@@ -139,7 +139,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                 }
                 return Icon(
                   MemriIcon.getByName((starred?.asBool() ?? false) ? "star.fill" : "star"),
-                  color: CVUColor.system("systemBlue"),
+                  color: CVUColor.system("white"),
                 );
               }),
           onPressed: () async {
