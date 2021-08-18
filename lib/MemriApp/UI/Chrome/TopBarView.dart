@@ -11,7 +11,6 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
-import '../SettingsPane.dart';
 import '../ViewContextController.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
@@ -64,12 +63,8 @@ class _TopBarViewState extends State<TopBarView> {
                         if (!widget.sceneController.canNavigateBack)
                           TextButton(
                             style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
-                            onPressed: () => showModalBottomSheet<void>(
-                              context: context,
-                              useRootNavigator: true,
-                              isScrollControlled: true,
-                              builder: (BuildContext context) => SettingsPane(),
-                            ),
+                            onPressed: () =>
+                                widget.sceneController.navigationIsVisible.value = true,
                             child: Icon(
                               Icons.dehaze,
                               size: 24,
