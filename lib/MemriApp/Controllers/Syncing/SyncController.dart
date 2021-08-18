@@ -124,7 +124,6 @@ class SyncController {
   }
 
   sync({PodAPIConnectionDetails? connectionConfig, Function(String?)? completion}) async {
-    await ItemRecord.getOwnerAndDBKey();
     currentConnection = connectionConfig ?? await AppController.shared.podConnectionConfig;
     if (currentConnection == null) {
       return;
@@ -423,7 +422,7 @@ class SyncController {
       print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
-    if (completion != null) await completion(networkCall.body, error);
+    if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
   }
 
   uploadFile(String uuid, Future<void> Function(String? data, String? error)? completion) async {
@@ -443,12 +442,13 @@ class SyncController {
     if (networkCall.statusCode != 200) {
       error = networkCall.reasonPhrase;
       if (error == "Conflict") {
-        if (completion != null) await completion(networkCall.body, null);
+        if (completion != null)
+          await completion(Utf8Decoder().convert(networkCall.bodyBytes), null);
         return;
       }
       print("ERROR: ${networkCall.statusCode} $error on file $fileURL");
     }
-    if (completion != null) await completion(networkCall.body, error);
+    if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
   }
 
   downloadFile(
