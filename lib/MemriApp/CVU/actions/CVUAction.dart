@@ -485,7 +485,7 @@ class CVUActionPluginRun extends CVUAction {
     if (targetItemId == null || container == null) return;
 
     try {
-      var existingPluginRunItem = await plugin.edgeItem("pluginRun");
+      var existingPluginRunItem = await plugin.reverseEdgeItem("plugin");
       if (existingPluginRunItem != null) {
         var pluginRunStatus = (await existingPluginRunItem.propertyValue("status"))?.asString();
         switch (pluginRunStatus) {
@@ -521,7 +521,7 @@ class CVUActionPluginRun extends CVUAction {
       await pluginRunItem.setPropertyValue("status", PropertyDatabaseValueString("idle"));
 
       var edge = ItemEdgeRecord(
-          sourceRowID: plugin.rowId, name: "pluginRun", targetRowID: pluginRunItem.rowId);
+          sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
       edge.syncState = SyncState.skip; // Don't sync it yet
       await edge.save();
 

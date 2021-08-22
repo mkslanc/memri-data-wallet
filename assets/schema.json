@@ -1746,6 +1746,11 @@
       "value_type": "string"
     },
     {
+      "item_type": "Service",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
       "item_type": "TimeFrame",
       "property": "startTime",
       "value_type": "datetime"
@@ -3508,9 +3513,9 @@
       "target_type": "CVUStoredDefinition"
     },
     {
-      "source_type": "Plugin",
-      "edge": "pluginRun",
-      "target_type": "PluginRun"
+      "source_type": "PluginRun",
+      "edge": "plugin",
+      "target_type": "Plugin"
     }
   ]
 }
