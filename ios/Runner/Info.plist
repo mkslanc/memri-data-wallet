@@ -26,6 +26,19 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>Shows your location on the map and helps improve the map</string>
+    <key>NSContactsUsageDescription</key>
+    <string>Populates your contacts to use it inside application</string>
+    <key>NSCameraUsageDescription</key>
+    <string>camera</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>microphone</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>photos</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>FaceId permission request</string>
+
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
