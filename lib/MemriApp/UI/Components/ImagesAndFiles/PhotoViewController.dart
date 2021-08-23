@@ -78,10 +78,10 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
 
 class PhotoViewerControllerPhotoItem {
   final int index;
-  final String imageURL;
+  final ImageProvider imageProvider;
   final Widget overlay;
 
-  PhotoViewerControllerPhotoItem(this.index, this.imageURL, this.overlay);
+  PhotoViewerControllerPhotoItem(this.index, this.imageProvider, this.overlay);
 }
 
 class PhotoScalingView extends StatefulWidget {
@@ -127,7 +127,7 @@ class _PhotoScalingViewState extends State<PhotoScalingView> with SingleTickerPr
       child: InteractiveViewer(
         transformationController: _transformationController,
         child: Image(
-          image: AssetImage(widget.photoItem.imageURL),
+          image: widget.photoItem.imageProvider,
         ),
       ),
     );

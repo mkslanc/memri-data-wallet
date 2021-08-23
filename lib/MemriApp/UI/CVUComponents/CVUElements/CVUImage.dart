@@ -68,7 +68,7 @@ class _CVUImageState extends State<CVUImage> {
     if (imageURI == null) {
       return null;
     }
-    return await FileStorageController.getImage(imageURI);
+    return await FileStorageController.getImage(uuid: imageURI);
   }
 
   Future<ImageProvider?> getBundleImage() async {

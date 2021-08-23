@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Components/ImagesAndFiles/PhotoViewController.dart';
 
@@ -19,9 +20,11 @@ class PhotoViewerRendererView extends StatelessWidget {
     if (item == null) return null;
     var fileURL = await viewContext.nodePropertyResolver(item)?.fileURL("file");
     if (fileURL == null) return null;
+    var imageProvider = await FileStorageController.getImage(fileURL: fileURL);
+    if (imageProvider == null) return null;
 
     var overlay = viewContext.render(item: item, blankIfNoDefinition: true);
-    return PhotoViewerControllerPhotoItem(index, fileURL, overlay);
+    return PhotoViewerControllerPhotoItem(index, imageProvider, overlay);
   }
 
   onToggleOverlayVisibility(bool visible) {
