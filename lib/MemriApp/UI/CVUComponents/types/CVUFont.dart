@@ -64,6 +64,10 @@ class CVUFont {
         size: buttonLabel.fontSize!,
         weight: buttonLabel.fontWeight,
         letterSpacing: buttonLabel.letterSpacing),
+    "tile_Label": CVUFont(
+        size: tileLabel.fontSize!,
+        weight: tileLabel.fontWeight,
+        letterSpacing: tileLabel.letterSpacing),
   };
 
   static const headline1 =
@@ -78,4 +82,6 @@ class CVUFont {
       TextStyle(fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 0.13);
   static const buttonLabel =
       TextStyle(fontSize: 16, fontWeight: FontWeight.normal, letterSpacing: 0.16);
+  static const tileLabel =
+      TextStyle(fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.04);
 }

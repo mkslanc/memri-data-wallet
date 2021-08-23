@@ -91,7 +91,7 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
                     child: group,
                   );
                 }
-                return Expanded(child: group);
+                return Expanded(child: SingleChildScrollView(child: group));
               });
         });
   }

@@ -124,7 +124,7 @@ class CVUZStack extends StatefulWidget {
 class _CVUZStackState extends State<CVUZStack> {
   Point? spacing;
 
-  //late final AlignmentResolver alignment;
+  Alignment? alignment;
 
   late Future _init;
 
@@ -136,6 +136,7 @@ class _CVUZStackState extends State<CVUZStack> {
 
   init() async {
     spacing = await widget.nodeResolver.propertyResolver.spacing;
+    alignment = await widget.nodeResolver.propertyResolver.alignmentForStack("alignment");
   }
 
   @override
@@ -144,7 +145,7 @@ class _CVUZStackState extends State<CVUZStack> {
         future: _init,
         builder: (BuildContext builder, snapshot) {
           return Stack(
-            alignment: Alignment.center,
+            alignment: alignment ?? Alignment.center,
             children: widget.nodeResolver.childrenInForEach(),
           );
         });
