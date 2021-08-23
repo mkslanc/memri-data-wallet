@@ -65,8 +65,8 @@ class FileStorageController {
     await File(fileURL).writeAsBytes(data.toList());
   }
 
-  static Future<ImageProvider?> getImage(String uuid) async {
-    var fileURL = await getURLForFile(uuid);
+  static Future<ImageProvider?> getImage({String? uuid, String? fileURL}) async {
+    fileURL ??= await getURLForFile(uuid!);
     try {
       await rootBundle.load(fileURL);
       return AssetImage(fileURL);
