@@ -19,7 +19,10 @@ docker run --rm -e UID="$UID" -e GID="$GROUPS" -e SDK_REGISTRY_TOKEN="....." --w
 1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/macos to install Flutter SDK
 
 **On Windows:**
-1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/macos to install Flutter SDK
+1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/windows to install Flutter SDK
+
+**On Linux:**
+1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/linux to install Flutter SDK
 
 **For all platforms:**
 2. Setup environment variable `SDK_REGISTRY_TOKEN`
