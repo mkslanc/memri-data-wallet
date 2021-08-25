@@ -32,7 +32,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
           ColoredBox(
               color: Color(0xff532a84),
               child: Padding(
-                  padding: EdgeInsets.fromLTRB(20, 40, 20, 0),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                   child: SizedBox(
                     height: 95,
                     child: Row(

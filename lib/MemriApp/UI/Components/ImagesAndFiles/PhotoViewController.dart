@@ -52,9 +52,7 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
             if (photoItems == null || photoItems.length == 0) {
               return Empty();
             }
-            return Expanded(
-              child: PageView(controller: _pageController, children: getImages(photoItems)),
-            );
+            return PageView(controller: _pageController, children: getImages(photoItems));
           } else {
             return Center(
               child: SizedBox(

@@ -50,7 +50,7 @@ class _ChartRendererViewState extends State<ChartRendererView> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return Expanded(child: ColoredBox(color: snapshot.data!, child: chartView));
+              return ColoredBox(color: snapshot.data!, child: chartView);
             default:
               return SizedBox(
                 child: CircularProgressIndicator(),

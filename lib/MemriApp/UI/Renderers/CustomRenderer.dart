@@ -47,10 +47,9 @@ class _CustomRendererViewState extends State<CustomRendererView> {
   @override
   Widget build(BuildContext context) {
     if (nodeDefinition == null) {
-      return Expanded(child: Text("No view defined"));
+      return Text("No view defined");
     } else {
-      return Expanded(
-          child: SingleChildScrollView(child: viewContext.render(nodeDefinition: nodeDefinition)));
+      return viewContext.render(nodeDefinition: nodeDefinition);
     }
   }
 }

@@ -48,6 +48,8 @@ SuggestedMerge > singleItem {
         }
 
         SubView {
+            height: 300
+
             view {
                 viewName: Person
                 defaultRenderer: list

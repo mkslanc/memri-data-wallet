@@ -18,7 +18,7 @@ class MapRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(child: MapView(config: mapConfig));
+    return MapView(config: mapConfig);
   }
 
   Future<List<ItemRecord>> Function(ItemRecord) get locationResolver {

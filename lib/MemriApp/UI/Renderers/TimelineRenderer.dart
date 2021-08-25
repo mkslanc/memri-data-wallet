@@ -151,7 +151,8 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               TimelineRendererModel model = snapshot.data!;
-              var padding = EdgeInsets.fromLTRB(0, 8, 10, 8);
+              var padding =
+                  EdgeInsets.fromLTRB(0, widget.sceneController.showTopBar ? 8 : 80, 10, 8);
               var widgetSections = sections(model);
               var index = 0;
               var lastIndex = widgetSections.length - 1;
@@ -159,17 +160,16 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
                   .expand((element) => element + (++index > lastIndex ? [] : [Divider(height: 1)]))
                   .toList();
 
-              return Expanded(
-                  child: StaggeredGridView.count(
+              return StaggeredGridView.count(
                 physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: padding,
                 addRepaintBoundaries: false,
                 crossAxisCount: 5,
                 children: children,
                 staggeredTiles: tiles(widgetSections),
-              ));
+              );
             default:
-              return Expanded(child: CircularProgressIndicator());
+              return CircularProgressIndicator();
           }
         });
   }

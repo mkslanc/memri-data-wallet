@@ -226,109 +226,107 @@ class _LabelSelectionViewState extends State<LabelSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(children: [
-        if (widget.topText != null) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Text(
-              widget.topText!,
-              style: TextStyle(backgroundColor: CVUColor.system("secondarySystemBackground")),
-            ),
-          ),
-          Divider(
-            height: 1,
-          )
-        ],
-        widget.useScrollView
-            ? LayoutBuilder(
-                builder: (context, constraints) => SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: widget.content,
-                ),
-              )
-            : Expanded(child: widget.content),
-        Container(
-          height: 150,
-          child: Opacity(
-            opacity: widget.enabled ? 1 : 0.4,
-            child: FutureBuilder<List<LabelOption>>(
-              future: options,
-              builder: (context, AsyncSnapshot<List<LabelOption>> snapshot) =>
-                  snapshot.connectionState == ConnectionState.done
-                      ? ValueListenableBuilder<Set<String>>(
-                          valueListenable: widget.selected,
-                          builder: (context, value, child) {
-                            List<String> selected = value.toList();
-                            return ListView(
-                              padding: EdgeInsets.zero,
-                              children: snapshot.data!
-                                  .map<Widget>((option) => SizedBox(
-                                        height: 30,
-                                        child: ListTile(
-                                          visualDensity: VisualDensity.compact,
-                                          dense: true,
-                                          minVerticalPadding: 0,
-                                          title: TextButton(
-                                              onPressed: () {
-                                                if (selected.remove(option.id) == false) {
-                                                  selected.add(option.id);
-                                                }
-                                                widget.selected.value = Set.from(selected);
-                                              },
-                                              child: Row(
-                                                children: [option.icon, Text(option.text)],
-                                              ),
-                                              style: TextButton.styleFrom(
-                                                  visualDensity: VisualDensity.compact,
-                                                  padding: EdgeInsets.all(0),
-                                                  backgroundColor: selected.contains(option.id)
-                                                      ? Colors.blue
-                                                      : Colors.transparent,
-                                                  primary: selected.contains(option.id)
-                                                      ? Colors.white
-                                                      : Colors.blue)),
-                                        ),
-                                      ))
-                                  .toList(),
-                            );
-                          },
-                        )
-                      : Empty(),
-            ),
+    return Column(children: [
+      if (widget.topText != null) ...[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          child: Text(
+            widget.topText!,
+            style: TextStyle(backgroundColor: CVUColor.system("secondarySystemBackground")),
           ),
         ),
-        Divider(),
-        Container(
-          height: 50,
-          child: Opacity(
-            opacity: widget.enabled ? 1 : 0.4,
-            child: Row(
-              children: [
-                IconButton(
-                    icon: Icon(Icons.undo),
-                    onPressed: widget.enableBackButton ? widget.onBackPressed : null),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Colors.green.withOpacity(widget.enableCheckmarkButton ? 1 : 0.5),
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.check),
-                      onPressed: widget.enableCheckmarkButton ? widget.onCheckmarkPressed : null,
-                      color: Colors.white,
-                    ),
+        Divider(
+          height: 1,
+        )
+      ],
+      widget.useScrollView
+          ? LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: widget.content,
+              ),
+            )
+          : Expanded(child: widget.content),
+      Container(
+        height: 150,
+        child: Opacity(
+          opacity: widget.enabled ? 1 : 0.4,
+          child: FutureBuilder<List<LabelOption>>(
+            future: options,
+            builder: (context, AsyncSnapshot<List<LabelOption>> snapshot) =>
+                snapshot.connectionState == ConnectionState.done
+                    ? ValueListenableBuilder<Set<String>>(
+                        valueListenable: widget.selected,
+                        builder: (context, value, child) {
+                          List<String> selected = value.toList();
+                          return ListView(
+                            padding: EdgeInsets.zero,
+                            children: snapshot.data!
+                                .map<Widget>((option) => SizedBox(
+                                      height: 30,
+                                      child: ListTile(
+                                        visualDensity: VisualDensity.compact,
+                                        dense: true,
+                                        minVerticalPadding: 0,
+                                        title: TextButton(
+                                            onPressed: () {
+                                              if (selected.remove(option.id) == false) {
+                                                selected.add(option.id);
+                                              }
+                                              widget.selected.value = Set.from(selected);
+                                            },
+                                            child: Row(
+                                              children: [option.icon, Text(option.text)],
+                                            ),
+                                            style: TextButton.styleFrom(
+                                                visualDensity: VisualDensity.compact,
+                                                padding: EdgeInsets.all(0),
+                                                backgroundColor: selected.contains(option.id)
+                                                    ? Colors.blue
+                                                    : Colors.transparent,
+                                                primary: selected.contains(option.id)
+                                                    ? Colors.white
+                                                    : Colors.blue)),
+                                      ),
+                                    ))
+                                .toList(),
+                          );
+                        },
+                      )
+                    : Empty(),
+          ),
+        ),
+      ),
+      Divider(),
+      Container(
+        height: 50,
+        child: Opacity(
+          opacity: widget.enabled ? 1 : 0.4,
+          child: Row(
+            children: [
+              IconButton(
+                  icon: Icon(Icons.undo),
+                  onPressed: widget.enableBackButton ? widget.onBackPressed : null),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.green.withOpacity(widget.enableCheckmarkButton ? 1 : 0.5),
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.check),
+                    onPressed: widget.enableCheckmarkButton ? widget.onCheckmarkPressed : null,
+                    color: Colors.white,
                   ),
                 ),
-                TextButton(
-                    child: Text("Skip"),
-                    onPressed: widget.enableSkipButton ? widget.onSkipPressed : null),
-              ],
-            ),
+              ),
+              TextButton(
+                  child: Text("Skip"),
+                  onPressed: widget.enableSkipButton ? widget.onSkipPressed : null),
+            ],
           ),
-        )
-      ]),
-    );
+        ),
+      )
+    ]);
   }
 }
