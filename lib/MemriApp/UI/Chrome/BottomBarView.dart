@@ -23,12 +23,19 @@ class BottomBarView extends StatefulWidget {
 }
 
 class _BottomBarViewState extends State<BottomBarView> {
-  late Future<List<Widget>>? actionButtons;
+  late Future<List<Widget>>? _actionButtons;
+  List<Widget> actionButtons = [];
 
   @override
   initState() {
     super.initState();
-    actionButtons = _getActionButtons();
+    _actionButtons = _getActionButtons();
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _actionButtons = _getActionButtons();
   }
 
   Future<List<Widget>>? _getActionButtons() async {
@@ -76,17 +83,14 @@ class _BottomBarViewState extends State<BottomBarView> {
               return Row(
                   children: space(4, [
                 Spacer(),
-                if (actionButtons != null)
+                if (_actionButtons != null)
                   FutureBuilder(
-                      future: actionButtons,
+                      future: _actionButtons,
                       builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
-                          if (snapshot.hasData) {
-                            List<Widget> buttons = snapshot.data!;
-                            return Row(children: buttons);
-                          }
+                          actionButtons = snapshot.data!;
                         }
-                        return Empty();
+                        return Row(children: actionButtons);
                       })
               ]));
             }),

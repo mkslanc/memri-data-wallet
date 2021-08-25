@@ -88,21 +88,23 @@ class _ListRendererViewState extends State<ListRendererView> {
                 if (viewContext.items.isNotEmpty) {
                   selectedIndices = selectedIndicesBinding.get();
                   var lastIndex = viewContext.items.length - 1;
-                  return Expanded(
-                      child: RefreshIndicator(
+                  return RefreshIndicator(
                     onRefresh: () async =>
                         setState(() => sceneController.topMostContext?.setupQueryObservation()),
                     child: ListView.custom(
                       shrinkWrap: true,
-                      padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
+                      padding: EdgeInsets.fromLTRB(
+                          0,
+                          sceneController.showTopBar ? insets.top : insets.top + 80,
+                          0,
+                          insets.bottom),
                       childrenDelegate: SliverChildListDelegate(List<Widget>.from(viewContext.items
                           .mapIndexed((index, item) =>
                               [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
                           .expand((element) => element))),
                     ),
-                  )
-                      //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
-                      /*child: ListView.separated(
+                    //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
+                    /*child: ListView.separated(
                       shrinkWrap: true,
                       // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
@@ -112,10 +114,9 @@ class _ListRendererViewState extends State<ListRendererView> {
                       },
                       separatorBuilder: (context, index) => _buildSeparator(),
                       itemCount: viewContext.items.length)*/
-                      );
+                  );
                 } else {
-                  return Expanded(
-                      child: Padding(
+                  return Padding(
                     padding: EdgeInsets.all(30),
                     child: Center(
                       child: Text(
@@ -127,7 +128,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                             backgroundColor: backgroundColor),
                       ),
                     ),
-                  ));
+                  );
                 }
               },
             );

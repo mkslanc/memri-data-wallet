@@ -7,11 +7,10 @@ class NavigationHolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-        child: MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: controller,
-    ));
+    );
   }
 }
 

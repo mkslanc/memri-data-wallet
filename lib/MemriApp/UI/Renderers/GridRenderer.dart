@@ -84,12 +84,11 @@ class _GridRendererViewState extends State<GridRendererView> {
           ? ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
               builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                return Expanded(
-                  child: Column(
-                    children: [
-                      viewContext.hasItems
-                          ? Expanded(
-                              child: RefreshIndicator(
+                return Column(
+                  children: [
+                    viewContext.hasItems
+                        ? Expanded(
+                            child: RefreshIndicator(
                               onRefresh: () async => setState(
                                   () => sceneController.topMostContext?.setupQueryObservation()),
                               child: GridView.count(
@@ -99,7 +98,8 @@ class _GridRendererViewState extends State<GridRendererView> {
                                 childAspectRatio: 4 / 5,
                                 shrinkWrap: true,
                                 primary: false,
-                                padding: const EdgeInsets.all(5),
+                                padding: EdgeInsets.fromLTRB(
+                                    5, sceneController.showTopBar ? 5 : 80, 5, 5),
                                 crossAxisSpacing: 5,
                                 mainAxisSpacing: 5,
                                 crossAxisCount: 3,
@@ -143,24 +143,24 @@ class _GridRendererViewState extends State<GridRendererView> {
                                   );
                                 }).toList(),
                               ),
-                            ))
-                          : Padding(
-                              padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Spacer(),
-                                  Text(
-                                    "No results",
-                                    style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Spacer()
-                                ],
-                              ),
                             ),
-                    ],
-                  ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Spacer(),
+                                Text(
+                                  "No results",
+                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                          ),
+                  ],
                 );
               })
           : Empty(),

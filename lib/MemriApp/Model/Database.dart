@@ -283,7 +283,7 @@ class Database extends _$Database {
   }
 
   Future<NavigationStateData?> navigationStateFetchOne() async {
-    return await select(navigationState).getSingleOrNull();
+    return await (select(navigationState)..limit(1)).getSingleOrNull();
   }
 
   Future<int> navigationStateSave(NavigationStack record) async {

@@ -75,7 +75,16 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
                     child: group,
                   );
                 }
-                return Expanded(child: SingleChildScrollView(child: group));
+
+                return CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: group,
+                      fillOverscroll: false,
+                    ),
+                  ],
+                );
               });
         });
   }

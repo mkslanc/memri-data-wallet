@@ -68,8 +68,7 @@ class _CalendarRendererViewState extends State<CalendarRendererView> {
         builder: (BuildContext context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return Expanded(
-                  child: Column(
+              return Column(
                 children: [
                   ColoredBox(
                     color: Colors.grey.withOpacity(0.2),
@@ -101,7 +100,7 @@ class _CalendarRendererViewState extends State<CalendarRendererView> {
                     ),
                   ))
                 ],
-              ));
+              );
             default:
               return Empty();
           }

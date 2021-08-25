@@ -85,6 +85,7 @@ class SceneController extends ChangeNotifier {
 
   bool isBigScreen = false;
   bool isContentFullscreen = false;
+  bool showTopBar = true;
 
   ValueNotifier<bool> isInEditMode = ValueNotifier(false);
 
