@@ -76,6 +76,11 @@
       "value_type": "string"
     },
     {
+      "item_type": "Account",
+      "property": "isMe",
+      "value_type": "bool"
+    },
+    {
       "item_type": "Address",
       "property": "latitude",
       "value_type": "double"

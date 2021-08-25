@@ -84,14 +84,14 @@ Message > list {
     }
 
     HStack {
-        alignment: {{ .sender.owner = me ? "right" : "left" }}
+        alignment: {{ .sender.owner = me OR .sender.isMe ? "right" : "left" }}
         fillWidth: true
-        padding: {{ .sender.owner = me ? "0 0 0 20" : "0 60 0 0" }}
+        padding: {{ .sender.owner = me OR .sender.isMe ? "0 0 0 20" : "0 60 0 0" }}
         
         VStack {
             spacing: 2
             padding: 5
-            background: {{ .sender.owner = me ? "purpleBackground" : "secondaryBackground" }}
+            background: {{ .sender.owner = me OR .sender.isMe ? "purpleBackground" : "#eeeeee" }}
             cornerRadius: 5
             
             Text {
