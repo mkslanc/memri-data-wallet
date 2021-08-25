@@ -21,17 +21,24 @@ class ActionButton extends StatefulWidget {
 class _ActionButtonState extends State<ActionButton> {
   final SceneController sceneController = SceneController.sceneController;
 
-  String _icon = "";
+  String? _icon;
 
-  get icon => _icon;
-
-  set icon(newIcon) => setState(() => _icon = newIcon);
+  String get icon => _icon ?? "";
 
   @override
   initState() {
     super.initState();
-    _icon =
-        widget.action.getString("icon", widget.viewContext, sceneController.topMostContext) ?? "";
+    initIcon();
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    initIcon();
+  }
+
+  initIcon() {
+    _icon = widget.action.getString("icon", widget.viewContext, sceneController.topMostContext);
   }
 
   @override
@@ -40,8 +47,7 @@ class _ActionButtonState extends State<ActionButton> {
         child: Icon(MemriIcon.getByName(icon)),
         onPressed: () async {
           await widget.action.execute(sceneController, widget.viewContext);
-          icon =
-              widget.action.getString("icon", widget.viewContext, sceneController.topMostContext);
+          setState(() => initIcon());
         });
   }
 }

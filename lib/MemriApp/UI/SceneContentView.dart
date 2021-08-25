@@ -6,9 +6,7 @@
 //
 
 import 'package:flutter/cupertino.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-import 'Chrome/BottomBarView.dart';
 import 'Renderers/CalendarRenderer.dart';
 import 'Renderers/ChartRenderer.dart';
 import 'Renderers/FileRenderer.dart';
@@ -22,7 +20,6 @@ import 'Renderers/NoteEditorRenderer.dart';
 import 'Renderers/PhotoViewerRenderer.dart';
 import 'Renderers/SingleItemRenderer.dart';
 import 'Renderers/TimelineRenderer.dart';
-import 'UIHelpers/utilities.dart';
 import 'ViewContextController.dart';
 
 class SceneContentView extends StatefulWidget {
@@ -38,9 +35,6 @@ class SceneContentView extends StatefulWidget {
 class _SceneContentViewState extends State<SceneContentView> {
   SceneController sceneController;
   ViewContextController viewContext;
-  late final Future _init;
-  late bool showBottomBar;
-  late bool showContextualBottomBar;
 
   _SceneContentViewState(this.sceneController, this.viewContext);
 
@@ -49,12 +43,6 @@ class _SceneContentViewState extends State<SceneContentView> {
     super.initState();
     viewContext.onAppear();
     viewContext.addListener(updateState);
-    _init = init();
-  }
-
-  init() async {
-    showBottomBar = await _showBottomBar;
-    showContextualBottomBar = await _showContextualBottomBar;
   }
 
   @override
@@ -100,60 +88,14 @@ class _SceneContentViewState extends State<SceneContentView> {
         return GeneralEditorRendererView(
             viewContext: viewContext, sceneController: sceneController);
       default:
-        return Expanded(
-            child: Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold)));
+        return Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold));
     }
   }
 
   //TODO onAppear, onDisappear
 
-  Future<bool> get _showContextualBottomBar async {
-    return await viewContext.viewDefinitionPropertyResolver.boolean("showContextualBottomBar") ??
-        true;
-  }
-
-  Future<bool> get _showBottomBar async {
-    var subViewShowBottomBar = await viewContext.viewDefinitionPropertyResolver
-        .subdefinition("arguments")
-        ?.boolean("showBottomBar");
-    return await viewContext.viewDefinitionPropertyResolver.boolean("showBottomBar") ??
-        subViewShowBottomBar ??
-        false;
-  }
-
-  CVUDefinitionContent? get bottomBar {
-    var bottomBarDef = viewContext.cvuController
-        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
-        ?.properties["bottomBar"];
-
-    var bottomBarSubdef = bottomBarDef?.getSubdefinition();
-
-    return bottomBarSubdef;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        renderer,
-        FutureBuilder(
-            future: _init,
-            builder: (BuildContext builder, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (showBottomBar) {
-                  var nodeDefinition = bottomBar;
-                  if (nodeDefinition == null) {
-                    return BottomBarView(
-                      viewContext: viewContext,
-                    );
-                  } else {
-                    return viewContext.render(nodeDefinition: nodeDefinition);
-                  }
-                }
-              }
-              return Empty();
-            })
-      ],
-    );
+    return renderer;
   }
 }

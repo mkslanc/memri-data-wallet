@@ -26,52 +26,49 @@ class SearchView extends StatefulWidget {
 class _SearchViewState extends State<SearchView> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 20),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 80,
-            child: Row(
-              children: [
-                SizedBox(
+    return Column(
+      children: [
+        SizedBox(
+          height: 80,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 80,
+                child: TextButton(
+                    style:
+                        TextButton.styleFrom(padding: EdgeInsets.all(27), primary: CVUColor.blue),
+                    child: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      widget.isActive.value = false;
+                      widget.viewContext.searchString = null;
+                    }),
+              ),
+              Expanded(
+                child: TextFormField(
+                  onChanged: (value) =>
+                      setState(() => widget.viewContext.searchString = value.nullIfBlank),
+                  initialValue: widget.viewContext.searchString,
+                  decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: "Search",
+                      contentPadding: EdgeInsets.all(5)),
+                ),
+              ),
+              SizedBox(
                   width: 80,
-                  child: TextButton(
-                      style:
-                          TextButton.styleFrom(padding: EdgeInsets.all(27), primary: CVUColor.blue),
-                      child: Icon(Icons.arrow_back),
-                      onPressed: () {
-                        widget.isActive.value = false;
-                        widget.viewContext.searchString = null;
-                      }),
-                ),
-                Expanded(
-                  child: TextFormField(
-                    onChanged: (value) =>
-                        setState(() => widget.viewContext.searchString = value.nullIfBlank),
-                    initialValue: widget.viewContext.searchString,
-                    decoration: InputDecoration(
-                        isDense: true,
-                        border: InputBorder.none,
-                        hintText: "Search",
-                        contentPadding: EdgeInsets.all(5)),
-                  ),
-                ),
-                SizedBox(
-                    width: 80,
-                    child: Icon(
-                      Icons.search,
-                      color: CVUColor.blue,
-                      size: 24,
-                    )),
-              ],
-            ),
+                  child: Icon(
+                    Icons.search,
+                    color: CVUColor.blue,
+                    size: 24,
+                  )),
+            ],
           ),
-          Divider(
-            height: 1,
-          ),
-        ],
-      ),
+        ),
+        Divider(
+          height: 1,
+        ),
+      ],
     );
   }
 }

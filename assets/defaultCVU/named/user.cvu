@@ -16,7 +16,7 @@
         }]
 
         VStack {
-            alignment: left
+            alignment: topleft
             spacing: 5
             padding: 10 0 10 27
 

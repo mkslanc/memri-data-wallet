@@ -192,15 +192,18 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   List<Widget> get stackContent {
     var currentItem = widget.viewContext.focusedItem;
     if (currentItem != null) {
-      return layout
-          .map((layoutSection) => GeneralEditorSection(
+      return [
+        SizedBox(
+          height: widget.sceneController.showTopBar ? 0 : 80,
+        ),
+        ...layout
+            .map((layoutSection) => GeneralEditorSection(
                 viewContext: widget.viewContext,
                 layout: layoutSection,
                 item: currentItem,
-                usedFields: usedFields,
-                isEditing: !widget.viewContext.config.viewArguments!.args["readOnly"]!.value.value,
-              ))
-          .toList();
+                usedFields: usedFields))
+            .toList()
+      ];
     }
     return [];
   }
@@ -210,15 +213,14 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
     return ValueListenableBuilder(
         valueListenable: widget.sceneController.isInEditMode,
         builder: (BuildContext context, bool value, Widget? child) {
-          return Expanded(
-              child: RefreshIndicator(
+          return RefreshIndicator(
             onRefresh: () async => updateState(),
             child: SingleChildScrollView(
               child: Column(
                 children: stackContent,
               ),
             ),
-          ));
+          );
         });
   }
 }
