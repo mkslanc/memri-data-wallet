@@ -198,10 +198,13 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
         ),
         ...layout
             .map((layoutSection) => GeneralEditorSection(
-                viewContext: widget.viewContext,
-                layout: layoutSection,
-                item: currentItem,
-                usedFields: usedFields))
+                  viewContext: widget.viewContext,
+                  layout: layoutSection,
+                  item: currentItem,
+                  usedFields: usedFields,
+                  isEditing:
+                      !widget.viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                ))
             .toList()
       ];
     }
