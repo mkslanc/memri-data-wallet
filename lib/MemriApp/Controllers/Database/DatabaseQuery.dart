@@ -535,7 +535,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> edgeTargetConditions = (await Future.wait<DatabaseQueryCondition?>(
             (edgeTargets?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      var target = (await edgeTargets?.items(key))?.compactMap((e) => e.rowId);
+      List<int>? target = (await edgeTargets?.items(key))?.compactMap((e) => e.rowId);
       if (target == null || target.isEmpty) {
         target = [(await edgeTargets?.integer(key)) ?? 0];
       }
@@ -547,7 +547,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> edgeSourceConditions = (await Future.wait<DatabaseQueryCondition?>(
             (edgeSources?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      var source = (await edgeSources?.items(key))?.compactMap((e) => e.rowId);
+      List<int>? source = (await edgeSources?.items(key))?.compactMap((e) => e.rowId);
       if (source == null || source.isEmpty) {
         source = [(await edgeSources?.integer(key)) ?? 0];
       }
