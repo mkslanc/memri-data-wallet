@@ -1,6 +1,11 @@
 [
   {
     "_type": "NavigationItem",
+    "title": "Social media",
+    "sessionName": "allPosts"
+  },
+  {
+    "_type": "NavigationItem",
     "title": "Onboarding",
     "sessionName": "onboarding"
   },
