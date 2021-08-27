@@ -107,7 +107,7 @@
     "_type":"Plugin",
     "pluginType": "importer",
     "name":"Gmail plugin",
-    "container":"gmail_importer",
+    "container":"gitlab.memri.io:5050/plugins/gmail:ci-cd-dev-0a3bab20",
     "pluginModule": "gmail_importer.plugin",
     "pluginName": "GmailImporter",
     "icon":"mail"
