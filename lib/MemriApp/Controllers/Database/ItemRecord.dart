@@ -526,7 +526,8 @@ class ItemRecord with EquatableMixin {
     }
     if (newItem.type == "PluginRun") {
       //TODO dirty hack to wait cvuStoredDefinition (edge) to be saved before status update
-      await newItem.setPropertyValue("status", PropertyDatabaseValueString(dict["status"]));
+      await newItem.setPropertyValue("status", PropertyDatabaseValueString(dict["status"]),
+          state: SyncState.noChanges);
     }
 
     return newItem;
