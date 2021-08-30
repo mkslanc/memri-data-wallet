@@ -225,11 +225,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
     if (dateCreatedBefore != null) {
       queryConditions.add("dateCreated <= ?");
-      queryBindings.add(Variable.withDateTime(dateCreatedBefore!));
+      queryBindings.add(Variable.withInt(dateCreatedBefore!.millisecondsSinceEpoch));
     }
     if (dateCreatedAfter != null) {
       queryConditions.add("dateCreated >= ?");
-      queryBindings.add(Variable.withDateTime(dateCreatedAfter!));
+      queryBindings.add(Variable.withInt(dateCreatedAfter!.millisecondsSinceEpoch));
     }
     if (deleted != null) {
       queryConditions.add("deleted = ?");
