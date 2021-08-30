@@ -2467,6 +2467,7 @@
     "displayName": "Myself",
     "externalId": "101010101010@s.whatsapp.net",
     "service": "whatsapp",
+    "isMe": true,
     "allEdges": [
       {
         "targetType": "Person",
@@ -2930,6 +2931,7 @@
     "_type": "Account",
     "uid": 209003,
     "displayName": "john@example.com",
+    "isMe": true,
     "allEdges": [
       {
         "targetType": "Person",
@@ -3408,6 +3410,7 @@
     "_type": "Account",
     "uid": 22001124924997,
     "displayName": "alice",
+    "isMe": true,
     "allEdges": [
       {
         "_type": "owner",
@@ -3455,6 +3458,7 @@
     "_type": "Account",
     "uid": 22001124924998,
     "displayName": "eve",
+    "isMe": true,
     "allEdges": [
       {
         "_type": "owner",
@@ -3583,6 +3587,7 @@
     "_type": "Account",
     "uid": 22001124925003,
     "displayName": "0x123456",
+    "isMe": true,
     "allEdges": [
       {
         "_type": "owner",
