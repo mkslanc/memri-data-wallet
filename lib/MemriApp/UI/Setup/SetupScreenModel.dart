@@ -16,7 +16,7 @@ class SetupScreenModel {
   String? podPublicKey;
   String? podDatabaseKey;
   bool setupAsNewPod = true;
-  bool useDemoData = true;
+  bool useDemoData = false;
 
   PodSetupState state = PodSetupState.idle;
   String? errorString; //this is instead of PodSetupState error(String)

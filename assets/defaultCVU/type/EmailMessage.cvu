@@ -25,6 +25,7 @@ EmailMessage > list {
             }
         }
         HStack {
+            alignment: left
             fillWidth: true
             Text {
                 text: {{.subject or "[No subject]"}}

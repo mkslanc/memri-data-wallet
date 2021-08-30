@@ -217,19 +217,19 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     /// Filter by date ranges
     if (dateModifiedBefore != null) {
       queryConditions.add("dateModified <= ?");
-      queryBindings.add(Variable.withDateTime(dateModifiedBefore!));
+      queryBindings.add(Variable.withInt(dateModifiedBefore!.millisecondsSinceEpoch));
     }
     if (dateModifiedAfter != null) {
       queryConditions.add("dateModified >= ?");
-      queryBindings.add(Variable.withDateTime(dateModifiedAfter!));
+      queryBindings.add(Variable.withInt(dateModifiedAfter!.millisecondsSinceEpoch));
     }
     if (dateCreatedBefore != null) {
       queryConditions.add("dateCreated <= ?");
-      queryBindings.add(Variable.withDateTime(dateCreatedBefore!));
+      queryBindings.add(Variable.withInt(dateCreatedBefore!.millisecondsSinceEpoch));
     }
     if (dateCreatedAfter != null) {
       queryConditions.add("dateCreated >= ?");
-      queryBindings.add(Variable.withDateTime(dateCreatedAfter!));
+      queryBindings.add(Variable.withInt(dateCreatedAfter!.millisecondsSinceEpoch));
     }
     if (deleted != null) {
       queryConditions.add("deleted = ?");

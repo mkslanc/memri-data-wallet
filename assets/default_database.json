@@ -34,11 +34,6 @@
   },
   {
     "_type": "NavigationItem",
-    "title": "Social media",
-    "sessionName": "allPosts"
-  },
-  {
-    "_type": "NavigationItem",
     "title": "people",
     "sessionName": "allPeople"
   },
@@ -76,22 +71,6 @@
     "_type": "NavigationItem",
     "title": "Merge and fix",
     "sessionName": "mergeAndFix"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "plugin",
-    "name": "Deduplication",
-    "container": "test",
-    "icon": "message",
-    "itemDescription": "Removes duplicate contacts from your pod"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "importer",
-    "name": "iCloud notes",
-    "dataType": "Note",
-    "container": "memri-nodeintegrators:latest",
-    "icon": "cloud"
   },
   {
     "_type": "Plugin",

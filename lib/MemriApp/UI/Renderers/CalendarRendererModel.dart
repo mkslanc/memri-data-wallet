@@ -26,10 +26,15 @@ class CalendarCalculations {
         datesWithItems[date] = [item];
       }
     });
-
-    var datesWithItemsKeys = datesWithItems.keys;
-    var minDate = datesWithItemsKeys.map((el) => el.millisecondsSinceEpoch).reduce(min);
-    var maxDate = datesWithItemsKeys.map((el) => el.millisecondsSinceEpoch).reduce(max);
+    int minDate, maxDate;
+    if (datesWithItems.isNotEmpty) {
+      var datesWithItemsKeys = datesWithItems.keys;
+      minDate = datesWithItemsKeys.map((el) => el.millisecondsSinceEpoch).reduce(min);
+      maxDate = datesWithItemsKeys.map((el) => el.millisecondsSinceEpoch).reduce(max);
+    } else {
+      minDate = DateTime.now().millisecondsSinceEpoch;
+      maxDate = DateTime.now().millisecondsSinceEpoch;
+    }
     this.start =
         CalendarHelper().startOfMonth(DateTime.fromMillisecondsSinceEpoch(minDate)).dateTime;
     this.end = CalendarHelper().endOfMonth(DateTime.fromMillisecondsSinceEpoch(maxDate)).dateTime;
