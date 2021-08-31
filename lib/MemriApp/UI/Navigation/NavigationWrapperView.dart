@@ -85,13 +85,14 @@ class NavigationWrapperView extends StatelessWidget {
   }
 
   Widget bodyForLargeScreen(BoxConstraints geom) {
+    var navigationPanelWidth = navWidth(geom);
     return Row(
       children: [
         SizedBox(
             width: navWidth(geom),
             height: geom.maxHeight,
             child: NavigationPaneView(sceneController: sceneController)),
-        Expanded(child: child)
+        SizedBox(width: geom.maxWidth - navigationPanelWidth, height: geom.maxHeight, child: child),
       ],
     );
   }
