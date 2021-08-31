@@ -94,7 +94,7 @@ class DemoData {
       }
     }
 
-    databaseController.schema.load(databaseController.databasePool);
+    await databaseController.schema.load(databaseController.databasePool);
   }
 
   static loadSchema({isRunningTests = false}) async {

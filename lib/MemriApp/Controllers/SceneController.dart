@@ -31,7 +31,12 @@ class SceneController extends ChangeNotifier {
   MemriUINavigationController navigationController = MemriUINavigationController();
 
   init() async {
-    await appController.databaseController.init();
+    try {
+      await appController.databaseController.init();
+    } catch (e) {
+      throw (e);
+    }
+
     await appController.cvuController.init();
 
     setupObservations(); //TODO

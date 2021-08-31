@@ -13,7 +13,7 @@ import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
 
-import 'API/Authentication.dart';
+import 'API/Authentication_mobile.dart';
 import 'API/PodAPIConnectionDetails.dart';
 import 'Database/DatabaseController.dart';
 import 'PermissionController.dart';
@@ -44,7 +44,7 @@ class AppController {
   bool isInDemoMode = false;
 
   AppController() {
-    databaseController = DatabaseController(inMemory: false);
+    databaseController = DatabaseController(inMemory: true);
     syncController = SyncController(databaseController);
     cvuController = CVUController();
     pubsubController = PubSubController(databaseController);

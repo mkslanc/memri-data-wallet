@@ -6,9 +6,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/Controllers/API/Authentication.dart';
+import 'package:memri/MemriApp/Controllers/API/Authentication_shared.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 

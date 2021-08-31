@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:memri/MemriApp/Controllers/API/Authentication.dart';
+import 'package:memri/MemriApp/Controllers/API/Authentication_mobile.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 
