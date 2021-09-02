@@ -530,18 +530,6 @@ class CVUActionPluginRun extends CVUAction {
           runner: pluginRunItem,
           sceneController: sceneController,
           context: context);
-
-      if (container == "cvu") {
-        //TODO just for testing
-        var view = await plugin.edgeItem("view");
-
-        var edge = ItemEdgeRecord(
-            sourceRowID: pluginRunItem.rowId, name: "view", targetRowID: view!.rowId);
-        await edge.save();
-
-        await pluginRunItem.setPropertyValue(
-            "status", PropertyDatabaseValueString("userActionNeeded"));
-      }
     } catch (error) {
       print("Error starting plugin: $error");
     }

@@ -465,7 +465,7 @@ class ItemRecord with EquatableMixin {
     if (dict["_item"] == null) {
       await Future.forEach(dict.entries, (MapEntry entry) async {
         if (newItem.type == "PluginRun" && entry.key == "status") {
-          //TODO
+          //TODO dirty hack to wait cvuStoredDefinition (edge) to be saved before status update
           return;
         }
         String propertyName = entry.key;
