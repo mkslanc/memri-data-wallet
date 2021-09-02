@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
-import 'package:local_auth/local_auth.dart';
 
 import 'AuthKey.dart';
 
@@ -12,18 +11,7 @@ class Authentication {
   static String rootKeyTag = "memriPrivateKey";
   static bool isOwnerAuthenticated = false;
 
-  //static FlutterSecureStorage storage = FlutterSecureStorage();
-  static LocalAuthentication localAuth = LocalAuthentication();
   static String? lastRootPublicKey;
-
-  static Future<bool> get hasSecureEnclave async {
-    return hasBiometrics;
-  }
-
-  /// Check that this device has Biometrics features available
-  static Future<bool> get hasBiometrics async {
-    return await localAuth.canCheckBiometrics;
-  }
 
   static authenticateOwner() async {
     if (await storageDoesNotExist) {
