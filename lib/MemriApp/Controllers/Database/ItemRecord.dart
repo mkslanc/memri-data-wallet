@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:memri/MemriApp/Controllers/API/Authentication.dart';
+import 'package:memri/MemriApp/Controllers/API/AuthKey.dart';
 import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';

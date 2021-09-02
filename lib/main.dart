@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/MainView.dart';
-import 'MemriApp/Controllers/SceneController.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,8 +32,6 @@ class Memri extends StatefulWidget {
 }
 
 class _MemriState extends State<Memri> {
-  final SceneController sceneController = SceneController.sceneController;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: MainView());

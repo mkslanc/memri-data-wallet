@@ -41,7 +41,7 @@ class NavigationWrapperView extends StatelessWidget {
     return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
       if (constraints.maxWidth > 714) {
         sceneController.isBigScreen = true;
-        return bodyForLargeScreen;
+        return bodyForLargeScreen(constraints);
       } else {
         return body(constraints);
       }
@@ -84,9 +84,16 @@ class NavigationWrapperView extends StatelessWidget {
     );
   }
 
-  Widget get bodyForLargeScreen {
+  Widget bodyForLargeScreen(BoxConstraints geom) {
+    var navigationPanelWidth = navWidth(geom);
     return Row(
-      children: [NavigationPaneView(sceneController: sceneController), child],
+      children: [
+        SizedBox(
+            width: navWidth(geom),
+            height: geom.maxHeight,
+            child: NavigationPaneView(sceneController: sceneController)),
+        SizedBox(width: geom.maxWidth - navigationPanelWidth, height: geom.maxHeight, child: child),
+      ],
     );
   }
 }
