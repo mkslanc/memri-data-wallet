@@ -106,12 +106,12 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
     var viewLayout = widget.viewContext.cvuController
             .viewDefinitionForItemRecord(itemRecord: currentItem)
             ?.definitions
-            .asMap()[0]
+            .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
             ?.get("layout") ??
         widget.viewContext.cvuController
             .viewDefinitionFor(viewName: widget.viewContext.config.viewName ?? "")
             ?.definitions
-            .asMap()[0]
+            .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
             ?.get("layout");
     List<Map<String, CVUValue>>? viewDefs = [];
 
@@ -198,10 +198,13 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
         ),
         ...layout
             .map((layoutSection) => GeneralEditorSection(
-                viewContext: widget.viewContext,
-                layout: layoutSection,
-                item: currentItem,
-                usedFields: usedFields))
+                  viewContext: widget.viewContext,
+                  layout: layoutSection,
+                  item: currentItem,
+                  usedFields: usedFields,
+                  isEditing:
+                      !widget.viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                ))
             .toList()
       ];
     }
@@ -230,12 +233,14 @@ class GeneralEditorSection extends StatefulWidget {
   final GeneralEditorLayoutItem layout;
   final ItemRecord item;
   final Set<String> usedFields;
+  final bool isEditing;
 
   GeneralEditorSection(
       {required this.viewContext,
       required this.layout,
       required this.item,
-      required this.usedFields});
+      required this.usedFields,
+      this.isEditing = false});
 
   @override
   _GeneralEditorSectionState createState() => _GeneralEditorSectionState();
@@ -288,11 +293,11 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
   }
 
   bool get isEditing {
-    return sceneController.isInEditMode.value;
+    return widget.isEditing;
   }
 
   bool get isEmpty {
-    if (sceneController.isInEditMode.value) {
+    if (isEditing) {
       return false;
     }
     return widget.layout.has("edges") && fields.length == 0 && currentEdgeItems.length == 0;
@@ -337,7 +342,7 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
     CVUDefinitionContent? nodeDefinition = widget.viewContext.cvuController
         .viewDefinitionForItemRecord(itemRecord: widget.item)
         ?.definitions
-        .asMap()[0]
+        .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
         ?.get(widget.layout.id)
         ?.getSubdefinition();
     if (nodeDefinition != null) {
@@ -354,7 +359,9 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
         if (viewName != null) {
           var nodeDefinition = widget.viewContext.cvuController
               .viewDefinitionFor(viewName: viewName)
-              ?.properties[widget.layout.id]
+              ?.definitions
+              .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+              ?.get(widget.layout.id)
               ?.getSubdefinition();
           return nodeDefinition;
         }
@@ -454,20 +461,24 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                       widget.viewContext.render(item: widget.item, nodeDefinition: nodeDefinition)
                     ];
                   } else {
-                    fields.sort();
-                    fields.forEach((field) {
+                    var _fields = fields;
+                    _fields.sort();
+                    _fields.forEach((field) {
                       var fieldProperty = sceneController.appController.databaseController.schema
                           .expectedPropertyType(widget.item.type, field);
 
                       if (fieldProperty != null) {
                         var schemaProperty = SchemaProperty(widget.item.type, field, fieldProperty);
                         content.add(DefaultGeneralEditorRow(
-                            viewContext: widget.viewContext,
-                            property: schemaProperty,
-                            currentItem: widget.item,
-                            prop: field,
-                            isLast: fields.last == field,
-                            item: widget.item));
+                          viewContext: widget.viewContext,
+                          property: schemaProperty,
+                          currentItem: widget.item,
+                          prop: field,
+                          isLast: _fields.last == field,
+                          item: widget.item,
+                          isEditing: isEditing,
+                          showLabel: _fields.length > 1,
+                        ));
                       }
                     });
 
@@ -514,19 +525,21 @@ class DefaultGeneralEditorRow extends StatelessWidget {
   final SchemaProperty property;
   final ItemRecord currentItem;
   final String prop;
-  final bool readOnly;
+  final bool isEditing;
   final bool isLast;
   final bool hasGroup;
   final ItemRecord item;
+  final bool showLabel;
 
   DefaultGeneralEditorRow(
       {required this.viewContext,
       required this.property,
       required this.currentItem,
       required this.prop,
-      this.readOnly = false,
+      this.isEditing = false,
       required this.isLast,
       this.hasGroup = false,
+      this.showLabel = true,
       required this.item});
 
   bool get isEmpty {
@@ -581,7 +594,6 @@ class DefaultGeneralEditorRow extends StatelessWidget {
           currentWidget = doubleRow();
           break;
         default:
-          currentWidget = defaultRow();
           break;
       }
     }
@@ -593,8 +605,9 @@ class DefaultGeneralEditorRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _GeneralEditorLabel(
-                  content: prop.camelCaseToWords().toLowerCase().capitalizingFirst()),
+              if (showLabel)
+                _GeneralEditorLabel(
+                    content: prop.camelCaseToWords().toLowerCase().capitalizingFirst()),
               nodeDefinition != null
                   ? viewContext.render(item: item, nodeDefinition: nodeDefinition)
                   : currentWidget,
@@ -616,7 +629,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     return MemriTextField.async(
       futureBinding: binding,
       style: generalEditorCaptionStyle(),
-      isEditing: sceneController.isInEditMode.value,
+      isEditing: isEditing,
     );
   }
 
@@ -645,7 +658,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     return MemriTextField.async(
       futureBinding: binding,
       style: generalEditorCaptionStyle(),
-      isEditing: sceneController.isInEditMode.value,
+      isEditing: isEditing,
     );
   }
 
@@ -656,9 +669,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
             await currentItem.setPropertyValue(prop, PropertyDatabaseValueDouble(value)));
 
     return MemriTextField.async(
-        futureBinding: binding,
-        style: generalEditorCaptionStyle(),
-        isEditing: sceneController.isInEditMode.value);
+        futureBinding: binding, style: generalEditorCaptionStyle(), isEditing: isEditing);
   }
 
   Widget dateRow() {
@@ -671,12 +682,10 @@ class DefaultGeneralEditorRow extends StatelessWidget {
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
           ? MemriDatePicker(
               initialSet: snapshot.data,
-              onPressed: sceneController.isInEditMode.value
-                  ? (DateTime value) async => await binding.set(value)
-                  : null,
+              onPressed: isEditing ? (DateTime value) async => await binding.set(value) : null,
               formatter: "MMM d, yyyy",
               style: generalEditorCaptionStyle(),
-              isEditing: sceneController.isInEditMode.value)
+              isEditing: isEditing)
           : Empty(),
     );
   }

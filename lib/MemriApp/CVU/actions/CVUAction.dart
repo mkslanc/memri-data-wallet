@@ -102,8 +102,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionMultiAction(vars: vars);
     case "runindexer":
       return ({Map? vars}) => CVUActionRunIndexer(vars: vars);
-    case "startplugin":
-      return ({Map? vars}) => CVUActionStartPlugin(vars: vars);
+    case "pluginrun":
+      return ({Map? vars}) => CVUActionPluginRun(vars: vars);
     case "setproperty":
       return ({Map? vars}) => CVUActionSetProperty(vars: vars);
     case "setsetting":
@@ -453,10 +453,10 @@ class CVUActionAddItem extends CVUAction {
   }
 }
 
-class CVUActionStartPlugin extends CVUAction {
+class CVUActionPluginRun extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUActionStartPlugin({vars}) : this.vars = vars ?? {};
+  CVUActionPluginRun({vars}) : this.vars = vars ?? {};
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
@@ -465,39 +465,71 @@ class CVUActionStartPlugin extends CVUAction {
 
     var plugin = context.currentItem;
     var targetItemIdValue = vars["targetItemId"];
+    var pluginModuleValue = vars["pluginModule"];
+    var pluginNameValue = vars["pluginName"];
     var containerValue = vars["container"];
-    if (plugin == null || targetItemIdValue == null || containerValue == null) return;
+    if (plugin == null ||
+        targetItemIdValue == null ||
+        containerValue == null ||
+        pluginModuleValue == null ||
+        pluginNameValue == null) return;
 
     String? targetItemId =
         await lookup.resolve<String>(value: targetItemIdValue, context: context, db: db);
     String? container =
         await lookup.resolve<String>(value: containerValue, context: context, db: db);
+    String? pluginModule =
+        await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
+    String? pluginName =
+        await lookup.resolve<String>(value: pluginNameValue, context: context, db: db) ?? "";
     if (targetItemId == null || container == null) return;
 
     try {
-      var startPluginItem = ItemRecord(type: "StartPlugin");
-      await startPluginItem.save();
-      await startPluginItem.setPropertyValue(
-          "targetItemId", PropertyDatabaseValueString(targetItemId));
-      await startPluginItem.setPropertyValue("container", PropertyDatabaseValueString(container));
-      await startPluginItem.setPropertyValue("state", PropertyDatabaseValueString("idle"));
-
-      // This is test code to render cvu for a plugin locally without connecting to pod
-      // Ideally plugins will contain more detailed container name
-      // We can remove this once plugins are able to send CVUs in stored definition
-      if (container == "cvu") {
-        await PluginHandler.presentCVUforPlugin(
-            plugin: plugin,
-            runner: startPluginItem,
-            sceneController: sceneController,
-            context: context);
-      } else {
-        await PluginHandler.start(
-            plugin: plugin,
-            runner: startPluginItem,
-            sceneController: sceneController,
-            context: context);
+      var existingPluginRunItem = await plugin.reverseEdgeItem("plugin");
+      if (existingPluginRunItem != null) {
+        var pluginRunStatus = (await existingPluginRunItem.propertyValue("status"))?.asString();
+        switch (pluginRunStatus) {
+          case "idle":
+            return;
+          case "userActionNeeded":
+            PluginHandler.presentCVUforPlugin(
+                plugin: plugin,
+                runner: existingPluginRunItem,
+                sceneController: sceneController,
+                context: context);
+            return;
+          case "cvuPresented":
+            await existingPluginRunItem.setPropertyValue(
+                "status", PropertyDatabaseValueString("userActionNeeded"));
+            return;
+          default:
+            break;
+        }
       }
+
+      var pluginRunItem = ItemRecord(type: "PluginRun");
+      await pluginRunItem.save();
+      await pluginRunItem.setPropertyValue(
+          "targetItemId",
+          PropertyDatabaseValueString(
+              pluginRunItem.uid)); //TODO plugin makers request, need to change this later
+      await pluginRunItem.setPropertyValue(
+          "pluginModule", PropertyDatabaseValueString(pluginModule));
+      await pluginRunItem.setPropertyValue("pluginName", PropertyDatabaseValueString(pluginName));
+      await pluginRunItem.setPropertyValue(
+          "containerImage", PropertyDatabaseValueString(container));
+      await pluginRunItem.setPropertyValue("status", PropertyDatabaseValueString("idle"));
+
+      var edge = ItemEdgeRecord(
+          sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
+      edge.syncState = SyncState.skip; // Don't sync it yet
+      await edge.save();
+
+      await PluginHandler.run(
+          plugin: plugin,
+          runner: pluginRunItem,
+          sceneController: sceneController,
+          context: context);
     } catch (error) {
       print("Error starting plugin: $error");
     }

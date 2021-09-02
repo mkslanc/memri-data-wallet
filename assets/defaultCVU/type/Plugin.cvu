@@ -66,10 +66,12 @@ Plugin {
 }
 
 Plugin > list {
-    onPress: startPlugin {
+    onPress: pluginRun {
         name: {{.name}}
         plugin: {{.}}
         container: {{.container}}
+        pluginModule: {{.pluginModule}}
+        pluginName: {{.pluginName}}
         targetItemId: {{.id}}
     }
 
@@ -122,10 +124,12 @@ Plugin > list {
 }
 
 Plugin > grid {
-    onPress: startPlugin {
+    onPress: pluginRun {
         name: {{.name}}
         plugin: {{.}}
         container: {{.container}}
+        pluginModule: {{.pluginModule}}
+        pluginName: {{.pluginName}}
         targetItemId: {{.id}}
     }
     

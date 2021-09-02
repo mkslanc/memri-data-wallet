@@ -464,6 +464,10 @@ class ItemRecord with EquatableMixin {
 
     if (dict["_item"] == null) {
       await Future.forEach(dict.entries, (MapEntry entry) async {
+        if (newItem.type == "PluginRun" && entry.key == "status") {
+          //TODO dirty hack to wait cvuStoredDefinition (edge) to be saved before status update
+          return;
+        }
         String propertyName = entry.key;
         var expectedType = dbController.schema.expectedPropertyType(newItem.type, propertyName);
         if (expectedType == null) {
@@ -519,6 +523,11 @@ class ItemRecord with EquatableMixin {
 
     if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
       await dbController.schema.load(dbController.databasePool);
+    }
+    if (newItem.type == "PluginRun") {
+      //TODO dirty hack to wait cvuStoredDefinition (edge) to be saved before status update
+      await newItem.setPropertyValue("status", PropertyDatabaseValueString(dict["status"]),
+          state: SyncState.noChanges);
     }
 
     return newItem;

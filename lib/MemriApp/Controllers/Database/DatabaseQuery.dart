@@ -217,19 +217,19 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     /// Filter by date ranges
     if (dateModifiedBefore != null) {
       queryConditions.add("dateModified <= ?");
-      queryBindings.add(Variable.withDateTime(dateModifiedBefore!));
+      queryBindings.add(Variable.withInt(dateModifiedBefore!.millisecondsSinceEpoch));
     }
     if (dateModifiedAfter != null) {
       queryConditions.add("dateModified >= ?");
-      queryBindings.add(Variable.withDateTime(dateModifiedAfter!));
+      queryBindings.add(Variable.withInt(dateModifiedAfter!.millisecondsSinceEpoch));
     }
     if (dateCreatedBefore != null) {
       queryConditions.add("dateCreated <= ?");
-      queryBindings.add(Variable.withDateTime(dateCreatedBefore!));
+      queryBindings.add(Variable.withInt(dateCreatedBefore!.millisecondsSinceEpoch));
     }
     if (dateCreatedAfter != null) {
       queryConditions.add("dateCreated >= ?");
-      queryBindings.add(Variable.withDateTime(dateCreatedAfter!));
+      queryBindings.add(Variable.withInt(dateCreatedAfter!.millisecondsSinceEpoch));
     }
     if (deleted != null) {
       queryConditions.add("deleted = ?");
@@ -535,7 +535,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> edgeTargetConditions = (await Future.wait<DatabaseQueryCondition?>(
             (edgeTargets?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      var target = (await edgeTargets?.items(key))?.compactMap((e) => e.rowId);
+      List<int>? target = (await edgeTargets?.items(key))?.compactMap((e) => e.rowId);
       if (target == null || target.isEmpty) {
         target = [(await edgeTargets?.integer(key)) ?? 0];
       }
@@ -547,7 +547,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> edgeSourceConditions = (await Future.wait<DatabaseQueryCondition?>(
             (edgeSources?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      var source = (await edgeSources?.items(key))?.compactMap((e) => e.rowId);
+      List<int>? source = (await edgeSources?.items(key))?.compactMap((e) => e.rowId);
       if (source == null || source.isEmpty) {
         source = [(await edgeSources?.integer(key)) ?? 0];
       }

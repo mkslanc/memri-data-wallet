@@ -35,13 +35,12 @@ class DatabaseController {
     isInited = true;
   }
 
-  Future<void> resetDb() async {
+  Future<void> delete() async {
     await databasePool.close();
     if (!inMemory) {
       await deleteDb(databaseName);
     }
     isInited = false;
-    await init();
   }
 
   Future<List<ItemRecord>> search(String? searchString) async {

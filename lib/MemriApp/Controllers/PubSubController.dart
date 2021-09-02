@@ -67,11 +67,13 @@ class PubSubController {
     _removeSubscription(subscription);
   }
 
-  _removeSubscription(subscription) {
+  _removeSubscription(ItemSubscription subscription) {
     _subscribers.remove(subscription);
-    if (subscription.streamSubscription != null) {
-      subscription.streamSubscription?.cancel();
-      _subscriptions.remove(subscription.streamSubscription);
+    removeStreamSubscription(subscription);
+    var streamSubscription = subscription.streamSubscription;
+    if (streamSubscription != null) {
+      streamSubscription.cancel();
+      _subscriptions.remove(streamSubscription);
     }
   }
 
@@ -130,5 +132,20 @@ class PubSubController {
     }
 
     return PropertyDatabaseValue.create(decodableValue, expectedType);
+  }
+
+  removeStreamSubscription(ItemSubscription subscription) {
+    var streamSubscription = subscription.streamSubscription;
+    if (streamSubscription != null) {
+      streamSubscription.cancel();
+      _subscriptions.remove(streamSubscription);
+    }
+  }
+
+  reset() {
+    _subscribers.forEach((subscription) {
+      removeStreamSubscription(subscription);
+    });
+    _subscribers = {};
   }
 }

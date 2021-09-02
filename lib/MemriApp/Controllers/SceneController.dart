@@ -59,6 +59,12 @@ class SceneController extends ChangeNotifier {
     }
   }
 
+  reset() async {
+    navigationIsVisible.value = false;
+    topMostContext = null;
+    await init();
+  }
+
   toggleEditMode() {
     var topConfigHolder = topMostContext?.configHolder;
     if (topConfigHolder == null) {
@@ -210,7 +216,9 @@ class SceneController extends ChangeNotifier {
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
 
-    viewArguments?.args["readOnly"] ??= CVUValueConstant(CVUConstantBool(!isInEditMode.value));
+    viewArguments ??= CVUViewArguments();
+    viewArguments.args["readOnly"] ??= viewDefinition.properties["readOnly"] ??
+        CVUValueConstant(CVUConstantBool(!isInEditMode.value));
 
     var cvuContext = CVUContext(
         currentItem: targetItem,

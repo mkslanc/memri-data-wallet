@@ -34,11 +34,6 @@
   },
   {
     "_type": "NavigationItem",
-    "title": "Social media",
-    "sessionName": "allPosts"
-  },
-  {
-    "_type": "NavigationItem",
     "title": "people",
     "sessionName": "allPeople"
   },
@@ -60,7 +55,7 @@
   {
     "_type": "NavigationItem",
     "title": "plugin instances",
-    "sessionName": "allStartPlugins"
+    "sessionName": "allPluginRuns"
   },
   {
     "_type": "NavigationItem",
@@ -79,27 +74,22 @@
   },
   {
     "_type": "Plugin",
-    "pluginType": "plugin",
-    "name": "Deduplication",
-    "container": "test",
-    "icon": "message",
-    "itemDescription": "Removes duplicate contacts from your pod"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "importer",
-    "name": "iCloud notes",
-    "dataType": "Note",
-    "container": "memri-nodeintegrators:latest",
-    "icon": "cloud"
-  },
-  {
-    "_type": "Plugin",
     "pluginType": "importer",
     "name": "WhatsApp",
     "dataType": "whatsapp",
-    "container": "memri-rustintegrators:latest",
-    "icon": "message"
+    "container": "whatsapp:latest",
+    "icon": "message",
+    "pluginModule": "whatsapp.plugin",
+    "pluginName": "WhatsappPlugin"
+  },
+  {
+    "_type":"Plugin",
+    "pluginType": "importer",
+    "name":"Gmail plugin",
+    "container":"gitlab.memri.io:5050/plugins/gmail:ci-cd-dev-0a3bab20",
+    "pluginModule": "gmail_importer.plugin",
+    "pluginName": "GmailImporter",
+    "icon":"mail"
   },
   {
     "_type": "Setting",

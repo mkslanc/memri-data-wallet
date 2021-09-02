@@ -1,13 +1,13 @@
 [session = all-plugin-instances] {
     [view] {
-        title: "All StartPlugin"
+        title: "All PluginRun"
         [datasource = pod] {
-            query: "StartPlugin"
+            query: "PluginRun"
         }
     }
 }
 
-StartPlugin {
+PluginRun {
     title: "{.name} start plugin"
     defaultRenderer: generalEditor
     editActionButton: toggleEditMode
@@ -138,15 +138,15 @@ StartPlugin {
     }
 }
 
-.allStartPlugins {
+.allPluginRuns {
     name: "all-plugin-instances"
-    title: "All StartPlugins"
-    emptyResultText: "There are no StartPlugins"
+    title: "All PluginRuns"
+    emptyResultText: "There are no PluginRuns"
     defaultRenderer: list
     sortFields: datatype dateModified dateAccessed dateCreated
 
     [datasource = pod] {
-        query: "StartPlugin"
+        query: "PluginRun"
         sortProperty: dateModified
         sortAscending: false
     }
@@ -155,7 +155,7 @@ StartPlugin {
     filterButtons: showStarred toggleFilterPanel
 }
 
-StartPlugin > list {
+PluginRun > list {
     onPress: openView {
         renderer: generaleditor
     }

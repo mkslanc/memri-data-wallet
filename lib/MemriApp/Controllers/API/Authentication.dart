@@ -68,7 +68,7 @@ class Authentication {
   }
 
   static GeneratedKeys generateAllKeys() {
-    var dbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "").toUpperCase();
+    var dbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "");
     var rsapars = ECKeyGeneratorParameters(ECCurve_secp256k1());
     var params = ParametersWithRandom(rsapars, getSecureRandom());
     var keyGenerator = ECKeyGenerator();
@@ -76,8 +76,10 @@ class Authentication {
     var keyPair = keyGenerator.generateKeyPair();
     var privateKey = keyPair.privateKey as ECPrivateKey;
     var publicKey = keyPair.publicKey as ECPublicKey;
-    var privateKeyStr = privateKey.d!.toRadixString(16).toUpperCase();
-    var publicKeyStr = publicKey.Q!.x!.toBigInteger()!.toRadixString(16).toUpperCase();
+    var privateKeyStr = privateKey.d!.toRadixString(16);
+    var publicKeyStr = publicKey.Q!.x!.toBigInteger()!.toRadixString(16);
+    print(publicKeyStr);
+    print(dbKey);
     return GeneratedKeys(privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
   }
 
@@ -89,7 +91,7 @@ class Authentication {
   }
 
   static Future<void> createRootKey() async {
-    var localDbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "").toUpperCase();
+    var localDbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "");
     await storage.write(key: rootKeyTag, value: localDbKey);
     lastRootPublicKey = localDbKey;
     isOwnerAuthenticated = true;

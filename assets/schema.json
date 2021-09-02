@@ -1436,6 +1436,16 @@
       "value_type": "string"
     },
     {
+      "item_type": "Plugin",
+      "property": "pluginModule",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "pluginName",
+      "value_type": "string"
+    },
+    {
       "item_type": "Product",
       "property": "audience",
       "value_type": "string"
@@ -1706,28 +1716,43 @@
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
-      "property": "state",
+      "item_type": "PluginRun",
+      "property": "status",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
+      "item_type": "PluginRun",
       "property": "oAuthUrl",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
-      "property": "container",
+      "item_type": "PluginRun",
+      "property": "containerImage",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
-      "property": "state",
+      "item_type": "PluginRun",
+      "property": "status",
       "value_type": "string"
     },
     {
-      "item_type": "StartPlugin",
+      "item_type": "PluginRun",
       "property": "targetItemId",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
+      "property": "pluginModule",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
+      "property": "pluginName",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Service",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -3486,6 +3511,16 @@
       "source_type": "Plugin",
       "edge": "view",
       "target_type": "CVUStoredDefinition"
+    },
+    {
+      "source_type": "PluginRun",
+      "edge": "view",
+      "target_type": "CVUStoredDefinition"
+    },
+    {
+      "source_type": "PluginRun",
+      "edge": "plugin",
+      "target_type": "Plugin"
     }
   ]
 }
