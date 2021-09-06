@@ -41,59 +41,9 @@ class DemoData {
         items["edges"] is! List) {
       throw Exception("Could not locate schema file");
     }
-    var properties = items["properties"];
-    var edges = items["edges"];
 
-    for (var property in properties) {
-      var itemType = property["item_type"];
-      var propertyName = property["property"];
-      var propertyValue = property["value_type"];
-      if (itemType is String && propertyName is String && propertyValue is String) {
-        var record = ItemRecord(type: "ItemPropertySchema");
-        var recordRowId = await record.insert(databaseController.databasePool);
-        await ItemPropertyRecord(
-                itemRowID: recordRowId,
-                name: "itemType",
-                value: PropertyDatabaseValue.create(itemType, SchemaValueType.string))
-            .insert(databaseController.databasePool);
-        await ItemPropertyRecord(
-                itemRowID: recordRowId,
-                name: "propertyName",
-                value: PropertyDatabaseValue.create(propertyName, SchemaValueType.string))
-            .insert(databaseController.databasePool);
-        await ItemPropertyRecord(
-                itemRowID: recordRowId,
-                name: "valueType",
-                value: PropertyDatabaseValue.create(propertyValue, SchemaValueType.string))
-            .insert(databaseController.databasePool);
-      }
-    }
-
-    for (var edge in edges) {
-      var sourceType = edge["source_type"];
-      var edgeName = edge["edge"];
-      var targetType = edge["target_type"];
-      if (sourceType is String && edgeName is String && targetType is String) {
-        var record = ItemRecord(type: "ItemEdgeSchema");
-        var recordRowId = await record.insert(databaseController.databasePool);
-        await ItemPropertyRecord(
-                itemRowID: recordRowId,
-                name: "sourceType",
-                value: PropertyDatabaseValue.create(sourceType, SchemaValueType.string))
-            .insert(databaseController.databasePool);
-        await ItemPropertyRecord(
-                itemRowID: recordRowId,
-                name: "edgeName",
-                value: PropertyDatabaseValue.create(edgeName, SchemaValueType.string))
-            .insert(databaseController.databasePool);
-        await ItemPropertyRecord(
-                itemRowID: recordRowId,
-                name: "targetType",
-                value: PropertyDatabaseValue.create(targetType, SchemaValueType.string))
-            .insert(databaseController.databasePool);
-      }
-    }
-
+    await databaseController.databasePool.schemaImportTransaction(items);
+    print("End edges" + DateTime.now().toString());
     await databaseController.schema.load(databaseController.databasePool);
   }
 
@@ -223,6 +173,8 @@ class DemoData {
       }
     }
 
+    List<ItemPropertyRecord> properties = [];
+    List<ItemEdgeRecord> edges = [];
     for (var item in processedItems) {
       for (var property in item.properties) {
         ItemPropertyRecord record = ItemPropertyRecord(
@@ -230,7 +182,7 @@ class DemoData {
             itemRowID: sourceIDLookup[item.uid]!,
             name: property.name,
             value: property.value);
-        await record.insert(databaseController.databasePool);
+        properties.add(record);
       }
       for (var edge in item.edges) {
         var targetActualID = tempIDLookup[edge.targetTempUID];
@@ -241,9 +193,11 @@ class DemoData {
 
         var record =
             ItemEdgeRecord(sourceRowID: sourceRowID, name: edge.name, targetRowID: targetActualID);
-        await record.insert(databaseController.databasePool);
+        edges.add(record);
       }
     }
+    await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+    await databaseController.databasePool.itemEdgeRecordInsertAll(edges);
   }
 
   static Future<List<DemoDataItem>> processItemJSON(

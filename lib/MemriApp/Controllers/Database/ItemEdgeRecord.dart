@@ -49,8 +49,12 @@ class ItemEdgeRecord {
 
   Future<EdgesCompanion> toCompanion(Database db) async {
     if (selfRowID == null) {
-      Item self = (await db.itemRecordFetchWithUID(selfUID!))!;
-      selfRowID = self.rowId;
+      if (selfUID != null) {
+        Item self = (await db.itemRecordFetchWithUID(selfUID!))!;
+        selfRowID = self.rowId;
+      } else {
+        await insertSelfItemRecord(db);
+      }
     }
     if (sourceRowID == null) {
       Item source = (await db.itemRecordFetchWithUID(sourceUID!))!;
