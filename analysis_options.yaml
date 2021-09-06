@@ -1,0 +1,4 @@
+linter:
+  rules:
+    await_only_futures: true
+    avoid_web_libraries_in_flutter: false
