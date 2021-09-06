@@ -91,7 +91,73 @@ class Database extends _$Database {
 
   Future<int> itemPropertyRecordInsert(ItemPropertyRecord record) async {
     var data = getItemPropertyRecordTableData(record);
-    return into(data.table).insert(data.companion);
+    return await into(data.table).insert(data.companion);
+  }
+
+  Future itemPropertyRecordInsertAll(List<ItemPropertyRecord> records) async {
+    List<StringsCompanion> stringCompanions = [];
+    List<IntegersCompanion> integerCompanions = [];
+    List<RealsCompanion> realCompanions = [];
+
+    for (var record in records) {
+      var data = getItemPropertyRecordTableData(record);
+      if (data.table is Strings) {
+        stringCompanions.add(data.companion as StringsCompanion);
+      } else if (data.table is Integers) {
+        integerCompanions.add(data.companion as IntegersCompanion);
+      } else {
+        realCompanions.add(data.companion as RealsCompanion);
+      }
+    }
+
+    await batch((batch) {
+      batch.insertAll(strings, stringCompanions);
+      batch.insertAll(integers, integerCompanions);
+      batch.insertAll(reals, realCompanions);
+    });
+  }
+
+  Future schemaImportTransaction(dynamic items) async {
+    return transaction(() async {
+      var properties = items["properties"];
+      var edges = items["edges"];
+      List<StringsCompanion> stringCompanions = [];
+      for (var property in properties) {
+        var itemType = property["item_type"];
+        var propertyName = property["property"];
+        var propertyValue = property["value_type"];
+        if (itemType is String && propertyName is String && propertyValue is String) {
+          var recordRowId = await itemRecordInsert(ItemRecord(type: "ItemPropertySchema"));
+          stringCompanions.addAll([
+            StringsCompanion(
+                item: Value(recordRowId), name: Value("itemType"), value: Value(itemType)),
+            StringsCompanion(
+                item: Value(recordRowId), name: Value("propertyName"), value: Value(propertyName)),
+            StringsCompanion(
+                item: Value(recordRowId), name: Value("valueType"), value: Value(propertyValue))
+          ]);
+        }
+      }
+      for (var edge in edges) {
+        var sourceType = edge["source_type"];
+        var edgeName = edge["edge"];
+        var targetType = edge["target_type"];
+        if (sourceType is String && edgeName is String && targetType is String) {
+          var recordRowId = await itemRecordInsert(ItemRecord(type: "ItemEdgeSchema"));
+          stringCompanions.addAll([
+            StringsCompanion(
+                item: Value(recordRowId), name: Value("sourceType"), value: Value(sourceType)),
+            StringsCompanion(
+                item: Value(recordRowId), name: Value("edgeName"), value: Value(edgeName)),
+            StringsCompanion(
+                item: Value(recordRowId), name: Value("targetType"), value: Value(targetType))
+          ]);
+        }
+      }
+      await batch((batch) {
+        batch.insertAll(strings, stringCompanions);
+      });
+    });
   }
 
   Future<void> itemPropertyRecordDelete(ItemPropertyRecord record) async {
@@ -252,6 +318,17 @@ class Database extends _$Database {
 
   Future<int> itemEdgeRecordInsert(ItemEdgeRecord record) async {
     return into(edges).insert(await record.toCompanion(this));
+  }
+
+  Future itemEdgeRecordInsertAll(List<ItemEdgeRecord> records) async {
+    List<EdgesCompanion> edgeCompanions = [];
+    for (var record in records) {
+      edgeCompanions.add(await record.toCompanion(this));
+    }
+
+    await batch((batch) {
+      batch.insertAll(edges, edgeCompanions);
+    });
   }
 
   Future<int> itemEdgeRecordSave(ItemEdgeRecord record) async {
