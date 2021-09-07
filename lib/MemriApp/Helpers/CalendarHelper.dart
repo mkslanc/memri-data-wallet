@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
@@ -126,7 +127,8 @@ class CalendarHelper {
 
   List<String> get daysInWeek {
     //TODO: check
-    return DateFormat.EEEE(Platform.localeName).dateSymbols.SHORTWEEKDAYS;
+    var platform = !kIsWeb ? Platform.localeName : null;
+    return DateFormat.EEEE(platform).dateSymbols.SHORTWEEKDAYS;
   }
 
   String weekdayAtStartOfMonth(DateTime date) {
