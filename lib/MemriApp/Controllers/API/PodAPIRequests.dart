@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
 import 'package:moor/moor.dart';
 

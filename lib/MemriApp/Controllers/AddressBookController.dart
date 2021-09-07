@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:phone_number/phone_number.dart' as Phone;
 import 'package:uuid/uuid.dart';
 
-import 'FileStorageController.dart';
+import 'FileStorageController_shared.dart';
 
 class AddressBookController {
   static bool syncing = false;
