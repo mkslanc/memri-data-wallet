@@ -43,7 +43,6 @@ class DemoData {
     }
 
     await databaseController.databasePool.schemaImportTransaction(items);
-    print("End edges" + DateTime.now().toString());
     await databaseController.schema.load(databaseController.databasePool);
   }
 

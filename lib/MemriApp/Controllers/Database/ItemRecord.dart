@@ -485,13 +485,13 @@ class ItemRecord with EquatableMixin {
             db: dbController, state: SyncState.noChanges);
 
         // If the item has file and it does not exist on disk, mark the file to be downloaded
-        if (newItem.type == "File" && propertyName == "filename") {
+        if (newItem.type == "File" && propertyName == "sha256") {
           String? fileName = entry.value;
           if (fileName != null &&
               !(await FileStorageController.fileExists(
                   (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
             newItem.fileState = FileState.needsDownload;
-            newItem.save(dbController.databasePool);
+            await newItem.save(dbController.databasePool);
           }
         }
       });
@@ -697,13 +697,17 @@ class ItemRecord with EquatableMixin {
     String? fileName;
     var sha256Value = await item.propertyValue("sha256");
     var fileNameValue = await item.propertyValue("filename");
-    if (fileNameValue is PropertyDatabaseValueString &&
-        sha256Value is PropertyDatabaseValueString) {
+    if (sha256Value is PropertyDatabaseValueString) {
       sha256 = sha256Value.value;
-      fileName = fileNameValue.value;
     }
 
-    if (sha256 == null || fileName == null) {
+    if (fileNameValue is PropertyDatabaseValueString) {
+      fileName = fileNameValue.value;
+    } else {
+      fileName = sha256;
+    }
+
+    if (sha256 == null) {
       return null;
     }
 
