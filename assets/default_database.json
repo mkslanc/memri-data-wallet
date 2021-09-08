@@ -77,7 +77,7 @@
     "pluginType": "importer",
     "name": "WhatsApp",
     "dataType": "whatsapp",
-    "container": "whatsapp:latest",
+    "container": "gitlab.memri.io:5050/plugins/whatsapp:dev-latest",
     "icon": "message",
     "pluginModule": "whatsapp.plugin",
     "pluginName": "WhatsappPlugin"
@@ -86,7 +86,7 @@
     "_type":"Plugin",
     "pluginType": "importer",
     "name":"Gmail plugin",
-    "container":"gitlab.memri.io:5050/plugins/gmail:ci-cd-dev-0a3bab20",
+    "container":"gitlab.memri.io:5050/plugins/gmail:dev-latest",
     "pluginModule": "gmail_importer.plugin",
     "pluginName": "GmailImporter",
     "icon":"mail"

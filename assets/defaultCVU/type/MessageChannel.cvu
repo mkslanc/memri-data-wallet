@@ -107,7 +107,7 @@ MessageChannel > list {
             alignment: leading
             HStack {
                 Text {
-                    text: "{.receiver.owner.firstName} {.receiver.owner.lastName}"
+                    text: "{.name}"
                     font: 18 semibold
                     color: primary
                     padding: 0 0 3 0
@@ -152,8 +152,14 @@ MessageChannel > list {
         
     [datasource = pod] {
         query: "MessageChannel"
-        sortProperty: dateModified
-        sortAscending: true
+        sort: {
+            targetType: "Message"
+            edgeTarget: {
+                name: ~messageChannel
+                sortProperty: dateSent
+                sortAscending: false
+            }
+        }
     }
 }
 

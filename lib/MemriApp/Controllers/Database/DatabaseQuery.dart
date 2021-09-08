@@ -463,8 +463,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
           if (edgeSorting.properties["sortProperty"] != null) {
             var sortPropertyCondition = await edgeSorting.string("sortProperty");
-            targetItemType = dbController.schema
-                .expectedTargetType(targetType ?? itemTypes.first, sortPropertyName!);
+            if (sortPropertyName!.startsWith("~")) {
+              targetItemType = targetType ?? itemTypes.first;
+            } else {
+              targetItemType = dbController.schema
+                  .expectedTargetType(targetType ?? itemTypes.first, sortPropertyName);
+            }
             if (targetItemType == null) {
               print("No target type for $sortPropertyName");
               return conditions;
@@ -579,9 +583,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     var sortDef = datasourceResolver?.subdefinition("sort");
+
     if (sortDef != null) {
+      var targetType = await sortDef.string("targetType");
       queryConfig.sortEdges = await queryConfig.combineSortEdgesQuery(
           sortResolver: sortDef,
+          targetType: targetType,
           dbController: databaseController ?? AppController.shared.databaseController);
     }
 
@@ -738,7 +745,7 @@ class PropertyEquals {
 @annotation.JsonSerializable()
 class EdgeHasTarget {
   String edgeName;
-  List<int> target;
+  List<dynamic> target;
 
   EdgeHasTarget(this.edgeName, this.target);
 
@@ -750,7 +757,7 @@ class EdgeHasTarget {
 @annotation.JsonSerializable()
 class EdgeHasSource {
   String edgeName;
-  List<int> source;
+  List<dynamic> source;
 
   EdgeHasSource(this.edgeName, this.source);
 
