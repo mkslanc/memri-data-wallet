@@ -158,7 +158,7 @@ Map<String, dynamic> _$PropertyEqualsToJson(PropertyEquals instance) => <String,
 EdgeHasTarget _$EdgeHasTargetFromJson(Map<String, dynamic> json) {
   return EdgeHasTarget(
     json['edgeName'] as String,
-    json['target'] as List<int>,
+    json['target'] as List<dynamic>,
   );
 }
 
@@ -170,7 +170,7 @@ Map<String, dynamic> _$EdgeHasTargetToJson(EdgeHasTarget instance) => <String, d
 EdgeHasSource _$EdgeHasSourceFromJson(Map<String, dynamic> json) {
   return EdgeHasSource(
     json['edgeName'] as String,
-    json['source'] as List<int>,
+    json['source'] as List<dynamic>,
   );
 }
 

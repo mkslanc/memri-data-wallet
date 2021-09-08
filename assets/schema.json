@@ -1722,7 +1722,7 @@
     },
     {
       "item_type": "PluginRun",
-      "property": "oAuthUrl",
+      "property": "authUrl",
       "value_type": "string"
     },
     {
