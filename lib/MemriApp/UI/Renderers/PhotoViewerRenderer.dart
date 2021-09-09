@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Components/ImagesAndFiles/PhotoViewController.dart';
 

@@ -36,14 +36,14 @@ class FileStorageController {
     if (await file.exists()) return file.readAsBytes();
   }
 
-  static Future<File> copy(String oldPath, String newPath) async {
+  static Future copy(String oldPath, String newPath) async {
     var byteData = await rootBundle.load(oldPath);
-    return await write(
+    await write(
         newPath, byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
   }
 
-  static Future<File> write(String path, Uint8List byteData) async {
-    return await File(
+  static Future write(String path, Uint8List byteData) async {
+    await File(
       path,
     ).writeAsBytes(byteData);
   }
@@ -67,12 +67,13 @@ class FileStorageController {
 
   static Future<ImageProvider?> getImage({String? uuid, String? fileURL}) async {
     fileURL ??= await getURLForFile(uuid!);
+    var image = File(fileURL);
+    if (await image.exists()) return FileImage(image);
     try {
       await rootBundle.load(fileURL);
       return AssetImage(fileURL);
     } catch (_) {
-      var image = File(fileURL);
-      if (await image.exists()) return FileImage(image);
+      return null;
     }
   }
 }

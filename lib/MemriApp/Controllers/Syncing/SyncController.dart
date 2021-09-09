@@ -13,7 +13,7 @@ import 'package:memri/MemriApp/Controllers/API/PodAPIRequests.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/FileStorageController.dart';
+import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:moor/moor.dart';
 
 import '../AppController.dart';

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 extension StringExtension on String {
   String? get nullIfBlank {
     return RegExp(r"^\s*$").hasMatch(this) ? null : this;
@@ -30,12 +32,20 @@ extension StringExtension on String {
   }
 
   String? get fileName {
-    var name = this.split(Platform.pathSeparator).last.split(".").asMap()[0] ?? "";
+    var separator = '/';
+    if (!kIsWeb) {
+      separator = Platform.pathSeparator;
+    }
+    var name = this.split(separator).last.split(".").asMap()[0] ?? "";
     return name.isEmpty ? null : name;
   }
 
   String? get fileExtension {
-    var ext = this.split(Platform.pathSeparator).last.split(".").asMap()[1] ?? "";
+    var separator = '/';
+    if (!kIsWeb) {
+      separator = Platform.pathSeparator;
+    }
+    var ext = this.split(separator).last.split(".").asMap()[1] ?? "";
     return ext.isEmpty ? null : ext;
   }
 }
