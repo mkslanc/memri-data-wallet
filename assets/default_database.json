@@ -92,6 +92,15 @@
     "icon":"mail"
   },
   {
+    "_type":"Plugin",
+    "pluginType": "importer",
+    "name":"Instagram",
+    "container":"gitlab.memri.io:5050/plugins/instagram:dev-latest",
+    "pluginModule": "instagram.plugin",
+    "pluginName": "InstagramPlugin",
+    "icon":"mail"
+  },
+  {
     "_type": "Setting",
     "keystr": "defaults/general/gui/showEditButton",
     "json": "{\"value\":false}"

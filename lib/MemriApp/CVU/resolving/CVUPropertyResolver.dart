@@ -323,7 +323,7 @@ class CVUPropertyResolver {
       file = await edge(key, "file");
     }
     if (file != null && file.type == "File") {
-      String? filename = (await property(item: file, propertyName: "filename"))?.asString();
+      String? filename = (await property(item: file, propertyName: "sha256"))?.asString();
       return filename;
     }
     return null;

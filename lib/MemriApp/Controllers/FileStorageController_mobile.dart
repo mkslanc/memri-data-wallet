@@ -36,8 +36,12 @@ class FileStorageController {
     if (await file.exists()) return file.readAsBytes();
   }
 
+  static Future<ByteData> getByteDataFromAsset(String path) async {
+    return await rootBundle.load(path);
+  }
+
   static Future copy(String oldPath, String newPath) async {
-    var byteData = await rootBundle.load(oldPath);
+    var byteData = await getByteDataFromAsset(oldPath);
     await write(
         newPath, byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
   }

@@ -1647,7 +1647,6 @@
     "firstName": "Alice",
     "lastName": "Awesome",
     "birthDate": 543777745298,
-    "height": 164,
     "allEdges": [
       {
         "_type": "me",
@@ -1683,7 +1682,6 @@
     "firstName": "A.",
     "lastName": "Awesom",
     "birthDate": 543777745298,
-    "height": 165,
     "allEdges": [
       {
         "_type": "relationship",
@@ -1793,7 +1791,6 @@
     "firstName": "Bob",
     "lastName": "Brown",
     "birthDate": 543777745298,
-    "height": 175,
     "allEdges": [
       {
         "_type": "relationship",
@@ -1833,7 +1830,6 @@
     "firstName": "Eve",
     "lastName": "Eagle",
     "birthDate": 543777745298,
-    "height": 170,
     "allEdges": [
       {
         "_type": "relationship",
@@ -1873,7 +1869,6 @@
     "firstName": "Nadia",
     "lastName": "Naranyan",
     "birthDate": 543777745298,
-    "height": 181,
     "allEdges": [
       {
         "_type": "relationship",
@@ -1908,7 +1903,6 @@
     "firstName": "Yael",
     "lastName": "Houston",
     "birthDate": 543777745298,
-    "height": 188,
     "allEdges": [
       {
         "_type": "relationship",
@@ -1938,7 +1932,6 @@
     "firstName": "Jay",
     "lastName": "Richards",
     "birthDate": 543777745298,
-    "height": 168,
     "allEdges": [
       {
         "_type": "relationship",

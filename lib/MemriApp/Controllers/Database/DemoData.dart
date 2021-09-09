@@ -43,7 +43,6 @@ class DemoData {
     }
 
     await databaseController.databasePool.schemaImportTransaction(items);
-    print("End edges" + DateTime.now().toString());
     await databaseController.schema.load(databaseController.databasePool);
   }
 
@@ -296,22 +295,23 @@ class DemoData {
                 propertyName == "filename" &&
                 databaseValue is PropertyDatabaseValueString) {
               var fileName = databaseValue.value;
-              var newFileName =
-                  "${Uuid().v4()}.${fileName.fileExtension ?? "jpg"}"; //TODO do we need this?
-              var url = (await FileStorageController.getFileStorageURL()) + "/" + newFileName;
 
               var demoDirectory = "assets/demoAssets";
               var sourcePath = demoDirectory +
                   "/" +
                   ("${fileName.fileName ?? ""}.${fileName.fileExtension ?? "jpg"}");
-              await FileStorageController.copy(sourcePath, url);
 
               // Also add sha256 property for item
-              var sha256 = await FileStorageController.getHashForFile(fileURL: url);
+              var byteData = await FileStorageController.getByteDataFromAsset(sourcePath);
+              var sha256 = FileStorageController.getHashForData(
+                  byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+              var url = (await FileStorageController.getFileStorageURL()) + "/" + sha256;
+
               properties.add(
                   DemoDataProperty(name: "sha256", value: PropertyDatabaseValueString(sha256)));
 
-              databaseValue = PropertyDatabaseValueString(newFileName);
+              await FileStorageController.copy(sourcePath, url);
             }
 
             properties.add(DemoDataProperty(name: propertyName, value: databaseValue));
