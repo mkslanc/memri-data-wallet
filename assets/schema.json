@@ -1136,6 +1136,11 @@
       "value_type": "string"
     },
     {
+      "item_type": "NavigationItem",
+      "property": "icon",
+      "value_type": "string"
+    },
+    {
       "item_type": "Network",
       "property": "name",
       "value_type": "string"

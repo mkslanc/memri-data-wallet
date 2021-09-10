@@ -20,7 +20,7 @@ class NavigationWrapperView extends StatelessWidget {
   NavigationWrapperView({required this.sceneController, required this.child});
 
   double navWidth(BoxConstraints geom) {
-    return min(300, geom.maxWidth * widthRatio);
+    return 93;
   }
 
   double cappedOffset(BoxConstraints geom) {

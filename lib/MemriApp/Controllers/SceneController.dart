@@ -140,10 +140,12 @@ class SceneController extends ChangeNotifier {
           default:
             title = (await item.propertyValue("title"))?.asString();
             var targetViewName = (await item.propertyValue("sessionName"))?.asString();
+            var icon = (await item.propertyValue("icon"))?.asString();
             if (title == null || targetViewName == null) {
               return null;
             }
-            return NavigationElementItem(Item(title, targetViewName));
+            return NavigationElementItem(
+                Item(name: title, targetViewName: targetViewName, icon: icon));
         }
       }));
     }
