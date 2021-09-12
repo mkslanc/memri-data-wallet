@@ -54,8 +54,14 @@ class PluginHandler {
       required SceneController sceneController,
       required CVUContext context}) async {
     var runnerRowId = runner.rowId;
-    var view = await runner.edgeItem("view");
+    List<ItemRecord> viewList =
+        await runner.edgeItems("view"); //TODO plugin should delete previous edge
+    viewList.sort((a, b) =>
+        (b.dateServerModified?.millisecondsSinceEpoch ?? 0) -
+        (a.dateServerModified?.millisecondsSinceEpoch ?? 0));
+    ItemRecord? view = viewList.asMap()[0];
     var cvuContent = (await view?.propertyValue("definition"))?.value;
+
     List<CVUParsedDefinition>? parsedDefinitions;
     if (cvuContent != null) {
       try {
