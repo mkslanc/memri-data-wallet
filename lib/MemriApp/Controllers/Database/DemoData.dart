@@ -115,6 +115,16 @@ class DemoData {
       {required String fileName,
       required DatabaseController databaseController,
       bool throwIfAgainstSchema = false}) async {
+    handleError(String string) {
+      if (throwIfAgainstSchema) {
+        // Used for testing: throw an error if error in demo data
+        throw (string);
+      } else {
+        // Notify developer of error in demo data, but continue
+        print(string);
+      }
+    }
+
     var fileURL = "assets/$fileName.json";
     var fileData = await rootBundle.loadString(fileURL, cache: false);
     var items = jsonDecode(fileData);
@@ -188,6 +198,12 @@ class DemoData {
         if (targetActualID == null) {
           continue;
         }
+        var targetItem = await ItemRecord.fetchWithRowID(targetActualID, databaseController);
+        if (targetItem!.type != edge.targetType) {
+          handleError(
+              "Target item actual type is ${targetItem.type} should be ${edge.targetType}, uid: ${edge.targetTempUID}");
+        }
+
         var sourceRowID = sourceIDLookup[item.uid];
 
         var record =
@@ -253,15 +269,34 @@ class DemoData {
             if (edgeName is! String) {
               return;
             }
+
+            SchemaEdge? expectedEdge = types[itemType]?.edgeTypes[edgeName];
+            if (expectedEdge == null) {
+              handleError("$itemType.$edgeName edge not in schema");
+              return;
+            }
+            String? targetType = edge["targetType"] ?? edge["_target"]["_type"];
+            if (targetType == null) {
+              handleError("$itemType.$edgeName targetType is missing");
+              return;
+            }
+            if (targetType != expectedEdge.targetType && expectedEdge.targetType != "Any") {
+              handleError(
+                  "$itemType.$edgeName targetType should be ${expectedEdge.targetType}, $targetType received");
+              return;
+            }
+
             var targetUID = edge["uid"]?.toString();
             if (targetUID != null) {
-              edges.add(DemoDataEdge(name: edgeName, targetTempUID: targetUID));
+              edges.add(
+                  DemoDataEdge(name: edgeName, targetTempUID: targetUID, targetType: targetType));
             } else {
               var subitem = edge["_target"];
               if (subitem is Map) {
                 // Sub-item declared as edge, add edge property AND item
                 var targetUID = Uuid().v4();
-                edges.add(DemoDataEdge(name: edgeName, targetTempUID: targetUID));
+                edges.add(
+                    DemoDataEdge(name: edgeName, targetTempUID: targetUID, targetType: targetType));
                 items = [
                   ...items,
                   ...await processItemJSON(
@@ -363,8 +398,9 @@ class DemoDataProperty {
 class DemoDataEdge {
   String name;
   String targetTempUID;
+  String targetType;
 
-  DemoDataEdge({required this.name, required this.targetTempUID});
+  DemoDataEdge({required this.name, required this.targetTempUID, required this.targetType});
 }
 
 class SchemaFile {
