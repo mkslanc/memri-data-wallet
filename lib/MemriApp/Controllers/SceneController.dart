@@ -11,6 +11,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
@@ -29,6 +30,7 @@ class SceneController extends ChangeNotifier {
   ViewContextController? topMostContext;
 
   MemriUINavigationController navigationController = MemriUINavigationController();
+  MemriUINavigationController secondaryNavigationController = MemriUINavigationController();
 
   init() async {
     try {
@@ -217,7 +219,8 @@ class SceneController extends ChangeNotifier {
       Set<int>? overrideRowIDs,
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
-      CVUViewArguments? viewArguments}) async {
+      CVUViewArguments? viewArguments,
+      bool isMainNavigationController = true}) async {
     CVUDefinitionContent viewDefinition = defaultDefinition ??
         appController.cvuController
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
@@ -271,8 +274,14 @@ class SceneController extends ChangeNotifier {
       navStack.state.add(holder);
     }
     navigationStack = navStack; //TODO
-    navigationController.setViewControllers(
-        SceneContentView(sceneController: this, viewContext: newViewContextController));
+    if (isMainNavigationController) {
+      secondaryNavigationController.setViewControllers(Empty());
+      navigationController.setViewControllers(
+          SceneContentView(sceneController: this, viewContext: newViewContextController));
+    } else {
+      secondaryNavigationController.setViewControllers(
+          SceneContentView(sceneController: this, viewContext: newViewContextController));
+    }
   }
 
   late List<BuildContext> closeStack = [];

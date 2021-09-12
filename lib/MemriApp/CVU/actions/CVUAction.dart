@@ -206,7 +206,8 @@ class CVUActionOpenView extends CVUAction {
         overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
-        viewArguments: viewArguments);
+        viewArguments: viewArguments,
+        isMainNavigationController: await resolver.boolean("mainView") ?? true);
   }
 }
 

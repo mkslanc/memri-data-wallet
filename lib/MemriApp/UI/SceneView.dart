@@ -101,56 +101,72 @@ class _SceneViewState extends State<SceneView> {
           sceneController: widget.sceneController,
           child: Stack(
             children: [
-              Column(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FutureBuilder<bool>(
-                    future: _showTopBar,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done)
-                        showTopBar = snapshot.data!;
-                      widget.sceneController.showTopBar = showTopBar;
-                      return showTopBar
-                          ? ValueListenableBuilder<bool>(
-                              builder: (BuildContext context, value, Widget? child) {
-                                var currentContext = widget.sceneController.topMostContext;
-                                return value
-                                    ? SearchView(
-                                        viewContext: currentContext!, isActive: searchBarOpen)
-                                    : TopBarView(
-                                        sceneController: widget.sceneController,
-                                        onSearchPressed: () {
-                                          searchBarOpen.value = true;
-                                        },
-                                      );
-                              },
-                              valueListenable: searchBarOpen)
-                          : Empty();
-                    },
-                  ),
-                  Expanded(
-                    child: NavigationHolder(
-                      widget.sceneController.navigationController,
+                  IntrinsicWidth(
+                    child: Column(
+                      children: [
+                        FutureBuilder<bool>(
+                          future: _showTopBar,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done)
+                              showTopBar = snapshot.data!;
+                            widget.sceneController.showTopBar = showTopBar;
+                            return showTopBar
+                                ? ValueListenableBuilder<bool>(
+                                    builder: (BuildContext context, value, Widget? child) {
+                                      var currentContext = widget.sceneController.topMostContext;
+                                      return value
+                                          ? SearchView(
+                                              viewContext: currentContext!, isActive: searchBarOpen)
+                                          : TopBarView(
+                                              sceneController: widget.sceneController,
+                                              onSearchPressed: () {
+                                                searchBarOpen.value = true;
+                                              },
+                                            );
+                                    },
+                                    valueListenable: searchBarOpen)
+                                : Empty();
+                          },
+                        ),
+                        Expanded(
+                          child: NavigationHolder(
+                            widget.sceneController.navigationController,
+                          ),
+                        ),
+                        FutureBuilder<bool>(
+                            future: _showBottomBar,
+                            builder: (BuildContext builder, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.done) {
+                                showBottomBar = snapshot.data!;
+                              }
+                              if (showBottomBar) {
+                                var nodeDefinition = bottomBar;
+                                if (nodeDefinition == null) {
+                                  return BottomBarView(
+                                    viewContext: widget.sceneController.topMostContext!,
+                                  );
+                                } else {
+                                  return widget.sceneController.topMostContext!
+                                      .render(nodeDefinition: nodeDefinition);
+                                }
+                              }
+                              return Empty();
+                            })
+                      ],
                     ),
                   ),
-                  FutureBuilder<bool>(
-                      future: _showBottomBar,
-                      builder: (BuildContext builder, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          showBottomBar = snapshot.data!;
-                        }
-                        if (showBottomBar) {
-                          var nodeDefinition = bottomBar;
-                          if (nodeDefinition == null) {
-                            return BottomBarView(
-                              viewContext: widget.sceneController.topMostContext!,
-                            );
-                          } else {
-                            return widget.sceneController.topMostContext!
-                                .render(nodeDefinition: nodeDefinition);
-                          }
-                        }
-                        return Empty();
-                      })
+                  ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2 - 93),
+                    child: IntrinsicWidth(
+                      child: NavigationHolder(
+                        widget.sceneController.secondaryNavigationController,
+                      ),
+                    ),
+                  ),
                 ],
               ),
               ValueListenableBuilder(

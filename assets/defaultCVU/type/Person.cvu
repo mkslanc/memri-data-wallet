@@ -550,6 +550,7 @@ Person > singleitem {
 Person > list {
     onPress: openView {
         renderer: singleitem
+        mainView: false
     }
     VStack {
         alignment: left
