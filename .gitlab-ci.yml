@@ -22,7 +22,7 @@ build_web:
   stage: build
   script:
     - flutter build web
-    - sed -i 's#<base href="/">#<base href="/flutter-app/app/">#g' build/web/index.html
+    - sed -i 's#<base href="/">#<base href="/flutter-app/">#g' build/web/index.html
   artifacts:
     paths:
       - build/web
@@ -30,11 +30,10 @@ build_web:
 pages:
   stage: deploy
   script:
-    - mkdir public/app
-    - cp -r build/web/ public/app
+    - cp -r build/web public
   artifacts:
     paths:
       - public
-  # only:
-  #   - dev
+  only:
+    - dev
 
