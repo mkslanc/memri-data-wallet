@@ -4,6 +4,7 @@ stages:
   - lint
   - test
   - build
+  - deploy
 
 flutter_analyze:
   stage: lint
@@ -31,5 +32,4 @@ pages:
   artifacts:
     paths:
       - public
-  # only:
-  #   - master
+
