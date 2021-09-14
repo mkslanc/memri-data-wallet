@@ -30,8 +30,8 @@ build_web:
 pages:
   stage: deploy
   script:
-    - mkdir -p public/app
-    - cp -r build/web public/app
+    - mkdir public/app
+    - cp -r build/web/ public/app
   artifacts:
     paths:
       - public
