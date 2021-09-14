@@ -20,3 +20,16 @@ unit_test:
 build_web:
   stage: build
   script: flutter build web
+  artifacts:
+    paths:
+      - build/web
+
+pages:
+  stage: deploy
+  script:
+    - cp -r build/web public
+  artifacts:
+    paths:
+      - public
+  # only:
+  #   - master
