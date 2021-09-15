@@ -30,6 +30,13 @@ void main() {
         databaseController: databaseController, throwIfAgainstSchema: true);
   });
 
+  test('testDataImport', () async {
+    await DemoData.importDefaultData(
+        databaseController: databaseController, throwIfAgainstSchema: true);
+    await DemoData.importDemoData(
+        databaseController: databaseController, throwIfAgainstSchema: true);
+  });
+
   test('testSearch', () async {
     await DemoData.importDemoData(
         databaseController: databaseController, throwIfAgainstSchema: true);

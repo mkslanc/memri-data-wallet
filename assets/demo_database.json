@@ -1593,8 +1593,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 2
+        "targetType": "Relationship",
+        "uid": 501
       },
       {
         "_type": "label",
@@ -1702,8 +1702,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1741,8 +1741,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1780,8 +1780,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1814,8 +1814,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1843,8 +1843,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1872,8 +1872,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1901,8 +1901,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1930,8 +1930,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1959,8 +1959,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -1988,8 +1988,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2017,8 +2017,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2046,8 +2046,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2075,8 +2075,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2104,8 +2104,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2133,8 +2133,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2162,8 +2162,8 @@
     "allEdges": [
       {
         "_type": "relationship",
-        "targetType": "Person",
-        "uid": 1
+        "targetType": "Relationship",
+        "uid": 500
       },
       {
         "_type": "profilePicture",
@@ -2222,6 +2222,19 @@
         "_type": "relationship",
         "targetType": "Person",
         "uid": 1
+      }
+    ]
+  },
+  {
+    "uid": 501,
+    "_type": "Relationship",
+    "label": "Friend",
+    "value": 1000,
+    "allEdges": [
+      {
+        "_type": "relationship",
+        "targetType": "Person",
+        "uid": 2
       }
     ]
   },
@@ -2534,7 +2547,7 @@
     "_type": "Message",
     "uid": 20000079113,
     "externalId": "9BDD372B9D4F7486D2A3",
-    "content": "Deal. Meet me downstairs after work then",
+    "content": "Deal. Meet me downstairs after work then Deal. Meet me downstairs after work then Deal. Meet me downstairs after work then Deal. Meet me downstairs after work then",
     "dateSent": 1589691470003,
     "allEdges": [
       {
