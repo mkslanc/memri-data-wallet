@@ -214,7 +214,8 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: widget.sceneController.isInEditMode,
+        valueListenable:
+            widget.sceneController.mainPageController.isInEditMode, //TODO: change to selectable
         builder: (BuildContext context, bool value, Widget? child) {
           return RefreshIndicator(
             onRefresh: () async => updateState(),

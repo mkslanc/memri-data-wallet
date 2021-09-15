@@ -19,7 +19,7 @@ class CVUAppearanceModifier extends StatefulWidget {
 class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
   late EdgeInsets padding;
 
-  late Color backgroundColor;
+  late Color? backgroundColor;
 
   late double minWidth;
 
@@ -49,8 +49,7 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
 
   init() async {
     padding = await widget.nodeResolver.propertyResolver.padding;
-    backgroundColor =
-        (await widget.nodeResolver.propertyResolver.backgroundColor) ?? CVUColor.system("clear");
+    backgroundColor = (await widget.nodeResolver.propertyResolver.backgroundColor) ?? null;
     minWidth = await widget.nodeResolver.propertyResolver.minWidth ?? 0;
     maxWidth = await widget.nodeResolver.propertyResolver.maxWidth ?? double.infinity;
     minHeight = await widget.nodeResolver.propertyResolver.minHeight ?? 0;
@@ -78,7 +77,7 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
             }
             if (shadow != null) {
               childWidget = PhysicalModel(
-                color: backgroundColor,
+                color: backgroundColor ?? CVUColor(color: "clear").value,
                 elevation: shadow!,
                 child: childWidget,
               );

@@ -26,7 +26,9 @@ class CVUController {
   late List<CVUParsedDefinition> _definitions;
   List<CVUParsedDefinition> storedDefinitions = [];
   List<CVUParsedDefinition> get definitions {
-    return []..addAll(_definitions)..addAll(storedDefinitions);
+    return []
+      ..addAll(_definitions)
+      ..addAll(storedDefinitions);
   }
 
   init() async {

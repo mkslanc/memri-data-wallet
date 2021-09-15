@@ -86,6 +86,7 @@
 Person {
     defaultRenderer: singleitem
     showTopBar: false
+    cols: 6
 
     /*include:
     "defaultButtonsForItem" { type: Person }*/
@@ -550,7 +551,10 @@ Person > singleitem {
 Person > list {
     onPress: openView {
         renderer: singleitem
-        mainView: false
+        clearStack: true
+        viewArguments: {
+            mainView: false
+        }
     }
     VStack {
         alignment: left
@@ -633,6 +637,7 @@ Person > timeline {
     title: "People"
     defaultRenderer: list
     emptyResultText: "There are no people here yet"
+    cols: 4
 
     [datasource = pod] {
         query: "Person"

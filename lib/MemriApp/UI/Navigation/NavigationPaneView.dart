@@ -24,69 +24,73 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
 
   Widget build(BuildContext context) {
     sceneController.setupObservations();
-    return Column(
-      children: [
-        FutureBuilder(
-          future: sceneController.navigationItems,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasError) {
-              print(snapshot.error.toString());
-              return Text(
-                "Error occurred",
-                style: TextStyle(color: Colors.red),
-              );
-            }
-            if (snapshot.hasData) {
-              List<Widget> widgets = [];
-              var items = snapshot.data;
-              items.forEach((navItem) {
-                if (navItem is NavigationElementItem) {
-                  var item = navItem.value;
-                  widgets.add(NavigationItemView(item: item, sceneController: sceneController));
-                } else if (navItem is NavigationElementHeading) {
-                  var title = navItem.value;
-                  widgets.add(NavigationHeadingView(title: title));
-                } else {
-                  widgets.add(NavigationLineView());
-                }
-              });
-              return Expanded(
-                child: Column(
-                  children: [
-                    NavigationItemView(
-                      item: Item(name: "Add items", targetViewName: "allAdding", icon: "plus"),
-                      sceneController: sceneController,
-                      textColor: Colors.black,
-                    ),
-                    NavigationLineView(),
-                    Expanded(child: Column(children: widgets)),
-                    NavigationLineView(),
-                    NavigationItemView(
-                        item: Item(
-                            name: "Apps and Plugins", targetViewName: "allPlugins", icon: "zap"),
-                        sceneController: sceneController),
-                    NavigationItemView(
-                        item: Item(name: "Settings", targetViewName: "settings", icon: "settings"),
-                        sceneController: sceneController),
-                    NavigationLineView(),
-                    NavigationItemView(
-                        item: Item(name: "Logout", targetViewName: "log-out", icon: "log-out"),
-                        sceneController: sceneController),
-                  ],
+    return ColoredBox(
+      color: Colors.white,
+      child: Column(
+        children: [
+          FutureBuilder(
+            future: sceneController.navigationItems,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasError) {
+                print(snapshot.error.toString());
+                return Text(
+                  "Error occurred",
+                  style: TextStyle(color: Colors.red),
+                );
+              }
+              if (snapshot.hasData) {
+                List<Widget> widgets = [];
+                var items = snapshot.data;
+                items.forEach((navItem) {
+                  if (navItem is NavigationElementItem) {
+                    var item = navItem.value;
+                    widgets.add(NavigationItemView(item: item, sceneController: sceneController));
+                  } else if (navItem is NavigationElementHeading) {
+                    var title = navItem.value;
+                    widgets.add(NavigationHeadingView(title: title));
+                  } else {
+                    widgets.add(NavigationLineView());
+                  }
+                });
+                return Expanded(
+                  child: Column(
+                    children: [
+                      NavigationItemView(
+                        item: Item(name: "Add items", targetViewName: "allAdding", icon: "plus"),
+                        sceneController: sceneController,
+                        textColor: Colors.black,
+                      ),
+                      NavigationLineView(),
+                      Expanded(child: Column(children: widgets)),
+                      NavigationLineView(),
+                      NavigationItemView(
+                          item: Item(
+                              name: "Apps and Plugins", targetViewName: "allPlugins", icon: "zap"),
+                          sceneController: sceneController),
+                      NavigationItemView(
+                          item:
+                              Item(name: "Settings", targetViewName: "settings", icon: "settings"),
+                          sceneController: sceneController),
+                      NavigationLineView(),
+                      NavigationItemView(
+                          item: Item(name: "Logout", targetViewName: "log-out", icon: "log-out"),
+                          sceneController: sceneController),
+                    ],
+                  ),
+                );
+              }
+              return Padding(
+                padding: EdgeInsets.all(20),
+                child: SizedBox(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
                 ),
               );
-            }
-            return Padding(
-              padding: EdgeInsets.all(20),
-              child: SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              ),
-            );
-          },
-        )
-      ],
+            },
+          )
+        ],
+      ),
     );
   }
 }

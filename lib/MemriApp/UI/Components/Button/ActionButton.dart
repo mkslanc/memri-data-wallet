@@ -38,7 +38,7 @@ class _ActionButtonState extends State<ActionButton> {
   }
 
   initIcon() {
-    _icon = widget.action.getString("icon", widget.viewContext, sceneController.topMostContext);
+    _icon = widget.action.getString("icon", widget.viewContext);
   }
 
   @override
