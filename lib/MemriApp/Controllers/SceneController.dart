@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -10,7 +9,6 @@ import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
@@ -20,17 +18,15 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'AppController.dart';
 import 'Database/DatabaseQuery.dart';
 import 'Database/ItemRecord.dart';
-import 'Database/NavigationStack.dart';
+import 'PageController.dart' as memri;
 
 /// The scene controller is specific to a particular `window` of the app. On the iPhone there is usually only one. There may be multiple eg. if multitasking on iPad or multiple windows on mac
 class SceneController extends ChangeNotifier {
   AppController appController = AppController.shared;
   static SceneController sceneController = SceneController();
 
-  ViewContextController? topMostContext;
-
-  MemriUINavigationController navigationController = MemriUINavigationController();
-  MemriUINavigationController secondaryNavigationController = MemriUINavigationController();
+  memri.PageController mainPageController = memri.PageController();
+  memri.PageController secondaryPageController = memri.PageController();
 
   init() async {
     try {
@@ -42,65 +38,16 @@ class SceneController extends ChangeNotifier {
     await appController.cvuController.init();
 
     setupObservations(); //TODO
-    var navStack = await NavigationStack.fetchOne(appController.databaseController);
-    if (navStack != null && navStack.state.length > 0) {
-      _navigationStack = navStack;
-      var topView = navStack.state.last;
-      var context = makeContext(topView);
-      topMostContext = context;
-      navigationController
-          .setViewControllers(SceneContentView(sceneController: this, viewContext: context));
-    } else {
-      var viewName = "onboarding";
-      var viewContext = await CVUActionOpenViewByName(viewName: viewName)
-          .getViewContext(CVUContext(viewName: viewName, rendererName: "custom"));
-      if (viewContext != null) {
-        topMostContext = viewContext;
-        navigationController
-            .setViewControllers(SceneContentView(sceneController: this, viewContext: viewContext));
-      } else {
-        navigationController.setViewControllers(Center(
-          child: Text("Welcome to Memri"),
-        ));
-      }
-    }
   }
 
   reset() async {
     navigationIsVisible.value = false;
-    topMostContext = null;
     await init();
-  }
-
-  toggleEditMode() {
-    var topConfigHolder = topMostContext?.configHolder;
-    if (topConfigHolder == null) {
-      return;
-    }
-    var viewArgs = topConfigHolder.config.viewArguments;
-    viewArgs ??= CVUViewArguments();
-
-    isInEditMode.value = !isInEditMode.value;
-
-    if (!isInEditMode.value) {
-      // Clear selection when ending edit mode
-      topMostContext?.selectedItems = [];
-    }
-
-    var currentArgs = viewArgs.args;
-    currentArgs["readOnly"] = CVUValueConstant(CVUConstantBool(!isInEditMode.value));
-    var newArgs = CVUViewArguments(
-        args: currentArgs,
-        argumentItem: viewArgs.argumentItem,
-        parentArguments: viewArgs.parentArguments);
-    topConfigHolder.config.viewArguments = newArgs;
   }
 
   bool isBigScreen = false;
   bool isContentFullscreen = false;
   bool showTopBar = true;
-
-  ValueNotifier<bool> isInEditMode = ValueNotifier(false);
 
   ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
 
@@ -170,40 +117,11 @@ class SceneController extends ChangeNotifier {
     });
   }
 
-  NavigationStack _navigationStack = NavigationStack();
-
-  NavigationStack get navigationStack => _navigationStack;
-
-  set navigationStack(NavigationStack newValue) {
-    _navigationStack = newValue;
-    notifyListeners();
-    _navigationStack.save();
-  }
-
   ViewContextController makeContext(ViewContextHolder config) {
     return ViewContextController(
         config: config,
         databaseController: appController.databaseController,
         cvuController: appController.cvuController);
-  }
-
-  bool get canNavigateBack => navigationStack.state.length > 1;
-
-  navigateBack() {
-    var navStack = navigationStack;
-    if (navStack.state.length <= 1) {
-      return;
-    }
-    var newTopConfig = navStack.state[navStack.state.length - 2];
-    navStack.state.removeLast();
-
-    var context = makeContext(newTopConfig);
-    topMostContext = context;
-
-    navigationStack = navStack;
-
-    var vc = SceneContentView(sceneController: this, viewContext: context);
-    navigationController.setViewControllers(vc); //TODO this is not right
   }
 
   navigateToNewContext(
@@ -219,16 +137,21 @@ class SceneController extends ChangeNotifier {
       Set<int>? overrideRowIDs,
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
-      CVUViewArguments? viewArguments,
-      bool isMainNavigationController = true}) async {
+      CVUViewArguments? viewArguments}) async {
     CVUDefinitionContent viewDefinition = defaultDefinition ??
         appController.cvuController
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
 
     viewArguments ??= CVUViewArguments();
+    viewArguments.args["mainView"] ??=
+        viewArguments.parentArguments?.args["mainView"] ?? CVUValueConstant(CVUConstantBool(true));
+    var isMainView = (viewArguments.args["mainView"]!.value as CVUConstantBool).value;
+
     viewArguments.args["readOnly"] ??= viewDefinition.properties["readOnly"] ??
-        CVUValueConstant(CVUConstantBool(!isInEditMode.value));
+        CVUValueConstant(CVUConstantBool(isMainView
+            ? !mainPageController.isInEditMode.value
+            : !secondaryPageController.isInEditMode.value));
 
     var cvuContext = CVUContext(
         currentItem: targetItem,
@@ -251,7 +174,11 @@ class SceneController extends ChangeNotifier {
     var queryConfig = await DatabaseQueryConfig.queryConfigWith(
         context: cvuContext,
         datasource: datasource,
-        inheritQuery: inheritDatasource ? topMostContext?.config.query : null,
+        inheritQuery: inheritDatasource
+            ? isMainView
+                ? mainPageController.topMostContext?.config.query
+                : secondaryPageController.topMostContext?.config.query
+            : null,
         overrideUIDs: overrideRowIDs,
         targetItem: targetItem,
         dateRange: dateRange);
@@ -266,20 +193,29 @@ class SceneController extends ChangeNotifier {
     var holder = ViewContextHolder(config);
 
     var newViewContextController = makeContext(holder);
-    topMostContext = newViewContextController;
-    var navStack = navigationStack;
-    if (clearStack) {
-      navStack.state = [holder];
-    } else {
-      navStack.state.add(holder);
-    }
-    navigationStack = navStack; //TODO
-    if (isMainNavigationController) {
-      secondaryNavigationController.setViewControllers(Empty());
-      navigationController.setViewControllers(
+    if (isMainView) {
+      var navStack = mainPageController.navigationStack;
+      if (clearStack) {
+        navStack.state = [holder];
+      } else {
+        navStack.state.add(holder);
+      }
+      mainPageController.topMostContext = newViewContextController;
+      secondaryPageController.topMostContext = null; // TODO: ??
+      secondaryPageController.navigationController.setViewControllers(Empty());
+      mainPageController.navigationStack = navStack; //TODO
+      mainPageController.navigationController.setViewControllers(
           SceneContentView(sceneController: this, viewContext: newViewContextController));
     } else {
-      secondaryNavigationController.setViewControllers(
+      var navStack = secondaryPageController.navigationStack;
+      if (clearStack) {
+        navStack.state = [holder];
+      } else {
+        navStack.state.add(holder);
+      }
+      secondaryPageController.topMostContext = newViewContextController;
+      secondaryPageController.navigationStack = navStack; //TODO
+      secondaryPageController.navigationController.setViewControllers(
           SceneContentView(sceneController: this, viewContext: newViewContextController));
     }
   }
@@ -287,20 +223,12 @@ class SceneController extends ChangeNotifier {
   late List<BuildContext> closeStack = [];
 
   addToStack(BuildContext context) {
+    //TODO: ??
     closeStack.add(context);
   }
 
   closeLastInStack() {
     var lastStack = closeStack.removeLast();
     Navigator.of(lastStack).pop();
-  }
-
-  void scheduleUIUpdate([bool updateWithAnimation = false]) {
-    if (topMostContext == null) {
-      return;
-    }
-
-    topMostContext?.update();
-    notifyListeners();
   }
 }

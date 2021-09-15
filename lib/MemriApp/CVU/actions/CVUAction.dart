@@ -37,7 +37,7 @@ abstract class CVUAction {
 
   late Map<String, CVUValue> vars;
 
-  String? getString(String key, CVUContext context, ViewContextController? viewContext) {
+  String? getString(String key, CVUContext context) {
     var cvuValue = vars[key] ?? defaultVars[key];
     if (cvuValue is CVUValueConstant) {
       var cvuConstant = cvuValue.value;
@@ -190,7 +190,7 @@ class CVUActionOpenView extends CVUAction {
           argumentItem: context.currentItem,
           parentArguments: context.viewArguments);
     } else {
-      viewArguments = CVUViewArguments();
+      viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
     }
     DatabaseController db = sceneController.appController.databaseController;
     var resolver = CVUPropertyResolver(
@@ -206,8 +206,7 @@ class CVUActionOpenView extends CVUAction {
         overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
-        viewArguments: viewArguments,
-        isMainNavigationController: await resolver.boolean("mainView") ?? true);
+        viewArguments: viewArguments);
   }
 }
 
@@ -238,7 +237,7 @@ class CVUActionOpenViewByName extends CVUAction {
           argumentItem: context.currentItem,
           parentArguments: context.viewArguments);
     } else {
-      viewArguments = CVUViewArguments();
+      viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
     }
 
     AppController appController = AppController.shared;
@@ -303,7 +302,12 @@ class CVUActionNavigateBack extends CVUAction {
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
-    await sceneController.navigateBack();
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    if (isMainView) {
+      await sceneController.mainPageController.navigateBack();
+    } else {
+      await sceneController.secondaryPageController.navigateBack();
+    }
   }
 }
 
@@ -446,9 +450,12 @@ class CVUActionAddItem extends CVUAction {
 
       await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
           .execute(sceneController, context.replacingItem(item));
-
-      sceneController.isInEditMode.value = true;
-
+      var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+      if (isMainView) {
+        sceneController.mainPageController.isInEditMode.value = true;
+      } else {
+        sceneController.secondaryPageController.isInEditMode.value = true;
+      }
       // AppController.shared.syncController.sync();TODO sync
     }
   }
@@ -584,8 +591,15 @@ class CVUActionSync extends CVUAction {
       }
 
       await AppController.shared.syncController.sync();
-      if (sceneController.isInEditMode.value) {
-        sceneController.toggleEditMode();
+      var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+      if (isMainView) {
+        if (sceneController.mainPageController.isInEditMode.value) {
+          sceneController.mainPageController.toggleEditMode();
+        }
+      } else {
+        if (sceneController.secondaryPageController.isInEditMode.value) {
+          sceneController.secondaryPageController.toggleEditMode();
+        }
       }
     } catch (error) {
       print("Error starting sync: $error");
@@ -600,7 +614,12 @@ class CVUActionToggleEditMode extends CVUAction {
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
-    sceneController.toggleEditMode();
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    if (isMainView) {
+      sceneController.mainPageController.toggleEditMode();
+    } else {
+      sceneController.secondaryPageController.toggleEditMode();
+    }
   }
 }
 
@@ -709,7 +728,12 @@ class CVUActionLink extends CVUAction {
         sourceRowID: subjectItem.rowId, name: edgeType, targetRowID: currentItem.rowId);
     edge.save(db.databasePool);
 
-    sceneController.scheduleUIUpdate();
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    if (isMainView) {
+      sceneController.mainPageController.scheduleUIUpdate();
+    } else {
+      sceneController.secondaryPageController.scheduleUIUpdate();
+    }
   }
 }
 
@@ -755,7 +779,12 @@ class CVUActionUnlink extends CVUAction {
       return;
     }
 
-    sceneController.scheduleUIUpdate();
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    if (isMainView) {
+      sceneController.mainPageController.scheduleUIUpdate();
+    } else {
+      sceneController.secondaryPageController.scheduleUIUpdate();
+    }
   }
 }
 
@@ -978,10 +1007,16 @@ class CVUActionSetProperty extends CVUAction {
 
     await subjectItem.setPropertyValue(property, databaseValue);
 
-    sceneController.topMostContext
-        ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
-
-    sceneController.scheduleUIUpdate();
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    if (isMainView) {
+      sceneController.mainPageController.topMostContext
+          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
+      sceneController.mainPageController.scheduleUIUpdate();
+    } else {
+      sceneController.secondaryPageController.topMostContext
+          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
+      sceneController.secondaryPageController.scheduleUIUpdate();
+    }
   }
 }
 
@@ -1003,13 +1038,19 @@ class CVUActionToNextItem extends CVUAction {
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
-    if (sceneController.topMostContext == null) {
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    var page = sceneController.secondaryPageController;
+    if (isMainView) {
+      page = sceneController.mainPageController;
+    }
+
+    if (page.topMostContext == null) {
       return;
     }
-    var index = sceneController.topMostContext!.focusedIndex;
-    sceneController.topMostContext?.focusedIndex =
-        index >= sceneController.topMostContext!.items.length - 1 ? 0 : index + 1;
-    sceneController.scheduleUIUpdate();
+    var index = page.topMostContext!.focusedIndex;
+    page.topMostContext?.focusedIndex =
+        index >= page.topMostContext!.items.length - 1 ? 0 : index + 1;
+    page.scheduleUIUpdate();
   }
 }
 
@@ -1020,13 +1061,19 @@ class CVUActionToPreviousItem extends CVUAction {
 
   @override
   execute(SceneController sceneController, CVUContext context) async {
-    if (sceneController.topMostContext == null) {
+    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
+    var page = sceneController.secondaryPageController;
+    if (isMainView) {
+      page = sceneController.mainPageController;
+    }
+
+    if (page.topMostContext == null) {
       return;
     }
-    var index = sceneController.topMostContext!.focusedIndex;
-    sceneController.topMostContext?.focusedIndex =
-        index <= 0 ? sceneController.topMostContext!.items.length - 1 : index - 1;
-    sceneController.scheduleUIUpdate();
+    var index = page.topMostContext!.focusedIndex;
+    page.topMostContext?.focusedIndex =
+        index <= 0 ? page.topMostContext!.items.length - 1 : index - 1;
+    page.scheduleUIUpdate();
   }
 }
 
