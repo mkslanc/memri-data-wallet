@@ -138,6 +138,27 @@ flutter:
           weight: 200
         - asset: assets/fonts/WorkSans-Thin.ttf
           weight: 100
+    - family: Karla
+      fonts:
+        - asset: assets/fonts/Karla-Regular.ttf
+        - asset: assets/fonts/Karla-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Karla-ExtraBold.ttf
+          weight: 900
+        - asset: assets/fonts/Karla-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Karla-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Karla-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Karla-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Karla-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Karla-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Karla-ExtraLight.ttf
+          weight: 100
 
   assets:
     - assets/
