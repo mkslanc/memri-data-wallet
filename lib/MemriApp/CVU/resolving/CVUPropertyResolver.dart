@@ -138,6 +138,22 @@ class CVUPropertyResolver {
         defaultValue;
   }
 
+  bool? syncBoolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) {
+    var val = value(key);
+    if (val == null) {
+      if (defaultValue != null || defaultValueForMissingKey != null) {
+        return defaultValueForMissingKey ?? defaultValue;
+      }
+      return null;
+    }
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantBool) {
+        return val.value.value;
+      }
+    }
+    return defaultValue;
+  }
+
   Future<DateTime?> dateTime(String key) async {
     var val = value(key);
     if (val == null) {

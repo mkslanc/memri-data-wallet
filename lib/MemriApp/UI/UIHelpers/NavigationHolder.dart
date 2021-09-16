@@ -30,6 +30,7 @@ class MemriUINavigationController extends StatelessWidget {
         _context = context;
         return Scaffold(
           resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.white,
           body: widget,
         );
       },
@@ -45,6 +46,7 @@ class MemriUINavigationController extends StatelessWidget {
     return childWidget != null
         ? Scaffold(
             resizeToAvoidBottomInset: false,
+            backgroundColor: Colors.white,
             body: childWidget,
           )
         : Empty();

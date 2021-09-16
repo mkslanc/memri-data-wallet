@@ -22,6 +22,7 @@ class _CVUButtonState extends State<CVUButton> {
   final SceneController sceneController = SceneController.sceneController;
 
   TextProperties? resolvedTextProperties;
+  bool isLink = false;
 
   late Future _init;
 
@@ -82,6 +83,7 @@ class _CVUButtonState extends State<CVUButton> {
 
   init() async {
     resolvedTextProperties = await widget.textProperties;
+    isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
   }
 
   @override
@@ -90,14 +92,19 @@ class _CVUButtonState extends State<CVUButton> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          return TextButton(
-            onPressed: onPress,
-            child: widget.nodeResolver.childrenInForEachWithWrap(),
-            style: TextButton.styleFrom(
-                textStyle: resolvedTextProperties?.textStyle ?? TextStyle(),
-                padding: EdgeInsets.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-          );
+          return isLink
+              ? InkWell(
+                  onTap: onPress,
+                  child: widget.nodeResolver.childrenInForEachWithWrap(),
+                )
+              : TextButton(
+                  onPressed: onPress,
+                  child: widget.nodeResolver.childrenInForEachWithWrap(),
+                  style: TextButton.styleFrom(
+                      textStyle: resolvedTextProperties?.textStyle ?? TextStyle(),
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                );
         });
   }
 }

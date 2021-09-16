@@ -29,36 +29,31 @@ class SceneView extends StatefulWidget {
 
 class _SceneViewState extends State<SceneView> {
   final double filterPanelGestureOffset = 0;
-  late Future<bool> _showTopBar;
   bool showTopBar = true;
-  bool showBottomBar = true;
   int? mainViewCols;
   int? secondaryViewCols;
 
   /// Keep track of whether the search bar is currently open (keyboard shown)
   final searchBarOpen = ValueNotifier<bool>(false);
 
-  initCols() {
+  init() {
     mainViewCols = widget
         .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
         .syncInteger("cols");
     secondaryViewCols = widget
         .sceneController.secondaryPageController.topMostContext?.viewDefinitionPropertyResolver
         .syncInteger("cols");
-  }
-
-  Future<bool> _initShowTopBar() async {
-    return await widget
+    showTopBar = widget
             .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
-            .boolean("showTopBar") ??
+            .syncBoolean("showTopBar") ??
         true;
+    widget.sceneController.showTopBar = showTopBar;
   }
 
   @override
   initState() {
     super.initState();
-    _showTopBar = _initShowTopBar();
-    initCols();
+    init();
 
     widget.sceneController.addListener(updateState);
     widget.sceneController.mainPageController.addListener(updateState);
@@ -75,14 +70,13 @@ class _SceneViewState extends State<SceneView> {
 
   @override
   void didUpdateWidget(oldWidget) {
-    initCols();
+    init();
     super.didUpdateWidget(oldWidget);
   }
 
   updateState() {
     setState(() {
-      _showTopBar = _initShowTopBar();
-      initCols();
+      init();
     });
   }
 
@@ -106,32 +100,23 @@ class _SceneViewState extends State<SceneView> {
                             : constraints.maxWidth - 1,
                         child: Column(
                           children: [
-                            FutureBuilder<bool>(
-                              future: _showTopBar,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.done)
-                                  showTopBar = snapshot.data!;
-                                widget.sceneController.showTopBar = showTopBar;
-                                return showTopBar
-                                    ? ValueListenableBuilder<bool>(
-                                        builder: (BuildContext context, value, Widget? child) {
-                                          var currentContext = widget
-                                              .sceneController.mainPageController.topMostContext;
-                                          return value
-                                              ? SearchView(
-                                                  viewContext: currentContext!,
-                                                  isActive: searchBarOpen)
-                                              : TopBarView(
-                                                  sceneController: widget.sceneController,
-                                                  onSearchPressed: () {
-                                                    searchBarOpen.value = true;
-                                                  },
-                                                );
-                                        },
-                                        valueListenable: searchBarOpen)
-                                    : Empty();
-                              },
-                            ),
+                            showTopBar
+                                ? ValueListenableBuilder<bool>(
+                                    builder: (BuildContext context, value, Widget? child) {
+                                      var currentContext =
+                                          widget.sceneController.mainPageController.topMostContext;
+                                      return value
+                                          ? SearchView(
+                                              viewContext: currentContext!, isActive: searchBarOpen)
+                                          : TopBarView(
+                                              sceneController: widget.sceneController,
+                                              onSearchPressed: () {
+                                                searchBarOpen.value = true;
+                                              },
+                                            );
+                                    },
+                                    valueListenable: searchBarOpen)
+                                : Empty(),
                             Expanded(
                               child: NavigationHolder(
                                 widget.sceneController.mainPageController.navigationController,
