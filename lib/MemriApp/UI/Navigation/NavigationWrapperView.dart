@@ -42,7 +42,6 @@ class NavigationWrapperView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      sceneController.isBigScreen = true;
       return bodyForLargeScreen(constraints);
     });
   }
@@ -85,27 +84,23 @@ class NavigationWrapperView extends StatelessWidget {
 
   Widget bodyForLargeScreen(BoxConstraints geom) {
     var navigationPanelWidth = navWidth(geom);
-    return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: 1024),
-      child: ColoredBox(
-        color: Color(0xffE5E5E5),
-        child: Row(
-          children: [
-            SizedBox(
-                width: navWidth(geom),
-                height: geom.maxHeight,
-                child: NavigationPaneView(sceneController: sceneController)),
-            VerticalDivider(
-              width: 1,
-              color: Color(0xffE5E5E5),
-            ),
-            Expanded(child: child),
-            if (geom.maxWidth > 1345)
-              Padding(
-                  padding:
-                      EdgeInsets.fromLTRB(0, 0, geom.maxWidth - navigationPanelWidth - 1345, 0))
-          ],
-        ),
+    return ColoredBox(
+      color: Color(0xffE5E5E5),
+      child: Row(
+        children: [
+          SizedBox(
+              width: navWidth(geom),
+              height: geom.maxHeight,
+              child: NavigationPaneView(sceneController: sceneController)),
+          VerticalDivider(
+            width: 1,
+            color: Color(0xffE5E5E5),
+          ),
+          Expanded(child: child),
+          if (geom.maxWidth - navigationPanelWidth > 1345)
+            Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, geom.maxWidth - navigationPanelWidth - 1345, 0))
+        ],
       ),
     );
   }

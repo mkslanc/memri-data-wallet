@@ -100,7 +100,7 @@ class _SceneViewState extends State<SceneView> {
                             : constraints.maxWidth - 1,
                         child: Column(
                           children: [
-                            showTopBar
+                            showTopBar //TODO should be handled by page controller
                                 ? ValueListenableBuilder<bool>(
                                     builder: (BuildContext context, value, Widget? child) {
                                       var currentContext =
