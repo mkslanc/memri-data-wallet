@@ -1,79 +1,234 @@
 .home {
+    cols: 6
     defaultRenderer: custom
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
     showTopBar: false
-    HStack {
-        VStack {
-            alignment: center
-            background: #F6F5F5
-            spacing: 5
-            padding: 0 0 10 0
+    VStack {
+        alignment: topleft
+        padding: 60 30 0 30
+
+        Text {
+            text: "Hello, Human!"
+            font: headline1
+        }
+
+        Text {
+            text: "This is an early alpha version of memri app."
+            font: bodyText2
+            color: #737373
+            padding: 0 10
+        }
+
+        Text {
+            text: "If you like it, (and it works!), send the team a hi five. We’ll be notified on our slack channel."
+            font: bodyText2
+            color: #737373
+        }
+
+        Button {
+            isLink: true
+            padding: 25 0 0 0
 
             Text {
-                text: "STEP 1"
-                font: 13 regular
-                textAlign: center
-                color: primary
-                padding: 50 20 0 10
+                text: "Sending my hi five!"
+                font: bodyText2
+                color: #FE570F
+                padding: 17 0 0 0
             }
 
-            Text {
-                text: "Where do you store your contacts?"
-                font: 30 light
-                textAlign: center
-                color: primary
-                padding: 20 20 0 20
+            onPress: openView {
+                viewName: "updates"
+                clearStack: true
+                viewArguments: {
+                    mainView: false
+                }
             }
+        }
+
+
+
+        Text {
+            text: "Here are some things you need to do first:"
+            font: headline2
+            padding: 81 0 0 0
+        }
+
+        Text {
+            text: "You benefit most from memri when you import the most of your data into in."
+            font: bodyText2
+            color: #737373
+            padding: 14 0 0 0
+        }
+
+        Text {
+            text: "Here are some plugins we’ve been developing recently. You will find a full list here at Apps&plugins page."
+            font: bodyText2
+            color: #737373
+            padding: 14 0 0 0
+        }
+
+        Button {
+            isLink: true
+            padding: 43 0 0 0
 
             Text {
-                text: "Choose the services you use most often to connect your data to the Wallet."
-                font: 16 semibold
-                textAlign: left
-                color: primary
-                padding: 20 20 0 20
+                text: "✓ Connect Whatsapp"
+                font: link
+                color: #FE570F
             }
 
+            onPress: openView {
+                viewName: "updates"
+                clearStack: true
+                viewArguments: {
+                    mainView: false
+                }
+            }
+        }
+
+        Button {
+            isLink: true
+            padding: 25 0 0 0
+
             Text {
-                text: "By importing your data to your wallet you take a first step to protect your privacy."
-                font: 16 semibold
-                textAlign: left
-                color: primary
-                padding: 10 20 0 20
+                text: "✓ Connect Gmail Account"
+                font: link
+                color: #FE570F
+            }
+
+            onPress: openView {
+                viewName: "updates"
+                clearStack: true
+                viewArguments: {
+                    mainView: false
+                }
+            }
+        }
+
+        Button {
+            isLink: true
+            padding: 25 0 0 0
+
+            Text {
+                text: "✓ Connect Instagram"
+                font: link
+                color: #FE570F
+            }
+
+            onPress: openView {
+                viewName: "updates"
+                clearStack: true
+                viewArguments: {
+                    mainView: false
+                }
+            }
+        }
+
+    }
+
+}
+
+.updates {
+    cols: 3
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    VStack {
+        alignment: topleft
+        spacing: 5
+        padding: 10 30 0 30
+
+        Text {
+            text: "September updates"
+            font: headline2
+            padding: 0 0 24 0
+        }
+
+        Divider
+
+        Text {
+            text: "Sign up for our app beta release!"
+            font: headline3
+            padding: 10 0 0 0
+        }
+
+        Text {
+            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id aliquam lectus ac bibendum semper vel malesuada. Habitasse id elementum convallis."
+            font: bodyText2
+            color: #737373;
+            padding: 10 0 0 0
+        }
+
+        HStack {
+            alignment: left
+            background: #F0F0F0
+
+            Textfield {
+                rows: 1
+                minHeight: 46
+                width: 150
+                border: #333 1
+                background: #F0F0F0
+                hint: "YOUR EMAIL ADDRESS"
             }
 
             Button {
-                background: #000
-                cornerRadius: 100
-                width: 50
-                height: 50
+                background: #333333
+                width: 97
+                height: 36
 
-                Image {
-                    alignment: center
-                    systemName: "arrow.forward.circle.fill"
-                    resizable: true
-                    sizingMode: fit
-                    color: #fff
-                    font: 24
+                Text {
+                    text: "Sign me up!"
+                    font: button_label
+                    textAlign: center
+                    color: #F5F5F5
                 }
 
                 onPress: openView {
-                    viewName: "onboarding-login"
-                    items: {{importerGrid.selected}}
+                    viewName: "updates"
                 }
             }
         }
 
-        VStack {
-            Text {
-                text: "Choose the services you use most often to connect your data to the Wallet."
-                font: 16 semibold
-                textAlign: left
-                color: primary
-                padding: 20 20 0 20
-            }
+        HStack {
+            padding: 0 0 30 0
         }
+
+        Divider
+
+        Text {
+            text: "Instagram plugin ready!"
+            font: headline3
+            padding: 10 0 0 0
+        }
+
+        Text {
+            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mattis leo egestas justo, sagittis morbi pellentesque feugiat quis purus. Volutpat, non dolor magna eget leo nunc turpis risus, ornare. Libero."
+            font: bodyText2
+            color: #737373;
+            padding: 10 0 0 0
+        }
+
+        Divider
+
+        Text {
+            text: "WhatsApp plugin ready!"
+            font: headline3
+            padding: 10 0 0 0
+        }
+
+        Text {
+            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mattis leo egestas justo, sagittis morbi pellentesque feugiat quis purus. Volutpat, non dolor magna eget leo nunc turpis risus, ornare. Libero."
+            font: bodyText2
+            color: #737373;
+            padding: 10 0 0 0
+        }
+
+
     }
 
 }

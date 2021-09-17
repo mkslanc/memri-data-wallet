@@ -8,7 +8,7 @@ void main() {
       title: "Memri",
       home: Memri(),
       theme: ThemeData(
-          fontFamily: 'WorkSans',
+          fontFamily: 'Karla',
           backgroundColor: Color(0xffE5E5E5),
           textTheme: const TextTheme(
             headline1: CVUFont.headline1,

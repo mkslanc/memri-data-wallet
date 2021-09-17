@@ -43,7 +43,7 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
     if (type == CVUUIElementFamily.HTMLView) {
       shouldExpandHeight = true;
     }
-    if (type == CVUUIElementFamily.FlowStack) {
+    if (type == CVUUIElementFamily.FlowStack || type == CVUUIElementFamily.Textfield) {
       shouldExpandWidth = true;
     }
   }
