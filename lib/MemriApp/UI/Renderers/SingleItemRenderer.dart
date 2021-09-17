@@ -42,8 +42,8 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
   }
 
   Future init() async {
-    insets =
-        await widget.viewContext.rendererDefinitionPropertyResolver.edgeInsets ?? EdgeInsets.zero;
+    insets = await widget.viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
+        EdgeInsets.fromLTRB(30, 0, 30, 0);
     backgroundColor = await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
   }

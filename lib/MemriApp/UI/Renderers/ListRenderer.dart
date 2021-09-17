@@ -60,7 +60,7 @@ class _ListRendererViewState extends State<ListRendererView> {
 
   Future<void> init() async {
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
-        EdgeInsets.only(top: 10, left: 10, bottom: 10, right: 10);
+        EdgeInsets.only(top: 0, left: 30, bottom: 0, right: 30);
     spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");

@@ -37,7 +37,7 @@ class _CVUEditorRowState extends State<CVUEditorRow> {
   Future<Widget> get _header async {
     var text = await widget.nodeResolver.propertyResolver.string("title");
     if (text != null) {
-      Text(
+      return Text(
         text,
         style: TextStyle(fontWeight: FontWeight.bold),
       );
@@ -54,20 +54,17 @@ class _CVUEditorRowState extends State<CVUEditorRow> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext context, snapshot) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: (!noPadding) ? 10 : 0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
-              crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: header,
-                ),
-                ...content
-              ],
-            ),
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
+            crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: header,
+              ),
+              ...content
+            ],
           );
         });
   }

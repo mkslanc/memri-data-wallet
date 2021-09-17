@@ -3,6 +3,7 @@ import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../../BrowserView.dart';
@@ -21,33 +22,36 @@ class ActionButton extends StatefulWidget {
 class _ActionButtonState extends State<ActionButton> {
   final SceneController sceneController = SceneController.sceneController;
 
-  String? _icon;
+  String? _title;
 
-  String get icon => _icon ?? "";
+  String get title => _title ?? "";
 
   @override
   initState() {
     super.initState();
-    initIcon();
+    initTitle();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    initIcon();
+    initTitle();
   }
 
-  initIcon() {
-    _icon = widget.action.getString("icon", widget.viewContext);
+  initTitle() {
+    _title = widget.action.getString("title", widget.viewContext);
   }
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        child: Icon(MemriIcon.getByName(icon)),
+        child: Text(
+          title,
+          style: CVUFont.link,
+        ),
         onPressed: () async {
           await widget.action.execute(sceneController, widget.viewContext);
-          setState(() => initIcon());
+          setState(() => initTitle());
         });
   }
 }

@@ -15,8 +15,6 @@ import 'package:memri/MemriApp/UI/Navigation/NavigationWrapperView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
-import 'Chrome/SearchView.dart';
-
 /// This is the view used to display the browser content of each scene
 class SceneView extends StatefulWidget {
   final SceneController sceneController;
@@ -98,24 +96,13 @@ class _SceneViewState extends State<SceneView> {
                         width: mainViewCols != null
                             ? constraints.maxWidth / 10 * mainViewCols! - 1
                             : constraints.maxWidth - 1,
+                        height: constraints.maxHeight,
                         child: Column(
                           children: [
                             showTopBar
-                                ? ValueListenableBuilder<bool>(
-                                    builder: (BuildContext context, value, Widget? child) {
-                                      var currentContext =
-                                          widget.sceneController.mainPageController.topMostContext;
-                                      return value
-                                          ? SearchView(
-                                              viewContext: currentContext!, isActive: searchBarOpen)
-                                          : TopBarView(
-                                              sceneController: widget.sceneController,
-                                              onSearchPressed: () {
-                                                searchBarOpen.value = true;
-                                              },
-                                            );
-                                    },
-                                    valueListenable: searchBarOpen)
+                                ? TopBarView(
+                                    sceneController: widget.sceneController,
+                                  )
                                 : Empty(),
                             Expanded(
                               child: NavigationHolder(

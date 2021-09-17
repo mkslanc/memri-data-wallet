@@ -220,8 +220,11 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
           return RefreshIndicator(
             onRefresh: () async => updateState(),
             child: SingleChildScrollView(
-              child: Column(
-                children: stackContent,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(30, 0, 30, 0), //TODO: from view or default value
+                child: Column(
+                  children: stackContent,
+                ),
               ),
             ),
           );
@@ -447,8 +450,9 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                   return Empty();
                 } else {
                   List<Widget> header = [];
-                  if (shouldShowTitle && title != null) {
-                    header.add(_GeneralEditorHeader(
+                  var layoutShowTitle = widget.layout.get<String>(propName: "showTitle");
+                  if (shouldShowTitle && title != null && layoutShowTitle != "false") {
+                    header.add(GeneralEditorHeader(
                         content: title.toUpperCase())); // .generalEditorHeader()
                     if (action != null) {
                       header.add(Spacer());
@@ -499,17 +503,14 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 20, 0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: header,
-                        ),
-                      ),
-                      Divider(
-                        height: 1,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: header,
                       ),
                       ...content,
+                      SizedBox(
+                        height: 6,
+                      ),
                       Divider(height: 1)
                     ],
                   );
@@ -601,7 +602,7 @@ class DefaultGeneralEditorRow extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.fromLTRB(10, 0, 5, 10),
+          //padding: EdgeInsets.fromLTRB(10, 0, 5, 10),
           color: CVUColor.system("systemBackground"),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -698,9 +699,9 @@ class DefaultGeneralEditorRow extends StatelessWidget {
 
   TextStyle generalEditorCaptionStyle() {
     return TextStyle(
-      color: Color(0xFF223322),
+      color: Color(0xFF737373),
       fontWeight: FontWeight.normal,
-      fontSize: 18,
+      fontSize: 13,
     );
   }
 }
@@ -714,13 +715,10 @@ class _GeneralEditorInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: TextField(
-        style: TextStyle(
-          fontWeight: FontWeight.normal,
-          fontSize: 16,
-        ),
+        child: TextField(
+      style: TextStyle(
+        fontWeight: FontWeight.normal,
+        fontSize: 16,
       ),
     ));
   }
@@ -765,22 +763,22 @@ class _GeneralEditorCaption extends StatelessWidget {
   }
 }
 
-class _GeneralEditorHeader extends StatelessWidget {
+class GeneralEditorHeader extends StatelessWidget {
   final String content;
 
-  _GeneralEditorHeader({required this.content});
+  GeneralEditorHeader({required this.content});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
         child: Padding(
-      padding: const EdgeInsets.only(top: 24.0, bottom: 5),
+      padding: const EdgeInsets.only(top: 11.0, bottom: 5),
       child: Text(
         content,
         style: TextStyle(
-          color: Color(0xFF333333),
+          color: Color(0xFF828282),
           fontWeight: FontWeight.normal,
-          fontSize: 15,
+          fontSize: 10,
         ),
       ),
     ));

@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 
 import '../ViewContextController.dart';
 
@@ -38,11 +39,14 @@ class _TopBarViewState extends State<AltTopBarView> {
 
   @override
   Widget build(BuildContext context) {
-    viewContext = widget.sceneController.mainPageController.topMostContext;
-    //var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton"); TODO: we will need it later
+    viewContext = widget.sceneController.secondaryPageController.topMostContext;
+    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     return SizedBox(
       height: 54,
       child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        if (actions != null)
+          ...actions.map(
+              (action) => ActionButton(action: action, viewContext: viewContext!.getCVUContext())),
         TextButton(
           onPressed: () {
             if (widget.sceneController.secondaryPageController.canNavigateBack) {
