@@ -1,0 +1,79 @@
+.home {
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    HStack {
+        VStack {
+            alignment: center
+            background: #F6F5F5
+            spacing: 5
+            padding: 0 0 10 0
+
+            Text {
+                text: "STEP 1"
+                font: 13 regular
+                textAlign: center
+                color: primary
+                padding: 50 20 0 10
+            }
+
+            Text {
+                text: "Where do you store your contacts?"
+                font: 30 light
+                textAlign: center
+                color: primary
+                padding: 20 20 0 20
+            }
+
+            Text {
+                text: "Choose the services you use most often to connect your data to the Wallet."
+                font: 16 semibold
+                textAlign: left
+                color: primary
+                padding: 20 20 0 20
+            }
+
+            Text {
+                text: "By importing your data to your wallet you take a first step to protect your privacy."
+                font: 16 semibold
+                textAlign: left
+                color: primary
+                padding: 10 20 0 20
+            }
+
+            Button {
+                background: #000
+                cornerRadius: 100
+                width: 50
+                height: 50
+
+                Image {
+                    alignment: center
+                    systemName: "arrow.forward.circle.fill"
+                    resizable: true
+                    sizingMode: fit
+                    color: #fff
+                    font: 24
+                }
+
+                onPress: openView {
+                    viewName: "onboarding-login"
+                    items: {{importerGrid.selected}}
+                }
+            }
+        }
+
+        VStack {
+            Text {
+                text: "Choose the services you use most often to connect your data to the Wallet."
+                font: 16 semibold
+                textAlign: left
+                color: primary
+                padding: 20 20 0 20
+            }
+        }
+    }
+
+}

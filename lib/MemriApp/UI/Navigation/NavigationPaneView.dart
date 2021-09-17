@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
-import 'package:memri/MemriApp/UI/SettingsPane.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -26,49 +25,9 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
   Widget build(BuildContext context) {
     sceneController.setupObservations();
     return ColoredBox(
-      color: Color(0xff543184),
+      color: Colors.white,
       child: Column(
         children: [
-          ColoredBox(
-              color: Color(0xff532a84),
-              child: Padding(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: SizedBox(
-                    height: 95,
-                    child: Row(
-                      children: space(20, [
-                        IconButton(
-                            onPressed: () => showModalBottomSheet<void>(
-                                  context: context,
-                                  useRootNavigator: true,
-                                  isScrollControlled: true,
-                                  builder: (BuildContext context) => SettingsPane(),
-                                ),
-                            icon: Icon(
-                              Icons.settings,
-                              size: 22,
-                              color: Color(0xffd9d2e9),
-                            )),
-                        Flexible(
-                          child: TextFormField(
-                            style: TextStyle(color: Color(0xff8a66bc)),
-                            onChanged: (text) =>
-                                setState(() => sceneController.navigationFilterText = text),
-                            initialValue: sceneController.navigationFilterText,
-                            decoration: InputDecoration(
-                              hintText: "Search",
-                              hintStyle: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.4)),
-                              fillColor: Color.fromRGBO(0, 0, 0, 0.4),
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                            ),
-                          ),
-                        )
-                      ]),
-                    ),
-                  ))),
           FutureBuilder(
             future: sceneController.navigationItems,
             builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -93,8 +52,32 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                     widgets.add(NavigationLineView());
                   }
                 });
-                return Flexible(
-                    child: ListView(padding: EdgeInsets.fromLTRB(0, 15, 0, 0), children: widgets));
+                return Expanded(
+                  child: Column(
+                    children: [
+                      NavigationItemView(
+                        item: Item(name: "Add items", targetViewName: "allAdding", icon: "plus"),
+                        sceneController: sceneController,
+                        textColor: Colors.black,
+                      ),
+                      NavigationLineView(),
+                      Expanded(child: Column(children: widgets)),
+                      NavigationLineView(),
+                      NavigationItemView(
+                          item: Item(
+                              name: "Apps and Plugins", targetViewName: "allPlugins", icon: "zap"),
+                          sceneController: sceneController),
+                      NavigationItemView(
+                          item:
+                              Item(name: "Settings", targetViewName: "settings", icon: "settings"),
+                          sceneController: sceneController),
+                      NavigationLineView(),
+                      NavigationItemView(
+                          item: Item(name: "Logout", targetViewName: "log-out", icon: "log-out"),
+                          sceneController: sceneController),
+                    ],
+                  ),
+                );
               }
               return Padding(
                 padding: EdgeInsets.all(20),
@@ -131,15 +114,17 @@ class NavigationElementLine extends NavigationElement {}
 class Item {
   String name;
   String targetViewName;
+  String? icon;
 
-  Item(this.name, this.targetViewName);
+  Item({required this.name, required this.targetViewName, this.icon});
 }
 
 class NavigationItemView extends StatelessWidget {
   final Item item;
   final SceneController sceneController;
+  final Color? textColor;
 
-  NavigationItemView({required this.item, required this.sceneController});
+  NavigationItemView({required this.item, required this.sceneController, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -147,13 +132,21 @@ class NavigationItemView extends StatelessWidget {
       onPressed: () {
         sceneController.navigateToNewContext(
             clearStack: true, animated: false, viewName: item.targetViewName);
-        sceneController.navigationIsVisible.value = false; //TODO animation
+        sceneController.navigationIsVisible.value = false;
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
-        child: Text(
-          item.name.capitalizingFirst(),
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white70),
+        padding: EdgeInsets.symmetric(vertical: 17, horizontal: 34),
+        child: Center(
+          child: item.icon != null
+              ? SvgPicture.asset(
+                  "assets/svg/" + item.icon! + ".svg",
+                  color: textColor != null ? textColor : Color(0xff989898),
+                  semanticsLabel: item.name,
+                )
+              : Text(
+                  item.name.capitalizingFirst(),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: textColor),
+                ),
         ),
       ),
       style: ButtonStyle(
@@ -193,11 +186,11 @@ class NavigationLineView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 50),
+      padding: EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         children: [
           Divider(
-            color: Colors.black,
+            color: Color(0xffF0F0F0),
             height: 1,
           )
         ],

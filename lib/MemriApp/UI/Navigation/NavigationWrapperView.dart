@@ -20,7 +20,10 @@ class NavigationWrapperView extends StatelessWidget {
   NavigationWrapperView({required this.sceneController, required this.child});
 
   double navWidth(BoxConstraints geom) {
-    return min(300, geom.maxWidth * widthRatio);
+    if (geom.maxWidth >= 1345) {
+      return 120;
+    }
+    return geom.maxWidth / 12;
   }
 
   double cappedOffset(BoxConstraints geom) {
@@ -39,12 +42,7 @@ class NavigationWrapperView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      if (constraints.maxWidth > 714) {
-        sceneController.isBigScreen = true;
-        return bodyForLargeScreen(constraints);
-      } else {
-        return body(constraints);
-      }
+      return bodyForLargeScreen(constraints);
     });
   }
 
@@ -86,14 +84,24 @@ class NavigationWrapperView extends StatelessWidget {
 
   Widget bodyForLargeScreen(BoxConstraints geom) {
     var navigationPanelWidth = navWidth(geom);
-    return Row(
-      children: [
-        SizedBox(
-            width: navWidth(geom),
-            height: geom.maxHeight,
-            child: NavigationPaneView(sceneController: sceneController)),
-        SizedBox(width: geom.maxWidth - navigationPanelWidth, height: geom.maxHeight, child: child),
-      ],
+    return ColoredBox(
+      color: Color(0xffE5E5E5),
+      child: Row(
+        children: [
+          SizedBox(
+              width: navWidth(geom),
+              height: geom.maxHeight,
+              child: NavigationPaneView(sceneController: sceneController)),
+          VerticalDivider(
+            width: 1,
+            color: Color(0xffE5E5E5),
+          ),
+          Expanded(child: child),
+          if (geom.maxWidth - navigationPanelWidth > 1345)
+            Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, geom.maxWidth - navigationPanelWidth - 1345, 0))
+        ],
+      ),
     );
   }
 }

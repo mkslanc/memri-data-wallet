@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class NavigationHolder extends StatelessWidget {
   final MemriUINavigationController controller;
@@ -41,9 +42,11 @@ class MemriUINavigationController extends StatelessWidget {
   Widget build(BuildContext context) {
     _context = context;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: childWidget,
-    );
+    return childWidget != null
+        ? Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: childWidget,
+          )
+        : Empty();
   }
 }

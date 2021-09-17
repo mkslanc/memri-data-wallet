@@ -36,13 +36,15 @@ class _GridRendererViewState extends State<GridRendererView> {
     viewContext = widget.viewContext;
     _init = init();
 
-    sceneController.isInEditMode.addListener(updateState);
+    sceneController.mainPageController.isInEditMode
+        .addListener(updateState); //TODO: change to selectable
     viewContext.addListener(updateState);
   }
 
   dispose() {
     super.dispose();
-    sceneController.isInEditMode.removeListener(updateState);
+    sceneController.mainPageController.isInEditMode
+        .removeListener(updateState); //TODO: change to selectable
     viewContext.removeListener(updateState);
   }
 
@@ -69,8 +71,8 @@ class _GridRendererViewState extends State<GridRendererView> {
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
 
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
-        .boolean("editMode", sceneController.isInEditMode.value))!;
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver.boolean("editMode",
+        sceneController.mainPageController.isInEditMode.value))!; //TODO: change to selectable
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
@@ -89,8 +91,9 @@ class _GridRendererViewState extends State<GridRendererView> {
                     viewContext.hasItems
                         ? Expanded(
                             child: RefreshIndicator(
-                              onRefresh: () async => setState(
-                                  () => sceneController.topMostContext?.setupQueryObservation()),
+                              onRefresh: () async => setState(() => sceneController
+                                  .mainPageController.topMostContext
+                                  ?.setupQueryObservation()), //TODO: change to selectable
                               child: GridView.count(
                                 //TODO layout
                                 physics: AlwaysScrollableScrollPhysics(),

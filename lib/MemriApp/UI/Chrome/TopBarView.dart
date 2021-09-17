@@ -45,7 +45,7 @@ class _TopBarViewState extends State<TopBarView> {
 
   @override
   Widget build(BuildContext context) {
-    viewContext = widget.sceneController.topMostContext;
+    viewContext = widget.sceneController.mainPageController.topMostContext;
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     return Column(
       children: [
@@ -58,7 +58,7 @@ class _TopBarViewState extends State<TopBarView> {
                   width: 80,
                   child: Row(
                     children: [
-                      if (!widget.sceneController.canNavigateBack)
+                      if (!widget.sceneController.mainPageController.canNavigateBack)
                         TextButton(
                           style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
                           onPressed: () => widget.sceneController.navigationIsVisible.value = true,
@@ -100,8 +100,8 @@ class _TopBarViewState extends State<TopBarView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     FutureBuilder<List<String>?>(
-                        future: widget
-                            .sceneController.topMostContext?.viewDefinitionPropertyResolver
+                        future: widget.sceneController.mainPageController.topMostContext
+                            ?.viewDefinitionPropertyResolver
                             .stringArray("editActionButton"),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {

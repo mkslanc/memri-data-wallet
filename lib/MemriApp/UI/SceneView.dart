@@ -6,17 +6,15 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/Chrome/AltTopBarView.dart';
 import 'package:memri/MemriApp/UI/Chrome/TopBarView.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/FilterPanelView.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationWrapperView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
-import 'Chrome/BottomBarView.dart';
 import 'Chrome/SearchView.dart';
 
 /// This is the view used to display the browser content of each scene
@@ -32,64 +30,59 @@ class SceneView extends StatefulWidget {
 class _SceneViewState extends State<SceneView> {
   final double filterPanelGestureOffset = 0;
   late Future<bool> _showTopBar;
-  late Future<bool> _showBottomBar;
   bool showTopBar = true;
   bool showBottomBar = true;
+  int? mainViewCols;
+  int? secondaryViewCols;
 
   /// Keep track of whether the search bar is currently open (keyboard shown)
   final searchBarOpen = ValueNotifier<bool>(false);
 
+  initCols() {
+    mainViewCols = widget
+        .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
+        .syncInteger("cols");
+    secondaryViewCols = widget
+        .sceneController.secondaryPageController.topMostContext?.viewDefinitionPropertyResolver
+        .syncInteger("cols");
+  }
+
   Future<bool> _initShowTopBar() async {
-    return await widget.sceneController.topMostContext?.viewDefinitionPropertyResolver
+    return await widget
+            .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
             .boolean("showTopBar") ??
         true;
-  }
-
-  Future<bool> _initShowBottomBar() async {
-    var viewContext = widget.sceneController.topMostContext;
-    var subViewShowBottomBar = await viewContext?.viewDefinitionPropertyResolver
-        .subdefinition("arguments")
-        ?.boolean("showBottomBar");
-    return await viewContext?.viewDefinitionPropertyResolver.boolean("showBottomBar") ??
-        subViewShowBottomBar ??
-        true;
-  }
-
-  CVUDefinitionContent? get bottomBar {
-    var viewContext = widget.sceneController.topMostContext;
-    var bottomBarDef = widget.sceneController.topMostContext?.cvuController
-        .viewDefinitionFor(
-            viewName: viewContext?.config.viewName ?? viewContext?.config.rendererName ?? "")
-        ?.properties["bottomBar"];
-
-    var bottomBarSubdef = bottomBarDef?.getSubdefinition();
-
-    return bottomBarSubdef;
   }
 
   @override
   initState() {
     super.initState();
     _showTopBar = _initShowTopBar();
-    _showBottomBar = _initShowBottomBar();
+    initCols();
+
     widget.sceneController.addListener(updateState);
+    widget.sceneController.mainPageController.addListener(updateState);
+    widget.sceneController.secondaryPageController.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
     widget.sceneController.removeListener(updateState);
+    widget.sceneController.mainPageController.removeListener(updateState);
+    widget.sceneController.secondaryPageController.removeListener(updateState);
   }
 
   @override
   void didUpdateWidget(oldWidget) {
+    initCols();
     super.didUpdateWidget(oldWidget);
   }
 
   updateState() {
     setState(() {
       _showTopBar = _initShowTopBar();
-      _showBottomBar = _initShowBottomBar();
+      initCols();
     });
   }
 
@@ -101,61 +94,82 @@ class _SceneViewState extends State<SceneView> {
           sceneController: widget.sceneController,
           child: Stack(
             children: [
-              Column(
-                children: [
-                  FutureBuilder<bool>(
-                    future: _showTopBar,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done)
-                        showTopBar = snapshot.data!;
-                      widget.sceneController.showTopBar = showTopBar;
-                      return showTopBar
-                          ? ValueListenableBuilder<bool>(
-                              builder: (BuildContext context, value, Widget? child) {
-                                var currentContext = widget.sceneController.topMostContext;
-                                return value
-                                    ? SearchView(
-                                        viewContext: currentContext!, isActive: searchBarOpen)
-                                    : TopBarView(
-                                        sceneController: widget.sceneController,
-                                        onSearchPressed: () {
-                                          searchBarOpen.value = true;
+              LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ColoredBox(
+                      color: Colors.white,
+                      child: SizedBox(
+                        width: mainViewCols != null
+                            ? constraints.maxWidth / 10 * mainViewCols! - 1
+                            : constraints.maxWidth - 1,
+                        child: Column(
+                          children: [
+                            FutureBuilder<bool>(
+                              future: _showTopBar,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done)
+                                  showTopBar = snapshot.data!;
+                                widget.sceneController.showTopBar =
+                                    showTopBar; //TODO should be handled by page controller
+                                return showTopBar
+                                    ? ValueListenableBuilder<bool>(
+                                        builder: (BuildContext context, value, Widget? child) {
+                                          var currentContext = widget
+                                              .sceneController.mainPageController.topMostContext;
+                                          return value
+                                              ? SearchView(
+                                                  viewContext: currentContext!,
+                                                  isActive: searchBarOpen)
+                                              : TopBarView(
+                                                  sceneController: widget.sceneController,
+                                                  onSearchPressed: () {
+                                                    searchBarOpen.value = true;
+                                                  },
+                                                );
                                         },
-                                      );
+                                        valueListenable: searchBarOpen)
+                                    : Empty();
                               },
-                              valueListenable: searchBarOpen)
-                          : Empty();
-                    },
-                  ),
-                  Expanded(
-                    child: NavigationHolder(
-                      widget.sceneController.navigationController,
+                            ),
+                            Expanded(
+                              child: NavigationHolder(
+                                widget.sceneController.mainPageController.navigationController,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  FutureBuilder<bool>(
-                      future: _showBottomBar,
-                      builder: (BuildContext builder, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          showBottomBar = snapshot.data!;
-                        }
-                        if (showBottomBar) {
-                          var nodeDefinition = bottomBar;
-                          if (nodeDefinition == null) {
-                            return BottomBarView(
-                              viewContext: widget.sceneController.topMostContext!,
-                            );
-                          } else {
-                            return widget.sceneController.topMostContext!
-                                .render(nodeDefinition: nodeDefinition);
-                          }
-                        }
-                        return Empty();
-                      })
-                ],
-              ),
+                    VerticalDivider(
+                      width: 1,
+                      color: Color(0xffE5E5E5),
+                    ),
+                    ColoredBox(
+                      color: Colors.white,
+                      child: SizedBox(
+                        width: secondaryViewCols != null
+                            ? constraints.maxWidth / 10 * secondaryViewCols!
+                            : 0,
+                        child: Column(
+                          children: [
+                            AltTopBarView(sceneController: widget.sceneController),
+                            Expanded(
+                              child: NavigationHolder(
+                                widget.sceneController.secondaryPageController.navigationController,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
               ValueListenableBuilder(
                 builder: (BuildContext context, bool value, Widget? child) {
-                  var currentContext = widget.sceneController.topMostContext;
+                  var currentContext = widget.sceneController.mainPageController.topMostContext;
                   if (value && currentContext != null) {
                     return Stack(
                       alignment: Alignment.bottomCenter,
@@ -176,7 +190,8 @@ class _SceneViewState extends State<SceneView> {
                 },
                 valueListenable: widget.sceneController.filterPanelIsVisible,
               ),
-              if (widget.sceneController.canNavigateBack)
+              if (widget
+                  .sceneController.mainPageController.canNavigateBack) //TODO: change to selectable
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 15, 0, 0),
                   child: SizedBox(
@@ -184,7 +199,8 @@ class _SceneViewState extends State<SceneView> {
                     width: 50,
                     child: FloatingActionButton(
                       onPressed: () {
-                        widget.sceneController.navigateBack();
+                        widget.sceneController.mainPageController
+                            .navigateBack(); //TODO: change to selectable
                       },
                       backgroundColor: Colors.white,
                       child: Icon(

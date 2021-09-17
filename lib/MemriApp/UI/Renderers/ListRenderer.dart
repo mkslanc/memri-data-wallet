@@ -43,7 +43,8 @@ class _ListRendererViewState extends State<ListRendererView> {
     viewContext = widget.viewContext;
     _init = init();
 
-    sceneController.isInEditMode.addListener(updateIsInEditMode);
+    sceneController.mainPageController.isInEditMode
+        .addListener(updateIsInEditMode); //TODO: change to selectable
   }
 
   updateIsInEditMode() async {
@@ -53,7 +54,8 @@ class _ListRendererViewState extends State<ListRendererView> {
 
   dispose() {
     super.dispose();
-    sceneController.isInEditMode.removeListener(updateIsInEditMode);
+    sceneController.mainPageController.isInEditMode
+        .removeListener(updateIsInEditMode); //TODO: change to selectable
   }
 
   Future<void> init() async {
@@ -69,8 +71,8 @@ class _ListRendererViewState extends State<ListRendererView> {
   }
 
   Future<void> initEditMode() async {
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
-        .boolean("editMode", sceneController.isInEditMode.value))!; // sceneController.isInEditMode
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver.boolean("editMode",
+        sceneController.mainPageController.isInEditMode.value))!; //TODO: change to selectable
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
@@ -89,8 +91,9 @@ class _ListRendererViewState extends State<ListRendererView> {
                   selectedIndices = selectedIndicesBinding.get();
                   var lastIndex = viewContext.items.length - 1;
                   return RefreshIndicator(
-                    onRefresh: () async =>
-                        setState(() => sceneController.topMostContext?.setupQueryObservation()),
+                    onRefresh: () async => setState(() => sceneController
+                        .mainPageController.topMostContext
+                        ?.setupQueryObservation()), //TODO: change to selectable
                     child: ListView.custom(
                       shrinkWrap: true,
                       padding: EdgeInsets.fromLTRB(

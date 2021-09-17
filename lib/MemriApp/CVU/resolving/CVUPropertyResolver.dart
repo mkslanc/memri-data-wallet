@@ -91,6 +91,19 @@ class CVUPropertyResolver {
     return (await lookup.resolve<double>(value: val, context: context, db: db))?.toInt();
   }
 
+  int? syncInteger(String key) {
+    var val = value(key);
+    if (val == null) {
+      return null;
+    }
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantNumber) {
+        return val.value.value.toInt();
+      }
+    }
+    return null;
+  }
+
   Future<String?> string(String key) async {
     var val = value(key);
     if (val == null) {
