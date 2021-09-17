@@ -111,7 +111,8 @@ class _SceneViewState extends State<SceneView> {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.done)
                                   showTopBar = snapshot.data!;
-                                widget.sceneController.showTopBar = showTopBar;//TODO should be handled by page controller
+                                widget.sceneController.showTopBar =
+                                    showTopBar; //TODO should be handled by page controller
                                 return showTopBar
                                     ? ValueListenableBuilder<bool>(
                                         builder: (BuildContext context, value, Widget? child) {
