@@ -68,10 +68,8 @@ class CVUFont {
         size: tileLabel.fontSize!,
         weight: tileLabel.fontWeight,
         letterSpacing: tileLabel.letterSpacing),
-    "link": CVUFont(
-        size: link.fontSize!,
-        weight: link.fontWeight,
-        letterSpacing: link.letterSpacing),
+    "link":
+        CVUFont(size: link.fontSize!, weight: link.fontWeight, letterSpacing: link.letterSpacing),
   };
 
   static const headline1 =
