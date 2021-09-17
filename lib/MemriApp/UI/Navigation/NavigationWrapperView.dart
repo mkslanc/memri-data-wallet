@@ -98,7 +98,7 @@ class NavigationWrapperView extends StatelessWidget {
             color: Color(0xffE5E5E5),
           ),
           Expanded(child: child),
-          if (geom.maxWidth > 1345)
+          if (geom.maxWidth - navigationPanelWidth > 1345)
             Padding(
                 padding: EdgeInsets.fromLTRB(0, 0, geom.maxWidth - navigationPanelWidth - 1345, 0))
         ],
