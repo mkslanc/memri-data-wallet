@@ -24,7 +24,6 @@
                 alignment: center
 
                 MemriButton {
-                    margin: 0 5
                     item: {{.}}
                 }
                 Spacer

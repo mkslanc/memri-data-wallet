@@ -1,16 +1,6 @@
 [renderer = generalEditor] {
     layout: [
-        { section: labels }
-        {
-            section: other
-            fields: *
-            exclude: version deleted _updated _action _partial _changedInSession uid externalId allEdges importJson
-        }
-        {
-            section: dates
-            exclude: dateCreated dateModified dateAccessed changelog
-            readOnly: true
-        }
+        { section: dates }
     ]
     
     starred {
@@ -59,15 +49,6 @@
     dates {
         showTitle: false
         dividers: false
-        
-        Text {
-            alignment: center
-            textAlign: center
-            text: "{.describeChangelog()}"
-            padding: 30 40 40 40
-            color: #999
-            font: 13
-            maxChar: 300
-        }
+
     }
 }
