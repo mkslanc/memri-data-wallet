@@ -88,6 +88,11 @@ Person {
     showTopBar: false
     cols: 6
 
+    actionButton:
+        [
+           star
+           ]
+
     /*include:
     "defaultButtonsForItem" { type: Person }*/
 
@@ -185,19 +190,37 @@ Person {
 
         [renderer = generalEditor] {
             layout: [
+                { section: pageTitle }
                 { section: profilePicture, exclude: labels }
                 { section: email, fields: email }
                 { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber, showTitle: false }
                 { section: addresses, edges: address, type: Address, showTitle: false }
                 { section: web, edges: website, type: Website, showTitle: false }
-                { section: onlineProfiles, edges: onlineProfile, type: OnlineProfile }
+                { section: onlineProfiles, edges: account, type: Account, showTitle: false }
+                { section: birthday, fields: birthDate }
                 ]
+
+                pageTitle {
+                    showTitle: false
+
+                    VStack {
+                        alignment: topleft
+
+                        Text {
+                            font: headline2
+                            text: "Contact details"
+                            padding: 0 0 14 0
+                        }
+
+                    }
+                }
 
                 profilePicture {
                     showTitle: false
 
                     HStack {
-                        alignment: topleft
+                        padding: 10 0 0 0
+                        alignment: left
 
                         Image {
                             image: {{.profilePicture}}
@@ -208,7 +231,9 @@ Person {
                         }
 
                         Text {
-                            font: 20 bold
+                            padding: 0 0 0 15
+                            font: 12
+                            color: #333333
                             text: "{.firstName} {.lastName}"
                         }
 
@@ -231,20 +256,6 @@ Person {
 }
 
 Person > singleitem {
-    actionButton:
-    [
-        openView {
-            icon: "person.circle"
-            viewName: "user"
-            clearStack: true
-        },
-        openView {
-            icon: "person.2.fill"
-            viewName: "allPeople"
-            clearStack: true
-        }]
-
-
         VStack {
             alignment: topleft
             padding: 0 322 0 0
