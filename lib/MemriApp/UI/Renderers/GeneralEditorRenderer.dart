@@ -33,9 +33,6 @@ class GeneralEditorLayoutItem {
   T? get<T>({required String propName, ItemRecord? item, Type? additionalType}) {
     var propValue = dict[propName];
     if (propValue == null) {
-      if (propName == "section") {
-        print("ERROR: tri");
-      }
       return null;
     }
 

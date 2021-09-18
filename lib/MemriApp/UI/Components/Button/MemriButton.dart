@@ -20,8 +20,6 @@ class _MemriButtonState extends State<MemriButton> {
   String title = "";
   String value = "";
 
-  Color bgColor = Color(0xffffffff);
-
   late final Future _resolveItemProperties;
 
   @override
@@ -33,7 +31,6 @@ class _MemriButtonState extends State<MemriButton> {
   Future<void> resolveItemProperties() async {
     switch (widget.item?.type) {
       case "PhoneNumber":
-        bgColor = Color(0xffeccf23);
         var phone = (await widget.item?.property("phoneNumber"))?.$value;
         if (phone is PropertyDatabaseValueString) {
           value = phone.value;
@@ -41,7 +38,6 @@ class _MemriButtonState extends State<MemriButton> {
         title = "Phone";
         break;
       case "Address":
-        bgColor = Color(0xffeccf23);
         var address = [];
         var street = (await widget.item?.property("street"))?.$value;
         if (street is PropertyDatabaseValueString) {
@@ -66,7 +62,6 @@ class _MemriButtonState extends State<MemriButton> {
         title = "Address";
         break;
       case "Website":
-        bgColor = Color(0xffeccf23);
         var url = (await widget.item?.property("url"))?.$value;
         if (url is PropertyDatabaseValueString) {
           value = url.value;
@@ -74,7 +69,6 @@ class _MemriButtonState extends State<MemriButton> {
         title = "Web";
         break;
       case "Person":
-        bgColor = Color(0xff3A5EB3);
         var firstName = (await widget.item?.property("firstName"))?.$value;
         if (firstName is PropertyDatabaseValueString) {
           value = firstName.value;
@@ -86,7 +80,6 @@ class _MemriButtonState extends State<MemriButton> {
         title = "Person";
         break;
       case "Relationship":
-        bgColor = Color(0xff3A5EB3);
         var edgeItem = await widget.item?.edgeItem("relationship");
         if (edgeItem != null) {
           var firstName = (await edgeItem.property("firstName"))?.$value;
@@ -99,6 +92,29 @@ class _MemriButtonState extends State<MemriButton> {
           }
         }
         title = "Person";
+        break;
+      case "Account":
+        //TODO: we definitely need to solve this chaos with property naming
+        var accountName = (await widget.item?.property("handle"))?.$value;
+        if (accountName is PropertyDatabaseValueString) {
+          value = accountName.value;
+        } else {
+          accountName = (await widget.item?.property("externalId"))?.$value;
+          if (accountName is PropertyDatabaseValueString) {
+            value = accountName.value;
+          }
+        }
+        var serviceName = (await widget.item?.property("service"))?.$value;
+        if (serviceName is PropertyDatabaseValueString) {
+          title = serviceName.value;
+        } else {
+          serviceName = (await widget.item?.property("itemType"))?.$value;
+          if (serviceName is PropertyDatabaseValueString) {
+            title = serviceName.value;
+          } else {
+            title = "Account";
+          }
+        }
         break;
     }
   }
@@ -116,7 +132,10 @@ class _MemriButtonState extends State<MemriButton> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GeneralEditorHeader(content: title.toUpperCase()),
-                    Text(value),
+                    Text(
+                      value,
+                      style: TextStyle(fontSize: 13, color: Color(0xff737373)),
+                    ),
                     Divider(height: 1)
                   ],
                 ),
