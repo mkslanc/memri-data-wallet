@@ -99,7 +99,7 @@ class _SceneViewState extends State<SceneView> {
                         height: constraints.maxHeight,
                         child: Column(
                           children: [
-                            showTopBar
+                            showTopBar //TODO should be handled by page controller
                                 ? TopBarView(
                                     sceneController: widget.sceneController,
                                   )

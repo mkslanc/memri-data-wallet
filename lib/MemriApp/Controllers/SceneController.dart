@@ -45,7 +45,7 @@ class SceneController extends ChangeNotifier {
     await init();
   }
 
-  bool isBigScreen = false;
+  bool isBigScreen = true;
   bool isContentFullscreen = false;
   bool showTopBar = true;
 
