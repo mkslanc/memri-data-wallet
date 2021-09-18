@@ -80,7 +80,8 @@ class _TopBarViewState extends State<TopBarView> {
           SizedBox(
             height: 22,
           ),
-          SizedBox(height: 78, child: SearchView(viewContext: viewContext!)),
+          if (viewContext != null)
+            SizedBox(height: 78, child: SearchView(viewContext: viewContext!)),
         ],
       ),
     );

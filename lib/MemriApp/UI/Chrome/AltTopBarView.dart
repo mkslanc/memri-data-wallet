@@ -44,7 +44,7 @@ class _TopBarViewState extends State<AltTopBarView> {
     return SizedBox(
       height: 54,
       child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-        if (actions != null)
+        if (actions != null && viewContext != null)
           ...actions.map(
               (action) => ActionButton(action: action, viewContext: viewContext!.getCVUContext())),
         TextButton(
