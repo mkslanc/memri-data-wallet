@@ -6,8 +6,6 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
-import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/UI/BrowserView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -129,18 +127,15 @@ class _CVUActionButtonState extends State<CVUActionButton> {
             style: TextStyle(color: Colors.black, fontSize: 15),
           ));
     } else if (validAction is CVUActionStar) {
-      return IconButton(
-          icon: FutureBuilder(
+      return TextButton(
+          child: FutureBuilder(
               initialData: starred,
               future: _starred,
               builder: (BuildContext context, AsyncSnapshot<PropertyDatabaseValue?> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   starred = snapshot.data;
                 }
-                return Icon(
-                  MemriIcon.getByName((starred?.asBool() ?? false) ? "star.fill" : "star"),
-                  color: CVUColor.system("white"),
-                );
+                return Text((starred?.asBool() ?? false) ? "Unpin" : "Pin");
               }),
           onPressed: () async {
             await validAction

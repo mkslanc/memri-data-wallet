@@ -32,9 +32,8 @@ class _MemriDatePickerState extends State<MemriDatePicker> {
     return Row(
       children: [
         Flexible(
-          child: TextButton(
-            style: TextButton.styleFrom(backgroundColor: Color(0xffbdbdbd)),
-            onPressed: widget.isEditing ? () => _selectDate(context) : null,
+          child: InkWell(
+            onTap: widget.isEditing ? () => _selectDate(context) : null,
             child: Text(
               initialSet != null ? dateFormatter.format(initialSet!) : "Set",
               style: widget.style,

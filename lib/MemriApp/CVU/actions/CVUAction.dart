@@ -791,6 +791,10 @@ class CVUActionUnlink extends CVUAction {
 class CVUActionStar extends CVUAction {
   Map<String, CVUValue> vars;
 
+  Map<String, CVUValue> get defaultVars {
+    return {"title": CVUValueConstant(CVUConstantString("Pin"))};
+  }
+
   CVUActionStar({vars}) : this.vars = vars ?? {};
 
   @override

@@ -3,22 +3,17 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
-import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 
 import '../ViewContextController.dart';
+import 'SearchView.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
   final SceneController sceneController;
-  final void Function() onSearchPressed;
 
-  TopBarView({required this.sceneController, required this.onSearchPressed});
+  TopBarView({required this.sceneController});
 
   @override
   _TopBarViewState createState() => _TopBarViewState();
@@ -26,111 +21,69 @@ class TopBarView extends StatefulWidget {
 
 class _TopBarViewState extends State<TopBarView> {
   late ViewContextController? viewContext;
+  late Future<String?> title;
+
+  Future<String?> get _title async {
+    return await widget
+            .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
+            .string("title") ??
+        (viewContext?.focusedItem != null
+            ? await viewContext!.itemPropertyResolver?.string("title")
+            : "");
+  }
 
   @override
   initState() {
     super.initState();
-    widget.sceneController.addListener(updateState);
+    title = _title;
+    widget.sceneController.mainPageController.addListener(updateState);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.sceneController.removeListener(updateState);
+    widget.sceneController.mainPageController.removeListener(updateState);
   }
 
   void updateState() {
-    setState(() {});
+    setState(() {
+      title = _title;
+    });
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    title = _title;
   }
 
   @override
   Widget build(BuildContext context) {
     viewContext = widget.sceneController.mainPageController.topMostContext;
-    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
-    return Column(
-      children: [
-        SizedBox(
-          height: 80,
-          child: Row(children: [
-            Row(
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Row(
-                    children: [
-                      if (!widget.sceneController.mainPageController.canNavigateBack)
-                        TextButton(
-                          style: TextButton.styleFrom(padding: EdgeInsets.all(27)),
-                          onPressed: () => widget.sceneController.navigationIsVisible.value = true,
-                          child: Icon(
-                            Icons.dehaze,
-                            size: 24,
-                          ),
-                        ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Expanded(
-              child: SizedBox(
-                height: 78,
-                child: TextButton(
-                  style: TextButton.styleFrom(padding: EdgeInsets.all(0)),
-                  onPressed: widget.onSearchPressed,
-                  child: Row(
-                    children: [
-                      Text(
-                        "Search in App",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1!
-                            .copyWith(color: CVUColor.textGrey),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: 100),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FutureBuilder<List<String>?>(
-                        future: widget.sceneController.mainPageController.topMostContext
-                            ?.viewDefinitionPropertyResolver
-                            .stringArray("editActionButton"),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            var editAction = snapshot.data?.asMap()[0];
-                            var action = cvuAction(editAction ?? "");
-                            if (action != null) {
-                              return ActionButton(
-                                  action: action(vars: {
-                                    "icon": CVUValueConstant(CVUConstantString("pencil"))
-                                  }),
-                                  viewContext: viewContext!.getCVUContext());
-                            }
-                          }
-                          return Empty();
-                        }),
-                    if (actions != null)
-                      ...actions.map((action) =>
-                          ActionButton(action: action, viewContext: viewContext!.getCVUContext()))
-                  ],
-                  mainAxisAlignment: MainAxisAlignment.end,
-                ),
-              ),
-            ),
-          ]),
-        ),
-        Divider(
-          height: 1,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(30, 60, 30, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FutureBuilder(
+              future: title,
+              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                if (snapshot.hasData) {
+                  return Text(
+                    snapshot.data!,
+                    style: CVUFont.headline2,
+                  );
+                } else {
+                  return Text("");
+                }
+              }),
+          SizedBox(
+            height: 22,
+          ),
+          if (viewContext != null)
+            SizedBox(height: 78, child: SearchView(viewContext: viewContext!)),
+        ],
+      ),
     );
   }
 }

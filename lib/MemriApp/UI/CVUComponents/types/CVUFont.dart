@@ -73,16 +73,16 @@ class CVUFont {
   };
 
   static const headline1 =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.w400, letterSpacing: -0.01, height: 33);
+      TextStyle(fontSize: 30, fontWeight: FontWeight.w400, letterSpacing: -0.01);
   static const headline2 =
-      TextStyle(fontSize: 20, fontWeight: FontWeight.w400, letterSpacing: -0.01, height: 25);
-  static const headline3 = TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 20);
+      TextStyle(fontSize: 20, fontWeight: FontWeight.w400, letterSpacing: -0.01);
+  static const headline3 = TextStyle(fontSize: 15, fontWeight: FontWeight.w500);
   static const headline4 =
       TextStyle(fontSize: 16, fontWeight: FontWeight.w300, letterSpacing: 0.16);
   static const bodyText1 = TextStyle(fontSize: 16, fontWeight: FontWeight.w400);
-  static const bodyText2 = TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 20);
-  static const buttonLabel = TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 16);
+  static const bodyText2 = TextStyle(fontSize: 12, fontWeight: FontWeight.w400);
+  static const buttonLabel = TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
   static const tileLabel =
       TextStyle(fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.04);
-  static const link = TextStyle(fontSize: 13, fontWeight: FontWeight.w400, height: 19);
+  static const link = TextStyle(fontSize: 13, fontWeight: FontWeight.w400);
 }

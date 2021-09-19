@@ -1478,6 +1478,11 @@
     "phoneNumber": "0654271340"
   },
   {
+    "_type": "PhoneNumber",
+    "uid": 100399,
+    "phoneNumber": "1654271340"
+  },
+  {
     "_type": "Website",
     "uid": 1004,
     "url": "www.revolutionairyblog.com"
@@ -1738,6 +1743,7 @@
     "firstName": "Eve",
     "lastName": "Eagle",
     "birthDate": 543777745298,
+    "email": "eve@test.com",
     "allEdges": [
       {
         "_type": "relationship",
@@ -1768,6 +1774,31 @@
         "_type": "account",
         "targetType": "Account",
         "uid": 1008
+      },
+      {
+        "_type": "hasPhoneNumber",
+        "targetType": "PhoneNumber",
+        "uid": 1003
+      },
+      {
+        "_type": "hasPhoneNumber",
+        "targetType": "PhoneNumber",
+        "uid": 100399
+      },
+      {
+        "_type": "website",
+        "targetType": "Website",
+        "uid": 1004
+      },
+      {
+        "_type": "website",
+        "targetType": "Website",
+        "uid": 1005
+      },
+      {
+        "_type": "address",
+        "targetType": "Address",
+        "uid": 1013
       }
     ]
   },

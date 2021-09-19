@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/MemriApp/UI/Renderers/GeneralEditorRenderer.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 // ignore: must_be_immutable
@@ -17,8 +18,7 @@ class MemriButton extends StatefulWidget {
 
 class _MemriButtonState extends State<MemriButton> {
   String title = "";
-
-  Color bgColor = Color(0xffffffff);
+  String value = "";
 
   late final Future _resolveItemProperties;
 
@@ -31,72 +31,112 @@ class _MemriButtonState extends State<MemriButton> {
   Future<void> resolveItemProperties() async {
     switch (widget.item?.type) {
       case "PhoneNumber":
-        bgColor = Color(0xffeccf23);
         var phone = (await widget.item?.property("phoneNumber"))?.$value;
         if (phone is PropertyDatabaseValueString) {
-          title = phone.value;
+          value = phone.value;
         }
+        title = "Phone";
+        break;
+      case "Address":
+        var address = [];
+        var street = (await widget.item?.property("street"))?.$value;
+        if (street is PropertyDatabaseValueString) {
+          address.add(street.value);
+        }
+        var city = (await widget.item?.property("city"))?.$value;
+        if (city is PropertyDatabaseValueString) {
+          address.add(city.value);
+        }
+        var state = (await widget.item?.property("state"))?.$value;
+        if (state is PropertyDatabaseValueString) {
+          address.add(state.value);
+        }
+        var country = await widget.item?.edgeItem("country");
+        if (country != null) {
+          var countryName = (await country.property("name"))?.$value;
+          if (countryName is PropertyDatabaseValueString) {
+            address.add(countryName.value);
+          }
+        }
+        value = address.isNotEmpty ? address.join(", ") : "";
+        title = "Address";
+        break;
+      case "Website":
+        var url = (await widget.item?.property("url"))?.$value;
+        if (url is PropertyDatabaseValueString) {
+          value = url.value;
+        }
+        title = "Web";
         break;
       case "Person":
-        bgColor = Color(0xff3A5EB3);
         var firstName = (await widget.item?.property("firstName"))?.$value;
         if (firstName is PropertyDatabaseValueString) {
-          title = firstName.value;
+          value = firstName.value;
         }
         var lastName = (await widget.item?.property("lastName"))?.$value;
         if (lastName is PropertyDatabaseValueString) {
-          title = "$title ${lastName.value}";
+          value = "$value ${lastName.value}";
         }
+        title = "Person";
         break;
       case "Relationship":
-        bgColor = Color(0xff3A5EB3);
         var edgeItem = await widget.item?.edgeItem("relationship");
         if (edgeItem != null) {
           var firstName = (await edgeItem.property("firstName"))?.$value;
           if (firstName is PropertyDatabaseValueString) {
-            title = firstName.value;
+            value = firstName.value;
           }
           var lastName = (await edgeItem.property("lastName"))?.$value;
           if (lastName is PropertyDatabaseValueString) {
-            title = "$title ${lastName.value}";
+            value = "$value ${lastName.value}";
           }
         }
-
+        title = "Person";
+        break;
+      case "Account":
+        //TODO: we definitely need to solve this chaos with property naming
+        var accountName = (await widget.item?.property("handle"))?.$value;
+        if (accountName is PropertyDatabaseValueString) {
+          value = accountName.value;
+        } else {
+          accountName = (await widget.item?.property("externalId"))?.$value;
+          if (accountName is PropertyDatabaseValueString) {
+            value = accountName.value;
+          }
+        }
+        var serviceName = (await widget.item?.property("service"))?.$value;
+        if (serviceName is PropertyDatabaseValueString) {
+          title = serviceName.value;
+        } else {
+          serviceName = (await widget.item?.property("itemType"))?.$value;
+          if (serviceName is PropertyDatabaseValueString) {
+            title = serviceName.value;
+          } else {
+            title = "Account";
+          }
+        }
         break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    var foregroundColor = Colors.white;
     var inputItem = widget.item;
     if (inputItem != null) {
       return FutureBuilder(
           future: _resolveItemProperties,
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return Container(
-                decoration: BoxDecoration(
-                    color: bgColor, borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: Row(
+              return IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                        padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
-                        decoration: BoxDecoration(
-                            color: Color(0xffafafaf),
-                            borderRadius: BorderRadius.all(Radius.circular(20))),
-                        child: Text(
-                          widget.item?.type ?? "",
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
-                        )),
-                    Container(
-                        padding: EdgeInsets.fromLTRB(5, 3, 9, 3),
-                        decoration:
-                            BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
-                        child: Text(title,
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600, color: foregroundColor)))
+                    GeneralEditorHeader(content: title.toUpperCase()),
+                    Text(
+                      value,
+                      style: TextStyle(fontSize: 13, color: Color(0xff737373)),
+                    ),
+                    Divider(height: 1)
                   ],
                 ),
               );
