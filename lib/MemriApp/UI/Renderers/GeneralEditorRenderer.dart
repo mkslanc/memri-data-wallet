@@ -64,6 +64,15 @@ class GeneralEditorLayoutItem {
       }
     }
 
+    if (T == bool) {
+      if (propValue is CVUValueConstant) {
+        var constant = propValue.value;
+        return constant.asBool() as T;
+      } else {
+        return null;
+      }
+    }
+
     return propValue as T;
   }
 }
@@ -447,8 +456,8 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                   return Empty();
                 } else {
                   List<Widget> header = [];
-                  var layoutShowTitle = widget.layout.get<String>(propName: "showTitle");
-                  if (shouldShowTitle && title != null && layoutShowTitle != "false") {
+                  var layoutShowTitle = widget.layout.get<bool>(propName: "showTitle");
+                  if (shouldShowTitle && title != null && layoutShowTitle != false) {
                     header.add(GeneralEditorHeader(
                         content: title.toUpperCase())); // .generalEditorHeader()
                     if (action != null) {

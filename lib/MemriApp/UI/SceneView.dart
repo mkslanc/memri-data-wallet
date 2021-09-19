@@ -31,9 +31,6 @@ class _SceneViewState extends State<SceneView> {
   int? mainViewCols;
   int? secondaryViewCols;
 
-  /// Keep track of whether the search bar is currently open (keyboard shown)
-  final searchBarOpen = ValueNotifier<bool>(false);
-
   init() {
     mainViewCols = widget
         .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
