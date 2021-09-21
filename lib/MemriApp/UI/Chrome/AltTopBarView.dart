@@ -25,8 +25,7 @@ class _TopBarViewState extends State<AltTopBarView> {
   late Future<String?> title;
 
   Future<String?> get _title async {
-    return await widget
-            .pageController.topMostContext?.viewDefinitionPropertyResolver
+    return await widget.pageController.topMostContext?.viewDefinitionPropertyResolver
             .string("title") ??
         (viewContext?.focusedItem != null
             ? await viewContext!.itemPropertyResolver?.string("title")
@@ -69,8 +68,11 @@ class _TopBarViewState extends State<AltTopBarView> {
           height: 54,
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             if (actions != null && viewContext != null)
-              ...actions.map((action) =>
-                  ActionButton(action: action, viewContext: viewContext!.getCVUContext(), pageController: widget.pageController,)),
+              ...actions.map((action) => ActionButton(
+                    action: action,
+                    viewContext: viewContext!.getCVUContext(),
+                    pageController: widget.pageController,
+                  )),
             TextButton(
               onPressed: () {
                 if (widget.pageController.canNavigateBack) {
