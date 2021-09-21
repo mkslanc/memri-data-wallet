@@ -24,7 +24,7 @@ class PageController extends ChangeNotifier {
 
   PageController(this.sceneController, this.label);
 
-  init() async {
+  init(String viewName, {String rendererName = "custom"}) async {
     var navStack = await NavigationStack.fetchOne(label, appController.databaseController);
     if (navStack != null) {
       _navigationStack = navStack;
@@ -40,9 +40,8 @@ class PageController extends ChangeNotifier {
       navigationController.setViewControllers(widget);
     } else {
       _navigationStack = NavigationStack(pageLabel: label);
-      var viewName = "onboarding";
       var viewContext = await CVUActionOpenViewByName(viewName: viewName)
-          .getViewContext(CVUContext(viewName: viewName, rendererName: "custom"), this);
+          .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
       if (viewContext != null) {
         topMostContext = viewContext;
         navigationController

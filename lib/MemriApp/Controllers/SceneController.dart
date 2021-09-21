@@ -40,8 +40,8 @@ class SceneController extends ChangeNotifier {
       await appController.databaseController.init();
       await appController.cvuController.init();
 
-      await mainPageController.init();
-      await secondaryPageController.init();
+      await mainPageController.init("home");
+      await secondaryPageController.init("updates");
     } catch (e) {
       throw e;
     }
