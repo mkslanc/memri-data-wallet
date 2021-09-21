@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 
 import '../ViewContextController.dart';
 
@@ -8,10 +8,10 @@ import '../ViewContextController.dart';
 /// The CVU for ItemType > FileViewer {...} must define a `file` expression pointing to a `File` item
 /// Optionally the CVU for ItemType > FileViewer {...} can define an `itemTitle` expression
 class FileRendererView extends StatelessWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  FileRendererView({required this.sceneController, required this.viewContext});
+  FileRendererView({required this.pageController, required this.viewContext});
 
   @override
   Widget build(BuildContext context) {

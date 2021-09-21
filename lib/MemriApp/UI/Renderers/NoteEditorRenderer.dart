@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditor.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorModel.dart';
@@ -12,10 +12,10 @@ import '../ViewContextController.dart';
 /// - see the `Note.cvu` file for an example of this
 /// - `File` items containing images can be referenced within the content HTML as `<img src="memriFile://fileUIDHere">`. The editor will look for a `file` edge from the item to a matching file, without this edge it will not be found (security measure)
 class NoteEditorRendererView extends StatelessWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  NoteEditorRendererView({required this.sceneController, required this.viewContext});
+  NoteEditorRendererView({required this.pageController, required this.viewContext});
 
   Future<FutureBinding<String>?> get noteTitle async {
     var item = viewContext.focusedItem;

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorModel.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorToolbar.dart';
 import 'package:path/path.dart';
@@ -26,7 +25,6 @@ class MemriTextEditor extends StatefulWidget {
 
 class _MemriTextEditorState extends State<MemriTextEditor> {
   late final WebViewController _controller;
-  SceneController sceneController = SceneController.sceneController;
 
   var toolbarState = ToolbarState.main;
 
@@ -47,8 +45,7 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   void dispose() {
     super.dispose();
     widget.viewContext.searchStringNotifier.removeListener(updateSearchState);
-    sceneController.mainPageController.isInEditMode
-        .removeListener(switchEditMode); //TODO: change to selectable
+    widget.viewContext.pageController.isInEditMode.removeListener(switchEditMode);
   }
 
   @override
@@ -79,14 +76,12 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
                     javascriptMode: JavascriptMode.unrestricted,
                     onWebViewCreated: (controller) {
                       _controller = controller;
-                      sceneController.mainPageController.isInEditMode
-                          .addListener(switchEditMode); //TODO: change to selectable
+                      widget.viewContext.pageController.isInEditMode.addListener(switchEditMode);
                     },
                     onPageFinished: onEditorLoaded,
                   ),
                 ),
-                if (sceneController
-                    .mainPageController.isInEditMode.value) //TODO: change to selectable
+                if (widget.viewContext.pageController.isInEditMode.value)
                   MemriTextEditorToolbar(
                       toolbarState: toolbarState,
                       executeEditorCommand: executeEditorCommand,
@@ -126,8 +121,8 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
 
   updateSearchState() {
     var script = widget.viewContext.searchString != null
-        ? "window.editor.options.editable = true; window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\"); window.editor.options.editable = ${sceneController.mainPageController.isInEditMode.value};"
-        : "window.editor.commands.clearSearch();"; //TODO: change to selectable
+        ? "window.editor.options.editable = true; window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\"); window.editor.options.editable = ${widget.viewContext.pageController.isInEditMode.value};"
+        : "window.editor.commands.clearSearch();";
     return _controller.evaluateJavascript(script);
   }
 
@@ -195,9 +190,8 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   switchEditMode() {
     setState(() {
       _controller.evaluateJavascript(
-          "window.editor.options.editable = ${sceneController.mainPageController.isInEditMode.value};"); //TODO: change to selectable
-      if (!sceneController.mainPageController.isInEditMode.value) {
-        //TODO: change to selectable
+          "window.editor.options.editable = ${widget.viewContext.pageController.isInEditMode.value};");
+      if (!widget.viewContext.pageController.isInEditMode.value) {
         SystemChannels.textInput.invokeMethod('TextInput.hide');
       }
     });

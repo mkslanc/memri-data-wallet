@@ -86,6 +86,7 @@ CREATE
 CREATE TABLE navigationState
 (
     sessionID TEXT PRIMARY KEY NOT NULL,
+    pageLabel TEXT             NOT NULL,
     state     BLOB             NOT NULL
 );
 

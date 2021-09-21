@@ -26,7 +26,7 @@ class MainView extends StatefulWidget {
 
 class _MainViewState extends State<MainView> {
   final AppController appController = AppController.shared;
-  final SceneController sceneController = SceneController.sceneController;
+  late final SceneController sceneController;
   late Future<void> _init;
   Exception? authError;
 
@@ -34,6 +34,8 @@ class _MainViewState extends State<MainView> {
 
   @override
   void initState() {
+    sceneController = SceneController();
+    SceneController.sceneController = sceneController;
     super.initState();
     _init = init();
   }

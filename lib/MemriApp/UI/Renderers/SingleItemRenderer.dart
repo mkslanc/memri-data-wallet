@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
 
 class SingleItemRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  SingleItemRendererView({required this.sceneController, required this.viewContext});
+  SingleItemRendererView({required this.pageController, required this.viewContext});
 
   @override
   _SingleItemRendererViewState createState() => _SingleItemRendererViewState();
@@ -28,13 +28,13 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
   initState() {
     super.initState();
     _init = init();
-    widget.sceneController.addListener(updateState);
+    widget.pageController.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
-    widget.sceneController.removeListener(updateState);
+    widget.pageController.removeListener(updateState);
   }
 
   updateState() {

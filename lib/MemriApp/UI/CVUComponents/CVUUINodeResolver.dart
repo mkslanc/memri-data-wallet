@@ -13,6 +13,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 
 import 'CVUElementView.dart';
 
@@ -21,11 +22,16 @@ class CVUUINodeResolver {
   CVUContext context;
   CVULookupController lookup;
   CVUUINode node;
+  memri.PageController pageController;
 
   DatabaseController db;
 
   CVUUINodeResolver(
-      {required this.context, required this.lookup, required this.node, required this.db});
+      {required this.context,
+      required this.lookup,
+      required this.node,
+      required this.db,
+      required this.pageController});
 
   Widget childrenInForEachWithWrap() {
     return Wrap(children: childrenInForEach());
@@ -38,8 +44,12 @@ class CVUUINodeResolver {
     return nodeChildren
         .map((index, child) {
           Widget widget = CVUElementView(
-            nodeResolver:
-                CVUUINodeResolver(context: newContext, lookup: lookup, node: child, db: db),
+            nodeResolver: CVUUINodeResolver(
+                context: newContext,
+                lookup: lookup,
+                node: child,
+                db: db,
+                pageController: pageController),
             additionalParams: additionalParams,
           );
           if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
@@ -82,7 +92,8 @@ class CVUUINodeResolver {
     if (node.children.isNotEmpty) {
       var child = node.children.first;
       return CVUElementView(
-        nodeResolver: CVUUINodeResolver(context: context, lookup: lookup, node: child, db: db),
+        nodeResolver: CVUUINodeResolver(
+            context: context, lookup: lookup, node: child, db: db, pageController: pageController),
       );
     }
   }

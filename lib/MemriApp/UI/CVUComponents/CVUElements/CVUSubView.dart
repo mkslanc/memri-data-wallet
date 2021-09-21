@@ -8,7 +8,6 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
@@ -99,6 +98,7 @@ class _CVUSubViewState extends State<CVUSubView> {
 
     var config = ViewContext(
         viewName: viewName,
+        pageLabel: widget.nodeResolver.pageController.label,
         rendererName: rendererName,
         viewDefinition: viewDefinition,
         query: queryConfig);
@@ -106,7 +106,8 @@ class _CVUSubViewState extends State<CVUSubView> {
     var viewControllerContext = ViewContextController(
         config: holder,
         databaseController: AppController.shared.databaseController,
-        cvuController: AppController.shared.cvuController);
+        cvuController: AppController.shared.cvuController,
+        pageController: widget.nodeResolver.pageController);
 
     return viewControllerContext;
   }
@@ -116,7 +117,7 @@ class _CVUSubViewState extends State<CVUSubView> {
     if (context != null) {
       return SceneContentView(
         viewContext: context,
-        sceneController: SceneController.sceneController,
+        pageController: widget.nodeResolver.pageController,
       );
     } else {
       return Center(

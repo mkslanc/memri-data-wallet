@@ -3,27 +3,27 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 
 import '../ViewContextController.dart';
 
 /// The list renderer
 /// This presents the data in a list (aka tableView)
 class ListRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  ListRendererView({required this.sceneController, required this.viewContext});
+  ListRendererView({required this.pageController, required this.viewContext});
 
   @override
   _ListRendererViewState createState() => _ListRendererViewState();
 }
 
 class _ListRendererViewState extends State<ListRendererView> {
-  late final SceneController sceneController;
+  late final memri.PageController pageController;
   late final ViewContextController viewContext;
 
   late EdgeInsets insets;
@@ -39,12 +39,11 @@ class _ListRendererViewState extends State<ListRendererView> {
 
   initState() {
     super.initState();
-    sceneController = widget.sceneController;
+    pageController = widget.pageController;
     viewContext = widget.viewContext;
     _init = init();
 
-    sceneController.mainPageController.isInEditMode
-        .addListener(updateIsInEditMode); //TODO: change to selectable
+    pageController.isInEditMode.addListener(updateIsInEditMode);
   }
 
   updateIsInEditMode() async {
@@ -54,8 +53,7 @@ class _ListRendererViewState extends State<ListRendererView> {
 
   dispose() {
     super.dispose();
-    sceneController.mainPageController.isInEditMode
-        .removeListener(updateIsInEditMode); //TODO: change to selectable
+    pageController.isInEditMode.removeListener(updateIsInEditMode);
   }
 
   Future<void> init() async {
@@ -71,8 +69,8 @@ class _ListRendererViewState extends State<ListRendererView> {
   }
 
   Future<void> initEditMode() async {
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver.boolean("editMode",
-        sceneController.mainPageController.isInEditMode.value))!; //TODO: change to selectable
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
+        .boolean("editMode", pageController.isInEditMode.value))!;
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
@@ -91,14 +89,13 @@ class _ListRendererViewState extends State<ListRendererView> {
                   selectedIndices = selectedIndicesBinding.get();
                   var lastIndex = viewContext.items.length - 1;
                   return RefreshIndicator(
-                    onRefresh: () async => setState(() => sceneController
-                        .mainPageController.topMostContext
-                        ?.setupQueryObservation()), //TODO: change to selectable
+                    onRefresh: () async =>
+                        setState(() => pageController.topMostContext?.setupQueryObservation()),
                     child: ListView.custom(
                       shrinkWrap: true,
                       padding: EdgeInsets.fromLTRB(
                           0,
-                          sceneController.showTopBar ? insets.top : insets.top + 80,
+                          pageController.showTopBar ? insets.top : insets.top + 80,
                           0,
                           insets.bottom),
                       childrenDelegate: SliverChildListDelegate(List<Widget>.from(viewContext.items
@@ -163,7 +160,7 @@ class _ListRendererViewState extends State<ListRendererView> {
             onDismissed: (direction) async {
               var action = CVUActionDelete();
               await action
-                  .execute(sceneController, viewContext.getCVUContext(item: item))
+                  .execute(pageController, viewContext.getCVUContext(item: item))
                   .then((value) => viewContext.setupQueryObservation());
             },
             child: ListTile(
@@ -203,7 +200,7 @@ class _ListRendererViewState extends State<ListRendererView> {
               viewContext.nodePropertyResolver(item)?.actions("onPress");
           if (presses != null) {
             presses.forEach((press) async =>
-                await press.execute(sceneController, viewContext.getCVUContext(item: item)));
+                await press.execute(pageController, viewContext.getCVUContext(item: item)));
           }
         }
       };

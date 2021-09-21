@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
@@ -11,17 +11,17 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
 class GridRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  GridRendererView({required this.sceneController, required this.viewContext});
+  GridRendererView({required this.pageController, required this.viewContext});
 
   @override
   _GridRendererViewState createState() => _GridRendererViewState();
 }
 
 class _GridRendererViewState extends State<GridRendererView> {
-  late final SceneController sceneController;
+  late final memri.PageController pageController;
   late final ViewContextController viewContext;
   late bool isInEditMode;
 
@@ -32,19 +32,17 @@ class _GridRendererViewState extends State<GridRendererView> {
 
   initState() {
     super.initState();
-    sceneController = widget.sceneController;
+    pageController = widget.pageController;
     viewContext = widget.viewContext;
     _init = init();
 
-    sceneController.mainPageController.isInEditMode
-        .addListener(updateState); //TODO: change to selectable
+    pageController.isInEditMode.addListener(updateState);
     viewContext.addListener(updateState);
   }
 
   dispose() {
     super.dispose();
-    sceneController.mainPageController.isInEditMode
-        .removeListener(updateState); //TODO: change to selectable
+    pageController.isInEditMode.removeListener(updateState);
     viewContext.removeListener(updateState);
   }
 
@@ -71,8 +69,8 @@ class _GridRendererViewState extends State<GridRendererView> {
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
 
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver.boolean("editMode",
-        sceneController.mainPageController.isInEditMode.value))!; //TODO: change to selectable
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
+        .boolean("editMode", pageController.isInEditMode.value))!;
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
@@ -91,9 +89,8 @@ class _GridRendererViewState extends State<GridRendererView> {
                     viewContext.hasItems
                         ? Expanded(
                             child: RefreshIndicator(
-                              onRefresh: () async => setState(() => sceneController
-                                  .mainPageController.topMostContext
-                                  ?.setupQueryObservation()), //TODO: change to selectable
+                              onRefresh: () async => setState(
+                                  () => pageController.topMostContext?.setupQueryObservation()),
                               child: GridView.count(
                                 //TODO layout
                                 physics: AlwaysScrollableScrollPhysics(),
@@ -102,7 +99,7 @@ class _GridRendererViewState extends State<GridRendererView> {
                                 shrinkWrap: true,
                                 primary: false,
                                 padding: EdgeInsets.fromLTRB(
-                                    5, sceneController.showTopBar ? 5 : 80, 5, 5),
+                                    5, pageController.showTopBar ? 5 : 80, 5, 5),
                                 crossAxisSpacing: 5,
                                 mainAxisSpacing: 5,
                                 crossAxisCount: 3,
@@ -189,7 +186,7 @@ class _GridRendererViewState extends State<GridRendererView> {
               viewContext.nodePropertyResolver(item)?.actions("onPress");
           if (presses != null) {
             presses.forEach((press) async =>
-                await press.execute(sceneController, viewContext.getCVUContext(item: item)));
+                await press.execute(pageController, viewContext.getCVUContext(item: item)));
           }
         }
       };

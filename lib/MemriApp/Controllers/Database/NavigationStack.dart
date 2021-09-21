@@ -13,21 +13,23 @@ import 'DatabaseController.dart';
 // ignore: must_be_immutable
 class NavigationStack extends Equatable {
   late String sessionID;
+  late String pageLabel;
   late List<ViewContextHolder> state;
 
-  NavigationStack({sessionID, state})
+  NavigationStack({sessionID, state, required this.pageLabel})
       : this.sessionID = sessionID ?? Uuid().v4(),
         this.state = state ?? [];
 
   NavigationStack.fromNavigationStateData(NavigationStateData stateData) {
     sessionID = stateData.sessionID;
+    pageLabel = stateData.pageLabel;
     List jsonData = jsonDecode(Utf8Decoder().convert(stateData.state));
     state = jsonData.map((stateElement) => ViewContextHolder.fromJson(stateElement)).toList();
   }
 
-  static Future<NavigationStack?> fetchOne([DatabaseController? db]) async {
+  static Future<NavigationStack?> fetchOne(String pageLabel, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
-    NavigationStateData? navigationState = await db.databasePool.navigationStateFetchOne();
+    NavigationStateData? navigationState = await db.databasePool.navigationStateFetchOne(pageLabel);
     if (navigationState == null) {
       return null;
     }
@@ -42,10 +44,11 @@ class NavigationStack extends Equatable {
   NavigationStateCompanion toCompanion() {
     return NavigationStateCompanion(
       sessionID: Value(sessionID),
+      pageLabel: Value(pageLabel),
       state: Value(Utf8Encoder().convert(jsonEncode(state))),
     );
   }
 
   @override
-  List<Object> get props => [sessionID, state];
+  List<Object> get props => [sessionID, state, pageLabel];
 }

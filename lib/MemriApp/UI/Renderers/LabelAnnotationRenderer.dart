@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -18,10 +18,10 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 /// - Set the `labelOptions` property to an array of Strings (representing the options)
 /// - You may also provide a `labelOptionIcons` property with an array of icon names (in matching order with `labelOptions` array)
 class LabelAnnotationRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  LabelAnnotationRendererView({required this.sceneController, required this.viewContext});
+  LabelAnnotationRendererView({required this.pageController, required this.viewContext});
 
   @override
   _LabelAnnotationRendererViewState createState() => _LabelAnnotationRendererViewState();

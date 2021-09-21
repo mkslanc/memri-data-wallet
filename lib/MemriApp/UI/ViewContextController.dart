@@ -18,6 +18,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
@@ -29,6 +30,7 @@ class ViewContextController extends ChangeNotifier {
   late DatabaseController databaseController;
   late CVUController cvuController;
   late CVULookupController lookupController;
+  final memri.PageController pageController;
 
   var configObservation;
   var queryObservation;
@@ -41,6 +43,7 @@ class ViewContextController extends ChangeNotifier {
       {required ViewContextHolder config,
       DatabaseController? databaseController,
       CVUController? cvuController,
+      required memri.PageController this.pageController,
       rendererDefinition})
       : this.rendererDefinition = rendererDefinition ?? CVUDefinitionContent() {
     this.databaseController = databaseController ?? AppController.shared.databaseController;
@@ -115,6 +118,7 @@ class ViewContextController extends ChangeNotifier {
         lookup: lookupController,
         db: databaseController,
         blankIfNoDefinition: blankIfNoDefinition,
+        pageController: pageController,
         key: key);
   }
 

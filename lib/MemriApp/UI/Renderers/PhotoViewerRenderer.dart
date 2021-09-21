@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/Components/ImagesAndFiles/PhotoViewController.dart';
 
 import '../ViewContextController.dart';
@@ -10,10 +10,10 @@ import '../ViewContextController.dart';
 /// This presents the data items in a photo viewer, that can page horizontally between images
 /// The CVU for ItemType > map {...} must define a `file` expression pointing to a `File` item
 class PhotoViewerRendererView extends StatelessWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  PhotoViewerRendererView({required this.sceneController, required this.viewContext});
+  PhotoViewerRendererView({required this.pageController, required this.viewContext});
 
   Future<PhotoViewerControllerPhotoItem?> photoItemProvider(int index) async {
     ItemRecord? item = viewContext.items.asMap()[index];

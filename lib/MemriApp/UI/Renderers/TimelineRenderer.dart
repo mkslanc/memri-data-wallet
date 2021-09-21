@@ -3,7 +3,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTimelineItem.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/CalendarHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
@@ -17,11 +17,11 @@ import '../ViewContextController.dart';
 /// The timeline renderer
 /// This presents the data in chronological order in a vertically scrolling `timeline`
 class TimelineRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
   TimelineRendererView(
-      {required this.sceneController, required this.viewContext, this.minSectionHeight = 40});
+      {required this.pageController, required this.viewContext, this.minSectionHeight = 40});
 
   final double minSectionHeight;
 
@@ -91,14 +91,14 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
                         CVUActionOpenView(
                                 renderer: "list",
                                 uids: Set.from(element.items.map((item) => item.rowId)))
-                            .execute(widget.sceneController, widget.viewContext.getCVUContext());
+                            .execute(widget.pageController, widget.viewContext.getCVUContext());
                       } else if (element.items.length > 0) {
                         var item = element.items.first;
                         var press =
                             widget.viewContext.nodePropertyResolver(item)?.action("onPress");
                         if (press != null) {
                           press.execute(
-                              widget.sceneController, widget.viewContext.getCVUContext(item: item));
+                              widget.pageController, widget.viewContext.getCVUContext(item: item));
                         }
                       }
                     },
@@ -152,7 +152,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
             case ConnectionState.done:
               TimelineRendererModel model = snapshot.data!;
               var padding =
-                  EdgeInsets.fromLTRB(0, widget.sceneController.showTopBar ? 8 : 80, 10, 8);
+                  EdgeInsets.fromLTRB(0, widget.pageController.showTopBar ? 8 : 80, 10, 8);
               var widgetSections = sections(model);
               var index = 0;
               var lastIndex = widgetSections.length - 1;

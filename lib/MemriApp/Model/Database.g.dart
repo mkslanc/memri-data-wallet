@@ -1651,13 +1651,15 @@ class StringsSearch extends Table
 
 class NavigationStateData extends DataClass implements Insertable<NavigationStateData> {
   final String sessionID;
+  final String pageLabel;
   final Uint8List state;
-  NavigationStateData({required this.sessionID, required this.state});
+  NavigationStateData({required this.sessionID, required this.pageLabel, required this.state});
   factory NavigationStateData.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return NavigationStateData(
       sessionID: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}sessionID'])!,
+      pageLabel: const StringType().mapFromDatabaseResponse(data['${effectivePrefix}pageLabel'])!,
       state: const BlobType().mapFromDatabaseResponse(data['${effectivePrefix}state'])!,
     );
   }
@@ -1665,6 +1667,7 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['sessionID'] = Variable<String>(sessionID);
+    map['pageLabel'] = Variable<String>(pageLabel);
     map['state'] = Variable<Uint8List>(state);
     return map;
   }
@@ -1672,6 +1675,7 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
   NavigationStateCompanion toCompanion(bool nullToAbsent) {
     return NavigationStateCompanion(
       sessionID: Value(sessionID),
+      pageLabel: Value(pageLabel),
       state: Value(state),
     );
   }
@@ -1680,6 +1684,7 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return NavigationStateData(
       sessionID: serializer.fromJson<String>(json['sessionID']),
+      pageLabel: serializer.fromJson<String>(json['pageLabel']),
       state: serializer.fromJson<Uint8List>(json['state']),
     );
   }
@@ -1688,58 +1693,71 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'sessionID': serializer.toJson<String>(sessionID),
+      'pageLabel': serializer.toJson<String>(pageLabel),
       'state': serializer.toJson<Uint8List>(state),
     };
   }
 
-  NavigationStateData copyWith({String? sessionID, Uint8List? state}) => NavigationStateData(
+  NavigationStateData copyWith({String? sessionID, String? pageLabel, Uint8List? state}) =>
+      NavigationStateData(
         sessionID: sessionID ?? this.sessionID,
+        pageLabel: pageLabel ?? this.pageLabel,
         state: state ?? this.state,
       );
   @override
   String toString() {
     return (StringBuffer('NavigationStateData(')
           ..write('sessionID: $sessionID, ')
+          ..write('pageLabel: $pageLabel, ')
           ..write('state: $state')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(sessionID.hashCode, state.hashCode));
+  int get hashCode => $mrjf($mrjc(sessionID.hashCode, $mrjc(pageLabel.hashCode, state.hashCode)));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is NavigationStateData &&
           other.sessionID == this.sessionID &&
+          other.pageLabel == this.pageLabel &&
           other.state == this.state);
 }
 
 class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
   final Value<String> sessionID;
+  final Value<String> pageLabel;
   final Value<Uint8List> state;
   const NavigationStateCompanion({
     this.sessionID = const Value.absent(),
+    this.pageLabel = const Value.absent(),
     this.state = const Value.absent(),
   });
   NavigationStateCompanion.insert({
     required String sessionID,
+    required String pageLabel,
     required Uint8List state,
   })  : sessionID = Value(sessionID),
+        pageLabel = Value(pageLabel),
         state = Value(state);
   static Insertable<NavigationStateData> custom({
     Expression<String>? sessionID,
+    Expression<String>? pageLabel,
     Expression<Uint8List>? state,
   }) {
     return RawValuesInsertable({
       if (sessionID != null) 'sessionID': sessionID,
+      if (pageLabel != null) 'pageLabel': pageLabel,
       if (state != null) 'state': state,
     });
   }
 
-  NavigationStateCompanion copyWith({Value<String>? sessionID, Value<Uint8List>? state}) {
+  NavigationStateCompanion copyWith(
+      {Value<String>? sessionID, Value<String>? pageLabel, Value<Uint8List>? state}) {
     return NavigationStateCompanion(
       sessionID: sessionID ?? this.sessionID,
+      pageLabel: pageLabel ?? this.pageLabel,
       state: state ?? this.state,
     );
   }
@@ -1749,6 +1767,9 @@ class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
     final map = <String, Expression>{};
     if (sessionID.present) {
       map['sessionID'] = Variable<String>(sessionID.value);
+    }
+    if (pageLabel.present) {
+      map['pageLabel'] = Variable<String>(pageLabel.value);
     }
     if (state.present) {
       map['state'] = Variable<Uint8List>(state.value);
@@ -1760,6 +1781,7 @@ class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
   String toString() {
     return (StringBuffer('NavigationStateCompanion(')
           ..write('sessionID: $sessionID, ')
+          ..write('pageLabel: $pageLabel, ')
           ..write('state: $state')
           ..write(')'))
         .toString();
@@ -1777,6 +1799,12 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
         $customConstraints: 'PRIMARY KEY NOT NULL');
   }
 
+  final VerificationMeta _pageLabelMeta = const VerificationMeta('pageLabel');
+  late final GeneratedTextColumn pageLabel = _constructPageLabel();
+  GeneratedTextColumn _constructPageLabel() {
+    return GeneratedTextColumn('pageLabel', $tableName, false, $customConstraints: 'NOT NULL');
+  }
+
   final VerificationMeta _stateMeta = const VerificationMeta('state');
   late final GeneratedBlobColumn state = _constructState();
   GeneratedBlobColumn _constructState() {
@@ -1784,7 +1812,7 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
   }
 
   @override
-  List<GeneratedColumn> get $columns => [sessionID, state];
+  List<GeneratedColumn> get $columns => [sessionID, pageLabel, state];
   @override
   NavigationState get asDslTable => this;
   @override
@@ -1801,6 +1829,12 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
           _sessionIDMeta, sessionID.isAcceptableOrUnknown(data['sessionID']!, _sessionIDMeta));
     } else if (isInserting) {
       context.missing(_sessionIDMeta);
+    }
+    if (data.containsKey('pageLabel')) {
+      context.handle(
+          _pageLabelMeta, pageLabel.isAcceptableOrUnknown(data['pageLabel']!, _pageLabelMeta));
+    } else if (isInserting) {
+      context.missing(_pageLabelMeta);
     }
     if (data.containsKey('state')) {
       context.handle(_stateMeta, state.isAcceptableOrUnknown(data['state']!, _stateMeta));

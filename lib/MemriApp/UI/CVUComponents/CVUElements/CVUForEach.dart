@@ -47,7 +47,8 @@ class _CVUForEachState extends State<CVUForEach> {
                                 context: context,
                                 lookup: widget.nodeResolver.lookup,
                                 node: child,
-                                db: widget.nodeResolver.db)))
+                                db: widget.nodeResolver.db,
+                                pageController: widget.nodeResolver.pageController)))
                         .toList();
                   })
                   .expand((element) => element)
