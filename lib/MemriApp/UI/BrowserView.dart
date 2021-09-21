@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/Chrome/BottomBarView.dart';
 
 import 'Renderers/CalendarRenderer.dart';
@@ -22,9 +23,9 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class BrowserView extends StatefulWidget {
   final ViewContextController viewContext;
-  final SceneController? sceneController;
+  late final memri.PageController? pageController;
 
-  BrowserView({required this.viewContext, this.sceneController});
+  BrowserView({required this.viewContext, this.pageController});
 
   @override
   _BrowserViewState createState() => _BrowserViewState();
@@ -32,7 +33,7 @@ class BrowserView extends StatefulWidget {
 
 class _BrowserViewState extends State<BrowserView> {
   late final ViewContextController viewContext;
-  late final SceneController sceneController;
+  late final memri.PageController pageController;
 
   /// Keep track of whether the search bar is currently open (keyboard shown)
   bool _searchBarOpen = false;
@@ -54,7 +55,7 @@ class _BrowserViewState extends State<BrowserView> {
   initState() {
     super.initState();
     viewContext = widget.viewContext;
-    sceneController = widget.sceneController ?? SceneController.sceneController;
+    pageController = widget.pageController ?? SceneController.sceneController.mainPageController;
     _title = widget.viewContext.viewDefinitionPropertyResolver.string("title");
     viewContext.onAppear();
   }
@@ -69,31 +70,30 @@ class _BrowserViewState extends State<BrowserView> {
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
-        return ListRendererView(viewContext: viewContext, sceneController: sceneController);
+        return ListRendererView(viewContext: viewContext, pageController: pageController);
       case "grid":
-        return GridRendererView(viewContext: viewContext, sceneController: sceneController);
+        return GridRendererView(viewContext: viewContext, pageController: pageController);
       case "map":
-        return MapRendererView(viewContext: viewContext, sceneController: sceneController);
+        return MapRendererView(viewContext: viewContext, pageController: pageController);
       case "timeline":
-        return TimelineRendererView(viewContext: viewContext, sceneController: sceneController);
+        return TimelineRendererView(viewContext: viewContext, pageController: pageController);
       case "calendar":
-        return CalendarRendererView(viewContext: viewContext, sceneController: sceneController);
+        return CalendarRendererView(viewContext: viewContext, pageController: pageController);
       case "photoviewer":
-        return PhotoViewerRendererView(viewContext: viewContext, sceneController: sceneController);
+        return PhotoViewerRendererView(viewContext: viewContext, pageController: pageController);
       case "chart":
-        return ChartRendererView(viewContext: viewContext, sceneController: sceneController);
+        return ChartRendererView(viewContext: viewContext, pageController: pageController);
       case "singleitem":
-        return SingleItemRendererView(viewContext: viewContext, sceneController: sceneController);
+        return SingleItemRendererView(viewContext: viewContext, pageController: pageController);
       case "noteeditor":
-        return NoteEditorRendererView(viewContext: viewContext, sceneController: sceneController);
+        return NoteEditorRendererView(viewContext: viewContext, pageController: pageController);
       case "labelannotation":
         return LabelAnnotationRendererView(
-            viewContext: viewContext, sceneController: sceneController);
+            viewContext: viewContext, pageController: pageController);
       case "fileviewer":
-        return FileRendererView(viewContext: viewContext, sceneController: sceneController);
+        return FileRendererView(viewContext: viewContext, pageController: pageController);
       case "generaleditor":
-        return GeneralEditorRendererView(
-            viewContext: viewContext, sceneController: sceneController);
+        return GeneralEditorRendererView(viewContext: viewContext, pageController: pageController);
       default:
         return Expanded(
             child: Text(
@@ -114,7 +114,7 @@ class _BrowserViewState extends State<BrowserView> {
                     children: space(4, [
                       TextButton(
                           child: Icon(Icons.highlight_off),
-                          onPressed: () => sceneController.closeLastInStack()),
+                          onPressed: () => pageController.closeLastInStack()),
                       if (snapshot.hasData) ...[
                         Spacer(),
                         Text(snapshot.data!,
@@ -131,7 +131,7 @@ class _BrowserViewState extends State<BrowserView> {
 
   @override
   Widget build(BuildContext context) {
-    sceneController.addToStack(context);
+    pageController.addToStack(context);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.95, //TODO?
@@ -139,7 +139,10 @@ class _BrowserViewState extends State<BrowserView> {
         children: [
           topBarView,
           renderer,
-          BottomBarView(viewContext: viewContext),
+          BottomBarView(
+            viewContext: viewContext,
+            pageController: pageController,
+          ),
           if (filterPanelIsVisible) ...[
             GestureDetector(
               child: ColoredBox(

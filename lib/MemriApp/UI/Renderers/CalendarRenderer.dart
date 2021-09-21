@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/CalendarHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
@@ -16,10 +16,10 @@ import 'CalendarRendererModel.dart';
 /// Dots are used to represent days on which items fall
 /// Pressing on a day will show a timeline view focused on that day
 class CalendarRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  CalendarRendererView({required this.sceneController, required this.viewContext});
+  CalendarRendererView({required this.pageController, required this.viewContext});
 
   @override
   _CalendarRendererViewState createState() => _CalendarRendererViewState();
@@ -134,7 +134,7 @@ class _CalendarRendererViewState extends State<CalendarRendererView> {
                       viewName: "calendarDayView",
                       renderer: "timeline",
                       dateRange: calendarHelper.wholeDay(day))
-                  .execute(widget.sceneController, widget.viewContext.getCVUContext());
+                  .execute(widget.pageController, widget.viewContext.getCVUContext());
             } else {
               return;
             }

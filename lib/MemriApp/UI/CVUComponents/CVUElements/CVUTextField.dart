@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/Components/Text/TextField/MemriTextfield.dart';
 
@@ -27,8 +26,6 @@ class _CVUTextFieldState extends State<CVUTextField> {
   Color? color;
 
   FutureBinding<String?>? contentBinding;
-
-  SceneController sceneController = SceneController.sceneController;
 
   late Future _init;
 

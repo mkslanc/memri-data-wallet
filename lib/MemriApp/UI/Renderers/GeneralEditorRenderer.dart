@@ -4,10 +4,11 @@ import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
+import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Dictionary.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes//String.dart';
@@ -80,10 +81,10 @@ class GeneralEditorLayoutItem {
 /// The GeneralEditorRenderer
 /// This presents an editor for a single item
 class GeneralEditorRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  GeneralEditorRendererView({required this.sceneController, required this.viewContext});
+  GeneralEditorRendererView({required this.pageController, required this.viewContext});
 
   @override
   _GeneralEditorRendererViewState createState() => _GeneralEditorRendererViewState();
@@ -95,13 +96,13 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   @override
   initState() {
     super.initState();
-    widget.sceneController.addListener(updateState);
+    widget.pageController.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
-    widget.sceneController.removeListener(updateState);
+    widget.pageController.removeListener(updateState);
   }
 
   List<GeneralEditorLayoutItem> get layout {
@@ -200,7 +201,7 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
     if (currentItem != null) {
       return [
         SizedBox(
-          height: widget.sceneController.showTopBar ? 0 : 80,
+          height: widget.pageController.showTopBar ? 0 : 80,
         ),
         ...layout
             .map((layoutSection) => GeneralEditorSection(
@@ -210,6 +211,7 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
                   usedFields: usedFields,
                   isEditing:
                       !widget.viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                  pageController: widget.pageController,
                 ))
             .toList()
       ];
@@ -220,8 +222,7 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable:
-            widget.sceneController.mainPageController.isInEditMode, //TODO: change to selectable
+        valueListenable: widget.pageController.isInEditMode,
         builder: (BuildContext context, bool value, Widget? child) {
           return RefreshIndicator(
             onRefresh: () async => updateState(),
@@ -244,12 +245,14 @@ class GeneralEditorSection extends StatefulWidget {
   final ItemRecord item;
   final Set<String> usedFields;
   final bool isEditing;
+  final memri.PageController pageController;
 
   GeneralEditorSection(
       {required this.viewContext,
       required this.layout,
       required this.item,
       required this.usedFields,
+      required this.pageController,
       this.isEditing = false});
 
   @override
@@ -257,8 +260,6 @@ class GeneralEditorSection extends StatefulWidget {
 }
 
 class _GeneralEditorSectionState extends State<GeneralEditorSection> {
-  final SceneController sceneController = SceneController.sceneController;
-
   late Future<String?> _sectionTitle;
   late Future<List<ItemRecord>> _edgeItems;
 
@@ -462,7 +463,7 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                         content: title.toUpperCase())); // .generalEditorHeader()
                     if (action != null) {
                       header.add(Spacer());
-                      header.add(ActionPopupButton(action!));
+                      header.add(ActionPopupButton(action!, widget.pageController));
                     }
                   }
                   List<Widget> content = [];
@@ -475,7 +476,7 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                     var _fields = fields;
                     _fields.sort();
                     _fields.forEach((field) {
-                      var fieldProperty = sceneController.appController.databaseController.schema
+                      var fieldProperty = AppController.shared.databaseController.schema
                           .expectedPropertyType(widget.item.type, field);
 
                       if (fieldProperty != null) {
@@ -527,7 +528,6 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
 }
 
 class DefaultGeneralEditorRow extends StatelessWidget {
-  final SceneController sceneController = SceneController.sceneController;
   final ViewContextController viewContext;
 
   final SchemaProperty property;

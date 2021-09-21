@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -12,16 +12,15 @@ import '../../ViewContextController.dart';
 class ActionButton extends StatefulWidget {
   final CVUAction action;
   final CVUContext viewContext;
+  final memri.PageController pageController;
 
-  ActionButton({required this.action, required this.viewContext});
+  ActionButton({required this.action, required this.viewContext, required this.pageController});
 
   @override
   _ActionButtonState createState() => _ActionButtonState();
 }
 
 class _ActionButtonState extends State<ActionButton> {
-  final SceneController sceneController = SceneController.sceneController;
-
   String? _title;
 
   String get title => _title ?? "";
@@ -50,7 +49,7 @@ class _ActionButtonState extends State<ActionButton> {
           style: CVUFont.link,
         ),
         onPressed: () async {
-          await widget.action.execute(sceneController, widget.viewContext);
+          await widget.action.execute(widget.pageController, widget.viewContext);
           setState(() => initTitle());
         });
   }
@@ -58,8 +57,9 @@ class _ActionButtonState extends State<ActionButton> {
 
 class ActionPopupButton extends StatefulWidget {
   final CVUActionOpenViewByName action;
+  final memri.PageController pageController;
 
-  ActionPopupButton(this.action);
+  ActionPopupButton(this.action, this.pageController);
 
   @override
   _ActionPopupButtonState createState() => _ActionPopupButtonState();
@@ -79,8 +79,9 @@ class _ActionPopupButtonState extends State<ActionPopupButton> {
         useRootNavigator: true,
         isScrollControlled: true,
         builder: (BuildContext context) => FutureBuilder<ViewContextController?>(
-          future: action
-              .getViewContext(CVUContext(viewName: action.viewName, rendererName: action.renderer)),
+          future: action.getViewContext(
+              CVUContext(viewName: action.viewName, rendererName: action.renderer),
+              widget.pageController),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:

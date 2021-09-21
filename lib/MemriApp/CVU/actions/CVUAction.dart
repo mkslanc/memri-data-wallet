@@ -23,13 +23,13 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Controllers/Plugins/PluginHandler.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 
 abstract class CVUAction {
-  execute(SceneController sceneController, CVUContext context);
+  execute(memri.PageController pageController, CVUContext context);
 
   Map<String, CVUValue> get defaultVars {
     return {};
@@ -149,14 +149,14 @@ class CVUActionShowStarred extends CVUAction {
   CVUActionShowStarred({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
     CVUActionOpenView(
             vars: newVars,
             viewName: "filter-starred",
             renderer: context.rendererName,
             viewDefinition: context.viewDefinition)
-        .execute(sceneController, context);
+        .execute(pageController, context);
   }
 }
 
@@ -174,7 +174,7 @@ class CVUActionOpenView extends CVUAction {
       : this.vars = vars ?? {};
 
   @override
-  Future execute(SceneController sceneController, CVUContext context) async {
+  Future execute(memri.PageController pageController, CVUContext context) async {
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -192,11 +192,11 @@ class CVUActionOpenView extends CVUAction {
     } else {
       viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
     }
-    DatabaseController db = sceneController.appController.databaseController;
+    DatabaseController db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: this.vars);
 
-    await sceneController.navigateToNewContext(
+    await pageController.sceneController.navigateToNewContext(
         clearStack: await resolver.boolean("clearStack") ?? false,
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
@@ -206,7 +206,8 @@ class CVUActionOpenView extends CVUAction {
         overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
-        viewArguments: viewArguments);
+        viewArguments: viewArguments,
+        pageController: pageController);
   }
 }
 
@@ -221,9 +222,10 @@ class CVUActionOpenViewByName extends CVUAction {
       : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {}
+  execute(memri.PageController pageController, CVUContext context) async {}
 
-  Future<ViewContextController?> getViewContext(CVUContext context) async {
+  Future<ViewContextController?> getViewContext(
+      CVUContext context, memri.PageController pageController) async {
     CVUDefinitionContent? customDefinition;
     var view = vars["view"];
     if (view is CVUValueSubdefinition) {
@@ -281,6 +283,7 @@ class CVUActionOpenViewByName extends CVUAction {
     var config = ViewContext(
         viewName: viewName,
         rendererName: rendererName,
+        pageLabel: pageController.label,
         viewDefinition: viewDefinition,
         query: queryConfig,
         viewArguments: viewArguments,
@@ -289,7 +292,8 @@ class CVUActionOpenViewByName extends CVUAction {
     var newViewContext = ViewContextController(
         config: holder,
         databaseController: appController.databaseController,
-        cvuController: appController.cvuController);
+        cvuController: appController.cvuController,
+        pageController: pageController);
 
     return newViewContext;
   }
@@ -301,13 +305,8 @@ class CVUActionNavigateBack extends CVUAction {
   CVUActionNavigateBack({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    if (isMainView) {
-      await sceneController.mainPageController.navigateBack();
-    } else {
-      await sceneController.secondaryPageController.navigateBack();
-    }
+  execute(memri.PageController pageController, CVUContext context) async {
+    await pageController.navigateBack();
   }
 }
 
@@ -317,8 +316,8 @@ class CVUActionCopyToClipboard extends CVUAction {
   CVUActionCopyToClipboard({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    var db = sceneController.appController.databaseController;
+  execute(memri.PageController pageController, CVUContext context) async {
+    var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: vars);
     var value = await resolver.string("value");
@@ -338,8 +337,8 @@ class CVUActionAddItem extends CVUAction {
   CVUActionAddItem({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(SceneController sceneController, CVUContext context) async {
-    var db = sceneController.appController.databaseController;
+  Future execute(memri.PageController pageController, CVUContext context) async {
+    var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: vars);
     var template = resolver.subdefinition("template");
@@ -449,13 +448,8 @@ class CVUActionAddItem extends CVUAction {
       }));
 
       await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
-          .execute(sceneController, context.replacingItem(item));
-      var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-      if (isMainView) {
-        sceneController.mainPageController.isInEditMode.value = true;
-      } else {
-        sceneController.secondaryPageController.isInEditMode.value = true;
-      }
+          .execute(pageController, context.replacingItem(item));
+      pageController.isInEditMode.value = true;
       // AppController.shared.syncController.sync();TODO sync
     }
   }
@@ -467,9 +461,9 @@ class CVUActionPluginRun extends CVUAction {
   CVUActionPluginRun({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
-    var db = sceneController.appController.databaseController;
+    var db = pageController.appController.databaseController;
 
     var plugin = context.currentItem;
     var targetItemIdValue = vars["targetItemId"];
@@ -503,7 +497,7 @@ class CVUActionPluginRun extends CVUAction {
             PluginHandler.presentCVUforPlugin(
                 plugin: plugin,
                 runner: existingPluginRunItem,
-                sceneController: sceneController,
+                sceneController: pageController.sceneController,
                 context: context);
             return;
           case "cvuPresented":
@@ -536,7 +530,7 @@ class CVUActionPluginRun extends CVUAction {
       await PluginHandler.run(
           plugin: plugin,
           runner: pluginRunItem,
-          sceneController: sceneController,
+          sceneController: pageController.sceneController,
           context: context);
     } catch (error) {
       print("Error starting plugin: $error");
@@ -550,7 +544,7 @@ class CVUActionSync extends CVUAction {
   CVUActionSync({vars}) : this.vars = vars ?? {};
 
   @override
-  void execute(SceneController sceneController, CVUContext context) async {
+  void execute(memri.PageController pageController, CVUContext context) async {
     try {
       var pendingItems = <ItemRecord>[];
       var pendingEdges = <ItemEdgeRecord>[];
@@ -591,16 +585,7 @@ class CVUActionSync extends CVUAction {
       }
 
       await AppController.shared.syncController.sync();
-      var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-      if (isMainView) {
-        if (sceneController.mainPageController.isInEditMode.value) {
-          sceneController.mainPageController.toggleEditMode();
-        }
-      } else {
-        if (sceneController.secondaryPageController.isInEditMode.value) {
-          sceneController.secondaryPageController.toggleEditMode();
-        }
-      }
+      pageController.isInEditMode.value = false;
     } catch (error) {
       print("Error starting sync: $error");
     }
@@ -613,13 +598,8 @@ class CVUActionToggleEditMode extends CVUAction {
   CVUActionToggleEditMode({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    if (isMainView) {
-      sceneController.mainPageController.toggleEditMode();
-    } else {
-      sceneController.secondaryPageController.toggleEditMode();
-    }
+  execute(memri.PageController pageController, CVUContext context) async {
+    pageController.toggleEditMode();
   }
 }
 
@@ -629,7 +609,7 @@ class CVUActionToggleNavigation extends CVUAction {
   CVUActionToggleNavigation({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -640,7 +620,7 @@ class CVUActionToggleFullScreen extends CVUAction {
   CVUActionToggleFullScreen({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -651,13 +631,13 @@ class CVUActionDelete extends CVUAction {
   CVUActionDelete({vars}) : this.vars = vars ?? {};
 
   @override
-  Future<void> execute(SceneController sceneController, CVUContext context) async {
+  Future<void> execute(memri.PageController pageController, CVUContext context) async {
     var item = context.currentItem;
     if (item == null) {
       return;
     }
 
-    await item.delete(sceneController.appController.databaseController);
+    await item.delete(pageController.appController.databaseController);
   }
 }
 
@@ -667,7 +647,7 @@ class CVUActionSelectAll extends CVUAction {
   CVUActionSelectAll({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -678,7 +658,7 @@ class CVUActionDeselectAll extends CVUAction {
   CVUActionDeselectAll({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO: implement execute
   }
 }
@@ -689,9 +669,9 @@ class CVUActionLink extends CVUAction {
   CVUActionLink({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
-    var db = sceneController.appController.databaseController;
+    var db = pageController.appController.databaseController;
 
     var currentItem = context.currentItem;
     var subjectVal = vars["subject"];
@@ -728,12 +708,7 @@ class CVUActionLink extends CVUAction {
         sourceRowID: subjectItem.rowId, name: edgeType, targetRowID: currentItem.rowId);
     edge.save(db.databasePool);
 
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    if (isMainView) {
-      sceneController.mainPageController.scheduleUIUpdate();
-    } else {
-      sceneController.secondaryPageController.scheduleUIUpdate();
-    }
+    pageController.scheduleUIUpdate();
   }
 }
 
@@ -743,9 +718,9 @@ class CVUActionUnlink extends CVUAction {
   CVUActionUnlink({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
-    var db = sceneController.appController.databaseController;
+    var db = pageController.appController.databaseController;
 
     var currentItem = context.currentItem;
     var subjectVal = vars["subject"];
@@ -779,12 +754,7 @@ class CVUActionUnlink extends CVUAction {
       return;
     }
 
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    if (isMainView) {
-      sceneController.mainPageController.scheduleUIUpdate();
-    } else {
-      sceneController.secondaryPageController.scheduleUIUpdate();
-    }
+    pageController.scheduleUIUpdate();
   }
 }
 
@@ -798,7 +768,7 @@ class CVUActionStar extends CVUAction {
   CVUActionStar({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(SceneController sceneController, CVUContext context) async {
+  Future execute(memri.PageController pageController, CVUContext context) async {
     var currentItem = context.currentItem;
     if (currentItem == null) {
       return;
@@ -808,7 +778,7 @@ class CVUActionStar extends CVUAction {
     var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
     try {
       await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
-      //sceneController.scheduleUIUpdate();
+      //pageController.scheduleUIUpdate();
     } catch (error) {
       print(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
@@ -822,8 +792,8 @@ class CVUActionClosePopup extends CVUAction {
   CVUActionClosePopup({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    sceneController.closeLastInStack();
+  execute(memri.PageController pageController, CVUContext context) async {
+    pageController.closeLastInStack();
   }
 }
 
@@ -837,8 +807,9 @@ class CVUActionToggleFilterPanel extends CVUAction {
   CVUActionToggleFilterPanel({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    sceneController.filterPanelIsVisible.value = !sceneController.filterPanelIsVisible.value;
+  execute(memri.PageController pageController, CVUContext context) async {
+    pageController.sceneController.filterPanelIsVisible.value =
+        !pageController.sceneController.filterPanelIsVisible.value;
   }
 }
 
@@ -848,7 +819,7 @@ class CVUActionOpenGroup extends CVUAction {
   CVUActionOpenGroup({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -863,7 +834,7 @@ class CVUActionShowContextPane extends CVUAction {
   CVUActionShowContextPane({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -874,7 +845,7 @@ class CVUActionShowNavigation extends CVUAction {
   CVUActionShowNavigation({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -885,7 +856,7 @@ class CVUActionDuplicate extends CVUAction {
   CVUActionDuplicate({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -896,7 +867,7 @@ class CVUActionSchedule extends CVUAction {
   CVUActionSchedule({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -907,7 +878,7 @@ class CVUActionShowSessionSwitcher extends CVUAction {
   CVUActionShowSessionSwitcher({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -918,7 +889,7 @@ class CVUActionForwardToFront extends CVUAction {
   CVUActionForwardToFront({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -929,7 +900,7 @@ class CVUActionBackAsSession extends CVUAction {
   CVUActionBackAsSession({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -940,7 +911,7 @@ class CVUActionOpenSession extends CVUAction {
   CVUActionOpenSession({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -951,7 +922,7 @@ class CVUActionOpenSessionByName extends CVUAction {
   CVUActionOpenSessionByName({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -962,7 +933,7 @@ class CVUActionMultiAction extends CVUAction {
   CVUActionMultiAction({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -973,7 +944,7 @@ class CVUActionRunIndexer extends CVUAction {
   CVUActionRunIndexer({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -984,9 +955,9 @@ class CVUActionSetProperty extends CVUAction {
   CVUActionSetProperty({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
-    var db = sceneController.appController.databaseController;
+    var db = pageController.appController.databaseController;
     var schema = db.schema;
 
     var subjectVal = vars["subject"];
@@ -1011,16 +982,9 @@ class CVUActionSetProperty extends CVUAction {
 
     await subjectItem.setPropertyValue(property, databaseValue);
 
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    if (isMainView) {
-      sceneController.mainPageController.topMostContext
-          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
-      sceneController.mainPageController.scheduleUIUpdate();
-    } else {
-      sceneController.secondaryPageController.topMostContext
-          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
-      sceneController.secondaryPageController.scheduleUIUpdate();
-    }
+    pageController.topMostContext
+        ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
+    pageController.scheduleUIUpdate();
   }
 }
 
@@ -1030,7 +994,7 @@ class CVUActionSetSetting extends CVUAction {
   CVUActionSetSetting({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -1041,20 +1005,14 @@ class CVUActionToNextItem extends CVUAction {
   CVUActionToNextItem({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    var page = sceneController.secondaryPageController;
-    if (isMainView) {
-      page = sceneController.mainPageController;
-    }
-
-    if (page.topMostContext == null) {
+  execute(memri.PageController pageController, CVUContext context) async {
+    if (pageController.topMostContext == null) {
       return;
     }
-    var index = page.topMostContext!.focusedIndex;
-    page.topMostContext?.focusedIndex =
-        index >= page.topMostContext!.items.length - 1 ? 0 : index + 1;
-    page.scheduleUIUpdate();
+    var index = pageController.topMostContext!.focusedIndex;
+    pageController.topMostContext?.focusedIndex =
+        index >= pageController.topMostContext!.items.length - 1 ? 0 : index + 1;
+    pageController.scheduleUIUpdate();
   }
 }
 
@@ -1064,20 +1022,14 @@ class CVUActionToPreviousItem extends CVUAction {
   CVUActionToPreviousItem({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    var isMainView = (context.viewArguments!.args["mainView"]!.value as CVUConstantBool).value;
-    var page = sceneController.secondaryPageController;
-    if (isMainView) {
-      page = sceneController.mainPageController;
-    }
-
-    if (page.topMostContext == null) {
+  execute(memri.PageController pageController, CVUContext context) async {
+    if (pageController.topMostContext == null) {
       return;
     }
-    var index = page.topMostContext!.focusedIndex;
-    page.topMostContext?.focusedIndex =
-        index <= 0 ? page.topMostContext!.items.length - 1 : index - 1;
-    page.scheduleUIUpdate();
+    var index = pageController.topMostContext!.focusedIndex;
+    pageController.topMostContext?.focusedIndex =
+        index <= 0 ? pageController.topMostContext!.items.length - 1 : index - 1;
+    pageController.scheduleUIUpdate();
   }
 }
 
@@ -1087,7 +1039,7 @@ class CVUActionNoop extends CVUAction {
   CVUActionNoop({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
+  execute(memri.PageController pageController, CVUContext context) async {
     // TODO:
   }
 }
@@ -1098,8 +1050,8 @@ class CVUActionRequestContactsPermission extends CVUAction {
   CVUActionRequestContactsPermission({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    await sceneController.appController.permissionController.requestContacts();
+  execute(memri.PageController pageController, CVUContext context) async {
+    await pageController.appController.permissionController.requestContacts();
   }
 }
 
@@ -1109,8 +1061,8 @@ class CVUActionRequestLocationPermission extends CVUAction {
   CVUActionRequestLocationPermission({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    await sceneController.appController.permissionController.requestLocation();
+  execute(memri.PageController pageController, CVUContext context) async {
+    await pageController.appController.permissionController.requestLocation();
   }
 }
 
@@ -1120,8 +1072,8 @@ class CVUActionRequestStoragePermission extends CVUAction {
   CVUActionRequestStoragePermission({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {
-    await sceneController.appController.permissionController.requestStorage();
+  execute(memri.PageController pageController, CVUContext context) async {
+    await pageController.appController.permissionController.requestStorage();
   }
 }
 
@@ -1131,9 +1083,9 @@ class CVUActionOpenPopup extends CVUAction {
   CVUActionOpenPopup({vars}) : this.vars = vars ?? {};
 
   Future<Map<String, dynamic>?> setPopupSettings(
-      SceneController sceneController, CVUContext context) async {
+      memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
-    var db = sceneController.appController.databaseController;
+    var db = pageController.appController.databaseController;
 
     var titleProp = vars["title"];
     var textProp = vars["text"];
@@ -1149,5 +1101,5 @@ class CVUActionOpenPopup extends CVUAction {
   }
 
   @override
-  execute(SceneController sceneController, CVUContext context) async {}
+  execute(memri.PageController pageController, CVUContext context) async {}
 }
