@@ -2518,6 +2518,18 @@
     ]
   },
   {
+    "_type": "MessageChannel",
+    "uid": 200000000099,
+    "externalId": "987654321@s.whatsapp.net",
+    "allEdges": [
+      {
+        "targetType": "Account",
+        "uid": 20000000003,
+        "_type": "receiver"
+      }
+    ]
+  },
+  {
     "_type": "Message",
     "uid": 20000000009,
     "externalId": "9BDD372B9D4F7486D2A0",
@@ -2957,6 +2969,11 @@
         "targetType": "Account",
         "uid": 20000000000,
         "_type": "sender"
+      },
+      {
+        "targetType": "MessageChannel",
+        "uid": 200000000099,
+        "_type": "messageChannel"
       }
     ]
   },

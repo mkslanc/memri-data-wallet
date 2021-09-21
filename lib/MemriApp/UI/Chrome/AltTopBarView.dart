@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 
 import '../ViewContextController.dart';
@@ -21,9 +22,21 @@ class AltTopBarView extends StatefulWidget {
 class _TopBarViewState extends State<AltTopBarView> {
   late ViewContextController? viewContext;
 
+  late Future<String?> title;
+
+  Future<String?> get _title async {
+    return await widget
+            .sceneController.secondaryPageController.topMostContext?.viewDefinitionPropertyResolver
+            .string("title") ??
+        (viewContext?.focusedItem != null
+            ? await viewContext!.itemPropertyResolver?.string("title")
+            : "");
+  }
+
   @override
   initState() {
     super.initState();
+    title = _title;
     widget.sceneController.addListener(updateState);
   }
 
@@ -34,35 +47,76 @@ class _TopBarViewState extends State<AltTopBarView> {
   }
 
   void updateState() {
-    setState(() {});
+    setState(() {
+      title = _title;
+    });
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    title = _title;
   }
 
   @override
   Widget build(BuildContext context) {
     viewContext = widget.sceneController.secondaryPageController.topMostContext;
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
-    return SizedBox(
-      height: 54,
-      child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-        if (actions != null && viewContext != null)
-          ...actions.map(
-              (action) => ActionButton(action: action, viewContext: viewContext!.getCVUContext())),
-        TextButton(
-          onPressed: () {
-            if (widget.sceneController.secondaryPageController.canNavigateBack) {
-              widget.sceneController.secondaryPageController.navigateBack();
-            } else {
-              widget.sceneController.secondaryPageController.topMostContext = null;
-              widget.sceneController.secondaryPageController.navigationStack.state = [];
-              widget.sceneController.secondaryPageController.scheduleUIUpdate();
-            }
-          },
-          child: Icon(
-            Icons.close,
-            color: Color(0xffDFDEDE),
-          ),
-        )
-      ]),
+    return Column(
+      children: [
+        SizedBox(
+          height: 54,
+          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            if (actions != null && viewContext != null)
+              ...actions.map((action) =>
+                  ActionButton(action: action, viewContext: viewContext!.getCVUContext())),
+            TextButton(
+              onPressed: () {
+                if (widget.sceneController.secondaryPageController.canNavigateBack) {
+                  widget.sceneController.secondaryPageController.navigateBack();
+                } else {
+                  widget.sceneController.secondaryPageController.topMostContext = null;
+                  widget.sceneController.secondaryPageController.navigationStack.state = [];
+                  widget.sceneController.secondaryPageController.scheduleUIUpdate();
+                }
+              },
+              child: Icon(
+                Icons.close,
+                color: Color(0xffDFDEDE),
+              ),
+            )
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: FutureBuilder(
+              future: title,
+              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                if (snapshot.hasData && snapshot.data != "") {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        snapshot.data!,
+                        style: CVUFont.headline2,
+                      ),
+                      SizedBox(
+                        height: 27,
+                      ),
+                      Divider(
+                        height: 1,
+                      )
+                    ],
+                  );
+                } else {
+                  return Text("");
+                }
+              }),
+        ),
+      ],
     );
   }
 }

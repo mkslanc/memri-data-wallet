@@ -1,10 +1,18 @@
 .inbox {
     name: "inbox"
     title: "Inbox"
-    defaultRenderer: timeline
+    defaultRenderer: list
+    cols: 4
           
     [datasource = pod] {
-        query: MessageChannel EmailMessage Note
-        sortProperty: dateModified
+        query: MessageChannel
+        sort: {
+            targetType: "Message"
+            edgeSource: {
+                name: messageChannel
+                sortProperty: dateSent
+                sortAscending: false
+            }
+        }
     }
 }

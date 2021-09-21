@@ -151,7 +151,7 @@ class NavigationItemView extends StatelessWidget {
         child: Center(
           child: item.icon != null
               ? SvgPicture.asset(
-                  "assets/svg/" + item.icon! + ".svg",
+                  "assets/images/" + item.icon! + ".svg",
                   color: textColor != null ? textColor : Color(0xff989898),
                   semanticsLabel: item.name,
                 )
