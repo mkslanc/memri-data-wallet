@@ -7,6 +7,7 @@ import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:uuid/uuid.dart';
 
 import '../ViewContextController.dart';
 
@@ -78,6 +79,18 @@ class _ListRendererViewState extends State<ListRendererView> {
     selectedIndices = selectedIndicesBinding.get();
   }
 
+  Widget? get additional {
+    var additionalDef = viewContext.cvuController
+        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
+        ?.properties["additional"];
+
+    var additionalSubdef = additionalDef?.getSubdefinition();
+    if (additionalSubdef != null) {
+      return viewContext.render(nodeDefinition: additionalSubdef);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -90,6 +103,25 @@ class _ListRendererViewState extends State<ListRendererView> {
                 if (viewContext.items.isNotEmpty) {
                   selectedIndices = selectedIndicesBinding.get();
                   var lastIndex = viewContext.items.length - 1;
+                  var elements = List<Widget>.from(viewContext.items
+                      .mapIndexed((index, item) =>
+                          [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
+                      .expand((element) => element));
+                  elements.insert(0, _buildSeparator());
+                  if (additional != null) {
+                    elements.insertAll(0, [
+                      _buildSeparator(),
+                      ListTile(
+                        key: Key(Uuid().v4()),
+                        dense: true,
+                        minVerticalPadding: 0,
+                        visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                        title: additional!,
+                      )
+                    ]);
+                  }
                   return RefreshIndicator(
                     onRefresh: () async => setState(() => sceneController
                         .mainPageController.topMostContext
@@ -101,10 +133,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                           sceneController.showTopBar ? insets.top : insets.top + 80,
                           0,
                           insets.bottom),
-                      childrenDelegate: SliverChildListDelegate(List<Widget>.from(viewContext.items
-                          .mapIndexed((index, item) =>
-                              [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
-                          .expand((element) => element))),
+                      childrenDelegate: SliverChildListDelegate(elements),
                     ),
                     //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
                     /*child: ListView.separated(
@@ -179,9 +208,12 @@ class _ListRendererViewState extends State<ListRendererView> {
           );
   }
 
-  _buildSeparator() => Divider(
-        height: separatorsEnabled ? 1 : 0,
-        color: separatorsEnabled ? null : Colors.transparent,
+  _buildSeparator() => Padding(
+        padding: EdgeInsets.fromLTRB(insets.left, 0, insets.right, 0),
+        child: Divider(
+          height: separatorsEnabled ? 1 : 0,
+          color: separatorsEnabled ? null : Colors.transparent,
+        ),
       );
 
   selectionMode(index) {
