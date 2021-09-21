@@ -778,7 +778,6 @@ class CVUActionStar extends CVUAction {
     var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
     try {
       await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
-      //pageController.scheduleUIUpdate();
     } catch (error) {
       print(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
