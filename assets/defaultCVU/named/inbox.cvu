@@ -3,7 +3,7 @@
     title: "Inbox"
     defaultRenderer: list
     cols: 4
-          
+
     [datasource = pod] {
         query: MessageChannel
         sort: {
@@ -12,6 +12,41 @@
                 name: messageChannel
                 sortProperty: dateSent
                 sortAscending: false
+            }
+        }
+    }
+
+    additional: {
+        Button {
+            onPress: openView {
+                viewName: "allPosts"
+                clearStack: true
+                inheritDatasource: false
+                viewArguments {
+                    mainView: false
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 13 0 7 0
+
+                Image {
+                    bundleImage: "coffee"
+                    isVector: true
+                    sizingMode: fill
+                    minHeight: 30
+                    maxHeight: 30
+                    minWidth: 30
+                    maxWidth: 30
+                    cornerRadius: 50
+                }
+
+                Text {
+                    text: "Social updates"
+                    font: 12 regular
+                    color: #FE570F
+                }
             }
         }
     }

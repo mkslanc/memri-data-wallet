@@ -41,15 +41,11 @@ MessageChannel {
 
 .messageChannelView {
     defaultRenderer: list
-    title: {{channel.receiver.owner.firstName or channel.name or channel.topic}}
+    title: {{channel.~messageChannel[].last().subject or channel.receiver.owner.fullname() or channel.name or channel.topic}}
     cols: 6
 
     titleActionButton: openView {
         item: {{channel}}
-    }
-
-    bottomBar: {
-        messageComposer
     }
 
     [datasource = pod] {

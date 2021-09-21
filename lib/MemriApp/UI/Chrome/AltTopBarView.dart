@@ -63,6 +63,7 @@ class _TopBarViewState extends State<AltTopBarView> {
     viewContext = widget.sceneController.secondaryPageController.topMostContext;
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
           height: 54,
@@ -106,9 +107,6 @@ class _TopBarViewState extends State<AltTopBarView> {
                       SizedBox(
                         height: 27,
                       ),
-                      Divider(
-                        height: 1,
-                      )
                     ],
                   );
                 } else {
