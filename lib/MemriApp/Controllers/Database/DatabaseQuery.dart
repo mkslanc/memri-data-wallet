@@ -463,11 +463,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
           if (edgeSorting.properties["sortProperty"] != null) {
             var sortPropertyCondition = await edgeSorting.string("sortProperty");
-            if (sortPropertyName!.startsWith("~")) {
-              targetItemType = targetType ?? itemTypes.first;
+            if (targetType != null) {
+              targetItemType = targetType;
             } else {
               targetItemType = dbController.schema
-                  .expectedTargetType(targetType ?? itemTypes.first, sortPropertyName);
+                  .expectedTargetType(targetType ?? itemTypes.first, sortPropertyName!);
             }
             if (targetItemType == null) {
               print("No target type for $sortPropertyName");

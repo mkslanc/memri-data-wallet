@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
@@ -31,11 +32,15 @@ class _CVUImageState extends State<CVUImage> {
 
   String? iconName;
 
+  String? vectorImageName;
+
   late CVU_SizingMode sizingMode;
 
   late Future _init;
 
   bool isLoaded = false;
+
+  bool isVector = false;
 
   @override
   initState() {
@@ -50,14 +55,19 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   init() async {
-    fileImage = await getFileImage();
-    sizingMode = await widget.nodeResolver.propertyResolver.sizingMode();
-    if (fileImage == null) {
-      bundleImage = await getBundleImage();
-      if (bundleImage == null) {
-        font = await widget.nodeResolver.propertyResolver.font();
-        color = await widget.nodeResolver.propertyResolver.color();
-        iconName = await widget.nodeResolver.propertyResolver.string("systemName");
+    isVector = (await widget.nodeResolver.propertyResolver.boolean("isVector", false))!;
+    if (isVector) {
+      vectorImageName = await widget.nodeResolver.propertyResolver.string("bundleImage");
+    } else {
+      fileImage = await getFileImage();
+      sizingMode = await widget.nodeResolver.propertyResolver.sizingMode();
+      if (fileImage == null) {
+        bundleImage = await getBundleImage();
+        if (bundleImage == null) {
+          font = await widget.nodeResolver.propertyResolver.font();
+          color = await widget.nodeResolver.propertyResolver.color();
+          iconName = await widget.nodeResolver.propertyResolver.string("systemName");
+        }
       }
     }
     isLoaded = true;
@@ -66,6 +76,10 @@ class _CVUImageState extends State<CVUImage> {
   Future<ImageProvider?> getFileImage() async {
     var imageURI = await widget.nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
+      imageURI = await widget.nodeResolver.propertyResolver.string("image");
+      if (imageURI != null) {
+        return await FileStorageController.getImage(fileURL: imageURI);
+      }
       return null;
     }
     return await FileStorageController.getImage(uuid: imageURI);
@@ -90,6 +104,10 @@ class _CVUImageState extends State<CVUImage> {
               image: ResizeImage(fileImage!,
                   width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
               fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
+            );
+          } else if (isVector) {
+            return SvgPicture.asset(
+              "assets/images/" + vectorImageName! + ".svg",
             );
           } else if (bundleImage != null) {
             return Image(image: bundleImage!);

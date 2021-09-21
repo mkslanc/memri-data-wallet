@@ -10,7 +10,7 @@
     "_type": "NavigationItem",
     "itemType": "items",
     "title": "Inbox",
-    "sessionName": "allMessageChannels",
+    "sessionName": "inbox",
     "icon": "inbox"
   },
   {

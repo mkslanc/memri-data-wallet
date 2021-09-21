@@ -8,139 +8,130 @@ MessageChannel {
             { section: profilePicture }
             { section: other, fields: * }
             { section: dates }
-        ]
-        
-        profilePicture {
-            showTitle: false
-        
-            VStack {
-                alignment: bottomright
-                maxHeight: 300
-                
-                Image {
-                    image: {{.receiver.owner.profilePicture}}
-                    sizingMode: fill
-                }
-                
-                HStack {
-                    padding: 10
-                    background: #efef /* TODO: Support opacity in the background */
-                    
-                    MemriButton {
-                        item: {{.receiver.owner}}
+            ]
+
+            profilePicture {
+                showTitle: false
+
+                VStack {
+                    alignment: bottomright
+                    maxHeight: 300
+
+                    Image {
+                        image: {{.receiver.owner.profilePicture}}
+                        sizingMode: fill
                     }
-                    Spacer
-                    MemriButton {
-                        item: {{.receiver.network}}
+
+                    HStack {
+                        padding: 10
+                        background: #efef /* TODO: Support opacity in the background */
+
+                        MemriButton {
+                            item: {{.receiver.owner}}
+                        }
+                        Spacer
+                        MemriButton {
+                            item: {{.receiver.network}}
+                        }
                     }
                 }
             }
-        }
     }
 }
 
 .messageChannelView {
     defaultRenderer: list
-    title: {{channel.receiver.owner.firstName or channel.name or channel.topic}}
-    
+    title: {{channel.~messageChannel[].last().subject or channel.receiver.owner.fullname() or channel.name or channel.topic}}
+    cols: 6
+
     titleActionButton: openView {
         item: {{channel}}
     }
 
-    bottomBar: {
-        messageComposer
-    }
-
     [datasource = pod] {
-        query: Message
+        query: Message EmailMessage
         filter: {
             edgeTargets: {
-               messageChannel: {{channelUID}}
+                messageChannel: {{channelUID}}
             }
         }
         sortProperty: dateSent
         sortAscending: false
     }
-    
+
     [renderer = list] {
-        hideSeparators: true
+        hideSeparators: false
     }
-    
+
     Message > list {
         onPress: doNothing
     }
-    
+
     Message > timeline {
         onPress: doNothing
     }
 }
 
-    
+
 MessageChannel > list {
+
     onPress: openView {
         viewName: messageChannelView
+        clearStack: true
         viewArguments {
             channelUID: {{.uid}}
             channel: {{.}}
+         mainView: false
         }
     }
 
-    HStack {
-        alignment: center
-        
-        ZStack {
-            alignment: top
-            margin: 0 15 0 0
-        
+    VStack {
+        alignment: topleft
+
+        HStack {
+            alignment: left
+
             Image {
-                image: {{.receiver.owner.profilePicture}}
+                image: {{.receiver.owner.profilePicture or "assets/images/person.png"}}
                 sizingMode: fill
-                minHeight: 50
-                maxHeight: 50
-                minWidth: 50
-                maxWidth: 50
-                cornerRadius: 30
+                minHeight: 30
+                maxHeight: 30
+                minWidth: 30
+                maxWidth: 30
+                cornerRadius: 50
+            }
+
+
+            Text {
+                text: {{.name ? .name : .receiver.owner.fullName() or .~messageChannel.sender.identifier }}
+                font: 12 regular
+                color: #737373
+            }
+
+            Spacer
+            Text {
+                text: "{.~messageChannel[].last().dateSent}"
+                color: #989898
+                padding: 0 19 0 0
+                font: 10 regular
             }
         }
-        
-        VStack {
-            alignment: leading
-            HStack {
-                Text {
-                    text: "{.name}"
-                    font: 18 semibold
-                    color: primary
-                    padding: 0 0 3 0
-                }
-                
-                Spacer
-                
-                Text {
-                    text: "{.~messageChannel[].last().dateSent}"
-                    font: 9 regular
-                    color: tertiary
-                    padding: 4 0 3 0
-                }
-            }
-            HStack {
-                Text {
-                    text: "{.~messageChannel[].last().photo ? '[Photo]' : .~messageChannel[].last().content.plainString() or 'No messages yet'}"
-                    lineLimit: 2
-                    font: 14 regular
-                    color: secondary
-                    padding: 0 0 5 0
-                }
-                Spacer
-                
-                Text {
-                    text: "{.receiver.network.name}"
-                    lineLimit: 1
-                    font: 12 semibold
-                    color: secondary
-                    padding: 0 0 5 0
-                }
-            }
+
+        Text {
+            text: "{.~messageChannel[].last().photo ? '[Photo]' : .~messageChannel[].last().subject or .~messageChannel[].last().content.plainString() or 'No messages yet'}"
+            lineLimit: 1
+            font: 12 regular
+            color: #333333
         }
+
+        Text {
+            show: {{.~messageChannel[].last().subject}}
+            text: {{.~messageChannel[].last().content.plainString() or ""}}
+            lineLimit: 1
+            font: 10 regular
+            color: #989898
+        }
+
     }
 }
 
@@ -148,8 +139,8 @@ MessageChannel > list {
     title: "Channels"
     defaultRenderer: list
     filterButtons: [ showStarred toggleFilterPanel ]
-    
-        
+
+
     [datasource = pod] {
         query: "MessageChannel"
         sort: {

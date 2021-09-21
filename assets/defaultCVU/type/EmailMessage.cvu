@@ -1,58 +1,51 @@
 EmailMessage > list {
-    onPress: openView
-    
+    title: ""
+
     VStack {
-        alignment: left
-        spacing: 3
-        
+        alignment: topleft
+
         HStack {
             alignment: left
-            
-            Text {
-                text: "{.sender.owner.firstName} {.sender.owner.lastName}"
-                lineLimit: 1
-                font: 18
-                color: secondary
-                padding: 0 0 0 0
-            }
-            Spacer
-            Text {
-                text: "{.dateSent}" /* TODO: Short */
-                lineLimit: 1
-                font: 11 regular
-                color: secondary
-                padding: 0 0 0 0
-            }
-        }
-        HStack {
-            alignment: left
-            fillWidth: true
-            Text {
-                text: {{.subject or "[No subject]"}}
-                lineLimit: 1
-                font: 18 semibold
-                color: primary
-                padding: 0 0 0 0
-            }
+
             Image {
-                systemName: "star.fill"
-                font: 14
-                color: yellow
-                margin: 5
-                show: {{.starred}}
+                image: {{.sender.owner.profilePicture or "assets/images/person.png"}}
+                sizingMode: fill
+                minHeight: 30
+                maxHeight: 30
+                minWidth: 30
+                maxWidth: 30
+                cornerRadius: 50
             }
+
+
+            Text {
+                text: {{.sender.owner.fullName() ? .sender.owner.fullName() : .sender.identifier }}
+                font: 12 regular
+                color: #737373
+            }
+
             Spacer
+
+            Text {
+                text: "{.dateSent}"
+                color: #989898
+                font: 10 regular
+                padding: 0 19 0 0
+            }
+
+            Image {
+                systemName: "ellipsis"
+                color: #DFDEDE
+                font: 24 light
+                padding: 5 0 5 0
+            }
         }
-        
-        Text {
-            text: "{.content.plainString()}"
-            lineLimit: 2
-            removeWhiteSpace: true
-            maxChar: 100
-            color: secondary
-            font: 14 regular
+
+        HTMLView {
+            maxHeight: 550
+            content: {{.content}}
         }
-        
+
     }
 }
 
@@ -62,27 +55,27 @@ EmailMessage > list {
     defaultRenderer: list
     filterButtons: showStarred toggleFilterPanel
     sortFields: subject dateModified dateAccessed dateCreated
-    
+
     [datasource = pod] {
         query: "EmailMessage"
         sortProperty: dateSent
-        sortAscending: true
+        sortAscending: false
     }
-    
+
     actionButton:
-        addItem {
-            template {
-                _type: EmailMessage
-            }
+    addItem {
+        template {
+            _type: EmailMessage
         }
-        
+    }
+
     editActionButton: toggleEditMode
-    
+
 }
 
 EmailMessage > timeline {
     onPress: openView
-        
+
     TimelineItem {
         icon: "envelope.fill"
         title: {{.subject.plainString() or "No subject"}}
@@ -90,47 +83,61 @@ EmailMessage > timeline {
     }
 }
 
+EmailMessage {
+    defaultRenderer: singleitem
+    cols: 6
+}
+
 EmailMessage > singleItem {
     VStack {
+        alignment: topleft
+
+        Text {
+            text: "{.subject}"
+            font: headline2
+            color: #333333
+            padding: 0 0 27 0
+        }
+
+        Divider
+
         HStack {
-            padding: 10 10
-            spacing: 10
-            ZStack {
-                width: 50
-                height: 50
-                Circle {
-                    color: #000000
-                }
-                Text {
-                    text: "{.sender.owner.initials()}"
-                    font: 20 bold
-                    color: #FFFFFF
-                }
+            alignment: left
+
+            Image {
+                image: {{.sender.owner.profilePicture}}
+                sizingMode: fill
+                minHeight: 30
+                maxHeight: 30
+                minWidth: 30
+                maxWidth: 30
+                cornerRadius: 50
             }
-            VStack {
-                alignment: leading
-                spacing: 4
-                HStack {
-                    Text {
-                        text: "{.subject}"
-                        font: 20
-                    }
-                    Spacer
-                    Text {
-                        text: "{.dateSent}"
-                        color: secondary
-                    }
-                }
-                HStack {
-                    Text {
-                        text: "{.sender.owner.firstName} {.sender.owner.lastName}"
-                        color: secondary
-                    }
-                    Spacer
-                }
+
+
+            Text {
+                text: "{.sender.owner.firstName} {.sender.owner.lastName}"
+                font: 12 regular
+                color: #737373
+            }
+
+            Spacer
+
+            Text {
+                text: "{.dateSent}"
+                color: #989898
+                font: 10 regular
+                padding: 0 19 0 0
+            }
+
+            Image {
+                systemName: "ellipsis"
+                color: #DFDEDE
+                font: 24 light
+                padding: 5 0 5 0
             }
         }
-        Divider
+
         HTMLView {
             content: {{.content}}
         }
