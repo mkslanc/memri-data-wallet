@@ -366,7 +366,7 @@ Person > list {
             spacing: 15
 
             Image {
-                image: {{.profilePicture}}
+                image: {{.profilePicture or "assets/images/person.png"}}
                 sizingMode: fill
                 minHeight: 30
                 maxHeight: 30
