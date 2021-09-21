@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUMap.dart';
 import 'package:memri/MemriApp/UI/Components/Map/MapView.dart';
 
@@ -11,10 +11,10 @@ import '../ViewContextController.dart';
 /// - for an item to be shown the CVU for ItemType > map {...} must define an expression resolving to either a `Location` or `Address` item
 /// - you can provide a `label` property in the CVU for ItemType > map {...}
 class MapRendererView extends StatelessWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  MapRendererView({required this.sceneController, required this.viewContext});
+  MapRendererView({required this.pageController, required this.viewContext});
 
   @override
   Widget build(BuildContext context) {

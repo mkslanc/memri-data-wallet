@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUTextPropertiesModifier.dart';
@@ -19,8 +18,6 @@ class CVUButton extends StatefulWidget {
 }
 
 class _CVUButtonState extends State<CVUButton> {
-  final SceneController sceneController = SceneController.sceneController;
-
   TextProperties? resolvedTextProperties;
   bool isLink = false;
 
@@ -45,12 +42,13 @@ class _CVUButtonState extends State<CVUButton> {
     }
     for (var action in actions) {
       if (action is CVUActionOpenPopup) {
-        var settings = await action.setPopupSettings(sceneController, widget.nodeResolver.context);
+        var settings = await action.setPopupSettings(
+            widget.nodeResolver.pageController, widget.nodeResolver.context);
         if (settings != null) {
           openPopup(settings);
         }
       } else {
-        await action.execute(sceneController, widget.nodeResolver.context);
+        await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
       }
     }
   }
@@ -68,7 +66,8 @@ class _CVUButtonState extends State<CVUButton> {
               if (title != null) {
                 return TextButton(
                   onPressed: () async {
-                    await action.execute(sceneController, widget.nodeResolver.context);
+                    await action.execute(
+                        widget.nodeResolver.pageController, widget.nodeResolver.context);
                     Navigator.pop(context, action.vars["title"]!.value.value);
                   },
                   child: Text(action.vars["title"]!.value.value),

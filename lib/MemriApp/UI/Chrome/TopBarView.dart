@@ -3,7 +3,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 
 import '../ViewContextController.dart';
@@ -11,9 +11,9 @@ import 'SearchView.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
 
-  TopBarView({required this.sceneController});
+  TopBarView({required this.pageController});
 
   @override
   _TopBarViewState createState() => _TopBarViewState();
@@ -24,8 +24,7 @@ class _TopBarViewState extends State<TopBarView> {
   late Future<String?> title;
 
   Future<String?> get _title async {
-    return await widget
-            .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
+    return await widget.pageController.topMostContext?.viewDefinitionPropertyResolver
             .string("title") ??
         (viewContext?.focusedItem != null
             ? await viewContext!.itemPropertyResolver?.string("title")
@@ -36,13 +35,13 @@ class _TopBarViewState extends State<TopBarView> {
   initState() {
     super.initState();
     title = _title;
-    widget.sceneController.mainPageController.addListener(updateState);
+    widget.pageController.addListener(updateState);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.sceneController.mainPageController.removeListener(updateState);
+    widget.pageController.removeListener(updateState);
   }
 
   void updateState() {
@@ -59,7 +58,7 @@ class _TopBarViewState extends State<TopBarView> {
 
   @override
   Widget build(BuildContext context) {
-    viewContext = widget.sceneController.mainPageController.topMostContext;
+    viewContext = widget.pageController.topMostContext;
     return Padding(
       padding: const EdgeInsets.fromLTRB(30, 60, 30, 0),
       child: Column(

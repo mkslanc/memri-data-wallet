@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
@@ -12,10 +12,10 @@ import '../ViewContextController.dart';
 /// The chart renderer.
 /// This renderer displays the data in a chart (eg. line, bar, pie)
 class ChartRendererView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  ChartRendererView({required this.sceneController, required this.viewContext});
+  ChartRendererView({required this.pageController, required this.viewContext});
 
   @override
   _ChartRendererViewState createState() => _ChartRendererViewState();

@@ -42,7 +42,6 @@ class _SceneViewState extends State<SceneView> {
             .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
             .syncBoolean("showTopBar") ??
         true;
-    widget.sceneController.showTopBar = showTopBar;
   }
 
   @override
@@ -51,16 +50,12 @@ class _SceneViewState extends State<SceneView> {
     init();
 
     widget.sceneController.addListener(updateState);
-    widget.sceneController.mainPageController.addListener(updateState);
-    widget.sceneController.secondaryPageController.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
     widget.sceneController.removeListener(updateState);
-    widget.sceneController.mainPageController.removeListener(updateState);
-    widget.sceneController.secondaryPageController.removeListener(updateState);
   }
 
   @override
@@ -96,9 +91,9 @@ class _SceneViewState extends State<SceneView> {
                         height: constraints.maxHeight,
                         child: Column(
                           children: [
-                            showTopBar //TODO should be handled by page controller
+                            showTopBar
                                 ? TopBarView(
-                                    sceneController: widget.sceneController,
+                                    pageController: widget.sceneController.mainPageController,
                                   )
                                 : Empty(),
                             Expanded(
@@ -122,7 +117,8 @@ class _SceneViewState extends State<SceneView> {
                             : 0,
                         child: Column(
                           children: [
-                            AltTopBarView(sceneController: widget.sceneController),
+                            AltTopBarView(
+                                pageController: widget.sceneController.secondaryPageController),
                             Expanded(
                               child: NavigationHolder(
                                 widget.sceneController.secondaryPageController.navigationController,
@@ -158,8 +154,7 @@ class _SceneViewState extends State<SceneView> {
                 },
                 valueListenable: widget.sceneController.filterPanelIsVisible,
               ),
-              if (widget
-                  .sceneController.mainPageController.canNavigateBack) //TODO: change to selectable
+              if (widget.sceneController.mainPageController.canNavigateBack)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 15, 0, 0),
                   child: SizedBox(
@@ -167,8 +162,7 @@ class _SceneViewState extends State<SceneView> {
                     width: 50,
                     child: FloatingActionButton(
                       onPressed: () {
-                        widget.sceneController.mainPageController
-                            .navigateBack(); //TODO: change to selectable
+                        widget.sceneController.mainPageController.navigateBack();
                       },
                       backgroundColor: Colors.white,
                       child: Icon(

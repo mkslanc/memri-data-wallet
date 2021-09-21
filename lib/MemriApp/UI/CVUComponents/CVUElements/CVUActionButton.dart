@@ -5,7 +5,6 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/UI/BrowserView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -25,8 +24,6 @@ class CVUActionButton extends StatefulWidget {
 }
 
 class _CVUActionButtonState extends State<CVUActionButton> {
-  final SceneController sceneController = SceneController.sceneController;
-
   late Future<PropertyDatabaseValue?>? _starred;
   PropertyDatabaseValue? starred;
 
@@ -52,7 +49,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
       return;
     }
     for (var action in actions) {
-      await action.execute(sceneController, widget.nodeResolver.context);
+      await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
     }
   }
 
@@ -100,11 +97,13 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                 useRootNavigator: true,
                 isScrollControlled: true,
                 builder: (BuildContext context) => FutureBuilder<ViewContextController?>(
-                  future: validAction.getViewContext(CVUContext(
-                      currentItem: widget.nodeResolver.context.currentItem,
-                      viewName: validAction.viewName,
-                      rendererName: validAction.renderer,
-                      viewArguments: viewArguments)),
+                  future: validAction.getViewContext(
+                      CVUContext(
+                          currentItem: widget.nodeResolver.context.currentItem,
+                          viewName: validAction.viewName,
+                          rendererName: validAction.renderer,
+                          viewArguments: viewArguments),
+                      widget.nodeResolver.pageController),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
@@ -113,7 +112,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                         if (snapshot.hasData) {
                           return BrowserView(
                             viewContext: snapshot.data!,
-                            sceneController: sceneController,
+                            pageController: widget.nodeResolver.pageController,
                           );
                         } else {
                           return Text("TODO: ActionPopupButton");
@@ -139,7 +138,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
               }),
           onPressed: () async {
             await validAction
-                .execute(sceneController, widget.nodeResolver.context)
+                .execute(widget.nodeResolver.pageController, widget.nodeResolver.context)
                 .whenComplete(() => setState(init));
           });
     }

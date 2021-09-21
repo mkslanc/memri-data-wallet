@@ -15,6 +15,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -236,18 +237,22 @@ class CVUController {
       required CVULookupController lookup,
       required DatabaseController db,
       required bool blankIfNoDefinition,
+      required memri.PageController pageController,
       Key? key}) {
     nodeDefinition ??= nodeDefinitionFor(cvuContext);
     CVUUINode? node = nodeDefinition?.children.asMap()[0];
     CVUUINodeResolver? nodeResolver;
     if (node != null) {
-      nodeResolver = CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node, db: db);
+      nodeResolver = CVUUINodeResolver(
+          context: cvuContext, lookup: lookup, node: node, db: db, pageController: pageController);
     } else if ((nodeDefinitionFor(cvuContext)?.children ?? []).length > 0) {
       node = nodeDefinitionFor(cvuContext)?.children.first;
-      nodeResolver = CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db);
+      nodeResolver = CVUUINodeResolver(
+          context: cvuContext, lookup: lookup, node: node!, db: db, pageController: pageController);
     } else if ((defaultViewDefinitionFor(cvuContext)?.children ?? []).length > 0) {
       node = defaultViewDefinitionFor(cvuContext)?.children.first;
-      nodeResolver = CVUUINodeResolver(context: cvuContext, lookup: lookup, node: node!, db: db);
+      nodeResolver = CVUUINodeResolver(
+          context: cvuContext, lookup: lookup, node: node!, db: db, pageController: pageController);
     }
     if (nodeResolver != null) {
       return CVUElementView(

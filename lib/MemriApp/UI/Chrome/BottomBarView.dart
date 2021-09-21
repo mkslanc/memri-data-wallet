@@ -11,12 +11,14 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 import '../ViewContextController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 
 /// This view contains the contents of the 'Bottom bar' which is shown below renderer content.
 class BottomBarView extends StatefulWidget {
   final ViewContextController viewContext;
+  final memri.PageController pageController;
 
-  BottomBarView({required this.viewContext});
+  BottomBarView({required this.viewContext, required this.pageController});
 
   @override
   _BottomBarViewState createState() => _BottomBarViewState();
@@ -50,7 +52,8 @@ class _BottomBarViewState extends State<BottomBarView> {
       buttons = actions.map((action) {
         return ActionButton(
             action: action,
-            viewContext: widget.viewContext.getCVUContext(item: widget.viewContext.focusedItem));
+            viewContext: widget.viewContext.getCVUContext(item: widget.viewContext.focusedItem),
+            pageController: widget.pageController);
       }).toList();
     } else {
       var filterButtons =
@@ -60,7 +63,8 @@ class _BottomBarViewState extends State<BottomBarView> {
         if (action != null) {
           return ActionButton(
               action: action(vars: <String, CVUValue>{}),
-              viewContext: widget.viewContext.getCVUContext());
+              viewContext: widget.viewContext.getCVUContext(),
+              pageController: widget.pageController);
         }
         return null;
       });

@@ -359,8 +359,9 @@ class Database extends _$Database {
         variables: binding, readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
 
-  Future<NavigationStateData?> navigationStateFetchOne() async {
-    return await (select(navigationState)..limit(1)).getSingleOrNull();
+  Future<NavigationStateData?> navigationStateFetchOne(String pageLabel) async {
+    return await (select(navigationState)..where((t) => t.pageLabel.equals(pageLabel)))
+        .getSingleOrNull();
   }
 
   Future<int> navigationStateSave(NavigationStack record) async {

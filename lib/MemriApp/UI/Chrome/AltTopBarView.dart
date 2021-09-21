@@ -3,7 +3,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 
@@ -11,9 +11,9 @@ import '../ViewContextController.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class AltTopBarView extends StatefulWidget {
-  final SceneController sceneController;
+  final memri.PageController pageController;
 
-  AltTopBarView({required this.sceneController});
+  AltTopBarView({required this.pageController});
 
   @override
   _TopBarViewState createState() => _TopBarViewState();
@@ -26,7 +26,7 @@ class _TopBarViewState extends State<AltTopBarView> {
 
   Future<String?> get _title async {
     return await widget
-            .sceneController.secondaryPageController.topMostContext?.viewDefinitionPropertyResolver
+            .pageController.topMostContext?.viewDefinitionPropertyResolver
             .string("title") ??
         (viewContext?.focusedItem != null
             ? await viewContext!.itemPropertyResolver?.string("title")
@@ -37,13 +37,13 @@ class _TopBarViewState extends State<AltTopBarView> {
   initState() {
     super.initState();
     title = _title;
-    widget.sceneController.addListener(updateState);
+    widget.pageController.addListener(updateState);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.sceneController.removeListener(updateState);
+    widget.pageController.removeListener(updateState);
   }
 
   void updateState() {
@@ -60,7 +60,7 @@ class _TopBarViewState extends State<AltTopBarView> {
 
   @override
   Widget build(BuildContext context) {
-    viewContext = widget.sceneController.secondaryPageController.topMostContext;
+    viewContext = widget.pageController.topMostContext;
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,15 +70,15 @@ class _TopBarViewState extends State<AltTopBarView> {
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             if (actions != null && viewContext != null)
               ...actions.map((action) =>
-                  ActionButton(action: action, viewContext: viewContext!.getCVUContext())),
+                  ActionButton(action: action, viewContext: viewContext!.getCVUContext(), pageController: widget.pageController,)),
             TextButton(
               onPressed: () {
-                if (widget.sceneController.secondaryPageController.canNavigateBack) {
-                  widget.sceneController.secondaryPageController.navigateBack();
+                if (widget.pageController.canNavigateBack) {
+                  widget.pageController.navigateBack();
                 } else {
-                  widget.sceneController.secondaryPageController.topMostContext = null;
-                  widget.sceneController.secondaryPageController.navigationStack.state = [];
-                  widget.sceneController.secondaryPageController.scheduleUIUpdate();
+                  widget.pageController.topMostContext = null;
+                  widget.pageController.navigationStack.state = [];
+                  widget.pageController.scheduleUIUpdate();
                 }
               },
               child: Icon(
