@@ -2,6 +2,11 @@
   "properties": [
     {
       "item_type": "Account",
+      "property": "accessToken",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Account",
       "property": "authEmail",
       "value_type": "string"
     },
@@ -43,6 +48,11 @@
     {
       "item_type": "Account",
       "property": "itemType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Account",
+      "property": "refreshToken",
       "value_type": "string"
     },
     {
@@ -687,6 +697,11 @@
     },
     {
       "item_type": "NavigationItem",
+      "property": "icon",
+      "value_type": "string"
+    },
+    {
+      "item_type": "NavigationItem",
       "property": "itemType",
       "value_type": "string"
     },
@@ -703,11 +718,6 @@
     {
       "item_type": "NavigationItem",
       "property": "title",
-      "value_type": "string"
-    },
-    {
-      "item_type": "NavigationItem",
-      "property": "icon",
       "value_type": "string"
     },
     {
@@ -907,12 +917,17 @@
     },
     {
       "item_type": "PluginRun",
+      "property": "authUrl",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
       "property": "containerImage",
       "value_type": "string"
     },
     {
       "item_type": "PluginRun",
-      "property": "oAuthUrl",
+      "property": "error",
       "value_type": "string"
     },
     {
@@ -923,6 +938,11 @@
     {
       "item_type": "PluginRun",
       "property": "pluginName",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
+      "property": "settings",
       "value_type": "string"
     },
     {
@@ -1466,6 +1486,11 @@
       "source_type": "Plugin",
       "edge": "view",
       "target_type": "CVUStoredDefinition"
+    },
+    {
+      "source_type": "PluginRun",
+      "edge": "account",
+      "target_type": "Account"
     },
     {
       "source_type": "PluginRun",
