@@ -66,6 +66,10 @@ class _CVUImageState extends State<CVUImage> {
   Future<ImageProvider?> getFileImage() async {
     var imageURI = await widget.nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
+      imageURI = await widget.nodeResolver.propertyResolver.string("image");
+      if (imageURI != null) {
+        return await FileStorageController.getImage(fileURL: imageURI);
+      }
       return null;
     }
     return await FileStorageController.getImage(uuid: imageURI);
