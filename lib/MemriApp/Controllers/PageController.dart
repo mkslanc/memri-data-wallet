@@ -54,6 +54,12 @@ class PageController extends ChangeNotifier {
     }
   }
 
+  reset() {
+    closeStack = [];
+    _navigationStack = null;
+    navigationController = MemriUINavigationController(); //TODO: change when navigation fixed
+  }
+
   ViewContextController makeContext(ViewContextHolder config) {
     return ViewContextController(
         config: config,
@@ -88,14 +94,14 @@ class PageController extends ChangeNotifier {
     topConfigHolder.config.viewArguments = newArgs;
   }
 
-  late NavigationStack _navigationStack;
+  NavigationStack? _navigationStack;
 
-  NavigationStack get navigationStack => _navigationStack;
+  NavigationStack get navigationStack => _navigationStack!;
 
   set navigationStack(NavigationStack newValue) {
     _navigationStack = newValue;
     notifyListeners();
-    _navigationStack.save();
+    navigationStack.save();
   }
 
   bool get canNavigateBack => navigationStack.state.length > 1;
