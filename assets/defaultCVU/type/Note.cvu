@@ -113,6 +113,7 @@ Note > timeline {
     emptyResultText: "There are no notes here yet"
     defaultRenderer: list
     sortFields: title dateModified dateAccessed dateCreated
+    cols: 6
     
     [datasource = pod] {
         query: "Note"
@@ -163,6 +164,8 @@ Note {
     title: ""
     defaultRenderer: noteEditor
     editActionButton: toggleEditMode
+    cols: 6
+
     filterButtons: [
         openView {
             icon: "increase.indent"
