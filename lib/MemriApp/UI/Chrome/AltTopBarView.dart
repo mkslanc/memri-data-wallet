@@ -75,13 +75,7 @@ class _TopBarViewState extends State<AltTopBarView> {
                   )),
             TextButton(
               onPressed: () {
-                if (widget.pageController.canNavigateBack) {
-                  widget.pageController.navigateBack();
-                } else {
-                  widget.pageController.topMostContext = null;
-                  widget.pageController.navigationStack.state = [];
-                  widget.pageController.scheduleUIUpdate();
-                }
+                widget.pageController.navigateBackOrClose();
               },
               child: Icon(
                 Icons.close,

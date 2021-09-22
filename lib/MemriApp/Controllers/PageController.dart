@@ -133,4 +133,14 @@ class PageController extends ChangeNotifier {
     var lastStack = closeStack.removeLast();
     Navigator.of(lastStack).pop();
   }
+
+  navigateBackOrClose() {
+    if (canNavigateBack) {
+      navigateBack();
+    } else {
+      topMostContext = null;
+      navigationStack.state = [];
+      scheduleUIUpdate();
+    }
+  }
 }

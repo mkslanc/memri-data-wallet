@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/Binding.dart';
-import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditor.dart';
+import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriSimpleTextEditor.dart';
 import 'package:memri/MemriApp/UI/Components/NoteEditor/MemriTextEditorModel.dart';
 
 import '../ViewContextController.dart';
@@ -64,10 +64,13 @@ class NoteEditorRendererView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MemriTextEditor(
-      model: getEditorModel,
-      onModelUpdate: handleModelUpdate,
-      viewContext: viewContext,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(30, 0, 30, 44),
+      child: MemriSimpleTextEditor(
+        title: noteTitle,
+        content: noteContent,
+        viewContext: viewContext,
+      ),
     );
   }
 }
