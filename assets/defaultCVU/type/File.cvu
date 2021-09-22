@@ -1,0 +1,107 @@
+File > list {
+    onPress: openView {
+        renderer: "singleItem"
+        viewArguments: {
+            currentItem: {{.}}
+            mainView: false
+        }
+    }
+
+   HStack {
+        alignment: left
+        spacing: 15
+
+        Image {
+            image: {{.~file or "assets/images/image.png"}}
+            sizingMode: fill
+            minHeight: 30
+            maxHeight: 30
+            minWidth: 30
+            maxWidth: 30
+        }
+
+
+        Text {
+            text: {{.filename or .sha256}}
+            font: 12 regular
+            color: #737373
+        }
+
+        Spacer
+        Image {
+            systemName: "ellipsis"
+            color: #DFDEDE
+            font: 24 light
+            padding: 5 0 5 0
+        }
+    }
+}
+     
+File > photoViewer {
+    file: {{.}}
+}
+
+File > fileViewer {
+    file: {{.file}}
+    itemTitle: {{.caption}}
+}
+
+File {
+    title: {{.caption or .filename or .sha256}}
+    defaultRenderer: singleItem
+    cols: 6
+}
+
+File > singleItem {
+    title: {{.caption or .filename or .sha256}}
+
+    VStack {
+        alignment: topleft
+        padding: 0 150 0 0
+
+        Divider
+
+        HStack {
+            show: {{.~file.~photo.author.owner.fullName() or .~file.~photo.author.displayName }}
+            alignment: left
+
+            Image {
+                image: {{.~file.~photo.author.owner.profilePicture or "assets/images/person.png"}}
+                sizingMode: fill
+                minHeight: 30
+                maxHeight: 30
+                minWidth: 30
+                maxWidth: 30
+                cornerRadius: 50
+            }
+
+
+            Text {
+                text: {{.~file.~photo.author.owner.fullName() or .~file.~photo.author.displayName }}
+                font: 12 regular
+                color: #737373
+            }
+
+            Spacer
+
+            Text {
+                text: "{.~file.~photo.postDate}"
+                color: #989898
+                font: 10 regular
+                padding: 0 19 0 0
+            }
+
+            Image {
+                systemName: "ellipsis"
+                color: #DFDEDE
+                font: 24 light
+                padding: 5 0 5 0
+            }
+        }
+
+        Image {
+            image: {{.~file or "assets/images/image.png"}}
+        }
+
+    }
+}

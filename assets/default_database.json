@@ -15,14 +15,14 @@
   },
   {
     "_type": "NavigationItem",
-    "title": "people",
+    "title": "People",
     "sessionName": "allPeople",
     "icon": "users"
   },
   {
     "_type": "NavigationItem",
-    "title": "photos",
-    "sessionName": "allPhotos",
+    "title": "Assets",
+    "sessionName": "assets",
     "icon": "grid"
   },
   {
