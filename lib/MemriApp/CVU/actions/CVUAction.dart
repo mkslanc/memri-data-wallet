@@ -971,7 +971,10 @@ class CVUActionSetProperty extends CVUAction {
     var subjectVal = vars["subject"];
     ItemRecord? subjectItem =
         await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
-    if (subjectItem == null) return;
+    if (subjectItem == null) {
+      print("No subject item for property " + subjectVal?.value);
+      return;
+    }
     String? property;
     var propertyValue = vars["property"];
     if (propertyValue is CVUValueConstant) {

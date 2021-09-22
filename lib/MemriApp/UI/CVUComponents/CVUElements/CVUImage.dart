@@ -42,6 +42,8 @@ class _CVUImageState extends State<CVUImage> {
 
   bool isVector = false;
 
+  double? maxWidth;
+
   @override
   initState() {
     super.initState();
@@ -56,6 +58,7 @@ class _CVUImageState extends State<CVUImage> {
 
   init() async {
     isVector = (await widget.nodeResolver.propertyResolver.boolean("isVector", false))!;
+    maxWidth = await widget.nodeResolver.propertyResolver.maxWidth;
     if (isVector) {
       vectorImageName = await widget.nodeResolver.propertyResolver.string("bundleImage");
     } else {
@@ -102,7 +105,9 @@ class _CVUImageState extends State<CVUImage> {
           if (fileImage != null) {
             return Image(
               image: ResizeImage(fileImage!,
-                  width: MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
+                  width: maxWidth != null
+                      ? maxWidth!.toInt()
+                      : MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
               fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
             );
           } else if (isVector) {

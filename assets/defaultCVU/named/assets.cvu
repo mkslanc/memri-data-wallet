@@ -1,0 +1,12 @@
+.assets {
+    name: "assets"
+    title: "Assets"
+    defaultRenderer: list
+    cols: 4
+
+    [datasource = pod] {
+        query: File
+    }
+
+
+}

@@ -1,3 +1,5 @@
+import 'package:idb_shim/idb.dart' as idb;
+import 'package:idb_shim/idb_browser.dart';
 import 'package:moor/moor.dart';
 import 'package:moor/moor_web.dart';
 
@@ -12,5 +14,17 @@ Database constructDb({bool logStatements = false, bool inMemory = false, require
 }
 
 Future<void> deleteDb(databaseName) async {
-  throw 'Implement web database delete';
+  final idbFactory = getIdbFactory();
+  if (idbFactory == null) {
+    throw Exception('getIdbFactory() failed');
+  }
+
+  var dbName = "moor_databases";
+
+  var db = await idbFactory.open(dbName);
+
+  var txn = db.transaction(dbName, idb.idbModeReadWrite);
+  var store = txn.objectStore(dbName);
+  await store.clear();
+  await txn.completed;
 }

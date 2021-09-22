@@ -32,6 +32,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   late Color backgroundColor;
   late bool separatorsEnabled;
   late bool isInEditMode;
+  bool isDismissible = false;
 
   late Binding<Set<int>> selectedIndicesBinding;
   late Set<int> selectedIndices;
@@ -105,8 +106,9 @@ class _ListRendererViewState extends State<ListRendererView> {
                       .mapIndexed((index, item) =>
                           [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
                       .expand((element) => element));
-                  elements.insert(0, _buildSeparator());
+
                   if (additional != null) {
+                    elements.insert(0, _buildSeparator());
                     elements.insertAll(0, [
                       _buildSeparator(),
                       ListTile(
@@ -145,18 +147,47 @@ class _ListRendererViewState extends State<ListRendererView> {
                       itemCount: viewContext.items.length)*/
                   );
                 } else {
-                  return Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Center(
-                      child: Text(
-                        "No items",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                            color: Color.fromRGBO(0, 0, 0, 0.7),
-                            backgroundColor: backgroundColor),
+                  List<Widget> elements = [];
+                  if (additional != null) {
+                    elements.insertAll(0, [
+                      _buildSeparator(),
+                      ListTile(
+                        key: Key(Uuid().v4()),
+                        dense: true,
+                        minVerticalPadding: 0,
+                        visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                        title: additional!,
+                      )
+                    ]);
+                  }
+                  return Column(
+                    children: [
+                      if (elements.isNotEmpty)
+                        ListView.custom(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.fromLTRB(
+                              0,
+                              pageController.showTopBar ? insets.top : insets.top + 80,
+                              0,
+                              insets.bottom),
+                          childrenDelegate: SliverChildListDelegate(elements),
+                        ),
+                      Padding(
+                        padding: EdgeInsets.all(30),
+                        child: Center(
+                          child: Text(
+                            "No items",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: Color.fromRGBO(0, 0, 0, 0.7),
+                                backgroundColor: backgroundColor),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   );
                 }
               },
@@ -175,6 +206,29 @@ class _ListRendererViewState extends State<ListRendererView> {
     var title = ColoredBox(
         key: Key(item.uid), color: backgroundColor, child: viewContext.render(item: item));
     var callback = selectionMode(index);
+    Widget tile = ListTile(
+      key: Key(item.uid),
+      dense: true,
+      minVerticalPadding: 0,
+      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+      contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
+          index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+      title: title,
+      onTap: callback,
+    );
+    if (isDismissible) {
+      tile = Dismissible(
+          direction: DismissDirection.endToStart,
+          key: Key(item.uid),
+          onDismissed: (direction) async {
+            var action = CVUActionDelete();
+            await action
+                .execute(pageController, viewContext.getCVUContext(item: item))
+                .then((value) => viewContext.setupQueryObservation());
+          },
+          child: tile);
+    }
+
     return isInEditMode
         ? CheckboxListTile(
             key: Key(item.uid),
@@ -183,26 +237,7 @@ class _ListRendererViewState extends State<ListRendererView> {
             onChanged: callback,
             value: selectedIndices.contains(index),
             controlAffinity: ListTileControlAffinity.leading)
-        : Dismissible(
-            direction: DismissDirection.endToStart,
-            key: Key(item.uid),
-            onDismissed: (direction) async {
-              var action = CVUActionDelete();
-              await action
-                  .execute(pageController, viewContext.getCVUContext(item: item))
-                  .then((value) => viewContext.setupQueryObservation());
-            },
-            child: ListTile(
-              key: Key(item.uid),
-              dense: true,
-              minVerticalPadding: 0,
-              visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-              contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2,
-                  insets.right, index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-              title: title,
-              onTap: callback,
-            ),
-          );
+        : tile;
   }
 
   _buildSeparator() => Padding(

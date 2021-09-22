@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:memri/MemriApp/Controllers/AddressBookController.dart';
-import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/FactoryReset.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 class SettingsPane extends StatelessWidget {
@@ -98,26 +98,7 @@ class SettingsPane extends StatelessWidget {
                       child: Text("Request a feature",
                           style: TextStyle(color: CVUColor.textGrey, fontSize: 18))),
                   TextButton(
-                      onPressed: () => showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                              title: const Text('Factory reset'),
-                              content: const Text('Are you sure you want to wipe all data?'),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () async {
-                                    await AppController.shared.resetApp();
-                                    Navigator.popUntil(context, (route) => route.isFirst);
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, 'Cancel'),
-                                  child: const Text('Cancel'),
-                                ),
-                              ],
-                            ),
-                          ),
+                      onPressed: () => factoryReset(context),
                       child: Text("Factory reset",
                           style: TextStyle(color: CVUColor.white, fontSize: 18)))
                 ],

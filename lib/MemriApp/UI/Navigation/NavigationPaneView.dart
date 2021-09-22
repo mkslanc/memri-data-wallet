@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/FactoryReset.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -76,7 +77,10 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                           sceneController: sceneController),
                       NavigationLineView(),
                       NavigationItemView(
-                          item: Item(name: "Logout", targetViewName: "log-out", icon: "log-out"),
+                          item: Item(
+                              name: "Logout",
+                              callback: () => factoryReset(context),
+                              icon: "log-out"),
                           sceneController: sceneController),
                     ],
                   ),
@@ -116,10 +120,11 @@ class NavigationElementLine extends NavigationElement {}
 
 class Item {
   String name;
-  String targetViewName;
+  String? targetViewName;
+  VoidCallback? callback;
   String? icon;
 
-  Item({required this.name, required this.targetViewName, this.icon});
+  Item({required this.name, this.targetViewName, this.callback, this.icon});
 }
 
 class NavigationItemView extends StatelessWidget {
@@ -132,20 +137,22 @@ class NavigationItemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {
-        sceneController.navigateToNewContext(
-            clearStack: true, animated: false, viewName: item.targetViewName);
-        if (item.targetViewName == "home") {
-          //TODO: hardcoded part, due to uncertainty of ruling two different pages on the same time
-          sceneController.navigateToNewContext(
-              clearStack: true,
-              animated: false,
-              viewName: "updates",
-              viewArguments:
-                  CVUViewArguments(args: {"mainView": CVUValueConstant(CVUConstantBool(false))}));
-        }
-        sceneController.navigationIsVisible.value = false;
-      },
+      onPressed: item.targetViewName != null
+          ? () {
+              sceneController.navigateToNewContext(
+                  clearStack: true, animated: false, viewName: item.targetViewName);
+              if (item.targetViewName == "home") {
+                //TODO: hardcoded part, due to uncertainty of ruling two different pages on the same time
+                sceneController.navigateToNewContext(
+                    clearStack: true,
+                    animated: false,
+                    viewName: "updates",
+                    viewArguments: CVUViewArguments(
+                        args: {"mainView": CVUValueConstant(CVUConstantBool(false))}));
+              }
+              sceneController.navigationIsVisible.value = false;
+            }
+          : item.callback,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 17, horizontal: 34),
         child: Center(
