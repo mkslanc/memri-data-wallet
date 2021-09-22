@@ -51,6 +51,8 @@ class SceneController extends ChangeNotifier {
 
   reset() async {
     navigationIsVisible.value = false;
+    mainPageController.reset();
+    secondaryPageController.reset();
     await init();
   }
 
