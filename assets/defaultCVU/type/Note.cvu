@@ -1,44 +1,41 @@
 Note > list {
     onPress: openView {
-        renderer: noteEditor
+        renderer: singleItem
+        clearStack: true
+        inheritDatasource: false
+        viewArguments {
+            mainView: false
+        }
     }
-    
-    VStack {
+
+    HStack {
         alignment: left
-        spacing: 3
-        
-        HStack {
-            alignment: left
-            spacing: 5
-            Text {
-                text: {{.title.plainString() or "Untitled"}}
-                lineLimit: 1
-                font: 18 semibold
-                color: primary
-                padding: 0 0 0 0
-            }
-            Image {
-                systemName: "star.fill"
-                font: 14
-                color: yellow
-                margin: 5
-                show: {{.starred}}
-            }
+        spacing: 15
+
+        Image {
+            bundleImage: "file-text"
+            isVector: true
+            sizingMode: fill
+            minHeight: 30
+            maxHeight: 30
+            minWidth: 30
+            maxWidth: 30
         }
+
+
         Text {
-            text: "{.content.plainString()}"
+            text: {{.title.plainString() or "Untitled"}}
             lineLimit: 1
-            removeWhiteSpace: true
-            maxChar: 100
-            color: secondary
-            font: 14 regular
+            font: 12 regular
+            color: #737373
         }
-        Text {
-            text: "{.dateModified}"
-            lineLimit: 1
-            font: 11 regular
-            color: tertiary
-            padding: 0 0 0 0
+
+        Spacer
+        Image {
+            systemName: "ellipsis"
+            color: #DFDEDE
+            font: 24 light
+            padding: 5 0 5 0
         }
     }
 }
@@ -47,12 +44,12 @@ Note > grid {
     onPress: openView {
         renderer: noteEditor
     }
-    
+
     VStack {
         minWidth: 10
         padding: 0 0 5 0
         alignment: center
-        
+
         Text {
             text: "{.content.plainString()}"
             allowNil: true
@@ -99,7 +96,7 @@ Note > timeline {
     onPress: openView {
         renderer: noteEditor
     }
-    
+
     TimelineItem {
         icon: "square.and.pencil"
         title: {{.title.plainString() or "Untitled"}}
@@ -113,41 +110,42 @@ Note > timeline {
     emptyResultText: "There are no notes here yet"
     defaultRenderer: list
     sortFields: title dateModified dateAccessed dateCreated
-    
+    cols: 6
+
     [datasource = pod] {
         query: "Note"
         sortProperty: title
         sortAscending: true
     }
-    
+
     actionButton:
-        addItem {
-            template {
-                _type: Note
-            }
+    addItem {
+        template {
+            _type: Note
         }
-        
+    }
+
     editActionButton: toggleEditMode
     filterButtons: showStarred toggleFilterPanel
-    
+
     [renderer = list] {
         contextMenu: [
             showOverlay { title: "Share" }
             addToPanel { title: "Add to list" }
             duplicate { title: "Duplicate" }
-        ]
+            ]
     }
-            
+
     [renderer = grid] {
         edgeInset: 10 10 10 10
         spacing: 10
     }
-    
+
     [renderer = calendar] {
         background: background
         color: red /* set the primary color to red */
     }
-    
+
     [renderer = timeline] {
         timeProperty: {{.dateModified}}
         detailLevel: hour
@@ -160,74 +158,137 @@ Note > NoteEditor {
 }
 
 Note {
-    title: ""
     defaultRenderer: noteEditor
     editActionButton: toggleEditMode
+    cols: 6
+
     filterButtons: [
         openView {
             icon: "increase.indent"
             title: "Show Timeline"
-            
+
             view: {
                 defaultRenderer: timeline
-                
+
                 [datasource = pod] {
                     query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
-                
+
                 [renderer = timeline] {
                     timeProperty: dateCreated
                 }
             }
         }
         showContextPane
-    ]
-    
-    contextPane {
-        buttons: star schedule
-        
-        actions: [
-            showOverlay { title: "Share with..." }
-            addToPanel { title: "Add to list..." }
-            duplicate { title: "Duplicate Note" }
         ]
-        
-        navigate: [
-            openView {
-                title: "Timeline of this note"
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                        sortProperty: dateCreated
-                        sortAscending: true
+
+        contextPane {
+            buttons: star schedule
+
+            actions: [
+                showOverlay { title: "Share with..." }
+                addToPanel { title: "Add to list..." }
+                duplicate { title: "Duplicate Note" }
+                ]
+
+                navigate: [
+                    openView {
+                        title: "Timeline of this note"
+                        view: {
+                            defaultRenderer: timeline
+
+                            [datasource = pod] {
+                                query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                                sortProperty: dateCreated
+                                sortAscending: true
+                            }
+
+                            [renderer = timeline] {
+                                timeProperty: dateCreated
+                            }
+                        }
                     }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+                    openViewByName {
+                        title: "Starred notes"
+                        viewName: "filter-starred"
+                        viewArguments: {
+                            include: "all-notes"
+                        }
                     }
-                }
+                    openSessionByName {
+                        title: "All notes"
+                        sessionName: "all-notes"
+                    }
+                    ]
+        }
+
+        [renderer = noteEditor] {
+            content: {{.content}}
+            title: {{.title}}
+        }
+}
+
+Note > singleItem {
+
+    VStack {
+        alignment: topleft
+        padding: 0 150 0 0
+
+        Text {
+            text: "{.title}"
+            font: headline2
+            color: #333333
+            padding: 0 0 10 0
+        }
+
+        Divider
+
+        HStack {
+            show: {{.~file.~photo.author.owner.fullName() or .~file.~photo.author.displayName }}
+            alignment: left
+
+            Image {
+                image: {{.~file.~photo.author.owner.profilePicture or "assets/images/person.png"}}
+                sizingMode: fill
+                minHeight: 30
+                maxHeight: 30
+                minWidth: 30
+                maxWidth: 30
+                cornerRadius: 50
             }
-            openViewByName {
-                title: "Starred notes"
-                viewName: "filter-starred"
-                viewArguments: {
-                    include: "all-notes"
-                }
+
+
+            Text {
+                text: {{.~file.~photo.author.owner.fullName() or .~file.~photo.author.displayName }}
+                font: 12 regular
+                color: #737373
             }
-            openSessionByName {
-                title: "All notes"
-                sessionName: "all-notes"
+
+            Spacer
+
+            Text {
+                text: "{.~file.~photo.postDate}"
+                color: #989898
+                font: 10 regular
+                padding: 0 19 0 0
             }
-        ]
-    }
-    
-    [renderer = noteEditor] {
-        content: {{.content}}
-        title: {{.title}}
+
+            Image {
+                systemName: "ellipsis"
+                color: #DFDEDE
+                font: 24 light
+                padding: 5 0 5 0
+            }
+        }
+
+        Text {
+            text: "{.content.plainString()}"
+            font: bodyText2
+        }
+
     }
 }
+
 

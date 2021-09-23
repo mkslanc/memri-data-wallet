@@ -1,0 +1,74 @@
+.adding {
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    cols: 2
+
+    VStack {
+        alignment: topleft
+        padding: 34 30 0 30
+
+        Button {
+            onPress:
+            addItem {
+                 template {
+                     _type: Note
+                 }
+                 viewArguments {
+                     mainView: false
+                 }
+             }
+
+            HStack {
+                alignment: left
+                padding: 13 0 22 0
+
+                Image {
+                    bundleImage: "file-text"
+                    isVector: true
+                    sizingMode: fill
+                    minHeight: 24
+                    maxHeight: 24
+                    minWidth: 24
+                    maxWidth: 24
+                }
+
+                Text {
+                    text: "New Note"
+                    font: 13 regular
+                    color: #FE570F
+                }
+            }
+        }
+
+        Divider
+
+        Button {
+            onPress: noop
+
+            HStack {
+                alignment: left
+                padding: 22 0 0 0
+
+                Image {
+                    bundleImage: "upload-cloud"
+                    isVector: true
+                    sizingMode: fill
+                    minHeight: 24
+                    maxHeight: 24
+                    minWidth: 24
+                    maxWidth: 24
+                }
+
+                Text {
+                    text: "Upload files"
+                    font: 13 regular
+                    color: #FE570F
+                }
+            }
+        }
+    }
+}
+

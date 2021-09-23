@@ -8,22 +8,28 @@ class MemriTextField<T> extends StatefulWidget {
   final TextStyle? style;
   final bool isEditing;
   final String? hint;
+  final TextStyle? hintStyle;
   final bool secureMode;
+  final bool isMultiline;
 
   MemriTextField.sync(
       {required this.binding,
       this.style,
       this.hint,
+      this.hintStyle,
       this.secureMode = false,
-      this.isEditing = true})
+      this.isEditing = true,
+      this.isMultiline = false})
       : futureBinding = null;
 
   MemriTextField.async(
       {required this.futureBinding,
       this.style,
       this.hint,
+      this.hintStyle,
       this.secureMode = false,
-      this.isEditing = true})
+      this.isEditing = true,
+      this.isMultiline = false})
       : binding = null;
 
   @override
@@ -98,11 +104,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration.collapsed(
-        border: InputBorder.none,
-        hintText: widget.hint,
-      ),
+      decoration: InputDecoration(
+          border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
       controller: controller,
+      maxLines: widget.isMultiline ? null : 1,
       onChanged: (String newValue) async {
         value = newValue;
       },
@@ -114,11 +119,13 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration(border: InputBorder.none, hintText: widget.hint),
+      decoration: InputDecoration(
+          border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
       controller: controller,
       onChanged: (String newValue) async {
         value = int.tryParse(newValue);
       },
+      maxLines: widget.isMultiline ? null : 1,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
     );
@@ -129,11 +136,13 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration(border: InputBorder.none, hintText: widget.hint),
+      decoration: InputDecoration(
+          border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
       controller: controller,
       onChanged: (String newValue) async {
         value = double.tryParse(newValue);
       },
+      maxLines: widget.isMultiline ? null : 1,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
     );

@@ -442,14 +442,18 @@ class CVUActionAddItem extends CVUAction {
       }
 
       var newVars = Map.of(vars);
-      newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
-        "readOnly": CVUValueConstant(CVUConstantBool(false)),
-        "isEditing": CVUValueConstant(CVUConstantBool(true))
-      }));
+      if (newVars["viewArguments"] != null) {
+        (newVars["viewArguments"] as CVUValueSubdefinition).value.properties.update(
+            "readOnly", (value) => CVUValueConstant(CVUConstantBool(false)),
+            ifAbsent: () => CVUValueConstant(CVUConstantBool(false)));
+      } else {
+        newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
+          "readOnly": CVUValueConstant(CVUConstantBool(false)),
+        }));
+      }
 
       await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
           .execute(pageController, context.replacingItem(item));
-      pageController.isInEditMode.value = true;
       // AppController.shared.syncController.sync();TODO sync
     }
   }
