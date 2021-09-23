@@ -108,24 +108,17 @@ class PageController extends ChangeNotifier {
 
   navigateBack() {
     var navStack = navigationStack;
-    if (navStack.state.length <= 1) {
-      topMostContext = null;
-      isInEditMode.value = false;
-      navigationStack.state = [];
-      navigationStack = _navigationStack!;
-      return;
-    }
-    isInEditMode.value = false;
+    if (navStack.state.isEmpty) return;
 
-    var newTopConfig = navStack.state[navStack.state.length - 2];
+    isInEditMode.value = false;
     navStack.state.removeLast();
 
-    var context = makeContext(newTopConfig); //TODO: is this right?
-    topMostContext = context;
-
+    topMostContext = navStack.state.isNotEmpty ? makeContext(navStack.state.last) : null;
     navigationStack = navStack;
+    if (navStack.state.isEmpty) return;
 
-    var vc = SceneContentView(pageController: this, viewContext: context); //TODO: is this right?
+    var vc =
+        SceneContentView(pageController: this, viewContext: topMostContext!); //TODO: is this right?
     navigationController.setViewControllers(vc); //TODO this is not right
   }
 
