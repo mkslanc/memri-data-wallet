@@ -10,10 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/API/Authentication_shared.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
+import 'package:memri/MemriApp/UI/Setup/OnboardingStart.dart';
 
 import 'Auth/AuthenticationScreen.dart';
 import 'SceneView.dart';
-import 'Setup/SetupScreenView.dart';
+import 'Setup/OnboardingKeys.dart';
 
 /// This is the view used in each scene to display the appropriate state
 /// This depends on whether the app has been setup, and if the user is authenticated.
@@ -64,7 +65,9 @@ class _MainViewState extends State<MainView> {
                 builder: (BuildContext context, AppState value, Widget? child) {
                   switch (value) {
                     case AppState.setup:
-                      return SetupScreenView();
+                      return OnboardingStart();
+                    case AppState.keySaving:
+                      return OnboardingKeys();
                     case AppState.authentication:
                       return AuthenticationScreen(
                           authError: authError,
