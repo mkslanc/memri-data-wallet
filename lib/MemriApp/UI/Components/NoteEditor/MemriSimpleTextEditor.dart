@@ -56,7 +56,9 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                 Row(
                   children: [
                     PrimaryButton(
-                      onPressed: () => widget.viewContext.pageController.navigateBackOrClose(),
+                      onPressed: () {
+                        widget.viewContext.pageController.navigateBack();
+                      },
                       child: Text("Add note"),
                     ),
                     SizedBox(
@@ -67,7 +69,7 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                         //TODO: this is wrong, if we are editing note instead of adding new
                         await widget.viewContext.focusedItem!.delete(
                             widget.viewContext.pageController.appController.databaseController);
-                        widget.viewContext.pageController.navigateBackOrClose();
+                        widget.viewContext.pageController.navigateBack();
                       },
                       child: Text(
                         "Cancel",

@@ -109,8 +109,14 @@ class PageController extends ChangeNotifier {
   navigateBack() {
     var navStack = navigationStack;
     if (navStack.state.length <= 1) {
+      topMostContext = null;
+      isInEditMode.value = false;
+      navigationStack.state = [];
+      navigationStack = _navigationStack!;
       return;
     }
+    isInEditMode.value = false;
+
     var newTopConfig = navStack.state[navStack.state.length - 2];
     navStack.state.removeLast();
 
@@ -138,15 +144,5 @@ class PageController extends ChangeNotifier {
   closeLastInStack() {
     var lastStack = closeStack.removeLast();
     Navigator.of(lastStack).pop();
-  }
-
-  navigateBackOrClose() {
-    if (canNavigateBack) {
-      navigateBack();
-    } else {
-      topMostContext = null;
-      navigationStack.state = [];
-      scheduleUIUpdate();
-    }
   }
 }

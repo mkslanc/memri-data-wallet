@@ -206,16 +206,24 @@ class _ListRendererViewState extends State<ListRendererView> {
     var title = ColoredBox(
         key: Key(item.uid), color: backgroundColor, child: viewContext.render(item: item));
     var callback = selectionMode(index);
-    Widget tile = ListTile(
-      key: Key(item.uid),
-      dense: true,
-      minVerticalPadding: 0,
-      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-      contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
-          index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-      title: title,
-      onTap: callback,
-    );
+    Widget tile = isInEditMode
+        ? CheckboxListTile(
+            key: Key(item.uid),
+            dense: true,
+            title: title,
+            onChanged: callback,
+            value: selectedIndices.contains(index),
+            controlAffinity: ListTileControlAffinity.leading)
+        : ListTile(
+            key: Key(item.uid),
+            dense: true,
+            minVerticalPadding: 0,
+            visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+            contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2,
+                insets.right, index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+            title: title,
+            onTap: callback,
+          );
     if (isDismissible) {
       tile = Dismissible(
           direction: DismissDirection.endToStart,
@@ -229,15 +237,7 @@ class _ListRendererViewState extends State<ListRendererView> {
           child: tile);
     }
 
-    return isInEditMode
-        ? CheckboxListTile(
-            key: Key(item.uid),
-            dense: true,
-            title: title,
-            onChanged: callback,
-            value: selectedIndices.contains(index),
-            controlAffinity: ListTileControlAffinity.leading)
-        : tile;
+    return tile;
   }
 
   _buildSeparator() => Padding(

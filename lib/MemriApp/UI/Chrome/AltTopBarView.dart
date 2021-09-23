@@ -75,7 +75,7 @@ class _TopBarViewState extends State<AltTopBarView> {
                   )),
             TextButton(
               onPressed: () {
-                widget.pageController.navigateBackOrClose();
+                widget.pageController.navigateBack();
               },
               child: Icon(
                 Icons.close,
