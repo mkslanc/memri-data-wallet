@@ -5,7 +5,7 @@
     cols: 4
 
     [datasource = pod] {
-        query: File
+        query: File Note
     }
 
 
