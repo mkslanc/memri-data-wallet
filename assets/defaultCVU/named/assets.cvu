@@ -4,9 +4,44 @@
     defaultRenderer: list
     cols: 4
 
-    [datasource = pod] {
-        query: File Note
-    }
+    filterButtons: [
+        openView {
+            viewName: "assets"
+            title: "all"
+            clearStack: true
+            inheritDatasource: false
+        },
+        filter {
+            title: "pinned"
+            clearStack: true
+            datasource: {
+                query: File Note
+                filter: {
+                    properties: {
+                        starred: true
+                    }
+                }
+            }
+        },
+        filter {
+            title: "notes"
+            clearStack: true
+            datasource: {
+                query: Note
+            }
+        },
+        filter {
+            title: "photos"
+            clearStack: true
+            datasource: {
+                query: File
+            }
+        }
+        ]
+
+        [datasource = pod] {
+            query: File Note
+        }
 
 
 }

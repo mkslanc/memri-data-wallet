@@ -74,6 +74,10 @@ class CVUFont {
         size: smallCaps.fontSize!,
         weight: smallCaps.fontWeight,
         letterSpacing: smallCaps.letterSpacing),
+    "tab_list": CVUFont(
+      size: tabList.fontSize!,
+      weight: tabList.fontWeight,
+    ),
   };
 
   static const headline1 =
@@ -93,5 +97,9 @@ class CVUFont {
     fontSize: 10,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.11,
+  );
+  static const tabList = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
   );
 }

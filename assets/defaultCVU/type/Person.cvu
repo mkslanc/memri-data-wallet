@@ -89,265 +89,265 @@ Person {
     cols: 6
 
     actionButton:
-        [
-           star
-           ]
-
-    /*include:
-    "defaultButtonsForItem" { type: Person }*/
-
-    editActionButton: toggleEditMode
-    filterButtons: [
-        openView {
-            icon: "increase.indent"
-            title: "{$showtimeline}"
-
-            view: {
-                defaultRenderer: timeline
-
-                [datasource = pod] {
-                    query: AuditItem
-                    filter: {
-                        edgeSources: {
-                            changelog: {{uid}}
-                        }
-                    }
-                }
-
-                [renderer = timeline] {
-                    timeProperty: dateCreated
-                }
-            }
-        }
-        openView {
-            icon: "calendar"
-            title: "{$showtimeline}"
-
-            view: {
-                defaultRenderer: timeline
-
-                [datasource = pod] {
-                    query: EmailMessage Message Note Photo
-                    edgeTargetsOperator: "OR"
-                    filter: {
-                        edgeTargets: {
-                            sender: {{.account.uid}}
-                            includes: {{uid}}
-                        }
-                    }
-                }
-
-                [renderer = timeline] {
-                    timeProperty: dateCreated
-                }
-            }
-        }
-        showContextPane
+    [
+        star
         ]
 
-        contextPane {
-            title: "{.firstName} {.lastName}"
-            buttons: star schedule
-            changeLog: "{.describeChangelog()}"
+        /*include:
+        "defaultButtonsForItem" { type: Person }*/
 
-            navigate: [
-                openView {
-                    title: "Person"
-                    renderer: generalEditor
-                    view: {
-                        defaultRenderer: timeline
+        editActionButton: toggleEditMode
+        filterButtons: [
+            openView {
+                icon: "increase.indent"
+                title: "{$showtimeline}"
 
-                        [datasource = pod] {
-                            query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
+                view: {
+                    defaultRenderer: timeline
 
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
+                    [datasource = pod] {
+                        query: AuditItem
+                        filter: {
+                            edgeSources: {
+                                changelog: {{uid}}
+                            }
                         }
                     }
-                }
-                openViewByName {
-                    title: "{$starred} {type.plural()}"
-                    viewName: "filter-starred"
-                    renderer: "grid"
-                    viewArguments: {
-                        include: "all-{type}"
+
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
-                openSessionByName {
-                    title: "All Persons"
-                    sessionName: "all-person"
-                }
-                ]
+            }
+            openView {
+                icon: "calendar"
+                title: "{$showtimeline}"
 
-                labels: {{ .label[] }}
-        }
+                view: {
+                    defaultRenderer: timeline
 
-
-        /* end include */
-
-        [renderer = generalEditor] {
-            layout: [
-                { section: pageTitle }
-                { section: profilePicture, exclude: labels }
-                { section: email, fields: email }
-                { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber, showTitle: false }
-                { section: addresses, edges: address, type: Address, showTitle: false }
-                { section: web, edges: website, type: Website, showTitle: false }
-                { section: onlineProfiles, edges: account, type: Account, showTitle: false }
-                { section: birthday, fields: birthDate }
-                ]
-
-                pageTitle {
-                    showTitle: false
-
-                    VStack {
-                        alignment: topleft
-
-                        Text {
-                            font: headline2
-                            text: "Contact details"
-                            padding: 0 0 14 0
+                    [datasource = pod] {
+                        query: EmailMessage Message Note Photo
+                        edgeTargetsOperator: "OR"
+                        filter: {
+                            edgeTargets: {
+                                sender: {{.account.uid}}
+                                includes: {{uid}}
+                            }
                         }
+                    }
 
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
+            }
+            showContextPane
+            ]
 
-                profilePicture {
-                    showTitle: false
+            contextPane {
+                title: "{.firstName} {.lastName}"
+                buttons: star schedule
+                changeLog: "{.describeChangelog()}"
 
-                    HStack {
-                        padding: 10 0 0 0
-                        alignment: left
+                navigate: [
+                    openView {
+                        title: "Person"
+                        renderer: generalEditor
+                        view: {
+                            defaultRenderer: timeline
 
-                        Image {
-                            image: {{.profilePicture}}
-                            sizingMode: fill
-                            maxWidth: 30
-                            maxHeight: 30
-                            cornerRadius: 50
+                            [datasource = pod] {
+                                query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                                sortProperty: dateCreated
+                                sortAscending: true
+                            }
+
+                            [renderer = timeline] {
+                                timeProperty: dateCreated
+                            }
                         }
-
-                        Text {
-                            padding: 0 0 0 15
-                            font: 12
-                            color: #333333
-                            text: "{.firstName} {.lastName}"
-                        }
-
-                        Spacer
-                        Image {
-                            systemName: "ellipsis"
-                            color: #DFDEDE
-                            font: 24 light
-                            padding: 5 0 5 0
-                        }
-
                     }
-                }
+                    openViewByName {
+                        title: "{$starred} {type.plural()}"
+                        viewName: "filter-starred"
+                        renderer: "grid"
+                        viewArguments: {
+                            include: "all-{type}"
+                        }
+                    }
+                    openSessionByName {
+                        title: "All Persons"
+                        sessionName: "all-person"
+                    }
+                    ]
 
-        }
+                    labels: {{ .label[] }}
+            }
 
-        [renderer = timeline] {
-            timeProperty: dateCreated
-        }
+
+            /* end include */
+
+            [renderer = generalEditor] {
+                layout: [
+                    { section: pageTitle }
+                    { section: profilePicture, exclude: labels }
+                    { section: email, fields: email }
+                    { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber, showTitle: false }
+                    { section: addresses, edges: address, type: Address, showTitle: false }
+                    { section: web, edges: website, type: Website, showTitle: false }
+                    { section: onlineProfiles, edges: account, type: Account, showTitle: false }
+                    { section: birthday, fields: birthDate }
+                    ]
+
+                    pageTitle {
+                        showTitle: false
+
+                        VStack {
+                            alignment: topleft
+
+                            Text {
+                                font: headline2
+                                text: "Contact details"
+                                padding: 0 0 14 0
+                            }
+
+                        }
+                    }
+
+                    profilePicture {
+                        showTitle: false
+
+                        HStack {
+                            padding: 10 0 0 0
+                            alignment: left
+
+                            Image {
+                                image: {{.profilePicture}}
+                                sizingMode: fill
+                                maxWidth: 30
+                                maxHeight: 30
+                                cornerRadius: 50
+                            }
+
+                            Text {
+                                padding: 0 0 0 15
+                                font: 12
+                                color: #333333
+                                text: "{.firstName} {.lastName}"
+                            }
+
+                            Spacer
+                            Image {
+                                systemName: "ellipsis"
+                                color: #DFDEDE
+                                font: 24 light
+                                padding: 5 0 5 0
+                            }
+
+                        }
+                    }
+
+            }
+
+            [renderer = timeline] {
+                timeProperty: dateCreated
+            }
 }
 
 Person > singleitem {
-        VStack {
-            alignment: topleft
-            padding: 0 322 0 0
+    VStack {
+        alignment: topleft
+        padding: 0 322 0 0
 
-            Image {
-                image: {{.profilePicture}}
-                sizingMode: fill
-                minHeight: 60
-                maxHeight: 120
-                minWidth: 60
-                maxWidth: 120
-                cornerRadius: 90
-            }
-
-
-            Text {
-                padding: 30 0 10 0
-                font: headline1
-                text: "{.firstName} {.lastName}"
-            }
-
-            Text {
-                font: bodyText2
-                text: "{.website.url}"
-                padding 0 0 54 0
-            }
-
-            Divider
-
-            Button {
-                isLink: true
-                padding: 11 0 0 0
-
-                Text {
-                    text: "Contact Details"
-                    font: headline3
-                }
-
-                onPress: openView {
-                    renderer: generalEditor
-                }
-            }
-
-            Divider
-
-            Button {
-                isLink: true
-                padding: 11 0 0 0
-
-                Text {
-                    text: "Notes and reminders"
-                    font: headline3
-                }
-
-                onPress: openView {
-                    renderer: generalEditor
-                }
-            }
-
-            Divider
-
-            Button {
-                isLink: true
-                padding: 11 0 0 0
-
-                Text {
-                    text: "Interactions"
-                    font: headline3
-                }
-
-                onPress: openView {
-                    renderer: generalEditor
-                }
-            }
-
-            Divider
-
-            Button {
-                isLink: true
-                padding: 11 0 0 0
-
-                Text {
-                    text: "Timeline"
-                    font: headline3
-                }
-
-                onPress: openView {
-                    renderer: generalEditor
-                }
-            }
-
+        Image {
+            image: {{.profilePicture}}
+            sizingMode: fill
+            minHeight: 60
+            maxHeight: 120
+            minWidth: 60
+            maxWidth: 120
+            cornerRadius: 90
         }
+
+
+        Text {
+            padding: 30 0 10 0
+            font: headline1
+            text: "{.firstName} {.lastName}"
+        }
+
+        Text {
+            font: bodyText2
+            text: "{.website.url}"
+            padding 0 0 54 0
+        }
+
+        Divider
+
+        Button {
+            isLink: true
+            padding: 11 0 0 0
+
+            Text {
+                text: "Contact Details"
+                font: headline3
+            }
+
+            onPress: openView {
+                renderer: generalEditor
+            }
+        }
+
+        Divider
+
+        Button {
+            isLink: true
+            padding: 11 0 0 0
+
+            Text {
+                text: "Notes and reminders"
+                font: headline3
+            }
+
+            onPress: openView {
+                renderer: generalEditor
+            }
+        }
+
+        Divider
+
+        Button {
+            isLink: true
+            padding: 11 0 0 0
+
+            Text {
+                text: "Interactions"
+                font: headline3
+            }
+
+            onPress: openView {
+                renderer: generalEditor
+            }
+        }
+
+        Divider
+
+        Button {
+            isLink: true
+            padding: 11 0 0 0
+
+            Text {
+                text: "Timeline"
+                font: headline3
+            }
+
+            onPress: openView {
+                renderer: generalEditor
+            }
+        }
+
+    }
 }
 
 Person > list {
@@ -449,27 +449,56 @@ Person > timeline {
         }
     }
 
-    filterButtons: showStarred toggleFilterPanel
+    filterButtons: [
+        openView {
+            viewName: "allPeople"
+            title: "all"
+            clearStack: true
+            inheritDatasource: false
+        },
+        filter {
+            title: "pinned"
+            clearStack: true
+            datasource: {
+                query: Person
+                filter: {
+                    properties: {
+                        starred: true
+                    }
+                }
+                sort: {
+                    edgeSource: {
+                        edgeTarget: {
+                            relationship: {{me.uid}}
+                        }
+                        name: relationship
+                        sortProperty: value
+                        sortAscending: false
+                    }
+                }
+            }
+        },
+        ]
 
-    [renderer = list] {
-        contextMenu: [
-            star { title: "Favourite" }
-            ]
-    }
+        [renderer = list] {
+            contextMenu: [
+                star { title: "Favourite" }
+                ]
+        }
 
-    [renderer = grid] {
-        spacing: 10
-        edgeInset: 10
-        columnSize: 100
+        [renderer = grid] {
+            spacing: 10
+            edgeInset: 10
+            columnSize: 100
 
-        contextMenu: [
-            star { title: "Favourite" }
-            ]
-    }
+            contextMenu: [
+                star { title: "Favourite" }
+                ]
+        }
 
-    [renderer = map] {
-        address: {{.address[]}}
-        label: "{.firstName}"
-    }
+        [renderer = map] {
+            address: {{.address[]}}
+            label: "{.firstName}"
+        }
 
 }
