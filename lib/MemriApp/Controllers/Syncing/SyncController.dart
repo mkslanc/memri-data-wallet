@@ -17,6 +17,7 @@ import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:moor/moor.dart';
 
 import '../AppController.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 enum SyncControllerState {
   idle,
@@ -256,7 +257,8 @@ class SyncController {
 
     if (syncPayload.createItems.isEmpty &&
         syncPayload.updateItems.isEmpty &&
-        syncPayload.deleteItems.isEmpty) {
+        syncPayload.deleteItems.isEmpty &&
+        syncPayload.createEdges.isEmpty) {
       await setState(SyncControllerState.uploadedItems);
       return;
     }
@@ -264,12 +266,13 @@ class SyncController {
     await bulkAction(
         bulkPayload: syncPayload,
         completion: ((error) async {
-          await ItemRecord.didSyncItems(syncPayload, error, databaseController);
           if (error != null) {
             lastError = error;
             await setState(SyncControllerState.failed);
             return;
           }
+          await ItemRecord.didSyncItems(syncPayload, error, databaseController);
+          await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
 
           // Recurse until we run out of items to sync
           await uploadItems();
@@ -286,12 +289,12 @@ class SyncController {
     await bulkAction(
         bulkPayload: syncPayload,
         completion: ((error) async {
-          await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
           if (error != null) {
             lastError = error;
             await setState(SyncControllerState.failed);
             return;
           }
+          await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
 
           // Recurse until we run out of items to sync
           await uploadEdges(maxItems);
@@ -375,7 +378,91 @@ class SyncController {
     var bulkAction = PodAPIPayloadBulkAction(
         createItems: createItems, updateItems: updateItems, deleteItems: [], createEdges: []);
 
+    if (createItems.isNotEmpty || updateItems.isNotEmpty) {
+      await updateSyncPayloadWithEdges(bulkAction);
+    }
+
     return bulkAction;
+  }
+
+  updateSyncPayloadWithEdges(PodAPIPayloadBulkAction syncPayload) async {
+    List<String> allItemRecordIDs = (<Map<String, dynamic>>[]
+          ..addAll(syncPayload.createItems)
+          ..addAll(syncPayload.updateItems))
+        .map<String>((item) => item["id"])
+        .toList();
+    List<ItemRecord> allItemRecords = (await databaseController.databasePool
+            .itemRecordsCustomSelect("id IN ('${allItemRecordIDs.join("', '")}')", []))
+        .map((item) => ItemRecord.fromItem(item))
+        .toList();
+    var targetItemRecords = await getTargetItems(allItemRecords);
+
+    var edgeRowIDs = allItemRecords.compactMap((itemRecord) =>
+        itemRecord.type == "Edge" && itemRecord.syncState == SyncState.create
+            ? itemRecord.rowId!
+            : null);
+    if (targetItemRecords.isNotEmpty) {
+      await Future.forEach<ItemRecord>(targetItemRecords, (itemRecord) async {
+        var item = await itemRecord.syncDict(databaseController);
+        if (itemRecord.type == "Edge" && itemRecord.syncState == SyncState.create) {
+          edgeRowIDs.add(itemRecord.rowId!);
+        }
+
+        if (itemRecord.dateServerModified != null) {
+          syncPayload.updateItems.add(item);
+        } else {
+          syncPayload.createItems.add(item);
+        }
+      });
+    }
+
+    if (edgeRowIDs.isEmpty) {
+      return;
+    }
+
+    var edges = await databaseController.databasePool.edgeRecordsCustomSelect(
+        "self IN (${edgeRowIDs.join(", ")}) AND syncState = ?",
+        [Variable(SyncState.create.inString)]);
+    syncPayload.createEdges = (await Future.wait(edges.map(
+            (edge) async => await (ItemEdgeRecord.fromEdge(edge)).syncDict(databaseController))))
+        .compactMap((edge) =>
+            edge?["_name"][0] == "~" //TODO handling reverse edges, but why do we even need them?
+                ? null
+                : edge);
+  }
+
+  Future<List<ItemRecord>> getTargetItems(List<ItemRecord> parentItemRecords,
+      [List<int>? parentAllItemIDs]) async {
+    List<ItemEdgeRecord> targetEdges = (await Future.wait(parentItemRecords.map((itemRecord) async {
+      return await itemRecord.edges(null);
+    })))
+        .expand((element) => element)
+        .toList();
+
+    if (targetEdges.isEmpty) return [];
+
+    var allItemIDs = <int>[]..addAll(parentAllItemIDs ?? []);
+    allItemIDs.addAll(parentItemRecords.map((item) => item.rowId!));
+    var targetItemIDs = targetEdges
+        .map((edge) => [
+              !allItemIDs.contains(edge.targetRowID) ? edge.targetRowID : null,
+              !allItemIDs.contains(edge.selfRowID) ? edge.selfRowID : null
+            ])
+        .expand((element) => element)
+        .toList()
+        .compactMap();
+
+    if (targetItemIDs.isEmpty) return [];
+
+    List<ItemRecord> addItems = (await databaseController.databasePool.itemRecordsCustomSelect(
+            "row_id IN (${targetItemIDs.join(", ")}) AND (syncState = ? OR syncState = ?)",
+            [Variable(SyncState.create.inString), Variable(SyncState.update.inString)]))
+        .map((item) => ItemRecord.fromItem(item))
+        .toList();
+    if (addItems.isEmpty) return [];
+
+    var targetItems = await getTargetItems(addItems, allItemIDs);
+    return addItems..addAll(targetItems);
   }
 
   Future<PodAPIPayloadBulkAction> makeSyncEdgesData([int maxItems = 100]) async {
