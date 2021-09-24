@@ -45,7 +45,7 @@ class AppController {
   bool isNewPodSetup = false;
 
   AppController() {
-    databaseController = DatabaseController(inMemory: true);
+    databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
     cvuController = CVUController();
     pubsubController = PubSubController(databaseController);
