@@ -22,8 +22,8 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
   FutureBinding<String>? titleBinding;
 
   init() async {
-    contentBinding = await widget.title;
-    titleBinding = await widget.content;
+    contentBinding = await widget.content;
+    titleBinding = await widget.title;
   }
 
   @override

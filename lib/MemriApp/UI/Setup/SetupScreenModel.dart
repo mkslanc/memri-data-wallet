@@ -7,6 +7,7 @@
 
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:uuid/uuid.dart';
 
 /// A model struct used by the setup screen to hold configuration until the user completes the setup
 class SetupScreenModel {
@@ -30,9 +31,7 @@ class SetupScreenModel {
       return true;
     }
 
-    if (podPrivateKey?.nullIfBlank == null ||
-        podPublicKey?.nullIfBlank == null ||
-        podDatabaseKey == null) {
+    if (podPublicKey?.nullIfBlank == null || podDatabaseKey == null) {
       return false;
     }
     return true;
@@ -45,10 +44,11 @@ class SetupScreenModel {
       var config = NewPodConfig(podURL ?? defaultPodURL);
       return SetupConfigNewPod(config);
     } else {
-      var privateKey = this.podPrivateKey?.nullIfBlank;
+      var privateKey =
+          this.podPrivateKey?.nullIfBlank ?? Uuid().v4(); //TODO: kill when we will have end-to-end
       var publicKey = this.podPublicKey?.nullIfBlank;
       var databaseKey = this.podDatabaseKey?.nullIfBlank;
-      if (privateKey == null || publicKey == null || databaseKey == null) {
+      if (publicKey == null || databaseKey == null) {
         return null;
       }
       var config = ExistingPodConfig(podURL ?? defaultPodURL, privateKey, publicKey, databaseKey);

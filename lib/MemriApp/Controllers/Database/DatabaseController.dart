@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'DemoData.dart';
@@ -37,7 +38,7 @@ class DatabaseController {
 
   Future<void> delete() async {
     await databasePool.close();
-    if (!inMemory) {
+    if (!inMemory || kIsWeb) {
       await deleteDb(databaseName);
     }
     isInited = false;
