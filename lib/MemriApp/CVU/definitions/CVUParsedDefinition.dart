@@ -2,6 +2,8 @@
 // CVUParsedDefinition.swift
 // Copyright © 2020 memri. All rights reserved.
 
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
@@ -39,10 +41,10 @@ class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
         this.properties = properties ?? Map<String, CVUValue>();
 
   CVUDefinitionContent clone() {
-    //TODO find better way to clone object
     return CVUDefinitionContent(
-      definitions: List<CVUParsedDefinition>.from(definitions),
-      children: List<CVUUINode>.from(children),
+      definitions:
+          definitions.map((e) => CVUParsedDefinition.fromJson(jsonDecode(jsonEncode(e)))).toList(),
+      children: children.map((e) => CVUUINode.fromJson(jsonDecode(jsonEncode(e)))).toList(),
       properties: Map<String, CVUValue>.from(properties),
     );
   }
@@ -128,6 +130,7 @@ class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
 
   factory CVUDefinitionContent.fromJson(Map<String, dynamic> json) =>
       _$CVUDefinitionContentFromJson(json);
+
   Map<String, dynamic> toJson() => _$CVUDefinitionContentToJson(this);
 
   @override
@@ -204,6 +207,7 @@ class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
 
   factory CVUParsedDefinition.fromJson(Map<String, dynamic> json) =>
       _$CVUParsedDefinitionFromJson(json);
+
   Map<String, dynamic> toJson() => _$CVUParsedDefinitionToJson(this);
 
   @override
