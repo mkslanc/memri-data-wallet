@@ -20,7 +20,7 @@ import 'PermissionController.dart';
 import 'PubSubController.dart';
 import 'Syncing/SyncController.dart';
 
-enum AppState { setup, authentication, authenticated }
+enum AppState { setup, keySaving, authentication, authenticated }
 
 class AppController {
   static AppController shared = AppController();
@@ -42,6 +42,7 @@ class AppController {
 
   PodAPIConnectionDetails? _podConnectionConfig;
   bool isInDemoMode = false;
+  bool isNewPodSetup = false;
 
   AppController() {
     databaseController = DatabaseController(inMemory: false);
@@ -66,7 +67,11 @@ class AppController {
       return;
     }
 
-    state = AppState.authenticated;
+    if (isNewPodSetup) {
+      state = AppState.keySaving;
+    } else {
+      state = AppState.authenticated;
+    }
 
     isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
     if (!isInDemoMode) {
@@ -94,6 +99,7 @@ class AppController {
           }
           if (_podConnectionConfig != null) {
             if (config is SetupConfigNewPod) {
+              isNewPodSetup = true;
               await Settings.shared.set("defaults/pod/url", config.config.podURL);
               //TODO owner and database key should not be stored in settings
               await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
@@ -221,6 +227,7 @@ class AppController {
     await SceneController.sceneController.reset();
 
     await setIsAuthenticated(false);
+    isNewPodSetup = false;
     isInDemoMode = false;
   }
 }

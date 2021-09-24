@@ -70,6 +70,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionStar(vars: vars);
     case "showstarred":
       return ({Map? vars}) => CVUActionShowStarred(vars: vars);
+    case "filter":
+      return ({Map? vars}) => CVUActionFilter(vars: vars);
     case "showcontextpane":
       return ({Map? vars}) => CVUActionShowContextPane(vars: vars);
     case "shownavigation":
@@ -151,11 +153,29 @@ class CVUActionShowStarred extends CVUAction {
   @override
   execute(memri.PageController pageController, CVUContext context) async {
     Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
-    CVUActionOpenView(
+    await CVUActionOpenView(
             vars: newVars,
             viewName: "filter-starred",
             renderer: context.rendererName,
             viewDefinition: context.viewDefinition)
+        .execute(pageController, context);
+  }
+}
+
+class CVUActionFilter extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionFilter({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    vars["inheritDatasource"] = CVUValueConstant(CVUConstantBool(false));
+    var newDefinition = context.viewDefinition.clone();
+    newDefinition.definitions
+        .lastWhere((element) => element.type == CVUDefinitionType.datasource)
+        .parsed = vars["datasource"]?.value;
+    await CVUActionOpenView(
+            vars: vars, renderer: context.rendererName, viewDefinition: newDefinition)
         .execute(pageController, context);
   }
 }

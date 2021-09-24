@@ -16,6 +16,35 @@
         }
     }
 
+    filterButtons: [
+        openView {
+            viewName: "inbox"
+            title: "all"
+            clearStack: true
+            inheritDatasource: false
+        },
+        filter {
+            title: "pinned"
+            clearStack: true
+            datasource: {
+                query: MessageChannel
+                sort: {
+                    targetType: "Message"
+                    edgeSource: {
+                        name: messageChannel
+                        sortProperty: dateSent
+                        sortAscending: false
+                    }
+                }
+                filter: {
+                    properties: {
+                        starred: true
+                    }
+                }
+            }
+        },
+        ]
+
     additional: {
         Button {
             onPress: openView {

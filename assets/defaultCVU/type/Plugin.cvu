@@ -184,8 +184,6 @@ Plugin > grid {
         sortAscending: false
     }
     
-    filterButtons: showStarred toggleFilterPanel
-    
     [renderer = grid] {
         spacing: 10
         edgeInset: 10

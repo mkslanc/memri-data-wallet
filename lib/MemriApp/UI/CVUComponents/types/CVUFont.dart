@@ -70,6 +70,14 @@ class CVUFont {
         letterSpacing: tileLabel.letterSpacing),
     "link":
         CVUFont(size: link.fontSize!, weight: link.fontWeight, letterSpacing: link.letterSpacing),
+    "small_caps": CVUFont(
+        size: smallCaps.fontSize!,
+        weight: smallCaps.fontWeight,
+        letterSpacing: smallCaps.letterSpacing),
+    "tab_list": CVUFont(
+      size: tabList.fontSize!,
+      weight: tabList.fontWeight,
+    ),
   };
 
   static const headline1 =
@@ -85,4 +93,13 @@ class CVUFont {
   static const tileLabel =
       TextStyle(fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.04);
   static const link = TextStyle(fontSize: 13, fontWeight: FontWeight.w400);
+  static const smallCaps = TextStyle(
+    fontSize: 10,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.11,
+  );
+  static const tabList = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+  );
 }
