@@ -227,6 +227,7 @@ class AppController {
     await SceneController.sceneController.reset();
 
     await setIsAuthenticated(false);
+    isNewPodSetup = false;
     isInDemoMode = false;
   }
 }
