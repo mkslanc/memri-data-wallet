@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/FilterPanel/SimpleFilterPanel.dart';
 
 import '../ViewContextController.dart';
 import 'SearchView.dart';
@@ -79,8 +80,10 @@ class _TopBarViewState extends State<TopBarView> {
           SizedBox(
             height: 22,
           ),
-          if (viewContext != null)
+          if (viewContext != null) ...[
             SizedBox(height: 78, child: SearchView(viewContext: viewContext!)),
+            SimpleFilterPanel(viewContext: viewContext!)
+          ]
         ],
       ),
     );

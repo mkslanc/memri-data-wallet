@@ -1865,44 +1865,44 @@ abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final Items items = Items(this);
   late final Index idxItemsId =
-      Index('idx_items_id', 'CREATE\r\n    UNIQUE INDEX idx_items_id on items (id);');
+      Index('idx_items_id', 'CREATE\n    UNIQUE INDEX idx_items_id on items (id);');
   late final Index idxItemsTypeDateServerModified = Index('idx_items_type_dateServerModified',
-      'CREATE\r\n    INDEX idx_items_type_dateServerModified on items (type, dateServerModified);');
+      'CREATE\n    INDEX idx_items_type_dateServerModified on items (type, dateServerModified);');
   late final Edges edges = Edges(this);
-  late final Index idxEdgesSourceName = Index('idx_edges_source_name',
-      'CREATE\r\n    INDEX idx_edges_source_name on edges (source, name);');
-  late final Index idxEdgesTargetName = Index('idx_edges_target_name',
-      'CREATE\r\n    INDEX idx_edges_target_name on edges (target, name);');
+  late final Index idxEdgesSourceName = Index(
+      'idx_edges_source_name', 'CREATE\n    INDEX idx_edges_source_name on edges (source, name);');
+  late final Index idxEdgesTargetName = Index(
+      'idx_edges_target_name', 'CREATE\n    INDEX idx_edges_target_name on edges (target, name);');
   late final Integers integers = Integers(this);
   late final Index idxIntegersItemName = Index('idx_integers_item_name',
-      'CREATE\r\n    UNIQUE INDEX idx_integers_item_name on integers (item, name);');
+      'CREATE\n    UNIQUE INDEX idx_integers_item_name on integers (item, name);');
   late final Index idxIntegersNameValue = Index('idx_integers_name_value',
-      'CREATE\r\n    INDEX idx_integers_name_value on integers (name, value);');
+      'CREATE\n    INDEX idx_integers_name_value on integers (name, value);');
   late final Index idxIntegersNameItem = Index('idx_integers_name_item',
-      'CREATE\r\n    INDEX idx_integers_name_item on integers (name, item);');
+      'CREATE\n    INDEX idx_integers_name_item on integers (name, item);');
   late final Strings strings = Strings(this);
   late final Index idxStringsItemName = Index('idx_strings_item_name',
-      'CREATE\r\n    UNIQUE INDEX idx_strings_item_name on strings (item, name);');
+      'CREATE\n    UNIQUE INDEX idx_strings_item_name on strings (item, name);');
   late final Index idxStringsNameValue = Index('idx_strings_name_value',
-      'CREATE\r\n    INDEX idx_strings_name_value on strings (name, value);');
-  late final Index idxStringsNameItem = Index('idx_strings_name_item',
-      'CREATE\r\n    INDEX idx_strings_name_item on strings (name, item);');
+      'CREATE\n    INDEX idx_strings_name_value on strings (name, value);');
+  late final Index idxStringsNameItem = Index(
+      'idx_strings_name_item', 'CREATE\n    INDEX idx_strings_name_item on strings (name, item);');
   late final Reals reals = Reals(this);
-  late final Index idxRealsItemName = Index('idx_reals_item_name',
-      'CREATE\r\n    UNIQUE INDEX idx_reals_item_name on reals (item, name);');
+  late final Index idxRealsItemName = Index(
+      'idx_reals_item_name', 'CREATE\n    UNIQUE INDEX idx_reals_item_name on reals (item, name);');
   late final Index idxRealsNameValue = Index(
-      'idx_reals_name_value', 'CREATE\r\n    INDEX idx_reals_name_value on reals (name, value);');
-  late final Index idxRealsNameItem = Index(
-      'idx_reals_name_item', 'CREATE\r\n    INDEX idx_reals_name_item on reals (name, item);');
+      'idx_reals_name_value', 'CREATE\n    INDEX idx_reals_name_value on reals (name, value);');
+  late final Index idxRealsNameItem =
+      Index('idx_reals_name_item', 'CREATE\n    INDEX idx_reals_name_item on reals (name, item);');
   late final StringsSearch stringsSearch = StringsSearch(this);
   late final Trigger stringsSearchAfterInsert = Trigger(
-      'CREATE TRIGGER strings_search_after_insert\r\n    AFTER INSERT\r\n    ON strings\r\nBEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
+      'CREATE TRIGGER strings_search_after_insert\n    AFTER INSERT\n    ON strings\nBEGIN\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\nEND;',
       'strings_search_after_insert');
   late final Trigger stringsSearchBeforeDelete = Trigger(
-      'CREATE TRIGGER strings_search_before_delete\r\n    BEFORE DELETE\r\n    ON strings\r\nBEGIN\r\n    DELETE FROM strings_search WHERE name = old.name AND item = old.item;\r\nEND;',
+      'CREATE TRIGGER strings_search_before_delete\n    BEFORE DELETE\n    ON strings\nBEGIN\n    DELETE FROM strings_search WHERE name = old.name AND item = old.item;\nEND;',
       'strings_search_before_delete');
   late final Trigger stringsSearchAfterUpdate = Trigger(
-      'CREATE TRIGGER strings_search_after_update\r\n    AFTER UPDATE\r\n    ON strings\r\nBEGIN\r\n    UPDATE strings_search\r\n    SET item  = new.item,\r\n        name  = new.name,\r\n        value = new.value\r\n    WHERE item = new.item\r\n      AND name = new.name;\r\nEND;',
+      'CREATE TRIGGER strings_search_after_update\n    AFTER UPDATE\n    ON strings\nBEGIN\n    UPDATE strings_search\n    SET item  = new.item,\n        name  = new.name,\n        value = new.value\n    WHERE item = new.item\n      AND name = new.name;\nEND;',
       'strings_search_after_update');
   late final NavigationState navigationState = NavigationState(this);
   @override

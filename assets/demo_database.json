@@ -1744,6 +1744,7 @@
     "lastName": "Eagle",
     "birthDate": 543777745298,
     "email": "eve@test.com",
+    "starred": true,
     "allEdges": [
       {
         "_type": "relationship",
@@ -2132,6 +2133,7 @@
     "firstName": "Tom",
     "lastName": "Hanson",
     "birthDate": 543777745298,
+    "starred": true,
     "allEdges": [
       {
         "_type": "relationship",
