@@ -662,7 +662,7 @@ class ItemRecord with EquatableMixin {
     }
 
     String? fileName;
-    var fileNameValue = await item.propertyValue("filename");
+    var fileNameValue = await item.propertyValue("sha256");
     if (fileNameValue is PropertyDatabaseValueString) {
       fileName = fileNameValue.value;
     }
