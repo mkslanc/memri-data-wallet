@@ -421,6 +421,11 @@
       "value_type": "string"
     },
     {
+      "item_type": "File",
+      "property": "starred",
+      "value_type": "bool"
+    },
+    {
       "item_type": "Indexer",
       "property": "bundleImage",
       "value_type": "string"
