@@ -37,7 +37,7 @@ abstract class CVUAction {
 
   late Map<String, CVUValue> vars;
 
-  String? getString(String key, CVUContext context) {
+  Future<String?> getString(String key, CVUContext context) async {
     var cvuValue = vars[key] ?? defaultVars[key];
     if (cvuValue is CVUValueConstant) {
       var cvuConstant = cvuValue.value;
@@ -785,8 +785,14 @@ class CVUActionUnlink extends CVUAction {
 class CVUActionStar extends CVUAction {
   Map<String, CVUValue> vars;
 
-  Map<String, CVUValue> get defaultVars {
-    return {"title": CVUValueConstant(CVUConstantString("Pin"))};
+  Future<String?> getString(String key, CVUContext context) async {
+    var lexer = CVUExpressionLexer('.starred ? "Unpin" : "Pin"');
+    var tokens = lexer.tokenize();
+    var parser = CVUExpressionParser(tokens);
+    var node = parser.parse();
+
+    return await CVULookupController().resolve<String>(
+        expression: node, context: context, db: AppController.shared.databaseController);
   }
 
   CVUActionStar({vars}) : this.vars = vars ?? {};
