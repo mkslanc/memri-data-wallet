@@ -104,7 +104,7 @@ class PageController extends ChangeNotifier {
     navigationStack.save();
   }
 
-  bool get canNavigateBack => navigationStack.state.isNotEmpty;
+  bool get canNavigateBack => navigationStack.state.length > 1;
 
   navigateBack() {
     var navStack = navigationStack;
