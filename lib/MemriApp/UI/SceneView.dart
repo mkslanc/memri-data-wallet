@@ -117,7 +117,8 @@ class _SceneViewState extends State<SceneView> {
                             : 0,
                         child: Column(
                           children: [
-                            if (widget.sceneController.secondaryPageController.canNavigateBack)
+                            if (widget.sceneController.secondaryPageController.topMostContext !=
+                                null)
                               AltTopBarView(
                                   pageController: widget.sceneController.secondaryPageController),
                             Expanded(
