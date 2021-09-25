@@ -162,6 +162,13 @@ Note {
     editActionButton: toggleEditMode
     cols: 6
 
+    actionButton: [
+        delete {
+          close: true
+        }
+        star
+    ]
+
     filterButtons: [
         openView {
             icon: "increase.indent"
