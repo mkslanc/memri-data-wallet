@@ -24,10 +24,9 @@ class _SimpleFilterPanelState extends State<SimpleFilterPanel> {
                 children: space(
               10,
               actions.map((action) => ActionButton(
-                      action: action,
-                      viewContext: widget.viewContext.getCVUContext(),
-                      pageController: widget.viewContext.pageController)
-                  ),
+                  action: action,
+                  viewContext: widget.viewContext.getCVUContext(),
+                  pageController: widget.viewContext.pageController)),
             )),
           )
         : Empty();
