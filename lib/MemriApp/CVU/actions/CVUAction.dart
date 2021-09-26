@@ -29,6 +29,7 @@ import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:moor/moor.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -108,6 +109,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionRunIndexer(vars: vars);
     case "pluginrun":
       return ({Map? vars}) => CVUActionPluginRun(vars: vars);
+    case "openplugin":
+      return ({Map? vars}) => CVUActionOpenPlugin(vars: vars);
     case "setproperty":
       return ({Map? vars}) => CVUActionSetProperty(vars: vars);
     case "setsetting":
@@ -478,6 +481,84 @@ class CVUActionAddItem extends CVUAction {
           .execute(pageController, context.replacingItem(item));
       // AppController.shared.syncController.sync();TODO sync
     }
+  }
+}
+
+class CVUActionOpenPlugin extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenPlugin({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+
+    var pluginValue = vars["plugin"];
+    var pluginNameValue = vars["pluginName"];
+
+    if (pluginValue == null && pluginNameValue == null) {
+      print("Plugin data missing");
+      return;
+    }
+    String? pluginName;
+    ItemRecord? plugin;
+    if (pluginValue != null) {
+      plugin = await lookup.resolve<ItemRecord>(value: pluginValue, context: context, db: db);
+    }
+    if (plugin == null) {
+      pluginName = await lookup.resolve<String>(value: pluginNameValue, context: context, db: db);
+      if (pluginName == null) {
+        print("Plugin data missing");
+        return;
+      }
+
+      var pluginItems = await db.databasePool.itemPropertyRecordsCustomSelect(
+          "name = ? AND value = ?", [Variable("pluginName"), Variable(pluginName)]);
+      if (pluginItems.isNotEmpty) {
+        plugin = await ItemRecord.fetchWithRowID(pluginItems[0].item);
+      }
+    }
+
+    if (plugin == null) {
+      print("Plugin data missing");
+      return;
+    }
+    if (pluginName == null) {
+      pluginName = (await plugin.property("pluginName", db))!.$value.value;
+    }
+
+    List<ItemRecord> pluginRunList = await plugin.reverseEdgeItems("plugin", db: db);
+    pluginRunList.sort((a, b) => b.rowId! - a.rowId!);
+
+    var lastPluginRun = pluginRunList.asMap()[0];
+    var account;
+    String viewName;
+    if (lastPluginRun == null) {
+      viewName = "${pluginName}Run";
+    } else {
+      account = await lastPluginRun.edgeItem("account");
+      var status = (await lastPluginRun.property("status", db))!.$value.value;
+      switch (status) {
+        case "userActionNeeded":
+        case "cvuPresented":
+          viewName = "${pluginName}-userActionNeeded";
+          break;
+        case "idle":
+        case "ready":
+          viewName = "pluginRunWait";
+          break;
+        default:
+          viewName = "${pluginName}Run";
+          break;
+      }
+    }
+
+    await pageController.sceneController.navigateToNewContext(
+        animated: false,
+        viewName: viewName,
+        pageController: pageController.sceneController.secondaryPageController,
+        targetItem: account ?? plugin);
   }
 }
 

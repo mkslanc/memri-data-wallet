@@ -1,76 +1,78 @@
 .WhatsappPluginRun {
     cols: 4
-    defaultRenderer: custom
+    defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
     showTopBar: false
     title: "Connect WhatsApp account"
 
-    VStack {
-        alignment: topleft
-        padding: 60 30 0 30
+    [renderer = singleItem] {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
 
-        Text {
-            text: "Step 1"
-            font: link
-            padding: 0 5
-        }
-
-        Text {
-            text: "WhatsApp authorisation"
-            font: headline1
-            padding: 0 0 22 0
-        }
-
-        Text {
-            text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
-            font: bodyText2
-        }
-
-
-        HStack {
-            alignment: left
-            padding: 15 0 0 0
-
-            Button {
-                background: #333333
-
-                Text {
-                    text: "Connect!"
-                    font: button_label
-                    color: #F5F5F5
-                }
-
-                onPress: [
-                    openView {
-                        viewName: "pluginRunWait"
-                        viewArguments {
-                            mainView: false
-                            clearStack: true
-                        }
-                    }
-                    pluginRun {
-                        name: {{plugin.name}}
-                        container: {{plugin.container}}
-                        pluginModule: {{plugin.pluginModule}}
-                        pluginName: {{plugin.pluginName}}
-                        pluginId: {{plugin.id}}
-                    }
-                    sync
-                    ]
+            Text {
+                text: "Step 1"
+                font: link
+                padding: 0 5
             }
 
-            Button {
-                padding: 0 0 0 20
+            Text {
+                text: "WhatsApp authorisation"
+                font: headline1
+                padding: 0 0 22 0
+            }
 
-                Text {
-                    text: "Cancel"
-                    font: button_label
-                    color: #333333
+            Text {
+                text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
+                font: bodyText2
+            }
+
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Connect!"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "pluginRunWait"
+                            clearStack: true
+                            viewArguments {
+                                mainView: false
+                            }
+                        }
+                        pluginRun {
+                            name: {{.name}}
+                            container: {{.container}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                            pluginId: {{.id}}
+                        }
+                        sync
+                        ]
                 }
 
-                onPress: back
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: back
+                }
             }
         }
     }
@@ -159,9 +161,9 @@
 
                     onPress: openView {
                         viewName: "whatsapp-step-3"
+                        clearStack: true
                         viewArguments {
                             mainView: false
-                            clearStack: true
                         }
                     }
                 }

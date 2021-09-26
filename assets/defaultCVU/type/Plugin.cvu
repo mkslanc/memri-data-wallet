@@ -66,14 +66,12 @@ Plugin {
 }
 
 Plugin > list {
-    onPress: openView {
-        viewName: {{.~plugin[].last().status = 'cvuPresented' ? .pluginName + '-userActionNeeded' : .~plugin[].last().status = 'idle' ? 'pluginRunWait' : .pluginName + 'Run'}}
-        item: {{.~plugin[].last().account}}
-        viewArguments {
-            plugin: {{.}}
-            mainView: false
-            clearStack: true
-        }
+    onPress: openPlugin {
+        plugin: {{.}}
+    }
+
+    onPress: openPlugin {
+        plugin: {{.}}
     }
 
     VStack {

@@ -79,13 +79,19 @@
                 color: #FE570F
             }
 
-            onPress: openView {
-                viewName: "updates"
-                clearStack: true
-                viewArguments: {
-                    mainView: false
+            onPress: [
+                openView {
+                    viewName: "allPlugins"
+                    clearStack: true
                 }
-            }
+                openplugin {
+                    pluginName: "WhatsappPlugin"
+                    viewArguments: {
+                        mainView: false
+                        clearStack: true
+                    }
+                }
+            ]
         }
 
         Button {
@@ -98,13 +104,19 @@
                 color: #FE570F
             }
 
-            onPress: openView {
-                viewName: "updates"
-                clearStack: true
-                viewArguments: {
-                    mainView: false
+            onPress: [
+                openView {
+                    viewName: "allPlugins"
+                    clearStack: true
                 }
-            }
+                openplugin {
+                    pluginName: "GmailImporter"
+                    viewArguments: {
+                        mainView: false
+                        clearStack: true
+                    }
+                }
+            ]
         }
 
         Button {
@@ -117,17 +129,21 @@
                 color: #FE570F
             }
 
-            onPress: openView {
-                viewName: "updates"
-                clearStack: true
-                viewArguments: {
-                    mainView: false
+            onPress: [
+                openView {
+                    viewName: "allPlugins"
+                    clearStack: true
                 }
-            }
+                openplugin {
+                    pluginName: "InstagramPlugin"
+                    viewArguments: {
+                        mainView: false
+                        clearStack: true
+                    }
+                }
+            ]
         }
-
     }
-
 }
 
 .updates {
