@@ -1,0 +1,510 @@
+.GmailImporterRun {
+    cols: 4
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Gmail account"
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 0 30
+
+        Text {
+            text: "Step 1"
+            font: link
+            padding: 0 5
+        }
+
+        Text {
+            text: "Enable two-factor authentication"
+            font: headline1
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "Log in to your Google Account."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "In the navigation panel, select Security."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "Under “Signing in to Google,” select 2-Step Verification and then Get started."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 0 0 25 0
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "Follow the on-screen steps."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        Button {
+            background: #333333
+
+            Text {
+                text: "Connect!"
+                font: button_label
+                color: #F5F5F5
+            }
+
+            onPress: openView {
+                viewName: "gmail-step-2"
+                viewArguments {
+                    plugin: {{plugin}}
+                }
+            }
+        }
+    }
+}
+
+.gmail-step-2 {
+    cols: 4
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Gmail account"
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 0 30
+
+        Text {
+            text: "Step 2"
+            font: link
+            padding: 0 5
+        }
+
+        Text {
+            text: "Enable IMAP forwarding"
+            font: headline1
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "Go to your Google Account and select Security."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: 'Under "Signing in to Google," select App Passwords.  You may need to sign in.'
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "For Select App select Mail."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "For Device select Other."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "For Name type Memri."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "Tap Generate."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 0 0 25 0
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #989898
+                font: 20
+            }
+
+            Text {
+                text: "Save the generated password for the next step."
+                font: bodyText2
+                color: #737373
+            }
+        }
+
+        HStack {
+            alignment: left
+
+            Button {
+                background: #333333
+
+                Text {
+                    text: "Oke."
+                    font: button_label
+                    color: #F5F5F5
+                }
+
+                onPress: [
+                    openView {
+                        viewName: "pluginRunWait"
+                        viewArguments {
+                            mainView: false
+                            clearStack: true
+                        }
+                    }
+                    pluginRun {
+                        name: {{plugin.name}}
+                        container: {{plugin.container}}
+                        pluginModule: {{plugin.pluginModule}}
+                        pluginName: {{plugin.pluginName}}
+                        pluginId: {{plugin.id}}
+                    }
+                    ]
+            }
+
+            Button {
+                padding: 0 0 0 20
+
+                Text {
+                    text: "Previous step"
+                    font: button_label
+                    color: #333333
+                }
+
+                onPress: back
+            }
+        }
+    }
+}
+
+.GmailImporter-userActionNeeded {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Gmail account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Authenticate Gmail to memri"
+                font: headline1
+            }
+
+            Text {
+                text: "Please provide your email address and the app password generated in the previous step."
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+
+            VStack {
+                background: #F0F0F0
+                alignment: topleft
+                padding: 8 10 8 10
+                Text {
+                    text: "YOUR GMAIL LOGIN"
+                    font: 10
+                    color: #828282
+                }
+
+                TextField {
+                    hint: "your login"
+                    value: {{.identifier}}
+                }
+            }
+
+
+            VStack {
+                background: #F0F0F0
+                alignment: topleft
+                padding: 8 10 8 10
+                Text {
+                    text: "GENERATED APP PASSWORD"
+                    font: 10
+                    color: #737373
+
+                }
+
+                TextField {
+                    secure: true
+                    value: {{.secret}}
+                }
+            }
+
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Engage!"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "pluginRunWait"
+                            viewArguments {
+                                mainView: false
+                                clearStack: true
+                            }
+                        }
+                        sync
+                        setProperty {
+                            subject: {{.~account}}
+                            property: "status"
+                            value: "ready"
+                        }
+                        ]
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: [
+                        delete {
+                            subject: {{.~account}}
+                        }
+                        back
+                        ]
+                }
+            }
+        }
+    }
+}
+
+.GmailImporter-done {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Gmail account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Gmail connected!"
+                font: headline1
+            }
+
+            Text {
+                text: "Gmail has been successfully synced to your pod."
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}
+
+.GmailImporter-error {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Gmail account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Error occurred!"
+                font: headline1
+            }
+
+            Text {
+                text: "{.errorMessage}"
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}
