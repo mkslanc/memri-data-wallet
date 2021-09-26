@@ -60,7 +60,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                   child: Column(
                     children: [
                       NavigationItemView(
-                        item: Item(name: "Add items", targetViewName: "allAdding", icon: "plus"),
+                        item: Item(name: "Add items", targetViewName: "adding", icon: "plus"),
                         sceneController: sceneController,
                         textColor: Colors.black,
                       ),
@@ -71,10 +71,10 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                           item: Item(
                               name: "Apps and Plugins", targetViewName: "allPlugins", icon: "zap"),
                           sceneController: sceneController),
-                      NavigationItemView(
+                      /* NavigationItemView(
                           item:
                               Item(name: "Settings", targetViewName: "settings", icon: "settings"),
-                          sceneController: sceneController),
+                          sceneController: sceneController),*/ //TODO: we don't have settings right now
                       NavigationLineView(),
                       NavigationItemView(
                           item: Item(

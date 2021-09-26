@@ -44,6 +44,7 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                   futureBinding: titleBinding,
                   hint: "New note",
                   hintStyle: CVUFont.headline2,
+                  isCollapsed: false,
                 ),
                 Expanded(
                   child: MemriTextField.async(
@@ -51,6 +52,7 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                     hint: "Type here",
                     isMultiline: true,
                     hintStyle: CVUFont.bodyText2,
+                    isCollapsed: false,
                   ),
                 ),
                 Row(

@@ -11,6 +11,7 @@ class MemriTextField<T> extends StatefulWidget {
   final TextStyle? hintStyle;
   final bool secureMode;
   final bool isMultiline;
+  final bool isCollapsed;
 
   MemriTextField.sync(
       {required this.binding,
@@ -19,7 +20,8 @@ class MemriTextField<T> extends StatefulWidget {
       this.hintStyle,
       this.secureMode = false,
       this.isEditing = true,
-      this.isMultiline = false})
+      this.isMultiline = false,
+      this.isCollapsed = true})
       : futureBinding = null;
 
   MemriTextField.async(
@@ -29,7 +31,8 @@ class MemriTextField<T> extends StatefulWidget {
       this.hintStyle,
       this.secureMode = false,
       this.isEditing = true,
-      this.isMultiline = false})
+      this.isMultiline = false,
+      this.isCollapsed = true})
       : binding = null;
 
   @override
@@ -104,8 +107,11 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration.collapsed(
-          border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
+      decoration: InputDecoration(
+          isCollapsed: widget.isCollapsed,
+          border: InputBorder.none,
+          hintText: widget.hint,
+          hintStyle: widget.hintStyle),
       controller: controller,
       maxLines: widget.isMultiline ? null : 1,
       onChanged: (String newValue) async {
@@ -120,7 +126,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       readOnly: !widget.isEditing,
       style: widget.style,
       decoration: InputDecoration(
-          border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
+          isCollapsed: widget.isCollapsed,
+          border: InputBorder.none,
+          hintText: widget.hint,
+          hintStyle: widget.hintStyle),
       controller: controller,
       onChanged: (String newValue) async {
         value = int.tryParse(newValue);
@@ -137,7 +146,10 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       readOnly: !widget.isEditing,
       style: widget.style,
       decoration: InputDecoration(
-          border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
+          isCollapsed: widget.isCollapsed,
+          border: InputBorder.none,
+          hintText: widget.hint,
+          hintStyle: widget.hintStyle),
       controller: controller,
       onChanged: (String newValue) async {
         value = double.tryParse(newValue);
