@@ -132,12 +132,7 @@ class ItemEdgeRecord {
     var sourceItem = await ItemRecord.fetchWithRowID(sourceRowID!, dbController);
     var targetItem = await ItemRecord.fetchWithRowID(targetRowID!, dbController);
     var selfItem = await ItemRecord.fetchWithRowID(selfRowID!, dbController);
-    if (sourceItem == null ||
-        targetItem == null ||
-        selfItem == null ||
-        sourceItem.syncState == SyncState.create ||
-        targetItem.syncState == SyncState.create ||
-        selfItem.syncState == SyncState.create) {
+    if (sourceItem == null || targetItem == null || selfItem == null) {
       return null;
     }
 
