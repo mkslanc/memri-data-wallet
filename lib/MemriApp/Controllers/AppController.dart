@@ -30,7 +30,7 @@ class AppController {
   late CVUController cvuController;
   late PubSubController pubsubController;
   late PermissionsController permissionController;
-  late StreamSubscription? syncStream;
+  StreamSubscription? syncStream;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 

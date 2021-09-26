@@ -41,7 +41,7 @@ class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
         this.properties = properties ?? Map<String, CVUValue>();
 
   CVUDefinitionContent clone() {
-    return jsonDecode(jsonEncode(this));
+    return CVUDefinitionContent.fromJson(jsonDecode(jsonEncode(this)));
   }
 
   CVUPropertyResolver propertyResolver(
