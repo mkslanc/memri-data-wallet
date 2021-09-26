@@ -29,6 +29,7 @@ import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:moor/moor.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -108,6 +109,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionRunIndexer(vars: vars);
     case "pluginrun":
       return ({Map? vars}) => CVUActionPluginRun(vars: vars);
+    case "openplugin":
+      return ({Map? vars}) => CVUActionOpenPlugin(vars: vars);
     case "setproperty":
       return ({Map? vars}) => CVUActionSetProperty(vars: vars);
     case "setsetting":
@@ -216,7 +219,7 @@ class CVUActionOpenView extends CVUAction {
     }
     DatabaseController db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: this.vars);
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
 
     await pageController.sceneController.navigateToNewContext(
         clearStack: await resolver.boolean("clearStack") ?? false,
@@ -224,7 +227,7 @@ class CVUActionOpenView extends CVUAction {
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
         overrideRenderer: renderer ?? await resolver.string("renderer"),
         defaultRenderer: "singleItem",
-        targetItem: context.currentItem,
+        targetItem: (await resolver.item("item")) ?? context.currentItem,
         overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
@@ -481,6 +484,84 @@ class CVUActionAddItem extends CVUAction {
   }
 }
 
+class CVUActionOpenPlugin extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenPlugin({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+
+    var pluginValue = vars["plugin"];
+    var pluginNameValue = vars["pluginName"];
+
+    if (pluginValue == null && pluginNameValue == null) {
+      print("Plugin data missing");
+      return;
+    }
+    String? pluginName;
+    ItemRecord? plugin;
+    if (pluginValue != null) {
+      plugin = await lookup.resolve<ItemRecord>(value: pluginValue, context: context, db: db);
+    }
+    if (plugin == null) {
+      pluginName = await lookup.resolve<String>(value: pluginNameValue, context: context, db: db);
+      if (pluginName == null) {
+        print("Plugin data missing");
+        return;
+      }
+
+      var pluginItems = await db.databasePool.itemPropertyRecordsCustomSelect(
+          "name = ? AND value = ?", [Variable("pluginName"), Variable(pluginName)]);
+      if (pluginItems.isNotEmpty) {
+        plugin = await ItemRecord.fetchWithRowID(pluginItems[0].item);
+      }
+    }
+
+    if (plugin == null) {
+      print("Plugin data missing");
+      return;
+    }
+    if (pluginName == null) {
+      pluginName = (await plugin.property("pluginName", db))!.$value.value;
+    }
+
+    List<ItemRecord> pluginRunList = await plugin.reverseEdgeItems("plugin", db: db);
+    pluginRunList.sort((a, b) => b.rowId! - a.rowId!);
+
+    var lastPluginRun = pluginRunList.asMap()[0];
+    var account;
+    String viewName;
+    if (lastPluginRun == null) {
+      viewName = "${pluginName}Run";
+    } else {
+      account = await lastPluginRun.edgeItem("account");
+      var status = (await lastPluginRun.property("status", db))!.$value.value;
+      switch (status) {
+        case "userActionNeeded":
+        case "cvuPresented":
+          viewName = "${pluginName}-userActionNeeded";
+          break;
+        case "idle":
+        case "ready":
+          viewName = "pluginRunWait";
+          break;
+        default:
+          viewName = "${pluginName}Run";
+          break;
+      }
+    }
+
+    await pageController.sceneController.navigateToNewContext(
+        animated: false,
+        viewName: viewName,
+        pageController: pageController.sceneController.secondaryPageController,
+        targetItem: account ?? plugin);
+  }
+}
+
 class CVUActionPluginRun extends CVUAction {
   Map<String, CVUValue> vars;
 
@@ -491,50 +572,27 @@ class CVUActionPluginRun extends CVUAction {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
 
-    var plugin = context.currentItem;
-    var targetItemIdValue = vars["targetItemId"];
+    var pluginIdValue = vars["pluginId"];
     var pluginModuleValue = vars["pluginModule"];
     var pluginNameValue = vars["pluginName"];
     var containerValue = vars["container"];
-    if (plugin == null ||
-        targetItemIdValue == null ||
+    if (pluginIdValue == null ||
         containerValue == null ||
         pluginModuleValue == null ||
         pluginNameValue == null) return;
 
-    String? targetItemId =
-        await lookup.resolve<String>(value: targetItemIdValue, context: context, db: db);
+    String? pluginId = await lookup.resolve<String>(value: pluginIdValue, context: context, db: db);
+
+    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!))!;
     String? container =
         await lookup.resolve<String>(value: containerValue, context: context, db: db);
     String? pluginModule =
         await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
     String? pluginName =
         await lookup.resolve<String>(value: pluginNameValue, context: context, db: db) ?? "";
-    if (targetItemId == null || container == null) return;
+    if (container == null) return;
 
     try {
-      var existingPluginRunItem = await plugin.reverseEdgeItem("plugin");
-      if (existingPluginRunItem != null) {
-        var pluginRunStatus = (await existingPluginRunItem.propertyValue("status"))?.asString();
-        switch (pluginRunStatus) {
-          case "idle":
-            return;
-          case "userActionNeeded":
-            PluginHandler.presentCVUforPlugin(
-                plugin: plugin,
-                runner: existingPluginRunItem,
-                sceneController: pageController.sceneController,
-                context: context);
-            return;
-          case "cvuPresented":
-            await existingPluginRunItem.setPropertyValue(
-                "status", PropertyDatabaseValueString("userActionNeeded"));
-            return;
-          default:
-            break;
-        }
-      }
-
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
       await pluginRunItem.setPropertyValue(
@@ -550,7 +608,6 @@ class CVUActionPluginRun extends CVUAction {
 
       var edge = ItemEdgeRecord(
           sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
-      edge.syncState = SyncState.skip; // Don't sync it yet
       await edge.save();
 
       await PluginHandler.run(
@@ -602,12 +659,18 @@ class CVUActionSync extends CVUAction {
         }
       }
 
-      for (var item in pendingItems) {
-        await item.save();
+      for (var edge in pendingEdges) {
+        var selfEdge = await edge.selfItem();
+        if (selfEdge.syncState == SyncState.skip) {
+          selfEdge.syncState = SyncState.create;
+          pendingItems.add(selfEdge);
+        }
+
+        await edge.save();
       }
 
-      for (var edge in pendingEdges) {
-        await edge.save();
+      for (var item in pendingItems) {
+        await item.save();
       }
 
       await AppController.shared.syncController.sync();
@@ -662,12 +725,19 @@ class CVUActionDelete extends CVUAction {
 
   @override
   Future<void> execute(memri.PageController pageController, CVUContext context) async {
-    var item = context.currentItem;
-    if (item == null) {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+
+    var subjectVal = vars["subject"];
+    ItemRecord? subjectItem =
+        await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    subjectItem ??= context.currentItem;
+    if (subjectItem == null) {
+      print("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
       return;
     }
 
-    await item.delete(pageController.appController.databaseController);
+    await subjectItem.delete(pageController.appController.databaseController);
 
     var closeVal = vars["close"];
     if (closeVal != null) {

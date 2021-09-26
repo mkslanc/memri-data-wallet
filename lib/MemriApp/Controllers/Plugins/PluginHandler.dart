@@ -1,6 +1,3 @@
-import 'package:memri/MemriApp/CVU/CVUController.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
-import 'package:memri/MemriApp/CVU/parsing/CVUParseErrors.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
@@ -31,7 +28,12 @@ class PluginHandler {
                     context: context);
                 break;
               case "done":
-                stopPlugin(runner);
+              case "error":
+                stopPlugin(
+                    plugin: plugin,
+                    runner: runner,
+                    sceneController: sceneController,
+                    status: status);
                 break;
               default:
                 break;
@@ -43,9 +45,24 @@ class PluginHandler {
     await AppController.shared.syncController.sync();
   }
 
-  static stopPlugin(ItemRecord runner) {
+  static stopPlugin(
+      {required ItemRecord plugin,
+      required ItemRecord runner,
+      required SceneController sceneController,
+      required String status}) async {
     AppController.shared.pubsubController
         .stopObservingItemProperty(item: runner, property: "status");
+
+    var pluginName = (await plugin.property("pluginName"))!.$value.value;
+    var item = await runner.edgeItem("account");
+
+    await sceneController.navigateToNewContext(
+        clearStack: true, animated: false, viewName: "allPlugins"); //TODO
+    await sceneController.navigateToNewContext(
+        animated: false,
+        viewName: "${pluginName}-$status",
+        pageController: sceneController.secondaryPageController,
+        targetItem: item);
   }
 
   static presentCVUforPlugin(
@@ -54,29 +71,6 @@ class PluginHandler {
       required SceneController sceneController,
       required CVUContext context}) async {
     var runnerRowId = runner.rowId;
-    List<ItemRecord> viewList =
-        await runner.edgeItems("view"); //TODO plugin should delete previous edge
-    viewList.sort((a, b) =>
-        (b.dateServerModified?.millisecondsSinceEpoch ?? 0) -
-        (a.dateServerModified?.millisecondsSinceEpoch ?? 0));
-    ItemRecord? view = viewList.asMap()[0];
-    var cvuContent = (await view?.propertyValue("definition"))?.value;
-
-    List<CVUParsedDefinition>? parsedDefinitions;
-    if (cvuContent != null) {
-      try {
-        parsedDefinitions = await CVUController.parseCVU(cvuContent);
-      } on CVUParseErrors catch (error) {
-        print(error.toString());
-      }
-    }
-    var parsedDefinition = parsedDefinitions?.asMap()[0];
-    var cvuDefinition = parsedDefinition?.parsed;
-    if (parsedDefinitions == null || parsedDefinition == null || cvuDefinition == null) {
-      return;
-    }
-
-    AppController.shared.cvuController.storedDefinitions = parsedDefinitions;
 
     var item = await runner.edgeItem("account");
 
@@ -99,9 +93,16 @@ class PluginHandler {
       await meEdge.save();
     }
 
+    var pluginName = (await plugin.property("pluginName"))!.$value.value;
+
     await runner.setPropertyValue("status", PropertyDatabaseValueString("cvuPresented"));
 
     await sceneController.navigateToNewContext(
-        targetItem: item, viewName: parsedDefinition.name, defaultDefinition: cvuDefinition);
+        clearStack: true, animated: false, viewName: "allPlugins");
+    await sceneController.navigateToNewContext(
+        animated: false,
+        viewName: "${pluginName}-userActionNeeded",
+        pageController: sceneController.secondaryPageController,
+        targetItem: item);
   }
 }

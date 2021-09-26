@@ -1,0 +1,258 @@
+.InstagramPluginRun {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Instagram account"
+
+    [renderer = singleItem] {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 1"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Instagram authorisation"
+                font: headline1
+                padding: 0 0 22 0
+            }
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Connect"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "pluginRunWait"
+                            clearStack: true
+                            viewArguments {
+                                mainView: false
+                            }
+                        }
+                        pluginRun {
+                            name: {{.name}}
+                            container: {{.container}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                            pluginId: {{.id}}
+                        }
+                        ]
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: back
+                }
+            }
+        }
+    }
+}
+
+.InstagramPlugin-userActionNeeded {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Instagram account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 2"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Log in to your Instagram Account"
+                font: headline1
+            }
+
+            Text {
+                text: "Please provide your instagram username  and password to connect instragram to memri."
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+
+            VStack {
+                background: #F0F0F0
+                alignment: topleft
+                padding: 8 10 8 10
+                Text {
+                    text: "YOUR INSTRAGRAM LOGIN"
+                    font: 10
+                    color: #828282
+                }
+
+                TextField {
+                    value: {{.identifier}}
+                }
+            }
+
+
+            VStack {
+                background: #F0F0F0
+                alignment: topleft
+                padding: 8 10 8 10
+                Text {
+                    text: "YOUR INSTRAGRAM PASSWORD"
+                    font: 10
+                    color: #737373
+
+                }
+
+                TextField {
+                    secure: true
+                    value: {{.secret}}
+                }
+            }
+
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Log in"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "pluginRunWait"
+                            clearStack: true
+                            viewArguments {
+                                mainView: false
+                            }
+                        }
+                        sync
+                        setProperty {
+                            subject: {{.~account}}
+                            property: "status"
+                            value: "ready"
+                        }
+                        ]
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: [
+                        delete {
+                            subject: {{.~account}}
+                        }
+                        back
+                        ]
+                }
+            }
+        }
+    }
+}
+
+.InstagramPlugin-done {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Instagram account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Instagram connected!"
+                font: headline1
+            }
+
+            Text {
+                text: "Instagram has been successfully synced to your pod."
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}
+
+.InstagramPlugin-error {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Instagram account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Error occurred!"
+                font: headline1
+            }
+
+            Text {
+                text: "{.errorMessage}"
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}

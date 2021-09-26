@@ -1,0 +1,388 @@
+.WhatsappPluginRun {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect WhatsApp account"
+
+    [renderer = singleItem] {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 1"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "WhatsApp authorisation"
+                font: headline1
+                padding: 0 0 22 0
+            }
+
+            Text {
+                text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
+                font: bodyText2
+            }
+
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Connect!"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "pluginRunWait"
+                            clearStack: true
+                            viewArguments {
+                                mainView: false
+                            }
+                        }
+                        pluginRun {
+                            name: {{.name}}
+                            container: {{.container}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                            pluginId: {{.id}}
+                        }
+                        sync
+                        ]
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: back
+                }
+            }
+        }
+    }
+}
+
+.WhatsappPlugin-userActionNeeded {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect WhatsApp account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 2"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "On your computer"
+                font: headline1
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+
+                Text {
+                    text: "Open this link to your personal QR code."
+                    font: bodyText2
+                    color: #737373
+                }
+
+
+
+            }
+
+            HStack {
+                Text {
+                    text: {{.~account.authUrl}}
+                    font: link
+                    color: #000
+                }
+
+                Spacer
+
+                Button {
+                    background: #333333
+                    onPress: copyToClipboard {
+                        value: {{.~account.authUrl}}
+                    }
+
+                    Text { text: "Copy", font: button_label
+                    color: #F5F5F5 }
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Done."
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: openView {
+                        viewName: "whatsapp-step-3"
+                        clearStack: true
+                        viewArguments {
+                            mainView: false
+                        }
+                    }
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: delete {
+                        close: true
+                        subject: {{.~account}}
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+.whatsapp-step-3 {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect WhatsApp account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Authenticate WhatsApp to memri"
+                font: headline1
+            }
+
+            Text {
+                text: "On your phone:"
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Open WhatsApp"
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Tap Settings and select Linked devices."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Tap Link a device."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Point your phone to the QR code on the screen of your computer to capture the code"
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Previous step"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: back
+                }
+            }
+        }
+    }
+}
+
+
+.WhatsappPlugin-done {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect WhatsApp account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "WhatsApp connected!"
+                font: headline1
+            }
+
+            Text {
+                text: "WhatsApp has been successfully synced to your pod."
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}
+
+.WhatsappPlugin-error {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect WhatsApp account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Error occurred!"
+                font: headline1
+            }
+
+            Text {
+                text: "{.errorMessage}"
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}

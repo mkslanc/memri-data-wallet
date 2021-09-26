@@ -98,7 +98,7 @@ class ViewContextController extends ChangeNotifier {
     configHolder.removeListener(_updateCachedValues);
   }
 
-  /// Return a SwiftUI view for the given item based on it's CVU definition.
+  /// Return a Widget for the given item based on it's CVU definition.
   /// Set `overrideRenderer` if you want to render the item as though it is in a different renderer to the context (eg. "list" to get the list-specific appearance)
   Widget render(
       {ItemRecord? item,

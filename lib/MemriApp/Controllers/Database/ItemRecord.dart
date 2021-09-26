@@ -461,6 +461,14 @@ class ItemRecord with EquatableMixin {
     ItemRecord newItem = ItemRecord.fromSyncDict(dict);
     newItem.rowId = item?.rowId;
     await newItem.save(dbController.databasePool);
+    var excludeList = [
+      "type",
+      "id",
+      "dateCreated",
+      "dateModified",
+      "dateServerModified",
+      "deleted",
+    ];
 
     if (dict["_item"] == null) {
       await Future.forEach(dict.entries, (MapEntry entry) async {
@@ -469,6 +477,9 @@ class ItemRecord with EquatableMixin {
           return;
         }
         String propertyName = entry.key;
+        if (excludeList.contains(propertyName))
+          return; //TODO: figure out why we receiving these schema item property types from pod
+
         var expectedType = dbController.schema.expectedPropertyType(newItem.type, propertyName);
         if (expectedType == null) {
           //first initialization with existing pod crashes without this

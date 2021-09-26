@@ -25,7 +25,7 @@ class _CVUTextFieldState extends State<CVUTextField> {
   String? hint;
   Color? color;
 
-  FutureBinding<String?>? contentBinding;
+  FutureBinding<String>? contentBinding;
 
   late Future _init;
 
