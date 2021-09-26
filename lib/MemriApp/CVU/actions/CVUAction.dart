@@ -216,7 +216,7 @@ class CVUActionOpenView extends CVUAction {
     }
     DatabaseController db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: this.vars);
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
 
     await pageController.sceneController.navigateToNewContext(
         clearStack: await resolver.boolean("clearStack") ?? false,
@@ -224,7 +224,7 @@ class CVUActionOpenView extends CVUAction {
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
         overrideRenderer: renderer ?? await resolver.string("renderer"),
         defaultRenderer: "singleItem",
-        targetItem: context.currentItem,
+        targetItem: (await resolver.item("item")) ?? context.currentItem,
         overrideRowIDs: uids,
         dateRange: dateRange,
         customDefinition: customDefinition,
