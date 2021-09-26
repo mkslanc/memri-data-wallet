@@ -804,6 +804,7 @@ class CVUActionUnlink extends CVUAction {
 class CVUActionStar extends CVUAction {
   Map<String, CVUValue> vars;
 
+  @override
   Future<String?> getString(String key, CVUContext context) async {
     var lexer = CVUExpressionLexer('.starred ? "Unpin" : "Pin"');
     var tokens = lexer.tokenize();
