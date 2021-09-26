@@ -662,12 +662,19 @@ class CVUActionDelete extends CVUAction {
 
   @override
   Future<void> execute(memri.PageController pageController, CVUContext context) async {
-    var item = context.currentItem;
-    if (item == null) {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+
+    var subjectVal = vars["subject"];
+    ItemRecord? subjectItem =
+        await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    subjectItem ??= context.currentItem;
+    if (subjectItem == null) {
+      print("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
       return;
     }
 
-    await item.delete(pageController.appController.databaseController);
+    await subjectItem.delete(pageController.appController.databaseController);
 
     var closeVal = vars["close"];
     if (closeVal != null) {
