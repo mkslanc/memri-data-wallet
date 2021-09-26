@@ -728,9 +728,11 @@ class CVUActionDelete extends CVUAction {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
 
+    ItemRecord? subjectItem;
     var subjectVal = vars["subject"];
-    ItemRecord? subjectItem =
-        await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    if (subjectVal != null) {
+      subjectItem = await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    }
     subjectItem ??= context.currentItem;
     if (subjectItem == null) {
       print("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
