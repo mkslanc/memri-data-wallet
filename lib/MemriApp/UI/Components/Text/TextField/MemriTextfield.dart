@@ -104,7 +104,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       obscureText: widget.secureMode,
       readOnly: !widget.isEditing,
       style: widget.style,
-      decoration: InputDecoration(
+      decoration: InputDecoration.collapsed(
           border: InputBorder.none, hintText: widget.hint, hintStyle: widget.hintStyle),
       controller: controller,
       maxLines: widget.isMultiline ? null : 1,
