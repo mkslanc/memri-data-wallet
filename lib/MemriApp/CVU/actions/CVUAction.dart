@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVUExpressionLexer.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVUExpressionParser.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
@@ -37,7 +39,7 @@ abstract class CVUAction {
 
   late Map<String, CVUValue> vars;
 
-  String? getString(String key, CVUContext context) {
+  Future<String?> getString(String key, CVUContext context) async {
     var cvuValue = vars[key] ?? defaultVars[key];
     if (cvuValue is CVUValueConstant) {
       var cvuConstant = cvuValue.value;
@@ -654,6 +656,10 @@ class CVUActionDelete extends CVUAction {
 
   CVUActionDelete({vars}) : this.vars = vars ?? {};
 
+  Map<String, CVUValue> get defaultVars {
+    return {"title": CVUValueConstant(CVUConstantString("Delete"))};
+  }
+
   @override
   Future<void> execute(memri.PageController pageController, CVUContext context) async {
     var item = context.currentItem;
@@ -662,6 +668,19 @@ class CVUActionDelete extends CVUAction {
     }
 
     await item.delete(pageController.appController.databaseController);
+
+    var closeVal = vars["close"];
+    if (closeVal != null) {
+      var lookup = CVULookupController();
+      var db = pageController.appController.databaseController;
+
+      bool shouldClose = (await lookup.resolve<bool>(value: closeVal, context: context, db: db))!;
+      if (shouldClose) {
+        pageController.navigateBack();
+      }
+    }
+    pageController.sceneController.mainPageController.topMostContext
+        ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
   }
 }
 
@@ -785,8 +804,15 @@ class CVUActionUnlink extends CVUAction {
 class CVUActionStar extends CVUAction {
   Map<String, CVUValue> vars;
 
-  Map<String, CVUValue> get defaultVars {
-    return {"title": CVUValueConstant(CVUConstantString("Pin"))};
+  @override
+  Future<String?> getString(String key, CVUContext context) async {
+    var lexer = CVUExpressionLexer('.starred ? "Unpin" : "Pin"');
+    var tokens = lexer.tokenize();
+    var parser = CVUExpressionParser(tokens);
+    var node = parser.parse();
+
+    return await CVULookupController().resolve<String>(
+        expression: node, context: context, db: AppController.shared.databaseController);
   }
 
   CVUActionStar({vars}) : this.vars = vars ?? {};
@@ -802,6 +828,8 @@ class CVUActionStar extends CVUAction {
     var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
     try {
       await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
+      pageController.sceneController.mainPageController.topMostContext
+          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
     } catch (error) {
       print(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");

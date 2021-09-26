@@ -51,6 +51,13 @@ File {
     title: {{.caption or .filename or .sha256}}
     defaultRenderer: singleItem
     cols: 6
+
+    actionButton: [
+        delete {
+            close: true
+        }
+        star
+    ]
 }
 
 File > singleItem {
