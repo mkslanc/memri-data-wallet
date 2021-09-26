@@ -78,7 +78,8 @@ class ItemEdgeRecord {
     return await db.itemEdgeRecordInsert(this);
   }
 
-  Future<ItemRecord> selfItem(DatabaseController db) async {
+  Future<ItemRecord> selfItem([DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
     return (await ItemRecord.fetchWithRowID(selfRowID!, db))!;
   }
 
@@ -100,6 +101,7 @@ class ItemEdgeRecord {
     db ??= AppController.shared.databaseController.databasePool;
     if (selfUID == null && selfRowID == null) {
       ItemRecord selfRecord = ItemRecord(type: "Edge");
+      selfRecord.syncState = syncState;
       selfRowID = await selfRecord.insert(db);
     }
   }
