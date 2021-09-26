@@ -70,7 +70,7 @@ class _TopBarViewState extends State<AltTopBarView> {
             if (actions != null && viewContext != null)
               ...actions.map((action) => ActionButton(
                     action: action,
-                    viewContext: viewContext!.getCVUContext(),
+                    viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                     pageController: widget.pageController,
                   )),
             TextButton(

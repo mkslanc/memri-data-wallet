@@ -21,9 +21,9 @@ class ActionButton extends StatefulWidget {
 }
 
 class _ActionButtonState extends State<ActionButton> {
-  String? _title;
+  late Future<String?> _title;
 
-  String get title => _title ?? "";
+  String title = "";
 
   @override
   initState() {
@@ -43,15 +43,23 @@ class _ActionButtonState extends State<ActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-        child: Text(
-          title,
-          style: CVUFont.link,
-        ),
-        onPressed: () async {
-          await widget.action.execute(widget.pageController, widget.viewContext);
-          setState(() => initTitle());
-        });
+    return FutureBuilder<String?>(
+      future: _title,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          title = snapshot.data ?? "";
+        }
+        return TextButton(
+            child: Text(
+              title,
+              style: CVUFont.link,
+            ),
+            onPressed: () async {
+              await widget.action.execute(widget.pageController, widget.viewContext);
+              setState(() => initTitle());
+            });
+      },
+    );
   }
 }
 

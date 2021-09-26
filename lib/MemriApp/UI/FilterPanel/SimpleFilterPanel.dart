@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
@@ -23,15 +23,10 @@ class _SimpleFilterPanelState extends State<SimpleFilterPanel> {
             child: Row(
                 children: space(
               10,
-              actions.map(
-                (action) => TextButton(
-                    onPressed: () => action.execute(
-                        widget.viewContext.pageController, widget.viewContext.getCVUContext()),
-                    child: Text(
-                      action.getString("title", widget.viewContext.getCVUContext()) ?? "Undefined",
-                      style: CVUFont.tabList.copyWith(color: Color(0xff333333)),
-                    )),
-              ),
+              actions.map((action) => ActionButton(
+                  action: action,
+                  viewContext: widget.viewContext.getCVUContext(),
+                  pageController: widget.viewContext.pageController)),
             )),
           )
         : Empty();
