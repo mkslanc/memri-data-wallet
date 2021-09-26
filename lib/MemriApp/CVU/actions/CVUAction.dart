@@ -602,12 +602,18 @@ class CVUActionSync extends CVUAction {
         }
       }
 
-      for (var item in pendingItems) {
-        await item.save();
+      for (var edge in pendingEdges) {
+        var selfEdge = await edge.selfItem();
+        if (selfEdge.syncState == SyncState.skip) {
+          selfEdge.syncState = SyncState.create;
+          pendingItems.add(selfEdge);
+        }
+
+        await edge.save();
       }
 
-      for (var edge in pendingEdges) {
-        await edge.save();
+      for (var item in pendingItems) {
+        await item.save();
       }
 
       await AppController.shared.syncController.sync();
