@@ -185,3 +185,21 @@ PluginRun > list {
         }
     }
 }
+
+.pluginRunWait {
+    cols: 4
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connecting"
+
+    VStack {
+        HStack {
+            Text {
+                text: "Please wait for response: this may take a while..."
+            }
+        }
+    }
+}

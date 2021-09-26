@@ -66,57 +66,51 @@ Plugin {
 }
 
 Plugin > list {
-    onPress: pluginRun {
-        name: {{.name}}
-        plugin: {{.}}
-        container: {{.container}}
-        pluginModule: {{.pluginModule}}
-        pluginName: {{.pluginName}}
-        targetItemId: {{.id}}
+    onPress: openView {
+        viewName: {{.~plugin[].last().status = 'cvuPresented' ? .pluginName + '-userActionNeeded' : .~plugin[].last().status = 'idle' ? 'pluginRunWait' : .pluginName + 'Run'}}
+        item: {{.~plugin[].last().account}}
+        viewArguments {
+            plugin: {{.}}
+            mainView: false
+            clearStack: true
+        }
     }
 
-    HStack {
-        alignment: center
-        Image {
-            show: {{.icon or .bundleImage}}
-            systemName: {{.icon}}
-            bundleImage: {{.bundleImage}}
-            font: 30
-            color: blue
-            width: 90
-        }
+    VStack {
+        alignment: left
 
-        VStack {
+        HStack {
             alignment: left
-            rowInset: 12 20 -12 20
 
-
-            HStack {
-                Text {
-                    text: "{.name}"
-                    font: 18 semibold
-                    color: primary
-                    padding: 0 0 3 0
-                }
-                Text {
-                    show: {{.runDestination="ios"}}
-                    text: "   (Local)"
-                }
-            }
-            HStack {
-                Text {
-                    text: "{.itemDescription}"
-                    removeWhiteSpace: true
-                    maxChar: 100
-                    color: secondary
-                    font: 14 regular
-                    padding: 0 20 0 0
-                }
-            }
             Text {
-                text: "{.dateModified}"
-                font: 11 regular
+                text: "{.name}"
+                font: 18 semibold
+                color: primary
+                padding: 0 0 3 0
+            }
+            Spacer
+            Text {
+                color: {{.~plugin[].last().status = "error" ? #FE570F : #333333}}
+                text: "{.~plugin[].last().status = 'done' ? 'Active' : .~plugin[].last().status = 'error' ? 'Error' : 'Inactive'}"
+            }
+        }
+        HStack {
+            Text {
+                text: "{.itemDescription}"
+                removeWhiteSpace: true
+                maxChar: 100
                 color: secondary
+                font: 14 regular
+                padding: 0 20 0 0
+            }
+        }
+        HStack {
+            alignment: left
+            Text {
+                show: {{!.~plugin[].last().status OR .~plugin[].last().status != done}}
+                text: "{.pluginType != 'importer' ? 'Install' : .~plugin[].last().status = 'error' ? 'Re-authenticate' : 'Connect'}"
+                font: 11 regular
+                color: #FE570F
                 padding: 8 0 5 0
             }
         }
@@ -173,18 +167,19 @@ Plugin > grid {
 
 .allPlugins {
     name: "all-plugins"
-    title: "All Plugins"
+    title: "Apps and Plugins"
     emptyResultText: "There are no Plugins"
-    defaultRenderer: grid
+    defaultRenderer: list
     sortFields: datatype dateModified dateAccessed dateCreated
-    
+    cols: 4
+
     [datasource = pod] {
-        query: "Plugin"
+        query: Plugin
         sortProperty: dateModified
         sortAscending: false
     }
     
-    [renderer = grid] {
+    [renderer = list] {
         spacing: 10
         edgeInset: 10
     }

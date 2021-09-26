@@ -491,50 +491,27 @@ class CVUActionPluginRun extends CVUAction {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
 
-    var plugin = context.currentItem;
-    var targetItemIdValue = vars["targetItemId"];
+    var pluginIdValue = vars["pluginId"];
     var pluginModuleValue = vars["pluginModule"];
     var pluginNameValue = vars["pluginName"];
     var containerValue = vars["container"];
-    if (plugin == null ||
-        targetItemIdValue == null ||
+    if (pluginIdValue == null ||
         containerValue == null ||
         pluginModuleValue == null ||
         pluginNameValue == null) return;
 
-    String? targetItemId =
-        await lookup.resolve<String>(value: targetItemIdValue, context: context, db: db);
+    String? pluginId = await lookup.resolve<String>(value: pluginIdValue, context: context, db: db);
+
+    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!))!;
     String? container =
         await lookup.resolve<String>(value: containerValue, context: context, db: db);
     String? pluginModule =
         await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
     String? pluginName =
         await lookup.resolve<String>(value: pluginNameValue, context: context, db: db) ?? "";
-    if (targetItemId == null || container == null) return;
+    if (container == null) return;
 
     try {
-      var existingPluginRunItem = await plugin.reverseEdgeItem("plugin");
-      if (existingPluginRunItem != null) {
-        var pluginRunStatus = (await existingPluginRunItem.propertyValue("status"))?.asString();
-        switch (pluginRunStatus) {
-          case "idle":
-            return;
-          case "userActionNeeded":
-            PluginHandler.presentCVUforPlugin(
-                plugin: plugin,
-                runner: existingPluginRunItem,
-                sceneController: pageController.sceneController,
-                context: context);
-            return;
-          case "cvuPresented":
-            await existingPluginRunItem.setPropertyValue(
-                "status", PropertyDatabaseValueString("userActionNeeded"));
-            return;
-          default:
-            break;
-        }
-      }
-
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
       await pluginRunItem.setPropertyValue(
@@ -550,7 +527,6 @@ class CVUActionPluginRun extends CVUAction {
 
       var edge = ItemEdgeRecord(
           sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
-      edge.syncState = SyncState.skip; // Don't sync it yet
       await edge.save();
 
       await PluginHandler.run(
