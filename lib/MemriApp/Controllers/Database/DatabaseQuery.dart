@@ -563,9 +563,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<DatabaseQueryCondition> propertyConditions = (await Future.wait<DatabaseQueryCondition?>(
             (properties?.properties.keys.toList() ?? [])
                 .map<Future<DatabaseQueryCondition?>>((key) async {
-      dynamic value = await properties?.boolean(key);
+      dynamic value = await properties?.string(key);
       if (value == null) {
-        value = await properties?.string(key) ?? "";
+        value = await properties?.boolean(key) ?? "";
       }
       return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
     })))

@@ -54,6 +54,14 @@
     "icon":"mail"
   },
   {
+    "_type":"Plugin",
+    "pluginType": "app",
+    "name":"Sentiment analysis app",
+    "container":"gitlab.memri.io:5050/plugins/sentiment-analysis:dev-latest",
+    "pluginModule": "sentiment_analysis",
+    "pluginName": "SentimentAnalysis"
+  },
+  {
     "_type": "Setting",
     "keystr": "defaults/general/gui/showEditButton",
     "json": "{\"value\":false}"

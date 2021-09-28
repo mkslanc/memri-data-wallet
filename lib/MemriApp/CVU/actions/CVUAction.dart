@@ -527,6 +527,7 @@ class CVUActionOpenPlugin extends CVUAction {
     if (pluginName == null) {
       pluginName = (await plugin.property("pluginName", db))!.$value.value;
     }
+    var pluginType = (await plugin.property("pluginType", db))!.$value.value;
 
     List<ItemRecord> pluginRunList = await plugin.reverseEdgeItems("plugin", db: db);
     pluginRunList.sort((a, b) => b.rowId! - a.rowId!);
@@ -547,6 +548,9 @@ class CVUActionOpenPlugin extends CVUAction {
         case "idle":
         case "ready":
           viewName = "pluginRunWait";
+          break;
+        case "done":
+          viewName = pluginType == "importer" ? "${pluginName}Run" : "${pluginName}-done"; //TODO
           break;
         default:
           viewName = "${pluginName}Run";

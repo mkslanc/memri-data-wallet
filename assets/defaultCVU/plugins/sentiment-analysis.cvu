@@ -1,0 +1,318 @@
+.SentimentAnalysisRun {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "App"
+
+    [renderer = singleItem] {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Sentiment analysis"
+                font: headline1
+                padding: 0 0 22 0
+            }
+
+            Text {
+                text: "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
+                font: bodyText2
+            }
+
+            Text {
+                text: "Even fellow humans have difficulty understanding the emotions of others; people express their opinions in unique ways, so sentiment analysis presents a lot of challenges. It's important to keep in mind that machines cannot analyze sentiments in the same way humans can: they don't understand context unless it's explicitly mentioned, irony and sarcasm are hard to detect, and so on."
+                font: smallCaps
+                color: #737373
+            }
+
+            HStack {
+                show: {{!.~plugin}}
+                alignment: left
+                padding: 15 0 0 0
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Install"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "SentimentAnalysisRun"
+                            clearStack: true
+                            viewArguments {
+                                mainView: false
+                            }
+                        }
+                        pluginRun {
+                            name: {{.name}}
+                            container: {{.container}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                            pluginId: {{.id}}
+                        }
+                        ]
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: back
+                }
+            }
+
+            HStack {
+                show: {{.~plugin.last().status}}
+                Text {
+                    text: "Please wait for response: this may take a while..."
+                }
+            }
+        }
+    }
+}
+
+.CategoricalPrediction {
+    defaultRenderer: singleItem
+
+    [renderer = singleItem] {
+        edgeInset: 0 0
+        VStack {
+            alignment: topleft
+
+            Text {
+                text: "{items.count().percent(count)} %"
+                font: headline2
+                color: #333333
+            }
+
+            Text {
+                text: "{.name}"
+                font: smallCaps
+                color: #333333
+            }
+
+            Text {
+                text: "{items.count()} snippets"
+                font: smallCaps
+                color: #989898
+            }
+        }
+    }
+}
+
+
+
+.SentimentAnalysis-done {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "App"
+
+    [renderer = singleItem] {
+        VStack {
+            alignment: topleft
+            SubView {
+                height: 500
+
+                view {
+                    viewName: SentimentAnalysisData
+                    defaultRenderer: singleItem
+
+                    [datasource = pod] {
+                        query: "CategoricalPrediction"
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 15 0 0 0
+                Button {
+                    background: #333333
+
+                    Text {
+                        text: "Reinstall"
+                        font: button_label
+                        color: #F5F5F5
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "SentimentAnalysisRun"
+                            clearStack: true
+                            viewArguments {
+                                mainView: false
+                            }
+                        }
+                        pluginRun {
+                            name: {{.name}}
+                            container: {{.container}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                            pluginId: {{.id}}
+                        }
+                        ]
+                }
+            }
+
+        }
+    }
+}
+
+.SentimentAnalysisData {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "App"
+    edgeInset: 0 0
+
+    [renderer = singleItem] {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Sentiment analysis"
+                font: headline1
+                padding: 0 0 22 0
+            }
+
+            Text {
+                text: "Of all messages in your pod:"
+                font: smallCaps
+                color: #737373
+            }
+
+            HStack {
+                alignment: left
+                SubView {
+                    height: 100
+                    width: 100
+
+                    view {
+                        viewName: CategoricalPrediction
+                        defaultRenderer: singleItem
+
+                        [datasource = pod] {
+                            query: CategoricalPrediction
+
+                            filter: {
+                                properties: {
+                                    name: "positive"
+                                }
+                            }
+                        }
+
+                        viewArguments: {
+                            count: {{items.count()}}
+                        }
+                    }
+                }
+
+                SubView {
+                    height: 100
+                    width: 100
+
+                    view {
+                        viewName: CategoricalPrediction
+                        defaultRenderer: singleItem
+
+                        [datasource = pod] {
+                            query: CategoricalPrediction
+                            filter: {
+                                properties: {
+                                    name: "negative"
+                                }
+                            }
+                        }
+
+                        viewArguments: {
+                            count: {{items.count()}}
+                        }
+                    }
+                }
+
+                SubView {
+                    height: 100
+                    width: 100
+
+                    view {
+                        viewName: CategoricalPrediction
+                        defaultRenderer: singleItem
+
+                        [datasource = pod] {
+                            query: CategoricalPrediction
+                            filter: {
+                                properties: {
+                                    name: "neutral"
+                                }
+                            }
+                        }
+
+                        viewArguments: {
+                            count: {{items.count()}}
+                        }
+                    }
+                }
+            }
+
+            Text {
+                text: "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
+                font: bodyText2
+            }
+        }
+    }
+}
+
+.SentimentAnalysis-error {
+    cols: 4
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Connect Instagram account"
+
+    [renderer = singleItem]{
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Error occurred!"
+                font: headline1
+            }
+
+            Text {
+                text: "{.errorMessage}"
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+        }
+    }
+}

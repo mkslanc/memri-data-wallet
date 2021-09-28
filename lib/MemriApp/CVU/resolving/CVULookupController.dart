@@ -390,6 +390,26 @@ class CVULookupController {
               return null;
             }
             break;
+          case "percent":
+            if (currentValue == null || currentValue is! LookupStepValues) {
+              return null;
+            }
+
+            var exp = nodeType.args.asMap()[0];
+            if (exp == null) {
+              return null;
+            }
+            double? arg = await resolve<double>(expression: exp, context: context, db: db);
+            if (arg == null) {
+              return null;
+            }
+
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueDouble(
+                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double)
+                      .floorToDouble())
+            ]);
+            break;
           case "fullname":
             if (currentValue is LookupStepItems) {
               if (currentValue.items.isEmpty) {
@@ -549,7 +569,9 @@ class CVULookupController {
             } else if (argValue is CVUValueExpression) {
               CVUExpressionNode expression = argValue.value;
               var context = CVUContext(
-                  currentItem: viewArgs.argumentItem, viewArguments: viewArgs.parentArguments);
+                  currentItem: viewArgs.argumentItem,
+                  items: viewArgs.argumentItems,
+                  viewArguments: viewArgs.parentArguments);
               ItemRecord? item =
                   await resolve<ItemRecord>(expression: expression, context: context, db: db);
               double? number =

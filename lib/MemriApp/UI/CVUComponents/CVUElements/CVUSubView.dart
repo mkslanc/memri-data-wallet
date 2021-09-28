@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
@@ -90,8 +91,22 @@ class _CVUSubViewState extends State<CVUSubView> {
     ItemRecord? initialItem = await widget.nodeResolver.propertyResolver.item("initialItem");
     var nodeItem = initialItem ?? widget.nodeResolver.context.currentItem;
 
+    CVUViewArguments? viewArguments;
+    if (viewDefinition.properties["viewArguments"] != null) {
+      var viewArgs = viewDefinition.properties["viewArguments"];
+      viewArguments = CVUViewArguments(
+          args: viewArgs?.value.properties,
+          argumentItem: nodeItem,
+          argumentItems: widget.nodeResolver.context.items);
+    }
+
     var newContext = CVUContext(
-        currentItem: nodeItem, selector: null, viewName: viewName, viewDefinition: viewDefinition);
+        currentItem: nodeItem,
+        items: widget.nodeResolver.context.items,
+        selector: null,
+        viewName: viewName,
+        viewDefinition: viewDefinition,
+        viewArguments: viewArguments);
 
     var queryConfig =
         await DatabaseQueryConfig.queryConfigWith(context: newContext, datasource: datasource);
@@ -101,6 +116,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         pageLabel: widget.nodeResolver.pageController.label,
         rendererName: rendererName,
         viewDefinition: viewDefinition,
+        viewArguments: viewArguments,
         query: queryConfig);
     var holder = ViewContextHolder(config);
     var viewControllerContext = ViewContextController(
