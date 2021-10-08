@@ -131,88 +131,89 @@ class DemoData {
     if (items == null || items is! List) {
       return;
     }
+    await databaseController.databasePool.transaction(() async {
+      await loadSchema();
 
-    await loadSchema();
+      List<DemoDataItem> processedItems = (await Future.wait(items.map((item) async =>
+              await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))))
+          .expand((element) => element)
+          .toList();
 
-    List<DemoDataItem> processedItems = (await Future.wait(items.map((item) async =>
-            await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))))
-        .expand((element) => element)
-        .toList();
+      //we need this to point persons to current device owner
+      var meRowId = (await ItemRecord.me(databaseController))?.rowId ??
+          (await ItemRecord.createMe(databaseController))?.rowId;
 
-    //we need this to point persons to current device owner
-    var meRowId = (await ItemRecord.me(databaseController))?.rowId ??
-        (await ItemRecord.createMe(databaseController))?.rowId;
+      Map<String, int> tempIDLookup = {};
+      Map<String, int> sourceIDLookup = {};
 
-    Map<String, int> tempIDLookup = {};
-    Map<String, int> sourceIDLookup = {};
-
-    for (var item in processedItems) {
-      var record = ItemRecord(
-          uid: item.uid,
-          type: item.type,
-          dateCreated: item.dateCreated,
-          dateModified: item.dateModified);
-      var tempUID = item.tempUID;
-
-      if (record.type == "File") {
-        record.fileState = FileState.needsUpload;
-      }
-
-      var recordID = await record.insert(databaseController.databasePool);
-      if (tempUID != null) {
-        tempIDLookup[tempUID] = recordID;
-      }
-      sourceIDLookup[item.uid] = recordID;
-
-      if (item.type == "Person") {
+      for (var item in processedItems) {
         var record = ItemRecord(
-            type: "Relationship", dateCreated: item.dateCreated, dateModified: item.dateModified);
-        var recordRowID = await record.insert(databaseController.databasePool);
-        record.rowId = recordRowID;
-        await record.setPropertyValue("label", PropertyDatabaseValueString("Friend"),
-            db: databaseController);
-        await record.setPropertyValue("value", PropertyDatabaseValueInt(Random().nextInt(10000)),
-            db: databaseController);
-        var edge =
-            ItemEdgeRecord(sourceRowID: meRowId, name: "relationship", targetRowID: recordRowID);
-        await edge.insert(databaseController.databasePool);
-        edge =
-            ItemEdgeRecord(sourceRowID: recordRowID, name: "relationship", targetRowID: recordID);
-        await edge.insert(databaseController.databasePool);
-      }
-    }
+            uid: item.uid,
+            type: item.type,
+            dateCreated: item.dateCreated,
+            dateModified: item.dateModified);
+        var tempUID = item.tempUID;
 
-    List<ItemPropertyRecord> properties = [];
-    List<ItemEdgeRecord> edges = [];
-    for (var item in processedItems) {
-      for (var property in item.properties) {
-        ItemPropertyRecord record = ItemPropertyRecord(
-            itemUID: item.uid,
-            itemRowID: sourceIDLookup[item.uid]!,
-            name: property.name,
-            value: property.value);
-        properties.add(record);
-      }
-      for (var edge in item.edges) {
-        var targetActualID = tempIDLookup[edge.targetTempUID];
-        if (targetActualID == null) {
-          continue;
-        }
-        var targetItem = await ItemRecord.fetchWithRowID(targetActualID, databaseController);
-        if (targetItem!.type != edge.targetType) {
-          handleError(
-              "Target item actual type is ${targetItem.type} should be ${edge.targetType}, uid: ${edge.targetTempUID}");
+        if (record.type == "File") {
+          record.fileState = FileState.needsUpload;
         }
 
-        var sourceRowID = sourceIDLookup[item.uid];
+        var recordID = await record.insert(databaseController.databasePool);
+        if (tempUID != null) {
+          tempIDLookup[tempUID] = recordID;
+        }
+        sourceIDLookup[item.uid] = recordID;
 
-        var record =
-            ItemEdgeRecord(sourceRowID: sourceRowID, name: edge.name, targetRowID: targetActualID);
-        edges.add(record);
+        if (item.type == "Person") {
+          var record = ItemRecord(
+              type: "Relationship", dateCreated: item.dateCreated, dateModified: item.dateModified);
+          var recordRowID = await record.insert(databaseController.databasePool);
+          record.rowId = recordRowID;
+          await record.setPropertyValue("label", PropertyDatabaseValueString("Friend"),
+              db: databaseController);
+          await record.setPropertyValue("value", PropertyDatabaseValueInt(Random().nextInt(10000)),
+              db: databaseController);
+          var edge =
+              ItemEdgeRecord(sourceRowID: meRowId, name: "relationship", targetRowID: recordRowID);
+          await edge.insert(databaseController.databasePool);
+          edge =
+              ItemEdgeRecord(sourceRowID: recordRowID, name: "relationship", targetRowID: recordID);
+          await edge.insert(databaseController.databasePool);
+        }
       }
-    }
-    await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
-    await databaseController.databasePool.itemEdgeRecordInsertAll(edges);
+
+      List<ItemPropertyRecord> properties = [];
+      List<ItemEdgeRecord> edges = [];
+      for (var item in processedItems) {
+        for (var property in item.properties) {
+          ItemPropertyRecord record = ItemPropertyRecord(
+              itemUID: item.uid,
+              itemRowID: sourceIDLookup[item.uid]!,
+              name: property.name,
+              value: property.value);
+          properties.add(record);
+        }
+        for (var edge in item.edges) {
+          var targetActualID = tempIDLookup[edge.targetTempUID];
+          if (targetActualID == null) {
+            continue;
+          }
+          var targetItem = await ItemRecord.fetchWithRowID(targetActualID, databaseController);
+          if (targetItem!.type != edge.targetType) {
+            handleError(
+                "Target item actual type is ${targetItem.type} should be ${edge.targetType}, uid: ${edge.targetTempUID}");
+          }
+
+          var sourceRowID = sourceIDLookup[item.uid];
+
+          var record = ItemEdgeRecord(
+              sourceRowID: sourceRowID, name: edge.name, targetRowID: targetActualID);
+          edges.add(record);
+        }
+      }
+      await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+      await databaseController.databasePool.itemEdgeRecordInsertAll(edges);
+    });
   }
 
   static Future<List<DemoDataItem>> processItemJSON(

@@ -219,12 +219,14 @@ class SyncController {
     await bulkAction(
         bulkPayload: syncPayload,
         completion: ((error) async {
-          await ItemRecord.didSyncItems(syncPayload, error, databaseController);
-          if (error != null) {
-            lastError = error;
-            await setState(SyncControllerState.failed);
-            return;
-          }
+          await databaseController.databasePool.transaction(() async {
+            await ItemRecord.didSyncItems(syncPayload, error, databaseController);
+            if (error != null) {
+              lastError = error;
+              await setState(SyncControllerState.failed);
+              return;
+            }
+          });
 
           await setState(SyncControllerState.uploadedSchemaProperties);
         }));
@@ -241,7 +243,9 @@ class SyncController {
     await bulkAction(
         bulkPayload: syncPayload,
         completion: ((error) async {
-          await ItemRecord.didSyncItems(syncPayload, error, databaseController);
+          await databaseController.databasePool.transaction(() async {
+            await ItemRecord.didSyncItems(syncPayload, error, databaseController);
+          });
           if (error != null) {
             lastError = error;
             await setState(SyncControllerState.failed);
@@ -271,8 +275,10 @@ class SyncController {
             await setState(SyncControllerState.failed);
             return;
           }
-          await ItemRecord.didSyncItems(syncPayload, error, databaseController);
-          await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
+          await databaseController.databasePool.transaction(() async {
+            await ItemRecord.didSyncItems(syncPayload, error, databaseController);
+            await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
+          });
 
           // Recurse until we run out of items to sync
           await uploadItems();
@@ -294,7 +300,9 @@ class SyncController {
             await setState(SyncControllerState.failed);
             return;
           }
-          await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
+          await databaseController.databasePool.transaction(() async {
+            await ItemEdgeRecord.didSyncEdges(syncPayload, error, databaseController);
+          });
 
           // Recurse until we run out of items to sync
           await uploadEdges(maxItems);
@@ -321,9 +329,11 @@ class SyncController {
             await setState(SyncControllerState.failed);
             return;
           }
-          await Future.forEach(responseObjects, (element) async {
-            if (element != null && element is Map<String, dynamic>)
-              await ItemRecord.fromSyncItemDict(dict: element, dbController: databaseController);
+          await databaseController.databasePool.transaction(() async {
+            await Future.forEach(responseObjects, (element) async {
+              if (element != null && element is Map<String, dynamic>)
+                await ItemRecord.fromSyncItemDict(dict: element, dbController: databaseController);
+            });
           });
           await setState(SyncControllerState.downloadedItems);
         });
