@@ -29,6 +29,15 @@ extension IndexedMapExtension<T> on List<T> {
       yield map(index, this[index]);
     }
   }
+
+  /// Groups elements into map by [keyOf].
+  Map<K, T> toMap<K>(K Function(T element) keyOf) {
+    var result = <K, T>{};
+    for (var element in this) {
+      result[keyOf(element)] = element;
+    }
+    return result;
+  }
 }
 
 extension SetExtension<E> on Set<E> {
