@@ -538,11 +538,11 @@ class CVUActionOpenPlugin extends CVUAction {
     if (lastPluginRun == null) {
       viewName = "${pluginName}Run";
     } else {
-      account = await lastPluginRun.edgeItem("account");
       var status = (await lastPluginRun.property("status", db))!.$value.value;
       switch (status) {
         case "userActionNeeded":
         case "cvuPresented":
+          account = await lastPluginRun.edgeItem("account");
           viewName = "${pluginName}-userActionNeeded";
           break;
         case "idle":
