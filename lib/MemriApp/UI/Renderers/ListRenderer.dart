@@ -90,6 +90,18 @@ class _ListRendererViewState extends State<ListRendererView> {
     return null;
   }
 
+  Widget? get emptyResult {
+    var emptyResultDef = viewContext.cvuController
+        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
+        ?.properties["emptyResult"];
+
+    var emptyResultSubdef = emptyResultDef?.getSubdefinition();
+    if (emptyResultSubdef != null) {
+      return viewContext.render(nodeDefinition: emptyResultSubdef);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -174,19 +186,20 @@ class _ListRendererViewState extends State<ListRendererView> {
                               insets.bottom),
                           childrenDelegate: SliverChildListDelegate(elements),
                         ),
-                      Padding(
-                        padding: EdgeInsets.all(30),
-                        child: Center(
-                          child: Text(
-                            "No items",
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                                color: Color.fromRGBO(0, 0, 0, 0.7),
-                                backgroundColor: backgroundColor),
+                      emptyResult ??
+                          Padding(
+                            padding: EdgeInsets.all(30),
+                            child: Center(
+                              child: Text(
+                                "No items",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.normal,
+                                    color: Color.fromRGBO(0, 0, 0, 0.7),
+                                    backgroundColor: backgroundColor),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                     ],
                   );
                 }

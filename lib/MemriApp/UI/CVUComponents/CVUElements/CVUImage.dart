@@ -61,6 +61,7 @@ class _CVUImageState extends State<CVUImage> {
     maxWidth = await widget.nodeResolver.propertyResolver.maxWidth;
     if (isVector) {
       vectorImageName = await widget.nodeResolver.propertyResolver.string("bundleImage");
+      color = await widget.nodeResolver.propertyResolver.color();
     } else {
       fileImage = await getFileImage();
       sizingMode = await widget.nodeResolver.propertyResolver.sizingMode();
@@ -113,6 +114,7 @@ class _CVUImageState extends State<CVUImage> {
           } else if (isVector) {
             return SvgPicture.asset(
               "assets/images/" + vectorImageName! + ".svg",
+              color: color,
             );
           } else if (bundleImage != null) {
             return Image(image: bundleImage!);

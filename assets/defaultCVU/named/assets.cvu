@@ -3,6 +3,52 @@
     title: "Assets"
     defaultRenderer: list
     cols: 4
+    emptyResult: {
+        VStack {
+            padding: 0 30 50 30
+            alignment: center
+
+            Divider
+            Text {
+                text: "You have no assets yet."
+                font: headline2
+                padding: 50 0 20 0
+            }
+            Button {
+                width: 100
+                onPress:
+                addItem {
+                    template {
+                        _type: Note
+                    }
+                    viewArguments {
+                        mainView: false
+                    }
+                }
+
+                HStack {
+                    padding: 7 0 7 0
+
+                    Image {
+                        color: #FE570F
+                        bundleImage: "file-text"
+                        isVector: true
+                        sizingMode: fill
+                        minHeight: 20
+                        maxHeight: 20
+                        minWidth: 20
+                        maxWidth: 20
+                    }
+
+                    Text {
+                        text: "Add note"
+                        font: 12 regular
+                        color: #FE570F
+                    }
+                }
+            }
+        }
+    }
 
     filterButtons: [
         openView {
