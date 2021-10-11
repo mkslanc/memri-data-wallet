@@ -214,6 +214,28 @@ class ItemRecord with EquatableMixin {
     }
   }
 
+  static Future<List<ItemRecord>> fetchWithUIDs(List<String> uids, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      List<Item> items = await db.databasePool.itemRecordFetchWithUIDs(uids);
+      return items.map((item) => ItemRecord.fromItem(item)).toList();
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  static Future<List<ItemRecord>> fetchWithRowIDs(List<int> ids, [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    try {
+      List<Item> items = await db.databasePool.itemRecordFetchWithRowIDs(ids);
+      return items.map((item) => ItemRecord.fromItem(item)).toList();
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
   static Future<List<ItemRecord>> fetchWithType(String type, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     List<Item> item = await db.databasePool.itemRecordsFetchByType(type);
@@ -247,11 +269,12 @@ class ItemRecord with EquatableMixin {
       var edges = await db.databasePool.edgeRecordsSelect(properties);
       var edgeRecords = edges.map<ItemEdgeRecord>((edge) => ItemEdgeRecord.fromEdge(edge)).toList();
       if (deleted != null) {
-        edgeRecords = (await Future.wait(edgeRecords.map((edge) async {
-          var itemRecord = await edge.selfItem(db!);
-          return itemRecord.deleted == deleted ? edge : null;
-        })))
-            .compactMap<ItemEdgeRecord>();
+        var itemEdgeRecords = (await ItemEdgeRecord.selfItems(edgeRecords, db))
+            .toList()
+            .toMap((element) => element.rowId);
+        edgeRecords = edgeRecords
+            .where((edgeRecord) => itemEdgeRecords[edgeRecord.selfRowID]!.deleted == deleted)
+            .toList();
       }
 
       return edgeRecords;
@@ -271,7 +294,7 @@ class ItemRecord with EquatableMixin {
       {DatabaseController? db, bool? deleted = false}) async {
     db ??= AppController.shared.databaseController;
     var edgeRecords = await edges(name, db: db, deleted: deleted);
-    return (await Future.wait(edgeRecords.map((edge) async => edge.targetItem(db!)))).compactMap();
+    return await ItemEdgeRecord.targetItems(edgeRecords, db);
   }
 
   Future<List<ItemEdgeRecord>> reverseEdges(String? name,
@@ -285,11 +308,12 @@ class ItemRecord with EquatableMixin {
       var edges = await db.databasePool.edgeRecordsSelect(properties);
       var edgeRecords = edges.map<ItemEdgeRecord>((edge) => ItemEdgeRecord.fromEdge(edge)).toList();
       if (deleted != null) {
-        edgeRecords = (await Future.wait(edgeRecords.map((edge) async {
-          var itemRecord = await edge.selfItem(db!);
-          return itemRecord.deleted == deleted ? edge : null;
-        })))
-            .compactMap<ItemEdgeRecord>();
+        var itemEdgeRecords = (await ItemEdgeRecord.selfItems(edgeRecords, db))
+            .toList()
+            .toMap((element) => element.rowId);
+        edgeRecords = edgeRecords
+            .where((edgeRecord) => itemEdgeRecords[edgeRecord.selfRowID]!.deleted == deleted)
+            .toList();
       }
 
       return edgeRecords;
@@ -309,7 +333,7 @@ class ItemRecord with EquatableMixin {
       {DatabaseController? db, bool? deleted = false}) async {
     db ??= AppController.shared.databaseController;
     var edgeRecords = await reverseEdges(name, db: db, deleted: deleted);
-    return (await Future.wait(edgeRecords.map((edge) async => edge.owningItem(db!)))).compactMap();
+    return await ItemEdgeRecord.owningItems(edgeRecords, db);
   }
 
   Future<FutureBinding> propertyBinding(

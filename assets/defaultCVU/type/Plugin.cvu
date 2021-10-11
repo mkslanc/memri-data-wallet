@@ -89,10 +89,11 @@ Plugin > list {
             Spacer
             Text {
                 color: {{.~plugin[].last().status = "error" ? #FE570F : #333333}}
-                text: "{.~plugin[].last().status = 'done' ? 'Active' : .~plugin[].last().status = 'error' ? 'Error' : 'Inactive'}"
+                text: "{.~plugin[].last().status = 'done' ? 'active' : .~plugin[].last().status = 'error' ? 'error' : 'inactive'}"
             }
         }
         HStack {
+            alignment: left
             Text {
                 text: "{.itemDescription}"
                 removeWhiteSpace: true
@@ -107,9 +108,9 @@ Plugin > list {
             Text {
                 show: {{!.~plugin[].last().status OR .~plugin[].last().status != done}}
                 text: "{.pluginType != 'importer' ? 'Install' : .~plugin[].last().status = 'error' ? 'Re-authenticate' : 'Connect'}"
-                font: 11 regular
+                font: btn_label
                 color: #FE570F
-                padding: 8 0 5 0
+                padding: 5 0 10 0
             }
         }
     }
@@ -178,7 +179,5 @@ Plugin > grid {
     }
     
     [renderer = list] {
-        spacing: 10
-        edgeInset: 10
     }
 }
