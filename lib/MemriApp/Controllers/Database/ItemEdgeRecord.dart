@@ -91,6 +91,25 @@ class ItemEdgeRecord {
     return await ItemRecord.fetchWithRowID(targetRowID!, db);
   }
 
+  static Future<List<ItemRecord>> selfItems(List<ItemEdgeRecord> edges,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var items = await ItemRecord.fetchWithRowIDs(edges.map((edge) => edge.selfRowID!).toList(), db);
+    return items;
+  }
+
+  static Future<List<ItemRecord>> owningItems(List<ItemEdgeRecord> edges,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    return (await ItemRecord.fetchWithRowIDs(edges.map((edge) => edge.sourceRowID!).toList(), db));
+  }
+
+  static Future<List<ItemRecord>> targetItems(List<ItemEdgeRecord> edges,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    return (await ItemRecord.fetchWithRowIDs(edges.map((edge) => edge.targetRowID!).toList(), db));
+  }
+
   save([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
     await insertSelfItemRecord(db);
