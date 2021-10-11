@@ -479,7 +479,9 @@ class CVUActionAddItem extends CVUAction {
 
       await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
           .execute(pageController, context.replacingItem(item));
-      // AppController.shared.syncController.sync();TODO sync
+
+      pageController.sceneController.mainPageController.topMostContext
+          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
     }
   }
 }
