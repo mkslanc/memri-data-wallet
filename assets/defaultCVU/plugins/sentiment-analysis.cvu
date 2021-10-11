@@ -126,8 +126,22 @@
     [renderer = singleItem] {
         VStack {
             alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Sentiment analysis"
+                font: headline1
+                padding: 0 0 22 0
+            }
+
+            Text {
+                text: "Of all messages in your pod:"
+                font: smallCaps
+                color: #737373
+            }
+
             SubView {
-                height: 500
+                height: 300
 
                 view {
                     viewName: SentimentAnalysisData
@@ -137,6 +151,11 @@
                         query: "CategoricalPrediction"
                     }
                 }
+            }
+
+            Text {
+                text: "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
+                font: bodyText2
             }
 
             HStack {
@@ -187,19 +206,6 @@
     [renderer = singleItem] {
         VStack {
             alignment: topleft
-            padding: 60 30 0 30
-
-            Text {
-                text: "Sentiment analysis"
-                font: headline1
-                padding: 0 0 22 0
-            }
-
-            Text {
-                text: "Of all messages in your pod:"
-                font: smallCaps
-                color: #737373
-            }
 
             HStack {
                 alignment: left
@@ -272,11 +278,6 @@
                         }
                     }
                 }
-            }
-
-            Text {
-                text: "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
-                font: bodyText2
             }
         }
     }
