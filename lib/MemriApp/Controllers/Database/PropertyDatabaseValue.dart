@@ -180,9 +180,12 @@ abstract class PropertyDatabaseValue with EquatableMixin {
   }
 
   bool? asBool() {
-    return (value == null || ["0", "", "false"].contains(value.toString()))
-        ? false
-        : true; //TODO find a valid way to convert to boolean @anijanyan
+    if (["0", "", "false"].contains(value.toString())) {
+      return false;
+    } else if (["1", "true"].contains(value.toString())) {
+      return true;
+    }
+    return null;
   }
 
   DateTime? asDate() {
