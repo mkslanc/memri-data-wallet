@@ -502,3 +502,116 @@ Person > timeline {
         }
 
 }
+
+
+.mixedAccountsAndPersons {
+    title: "People"
+    defaultRenderer: list
+    cols: 4
+
+    emptyResult: {
+        VStack {
+            padding: 0 30 50 30
+            alignment: center
+
+            Divider
+
+            Text {
+                text: "You have no contacts yet."
+                font: headline2
+                padding: 50 0 20 0
+            }
+            Button {
+                width: 180
+                onPress: openView {
+                    viewName: "allPlugins"
+                    clearStack: true
+                    inheritDatasource: false
+                }
+
+                HStack {
+                    padding: 7 0 7 0
+
+                    Image {
+                        color: #FE570F
+                        bundleImage: "zap"
+                        isVector: true
+                        sizingMode: fill
+                        minHeight: 20
+                        maxHeight: 20
+                        minWidth: 20
+                        maxWidth: 20
+                    }
+
+                    Text {
+                        text: "Start importing"
+                        font: 12 regular
+                        color: #FE570F
+                    }
+                }
+            }
+        }
+    }
+
+    [datasource = pod] {
+        query: Person Account
+        sortProperty: type
+        sortAscending: false
+    }
+
+    filterButtons: [
+        openView {
+            viewName: "mixedAccountsAndPersons"
+            title: "all"
+            clearStack: true
+            inheritDatasource: false
+        },
+        filter {
+            title: "pinned"
+            clearStack: true
+            datasource: {
+                query: Person Account
+                filter: {
+                    properties: {
+                        starred: true
+                    }
+                }
+                sort: {
+                    edgeSource: {
+                        edgeTarget: {
+                            relationship: {{me.uid}}
+                        }
+                        name: relationship
+                        sortProperty: value
+                        sortAscending: false
+                    }
+                }
+            }
+        },
+        filter {
+            title: "people"
+            clearStack: true
+            datasource: {
+                query: Person
+                sort: {
+                    edgeSource: {
+                        edgeTarget: {
+                            relationship: {{me.uid}}
+                        }
+                        name: relationship
+                        sortProperty: value
+                        sortAscending: false
+                    }
+                }
+            }
+        },
+        filter {
+            title: "accounts"
+            clearStack: true
+            datasource: {
+                query: Account
+            }
+        },
+        ]
+
+}
