@@ -82,7 +82,7 @@ Message > list {
             alignment: left
 
             Image {
-                image: {{.sender.owner.profilePicture or "assets/images/person.png"}}
+                image: {{.sender.owner.profilePicture or .sender.profilePicture or "assets/images/person.png"}}
                 sizingMode: fill
                 minHeight: 30
                 maxHeight: 30

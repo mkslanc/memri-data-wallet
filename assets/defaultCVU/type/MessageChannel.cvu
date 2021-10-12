@@ -92,7 +92,7 @@ MessageChannel > list {
             alignment: left
 
             Image {
-                image: {{.profilePicture or .receiver.owner.profilePicture or "assets/images/person.png"}}
+                image: {{.photo or .receiver.owner.profilePicture or "assets/images/person.png"}}
                 sizingMode: fill
                 minHeight: 30
                 maxHeight: 30
