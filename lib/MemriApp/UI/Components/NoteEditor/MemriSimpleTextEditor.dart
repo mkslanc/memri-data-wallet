@@ -60,6 +60,9 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                     PrimaryButton(
                       onPressed: () {
                         widget.viewContext.pageController.navigateBack();
+                        widget.viewContext.pageController.sceneController.mainPageController
+                            .topMostContext
+                            ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
                       },
                       child: Text("Add note"),
                     ),
@@ -72,6 +75,9 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                         await widget.viewContext.focusedItem!.delete(
                             widget.viewContext.pageController.appController.databaseController);
                         widget.viewContext.pageController.navigateBack();
+                        widget.viewContext.pageController.sceneController.mainPageController
+                            .topMostContext
+                            ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
                       },
                       child: Text(
                         "Cancel",
