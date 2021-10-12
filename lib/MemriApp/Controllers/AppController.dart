@@ -119,7 +119,7 @@ class AppController {
       onCompletion(error);
       return;
     }
-    await Settings.shared.set("defaults/general/isDevelopersMode", isInDemoMode);
+    await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
     await updateState();
     onCompletion(null);
   }
@@ -233,6 +233,7 @@ class AppController {
     await setIsAuthenticated(false);
     isNewPodSetup = false;
     isInDemoMode = false;
+    isDevelopersMode = false;
   }
 }
 

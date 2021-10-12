@@ -23,7 +23,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
   void initState() {
     super.initState();
     podUrlController.addListener(_setPodUrl);
-    podUrlController.text = widget.model.defaultPodURL;
+    podUrlController.text = widget.model.defaultDevPodURL;
   }
 
   @override
