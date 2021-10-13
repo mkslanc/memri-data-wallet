@@ -1,7 +1,7 @@
 
 Account {
-    title: {{.title or "Untitled" }}
-    defaultRenderer: custom
+    cols: 6
+    defaultRenderer: singleitem
     editActionButton: toggleEditMode
     filterButtons: [
         openView {
@@ -76,7 +76,7 @@ Account {
 
 .allAccounts {
     defaultRenderer: list
-    filterButtons: [ showStarred toggleFilterPanel ]
+    cols: 4
     
     title: "All Accounts"
     [datasource = pod] {
@@ -106,13 +106,75 @@ Account {
 }
 
 Account > list {
+    onPress: openView {
+        renderer: singleitem
+        clearStack: true
+        viewArguments: {
+            mainView: false
+        }
+    }
     VStack {
         alignment: left
-        padding: 0 20 0 20
-        
-        Text {
-            text: "{.computedTitle()}"
-            padding: 10 0 10 0
+
+        HStack {
+            alignment: left
+            spacing: 15
+
+            Image {
+                image: {{.profilePicture or "assets/images/person.png"}}
+                sizingMode: fill
+                minHeight: 30
+                maxHeight: 30
+                minWidth: 30
+                maxWidth: 30
+                cornerRadius: 50
+            }
+
+
+            Text {
+                text: {{.displayName}}
+                font: 12 regular
+                color: #737373
+            }
+
+            Spacer
+            Image {
+                systemName: "ellipsis"
+                color: #DFDEDE
+                font: 24 light
+                padding: 5 0 5 0
+            }
         }
+    }
+}
+
+Account > singleitem {
+    VStack {
+        alignment: topleft
+        padding: 0 322 0 0
+
+        Image {
+            image: {{.profilePicture or "assets/images/person.png"}}
+            sizingMode: fill
+            minHeight: 60
+            maxHeight: 120
+            minWidth: 60
+            maxWidth: 120
+            cornerRadius: 90
+        }
+
+
+        Text {
+            padding: 30 0 10 0
+            font: headline1
+            text: {{.displayName}}
+        }
+
+        Text {
+            font: bodyText2
+            text: "{.network.name}"
+            padding 0 0 54 0
+        }
+
     }
 }

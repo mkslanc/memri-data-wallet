@@ -16,7 +16,7 @@
   {
     "_type": "NavigationItem",
     "title": "People",
-    "sessionName": "allPeople",
+    "sessionName": "mixedAccountsAndPersons",
     "icon": "users"
   },
   {
