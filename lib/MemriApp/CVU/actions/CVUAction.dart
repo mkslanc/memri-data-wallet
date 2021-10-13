@@ -1267,16 +1267,6 @@ class CVUActionWait extends CVUAction {
     var seconds = vars["seconds"];
 
     if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
-      var closeVal = vars["close"];
-      if (closeVal != null) {
-        var lookup = CVULookupController();
-        var db = pageController.appController.databaseController;
-
-        bool shouldClose = (await lookup.resolve<bool>(value: closeVal, context: context, db: db))!;
-        if (shouldClose) {
-          pageController.navigateBack();
-        }
-      }
       await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {});
     }
   }

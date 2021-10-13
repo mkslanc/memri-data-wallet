@@ -240,9 +240,9 @@
                     }
 
                     onPress: [
+                        back
                         wait {
                             seconds: 7
-                            close: true
                         }
                         openView {
                             viewName: "inbox"
