@@ -7,6 +7,7 @@ import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:memri/MemriApp/UI/Components/PluginModeSwitcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../ViewContextController.dart';
@@ -248,6 +249,11 @@ class _ListRendererViewState extends State<ListRendererView> {
                 .then((value) => viewContext.setupQueryObservation());
           },
           child: tile);
+    }
+
+    //TODO: hardcoded part for now, we could migrate this to cvu, when switches will allow to use different actions instead of bindings
+    if (widget.pageController.appController.isDevelopersMode && item.type == "Plugin") {
+      tile = Column(children: [PluginModeSwitcher(item), tile]);
     }
 
     return tile;

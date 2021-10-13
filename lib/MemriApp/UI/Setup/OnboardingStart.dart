@@ -165,6 +165,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
 
   handleSetup(bool localOnly) async {
     setState(() => model.state = PodSetupState.loading);
+    model.podURL = model.defaultPodURL;
     var config = model.getSetupConfig(localOnly);
 
     if (config == null) {

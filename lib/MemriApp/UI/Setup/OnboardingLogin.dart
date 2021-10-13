@@ -7,8 +7,9 @@ import 'SetupScreenModel.dart';
 
 class OnboardingLogin extends StatefulWidget {
   final SetupScreenModel model;
+  final bool isDevelopersMode;
 
-  OnboardingLogin({required this.model});
+  OnboardingLogin({required this.model, this.isDevelopersMode = false});
 
   @override
   State<OnboardingLogin> createState() => _OnboardingLoginState();
