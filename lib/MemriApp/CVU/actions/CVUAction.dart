@@ -30,6 +30,7 @@ import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:moor/moor.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -63,6 +64,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionAddItem(vars: vars);
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
+    case "openlink":
+      return ({Map? vars}) => CVUActionOpenLink(vars: vars);
     case "openviewbyname":
       return ({Map? vars}) => CVUActionOpenViewByName(vars: vars);
     case "toggleeditmode":
@@ -233,6 +236,26 @@ class CVUActionOpenView extends CVUAction {
         customDefinition: customDefinition,
         viewArguments: viewArguments,
         pageController: pageController);
+  }
+}
+
+class CVUActionOpenLink extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenLink({vars}) : this.vars = vars ?? {};
+
+  @override
+  Future execute(memri.PageController pageController, CVUContext context) async {
+    var link = vars["link"];
+    if (link != null) {
+      var db = pageController.appController.databaseController;
+      var resolver = CVUPropertyResolver(
+          context: context, lookup: CVULookupController(), db: db, properties: vars);
+      var url = await resolver.string("link");
+      if (url != null) {
+        await canLaunch(url) ? await launch(url) : print('Could not launch $url');
+      }
+    }
   }
 }
 
