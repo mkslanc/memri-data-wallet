@@ -239,13 +239,19 @@
                         color: #F5F5F5
                     }
 
-                    onPress: openView {
-                        viewName: "whatsapp-step-3"
-                        clearStack: true
-                        viewArguments {
-                            mainView: false
+                    onPress: [
+                        wait {
+                            seconds: 7
+                            close: true
                         }
-                    }
+                        openView {
+                            viewName: "inbox"
+                            clearStack: true
+                            viewArguments {
+                                mainView: true
+                            }
+                        }
+                        ]
                 }
 
                 Button {

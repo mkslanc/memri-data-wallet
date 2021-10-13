@@ -144,6 +144,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionRequestStoragePermission(vars: vars);
     case "openpopup":
       return ({Map? vars}) => CVUActionOpenPopup(vars: vars);
+    case "wait":
+      return ({Map? vars}) => CVUActionWait(vars: vars);
     default:
       return null;
   }
@@ -1253,4 +1255,29 @@ class CVUActionOpenPopup extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {}
+}
+
+class CVUActionWait extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionWait({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var seconds = vars["seconds"];
+
+    if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
+      var closeVal = vars["close"];
+      if (closeVal != null) {
+        var lookup = CVULookupController();
+        var db = pageController.appController.databaseController;
+
+        bool shouldClose = (await lookup.resolve<bool>(value: closeVal, context: context, db: db))!;
+        if (shouldClose) {
+          pageController.navigateBack();
+        }
+      }
+      await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {});
+    }
+  }
 }
