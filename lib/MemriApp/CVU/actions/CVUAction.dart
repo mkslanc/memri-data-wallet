@@ -474,7 +474,7 @@ class CVUActionAddItem extends CVUAction {
           .compactMap<ItemPropertyRecord>();
 
       await Future.forEach<ItemPropertyRecord>(properties, (property) async {
-        await property.save(db.databasePool);
+        await property.save(db.databasePool, isNew: true);
       });
 
       var renderer = "generalEditor";

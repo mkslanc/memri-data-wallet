@@ -44,6 +44,9 @@ class ItemEdgeRecord {
         selfUID = dict["self"],
         sourceUID = dict["source"],
         targetUID = dict["target"],
+        selfRowID = dict["selfRowId"],
+        sourceRowID = dict["sourceRowId"],
+        targetRowID = dict["targetRowId"],
         syncState = SyncState.noChanges,
         syncHasPriority = false;
 
