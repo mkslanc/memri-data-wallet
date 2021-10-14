@@ -23,7 +23,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
   void initState() {
     super.initState();
     podUrlController.addListener(_setPodUrl);
-    podUrlController.text = widget.model.defaultPodURL;
+    podUrlController.text = widget.model.defaultDevPodURL;
   }
 
   @override
@@ -138,6 +138,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                                           .pushReplacement(MaterialPageRoute(builder: (context) {
                                         return OnboardingLogin(
                                           model: widget.model,
+                                          isDevelopersMode: true,
                                         );
                                       }));
                                     },
@@ -258,6 +259,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
       handleCompletion(null);
       return;
     }
+    appController.isDevelopersMode = true;
     await appController.setupApp(
         config: config, useDemoData: widget.model.useDemoData, onCompletion: handleCompletion);
   }

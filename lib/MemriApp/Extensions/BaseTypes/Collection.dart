@@ -31,12 +31,29 @@ extension IndexedMapExtension<T> on List<T> {
   }
 
   /// Groups elements into map by [keyOf].
-  Map<K, T> toMap<K>(K Function(T element) keyOf) {
+  Map<K, T> toMapByKey<K>(K Function(T element) keyOf) {
     var result = <K, T>{};
     for (var element in this) {
       result[keyOf(element)] = element;
     }
     return result;
+  }
+
+  /// Groups elements into lists by [keyOf].
+  Map<K, List<T>> groupListsBy<K>(K Function(T element) keyOf) {
+    var result = <K, List<T>>{};
+    for (var element in this) {
+      (result[keyOf(element)] ??= [])..add(element);
+    }
+    return result;
+  }
+
+  List<List<T>> partition(length) {
+    return fold([[]], (grouped, element) {
+      if (grouped.last.length == length) grouped.add([]);
+      grouped.last.add(element);
+      return grouped;
+    });
   }
 }
 

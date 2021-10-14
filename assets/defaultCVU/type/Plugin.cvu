@@ -22,47 +22,47 @@ Plugin {
             }
         }
         showContextPane
-    ]
-    
-    contextPane {
-        buttons: star schedule
-        
-        actions: [
-            showOverlay { title: "Share with..." }
-            addToPanel { title: "Add to list..." }
-            duplicate { title: "Duplicate Note" }
         ]
-        
-        navigate: [
-            openView {
-                title: "Timeline of this plugin"
-                view: {
-                    defaultRenderer: timeline
-                    
-                     [datasource = pod] {
-                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                        sortProperty: dateCreated
-                        sortAscending: true
+
+        contextPane {
+            buttons: star schedule
+
+            actions: [
+                showOverlay { title: "Share with..." }
+                addToPanel { title: "Add to list..." }
+                duplicate { title: "Duplicate Note" }
+                ]
+
+                navigate: [
+                    openView {
+                        title: "Timeline of this plugin"
+                        view: {
+                            defaultRenderer: timeline
+
+                            [datasource = pod] {
+                                query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                                sortProperty: dateCreated
+                                sortAscending: true
+                            }
+
+                            [renderer = timeline] {
+                                timeProperty: dateCreated
+                            }
+                        }
                     }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+                    openViewByName {
+                        title: "Starred plugins"
+                        viewName: "filter-starred"
+                        viewArguments: {
+                            include: "all-notes"
+                        }
                     }
-                }
-            }
-            openViewByName {
-                title: "Starred plugins"
-                viewName: "filter-starred"
-                viewArguments: {
-                    include: "all-notes"
-                }
-            }
-            openSessionByName {
-                title: "All plugins"
-                sessionName: "all-plugins"
-            }
-        ]
-    }
+                    openSessionByName {
+                        title: "All plugins"
+                        sessionName: "all-plugins"
+                    }
+                    ]
+        }
 }
 
 Plugin > list {
@@ -125,7 +125,7 @@ Plugin > grid {
         pluginName: {{.pluginName}}
         targetItemId: {{.id}}
     }
-    
+
     ZStack {
         Rectangle {
             color: secondaryBackground
@@ -135,25 +135,25 @@ Plugin > grid {
         VStack {
             alignment: center
             spacing: 5
-        
+
             Image {
-                    show: {{.icon or .bundleImage}}
-                    systemName: {{.icon}}
-                    bundleImage: {{.bundleImage}}
-                    resizable: true
-                    color: blue
-                    width: 40
-                    height: 40
-                    padding: 5
+                show: {{.icon or .bundleImage}}
+                systemName: {{.icon}}
+                bundleImage: {{.bundleImage}}
+                resizable: true
+                color: blue
+                width: 40
+                height: 40
+                padding: 5
             }
-            
+
             Text {
                 text: "{.name}"
                 font: 16 semibold
                 color: primary
                 padding: 5 0 0 0
             }
-            
+
             Text {
                 text: "{.dateModified}"
                 font: 11 regular
@@ -177,7 +177,7 @@ Plugin > grid {
         sortProperty: dateModified
         sortAscending: false
     }
-    
+
     [renderer = list] {
     }
 }

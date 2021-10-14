@@ -74,6 +74,44 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                               Divider(
                                 height: 1,
                               ),
+                              if (appController.isDevelopersMode)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      height: 25,
+                                    ),
+                                    Text("To use your keys locally in pymemri run:",
+                                        style: CVUFont.headline3),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      "store_keys --owner_key ${ownerKey} --database_key ${dbKey}",
+                                      style: CVUFont.bodyText2,
+                                      softWrap: true,
+                                    ),
+                                    SizedBox(height: 10),
+                                    TextButton(
+                                      onPressed: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text:
+                                                "store_keys --owner_key ${ownerKey} --database_key ${dbKey}"));
+                                      },
+                                      style:
+                                          TextButton.styleFrom(backgroundColor: Color(0xffF0F0F0)),
+                                      child: Text(
+                                        "Copy",
+                                        style:
+                                            CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+                                      ),
+                                    ),
+                                    SizedBox(height: 25),
+                                    Divider(
+                                      height: 1,
+                                    ),
+                                  ],
+                                ),
                               FutureBuilder<AuthKeys>(
                                   future: Authentication.getOwnerAndDBKey(),
                                   builder: (BuildContext builder, snapshot) {

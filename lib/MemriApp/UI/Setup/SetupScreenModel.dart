@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 /// A model struct used by the setup screen to hold configuration until the user completes the setup
 class SetupScreenModel {
   var defaultPodURL = "https://dev.pod.memri.io";
+  var defaultDevPodURL = "http://localhost:3030";
   String? podURL;
   String? podPrivateKey;
   String? podPublicKey;

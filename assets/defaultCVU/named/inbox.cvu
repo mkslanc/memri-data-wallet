@@ -18,6 +18,34 @@
             Button {
                 width: 180
                 onPress: openView {
+                    viewName: "inbox"
+                    clearStack: true
+                    inheritDatasource: false
+                }
+
+                HStack {
+                    padding: 7 0 7 0
+
+                    Image {
+                        color: #FE570F
+                        systemName: "refresh"
+                        minHeight: 20
+                        maxHeight: 20
+                        minWidth: 20
+                        maxWidth: 20
+                    }
+
+                    Text {
+                        text: "Reload"
+                        font: 12 regular
+                        color: #FE570F
+                    }
+                }
+            }
+
+            Button {
+                width: 180
+                onPress: openView {
                     viewName: "allPlugins"
                     clearStack: true
                     inheritDatasource: false

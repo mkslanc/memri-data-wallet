@@ -31,6 +31,7 @@ class AppController {
   late PubSubController pubsubController;
   late PermissionsController permissionController;
   StreamSubscription? syncStream;
+  bool isDevelopersMode = false;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -78,6 +79,9 @@ class AppController {
       syncStream = Stream.periodic(const Duration(milliseconds: 3000))
           .listen((_) => AppController.shared.syncController.sync());
     }
+
+    isDevelopersMode =
+        await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
   // MARK: Setup
@@ -115,7 +119,7 @@ class AppController {
       onCompletion(error);
       return;
     }
-
+    await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
     await updateState();
     onCompletion(null);
   }
@@ -229,6 +233,7 @@ class AppController {
     await setIsAuthenticated(false);
     isNewPodSetup = false;
     isInDemoMode = false;
+    isDevelopersMode = false;
   }
 }
 
