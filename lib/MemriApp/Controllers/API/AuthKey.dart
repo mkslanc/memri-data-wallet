@@ -29,21 +29,21 @@ class AuthKey {
 
     await ItemPropertyRecord(
             itemRowID: itemRowId, name: "itemType", value: PropertyDatabaseValueString(type))
-        .save(db);
+        .save(db, isNew: true);
     if (role != null) {
       await ItemPropertyRecord(
               itemRowID: itemRowId, name: "role", value: PropertyDatabaseValueString(role!))
-          .save(db);
+          .save(db, isNew: true);
     }
     await ItemPropertyRecord(
             itemRowID: itemRowId, name: "keystr", value: PropertyDatabaseValueString(key))
-        .save(db); // "keystr" because "key" is restricted in pod db
+        .save(db, isNew: true); // "keystr" because "key" is restricted in pod db
     await ItemPropertyRecord(
             itemRowID: itemRowId, name: "name", value: PropertyDatabaseValueString(name))
-        .save(db);
+        .save(db, isNew: true);
     await ItemPropertyRecord(
             itemRowID: itemRowId, name: "active", value: PropertyDatabaseValueBool(active))
-        .save(db);
+        .save(db, isNew: true);
 
     return item;
   }
