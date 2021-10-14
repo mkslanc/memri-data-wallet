@@ -86,14 +86,15 @@ class ItemRecord with EquatableMixin {
         syncHasPriority = item.syncHasPriority;
 
   ItemRecord.fromSyncDict(Map<String, dynamic> dict)
-      : uid = dict["id"],
+      : rowId = dict["rowId"],
+        uid = dict["id"],
         type = dict["type"],
         dateCreated = DateTime.fromMillisecondsSinceEpoch(dict["dateCreated"]),
         dateModified = DateTime.fromMillisecondsSinceEpoch(dict["dateModified"]),
         dateServerModified = DateTime.fromMillisecondsSinceEpoch(dict["dateServerModified"]),
         deleted = dict["deleted"],
         syncState = SyncState.noChanges,
-        fileState = FileState.noChanges,
+        fileState = dict["fileState"] ?? FileState.noChanges,
         syncHasPriority = false;
 
   ItemsCompanion toCompanion() {
@@ -147,6 +148,29 @@ class ItemRecord with EquatableMixin {
     return [];
   }
 
+  static Future<List<ItemPropertyRecord>> propertiesForItems(List<ItemRecord> items,
+      [DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    var rowIds = items.map((item) => item.rowId);
+    var groupedItems = items.toMap((item) => item.rowId);
+    var properties =
+        await db.databasePool.itemPropertyRecordsCustomSelect("item IN (${rowIds.join(", ")})");
+    if (properties.length > 0) {
+      return properties.map((property) {
+        var type = groupedItems[property.item]!.type;
+        SchemaValueType? valueType = db?.schema.expectedPropertyType(type, property.name);
+        if (valueType == null) {
+          throw Exception("Not found property type ${property.name} for item $type");
+        }
+        return ItemPropertyRecord(
+            itemRowID: property.item,
+            name: property.name,
+            value: PropertyDatabaseValue.create(property.value, valueType));
+      }).toList();
+    }
+    return [];
+  }
+
   Future<PropertyDatabaseValue?> propertyValue(String name, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     var itemPropertyRecord = await property(name, db);
@@ -164,23 +188,25 @@ class ItemRecord with EquatableMixin {
   }
 
   setPropertyValue(String name, PropertyDatabaseValue? value,
-      {SyncState state = SyncState.update, DatabaseController? db}) async {
+      {SyncState state = SyncState.update, DatabaseController? db, bool? isNew}) async {
     db ??= AppController.shared.databaseController;
 
     /// Create or update the property
-    var itemPropertyRecord = await property(name, db);
-    if (itemPropertyRecord != null) {
-      if (value != null) {
-        itemPropertyRecord.$value = value;
-        await itemPropertyRecord.save(db.databasePool);
-      } else {
-        await itemPropertyRecord.delete(db.databasePool);
-      }
-    } else if (value != null) {
-      itemPropertyRecord =
-          ItemPropertyRecord(itemUID: uid, itemRowID: rowId!, name: name, value: value);
-      await itemPropertyRecord.save(db.databasePool);
+    ItemPropertyRecord? itemPropertyRecord;
+    if (isNew == null) {
+      itemPropertyRecord = await property(name, db);
+      isNew = itemPropertyRecord == null;
     }
+
+    itemPropertyRecord ??= ItemPropertyRecord(itemRowID: rowId!, name: name);
+
+    if (value != null) {
+      itemPropertyRecord.$value = value;
+      await itemPropertyRecord.save(db.databasePool, isNew: isNew);
+    } else if (!isNew) {
+      await itemPropertyRecord.delete(db.databasePool);
+    }
+
     if (syncState != SyncState.skip) {
       syncState = state;
     }
@@ -217,8 +243,12 @@ class ItemRecord with EquatableMixin {
   static Future<List<ItemRecord>> fetchWithUIDs(List<String> uids, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     try {
-      List<Item> items = await db.databasePool.itemRecordFetchWithUIDs(uids);
-      return items.map((item) => ItemRecord.fromItem(item)).toList();
+      var groupedUids = uids.partition(1000);
+      return (await Future.wait(groupedUids
+              .map((uids) async => await db!.databasePool.itemRecordFetchWithUIDs(uids))))
+          .expand((element) => element)
+          .map((item) => ItemRecord.fromItem(item))
+          .toList();
     } catch (e) {
       print(e);
       return [];
@@ -474,6 +504,67 @@ class ItemRecord with EquatableMixin {
     return propertyValue;
   }
 
+  static Future<List<ItemRecord?>?> fromSyncItemDictList(
+      {required List<dynamic> responseObjects, required DatabaseController dbController}) async {
+    var edges = <Map<String, dynamic>>[];
+    var properties = <Map<String, dynamic>>[];
+    var schemaProperties = <Map<String, dynamic>>[];
+    var objects = responseObjects.partition(10000); //works faster
+
+    await dbController.databasePool.transaction(() async {
+      await Future.forEach<List<dynamic>>(objects, (responseObjects) async {
+        List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
+        var itemList = (await ItemRecord.fetchWithUIDs(uidList)).toMap((item) => item.uid);
+        var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
+          if (dict is! Map<String, dynamic>) return null;
+          dict["rowId"] = itemList[dict["id"]]?.rowId;
+          return dict;
+        });
+
+        await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+          // If the item has file and it does not exist on disk, mark the file to be downloaded
+          if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
+            String? fileName = dict["sha256"];
+            if (fileName != null &&
+                !(await FileStorageController.fileExists(
+                    (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
+              dict["fileState"] = FileState.needsDownload;
+            }
+          }
+
+          var newItem = await ItemRecord.fromSyncItemDict(dict: dict, dbController: dbController);
+
+          if (dict["type"] == "ItemPropertySchema" || dict["type"] == "ItemEdgeSchema") {
+            schemaProperties.add({"item": newItem, "properties": dict});
+          } else {
+            if (schemaProperties.isNotEmpty) {
+              await propertiesFromSyncItemDict(
+                  dictList: schemaProperties, dbController: dbController, reloadSchema: true);
+              schemaProperties = [];
+            }
+            properties.add({"item": newItem, "properties": dict});
+          }
+
+          var itemEdges = dict["[[edges]]"];
+          if (itemEdges is List && itemEdges.isNotEmpty) {
+            edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
+              return edge is Map<String, dynamic>
+                  ? (edge..addAll({"source": newItem, "dict": dict}))
+                  : null;
+            }));
+          }
+        });
+      });
+
+      await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
+      await propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
+      if (schemaProperties.isNotEmpty) {
+        await propertiesFromSyncItemDict(
+            dictList: schemaProperties, dbController: dbController, reloadSchema: true);
+      }
+    });
+  }
+
   static Future<ItemRecord?> fromSyncItemDict(
       {required Map<String, dynamic> dict, required DatabaseController dbController}) async {
     var id = dict["id"];
@@ -481,10 +572,50 @@ class ItemRecord with EquatableMixin {
       return null;
     }
 
-    ItemRecord? item = await ItemRecord.fetchWithUID(id, dbController);
     ItemRecord newItem = ItemRecord.fromSyncDict(dict);
-    newItem.rowId = item?.rowId;
     await newItem.save(dbController.databasePool);
+
+    return newItem;
+  }
+
+  static edgesFromSyncItemDict(
+      {required List<Map<String, dynamic>> edges, required DatabaseController dbController}) async {
+    var edgeItems = <dynamic>[];
+    edges.forEach((edge) {
+      if (edge is! Map<String, dynamic>) {
+        return null;
+      }
+
+      edgeItems.addAll([edge["_item"], edge]);
+    });
+
+    var groupedEdgeItems = edgeItems.toMap((item) => item["id"] as String);
+    var groupedEdgeItemRecords =
+        (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList())).toMap((item) => item.uid);
+
+    await Future.forEach<Map<String, dynamic>>(edges, (edge) async {
+      ItemRecord self = groupedEdgeItemRecords[edge["id"]]!;
+      ItemRecord target = groupedEdgeItemRecords[edge["_item"]["id"]]!;
+
+      ItemRecord source = edge["source"];
+
+      var edgeDict = {
+        "self": edge["id"],
+        "source": source.uid,
+        "name": edge["_edge"],
+        "target": edge["_item"]["id"],
+        "selfRowId": self.rowId,
+        "targetRowId": target.rowId,
+        "sourceRowId": source.rowId
+      };
+      await ItemEdgeRecord.fromSyncEdgeDict(dict: edgeDict, dbController: dbController);
+    });
+  }
+
+  static propertiesFromSyncItemDict(
+      {required List<Map<String, dynamic>> dictList,
+      required DatabaseController dbController,
+      bool reloadSchema = false}) async {
     var excludeList = [
       "type",
       "id",
@@ -494,78 +625,40 @@ class ItemRecord with EquatableMixin {
       "deleted",
     ];
 
-    if (dict["_item"] == null) {
-      await Future.forEach(dict.entries, (MapEntry entry) async {
-        if (newItem.type == "PluginRun" && entry.key == "status") {
-          //TODO dirty hack to wait cvuStoredDefinition (edge) to be saved before status update
-          return;
-        }
+    var items = dictList.map<ItemRecord>((dict) => dict["item"] as ItemRecord).toList();
+    var allProperties = await ItemRecord.propertiesForItems(items, dbController);
+    var groupedProperties = (allProperties.groupListsBy((property) => property.itemRowID))
+        .map((rowId, properties) => MapEntry(rowId, properties.toMap((property) => property.name)));
+
+    await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+      ItemRecord item = dict["item"];
+      await Future.forEach(dict["properties"].entries, (MapEntry entry) async {
         String propertyName = entry.key;
         if (excludeList.contains(propertyName))
           return; //TODO: figure out why we receiving these schema item property types from pod
 
-        var expectedType = dbController.schema.expectedPropertyType(newItem.type, propertyName);
+        var expectedType = dbController.schema.expectedPropertyType(item.type, propertyName);
         if (expectedType == null) {
           //first initialization with existing pod crashes without this
-          if (newItem.type == "ItemPropertySchema" &&
+          if (item.type == "ItemPropertySchema" &&
               ["itemType", "propertyName", "valueType"].contains(propertyName)) {
             expectedType = SchemaValueType.string;
           } else {
             return;
           }
         }
-        var propertyValue = getPropertyFromSync(newItem.type, propertyName, entry.value);
+        var propertyValue = getPropertyFromSync(item.type, propertyName, entry.value);
         var databaseValue = PropertyDatabaseValue.create(propertyValue, expectedType);
-        await newItem.setPropertyValue(propertyName, databaseValue,
-            db: dbController, state: SyncState.noChanges);
-
-        // If the item has file and it does not exist on disk, mark the file to be downloaded
-        if (newItem.type == "File" && propertyName == "sha256") {
-          String? fileName = entry.value;
-          if (fileName != null &&
-              !(await FileStorageController.fileExists(
-                  (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
-            newItem.fileState = FileState.needsDownload;
-            await newItem.save(dbController.databasePool);
-          }
-        }
+        await item.setPropertyValue(propertyName, databaseValue,
+            db: dbController,
+            state: SyncState.noChanges,
+            isNew: groupedProperties[item.rowId!]?[propertyName] == null);
       });
-    }
+    });
 
-    var edges = dict["[[edges]]"];
-    if (edges is List && edges.isNotEmpty) {
-      await Future.forEach(edges, (edge) async {
-        if (edge is! Map<String, dynamic>) {
-          return;
-        }
-        var edgeDict = {
-          "self": edge["id"],
-          "source": dict["id"],
-          "name": edge["_edge"],
-          "target": edge["_item"]["id"]
-        };
-        ItemRecord? item = await ItemRecord.fetchWithUID(edge["_item"]["id"], dbController);
-        if (item == null) {
-          await ItemRecord.fromSyncItemDict(dict: edge["_item"], dbController: dbController);
-        }
-        ItemRecord? self = await ItemRecord.fetchWithUID(edge["id"], dbController);
-        if (self == null) {
-          await ItemRecord.fromSyncItemDict(dict: edge, dbController: dbController);
-        }
-        await ItemEdgeRecord.fromSyncEdgeDict(dict: edgeDict, dbController: dbController);
-      });
-    }
-
-    if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
+    if (reloadSchema) {
       await dbController.schema.load(dbController.databasePool);
     }
-    if (newItem.type == "PluginRun") {
-      //TODO dirty hack to wait cvuStoredDefinition (edge) to be saved before status update
-      await newItem.setPropertyValue("status", PropertyDatabaseValueString(dict["status"]),
-          state: SyncState.noChanges);
-    }
-
-    return newItem;
   }
 
   Future<Map<String, dynamic>?> schemaPropertyDict(DatabaseController dbController) async {
