@@ -31,7 +31,7 @@ extension IndexedMapExtension<T> on List<T> {
   }
 
   /// Groups elements into map by [keyOf].
-  Map<K, T> toMap<K>(K Function(T element) keyOf) {
+  Map<K, T> toMapByKey<K>(K Function(T element) keyOf) {
     var result = <K, T>{};
     for (var element in this) {
       result[keyOf(element)] = element;

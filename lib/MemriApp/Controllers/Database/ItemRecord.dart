@@ -148,11 +148,11 @@ class ItemRecord with EquatableMixin {
     return [];
   }
 
-  static Future<List<ItemPropertyRecord>> propertiesForItems(List<ItemRecord> items,
+  static Future<List<ItemPropertyRecord>> getPropertiesForItems(List<ItemRecord> items,
       [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     var rowIds = items.map((item) => item.rowId);
-    var groupedItems = items.toMap((item) => item.rowId);
+    var groupedItems = items.toMapByKey((item) => item.rowId);
     var properties =
         await db.databasePool.itemPropertyRecordsCustomSelect("item IN (${rowIds.join(", ")})");
     if (properties.length > 0) {
@@ -301,7 +301,7 @@ class ItemRecord with EquatableMixin {
       if (deleted != null) {
         var itemEdgeRecords = (await ItemEdgeRecord.selfItems(edgeRecords, db))
             .toList()
-            .toMap((element) => element.rowId);
+            .toMapByKey((element) => element.rowId);
         edgeRecords = edgeRecords
             .where((edgeRecord) => itemEdgeRecords[edgeRecord.selfRowID]!.deleted == deleted)
             .toList();
@@ -340,7 +340,7 @@ class ItemRecord with EquatableMixin {
       if (deleted != null) {
         var itemEdgeRecords = (await ItemEdgeRecord.selfItems(edgeRecords, db))
             .toList()
-            .toMap((element) => element.rowId);
+            .toMapByKey((element) => element.rowId);
         edgeRecords = edgeRecords
             .where((edgeRecord) => itemEdgeRecords[edgeRecord.selfRowID]!.deleted == deleted)
             .toList();
@@ -514,7 +514,7 @@ class ItemRecord with EquatableMixin {
     await dbController.databasePool.transaction(() async {
       await Future.forEach<List<dynamic>>(objects, (responseObjects) async {
         List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
-        var itemList = (await ItemRecord.fetchWithUIDs(uidList)).toMap((item) => item.uid);
+        var itemList = (await ItemRecord.fetchWithUIDs(uidList)).toMapByKey((item) => item.uid);
         var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
           if (dict is! Map<String, dynamic>) return null;
           dict["rowId"] = itemList[dict["id"]]?.rowId;
@@ -589,9 +589,9 @@ class ItemRecord with EquatableMixin {
       edgeItems.addAll([edge["_item"], edge]);
     });
 
-    var groupedEdgeItems = edgeItems.toMap((item) => item["id"] as String);
-    var groupedEdgeItemRecords =
-        (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList())).toMap((item) => item.uid);
+    var groupedEdgeItems = edgeItems.toMapByKey((item) => item["id"] as String);
+    var groupedEdgeItemRecords = (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList()))
+        .toMapByKey((item) => item.uid);
 
     await Future.forEach<Map<String, dynamic>>(edges, (edge) async {
       ItemRecord self = groupedEdgeItemRecords[edge["id"]]!;
@@ -626,9 +626,9 @@ class ItemRecord with EquatableMixin {
     ];
 
     var items = dictList.map<ItemRecord>((dict) => dict["item"] as ItemRecord).toList();
-    var allProperties = await ItemRecord.propertiesForItems(items, dbController);
-    var groupedProperties = (allProperties.groupListsBy((property) => property.itemRowID))
-        .map((rowId, properties) => MapEntry(rowId, properties.toMap((property) => property.name)));
+    var allProperties = await ItemRecord.getPropertiesForItems(items, dbController);
+    var groupedProperties = (allProperties.groupListsBy((property) => property.itemRowID)).map(
+        (rowId, properties) => MapEntry(rowId, properties.toMapByKey((property) => property.name)));
 
     await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
       ItemRecord item = dict["item"];
