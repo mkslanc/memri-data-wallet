@@ -22,7 +22,7 @@ class CVUContext {
   CVUDefinitionContent viewDefinition;
   CVUViewArguments? viewArguments;
 
-  Map<String, dynamic> cache = {};//TODO: review and improve, extreme mvp optimisation
+  Map<String, dynamic> cache = {}; //TODO: review and improve, extreme mvp optimisation
   dynamic getCache(String key) => cache[key];
   setCache(String key, dynamic value) => cache[key] = value;
 

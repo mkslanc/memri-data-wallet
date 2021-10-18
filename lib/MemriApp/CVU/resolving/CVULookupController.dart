@@ -625,8 +625,9 @@ class CVULookupController {
 
     return resultItems;
   }
-  
-  Future<T?> _resolveNamedExpression<T>(List<CVUExpressionNode> expressions, String name, DatabaseController db, CVUContext context) async {
+
+  Future<T?> _resolveNamedExpression<T>(List<CVUExpressionNode> expressions, String name,
+      DatabaseController db, CVUContext context) async {
     var expression = _getNamedExpression(expressions, name);
     if (expression == null) {
       return null;
@@ -642,7 +643,6 @@ class CVULookupController {
 
   Future<List<Map<String, dynamic>>> getSort(List<CVUExpressionNode> expressions, String edgeType,
       DatabaseController db, CVUContext context) async {
-
     var sortData = await _resolveNamedExpression<String>(expressions, "sort", db, context);
     var sort = <Map<String, dynamic>>[];
 
