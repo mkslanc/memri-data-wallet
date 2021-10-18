@@ -71,6 +71,8 @@ abstract class CVUExpressionNode extends Equatable {
       return '${expressionNode.lhs.toCVUString()} != ${expressionNode.rhs.toCVUString()}';
     } else if (expressionNode is CVUExpressionNodeAnd) {
       return '${expressionNode.lhs.toCVUString()} AND ${expressionNode.rhs.toCVUString()}';
+    } else if (expressionNode is CVUExpressionNodeNamed) {
+      return '${expressionNode.key}: ${expressionNode.value.toCVUString()}';
     } else {
       throw Exception("Unknown CVUExpressionNode: ${this.toString()}");
     }
@@ -112,6 +114,8 @@ abstract class CVUExpressionNode extends Equatable {
         return CVUExpressionNodeAreNotEqual.fromJson(json);
       case "CVUExpressionNodeAnd":
         return CVUExpressionNodeAnd.fromJson(json);
+      case "CVUExpressionNodeNamed":
+        return CVUExpressionNodeNamed.fromJson(json);
       default:
         throw Exception("Unknown CVUExpressionNode: ${json["type"]}");
     }
@@ -390,4 +394,20 @@ class CVUExpressionNodeAnd extends CVUExpressionNode {
 
   @override
   List<Object?> get props => [lhs, rhs];
+}
+
+@JsonSerializable()
+class CVUExpressionNodeNamed extends CVUExpressionNode {
+  final String key;
+  final CVUExpressionNode value;
+
+  CVUExpressionNodeNamed(this.key, this.value);
+
+  factory CVUExpressionNodeNamed.fromJson(Map<String, dynamic> json) =>
+      _$CVUExpressionNodeNamedFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$CVUExpressionNodeNamedToJson(this)..addAll({"type": runtimeType.toString()});
+
+  @override
+  List<Object?> get props => [key, value];
 }

@@ -670,4 +670,17 @@ Person {
 }""";
     expect(parseToCVUString(snippet), snippet);
   });
+
+  test('testSubExpression', () {
+    var snippet = """MessageChannel > list {
+Text {
+    text: "{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().photo}"
+  }
+}""";
+    expect(parseToCVUString(snippet), """MessageChannel > list {
+    Text {
+        text: "{.~messageChannel[sort: \"dateSent DESC\", limit: 1].first().photo}"
+    }
+}""");
+  });
 }

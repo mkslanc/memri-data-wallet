@@ -157,12 +157,15 @@ void main() {
                 CVUExpressionNodeLookup([
                   CVULookupNode(
                       name: "bar",
-                      isArray: false,
-                      type: CVULookupTypeLookup(CVUExpressionNodeAreEqual(
-                          CVUExpressionNodeLookup([
-                            CVULookupNode(name: "foo", isArray: false, type: CVULookupTypeLookup())
-                          ]),
-                          CVUExpressionNodeConstant(CVUConstantNumber(10.0)))))
+                      isArray: true,
+                      type: CVULookupTypeLookup([
+                        CVUExpressionNodeAreEqual(
+                            CVUExpressionNodeLookup([
+                              CVULookupNode(
+                                  name: "foo", isArray: false, type: CVULookupTypeLookup())
+                            ]),
+                            CVUExpressionNodeConstant(CVUConstantNumber(10.0)))
+                      ]))
                 ]),
                 CVUExpressionNodeLookup([
                   CVULookupNode(
@@ -245,11 +248,13 @@ void main() {
           CVULookupNode.defaultLookup,
           CVULookupNode(
               name: "relation",
-              isArray: false,
-              type: CVULookupTypeLookup(CVUExpressionNodeAreEqual(
-                  CVUExpressionNodeLookup([CVULookupNode.defaultLookup]),
-                  CVUExpressionNodeLookup(
-                      [CVULookupNode(name: "me", isArray: false, type: CVULookupTypeLookup())])))),
+              isArray: true,
+              type: CVULookupTypeLookup([
+                CVUExpressionNodeAreEqual(
+                    CVUExpressionNodeLookup([CVULookupNode.defaultLookup]),
+                    CVUExpressionNodeLookup(
+                        [CVULookupNode(name: "me", isArray: false, type: CVULookupTypeLookup())]))
+              ])),
           CVULookupNode(name: "firstName", isArray: false, type: CVULookupTypeLookup())
         ])));
   });
@@ -401,13 +406,15 @@ void main() {
                   CVULookupNode(name: "me", isArray: false, type: CVULookupTypeLookup()),
                   CVULookupNode(
                       name: "address",
-                      isArray: false,
-                      type: CVULookupTypeLookup(CVUExpressionNodeAreEqual(
-                          CVUExpressionNodeLookup([
-                            CVULookupNode(
-                                name: "primary", isArray: false, type: CVULookupTypeLookup())
-                          ]),
-                          CVUExpressionNodeConstant(CVUConstantBool(true))))),
+                      isArray: true,
+                      type: CVULookupTypeLookup([
+                        CVUExpressionNodeAreEqual(
+                            CVUExpressionNodeLookup([
+                              CVULookupNode(
+                                  name: "primary", isArray: false, type: CVULookupTypeLookup())
+                            ]),
+                            CVUExpressionNodeConstant(CVUConstantBool(true)))
+                      ])),
                   CVULookupNode(name: "country", isArray: false, type: CVULookupTypeLookup())
                 ]),
                 CVUExpressionNodeAddition(
@@ -419,9 +426,9 @@ void main() {
                     CVUExpressionNodeLookup([
                       CVULookupNode(
                           name: "test",
-                          isArray: false,
+                          isArray: true,
                           type: CVULookupTypeLookup(
-                              CVUExpressionNodeConstant(CVUConstantNumber(10.0))))
+                              [CVUExpressionNodeConstant(CVUConstantNumber(10.0))]))
                     ])),
                 CVUExpressionNodeAddition(
                     CVUExpressionNodeConstant(CVUConstantString("asdads\'asdad")),
