@@ -361,6 +361,48 @@ class Database extends _$Database {
         variables: binding, readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
 
+  Future<List<Item>> edgeRecordsItemsCustomSelect(Map<String, dynamic> properties,
+      {int? limit,
+      bool? deleted = false,
+      bool isReverse = false,
+      List<Map<String, dynamic>>? sort}) async {
+    String query = "SELECT itemRecords.* from edges ";
+    Set<TableInfo> readsFrom = {edges, items};
+    var binding = <Variable<dynamic>>[];
+    var orderBy = "";
+    if (deleted != null) {
+      query += " INNER JOIN items ON (edges.self = items.rowId AND items.deleted = ?) ";
+      binding.add(Variable(deleted));
+    }
+    query +=
+        " INNER JOIN items AS itemRecords ON (edges.${isReverse ? "source" : "target"} = itemRecords.rowId)";
+    if (sort != null) {
+      sort.forEach((sortParam) {
+        TableInfo table = sortParam["table"];
+        String tableName = table.aliasedName;
+        String sortProperty = sortParam["property"];
+        String sortOrder = sortParam["order"] ?? "ASC";
+        query +=
+            " INNER JOIN $tableName AS prop$sortProperty ON (itemRecords.row_id = prop$sortProperty.item AND prop$sortProperty.name = '$sortProperty')";
+        readsFrom.add(table);
+        orderBy += " prop$sortProperty.value $sortOrder,";
+      });
+    }
+    query += " WHERE edges.${properties.keys.join(" = ? AND edges.") + " = ?"}";
+    binding.addAll(properties.values.map((property) => Variable(property)).toList());
+    if (orderBy.isNotEmpty) {
+      orderBy = orderBy.substring(0, orderBy.length - 1);
+      query += " ORDER BY $orderBy";
+    }
+    if (limit != null) {
+      query += " LIMIT $limit";
+    }
+
+    return await customSelect(query, variables: binding, readsFrom: readsFrom)
+        .map((row) => Item.fromData(row.data, this))
+        .get();
+  }
+
   Future<NavigationStateData?> navigationStateFetchOne(String pageLabel) async {
     return await (select(navigationState)..where((t) => t.pageLabel.equals(pageLabel)))
         .getSingleOrNull();
