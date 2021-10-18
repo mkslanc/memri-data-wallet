@@ -90,7 +90,9 @@ class AppController {
               port: receivePort.sendPort,
               connection: connection,
               schema: AppController.shared.databaseController.schema,
-              documentsDirectory: documentsDirectory));
+              documentsDirectory: documentsDirectory,
+              rootKey: Authentication.lastRootPublicKey,
+              isolate: AppController.shared.databaseController.driftIsolate));
     }
 
     isDevelopersMode =

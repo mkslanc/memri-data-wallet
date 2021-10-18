@@ -1,10 +1,9 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:ui';
 
 import 'package:memri/MemriApp/Controllers/API/Authentication_mobile.dart';
-import 'package:memri/MemriApp/Controllers/AppController.dart';
+import 'package:memri/MemriApp/Controllers/Syncing/SyncController.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
@@ -58,7 +57,7 @@ void _backgroundConnection(_IsolateStartRequest request) {
       executor = LazyDatabase(() async {
         final dbFile = File(request.path!);
         return VmDatabase(dbFile, setup: (rawDb) {
-          rawDb.execute("PRAGMA key = '${Authentication.lastRootPublicKey}';");
+          rawDb.execute("PRAGMA key = '${request.rootKey}';");
         });
       });
     }
@@ -70,38 +69,27 @@ void _backgroundConnection(_IsolateStartRequest request) {
   final moorIsolate = MoorIsolate.inCurrent(
     () => DatabaseConnection.fromExecutor(executor),
   );
-  IsolateNameServer.registerPortWithName(moorIsolate.connectPort, Database.databasePortName);
   request.sendDriftIsolate.send(moorIsolate);
 }
 
-Future<SendPort> _createDriftIsolate(
+Future<DriftIsolate> createDriftIsolate(
     {bool logStatements = false, bool inMemory = false, required databaseName}) async {
   final receivePort = ReceivePort();
   String? path;
   if (!inMemory) {
-    final dataDir = await paths.getApplicationDocumentsDirectory();
-    path = p.join(dataDir.path + '/databases', databaseName + '.sqlite');
+    final dataDir =
+        SyncController.documentsDirectory ?? (await paths.getApplicationDocumentsDirectory()).path;
+    path = p.join(dataDir + '/databases', databaseName + '.sqlite');
   }
 
-  AppController.shared.databaseController.moorIsolate = await Isolate.spawn(
+  await Isolate.spawn(
       _backgroundConnection,
       _IsolateStartRequest(
           sendDriftIsolate: receivePort.sendPort,
-          rootKey: Authentication.lastRootPublicKey,
+          rootKey: Authentication.lastRootPublicKey ?? SyncController.lastRootKey,
           inMemory: inMemory,
           path: path));
-  return (await receivePort.first).connectPort as SendPort;
-}
-
-Database createDbConnection(
-    {bool logStatements = false, bool inMemory = false, required databaseName}) {
-  final dbPort = IsolateNameServer.lookupPortByName(Database.databasePortName);
-  return Database.connect(DatabaseConnection.delayed(() async {
-    return MoorIsolate.fromConnectPort(dbPort ??
-            await _createDriftIsolate(
-                logStatements: logStatements, inMemory: inMemory, databaseName: databaseName))
-        .connect(isolateDebugLog: false);
-  }()));
+  return await receivePort.first as DriftIsolate;
 }
 
 class _IsolateStartRequest {

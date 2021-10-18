@@ -82,6 +82,7 @@ void main() {
   });
 
   tearDown(() async {
-    databaseController.databasePool.close();
+    await databaseController.databasePool.close();
+    await databaseController.driftIsolate.shutdownAll();
   });
 }

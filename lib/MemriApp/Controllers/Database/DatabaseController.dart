@@ -1,8 +1,7 @@
-import 'dart:isolate';
-
 import 'package:flutter/foundation.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:moor/isolate.dart';
 import 'DemoData.dart';
 import 'Schema.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
@@ -17,7 +16,7 @@ class DatabaseController {
   String databaseName;
   bool inMemory;
   bool isInited = false;
-  Isolate? moorIsolate;
+  late DriftIsolate driftIsolate;
 
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController({this.databaseName = "memri", Schema? schema, this.inMemory = false})
@@ -25,7 +24,8 @@ class DatabaseController {
 
   init() async {
     if (isInited) return;
-    databasePool = createDbConnection(inMemory: inMemory, databaseName: databaseName);
+    driftIsolate = await createDriftIsolate(inMemory: inMemory, databaseName: databaseName);
+    databasePool = Database.connect(await driftIsolate.connect());
 
     if (await hasImportedSchema) {
       await schema.load(databasePool);
@@ -35,7 +35,6 @@ class DatabaseController {
   }
 
   Future<void> delete() async {
-    moorIsolate?.kill(priority: Isolate.immediate);
     await databasePool.close();
     databasePool.attachedDatabase.close();
     if (!inMemory || kIsWeb) {

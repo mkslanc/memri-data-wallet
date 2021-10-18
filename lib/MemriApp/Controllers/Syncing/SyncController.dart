@@ -17,6 +17,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
+import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 
 import '../AppController.dart';
@@ -41,20 +42,26 @@ class IsolateSyncConfig {
   final PodAPIConnectionDetails connection;
   final Schema schema;
   final String? documentsDirectory;
+  final String? rootKey;
+  final DriftIsolate isolate;
 
   IsolateSyncConfig(
       {required this.port,
       required this.connection,
       required this.schema,
-      this.documentsDirectory});
+      this.documentsDirectory,
+      this.rootKey,
+      required this.isolate});
 }
 
 runSync(IsolateSyncConfig config) async {
+  SyncController.documentsDirectory = config.documentsDirectory;
+  SyncController.lastRootKey = config.rootKey;
   var dbController = DatabaseController();
   dbController.schema = config.schema;
-  dbController.databasePool = createDbConnection(inMemory: false, databaseName: "memri");
+  dbController.driftIsolate = config.isolate;
+  dbController.databasePool = Database.connect(await config.isolate.connect());
   final syncController = SyncController(dbController);
-  SyncController.documentsDirectory = config.documentsDirectory;
 
   Stream.periodic(const Duration(milliseconds: 3000))
       .listen((_) => syncController.sync(connectionConfig: config.connection));
@@ -68,6 +75,7 @@ class SyncController {
   SyncControllerState state;
   PodAPIConnectionDetails? currentConnection;
   static String? documentsDirectory;
+  static String? lastRootKey;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
