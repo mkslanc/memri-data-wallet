@@ -329,12 +329,10 @@ class SyncController {
             await setState(SyncControllerState.failed);
             return;
           }
-          await databaseController.databasePool.transaction(() async {
-            await Future.forEach(responseObjects, (element) async {
-              if (element != null && element is Map<String, dynamic>)
-                await ItemRecord.fromSyncItemDict(dict: element, dbController: databaseController);
-            });
-          });
+
+          await ItemRecord.fromSyncItemDictList(
+              responseObjects: responseObjects, dbController: databaseController);
+
           await setState(SyncControllerState.downloadedItems);
         });
   }

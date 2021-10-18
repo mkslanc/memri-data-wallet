@@ -30,6 +30,7 @@ import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:moor/moor.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -63,6 +64,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionAddItem(vars: vars);
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
+    case "openlink":
+      return ({Map? vars}) => CVUActionOpenLink(vars: vars);
     case "openviewbyname":
       return ({Map? vars}) => CVUActionOpenViewByName(vars: vars);
     case "toggleeditmode":
@@ -141,6 +144,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionRequestStoragePermission(vars: vars);
     case "openpopup":
       return ({Map? vars}) => CVUActionOpenPopup(vars: vars);
+    case "wait":
+      return ({Map? vars}) => CVUActionWait(vars: vars);
     default:
       return null;
   }
@@ -233,6 +238,26 @@ class CVUActionOpenView extends CVUAction {
         customDefinition: customDefinition,
         viewArguments: viewArguments,
         pageController: pageController);
+  }
+}
+
+class CVUActionOpenLink extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenLink({vars}) : this.vars = vars ?? {};
+
+  @override
+  Future execute(memri.PageController pageController, CVUContext context) async {
+    var link = vars["link"];
+    if (link != null) {
+      var db = pageController.appController.databaseController;
+      var resolver = CVUPropertyResolver(
+          context: context, lookup: CVULookupController(), db: db, properties: vars);
+      var url = await resolver.string("link");
+      if (url != null) {
+        await canLaunch(url) ? await launch(url) : print('Could not launch $url');
+      }
+    }
   }
 }
 
@@ -449,7 +474,7 @@ class CVUActionAddItem extends CVUAction {
           .compactMap<ItemPropertyRecord>();
 
       await Future.forEach<ItemPropertyRecord>(properties, (property) async {
-        await property.save(db.databasePool);
+        await property.save(db.databasePool, isNew: true);
       });
 
       var renderer = "generalEditor";
@@ -479,7 +504,9 @@ class CVUActionAddItem extends CVUAction {
 
       await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
           .execute(pageController, context.replacingItem(item));
-      // AppController.shared.syncController.sync();TODO sync
+
+      pageController.sceneController.mainPageController.topMostContext
+          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
     }
   }
 }
@@ -1228,4 +1255,19 @@ class CVUActionOpenPopup extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {}
+}
+
+class CVUActionWait extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionWait({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var seconds = vars["seconds"];
+
+    if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
+      await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {});
+    }
+  }
 }

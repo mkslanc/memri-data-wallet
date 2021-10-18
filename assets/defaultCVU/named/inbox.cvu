@@ -3,6 +3,77 @@
     title: "Inbox"
     defaultRenderer: list
     cols: 4
+    emptyResult: {
+        VStack {
+            padding: 0 30 50 30
+            alignment: center
+
+            Divider
+
+            Text {
+                text: "You have no messages yet."
+                font: headline2
+                padding: 50 0 20 0
+            }
+            Button {
+                width: 180
+                onPress: openView {
+                    viewName: "inbox"
+                    clearStack: true
+                    inheritDatasource: false
+                }
+
+                HStack {
+                    padding: 7 0 7 0
+
+                    Image {
+                        color: #FE570F
+                        systemName: "refresh"
+                        minHeight: 20
+                        maxHeight: 20
+                        minWidth: 20
+                        maxWidth: 20
+                    }
+
+                    Text {
+                        text: "Reload"
+                        font: 12 regular
+                        color: #FE570F
+                    }
+                }
+            }
+
+            Button {
+                width: 180
+                onPress: openView {
+                    viewName: "allPlugins"
+                    clearStack: true
+                    inheritDatasource: false
+                }
+
+                HStack {
+                    padding: 7 0 7 0
+
+                    Image {
+                        color: #FE570F
+                        bundleImage: "zap"
+                        isVector: true
+                        sizingMode: fill
+                        minHeight: 20
+                        maxHeight: 20
+                        minWidth: 20
+                        maxWidth: 20
+                    }
+
+                    Text {
+                        text: "Start importing"
+                        font: 12 regular
+                        color: #FE570F
+                    }
+                }
+            }
+        }
+    }
 
     [datasource = pod] {
         query: MessageChannel
@@ -45,38 +116,38 @@
         },
         ]
 
-    additional: {
-        Button {
-            onPress: openView {
-                viewName: "allPosts"
-                clearStack: true
-                inheritDatasource: false
-                viewArguments {
-                    mainView: false
-                }
-            }
-
-            HStack {
-                alignment: left
-                padding: 13 0 7 0
-
-                Image {
-                    bundleImage: "coffee"
-                    isVector: true
-                    sizingMode: fill
-                    minHeight: 30
-                    maxHeight: 30
-                    minWidth: 30
-                    maxWidth: 30
-                    cornerRadius: 50
+        additional: {
+            Button {
+                onPress: openView {
+                    viewName: "allPosts"
+                    clearStack: true
+                    inheritDatasource: false
+                    viewArguments {
+                        mainView: false
+                    }
                 }
 
-                Text {
-                    text: "Social updates"
-                    font: 12 regular
-                    color: #FE570F
+                HStack {
+                    alignment: left
+                    padding: 13 0 7 0
+
+                    Image {
+                        bundleImage: "coffee"
+                        isVector: true
+                        sizingMode: fill
+                        minHeight: 30
+                        maxHeight: 30
+                        minWidth: 30
+                        maxWidth: 30
+                        cornerRadius: 50
+                    }
+
+                    Text {
+                        text: "Social updates"
+                        font: 12 regular
+                        color: #FE570F
+                    }
                 }
             }
         }
-    }
 }

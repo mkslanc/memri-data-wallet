@@ -10,14 +10,13 @@ class ItemPropertyRecord {
   int itemRowID;
   String name;
 
-  PropertyDatabaseValue $value;
+  PropertyDatabaseValue? _$value;
+  PropertyDatabaseValue get $value => _$value!;
+  set $value(PropertyDatabaseValue $value) => _$value = $value;
 
   ItemPropertyRecord(
-      {this.itemUID,
-      required this.itemRowID,
-      required this.name,
-      required PropertyDatabaseValue value})
-      : $value = value;
+      {this.itemUID, required this.itemRowID, required this.name, PropertyDatabaseValue? value})
+      : _$value = value;
 
   PropertyDatabaseValue? value(String itemType, [Schema? schema]) {
     schema ??= AppController.shared.databaseController.schema;
@@ -37,7 +36,7 @@ class ItemPropertyRecord {
     await db.itemPropertyRecordDelete(this);
   }
 
-  save(Database db) async {
-    return await db.itemPropertyRecordSave(this);
+  save(Database db, {bool? isNew}) async {
+    return await db.itemPropertyRecordSave(this, isNew: isNew);
   }
 }

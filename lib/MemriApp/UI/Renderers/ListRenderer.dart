@@ -7,6 +7,7 @@ import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:memri/MemriApp/UI/Components/PluginModeSwitcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../ViewContextController.dart';
@@ -88,6 +89,18 @@ class _ListRendererViewState extends State<ListRendererView> {
     var additionalSubdef = additionalDef?.getSubdefinition();
     if (additionalSubdef != null) {
       return viewContext.render(nodeDefinition: additionalSubdef);
+    }
+    return null;
+  }
+
+  Widget? get emptyResult {
+    var emptyResultDef = viewContext.cvuController
+        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
+        ?.properties["emptyResult"];
+
+    var emptyResultSubdef = emptyResultDef?.getSubdefinition();
+    if (emptyResultSubdef != null) {
+      return viewContext.render(nodeDefinition: emptyResultSubdef);
     }
     return null;
   }
@@ -177,19 +190,20 @@ class _ListRendererViewState extends State<ListRendererView> {
                               insets.bottom),
                           childrenDelegate: SliverChildListDelegate(elements),
                         ),
-                      Padding(
-                        padding: EdgeInsets.all(30),
-                        child: Center(
-                          child: Text(
-                            "No items",
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                                color: Color.fromRGBO(0, 0, 0, 0.7),
-                                backgroundColor: backgroundColor),
+                      emptyResult ??
+                          Padding(
+                            padding: EdgeInsets.all(30),
+                            child: Center(
+                              child: Text(
+                                "No items",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.normal,
+                                    color: Color.fromRGBO(0, 0, 0, 0.7),
+                                    backgroundColor: backgroundColor),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                     ],
                   );
                 }
@@ -238,6 +252,11 @@ class _ListRendererViewState extends State<ListRendererView> {
                 .then((value) => viewContext.setupQueryObservation());
           },
           child: tile);
+    }
+
+    //TODO: hardcoded part for now, we could migrate this to cvu, when switches will allow to use different actions instead of bindings
+    if (widget.pageController.appController.isDevelopersMode && item.type == "Plugin") {
+      tile = Column(children: [PluginModeSwitcher(item), tile]);
     }
 
     return tile;
