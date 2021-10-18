@@ -326,7 +326,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         join =
             "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
 
-        orderBy = "$tableName.value";
+        orderBy = "$tableName.value $sortOrder";
         break;
       case "":
       case null:

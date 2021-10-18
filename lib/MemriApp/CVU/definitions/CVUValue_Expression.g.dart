@@ -209,3 +209,15 @@ Map<String, dynamic> _$CVUExpressionNodeAndToJson(CVUExpressionNodeAnd instance)
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
+
+CVUExpressionNodeNamed _$CVUExpressionNodeNamedFromJson(Map<String, dynamic> json) =>
+    CVUExpressionNodeNamed(
+      json['key'] as String,
+      CVUExpressionNode.fromJson(json['value']),
+    );
+
+Map<String, dynamic> _$CVUExpressionNodeNamedToJson(CVUExpressionNodeNamed instance) =>
+    <String, dynamic>{
+      'key': instance.key,
+      'value': instance.value,
+    };

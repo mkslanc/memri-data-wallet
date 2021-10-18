@@ -19,11 +19,13 @@ Map<String, dynamic> _$CVULookupNodeToJson(CVULookupNode instance) => <String, d
     };
 
 CVULookupTypeLookup _$CVULookupTypeLookupFromJson(Map<String, dynamic> json) => CVULookupTypeLookup(
-      json['subExpression'] == null ? null : CVUExpressionNode.fromJson(json['subExpression']),
+      (json['subexpressions'] as List<dynamic>?)
+          ?.map((e) => CVUExpressionNode.fromJson(e))
+          .toList(),
     );
 
 Map<String, dynamic> _$CVULookupTypeLookupToJson(CVULookupTypeLookup instance) => <String, dynamic>{
-      'subExpression': instance.subExpression,
+      'subexpressions': instance.subexpressions,
     };
 
 CVULookupTypeFunction _$CVULookupTypeFunctionFromJson(Map<String, dynamic> json) =>

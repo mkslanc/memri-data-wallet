@@ -119,6 +119,18 @@ class Schema {
   String? expectedTargetType(String itemType, String edgeName) {
     return types[itemType]?.edgeTypes[edgeName]?.targetType;
   }
+
+  List<String> expectedSourceTypes(String itemType, String edgeName) {
+    var sourceTypes = <String>[];
+    types.forEach((sourceType, schemaType) {
+      if (schemaType.edgeTypes.containsKey(edgeName) &&
+          (schemaType.edgeTypes[edgeName]!.targetType == itemType ||
+              schemaType.edgeTypes[edgeName]!.targetType == "Any")) {
+        sourceTypes.add(sourceType);
+      }
+    });
+    return sourceTypes;
+  }
 }
 
 abstract class ResolvedType {}

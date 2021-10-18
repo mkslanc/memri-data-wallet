@@ -317,16 +317,25 @@ class ItemRecord with EquatableMixin {
   }
 
   Future<ItemRecord?> edgeItem(String? name,
-      {DatabaseController? db, bool? deleted = false}) async {
-    var edgeItemRecords = await edgeItems(name, db: db, deleted: deleted);
+      {DatabaseController? db, bool? deleted = false, List<Map<String, dynamic>>? sort}) async {
+    var edgeItemRecords = await edgeItems(name, db: db, deleted: deleted, limit: 1, sort: sort);
     return edgeItemRecords.asMap()[0];
   }
 
   Future<List<ItemRecord>> edgeItems(String? name,
-      {DatabaseController? db, bool? deleted = false}) async {
+      {DatabaseController? db,
+      bool? deleted = false,
+      int? limit,
+      List<Map<String, dynamic>>? sort}) async {
     db ??= AppController.shared.databaseController;
-    var edgeRecords = await edges(name, db: db, deleted: deleted);
-    return await ItemEdgeRecord.targetItems(edgeRecords, db);
+    Map<String, dynamic> properties = {"source": rowId};
+    if (name != null) {
+      properties["name"] = name;
+    }
+    return (await db.databasePool
+            .edgeRecordsItemsCustomSelect(properties, limit: limit, sort: sort, deleted: deleted))
+        .map((targetItem) => ItemRecord.fromItem(targetItem))
+        .toList();
   }
 
   Future<List<ItemEdgeRecord>> reverseEdges(String? name,
@@ -356,16 +365,26 @@ class ItemRecord with EquatableMixin {
   }
 
   Future<ItemRecord?> reverseEdgeItem(String? name,
-      {DatabaseController? db, bool? deleted = false}) async {
-    var edgeItemRecords = await reverseEdgeItems(name, db: db, deleted: deleted);
+      {DatabaseController? db, bool? deleted = false, List<Map<String, dynamic>>? sort}) async {
+    var edgeItemRecords =
+        await reverseEdgeItems(name, db: db, deleted: deleted, limit: 1, sort: sort);
     return edgeItemRecords.asMap()[0];
   }
 
   Future<List<ItemRecord>> reverseEdgeItems(String? name,
-      {DatabaseController? db, bool? deleted = false}) async {
+      {DatabaseController? db,
+      bool? deleted = false,
+      int? limit,
+      List<Map<String, dynamic>>? sort}) async {
     db ??= AppController.shared.databaseController;
-    var edgeRecords = await reverseEdges(name, db: db, deleted: deleted);
-    return await ItemEdgeRecord.owningItems(edgeRecords, db);
+    Map<String, dynamic> properties = {"target": rowId};
+    if (name != null) {
+      properties["name"] = name;
+    }
+    return (await db.databasePool.edgeRecordsItemsCustomSelect(properties,
+            isReverse: true, limit: limit, sort: sort, deleted: deleted))
+        .map((owningItem) => ItemRecord.fromItem(owningItem))
+        .toList();
   }
 
   Future<FutureBinding> propertyBinding(
