@@ -32,6 +32,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   late Color backgroundColor;
   late bool separatorsEnabled;
   late bool isInEditMode;
+  late bool isReverse;
   bool isDismissible = false;
 
   late Binding<Set<int>> selectedIndicesBinding;
@@ -66,6 +67,7 @@ class _ListRendererViewState extends State<ListRendererView> {
         CVUColor.system("systemBackground");
     separatorsEnabled =
         !(await viewContext.rendererDefinitionPropertyResolver.boolean("hideSeparators", false))!;
+    isReverse = (await viewContext.rendererDefinitionPropertyResolver.boolean("isReverse", false))!;
 
     await initEditMode();
   }
@@ -126,6 +128,7 @@ class _ListRendererViewState extends State<ListRendererView> {
                     onRefresh: () async =>
                         setState(() => pageController.topMostContext?.setupQueryObservation()),
                     child: ListView.custom(
+                      reverse: isReverse,
                       shrinkWrap: true,
                       padding: EdgeInsets.fromLTRB(
                           0,
