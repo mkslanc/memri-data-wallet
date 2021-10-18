@@ -163,22 +163,8 @@ class Item extends DataClass implements Insertable<Item> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      rowId.hashCode,
-      $mrjc(
-          id.hashCode,
-          $mrjc(
-              type.hashCode,
-              $mrjc(
-                  dateCreated.hashCode,
-                  $mrjc(
-                      dateModified.hashCode,
-                      $mrjc(
-                          dateServerModified.hashCode,
-                          $mrjc(
-                              deleted.hashCode,
-                              $mrjc(syncState.hashCode,
-                                  $mrjc(fileState.hashCode, syncHasPriority.hashCode))))))))));
+  int get hashCode => Object.hash(rowId, id, type, dateCreated, dateModified, dateServerModified,
+      deleted, syncState, fileState, syncHasPriority);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -346,74 +332,56 @@ class Items extends Table with TableInfo<Items, Item> {
   final String? _alias;
   Items(this._db, [this._alias]);
   final VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
-  late final GeneratedIntColumn rowId = _constructRowId();
-  GeneratedIntColumn _constructRowId() {
-    return GeneratedIntColumn('row_id', $tableName, false,
-        declaredAsPrimaryKey: true, $customConstraints: 'PRIMARY KEY');
-  }
-
+  late final GeneratedColumn<int?> rowId = GeneratedColumn<int?>('row_id', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: 'PRIMARY KEY');
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedTextColumn id = _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn('id', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>('id', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _typeMeta = const VerificationMeta('type');
-  late final GeneratedTextColumn type = _constructType();
-  GeneratedTextColumn _constructType() {
-    return GeneratedTextColumn('type', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> type = GeneratedColumn<String?>('type', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _dateCreatedMeta = const VerificationMeta('dateCreated');
-  late final GeneratedIntColumn dateCreated = _constructDateCreated();
-  GeneratedIntColumn _constructDateCreated() {
-    return GeneratedIntColumn('dateCreated', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumnWithTypeConverter<DateTime, int?> dateCreated = GeneratedColumn<int?>(
+          'dateCreated', aliasedName, false,
+          typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL')
+      .withConverter<DateTime>(Items.$converter0);
   final VerificationMeta _dateModifiedMeta = const VerificationMeta('dateModified');
-  late final GeneratedIntColumn dateModified = _constructDateModified();
-  GeneratedIntColumn _constructDateModified() {
-    return GeneratedIntColumn('dateModified', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumnWithTypeConverter<DateTime, int?> dateModified = GeneratedColumn<int?>(
+          'dateModified', aliasedName, false,
+          typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL')
+      .withConverter<DateTime>(Items.$converter1);
   final VerificationMeta _dateServerModifiedMeta = const VerificationMeta('dateServerModified');
-  late final GeneratedIntColumn dateServerModified = _constructDateServerModified();
-  GeneratedIntColumn _constructDateServerModified() {
-    return GeneratedIntColumn('dateServerModified', $tableName, true, $customConstraints: '');
-  }
-
+  late final GeneratedColumnWithTypeConverter<DateTime, int?> dateServerModified =
+      GeneratedColumn<int?>('dateServerModified', aliasedName, true,
+              typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: '')
+          .withConverter<DateTime>(Items.$converter2);
   final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
-  late final GeneratedBoolColumn deleted = _constructDeleted();
-  GeneratedBoolColumn _constructDeleted() {
-    return GeneratedBoolColumn('deleted', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT false',
-        defaultValue: const CustomExpression<bool>('false'));
-  }
-
+  late final GeneratedColumn<bool?> deleted = GeneratedColumn<bool?>('deleted', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT false',
+      defaultValue: const CustomExpression<bool>('false'));
   final VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
-  late final GeneratedTextColumn syncState = _constructSyncState();
-  GeneratedTextColumn _constructSyncState() {
-    return GeneratedTextColumn('syncState', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT \'create\'',
-        defaultValue: const CustomExpression<String>('\'create\''));
-  }
-
+  late final GeneratedColumn<String?> syncState = GeneratedColumn<String?>(
+      'syncState', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT \'create\'',
+      defaultValue: const CustomExpression<String>('\'create\''));
   final VerificationMeta _fileStateMeta = const VerificationMeta('fileState');
-  late final GeneratedTextColumn fileState = _constructFileState();
-  GeneratedTextColumn _constructFileState() {
-    return GeneratedTextColumn('fileState', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT \'skip\'',
-        defaultValue: const CustomExpression<String>('\'skip\''));
-  }
-
+  late final GeneratedColumn<String?> fileState = GeneratedColumn<String?>(
+      'fileState', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT \'skip\'',
+      defaultValue: const CustomExpression<String>('\'skip\''));
   final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
-  late final GeneratedBoolColumn syncHasPriority = _constructSyncHasPriority();
-  GeneratedBoolColumn _constructSyncHasPriority() {
-    return GeneratedBoolColumn('syncHasPriority', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT false',
-        defaultValue: const CustomExpression<bool>('false'));
-  }
-
+  late final GeneratedColumn<bool?> syncHasPriority = GeneratedColumn<bool?>(
+      'syncHasPriority', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT false',
+      defaultValue: const CustomExpression<bool>('false'));
   @override
   List<GeneratedColumn> get $columns => [
         rowId,
@@ -428,11 +396,9 @@ class Items extends Table with TableInfo<Items, Item> {
         syncHasPriority
       ];
   @override
-  Items get asDslTable => this;
+  String get aliasedName => _alias ?? 'items';
   @override
-  String get $tableName => _alias ?? 'items';
-  @override
-  final String actualTableName = 'items';
+  String get actualTableName => 'items';
   @override
   VerificationContext validateIntegrity(Insertable<Item> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -592,12 +558,7 @@ class Edge extends DataClass implements Insertable<Edge> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      self.hashCode,
-      $mrjc(
-          source.hashCode,
-          $mrjc(name.hashCode,
-              $mrjc(target.hashCode, $mrjc(syncState.hashCode, syncHasPriority.hashCode))))));
+  int get hashCode => Object.hash(self, source, name, target, syncState, syncHasPriority);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -713,54 +674,37 @@ class Edges extends Table with TableInfo<Edges, Edge> {
   final String? _alias;
   Edges(this._db, [this._alias]);
   final VerificationMeta _selfMeta = const VerificationMeta('self');
-  late final GeneratedIntColumn self = _constructSelf();
-  GeneratedIntColumn _constructSelf() {
-    return GeneratedIntColumn('self', $tableName, false,
-        declaredAsPrimaryKey: true, $customConstraints: 'PRIMARY KEY');
-  }
-
+  late final GeneratedColumn<int?> self = GeneratedColumn<int?>('self', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: 'PRIMARY KEY');
   final VerificationMeta _sourceMeta = const VerificationMeta('source');
-  late final GeneratedIntColumn source = _constructSource();
-  GeneratedIntColumn _constructSource() {
-    return GeneratedIntColumn('source', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> source = GeneratedColumn<int?>('source', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _targetMeta = const VerificationMeta('target');
-  late final GeneratedIntColumn target = _constructTarget();
-  GeneratedIntColumn _constructTarget() {
-    return GeneratedIntColumn('target', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> target = GeneratedColumn<int?>('target', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
-  late final GeneratedTextColumn syncState = _constructSyncState();
-  GeneratedTextColumn _constructSyncState() {
-    return GeneratedTextColumn('syncState', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT \'create\'',
-        defaultValue: const CustomExpression<String>('\'create\''));
-  }
-
+  late final GeneratedColumn<String?> syncState = GeneratedColumn<String?>(
+      'syncState', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT \'create\'',
+      defaultValue: const CustomExpression<String>('\'create\''));
   final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
-  late final GeneratedBoolColumn syncHasPriority = _constructSyncHasPriority();
-  GeneratedBoolColumn _constructSyncHasPriority() {
-    return GeneratedBoolColumn('syncHasPriority', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT false',
-        defaultValue: const CustomExpression<bool>('false'));
-  }
-
+  late final GeneratedColumn<bool?> syncHasPriority = GeneratedColumn<bool?>(
+      'syncHasPriority', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT false',
+      defaultValue: const CustomExpression<bool>('false'));
   @override
   List<GeneratedColumn> get $columns => [self, source, name, target, syncState, syncHasPriority];
   @override
-  Edges get asDslTable => this;
+  String get aliasedName => _alias ?? 'edges';
   @override
-  String get $tableName => _alias ?? 'edges';
-  @override
-  final String actualTableName = 'edges';
+  String get actualTableName => 'edges';
   @override
   VerificationContext validateIntegrity(Insertable<Edge> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -880,7 +824,7 @@ class IntegerDb extends DataClass implements Insertable<IntegerDb> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
+  int get hashCode => Object.hash(item, name, value);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -957,31 +901,20 @@ class Integers extends Table with TableInfo<Integers, IntegerDb> {
   final String? _alias;
   Integers(this._db, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
-  late final GeneratedIntColumn item = _constructItem();
-  GeneratedIntColumn _constructItem() {
-    return GeneratedIntColumn('item', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> item = GeneratedColumn<int?>('item', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
-  late final GeneratedIntColumn value = _constructValue();
-  GeneratedIntColumn _constructValue() {
-    return GeneratedIntColumn('value', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> value = GeneratedColumn<int?>('value', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
-  Integers get asDslTable => this;
+  String get aliasedName => _alias ?? 'integers';
   @override
-  String get $tableName => _alias ?? 'integers';
-  @override
-  final String actualTableName = 'integers';
+  String get actualTableName => 'integers';
   @override
   VerificationContext validateIntegrity(Insertable<IntegerDb> instance,
       {bool isInserting = false}) {
@@ -1087,7 +1020,7 @@ class StringDb extends DataClass implements Insertable<StringDb> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
+  int get hashCode => Object.hash(item, name, value);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1164,31 +1097,20 @@ class Strings extends Table with TableInfo<Strings, StringDb> {
   final String? _alias;
   Strings(this._db, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
-  late final GeneratedIntColumn item = _constructItem();
-  GeneratedIntColumn _constructItem() {
-    return GeneratedIntColumn('item', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> item = GeneratedColumn<int?>('item', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
-  late final GeneratedTextColumn value = _constructValue();
-  GeneratedTextColumn _constructValue() {
-    return GeneratedTextColumn('value', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> value = GeneratedColumn<String?>('value', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
-  Strings get asDslTable => this;
+  String get aliasedName => _alias ?? 'strings';
   @override
-  String get $tableName => _alias ?? 'strings';
-  @override
-  final String actualTableName = 'strings';
+  String get actualTableName => 'strings';
   @override
   VerificationContext validateIntegrity(Insertable<StringDb> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -1293,7 +1215,7 @@ class RealDb extends DataClass implements Insertable<RealDb> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
+  int get hashCode => Object.hash(item, name, value);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1370,31 +1292,20 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
   final String? _alias;
   Reals(this._db, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
-  late final GeneratedIntColumn item = _constructItem();
-  GeneratedIntColumn _constructItem() {
-    return GeneratedIntColumn('item', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> item = GeneratedColumn<int?>('item', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn('name', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
-  late final GeneratedRealColumn value = _constructValue();
-  GeneratedRealColumn _constructValue() {
-    return GeneratedRealColumn('value', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<double?> value = GeneratedColumn<double?>('value', aliasedName, false,
+      typeName: 'REAL', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
-  Reals get asDslTable => this;
+  String get aliasedName => _alias ?? 'reals';
   @override
-  String get $tableName => _alias ?? 'reals';
-  @override
-  final String actualTableName = 'reals';
+  String get actualTableName => 'reals';
   @override
   VerificationContext validateIntegrity(Insertable<RealDb> instance, {bool isInserting = false}) {
     final context = VerificationContext();
@@ -1500,7 +1411,7 @@ class StringsSearchData extends DataClass implements Insertable<StringsSearchDat
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(item.hashCode, $mrjc(name.hashCode, value.hashCode)));
+  int get hashCode => Object.hash(item, name, value);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1581,31 +1492,20 @@ class StringsSearch extends Table
   final String? _alias;
   StringsSearch(this._db, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
-  late final GeneratedTextColumn item = _constructItem();
-  GeneratedTextColumn _constructItem() {
-    return GeneratedTextColumn('item', $tableName, false, $customConstraints: '');
-  }
-
+  late final GeneratedColumn<String?> item = GeneratedColumn<String?>('item', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: '');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn('name', $tableName, false, $customConstraints: '');
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: '');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
-  late final GeneratedTextColumn value = _constructValue();
-  GeneratedTextColumn _constructValue() {
-    return GeneratedTextColumn('value', $tableName, false, $customConstraints: '');
-  }
-
+  late final GeneratedColumn<String?> value = GeneratedColumn<String?>('value', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
-  StringsSearch get asDslTable => this;
+  String get aliasedName => _alias ?? 'strings_search';
   @override
-  String get $tableName => _alias ?? 'strings_search';
-  @override
-  final String actualTableName = 'strings_search';
+  String get actualTableName => 'strings_search';
   @override
   VerificationContext validateIntegrity(Insertable<StringsSearchData> instance,
       {bool isInserting = false}) {
@@ -1715,7 +1615,7 @@ class NavigationStateData extends DataClass implements Insertable<NavigationStat
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(sessionID.hashCode, $mrjc(pageLabel.hashCode, state.hashCode)));
+  int get hashCode => Object.hash(sessionID, pageLabel, state);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1793,32 +1693,23 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
   final String? _alias;
   NavigationState(this._db, [this._alias]);
   final VerificationMeta _sessionIDMeta = const VerificationMeta('sessionID');
-  late final GeneratedTextColumn sessionID = _constructSessionID();
-  GeneratedTextColumn _constructSessionID() {
-    return GeneratedTextColumn('sessionID', $tableName, false,
-        $customConstraints: 'PRIMARY KEY NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> sessionID = GeneratedColumn<String?>(
+      'sessionID', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'PRIMARY KEY NOT NULL');
   final VerificationMeta _pageLabelMeta = const VerificationMeta('pageLabel');
-  late final GeneratedTextColumn pageLabel = _constructPageLabel();
-  GeneratedTextColumn _constructPageLabel() {
-    return GeneratedTextColumn('pageLabel', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> pageLabel = GeneratedColumn<String?>(
+      'pageLabel', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _stateMeta = const VerificationMeta('state');
-  late final GeneratedBlobColumn state = _constructState();
-  GeneratedBlobColumn _constructState() {
-    return GeneratedBlobColumn('state', $tableName, false, $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<Uint8List?> state = GeneratedColumn<Uint8List?>(
+      'state', aliasedName, false,
+      typeName: 'BLOB', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [sessionID, pageLabel, state];
   @override
-  NavigationState get asDslTable => this;
+  String get aliasedName => _alias ?? 'navigationState';
   @override
-  String get $tableName => _alias ?? 'navigationState';
-  @override
-  final String actualTableName = 'navigationState';
+  String get actualTableName => 'navigationState';
   @override
   VerificationContext validateIntegrity(Insertable<NavigationStateData> instance,
       {bool isInserting = false}) {
@@ -1863,46 +1754,47 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
 
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  _$Database.connect(DatabaseConnection c) : super.connect(c);
   late final Items items = Items(this);
   late final Index idxItemsId =
-      Index('idx_items_id', 'CREATE\n    UNIQUE INDEX idx_items_id on items (id);');
+      Index('idx_items_id', 'CREATE\r\n    UNIQUE INDEX idx_items_id on items (id);');
   late final Index idxItemsTypeDateServerModified = Index('idx_items_type_dateServerModified',
-      'CREATE\n    INDEX idx_items_type_dateServerModified on items (type, dateServerModified);');
+      'CREATE\r\n    INDEX idx_items_type_dateServerModified on items (type, dateServerModified);');
   late final Edges edges = Edges(this);
-  late final Index idxEdgesSourceName = Index(
-      'idx_edges_source_name', 'CREATE\n    INDEX idx_edges_source_name on edges (source, name);');
-  late final Index idxEdgesTargetName = Index(
-      'idx_edges_target_name', 'CREATE\n    INDEX idx_edges_target_name on edges (target, name);');
+  late final Index idxEdgesSourceName = Index('idx_edges_source_name',
+      'CREATE\r\n    INDEX idx_edges_source_name on edges (source, name);');
+  late final Index idxEdgesTargetName = Index('idx_edges_target_name',
+      'CREATE\r\n    INDEX idx_edges_target_name on edges (target, name);');
   late final Integers integers = Integers(this);
   late final Index idxIntegersItemName = Index('idx_integers_item_name',
-      'CREATE\n    UNIQUE INDEX idx_integers_item_name on integers (item, name);');
+      'CREATE\r\n    UNIQUE INDEX idx_integers_item_name on integers (item, name);');
   late final Index idxIntegersNameValue = Index('idx_integers_name_value',
-      'CREATE\n    INDEX idx_integers_name_value on integers (name, value);');
+      'CREATE\r\n    INDEX idx_integers_name_value on integers (name, value);');
   late final Index idxIntegersNameItem = Index('idx_integers_name_item',
-      'CREATE\n    INDEX idx_integers_name_item on integers (name, item);');
+      'CREATE\r\n    INDEX idx_integers_name_item on integers (name, item);');
   late final Strings strings = Strings(this);
   late final Index idxStringsItemName = Index('idx_strings_item_name',
-      'CREATE\n    UNIQUE INDEX idx_strings_item_name on strings (item, name);');
+      'CREATE\r\n    UNIQUE INDEX idx_strings_item_name on strings (item, name);');
   late final Index idxStringsNameValue = Index('idx_strings_name_value',
-      'CREATE\n    INDEX idx_strings_name_value on strings (name, value);');
-  late final Index idxStringsNameItem = Index(
-      'idx_strings_name_item', 'CREATE\n    INDEX idx_strings_name_item on strings (name, item);');
+      'CREATE\r\n    INDEX idx_strings_name_value on strings (name, value);');
+  late final Index idxStringsNameItem = Index('idx_strings_name_item',
+      'CREATE\r\n    INDEX idx_strings_name_item on strings (name, item);');
   late final Reals reals = Reals(this);
-  late final Index idxRealsItemName = Index(
-      'idx_reals_item_name', 'CREATE\n    UNIQUE INDEX idx_reals_item_name on reals (item, name);');
+  late final Index idxRealsItemName = Index('idx_reals_item_name',
+      'CREATE\r\n    UNIQUE INDEX idx_reals_item_name on reals (item, name);');
   late final Index idxRealsNameValue = Index(
-      'idx_reals_name_value', 'CREATE\n    INDEX idx_reals_name_value on reals (name, value);');
-  late final Index idxRealsNameItem =
-      Index('idx_reals_name_item', 'CREATE\n    INDEX idx_reals_name_item on reals (name, item);');
+      'idx_reals_name_value', 'CREATE\r\n    INDEX idx_reals_name_value on reals (name, value);');
+  late final Index idxRealsNameItem = Index(
+      'idx_reals_name_item', 'CREATE\r\n    INDEX idx_reals_name_item on reals (name, item);');
   late final StringsSearch stringsSearch = StringsSearch(this);
   late final Trigger stringsSearchAfterInsert = Trigger(
-      'CREATE TRIGGER strings_search_after_insert\n    AFTER INSERT\n    ON strings\nBEGIN\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\nEND;',
+      'CREATE TRIGGER strings_search_after_insert\r\n    AFTER INSERT\r\n    ON strings\r\nBEGIN\r\n    INSERT INTO strings_search(item, name, value) VALUES (new.item, new.name, new.value);\r\nEND;',
       'strings_search_after_insert');
   late final Trigger stringsSearchBeforeDelete = Trigger(
-      'CREATE TRIGGER strings_search_before_delete\n    BEFORE DELETE\n    ON strings\nBEGIN\n    DELETE FROM strings_search WHERE name = old.name AND item = old.item;\nEND;',
+      'CREATE TRIGGER strings_search_before_delete\r\n    BEFORE DELETE\r\n    ON strings\r\nBEGIN\r\n    DELETE FROM strings_search WHERE name = old.name AND item = old.item;\r\nEND;',
       'strings_search_before_delete');
   late final Trigger stringsSearchAfterUpdate = Trigger(
-      'CREATE TRIGGER strings_search_after_update\n    AFTER UPDATE\n    ON strings\nBEGIN\n    UPDATE strings_search\n    SET item  = new.item,\n        name  = new.name,\n        value = new.value\n    WHERE item = new.item\n      AND name = new.name;\nEND;',
+      'CREATE TRIGGER strings_search_after_update\r\n    AFTER UPDATE\r\n    ON strings\r\nBEGIN\r\n    UPDATE strings_search\r\n    SET item  = new.item,\r\n        name  = new.name,\r\n        value = new.value\r\n    WHERE item = new.item\r\n      AND name = new.name;\r\nEND;',
       'strings_search_after_update');
   late final NavigationState navigationState = NavigationState(this);
   @override

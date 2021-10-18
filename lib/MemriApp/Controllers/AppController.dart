@@ -6,6 +6,7 @@
 //
 
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
@@ -32,6 +33,7 @@ class AppController {
   late PermissionsController permissionController;
   StreamSubscription? syncStream;
   bool isDevelopersMode = false;
+  Isolate? syncIsolate;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -76,8 +78,12 @@ class AppController {
 
     isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
     if (!isInDemoMode) {
-      syncStream = Stream.periodic(const Duration(milliseconds: 3000))
-          .listen((_) => AppController.shared.syncController.sync());
+      PodAPIConnectionDetails connection = (await AppController.shared.podConnectionConfig)!;
+      var receivePort = ReceivePort();
+      AppController.shared.syncIsolate = await Isolate.spawn(
+          runSync,
+          IsolateSyncConfig(
+              receivePort.sendPort, connection, AppController.shared.databaseController.schema));
     }
 
     isDevelopersMode =
@@ -222,6 +228,7 @@ class AppController {
       await syncStream?.cancel();
       syncStream = null;
       _podConnectionConfig = null;
+      syncIsolate?.kill(priority: Isolate.immediate);
     }
 
     await databaseController.delete();

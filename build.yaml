@@ -7,3 +7,4 @@ targets:
           sqlite:
             modules:
               - fts5
+          generate_connect_constructor: true

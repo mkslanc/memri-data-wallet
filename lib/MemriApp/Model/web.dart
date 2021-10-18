@@ -28,3 +28,8 @@ Future<void> deleteDb(databaseName) async {
   await store.clear();
   await txn.completed;
 }
+
+Database createDbConnection(
+    {bool logStatements = false, bool inMemory = false, required databaseName}) {
+  throw 'Platform not supported';
+}

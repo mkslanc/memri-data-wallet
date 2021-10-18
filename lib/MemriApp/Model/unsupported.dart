@@ -7,3 +7,8 @@ Database constructDb({bool logStatements = false, bool inMemory = false, require
 Future<void> deleteDb(databaseName) async {
   throw 'Platform not supported';
 }
+
+Database createDbConnection(
+    {bool logStatements = false, bool inMemory = false, required databaseName}) {
+  throw 'Platform not supported';
+}

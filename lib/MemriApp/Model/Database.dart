@@ -16,8 +16,12 @@ part 'Database.g.dart';
 class Database extends _$Database {
   Database(QueryExecutor e) : super(e);
 
+  Database.connect(DatabaseConnection connection) : super.connect(connection);
+
   @override
   int get schemaVersion => 1;
+
+  static const databasePortName = 'database_isolate_port';
 
   @override
   MigrationStrategy get migration {

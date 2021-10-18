@@ -830,7 +830,7 @@ class CVULookupController {
       return await resolve<ItemRecord>(expression: expression.lhs, context: context, db: db) ??
           await resolve<ItemRecord>(expression: expression.rhs, context: context, db: db);
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
+      //print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -904,7 +904,7 @@ class CVULookupController {
       }
       return [];
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
+      //print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return [];
     }
   }
@@ -925,7 +925,7 @@ class CVULookupController {
       return await resolve<double>(expression: expression.lhs, context: context, db: db) ??
           await resolve<double>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
-      print("CVU Expression error: Should not use ! operator on non-boolean value");
+      //print("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
       return (await resolve<double>(expression: expression.lhs, context: context, db: db) ?? 0) +
@@ -947,7 +947,7 @@ class CVULookupController {
         return null;
       }
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
+      //print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -990,7 +990,7 @@ class CVULookupController {
         return null;
       }
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
+      //print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -1029,7 +1029,7 @@ class CVULookupController {
           .whereType<String>()
           .join();
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
+      //print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -1136,7 +1136,7 @@ class CVULookupController {
       }
       return lhs != rhs;
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
+      //print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
