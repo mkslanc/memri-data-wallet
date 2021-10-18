@@ -207,7 +207,14 @@ class CVUExpressionParser {
       if (token is ExprTokenIdentifier) {
         String name = token.value;
         popCurrentToken();
-        sequence.add(CVULookupNode(name: name, type: CVULookupTypeLookup()));
+        token = peekCurrentToken();
+        if (token is ExprTokenColon) {
+          popCurrentToken();
+          var exp = parseExpression();
+          return CVUExpressionNodeNamed(name, exp);
+        } else {
+          sequence.add(CVULookupNode(name: name, type: CVULookupTypeLookup()));
+        }
       }
 
       token = peekCurrentToken();
@@ -217,18 +224,32 @@ class CVUExpressionParser {
           throw CVUExpressionParseErrorsExpectedIdentifier();
         }
 
+        List<CVUExpressionNode> expressions = [];
+
         token = peekCurrentToken();
         if (token is ExprTokenBracketClose) {
           popCurrentToken();
-          sequence[sequence.length - 1].isArray = true; //TODO:
         } else {
-          var exp = parseLookupExpression();
-          sequence[sequence.length - 1].type = CVULookupTypeLookup(exp);
+          ExpressionLoop:
+          while (true) {
+            var exp = parseLookupExpression();
+            expressions.add(exp);
 
-          token = popCurrentToken();
-          if (token is! ExprTokenBracketClose) {
-            throw CVUExpressionParseErrorsExpectedCharacter("]");
+            token = peekCurrentToken();
+            if (token is ExprTokenBracketClose) {
+              popCurrentToken();
+              break ExpressionLoop;
+            }
+
+            token = popCurrentToken();
+            if (token is! ExprTokenComma) {
+              throw CVUExpressionParseErrorsExpectedCharacter("]");
+            }
           }
+        }
+        sequence.last.isArray = true;
+        if (expressions.isNotEmpty) {
+          sequence.last.type = CVULookupTypeLookup(expressions);
         }
       }
 
@@ -263,7 +284,7 @@ class CVUExpressionParser {
           throw CVUExpressionParseErrorsExpectedIdentifier();
         }
 
-        sequence[sequence.length - 1].type = CVULookupTypeFunction(arguments);
+        sequence.last.type = CVULookupTypeFunction(arguments);
       }
 
       var nextToken = peekCurrentToken();

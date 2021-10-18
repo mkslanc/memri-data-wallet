@@ -6,38 +6,38 @@ part of 'DatabaseQuery.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) {
-  return DatabaseQueryConfig(
-    itemTypes: (json['itemTypes'] as List<dynamic>?)?.map((e) => e as String).toList(),
-    itemRowIDs: (json['itemRowIDs'] as List<dynamic>?)?.map((e) => e as int).toSet(),
-    sortProperty: json['sortProperty'] as String?,
-    sortAscending: json['sortAscending'] as bool,
-    dateModifiedAfter: json['dateModifiedAfter'] == null
-        ? null
-        : DateTime.parse(json['dateModifiedAfter'] as String),
-    dateModifiedBefore: json['dateModifiedBefore'] == null
-        ? null
-        : DateTime.parse(json['dateModifiedBefore'] as String),
-    dateCreatedAfter: json['dateCreatedAfter'] == null
-        ? null
-        : DateTime.parse(json['dateCreatedAfter'] as String),
-    dateCreatedBefore: json['dateCreatedBefore'] == null
-        ? null
-        : DateTime.parse(json['dateCreatedBefore'] as String),
-    pageSize: json['pageSize'] as int,
-    currentPage: json['currentPage'] as int,
-    searchString: json['searchString'] as String?,
-    includeImmediateEdgeSearch: json['includeImmediateEdgeSearch'] as bool,
-    conditions: (json['conditions'] as List<dynamic>?)
-        ?.map((e) => DatabaseQueryCondition.fromJson(e))
-        .toList(),
-    edgeTargetsOperator: _$enumDecode(_$ConditionOperatorEnumMap, json['edgeTargetsOperator']),
-    count: json['count'] as int?,
-    sortEdges: (json['sortEdges'] as List<dynamic>?)
-        ?.map((e) => JoinQueryStruct.fromJson(e as Map<String, dynamic>))
-        .toList(),
-  )..deleted = json['deleted'] as bool?;
-}
+DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) => DatabaseQueryConfig(
+      itemTypes: (json['itemTypes'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      itemRowIDs: (json['itemRowIDs'] as List<dynamic>?)?.map((e) => e as int).toSet(),
+      sortProperty: json['sortProperty'] as String? ?? "dateModified",
+      sortAscending: json['sortAscending'] as bool? ?? false,
+      dateModifiedAfter: json['dateModifiedAfter'] == null
+          ? null
+          : DateTime.parse(json['dateModifiedAfter'] as String),
+      dateModifiedBefore: json['dateModifiedBefore'] == null
+          ? null
+          : DateTime.parse(json['dateModifiedBefore'] as String),
+      dateCreatedAfter: json['dateCreatedAfter'] == null
+          ? null
+          : DateTime.parse(json['dateCreatedAfter'] as String),
+      dateCreatedBefore: json['dateCreatedBefore'] == null
+          ? null
+          : DateTime.parse(json['dateCreatedBefore'] as String),
+      pageSize: json['pageSize'] as int? ?? 1000,
+      currentPage: json['currentPage'] as int? ?? 0,
+      searchString: json['searchString'] as String?,
+      includeImmediateEdgeSearch: json['includeImmediateEdgeSearch'] as bool? ?? true,
+      conditions: (json['conditions'] as List<dynamic>?)
+          ?.map((e) => DatabaseQueryCondition.fromJson(e))
+          .toList(),
+      edgeTargetsOperator:
+          $enumDecodeNullable(_$ConditionOperatorEnumMap, json['edgeTargetsOperator']) ??
+              ConditionOperator.and,
+      count: json['count'] as int?,
+      sortEdges: (json['sortEdges'] as List<dynamic>?)
+          ?.map((e) => JoinQueryStruct.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    )..deleted = json['deleted'] as bool?;
 
 Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) => <String, dynamic>{
       'itemTypes': instance.itemTypes,
@@ -59,44 +59,16 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) =
       'count': instance.count,
     };
 
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}
-
 const _$ConditionOperatorEnumMap = {
   ConditionOperator.and: 'and',
   ConditionOperator.or: 'or',
 };
 
-JoinQueryStruct _$JoinQueryStructFromJson(Map<String, dynamic> json) {
-  return JoinQueryStruct(
-    table: json['table'] as String,
-    joinQuery: json['joinQuery'] as String,
-    direction: json['direction'] as String?,
-  );
-}
+JoinQueryStruct _$JoinQueryStructFromJson(Map<String, dynamic> json) => JoinQueryStruct(
+      table: json['table'] as String,
+      joinQuery: json['joinQuery'] as String,
+      direction: json['direction'] as String?,
+    );
 
 Map<String, dynamic> _$JoinQueryStructToJson(JoinQueryStruct instance) => <String, dynamic>{
       'table': instance.table,
@@ -105,11 +77,10 @@ Map<String, dynamic> _$JoinQueryStructToJson(JoinQueryStruct instance) => <Strin
     };
 
 DatabaseQueryConditionPropertyEquals _$DatabaseQueryConditionPropertyEqualsFromJson(
-    Map<String, dynamic> json) {
-  return DatabaseQueryConditionPropertyEquals(
-    PropertyEquals.fromJson(json['value'] as Map<String, dynamic>),
-  );
-}
+        Map<String, dynamic> json) =>
+    DatabaseQueryConditionPropertyEquals(
+      PropertyEquals.fromJson(json['value'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$DatabaseQueryConditionPropertyEqualsToJson(
         DatabaseQueryConditionPropertyEquals instance) =>
@@ -118,11 +89,10 @@ Map<String, dynamic> _$DatabaseQueryConditionPropertyEqualsToJson(
     };
 
 DatabaseQueryConditionEdgeHasTarget _$DatabaseQueryConditionEdgeHasTargetFromJson(
-    Map<String, dynamic> json) {
-  return DatabaseQueryConditionEdgeHasTarget(
-    EdgeHasTarget.fromJson(json['value'] as Map<String, dynamic>),
-  );
-}
+        Map<String, dynamic> json) =>
+    DatabaseQueryConditionEdgeHasTarget(
+      EdgeHasTarget.fromJson(json['value'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$DatabaseQueryConditionEdgeHasTargetToJson(
         DatabaseQueryConditionEdgeHasTarget instance) =>
@@ -131,11 +101,10 @@ Map<String, dynamic> _$DatabaseQueryConditionEdgeHasTargetToJson(
     };
 
 DatabaseQueryConditionEdgeHasSource _$DatabaseQueryConditionEdgeHasSourceFromJson(
-    Map<String, dynamic> json) {
-  return DatabaseQueryConditionEdgeHasSource(
-    EdgeHasSource.fromJson(json['value'] as Map<String, dynamic>),
-  );
-}
+        Map<String, dynamic> json) =>
+    DatabaseQueryConditionEdgeHasSource(
+      EdgeHasSource.fromJson(json['value'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$DatabaseQueryConditionEdgeHasSourceToJson(
         DatabaseQueryConditionEdgeHasSource instance) =>
@@ -143,36 +112,30 @@ Map<String, dynamic> _$DatabaseQueryConditionEdgeHasSourceToJson(
       'value': instance.value,
     };
 
-PropertyEquals _$PropertyEqualsFromJson(Map<String, dynamic> json) {
-  return PropertyEquals(
-    json['name'] as String,
-    json['value'],
-  );
-}
+PropertyEquals _$PropertyEqualsFromJson(Map<String, dynamic> json) => PropertyEquals(
+      json['name'] as String,
+      json['value'],
+    );
 
 Map<String, dynamic> _$PropertyEqualsToJson(PropertyEquals instance) => <String, dynamic>{
       'name': instance.name,
       'value': instance.value,
     };
 
-EdgeHasTarget _$EdgeHasTargetFromJson(Map<String, dynamic> json) {
-  return EdgeHasTarget(
-    json['edgeName'] as String,
-    json['target'] as List<dynamic>,
-  );
-}
+EdgeHasTarget _$EdgeHasTargetFromJson(Map<String, dynamic> json) => EdgeHasTarget(
+      json['edgeName'] as String,
+      json['target'] as List<dynamic>,
+    );
 
 Map<String, dynamic> _$EdgeHasTargetToJson(EdgeHasTarget instance) => <String, dynamic>{
       'edgeName': instance.edgeName,
       'target': instance.target,
     };
 
-EdgeHasSource _$EdgeHasSourceFromJson(Map<String, dynamic> json) {
-  return EdgeHasSource(
-    json['edgeName'] as String,
-    json['source'] as List<dynamic>,
-  );
-}
+EdgeHasSource _$EdgeHasSourceFromJson(Map<String, dynamic> json) => EdgeHasSource(
+      json['edgeName'] as String,
+      json['source'] as List<dynamic>,
+    );
 
 Map<String, dynamic> _$EdgeHasSourceToJson(EdgeHasSource instance) => <String, dynamic>{
       'edgeName': instance.edgeName,

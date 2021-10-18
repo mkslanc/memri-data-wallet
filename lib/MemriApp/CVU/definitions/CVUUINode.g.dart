@@ -6,20 +6,18 @@ part of 'CVUUINode.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CVUUINode _$CVUUINodeFromJson(Map<String, dynamic> json) {
-  return CVUUINode(
-    type: _$enumDecode(_$CVUUIElementFamilyEnumMap, json['type']),
-    children: (json['children'] as List<dynamic>)
-        .map((e) => CVUUINode.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    properties: (json['properties'] as Map<String, dynamic>).map(
-      (k, e) => MapEntry(k, CVUValue.fromJson(e)),
-    ),
-  )
-    ..shouldExpandWidth = json['shouldExpandWidth'] as bool
-    ..shouldExpandHeight = json['shouldExpandHeight'] as bool
-    ..id = json['id'] as String;
-}
+CVUUINode _$CVUUINodeFromJson(Map<String, dynamic> json) => CVUUINode(
+      type: $enumDecode(_$CVUUIElementFamilyEnumMap, json['type']),
+      children: (json['children'] as List<dynamic>)
+          .map((e) => CVUUINode.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      properties: (json['properties'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(k, CVUValue.fromJson(e)),
+      ),
+    )
+      ..shouldExpandWidth = json['shouldExpandWidth'] as bool
+      ..shouldExpandHeight = json['shouldExpandHeight'] as bool
+      ..id = json['id'] as String;
 
 Map<String, dynamic> _$CVUUINodeToJson(CVUUINode instance) => <String, dynamic>{
       'type': _$CVUUIElementFamilyEnumMap[instance.type],
@@ -29,32 +27,6 @@ Map<String, dynamic> _$CVUUINodeToJson(CVUUINode instance) => <String, dynamic>{
       'shouldExpandHeight': instance.shouldExpandHeight,
       'id': instance.id,
     };
-
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}
 
 const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.ForEach: 'ForEach',
