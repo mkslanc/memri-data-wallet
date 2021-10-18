@@ -32,7 +32,7 @@ class CVULookupNode with EquatableMixin {
     } else if (lookupType is CVULookupTypeFunction) {
       return '$name(${lookupType.args.map((element) => element.toCVUString()).join(", ")})';
     } else {
-      return '$name${isArray ? "[]" : ""}';
+      return '$name${isArray ? "[${lookupType is CVULookupTypeLookup ? lookupType.subexpressions?.map((element) => element.toCVUString()).join(", ") : ""}]" : ""}';
     }
   }
 
@@ -52,9 +52,9 @@ class CVULookupTypeDefault extends CVULookupType {
 
 @JsonSerializable()
 class CVULookupTypeLookup extends CVULookupType {
-  final CVUExpressionNode? subExpression;
+  final List<CVUExpressionNode>? subexpressions;
 
-  CVULookupTypeLookup([this.subExpression]);
+  CVULookupTypeLookup([this.subexpressions]);
 
   factory CVULookupTypeLookup.fromJson(Map<String, dynamic> json) =>
       _$CVULookupTypeLookupFromJson(json);
@@ -62,7 +62,7 @@ class CVULookupTypeLookup extends CVULookupType {
       _$CVULookupTypeLookupToJson(this)..addAll({"type": runtimeType.toString()});
 
   @override
-  List<Object?> get props => [subExpression];
+  List<Object?> get props => [subexpressions];
 }
 
 @JsonSerializable()

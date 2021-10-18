@@ -41,7 +41,7 @@ MessageChannel {
 
 .messageChannelView {
     defaultRenderer: list
-    title: {{channel.~messageChannel[].last().subject or channel.receiver.owner.fullname() or channel.name or channel.topic}}
+    title: {{channel.~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject or channel.receiver.owner.fullname() or channel.name or channel.topic}}
     cols: 6
 
     titleActionButton: openView {
@@ -60,6 +60,7 @@ MessageChannel {
     }
 
     [renderer = list] {
+        isReverse: true
         hideSeparators: false
     }
 
@@ -103,14 +104,14 @@ MessageChannel > list {
 
 
             Text {
-                text: {{.name ? .name : .receiver.owner.fullName() or .~messageChannel.sender.identifier }}
+                text: {{.name or .receiver.owner.fullName() or .~messageChannel.sender.identifier }}
                 font: 12 regular
                 color: #737373
             }
 
             Spacer
             Text {
-                text: "{.~messageChannel[].last().dateSent}"
+                text: "{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().dateSent}"
                 color: #989898
                 padding: 0 19 0 0
                 font: 10 regular
@@ -118,15 +119,15 @@ MessageChannel > list {
         }
 
         Text {
-            text: "{.~messageChannel[].last().photo ? '[Photo]' : .~messageChannel[].last().subject or .~messageChannel[].last().content.plainString() or 'No messages yet'}"
+            text: "{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().photo ? '[Photo]' : .~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject or .~messageChannel[sort: 'dateSent DESC', limit: 1].first().content.plainString() or 'No messages yet'}"
             lineLimit: 1
             font: 12 regular
             color: #333333
         }
 
         Text {
-            show: {{.~messageChannel[].last().subject}}
-            text: {{.~messageChannel[].last().content.plainString() or ""}}
+            show: {{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject}}
+            text: {{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().content.plainString() or ""}}
             lineLimit: 1
             font: 10 regular
             color: #989898
@@ -166,6 +167,6 @@ MessageChannel > timeline {
     TimelineItem {
         icon: "bubble.left.fill"
         title: {{.receiver.owner.fullName()}}
-        text: {{.~messageChannel[].last().content.plainString() or "No messages"}}
+        text: {{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().content.plainString() or "No messages"}}
     }
 }

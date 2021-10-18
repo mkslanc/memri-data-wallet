@@ -13,6 +13,7 @@ import 'package:moor/moor.dart';
 import 'CVUContext.dart';
 import 'CVUViewArguments.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
@@ -354,10 +355,10 @@ class CVULookupController {
               return null;
             }
 
-            if (currentValue is LookupStepValues) {
-              currentValue = LookupStepValues([currentValue.values[0]]);
-            } else if (currentValue is LookupStepItems) {
-              currentValue = LookupStepItems([currentValue.items[0]]);
+            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
+              currentValue = LookupStepValues([currentValue.values.first]);
+            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
+              currentValue = LookupStepItems([currentValue.items.first]);
             } else {
               return null;
             }
@@ -519,7 +520,7 @@ class CVULookupController {
           currentValue = await itemLookup(
               node: node,
               items: currentValue.items,
-              subexpression: nodeType.subExpression,
+              subexpressions: nodeType.subexpressions,
               context: context,
               db: db);
         } else if (currentValue == null) {
@@ -609,8 +610,7 @@ class CVULookupController {
   }
 
   Future<List<ItemRecord>> filter(
-      List<ItemRecord> items, CVUExpressionNode? subexpression, DatabaseController? db) async {
-    CVUExpressionNode? exp = subexpression;
+      List<ItemRecord> items, CVUExpressionNode? exp, DatabaseController? db) async {
     if (exp == null) {
       return items;
     }
@@ -626,33 +626,96 @@ class CVULookupController {
     return resultItems;
   }
 
+  Future<T?> _resolveNamedExpression<T>(List<CVUExpressionNode> expressions, String name,
+      DatabaseController db, CVUContext context) async {
+    var expression = _getNamedExpression(expressions, name);
+    if (expression == null) {
+      return null;
+    }
+
+    return await resolve<T>(expression: expression, context: context, db: db);
+  }
+
+  CVUExpressionNode? _getNamedExpression(List<CVUExpressionNode> expressions, String name) {
+    return expressions.firstWhereOrNull(
+        (expression) => expression is CVUExpressionNodeNamed && expression.key == name);
+  }
+
+  Future<List<Map<String, dynamic>>> getSort(List<CVUExpressionNode> expressions, String edgeType,
+      DatabaseController db, CVUContext context) async {
+    var sortData = await _resolveNamedExpression<String>(expressions, "sort", db, context);
+    var sort = <Map<String, dynamic>>[];
+
+    if (sortData != null && sortData.isNotEmpty) {
+      var sortProperties = sortData.split(",");
+      sortProperties.forEach((sortProperty) {
+        var sortData = sortProperty.trim().split(" ");
+        SchemaValueType schemaValueType = db.schema.expectedPropertyType(edgeType, sortData[0])!;
+        ItemRecordPropertyTable itemRecordPropertyTable =
+            PropertyDatabaseValue.toDBTableName(schemaValueType);
+        TableInfo table = db.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+        sort.add({
+          "table": table,
+          "property": sortData[0],
+          "order": sortData.length > 1 ? sortData.last : null
+        });
+      });
+    }
+
+    return sort;
+  }
+
   Future<LookupStep?> itemLookup(
       {required CVULookupNode node,
       required List<ItemRecord> items,
-      CVUExpressionNode? subexpression,
+      List<CVUExpressionNode>? subexpressions,
       required CVUContext context,
       required DatabaseController db}) async {
     if (items.isEmpty) {
       return null;
     }
+    var nodePath = node.toCVUString();
+    var cached = context.getCache(nodePath);
+    if (cached != null) {
+      return cached;
+    }
+
     String trimmedName = node.name.replaceAll(RegExp(r"(^~)|(~$)"), "");
+    CVUExpressionNode? filterExpression;
+    if (subexpressions != null && subexpressions.isNotEmpty) {
+      filterExpression = subexpressions.first is! CVUExpressionNodeNamed
+          ? subexpressions.first
+          : _getNamedExpression(subexpressions, "filter");
+    }
     switch (node.name[0]) {
       case "~":
 
         /// LOOKUP REVERSE EDGE FOR EACH ITEM
+        String itemType = items[0].type;
+        var expectedTypes = db.schema.expectedSourceTypes(itemType, trimmedName);
+        if (expectedTypes.isEmpty) return null;
+
+        var sort = <Map<String, dynamic>>[];
+        int? limit;
+        if (subexpressions != null) {
+          sort = await getSort(subexpressions, expectedTypes[0], db, context);
+          limit = await _resolveNamedExpression<int>(subexpressions, "limit", db, context);
+        }
+        List<ItemRecord> result;
         if (node.isArray) {
-          List<ItemRecord> result = (await Future.wait(
-                  items.map((item) async => await item.reverseEdgeItems(trimmedName, db: db))))
+          result = (await Future.wait(items.map((item) async =>
+                  await item.reverseEdgeItems(trimmedName, db: db, sort: sort, limit: limit))))
               .expand((element) => element)
               .toList();
-          return LookupStepItems(await filter(result, subexpression, db));
         } else {
-          List<ItemRecord> result = (await Future.wait(
-                  items.map((item) async => await item.reverseEdgeItem(trimmedName, db: db))))
+          result = (await Future.wait(items.map(
+                  (item) async => await item.reverseEdgeItem(trimmedName, db: db, sort: sort))))
               .whereType<ItemRecord>()
               .toList();
-          return LookupStepItems(await filter(result, subexpression, db));
         }
+        cached = LookupStepItems(await filter(result, filterExpression, db));
+        context.setCache(nodePath, cached);
+        return cached;
       default:
 
         /// CHECK IF WE'RE EXPECTING EDGES OR PROPERTIES
@@ -695,21 +758,30 @@ class CVULookupController {
           return LookupStepValues(result);
         } else if (expectedType is ResolvedTypeEdge) {
           /// LOOKUP EDGE FOR EACH ITEM
+
+          var sort = <Map<String, dynamic>>[];
+          int? limit;
+          if (subexpressions != null) {
+            sort = await getSort(subexpressions, expectedType.value, db, context);
+            limit = await _resolveNamedExpression<int>(subexpressions, "limit", db, context);
+          }
+
+          List<ItemRecord> result;
           if (node.isArray) {
-            List<ItemRecord> result = (await Future.wait(
-                    items.map((item) async => await item.edgeItems(trimmedName, db: db))))
+            result = (await Future.wait(items.map((item) async =>
+                    await item.edgeItems(trimmedName, db: db, sort: sort, limit: limit))))
                 .expand((element) => element)
                 .toList();
-            return LookupStepItems(await filter(result, subexpression, db));
           } else {
-            List<ItemRecord> result = [];
+            result = [];
             await Future.forEach(items, (ItemRecord item) async {
-              var itemRecord = await item.edgeItem(trimmedName, db: db);
+              var itemRecord = await item.edgeItem(trimmedName, db: db, sort: sort);
               if (itemRecord != null) result.add(itemRecord);
             });
-
-            return LookupStepItems(await filter(result, subexpression, db));
           }
+          cached = LookupStepItems(await filter(result, filterExpression, db));
+          context.setCache(nodePath, cached);
+          return cached;
         } else {
           return null;
         }
@@ -830,7 +902,6 @@ class CVULookupController {
       return await resolve<ItemRecord>(expression: expression.lhs, context: context, db: db) ??
           await resolve<ItemRecord>(expression: expression.rhs, context: context, db: db);
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -904,7 +975,6 @@ class CVULookupController {
       }
       return [];
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return [];
     }
   }
@@ -947,7 +1017,6 @@ class CVULookupController {
         return null;
       }
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -990,7 +1059,6 @@ class CVULookupController {
         return null;
       }
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -1029,7 +1097,6 @@ class CVULookupController {
           .whereType<String>()
           .join();
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -1136,7 +1203,6 @@ class CVULookupController {
       }
       return lhs != rhs;
     } else {
-      print("CVU Expression error: Unexpected CVU Expression type ${expression.toString()}");
       return null;
     }
   }
@@ -1166,7 +1232,7 @@ class CVULookupController {
           LookupStep? step = await itemLookup(
               node: node,
               items: [nextItem],
-              subexpression: nodeType.subExpression,
+              subexpressions: nodeType.subexpressions,
               context: context,
               db: db);
           if (step != null && step is LookupStepItems) {

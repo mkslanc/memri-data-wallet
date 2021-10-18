@@ -99,6 +99,12 @@ class ExprTokenOther extends ExprToken {
   ExprTokenOther(this.value, this.i);
 }
 
+class ExprTokenColon extends ExprToken {
+  final int i;
+
+  ExprTokenColon(this.i);
+}
+
 class ExprTokenEOF extends ExprToken {}
 
 enum ExprOperator {
@@ -226,6 +232,7 @@ class CVUExpressionLexer {
     final List<ExprToken> tokens = [];
 
     Mode isMode = startInStringMode ? Mode.string : Mode.idle;
+    var conditionCount = 0;
     var keyword = <String>[];
 
     var i;
@@ -333,10 +340,16 @@ class CVUExpressionLexer {
           lastChar = c;
           continue;
         case "?":
+          conditionCount++;
           addToken(ExprTokenOperator(ExprOperator.ConditionStart, i));
           break;
         case ":":
-          addToken(ExprTokenOperator(ExprOperator.ConditionElse, i));
+          if (conditionCount > 0) {
+            addToken(ExprTokenOperator(ExprOperator.ConditionElse, i));
+            conditionCount--;
+          } else {
+            addToken(ExprTokenColon(i));
+          }
           break;
         case "(":
           addToken(ExprTokenParensOpen(i));
