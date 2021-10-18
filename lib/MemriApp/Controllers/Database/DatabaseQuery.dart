@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -320,12 +321,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         break;
       case "dateSent":
         TableInfo table = dbController.databasePool.integers;
-        String tableName = table.$tableName;
+        String tableName = table.aliasedName;
         joinTables.add(table);
         join =
             "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
 
-        orderBy = "$tableName.value";
+        orderBy = "$tableName.value $sortOrder";
         break;
       case "":
       case null:
@@ -351,7 +352,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
               PropertyDatabaseValue.toDBTableName(schemaValueType);
           TableInfo table =
               dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
-          String tableName = table.$tableName;
+          String tableName = table.aliasedName;
           joinTables.add(table);
           join =
               "LEFT JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
@@ -483,7 +484,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
                 PropertyDatabaseValue.toDBTableName(schemaValueType);
             TableInfo table =
                 dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
-            String tableName = table.$tableName;
+            String tableName = table.aliasedName;
             var join =
                 "LEFT JOIN $tableName prop on $tableAliasName.$direction = prop.item AND prop.name = '$sortPropertyCondition'";
 
