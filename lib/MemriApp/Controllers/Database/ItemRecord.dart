@@ -11,6 +11,7 @@ import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
 import '../AppController.dart';
+import '../FileStorageController_shared.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
@@ -508,12 +509,12 @@ class ItemRecord with EquatableMixin {
   static Future<List<ItemRecord?>?> fromSyncItemDictList(
       {required List<dynamic> responseObjects,
       required DatabaseController dbController,
-      int partitionLimit = 100}) async {
+      int partitionLimit = 100,
+      String? documentsDirectory}) async {
     var edges = <Map<String, dynamic>>[];
     var properties = <Map<String, dynamic>>[];
     var schemaProperties = <Map<String, dynamic>>[];
     var objects = responseObjects.partition(partitionLimit); //works faster
-    print("Starting ${responseObjects.length} Items: " + DateTime.now().toString());
     await Future.forEach<List<dynamic>>(objects, (responseObjects) async {
       await dbController.databasePool.transaction(() async {
         List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
@@ -529,11 +530,11 @@ class ItemRecord with EquatableMixin {
           // If the item has file and it does not exist on disk, mark the file to be downloaded
           if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
             String? fileName = dict["sha256"];
-            /*if (fileName != null &&
+            if (fileName != null &&
                 !(await FileStorageController.fileExists(
                     (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
-              dict["fileState"] = FileState.needsDownload; //TODO:
-            }*/
+              dict["fileState"] = FileState.needsDownload;
+            }
           }
 
           var newItem = await ItemRecord.fromSyncItemDict(dict: dict, dbController: dbController);

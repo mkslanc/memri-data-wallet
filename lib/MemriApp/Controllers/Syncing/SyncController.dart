@@ -40,8 +40,13 @@ class IsolateSyncConfig {
   final SendPort port;
   final PodAPIConnectionDetails connection;
   final Schema schema;
+  final String? documentsDirectory;
 
-  IsolateSyncConfig(this.port, this.connection, this.schema);
+  IsolateSyncConfig(
+      {required this.port,
+      required this.connection,
+      required this.schema,
+      this.documentsDirectory});
 }
 
 runSync(IsolateSyncConfig config) async {
@@ -49,6 +54,8 @@ runSync(IsolateSyncConfig config) async {
   dbController.schema = config.schema;
   dbController.databasePool = createDbConnection(inMemory: false, databaseName: "memri");
   final syncController = SyncController(dbController);
+  SyncController.documentsDirectory = config.documentsDirectory;
+
   Stream.periodic(const Duration(milliseconds: 3000))
       .listen((_) => syncController.sync(connectionConfig: config.connection));
 }
@@ -60,6 +67,7 @@ class SyncController {
   final DatabaseController databaseController;
   SyncControllerState state;
   PodAPIConnectionDetails? currentConnection;
+  static String? documentsDirectory;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
@@ -350,7 +358,9 @@ class SyncController {
           }
           if (responseObjects.isNotEmpty)
             await ItemRecord.fromSyncItemDictList(
-                responseObjects: responseObjects, dbController: databaseController);
+                responseObjects: responseObjects,
+                dbController: databaseController,
+                documentsDirectory: documentsDirectory);
 
           await setState(SyncControllerState.downloadedItems);
         });

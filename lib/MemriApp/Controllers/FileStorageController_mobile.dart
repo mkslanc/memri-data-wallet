@@ -5,6 +5,8 @@ import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
 
+import 'Syncing/SyncController.dart';
+
 /// The FileStorageController class provides methods to store and retrieve files locally
 class FileStorageController {
   static Future<String> getURLForFile(String uuid) async {
@@ -12,8 +14,9 @@ class FileStorageController {
   }
 
   static Future<Directory> getFileStorage() async {
-    var documentsDirectory = (await getApplicationDocumentsDirectory()).path;
-    var memriFileURL = documentsDirectory + "/fileStore";
+    var directory =
+        SyncController.documentsDirectory ?? (await getApplicationDocumentsDirectory()).path;
+    var memriFileURL = directory + "/fileStore";
     return (await Directory(memriFileURL).create(recursive: true));
   }
 

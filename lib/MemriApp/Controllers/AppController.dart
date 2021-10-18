@@ -8,11 +8,13 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'API/Authentication_shared.dart';
 import 'API/PodAPIConnectionDetails.dart';
@@ -80,10 +82,15 @@ class AppController {
     if (!isInDemoMode) {
       PodAPIConnectionDetails connection = (await AppController.shared.podConnectionConfig)!;
       var receivePort = ReceivePort();
+      var documentsDirectory;
+      if (!kIsWeb) documentsDirectory = (await getApplicationDocumentsDirectory()).path;
       AppController.shared.syncIsolate = await Isolate.spawn(
           runSync,
           IsolateSyncConfig(
-              receivePort.sendPort, connection, AppController.shared.databaseController.schema));
+              port: receivePort.sendPort,
+              connection: connection,
+              schema: AppController.shared.databaseController.schema,
+              documentsDirectory: documentsDirectory));
     }
 
     isDevelopersMode =

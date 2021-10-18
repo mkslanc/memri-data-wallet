@@ -57,7 +57,7 @@ void _backgroundConnection(_IsolateStartRequest request) {
     if (Platform.isIOS || Platform.isAndroid) {
       executor = LazyDatabase(() async {
         final dbFile = File(request.path!);
-        return VmDatabase(dbFile, logStatements: true, setup: (rawDb) {
+        return VmDatabase(dbFile, setup: (rawDb) {
           rawDb.execute("PRAGMA key = '${Authentication.lastRootPublicKey}';");
         });
       });
