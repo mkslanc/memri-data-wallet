@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 
 import 'AppController.dart';
@@ -15,14 +16,16 @@ class ItemSubscription with EquatableMixin {
   int retryCount;
   PropertyDatabaseValue? desiredValue;
   void Function(PropertyDatabaseValue?, [String?]) completion;
-  StreamSubscription? streamSubscription;
+  Future<void> Function()? onDelete;
+  List<StreamSubscription> streamSubscriptions = [];
 
   ItemSubscription(
       {required this.item,
       required this.property,
       this.retryCount = 0,
       required this.desiredValue,
-      required this.completion});
+      required this.completion,
+      this.onDelete});
 
   @override
   List<Object?> get props => [item.uid, property];
@@ -33,7 +36,7 @@ class PubSubController {
   static int maxRetryAttempts = 10;
 
   Set<ItemSubscription> _subscribers = {};
-  Set<StreamSubscription<List<dynamic>>> _subscriptions = {};
+  Set<StreamSubscription<dynamic>> _subscriptions = {};
   DatabaseController databaseController;
 
   PubSubController(this.databaseController);
@@ -42,12 +45,18 @@ class PubSubController {
       {required ItemRecord item,
       required String property,
       required PropertyDatabaseValue? desiredValue,
-      required void Function(PropertyDatabaseValue?, [String?]) completion}) {
+      required void Function(PropertyDatabaseValue?, [String?]) completion,
+      Future<void> Function()? onDelete}) {
     stopObservingItemProperty(item: item, property: property);
     var subscription = ItemSubscription(
-        item: item, property: property, desiredValue: desiredValue, completion: completion);
+        item: item,
+        property: property,
+        desiredValue: desiredValue,
+        completion: completion,
+        onDelete: onDelete);
     _subscribers.add(subscription);
     _startObserver(subscription);
+    _observeDelete(subscription);
   }
 
   stopObservingItemProperty({required ItemRecord item, required String property}) {
@@ -70,11 +79,6 @@ class PubSubController {
   _removeSubscription(ItemSubscription subscription) {
     _subscribers.remove(subscription);
     removeStreamSubscription(subscription);
-    var streamSubscription = subscription.streamSubscription;
-    if (streamSubscription != null) {
-      streamSubscription.cancel();
-      _subscriptions.remove(streamSubscription);
-    }
   }
 
   _checkSubscriptionFulfilled(
@@ -114,7 +118,22 @@ class PubSubController {
         _checkSubscriptionFulfilled(dicts: records, subscription: subscription);
       }
     });
-    subscription.streamSubscription = streamSubscription;
+    subscription.streamSubscriptions.add(streamSubscription);
+    _subscriptions.add(streamSubscription);
+  }
+
+  _observeDelete(ItemSubscription subscription) {
+    var stream =
+        databaseController.databasePool.itemRecordFetchWithRowIdStream(subscription.item.rowId!);
+    var streamSubscription = stream.listen((Item? item) async {
+      if (item != null && item.deleted == true) {
+        if (subscription.onDelete != null) {
+          await subscription.onDelete!();
+        }
+        _removeSubscription(subscription);
+      }
+    });
+    subscription.streamSubscriptions.add(streamSubscription);
     _subscriptions.add(streamSubscription);
   }
 
@@ -135,11 +154,10 @@ class PubSubController {
   }
 
   removeStreamSubscription(ItemSubscription subscription) {
-    var streamSubscription = subscription.streamSubscription;
-    if (streamSubscription != null) {
+    subscription.streamSubscriptions.forEach((streamSubscription) {
       streamSubscription.cancel();
       _subscriptions.remove(streamSubscription);
-    }
+    });
   }
 
   reset() {

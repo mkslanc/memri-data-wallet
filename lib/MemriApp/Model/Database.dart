@@ -36,6 +36,10 @@ class Database extends _$Database {
     return await (select(items)..where((t) => t.rowId.equals(id))).getSingleOrNull();
   }
 
+  Stream<Item?> itemRecordFetchWithRowIdStream(int id) {
+    return (select(items)..where((t) => t.rowId.equals(id))).watchSingleOrNull();
+  }
+
   Future<List<Item>> itemRecordFetchWithUIDs(List<String> uids) async {
     return await (select(items)..where((t) => t.id.isIn(uids))).get();
   }
