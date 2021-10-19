@@ -1,4 +1,5 @@
 import 'package:moor/isolate.dart';
+import 'package:moor/moor.dart';
 
 import 'Database.dart';
 
@@ -12,5 +13,9 @@ Future<void> deleteDb(databaseName) async {
 
 Future<DriftIsolate> createDriftIsolate(
     {bool logStatements = false, bool inMemory = false, required databaseName}) {
+  throw 'Platform not supported';
+}
+
+DatabaseConnection connectToWorker() {
   throw 'Platform not supported';
 }

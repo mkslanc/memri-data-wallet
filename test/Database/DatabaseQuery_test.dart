@@ -83,6 +83,6 @@ void main() {
 
   tearDown(() async {
     await databaseController.databasePool.close();
-    await databaseController.driftIsolate.shutdownAll();
+    await databaseController.driftIsolate!.shutdownAll();
   });
 }

@@ -101,3 +101,7 @@ class _IsolateStartRequest {
   _IsolateStartRequest(
       {required this.sendDriftIsolate, this.rootKey, required this.path, required this.inMemory});
 }
+
+DatabaseConnection connectToWorker() {
+  throw 'Platform not supported';
+}

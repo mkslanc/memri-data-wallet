@@ -6,7 +6,6 @@
 //
 
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:memri/MemriApp/Controllers/API/PodAPIConnectionDetails.dart';
 import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
@@ -17,7 +16,6 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
-import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 
 import '../AppController.dart';
@@ -37,34 +35,14 @@ enum SyncControllerState {
   failed
 }
 
-class IsolateSyncConfig {
-  final SendPort port;
-  final PodAPIConnectionDetails connection;
-  final Schema schema;
-  final String? documentsDirectory;
-  final String? rootKey;
-  final DriftIsolate isolate;
-
-  IsolateSyncConfig(
-      {required this.port,
-      required this.connection,
-      required this.schema,
-      this.documentsDirectory,
-      this.rootKey,
-      required this.isolate});
-}
-
-runSync(IsolateSyncConfig config) async {
-  SyncController.documentsDirectory = config.documentsDirectory;
-  SyncController.lastRootKey = config.rootKey;
+runSyncWebWorker({required Schema schema, required PodAPIConnectionDetails connection}) {
   var dbController = DatabaseController();
-  dbController.schema = config.schema;
-  dbController.driftIsolate = config.isolate;
-  dbController.databasePool = Database.connect(await config.isolate.connect());
+  dbController.schema = schema;
+  dbController.databasePool = Database.connect(connectToWorker());
   final syncController = SyncController(dbController);
 
   Stream.periodic(const Duration(milliseconds: 3000))
-      .listen((_) => syncController.sync(connectionConfig: config.connection));
+      .listen((_) => syncController.sync(connectionConfig: connection));
 }
 
 class SyncController {

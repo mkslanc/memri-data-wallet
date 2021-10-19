@@ -22,6 +22,7 @@ import 'Database/DatabaseController.dart';
 import 'PermissionController.dart';
 import 'PubSubController.dart';
 import 'Syncing/SyncController.dart';
+import 'Syncing/SyncController_isolate.dart';
 
 enum AppState { setup, keySaving, authentication, authenticated }
 
@@ -83,16 +84,23 @@ class AppController {
       PodAPIConnectionDetails connection = (await AppController.shared.podConnectionConfig)!;
       var receivePort = ReceivePort();
       var documentsDirectory;
-      if (!kIsWeb) documentsDirectory = (await getApplicationDocumentsDirectory()).path;
-      AppController.shared.syncIsolate = await Isolate.spawn(
-          runSync,
-          IsolateSyncConfig(
-              port: receivePort.sendPort,
-              connection: connection,
-              schema: AppController.shared.databaseController.schema,
-              documentsDirectory: documentsDirectory,
-              rootKey: Authentication.lastRootPublicKey,
-              isolate: AppController.shared.databaseController.driftIsolate));
+      if (!kIsWeb) {
+        documentsDirectory = (await getApplicationDocumentsDirectory()).path;
+        AppController.shared.syncIsolate = await Isolate.spawn(
+            runSync,
+            IsolateSyncConfig(
+                port: receivePort.sendPort,
+                connection: connection,
+                schema: AppController.shared.databaseController.schema,
+                documentsDirectory: documentsDirectory,
+                rootKey: Authentication.lastRootPublicKey,
+                isolate: AppController.shared.databaseController.driftIsolate!));
+      } else {
+        runSyncWebWorker(
+          connection: connection,
+          schema: AppController.shared.databaseController.schema,
+        );
+      }
     }
 
     isDevelopersMode =
