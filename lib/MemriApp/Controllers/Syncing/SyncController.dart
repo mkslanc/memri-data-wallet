@@ -13,7 +13,9 @@ import 'package:memri/MemriApp/Controllers/API/PodAPIRequests.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
+import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
+import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 
 import '../AppController.dart';
@@ -33,6 +35,16 @@ enum SyncControllerState {
   failed
 }
 
+runSyncWebWorker({required Schema schema, required PodAPIConnectionDetails connection}) {
+  var dbController = DatabaseController();
+  dbController.schema = schema;
+  dbController.databasePool = Database.connect(connectToWorker());
+  final syncController = SyncController(dbController);
+
+  Stream.periodic(const Duration(milliseconds: 3000))
+      .listen((_) => syncController.sync(connectionConfig: connection));
+}
+
 class SyncController {
   bool syncing = false;
   String? lastError;
@@ -40,6 +52,8 @@ class SyncController {
   final DatabaseController databaseController;
   SyncControllerState state;
   PodAPIConnectionDetails? currentConnection;
+  static String? documentsDirectory;
+  static String? lastRootKey;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
@@ -131,7 +145,6 @@ class SyncController {
     }
 
     if (syncing) {
-      print("Already syncing");
       return;
     }
 
@@ -155,7 +168,7 @@ class SyncController {
   }
 
   uploadFiles() async {
-    var fileItemRecordToUpload = await ItemRecord.fileItemRecordToUpload();
+    var fileItemRecordToUpload = await ItemRecord.fileItemRecordToUpload(databaseController);
     if (fileItemRecordToUpload == null) {
       await setState(SyncControllerState.uploadedFiles);
       return;
@@ -171,13 +184,13 @@ class SyncController {
         return;
       }
 
-      await ItemRecord.didUploadFileForItem(item);
+      await ItemRecord.didUploadFileForItem(item, databaseController);
       await uploadFiles();
     });
   }
 
   downloadFiles() async {
-    var fileItemRecordToDownload = await ItemRecord.fileItemRecordToDownload();
+    var fileItemRecordToDownload = await ItemRecord.fileItemRecordToDownload(databaseController);
     if (fileItemRecordToDownload == null) {
       await setState(SyncControllerState.downloadedFiles);
       return;
@@ -195,7 +208,7 @@ class SyncController {
         return;
       }
 
-      await ItemRecord.didDownloadFileForItem(item);
+      await ItemRecord.didDownloadFileForItem(item, databaseController);
       await downloadFiles();
     });
   }
@@ -329,9 +342,11 @@ class SyncController {
             await setState(SyncControllerState.failed);
             return;
           }
-
-          await ItemRecord.fromSyncItemDictList(
-              responseObjects: responseObjects, dbController: databaseController);
+          if (responseObjects.isNotEmpty)
+            await ItemRecord.fromSyncItemDictList(
+                responseObjects: responseObjects,
+                dbController: databaseController,
+                documentsDirectory: documentsDirectory);
 
           await setState(SyncControllerState.downloadedItems);
         });
@@ -442,7 +457,7 @@ class SyncController {
   Future<List<ItemRecord>> getTargetItems(List<ItemRecord> parentItemRecords,
       [List<int>? parentAllItemIDs]) async {
     List<ItemEdgeRecord> targetEdges = (await Future.wait(parentItemRecords.map((itemRecord) async {
-      return await itemRecord.edges(null);
+      return await itemRecord.edges(null, db: databaseController);
     })))
         .expand((element) => element)
         .toList();

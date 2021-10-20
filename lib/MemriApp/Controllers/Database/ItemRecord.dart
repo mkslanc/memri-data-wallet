@@ -1,15 +1,17 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/Controllers/API/AuthKey.dart';
 import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
-import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
 import '../AppController.dart';
+import '../FileStorageController_shared.dart';
 import 'DatabaseController.dart';
 import 'ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
@@ -524,16 +526,19 @@ class ItemRecord with EquatableMixin {
   }
 
   static Future<List<ItemRecord?>?> fromSyncItemDictList(
-      {required List<dynamic> responseObjects, required DatabaseController dbController}) async {
+      {required List<dynamic> responseObjects,
+      required DatabaseController dbController,
+      int partitionLimit = 100,
+      String? documentsDirectory}) async {
     var edges = <Map<String, dynamic>>[];
     var properties = <Map<String, dynamic>>[];
     var schemaProperties = <Map<String, dynamic>>[];
-    var objects = responseObjects.partition(10000); //works faster
-
-    await dbController.databasePool.transaction(() async {
-      await Future.forEach<List<dynamic>>(objects, (responseObjects) async {
+    var objects = responseObjects.partition(partitionLimit); //works faster
+    await Future.forEach<List<dynamic>>(objects, (responseObjects) async {
+      await dbController.databasePool.transaction(() async {
         List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
-        var itemList = (await ItemRecord.fetchWithUIDs(uidList)).toMapByKey((item) => item.uid);
+        var itemList =
+            (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
         var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
           if (dict is! Map<String, dynamic>) return null;
           dict["rowId"] = itemList[dict["id"]]?.rowId;
@@ -574,13 +579,27 @@ class ItemRecord with EquatableMixin {
           }
         });
       });
+    });
 
-      await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
-      await propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
-      if (schemaProperties.isNotEmpty) {
+    if (schemaProperties.isNotEmpty) {
+      dbController.databasePool.transaction(() async {
         await propertiesFromSyncItemDict(
             dictList: schemaProperties, dbController: dbController, reloadSchema: true);
-      }
+      });
+    }
+
+    var groupedEdges = edges.partition(partitionLimit);
+    await Future.forEach<List<Map<String, dynamic>>>(groupedEdges, (edges) async {
+      await dbController.databasePool.transaction(() async {
+        await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
+      });
+    });
+
+    var groupedProperties = properties.partition(partitionLimit);
+    await Future.forEach<List<Map<String, dynamic>>>(groupedProperties, (properties) async {
+      await dbController.databasePool.transaction(() async {
+        await propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
+      });
     });
   }
 
@@ -609,8 +628,9 @@ class ItemRecord with EquatableMixin {
     });
 
     var groupedEdgeItems = edgeItems.toMapByKey((item) => item["id"] as String);
-    var groupedEdgeItemRecords = (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList()))
-        .toMapByKey((item) => item.uid);
+    var groupedEdgeItemRecords =
+        (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList(), dbController))
+            .toMapByKey((item) => item.uid);
 
     await Future.forEach<Map<String, dynamic>>(edges, (edge) async {
       ItemRecord self = groupedEdgeItemRecords[edge["id"]]!;
@@ -799,8 +819,8 @@ class ItemRecord with EquatableMixin {
     return null;
   }
 
-  static Future<Map?> fileItemRecordToUpload() async {
-    var itemList = await ItemRecord.fetchWithType("File");
+  static Future<Map?> fileItemRecordToUpload([DatabaseController? dbController]) async {
+    var itemList = await ItemRecord.fetchWithType("File", dbController);
     var item =
         itemList.firstWhereOrNull((itemRecord) => itemRecord.fileState == FileState.needsUpload);
 
@@ -809,7 +829,7 @@ class ItemRecord with EquatableMixin {
     }
 
     String? fileName;
-    var fileNameValue = await item.propertyValue("sha256");
+    var fileNameValue = await item.propertyValue("sha256", dbController);
     if (fileNameValue is PropertyDatabaseValueString) {
       fileName = fileNameValue.value;
     }
@@ -821,18 +841,18 @@ class ItemRecord with EquatableMixin {
     return {"item": item, "fileName": fileName};
   }
 
-  static didUploadFileForItem(ItemRecord item) async {
+  static didUploadFileForItem(ItemRecord item, [DatabaseController? db]) async {
     var rowId = item.rowId;
     if (rowId == null) return;
-    var fetchedItem = await ItemRecord.fetchWithRowID(rowId);
+    var fetchedItem = await ItemRecord.fetchWithRowID(rowId, db);
     if (fetchedItem == null) return;
 
     fetchedItem.fileState = FileState.noChanges;
-    await fetchedItem.save();
+    await fetchedItem.save(db?.databasePool);
   }
 
-  static Future<Map?> fileItemRecordToDownload() async {
-    var itemList = await ItemRecord.fetchWithType("File");
+  static Future<Map?> fileItemRecordToDownload([DatabaseController? db]) async {
+    var itemList = await ItemRecord.fetchWithType("File", db);
     var item =
         itemList.firstWhereOrNull((itemRecord) => itemRecord.fileState == FileState.needsDownload);
 
@@ -842,8 +862,8 @@ class ItemRecord with EquatableMixin {
 
     String? sha256;
     String? fileName;
-    var sha256Value = await item.propertyValue("sha256");
-    var fileNameValue = await item.propertyValue("filename");
+    var sha256Value = await item.propertyValue("sha256", db);
+    var fileNameValue = await item.propertyValue("filename", db);
     if (sha256Value is PropertyDatabaseValueString) {
       sha256 = sha256Value.value;
     }
@@ -861,16 +881,16 @@ class ItemRecord with EquatableMixin {
     return {"item": item, "sha256": sha256, "fileName": fileName};
   }
 
-  static didDownloadFileForItem(ItemRecord item) async {
+  static didDownloadFileForItem(ItemRecord item, [DatabaseController? db]) async {
     var rowId = item.rowId;
     if (rowId == null) return;
-    var fetchedItem = await ItemRecord.fetchWithRowID(rowId);
+    var fetchedItem = await ItemRecord.fetchWithRowID(rowId, db);
     if (fetchedItem == null) {
       return;
     }
 
     fetchedItem.fileState = FileState.noChanges;
-    await fetchedItem.save();
+    await fetchedItem.save(db?.databasePool);
   }
 
   static deleteExistingDBKeys([DatabaseController? db]) async {

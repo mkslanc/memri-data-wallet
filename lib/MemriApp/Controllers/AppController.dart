@@ -6,12 +6,15 @@
 //
 
 import 'dart:async';
+import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Controllers/Settings/Settings.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'API/Authentication_shared.dart';
 import 'API/PodAPIConnectionDetails.dart';
@@ -19,6 +22,7 @@ import 'Database/DatabaseController.dart';
 import 'PermissionController.dart';
 import 'PubSubController.dart';
 import 'Syncing/SyncController.dart';
+import 'Syncing/SyncController_isolate.dart';
 
 enum AppState { setup, keySaving, authentication, authenticated }
 
@@ -32,6 +36,7 @@ class AppController {
   late PermissionsController permissionController;
   StreamSubscription? syncStream;
   bool isDevelopersMode = false;
+  Isolate? syncIsolate;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -76,8 +81,26 @@ class AppController {
 
     isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
     if (!isInDemoMode) {
-      syncStream = Stream.periodic(const Duration(milliseconds: 3000))
-          .listen((_) => AppController.shared.syncController.sync());
+      PodAPIConnectionDetails connection = (await AppController.shared.podConnectionConfig)!;
+      var receivePort = ReceivePort();
+      var documentsDirectory;
+      if (!kIsWeb) {
+        documentsDirectory = (await getApplicationDocumentsDirectory()).path;
+        AppController.shared.syncIsolate = await Isolate.spawn(
+            runSync,
+            IsolateSyncConfig(
+                port: receivePort.sendPort,
+                connection: connection,
+                schema: AppController.shared.databaseController.schema,
+                documentsDirectory: documentsDirectory,
+                rootKey: Authentication.lastRootPublicKey,
+                isolate: AppController.shared.databaseController.driftIsolate!));
+      } else {
+        runSyncWebWorker(
+          connection: connection,
+          schema: AppController.shared.databaseController.schema,
+        );
+      }
     }
 
     isDevelopersMode =
@@ -222,6 +245,7 @@ class AppController {
       await syncStream?.cancel();
       syncStream = null;
       _podConnectionConfig = null;
+      syncIsolate?.kill(priority: Isolate.immediate);
     }
 
     await databaseController.delete();

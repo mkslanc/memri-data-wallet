@@ -1754,6 +1754,7 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
 
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  _$Database.connect(DatabaseConnection c) : super.connect(c);
   late final Items items = Items(this);
   late final Index idxItemsId =
       Index('idx_items_id', 'CREATE\r\n    UNIQUE INDEX idx_items_id on items (id);');

@@ -1,7 +1,11 @@
+import 'dart:html';
+
 import 'package:idb_shim/idb.dart' as idb;
 import 'package:idb_shim/idb_browser.dart';
+import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 import 'package:moor/moor_web.dart';
+import 'package:moor/remote.dart';
 
 import 'Database.dart';
 
@@ -27,4 +31,14 @@ Future<void> deleteDb(databaseName) async {
   var store = txn.objectStore(dbName);
   await store.clear();
   await txn.completed;
+}
+
+Future<DriftIsolate> createDriftIsolate(
+    {bool logStatements = false, bool inMemory = false, required databaseName}) {
+  throw 'Platform not supported';
+}
+
+DatabaseConnection connectToWorker() {
+  final worker = SharedWorker('worker.dart.js');
+  return remote(worker.port!.channel());
 }
