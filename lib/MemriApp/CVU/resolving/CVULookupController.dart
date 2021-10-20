@@ -14,6 +14,7 @@ import 'CVUContext.dart';
 import 'CVUViewArguments.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Number.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
@@ -406,9 +407,8 @@ class CVULookupController {
             }
 
             currentValue = LookupStepValues([
-              PropertyDatabaseValueDouble(
-                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double)
-                      .floorToDouble())
+              PropertyDatabaseValueString(
+                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double).format(1))
             ]);
             break;
           case "fullname":
