@@ -700,7 +700,6 @@ class CVUActionSync extends CVUAction {
         await item.save();
       }
 
-      await AppController.shared.syncController.sync();
       pageController.isInEditMode.value = false;
     } catch (error) {
       print("Error starting sync: $error");

@@ -58,6 +58,7 @@
                             pluginName: {{.pluginName}}
                             pluginId: {{.id}}
                         }
+                        sync
                         ]
                 }
 

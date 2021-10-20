@@ -157,6 +157,7 @@
                                 mainView: false
                             }
                         }
+                        sync
                         setProperty {
                             subject: {{.~account}}
                             property: "status"

@@ -9,7 +9,7 @@ void main() {
   self.importScripts('sql-wasm.js');
 
   final db = WebDatabase.withStorage(
-      MoorWebStorage.indexedDb('worker', migrateFromLocalStorage: false, inWebWorker: true));
+      MoorWebStorage.indexedDb('memri', migrateFromLocalStorage: false, inWebWorker: true));
   final server = MoorServer(DatabaseConnection.fromExecutor(db));
 
   self.onConnect.listen((event) {

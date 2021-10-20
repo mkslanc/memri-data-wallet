@@ -5470,7 +5470,7 @@
       P.HashSet_HashSet(type$.nullable_StreamKey);
       P.StreamController_StreamController$broadcast(true, type$.Set_TableUpdate);
       t1 = type$.int;
-      t1 = type$.nullable_void_Function_Event._as(new Y.main_closure(new X.ServerImplementation(new U.DatabaseConnection(new G.WebDatabase(new G._WebDelegate(new G._IndexedDbStorage("worker", false, true), null), false, true, new K.Lock(), new K.Lock())), false, P.LinkedHashMap_LinkedHashMap$_empty(t1, type$.QueryExecutor), P.LinkedHashMap_LinkedHashMap$_empty(t1, type$.CancellationToken_dynamic), H._setArrayType([], type$.JSArray_int), P.StreamController_StreamController$broadcast(true, type$.void), P.LinkedHashSet_LinkedHashSet$_empty(type$.DriftCommunication), new P._AsyncCompleter(new P._Future($.Zone__current, type$._Future_void), type$._AsyncCompleter_void))));
+      t1 = type$.nullable_void_Function_Event._as(new Y.main_closure(new X.ServerImplementation(new U.DatabaseConnection(new G.WebDatabase(new G._WebDelegate(new G._IndexedDbStorage("memri", false, true), null), false, true, new K.Lock(), new K.Lock())), false, P.LinkedHashMap_LinkedHashMap$_empty(t1, type$.QueryExecutor), P.LinkedHashMap_LinkedHashMap$_empty(t1, type$.CancellationToken_dynamic), H._setArrayType([], type$.JSArray_int), P.StreamController_StreamController$broadcast(true, type$.void), P.LinkedHashSet_LinkedHashSet$_empty(type$.DriftCommunication), new P._AsyncCompleter(new P._Future($.Zone__current, type$._Future_void), type$._AsyncCompleter_void))));
       type$.nullable_void_Function._as(null);
       W._EventStreamSubscription$($self, "connect", t1, false, type$.Event);
     },
