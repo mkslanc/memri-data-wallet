@@ -14,6 +14,7 @@ import 'CVUContext.dart';
 import 'CVUViewArguments.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Number.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
@@ -391,6 +392,25 @@ class CVULookupController {
               return null;
             }
             break;
+          case "percent":
+            if (currentValue == null || currentValue is! LookupStepValues) {
+              return null;
+            }
+
+            var exp = nodeType.args.asMap()[0];
+            if (exp == null) {
+              return null;
+            }
+            double? arg = await resolve<double>(expression: exp, context: context, db: db);
+            if (arg == null) {
+              return null;
+            }
+
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueString(
+                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double).format(1))
+            ]);
+            break;
           case "fullname":
             if (currentValue is LookupStepItems) {
               if (currentValue.items.isEmpty) {
@@ -550,7 +570,9 @@ class CVULookupController {
             } else if (argValue is CVUValueExpression) {
               CVUExpressionNode expression = argValue.value;
               var context = CVUContext(
-                  currentItem: viewArgs.argumentItem, viewArguments: viewArgs.parentArguments);
+                  currentItem: viewArgs.argumentItem,
+                  items: viewArgs.argumentItems,
+                  viewArguments: viewArgs.parentArguments);
               ItemRecord? item =
                   await resolve<ItemRecord>(expression: expression, context: context, db: db);
               double? number =

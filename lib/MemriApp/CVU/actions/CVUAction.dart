@@ -554,6 +554,7 @@ class CVUActionOpenPlugin extends CVUAction {
     if (pluginName == null) {
       pluginName = (await plugin.property("pluginName", db))!.$value.value;
     }
+    var pluginType = (await plugin.property("pluginType", db))!.$value.value;
 
     List<ItemRecord> pluginRunList = await plugin.reverseEdgeItems("plugin", db: db);
     pluginRunList.sort((a, b) => b.rowId! - a.rowId!);
@@ -564,16 +565,19 @@ class CVUActionOpenPlugin extends CVUAction {
     if (lastPluginRun == null) {
       viewName = "${pluginName}Run";
     } else {
-      account = await lastPluginRun.edgeItem("account");
       var status = (await lastPluginRun.property("status", db))!.$value.value;
       switch (status) {
         case "userActionNeeded":
         case "cvuPresented":
+          account = await lastPluginRun.edgeItem("account");
           viewName = "${pluginName}-userActionNeeded";
           break;
         case "idle":
         case "ready":
           viewName = "pluginRunWait";
+          break;
+        case "done":
+          viewName = pluginType == "importer" ? "${pluginName}Run" : "${pluginName}-done"; //TODO
           break;
         default:
           viewName = "${pluginName}Run";

@@ -115,6 +115,14 @@ Message > list {
             }
         }
 
+        HStack {
+            alignment: right
+
+            MemriButton {
+                item: {{.label}}
+            }
+        }
+
         Button {
             show: {{.photo}}
             onPress: openView {

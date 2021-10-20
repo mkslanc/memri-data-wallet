@@ -21,10 +21,14 @@ class CVUViewArguments with EquatableMixin {
   // The item that is `.` when resolving these view arguments
   ItemRecord? argumentItem;
 
+  // The item that is `.` when resolving these view arguments
+  List<ItemRecord>? argumentItems;
+
   // The view arguments of the parent view (used to resolve)
   CVUViewArguments? parentArguments;
 
-  CVUViewArguments({Map<String, CVUValue>? args, this.argumentItem, this.parentArguments})
+  CVUViewArguments(
+      {Map<String, CVUValue>? args, this.argumentItem, this.parentArguments, this.argumentItems})
       : this.args = args ?? {};
 
   factory CVUViewArguments.fromJson(Map<String, dynamic> json) => _$CVUViewArgumentsFromJson(json);
