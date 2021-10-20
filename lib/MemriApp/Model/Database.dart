@@ -75,18 +75,18 @@ class Database extends _$Database {
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
       {String join = "",
       List<TableInfo>? joinTables,
-      int? limit,
-      int? offset,
+      int limit = 0,
+      int offset = 0,
       String? orderBy}) async {
     if (query == "") {
       return await customSelect(
-          "SELECT * from items ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != null ? "LIMIT $limit" : ""} ${limit != null ? "LIMIT $limit" : ""}",
+          "SELECT * from items ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${limit != 0 ? "LIMIT $limit" : ""}",
           variables: binding,
           readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
     }
     joinTables ??= [];
     return await customSelect(
-        "SELECT items.* from items $join WHERE $query ${orderBy != null ? "GROUP BY row_id ORDER BY $orderBy" : ""} ${limit != null ? "LIMIT $limit" : ""} ${offset != null ? "OFFSET $offset" : ""}",
+        "SELECT items.* from items $join WHERE $query ${orderBy != null ? "GROUP BY row_id ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${offset != 0 ? "OFFSET $offset" : ""}",
         variables: binding,
         readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }

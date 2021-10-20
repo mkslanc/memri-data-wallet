@@ -175,7 +175,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     var limit = count ?? pageSize;
-    var offset = count == null ? pageSize * currentPage : 0;
+    var offset = (count ?? 0) > 0 ? 0 : pageSize * currentPage;
 
     var queryConditions = [];
     List<Variable<dynamic>> queryBindings = [];
