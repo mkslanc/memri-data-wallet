@@ -612,6 +612,42 @@ Person > timeline {
                 query: Account
             }
         },
+        filter {
+            title: "whatsapp"
+            clearStack: true
+            datasource: {
+                query: Account
+                filter: {
+                    properties: {
+                        service: whatsapp
+                    }
+                }
+            }
+        },
+        filter {
+            title: "instagram"
+            clearStack: true
+            datasource: {
+                query: Account
+                filter: {
+                    properties: {
+                        service: instagram
+                    }
+                }
+            }
+        },
+        filter {
+            title: "gmail"
+            clearStack: true
+            datasource: {
+                query: Account
+                filter: {
+                    properties: {
+                        service: gmail
+                    }
+                }
+            }
+        },
         ]
 
 }
