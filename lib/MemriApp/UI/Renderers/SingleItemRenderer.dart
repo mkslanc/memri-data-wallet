@@ -61,6 +61,19 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
         ?.parsed;
   }
 
+  Widget? get emptyResult {
+    var emptyResultDef = widget.viewContext.cvuController
+        .viewDefinitionFor(
+            viewName: widget.viewContext.config.viewName ?? widget.viewContext.config.rendererName)
+        ?.properties["emptyResult"];
+
+    var emptyResultSubdef = emptyResultDef?.getSubdefinition();
+    if (emptyResultSubdef != null) {
+      return widget.viewContext.render(nodeDefinition: emptyResultSubdef);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -75,9 +88,7 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
                   group = widget.viewContext.render(
                       item: item, items: widget.viewContext.items, nodeDefinition: nodeDefinition);
                 } else {
-                  group = Center(
-                    child: Text("No item selected"),
-                  );
+                  group = emptyResult ?? Center(child: Text("No item selected"));
                 }
                 if (insets != null) {
                   group = Padding(
