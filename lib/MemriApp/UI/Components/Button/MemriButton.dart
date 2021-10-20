@@ -20,6 +20,9 @@ class _MemriButtonState extends State<MemriButton> {
   String title = "";
   String value = "";
 
+  Color? bgColor;
+  Color foregroundColor = Color(0xff737373);
+
   late final Future _resolveItemProperties;
 
   @override
@@ -116,6 +119,23 @@ class _MemriButtonState extends State<MemriButton> {
           }
         }
         break;
+      case "CategoricalPrediction":
+        var name = (await widget.item?.property("name"))?.$value;
+        if (name is PropertyDatabaseValueString) {
+          value = name.value;
+        }
+        switch (value) {
+          case "positive":
+            bgColor = Colors.green;
+            break;
+          case "negative":
+            bgColor = Colors.red;
+            break;
+          default:
+            bgColor = Colors.grey;
+            break;
+        }
+        foregroundColor = Colors.white;
     }
   }
 
@@ -127,19 +147,18 @@ class _MemriButtonState extends State<MemriButton> {
           future: _resolveItemProperties,
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return IntrinsicHeight(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GeneralEditorHeader(content: title.toUpperCase()),
+              return Container(
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                  decoration: BoxDecoration(color: bgColor),
+                  child: IntrinsicHeight(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    if (title.isNotEmpty) GeneralEditorHeader(content: title.toUpperCase()),
                     Text(
                       value,
-                      style: TextStyle(fontSize: 13, color: Color(0xff737373)),
+                      style: TextStyle(fontSize: 13, color: foregroundColor),
                     ),
                     Divider(height: 1)
-                  ],
-                ),
-              );
+                  ])));
             }
             return Empty();
           });
