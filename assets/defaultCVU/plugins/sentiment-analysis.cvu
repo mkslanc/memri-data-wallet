@@ -85,6 +85,23 @@
 
 .CategoricalPrediction {
     defaultRenderer: singleItem
+    emptyResult: {
+        VStack {
+            alignment: topleft
+
+            Text {
+                text: 0
+                font: headline2
+                color: #333333
+            }
+
+            Text {
+                text: "{label}"
+                font: smallCaps
+                color: #333333
+            }
+        }
+    }
 
     [renderer = singleItem] {
         edgeInset: 0 0
@@ -98,7 +115,7 @@
             }
 
             Text {
-                text: "{.name}"
+                text: "{label}"
                 font: smallCaps
                 color: #333333
             }
@@ -141,14 +158,15 @@
             }
 
             SubView {
-                height: 300
+                height: 160
 
                 view {
                     viewName: SentimentAnalysisData
                     defaultRenderer: singleItem
 
                     [datasource = pod] {
-                        query: "CategoricalPrediction"
+                        query: CategoricalPrediction
+                        count: 0
                     }
                 }
             }
@@ -188,7 +206,6 @@
                         ]
                 }
             }
-
         }
     }
 }
@@ -201,9 +218,9 @@
     showBottomBar: false
     showTopBar: false
     title: "App"
-    edgeInset: 0 0
 
     [renderer = singleItem] {
+        edgeInset: 0 30
         VStack {
             alignment: topleft
 
@@ -219,15 +236,17 @@
 
                         [datasource = pod] {
                             query: CategoricalPrediction
+                            count: 0
 
                             filter: {
                                 properties: {
-                                    name: "positive"
+                                    name: positive
                                 }
                             }
                         }
 
                         viewArguments: {
+                            label: "positive"
                             count: {{items.count()}}
                         }
                     }
@@ -243,14 +262,16 @@
 
                         [datasource = pod] {
                             query: CategoricalPrediction
+                            count: 0
                             filter: {
                                 properties: {
-                                    name: "negative"
+                                    name: negative
                                 }
                             }
                         }
 
                         viewArguments: {
+                            label: "negative"
                             count: {{items.count()}}
                         }
                     }
@@ -266,14 +287,16 @@
 
                         [datasource = pod] {
                             query: CategoricalPrediction
+                            count: 0
                             filter: {
                                 properties: {
-                                    name: "neutral"
+                                    name: neutral
                                 }
                             }
                         }
 
                         viewArguments: {
+                            label: "neutral"
                             count: {{items.count()}}
                         }
                     }
