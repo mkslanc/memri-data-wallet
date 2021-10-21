@@ -132,7 +132,7 @@ Account > list {
 
 
             Text {
-                text: {{.displayName}}
+                text: {{.displayName or .identifier}}
                 font: 12 regular
                 color: #737373
             }
@@ -167,12 +167,12 @@ Account > singleitem {
         Text {
             padding: 30 0 10 0
             font: headline1
-            text: {{.displayName}}
+            text: {{.displayName or .identifier}}
         }
 
         Text {
             font: bodyText2
-            text: "{.network.name}"
+            text: "{.service.firstuppercased() or .network.name.firstuppercased()}"
             padding 0 0 54 0
         }
 
