@@ -43,6 +43,10 @@ class CVUController {
 
   static Future<List<CVUParsedDefinition>> parseCVU([String? string]) async {
     string ??= await CVUController.readCVUString();
+    return CVUController.parseCVUString(string);
+  }
+
+  static List<CVUParsedDefinition> parseCVUString(String string) {
     var lexer = CVULexer(string);
     var tokens = lexer.tokenize();
     var parser = CVUParser(tokens);
@@ -63,7 +67,7 @@ class CVUController {
     return cvus.join("\n").replaceAll("\r", "");
   }
 
-  CVUParsedDefinition? _definitionFor(
+  CVUParsedDefinition? definitionFor(
       {required CVUDefinitionType type,
       String? selector,
       String? viewName,
@@ -78,28 +82,27 @@ class CVUController {
         rendererName: rendererName);
   }
 
-  CVUDefinitionContent? nodeDefinitionForItem(
+  CVUParsedDefinition? nodeDefinitionForItem(
       {required ItemRecord item, String? selector, String? renderer}) {
-    return _definitionFor(
-            type: CVUDefinitionType.uiNode, selector: item.type, rendererName: renderer)
-        ?.parsed;
+    return definitionFor(
+        type: CVUDefinitionType.uiNode, selector: item.type, rendererName: renderer);
   }
 
   CVUDefinitionContent? viewDefinitionFor(
       {required String viewName, CVUDefinitionContent? customDefinition}) {
-    var definition = _definitionFor(type: CVUDefinitionType.view, viewName: viewName)?.parsed;
+    var definition = definitionFor(type: CVUDefinitionType.view, viewName: viewName)?.parsed;
     return definition?.merge(customDefinition) ?? customDefinition;
   }
 
   CVUDefinitionContent? viewDefinitionForItemRecord({ItemRecord? itemRecord}) {
     var definition =
-        _definitionFor(type: CVUDefinitionType.view, selector: itemRecord?.type)?.parsed;
+        definitionFor(type: CVUDefinitionType.view, selector: itemRecord?.type)?.parsed;
     return definition;
   }
 
   CVUDefinitionContent? edgeDefinitionFor(ItemRecord itemRecord) {
     var definition =
-        _definitionFor(type: CVUDefinitionType.view, selector: "${itemRecord.type}[]")?.parsed;
+        definitionFor(type: CVUDefinitionType.view, selector: "${itemRecord.type}[]")?.parsed;
     return definition;
   }
 
@@ -112,7 +115,7 @@ class CVUController {
       return null;
     }
     var globalDefinition =
-        _definitionFor(type: CVUDefinitionType.renderer, viewName: context.rendererName);
+        definitionFor(type: CVUDefinitionType.renderer, viewName: context.rendererName);
     if (globalDefinition != null) {
       return globalDefinition.merge(specificDefinition);
     } else {
@@ -122,7 +125,7 @@ class CVUController {
 
   CVUDefinitionContent? rendererDefinitionForSelector({String? selector, String? viewName}) {
     var definition =
-        _definitionFor(type: CVUDefinitionType.renderer, selector: selector, viewName: viewName)
+        definitionFor(type: CVUDefinitionType.renderer, selector: selector, viewName: viewName)
             ?.parsed;
     return definition;
   }
@@ -135,7 +138,7 @@ class CVUController {
 
     for (var selector in ["${currentItem.type}[]", "*[]"]) {
       var globalDefinition =
-          _definitionFor(type: CVUDefinitionType.view, selector: selector)?.parsed;
+          definitionFor(type: CVUDefinitionType.view, selector: selector)?.parsed;
       if (globalDefinition != null) {
         if (globalDefinition.children.length > 0) {
           return globalDefinition;
@@ -158,7 +161,7 @@ class CVUController {
       return null;
     }
 
-    var globalDefinition = _definitionFor(
+    var globalDefinition = definitionFor(
             type: CVUDefinitionType.uiNode,
             selector: currentItem.type,
             rendererName: context.rendererName)

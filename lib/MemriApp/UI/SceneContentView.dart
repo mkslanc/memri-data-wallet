@@ -7,6 +7,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'Renderers/CVUEditorRenderer.dart';
 import 'Renderers/CalendarRenderer.dart';
 import 'Renderers/ChartRenderer.dart';
 import 'Renderers/FileRenderer.dart';
@@ -77,6 +78,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return SingleItemRendererView(viewContext: viewContext, pageController: pageController);
       case "noteeditor":
         return NoteEditorRendererView(viewContext: viewContext, pageController: pageController);
+      case "cvueditor":
+        return CVUEditorRendererView(viewContext: viewContext, pageController: pageController);
       case "labelannotation":
         return LabelAnnotationRendererView(
             viewContext: viewContext, pageController: pageController);

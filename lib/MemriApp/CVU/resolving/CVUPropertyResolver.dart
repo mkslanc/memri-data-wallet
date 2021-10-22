@@ -112,6 +112,20 @@ class CVUPropertyResolver {
     return await lookup.resolve<String>(value: val, context: context, db: db);
   }
 
+  String? syncString(String key) => resolveString(value(key));
+
+  String? resolveString(CVUValue? val) {
+    if (val == null) {
+      return null;
+    }
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantString) {
+        return val.value.value.toString();
+      }
+    }
+    return null;
+  }
+
   Future<List<String>> stringArray(String key) async {
     return (await Future.wait(valueArray(key).map((CVUValue element) async =>
             await lookup.resolve<String>(value: element, context: this.context, db: this.db))))
