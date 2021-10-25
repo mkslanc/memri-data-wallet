@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
+import 'package:memri/MemriApp/UI/style/light.dart';
 
 class NavigationHolder extends StatelessWidget {
   final MemriUINavigationController controller;
@@ -9,6 +10,7 @@ class NavigationHolder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: lightTheme,
       debugShowCheckedModeBanner: false,
       home: controller,
     );

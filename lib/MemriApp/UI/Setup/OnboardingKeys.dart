@@ -4,8 +4,8 @@ import 'package:memri/MemriApp/Controllers/API/AuthKey.dart';
 import 'package:memri/MemriApp/Controllers/API/Authentication_shared.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
-import 'package:memri/MemriApp/UI/Components/Button/PrimaryButton.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
+import 'package:memri/MemriApp/UI/style/light.dart';
 import 'SetupScreenModel.dart';
 
 class OnboardingKeys extends StatefulWidget {
@@ -27,6 +27,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints geom) => MaterialApp(
+            theme: lightTheme,
             color: Color(0xffE5E5E5),
             home: Scaffold(
                 resizeToAvoidBottomInset: false,
@@ -181,10 +182,11 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                                       ),
                                     ),
                                   if (isCopied)
-                                    PrimaryButton(
+                                    TextButton(
                                       onPressed: () async {
                                         appController.state = AppState.authenticated;
                                       },
+                                      style: primaryButtonStyle,
                                       child: Text("Keys saved"),
                                     ),
                                 ],

@@ -34,12 +34,10 @@
                 alignment: left
                 padding: 15 0 0 0
                 Button {
-                    background: #333333
+                    styleName: primaryButton
 
                     Text {
                         text: "Install"
-                        font: button_label
-                        color: #F5F5F5
                     }
 
                     onPress: [
@@ -180,12 +178,10 @@
                 alignment: left
                 padding: 15 0 0 0
                 Button {
-                    background: #333333
+                    styleName: primaryButton
 
                     Text {
                         text: "Reinstall"
-                        font: button_label
-                        color: #F5F5F5
                     }
 
                     onPress: [
