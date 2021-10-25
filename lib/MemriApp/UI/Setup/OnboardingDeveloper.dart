@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
-import 'package:memri/MemriApp/UI/Components/Button/PrimaryButton.dart';
+import 'package:memri/MemriApp/UI/style/light.dart';
 
 import 'OnboardingLogin.dart';
 import 'SetupScreenModel.dart';
@@ -41,6 +41,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints geom) => MaterialApp(
             color: Color(0xffE5E5E5),
+            theme: lightTheme,
             home: Scaffold(
                 resizeToAvoidBottomInset: false,
                 body: Stack(
@@ -123,10 +124,11 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                               ),
                               Row(
                                 children: [
-                                  PrimaryButton(
+                                  TextButton(
                                     onPressed: () async {
                                       await onAcknowledgedNewPodWarning();
                                     },
+                                    style: primaryButtonStyle,
                                     child: Text("Create new account"),
                                   ),
                                   SizedBox(

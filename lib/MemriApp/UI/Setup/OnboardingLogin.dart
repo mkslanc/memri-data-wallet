@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
-import 'package:memri/MemriApp/UI/Components/Button/PrimaryButton.dart';
+import 'package:memri/MemriApp/UI/style/light.dart';
 
 import 'SetupScreenModel.dart';
 
@@ -46,6 +46,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints geom) => MaterialApp(
+            theme: lightTheme,
             color: Color(0xffE5E5E5),
             home: Scaffold(
                 resizeToAvoidBottomInset: false,
@@ -58,7 +59,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                         width: geom.maxWidth / 2,
                         color: Colors.white,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(30, 56, 30, 30),
+                          padding: const EdgeInsets.fromLTRB(30, 56, 150, 30),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -73,7 +74,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                                 "To log in please provide these long random numbers no human would ever use that we asked you to save in a safe space when you created the account.",
                                 style: CVUFont.bodyText2,
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 45),
                               SizedBox(
                                 width: 428,
                                 child: ColoredBox(
@@ -134,8 +135,9 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                               ),
                               Row(
                                 children: [
-                                  PrimaryButton(
+                                  TextButton(
                                     onPressed: onSetup,
+                                    style: primaryButtonStyle,
                                     child: Text("Engage!"),
                                   ),
                                   SizedBox(
@@ -147,7 +149,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                                     },
                                     child: Text(
                                       "Cancel",
-                                      style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+                                      style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
                                     ),
                                     style: TextButton.styleFrom(backgroundColor: null),
                                   ),

@@ -193,15 +193,11 @@
             }
 
             Button {
-                background: #333333
-                width: 97
-                height: 36
+                styleName: primaryButton
 
                 Text {
                     text: "Sign me up!"
-                    font: button_label
                     textAlign: center
-                    color: #F5F5F5
                 }
 
                 onPress: openView {

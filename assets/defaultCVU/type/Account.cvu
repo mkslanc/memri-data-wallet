@@ -3,28 +3,7 @@ Account {
     cols: 6
     defaultRenderer: singleitem
     editActionButton: toggleEditMode
-    filterButtons: [
-        openView {
-            icon: "increase.indent"
-            title: "Show Timeline"
-            
-            view: {
-                defaultRenderer: timeline
-                
-                [datasource = pod] {
-                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                    sortProperty: dateCreated
-                    sortAscending: true
-                }
-                
-                [renderer = timeline] {
-                    timeProperty: dateCreated
-                }
-            }
-        }
-        showContextPane
-    ]
-    
+
     contextPane {
         buttons: star schedule
         
