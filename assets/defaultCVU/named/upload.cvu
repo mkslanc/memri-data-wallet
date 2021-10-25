@@ -1,0 +1,29 @@
+.upload {
+    cols: 7
+    defaultRenderer: custom
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    showTopBar: false
+    VStack {
+        alignment: topleft
+        padding: 0 30 0 30
+
+        Text {
+            text: "Drag & drop your files"
+            font: headline2
+        }
+
+        Text {
+            text: "Upload any kind of file, Memri will automatically recognize the content and put them in the right categories."
+            font: bodyText2
+            color: #333333
+            padding 15 243 0 0
+        }
+
+        DropZone {
+            height: 386
+        }
+
+    }
+}

@@ -59,4 +59,5 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.FileThumbnail: 'FileThumbnail',
   CVUUIElementFamily.Null: 'Null',
   CVUUIElementFamily.Grid: 'Grid',
+  CVUUIElementFamily.DropZone: 'DropZone',
 };

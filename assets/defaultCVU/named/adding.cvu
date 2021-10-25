@@ -46,7 +46,14 @@
         Divider
 
         Button {
-            onPress: noop
+           onPress: openView {
+               viewName: "upload"
+               clearStack: true
+               inheritDatasource: false
+               viewArguments {
+                   mainView: false
+               }
+           }
 
             HStack {
                 alignment: left
