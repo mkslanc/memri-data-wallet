@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
-import 'package:memri/MemriApp/UI/Components/Button/PrimaryButton.dart';
 import 'package:memri/MemriApp/UI/Components/Text/TextField/MemriTextfield.dart';
+import 'package:memri/MemriApp/UI/style/light.dart';
 
 import '../../ViewContextController.dart';
 
@@ -57,13 +57,14 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                 ),
                 Row(
                   children: [
-                    PrimaryButton(
+                    TextButton(
                       onPressed: () {
                         widget.viewContext.pageController.navigateBack();
                         widget.viewContext.pageController.sceneController.mainPageController
                             .topMostContext
                             ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
                       },
+                      style: primaryButtonStyle,
                       child: Text("Add note"),
                     ),
                     SizedBox(

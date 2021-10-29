@@ -19,6 +19,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVU_Other.dart';
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/UI/style/light.dart';
 
 import 'CVUContext.dart';
 import 'CVULookupController.dart';
@@ -110,6 +111,20 @@ class CVUPropertyResolver {
       return null;
     }
     return await lookup.resolve<String>(value: val, context: context, db: db);
+  }
+
+  String? syncString(String key) => resolveString(value(key));
+
+  String? resolveString(CVUValue? val) {
+    if (val == null) {
+      return null;
+    }
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantString) {
+        return val.value.value.toString();
+      }
+    }
+    return null;
   }
 
   Future<List<String>> stringArray(String key) async {
@@ -621,12 +636,7 @@ class CVUPropertyResolver {
     if (name != null && size != null) {
       var weight =
           await lookup.resolve<String>(value: values[1], context: this.context, db: this.db);
-      return CVUFont(
-          name: name,
-          size: size,
-          weight: CVUFont.Weight[weight] ??
-              defaultValue.weight //.flatMap(Font.Weight.init) ?? defaultValue.weight TODO:
-          );
+      return CVUFont(name: name, size: size, weight: CVUFont.Weight[weight] ?? defaultValue.weight);
     } else {
       if (values.isNotEmpty) {
         var val = values[0];
@@ -655,6 +665,17 @@ class CVUPropertyResolver {
       }
     }
     return defaultValue;
+  }
+
+  Future<T?> style<T>({required StyleType type}) async {
+    switch (type) {
+      case StyleType.button:
+        var styleName = await string("styleName");
+        if (styleName != null && buttonStyles[styleName] != null) {
+          return buttonStyles[styleName] as T;
+        }
+    }
+    return null;
   }
 
   Future<bool> get showNode async {
@@ -748,3 +769,5 @@ class AlignmentResolver {
 
   AlignmentResolver({required this.mainAxis, required this.crossAxis});
 }
+
+enum StyleType { button }

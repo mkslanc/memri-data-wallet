@@ -35,12 +35,10 @@
                 padding: 15 0 0 0
 
                 Button {
-                    background: #333333
+                    styleName: primaryButton
 
                     Text {
                         text: "Connect!"
-                        font: button_label
-                        color: #F5F5F5
                     }
 
                     onPress: [
@@ -231,12 +229,10 @@
                 padding: 15 0 0 0
 
                 Button {
-                    background: #333333
+                    styleName: primaryButton
 
                     Text {
                         text: "Done."
-                        font: button_label
-                        color: #F5F5F5
                     }
 
                     onPress: [

@@ -80,25 +80,31 @@ class CVUFont {
     ),
   };
 
-  static const headline1 =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.w400, letterSpacing: -0.01);
-  static const headline2 =
-      TextStyle(fontSize: 20, fontWeight: FontWeight.w400, letterSpacing: -0.01);
-  static const headline3 = TextStyle(fontSize: 15, fontWeight: FontWeight.w500);
-  static const headline4 =
-      TextStyle(fontSize: 16, fontWeight: FontWeight.w300, letterSpacing: 0.16);
-  static const bodyText1 = TextStyle(fontSize: 16, fontWeight: FontWeight.w400);
-  static const bodyText2 = TextStyle(fontSize: 12, fontWeight: FontWeight.w400);
-  static const buttonLabel = TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
-  static const tileLabel =
-      TextStyle(fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.04);
-  static const link = TextStyle(fontSize: 13, fontWeight: FontWeight.w400);
+  static const headline1 = TextStyle(
+      fontFamily: 'Karla', fontSize: 30, fontWeight: FontWeight.w400, letterSpacing: -0.01);
+  static const headline2 = TextStyle(
+      fontFamily: 'Karla', fontSize: 20, fontWeight: FontWeight.w400, letterSpacing: -0.01);
+  static const headline3 =
+      TextStyle(fontFamily: 'Karla', fontSize: 15, fontWeight: FontWeight.w500);
+  static const headline4 = TextStyle(
+      fontFamily: 'Karla', fontSize: 16, fontWeight: FontWeight.w300, letterSpacing: 0.16);
+  static const bodyText1 =
+      TextStyle(fontFamily: 'Karla', fontSize: 16, fontWeight: FontWeight.w400);
+  static const bodyText2 =
+      TextStyle(fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400);
+  static const buttonLabel =
+      TextStyle(fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400);
+  static const tileLabel = TextStyle(
+      fontFamily: 'Karla', fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.04);
+  static const link = TextStyle(fontFamily: 'Karla', fontSize: 13, fontWeight: FontWeight.w400);
   static const smallCaps = TextStyle(
+    fontFamily: 'Karla',
     fontSize: 10,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.11,
   );
   static const tabList = TextStyle(
+    fontFamily: 'Karla',
     fontSize: 12,
     fontWeight: FontWeight.w400,
   );
