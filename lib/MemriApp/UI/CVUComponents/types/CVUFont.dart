@@ -78,6 +78,10 @@ class CVUFont {
       size: tabList.fontSize!,
       weight: tabList.fontWeight,
     ),
+    "body_tiny": CVUFont(
+      size: bodyTiny.fontSize!,
+      weight: bodyTiny.fontWeight,
+    ),
   };
 
   static const headline1 = TextStyle(
@@ -108,4 +112,5 @@ class CVUFont {
     fontSize: 12,
     fontWeight: FontWeight.w400,
   );
+  static const bodyTiny = TextStyle(fontFamily: 'Karla', fontSize: 10, fontWeight: FontWeight.w400);
 }
