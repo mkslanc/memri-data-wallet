@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/UI/Components/ImagesAndFiles/FileDropZone.dart';
+import 'package:memri/MemriApp/UI/Components/ImagesAndFiles/FileDropZone_unsupported.dart'
+    if (dart.library.html) 'package:memri/MemriApp/UI/Components/ImagesAndFiles/FileDropZone_web.dart';
 
 import '../CVUUINodeResolver.dart';
 

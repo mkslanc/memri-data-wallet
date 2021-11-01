@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -9,6 +10,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'dart:html' as html;
 
 class FileDropZone extends StatefulWidget {
   FileDropZone();
@@ -18,10 +20,9 @@ class FileDropZone extends StatefulWidget {
 }
 
 class _FileDropZoneState extends State<FileDropZone> {
-  String message1 = 'Drag & drop your files here or browse to upload.';
   late DropzoneViewController controller1;
   bool highlighted = false;
-  List<String> fileNames = [];
+  List<Widget> fileNames = [];
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +36,21 @@ class _FileDropZoneState extends State<FileDropZone> {
             color: highlighted ? Color(0x1AFE570F) : Colors.transparent,
             child: Stack(
               children: [
-                buildZone1(context),
-                Center(child: Text(message1)),
+                buildZone(context),
+                Center(
+                    child: RichText(
+                        text: TextSpan(
+                            text: 'Drag & drop your files here or ',
+                            style: CVUFont.bodyText1.copyWith(color: Color(0xff989898)),
+                            children: [
+                      TextSpan(
+                          text: 'browse',
+                          recognizer: TapGestureRecognizer()..onTap = () => startWebFilePicker(),
+                          style: CVUFont.bodyText1.copyWith(color: Color(0xffFE570F))),
+                      TextSpan(
+                          text: ' to upload.',
+                          style: CVUFont.bodyText1.copyWith(color: Color(0xff989898)))
+                    ])))
               ],
             ),
           ),
@@ -44,29 +58,13 @@ class _FileDropZoneState extends State<FileDropZone> {
       ),
       SizedBox(
         width: 243,
+        height: double.infinity,
         child: Padding(
           padding: EdgeInsets.fromLTRB(33, 0, 0, 0),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: fileNames
-                  .map((e) => Row(
-                        children: [
-                          Icon(Icons.upload_file),
-                          SizedBox(
-                            width: 18,
-                          ),
-                          Expanded(
-                            child: Text(
-                              e,
-                              style: CVUFont.bodyTiny.copyWith(overflow: TextOverflow.ellipsis),
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                            ),
-                          ),
-                        ],
-                      ))
-                  .toList(),
+              children: fileNames,
             ),
           ),
         ),
@@ -74,12 +72,35 @@ class _FileDropZoneState extends State<FileDropZone> {
     ]);
   }
 
-  Widget buildZone1(BuildContext context) => Builder(
+  void startWebFilePicker() async {
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.multiple = true;
+    uploadInput.draggable = true;
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      final files = uploadInput.files ?? [];
+      for (var i = 0; i < files.length; i++) {
+        final file = files[i];
+        final reader = html.FileReader();
+        reader.onLoadEnd.listen((event) async {
+          saveFile(file.type, file.name, reader.result as Uint8List);
+          fileNames.add(displayFileName(file.name, file.type));
+          setState(() {});
+        });
+        reader.onError.listen((event) {
+          print('there was an error');
+        });
+        reader.readAsArrayBuffer(file);
+      }
+    });
+  }
+
+  Widget buildZone(BuildContext context) => Builder(
         builder: (context) => DropzoneView(
           operation: DragOperation.copy,
-          cursor: CursorType.grab,
           onCreated: (ctrl) => controller1 = ctrl,
-          onError: (ev) => print('Zone 1 error: $ev'),
+          onError: (ev) => print('Zone error: $ev'),
           onHover: () {
             setState(() => highlighted = true);
           },
@@ -89,24 +110,26 @@ class _FileDropZoneState extends State<FileDropZone> {
           onDrop: (htmlFile) async {
             var fileName = await controller1.getFilename(htmlFile);
             var mime = await controller1.getFileMIME(htmlFile);
-            controller1.getFileData(htmlFile).then((value) async {
-              await saveFile(mime, fileName, value);
-              setState(() {
-                highlighted = false;
-                fileNames.add(fileName);
-              });
-            });
+            var fileData = await controller1.getFileData(htmlFile);
+            saveFile(mime, fileName, fileData);
+            fileNames.add(displayFileName(fileName, mime));
+            setState(() {});
+            highlighted = false;
           },
         ),
       );
 
   Future saveFile(String mime, String fileName, Uint8List fileData) async {
-    if (mime == "text/plain") {
-      await saveText(fileName, fileData);
-    } else if (mime.startsWith("image/")) {
-      await saveImage(fileName, fileData);
-    } else {
-      print("Not resolved file type");
+    try {
+      if (mime == "text/plain") {
+        await saveText(fileName, fileData);
+      } else if (mime.startsWith("image/")) {
+        await saveImage(fileName, fileData);
+      } else {
+        print("Not resolved file type");
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -130,5 +153,29 @@ class _FileDropZoneState extends State<FileDropZone> {
     await item.setPropertyValue("title", PropertyDatabaseValueString(fileName));
     await item.setPropertyValue(
         "content", PropertyDatabaseValueString(Utf8Decoder().convert(fileData)));
+  }
+
+  Widget displayFileName(String fileName, String mimeType) {
+    var color =
+        (mimeType == "text/plain" || mimeType.startsWith("image/")) ? Colors.black : Colors.red;
+    return Row(
+      children: [
+        Icon(
+          Icons.upload_file,
+          color: color,
+        ),
+        SizedBox(
+          width: 18,
+        ),
+        Expanded(
+          child: Text(
+            fileName,
+            style: CVUFont.bodyTiny.copyWith(overflow: TextOverflow.ellipsis, color: color),
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+          ),
+        ),
+      ],
+    );
   }
 }

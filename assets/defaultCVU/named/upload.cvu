@@ -16,9 +16,8 @@
 
         Text {
             text: "Upload any kind of file, Memri will automatically recognize the content and put them in the right categories."
-            font: bodyText2
-            color: #333333
-            padding 15 243 0 0
+            font: bodyText1
+            padding: 15 243 45 0
         }
 
         DropZone {
