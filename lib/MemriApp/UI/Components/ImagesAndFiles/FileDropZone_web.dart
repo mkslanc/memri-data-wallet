@@ -20,7 +20,7 @@ class FileDropZone extends StatefulWidget {
 }
 
 class _FileDropZoneState extends State<FileDropZone> {
-  late DropzoneViewController controller1;
+  late DropzoneViewController controller;
   bool highlighted = false;
   List<Widget> fileNames = [];
 
@@ -83,7 +83,7 @@ class _FileDropZoneState extends State<FileDropZone> {
       for (var i = 0; i < files.length; i++) {
         final file = files[i];
         final reader = html.FileReader();
-        reader.onLoadEnd.listen((event) async {
+        reader.onLoadEnd.listen((event) {
           saveFile(file.type, file.name, reader.result as Uint8List);
           fileNames.add(displayFileName(file.name, file.type));
           setState(() {});
@@ -99,7 +99,7 @@ class _FileDropZoneState extends State<FileDropZone> {
   Widget buildZone(BuildContext context) => Builder(
         builder: (context) => DropzoneView(
           operation: DragOperation.copy,
-          onCreated: (ctrl) => controller1 = ctrl,
+          onCreated: (ctrl) => controller = ctrl,
           onError: (ev) => print('Zone error: $ev'),
           onHover: () {
             setState(() => highlighted = true);
@@ -108,13 +108,14 @@ class _FileDropZoneState extends State<FileDropZone> {
             setState(() => highlighted = false);
           },
           onDrop: (htmlFile) async {
-            var fileName = await controller1.getFilename(htmlFile);
-            var mime = await controller1.getFileMIME(htmlFile);
-            var fileData = await controller1.getFileData(htmlFile);
+            var fileName = await controller.getFilename(htmlFile);
+            var mime = await controller.getFileMIME(htmlFile);
+            var fileData = await controller.getFileData(htmlFile);
             saveFile(mime, fileName, fileData);
             fileNames.add(displayFileName(fileName, mime));
-            setState(() {});
-            highlighted = false;
+            setState(() {
+              highlighted = false;
+            });
           },
         ),
       );
@@ -139,10 +140,10 @@ class _FileDropZoneState extends State<FileDropZone> {
     var item = ItemRecord(type: "File");
     var sha256 = FileStorageController.getHashForData(fileData);
     await FileStorageController.writeData(fileData, sha256);
+    item.fileState = FileState.needsUpload;
     await item.save();
     await item.setPropertyValue("filename", PropertyDatabaseValueString(fileName));
     await item.setPropertyValue("sha256", PropertyDatabaseValueString(sha256));
-    item.fileState = FileState.needsUpload;
     var edge = ItemEdgeRecord(name: "file", sourceRowID: photo.rowId, targetRowID: item.rowId);
     await edge.save();
   }
