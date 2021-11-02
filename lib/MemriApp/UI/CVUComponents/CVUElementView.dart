@@ -16,6 +16,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTextPropertiesMod
 
 import 'CVUElements/CVUActionButton.dart';
 import 'CVUElements/CVUButton.dart';
+import 'CVUElements/CVUDropZone.dart';
 import 'CVUElements/CVUEditorRow.dart';
 import 'CVUElements/CVUFlowStack.dart';
 import 'CVUElements/CVUForEach.dart';
@@ -128,6 +129,8 @@ class _CVUElementViewState extends State<CVUElementView> {
 //            picker
 //        case CVUUIElementFamily.EditorSection:
 //            return CVU_EditorSection(nodeResolver: nodeResolver);
+      case CVUUIElementFamily.DropZone:
+        return CVUDropZone(nodeResolver: widget.nodeResolver);
       default:
         return Text("${widget.nodeResolver.node.type} not implemented yet.");
     }

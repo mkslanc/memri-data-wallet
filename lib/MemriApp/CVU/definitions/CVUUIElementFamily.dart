@@ -38,7 +38,8 @@ enum CVUUIElementFamily {
   TimelineItem,
   FileThumbnail,
   Null,
-  Grid
+  Grid,
+  DropZone
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {
