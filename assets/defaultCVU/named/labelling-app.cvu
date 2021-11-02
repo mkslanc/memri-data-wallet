@@ -1,0 +1,247 @@
+.create-labelling-app {
+    defaultRenderer: custom
+    showSearchBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Labelling app"
+    cols: 6
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 0 30
+
+        Text {
+            text: "Intro"
+            font: link
+            color: #000000
+        }
+
+        Text {
+            text: "Create your own labelling app"
+            font: headline1
+        }
+
+        Text {
+            text: "Apps are tools you can use to create machine learning models (AI apps) that operate on your own data in an easy and accessible way."
+            font: bodyText1
+        }
+
+        Text {
+            text: "It takes 3 steps to create an app:"
+            font: bodyText1
+            padding: 20 0 0 0
+        }
+
+        HStack {
+            alignment: left
+            padding: 12 0 0 0
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #4F56FE
+                width: 20
+                height: 20
+            }
+
+            Text {
+                text: "Get your data together"
+                font: bodyText1
+                color: #4F56FE
+                padding: 0 0 0 16
+            }
+        }
+
+        Text {
+            text: "From the sources you have already synced to your Memri pod, select the type and source of your data."
+            font: bodyText1
+            padding: 12 0 0 0
+        }
+
+        HStack {
+            alignment: left
+            padding: 12 0 0 0
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #4F56FE
+                width: 20
+                height: 20
+            }
+
+            Text {
+                text: "Configure your data and create labels"
+                font: bodyText1
+                color: #4F56FE
+                padding: 0 0 0 16
+            }
+        }
+
+        Text {
+            text: "Set up your data and create appropriate labels"
+            font: bodyText1
+            padding: 12 0 0 0
+        }
+
+        HStack {
+            alignment: left
+            padding: 12 0 0 0
+            Image {
+                bundleImage: "arrow-right-circle"
+                isVector: true
+                alignment: center
+                resizable: true
+                sizingMode: fit
+                color: #4F56FE
+                width: 20
+                height: 20
+            }
+
+            Text {
+                text: "Test your labelling app and label data"
+                font: bodyText1
+                color: #4F56FE
+                padding: 0 0 0 16
+            }
+        }
+
+        Text {
+            text: "Instantly use your app to label data."
+            font: bodyText1
+            padding: 12 0 0 0
+        }
+
+
+        HStack {
+            alignment: left
+            padding: 30 0 0 0
+
+            Button {
+                styleName: primaryButton
+
+                Text {
+                    text: "Create your app"
+                }
+
+                onPress: openView {
+                    viewName: "labelling-app-step-1"
+                    clearStack: true
+                }
+            }
+
+            Button {
+                padding: 0 0 0 15
+
+                Text {
+                    text: "Cancel"
+                    font: button_label
+                    color: #333333
+                }
+
+                onPress: back
+
+            }
+
+        }
+    }
+}
+
+.labelling-app-step-1 {
+    defaultRenderer: custom
+    showSearchBar: false
+    showBottomBar: false
+    showTopBar: false
+    title: "Labelling app"
+    cols: 6
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 0 30
+
+        Text {
+            text: "Step 1/3: Get your data together"
+            font: link
+            color: #000000
+        }
+
+        Text {
+            text: "Gather your data"
+            font: headline1
+        }
+
+        Text {
+            text: "Choose the type of data you will use in your app. For instance, select: text if you want the app to work on messages and emails."
+            font: bodyText1
+            padding: 0 0 50 0
+        }
+
+        SubView {
+            id: dataTypeGrid
+            height: 93
+
+            view {
+                viewName: LabelingDataType
+                defaultRenderer: grid
+                editMode: true
+                singleChoice: true
+
+
+                [datasource = pod] {
+                    query: LabelingDataType
+                    sortProperty: dateModified
+                    sortAscending: true
+                }
+
+                [renderer = grid] {
+                    edgeInset: 0
+                }
+
+                arguments: {
+                    showToolbar: false
+                    showBottomBar: false
+                    readOnly: true
+                }
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 50 0 0 0
+
+            Button {
+                styleName: primaryButton
+
+                Text {
+                    text: "Next step"
+                }
+
+                onPress: openView {
+                    viewName: "labelling-app-step-1"
+                    viewArguments: {
+                            test: {{.dataTypeGrid}}
+                        }
+                }
+            }
+
+            Button {
+                padding: 0 0 0 15
+
+                Text {
+                    text: "Cancel"
+                    font: button_label
+                    color: #333333
+                }
+
+                onPress: back
+
+            }
+
+        }
+
+    }
+}

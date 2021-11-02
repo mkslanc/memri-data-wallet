@@ -24,9 +24,11 @@ class _GridRendererViewState extends State<GridRendererView> {
   late final memri.PageController pageController;
   late final ViewContextController viewContext;
   late bool isInEditMode;
+  bool singleChoice = false;
 
   late Binding<Set<int>> selectedIndicesBinding;
   late Set<int> selectedIndices;
+  late EdgeInsets insets;
 
   late Future _init;
 
@@ -66,11 +68,16 @@ class _GridRendererViewState extends State<GridRendererView> {
       }
     }();
 
+    insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
+        EdgeInsets.fromLTRB(5, pageController.showTopBar ? 5 : 80, 5, 5);
+
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
 
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", pageController.isInEditMode.value))!;
+    singleChoice =
+        await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
@@ -84,84 +91,72 @@ class _GridRendererViewState extends State<GridRendererView> {
           ? ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
               builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                return Column(
-                  children: [
-                    viewContext.hasItems
-                        ? Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: () async => setState(
-                                  () => pageController.topMostContext?.setupQueryObservation()),
-                              child: GridView.count(
-                                //TODO layout
-                                physics: AlwaysScrollableScrollPhysics(),
-                                scrollDirection: scrollDirection,
-                                childAspectRatio: 4 / 5,
-                                shrinkWrap: true,
-                                primary: false,
-                                padding: EdgeInsets.fromLTRB(
-                                    5, pageController.showTopBar ? 5 : 80, 5, 5),
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
-                                crossAxisCount: 3,
-                                children: viewContext.items.mapIndexed((index, item) {
-                                  var isSelected = selectedIndices.contains(index);
-                                  return GestureDetector(
-                                    onTap: selectionMode(index),
-                                    child: Stack(
-                                      alignment: Alignment.bottomRight,
-                                      children: [
-                                        viewContext.render(item: item),
-                                        if (isInEditMode && !isSelected)
-                                          SizedBox.expand(
-                                            child:
-                                                ColoredBox(color: Colors.white.withOpacity(0.15)),
-                                          ),
-                                        if (isSelected)
-                                          Padding(
-                                            padding: const EdgeInsets.all(20),
-                                            child: Container(
-                                              height: 30,
-                                              width: 30,
-                                              child: Stack(
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  Circle(
-                                                      color: Colors.blue,
-                                                      border: Border.all(
-                                                          color: Colors.white, width: 2)),
-                                                  Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 15,
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                      ],
+                return viewContext.hasItems
+                    ? RefreshIndicator(
+                        onRefresh: () async =>
+                            setState(() => pageController.topMostContext?.setupQueryObservation()),
+                        child: GridView.count(
+                          //TODO layout
+                          physics: AlwaysScrollableScrollPhysics(),
+                          scrollDirection: scrollDirection,
+                          childAspectRatio: 4 / 5,
+                          shrinkWrap: true,
+                          primary: false,
+                          padding: insets,
+                          //crossAxisSpacing: 5,
+                          //mainAxisSpacing: 5,
+                          crossAxisCount: 3,
+                          children: viewContext.items.mapIndexed((index, item) {
+                            var isSelected = selectedIndices.contains(index);
+                            return GestureDetector(
+                              onTap: selectionMode(index),
+                              child: Stack(
+                                alignment: Alignment.topLeft,
+                                children: [
+                                  viewContext.render(item: item),
+                                  if (isInEditMode && !isSelected)
+                                    SizedBox.expand(
+                                      child: ColoredBox(color: Colors.white.withOpacity(0.15)),
                                     ),
-                                  );
-                                }).toList(),
+                                  if (isSelected)
+                                    Container(
+                                      height: 30,
+                                      width: 30,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Circle(
+                                              color: Colors.blue,
+                                              border: Border.all(color: Colors.white, width: 2)),
+                                          Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 15,
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                ],
                               ),
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    : Padding(
+                        padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Spacer(),
+                            Text(
+                              "No results",
+                              style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                              textAlign: TextAlign.center,
                             ),
-                          )
-                        : Padding(
-                            padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Spacer(),
-                                Text(
-                                  "No results",
-                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
-                                  textAlign: TextAlign.center,
-                                ),
-                                Spacer()
-                              ],
-                            ),
-                          ),
-                  ],
-                );
+                            Spacer()
+                          ],
+                        ),
+                      );
               })
           : Empty(),
     );
@@ -171,9 +166,15 @@ class _GridRendererViewState extends State<GridRendererView> {
     if (isInEditMode) {
       return () {
         setState(() {
-          if (!selectedIndices.remove(index)) {
+          if (!singleChoice) {
+            if (!selectedIndices.remove(index)) {
+              selectedIndices.add(index);
+            }
+          } else {
+            selectedIndices.clear();
             selectedIndices.add(index);
           }
+
           selectedIndicesBinding.set(selectedIndices);
         });
       };

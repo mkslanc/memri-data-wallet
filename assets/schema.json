@@ -1084,6 +1084,31 @@
       "item_type": "WrittenWork",
       "property": "transcript",
       "value_type": "string"
+    },
+    {
+      "item_type": "Dataset",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Dataset",
+      "property": "query",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingTask",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingDataType",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingDataType",
+      "property": "icon",
+      "value_type": "string"
     }
   ],
   "edges": [
@@ -1576,6 +1601,26 @@
       "source_type": "WrittenWork",
       "edge": "writtenBy",
       "target_type": "Person"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "item",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "labelOption",
+      "target_type": "Label"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "dataset",
+      "target_type": "Dataset"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "view",
+      "target_type": "CVUStoredDefinition"
     }
   ]
 }

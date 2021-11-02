@@ -69,7 +69,9 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                       NavigationLineView(),
                       NavigationItemView(
                           item: Item(
-                              name: "Apps and Plugins", targetViewName: "allPlugins", icon: "zap"),
+                              name: "Apps and Plugins",
+                              targetViewName: "apps-and-plugins",
+                              icon: "zap"),
                           sceneController: sceneController),
                       /* NavigationItemView(
                           item:

@@ -1125,5 +1125,15 @@
   {
     "name": "Zimbabwe",
     "_type": "Country"
+  },
+  {
+    "_type": "LabelingDataType",
+    "name": "Texts",
+    "icon": "file-text"
+  },
+  {
+    "_type": "LabelingDataType",
+    "name": "Images",
+    "icon": "image"
   }
 ]
