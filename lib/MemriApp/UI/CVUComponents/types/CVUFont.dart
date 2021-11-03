@@ -78,34 +78,54 @@ class CVUFont {
       size: tabList.fontSize!,
       weight: tabList.fontWeight,
     ),
+    "body_tiny": CVUFont(
+      size: bodyTiny.fontSize!,
+      weight: bodyTiny.fontWeight,
+    ),
   };
 
   static const headline1 = TextStyle(
-      fontFamily: 'Karla', fontSize: 30, fontWeight: FontWeight.w400, letterSpacing: -0.01);
+      fontFamily: 'Karla',
+      fontSize: 30,
+      fontWeight: FontWeight.w400,
+      letterSpacing: -0.01,
+      color: Color(0xff333333));
   static const headline2 = TextStyle(
-      fontFamily: 'Karla', fontSize: 20, fontWeight: FontWeight.w400, letterSpacing: -0.01);
-  static const headline3 =
-      TextStyle(fontFamily: 'Karla', fontSize: 15, fontWeight: FontWeight.w500);
+      fontFamily: 'Karla',
+      fontSize: 20,
+      fontWeight: FontWeight.w400,
+      letterSpacing: -0.01,
+      color: Color(0xff333333));
+  static const headline3 = TextStyle(
+      fontFamily: 'Karla', fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xff333333));
   static const headline4 = TextStyle(
-      fontFamily: 'Karla', fontSize: 16, fontWeight: FontWeight.w300, letterSpacing: 0.16);
-  static const bodyText1 =
-      TextStyle(fontFamily: 'Karla', fontSize: 16, fontWeight: FontWeight.w400);
-  static const bodyText2 =
-      TextStyle(fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400);
-  static const buttonLabel =
-      TextStyle(fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400);
+      fontFamily: 'Karla',
+      fontSize: 16,
+      fontWeight: FontWeight.w300,
+      letterSpacing: 0.16,
+      color: Color(0xff333333));
+  static const bodyText1 = TextStyle(
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+  static const bodyText2 = TextStyle(
+      fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xff333333));
+  static const buttonLabel = TextStyle(
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const tileLabel = TextStyle(
-      fontFamily: 'Karla', fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.04);
-  static const link = TextStyle(fontFamily: 'Karla', fontSize: 13, fontWeight: FontWeight.w400);
+      fontFamily: 'Karla',
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 1.04,
+      color: Color(0xff333333));
+  static const link = TextStyle(
+      fontFamily: 'Karla', fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const smallCaps = TextStyle(
-    fontFamily: 'Karla',
-    fontSize: 10,
-    fontWeight: FontWeight.w400,
-    letterSpacing: 0.11,
-  );
+      fontFamily: 'Karla',
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0.11,
+      color: Color(0xff333333));
   static const tabList = TextStyle(
-    fontFamily: 'Karla',
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
-  );
+      fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xff333333));
+  static const bodyTiny = TextStyle(
+      fontFamily: 'Karla', fontSize: 10, fontWeight: FontWeight.w400, color: Color(0xff333333));
 }
