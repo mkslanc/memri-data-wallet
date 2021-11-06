@@ -97,9 +97,10 @@ class _GridRendererViewState extends State<GridRendererView> {
                             setState(() => pageController.topMostContext?.setupQueryObservation()),
                         child: GridView.count(
                           //TODO layout
+                          addRepaintBoundaries: false,
                           physics: AlwaysScrollableScrollPhysics(),
                           scrollDirection: scrollDirection,
-                          childAspectRatio: 4 / 5,
+                          childAspectRatio: 2,
                           shrinkWrap: true,
                           primary: false,
                           padding: insets,
