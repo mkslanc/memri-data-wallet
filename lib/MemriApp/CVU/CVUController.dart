@@ -72,9 +72,10 @@ class CVUController {
       String? selector,
       String? viewName,
       String? rendererName,
-      bool exactSelector = false}) {
+      bool exactSelector = false,
+      List<CVUParsedDefinition>? specifiedDefinitions}) {
     return CVUController._definitionFrom(
-        definitions: definitions,
+        definitions: specifiedDefinitions ?? definitions,
         type: type,
         selector: selector,
         exactSelector: exactSelector,
@@ -166,8 +167,8 @@ class CVUController {
             selector: currentItem.type,
             rendererName: context.rendererName)
         ?.parsed;
-    var specificDefinition = CVUController._definitionFrom(
-            definitions: context.viewDefinition.definitions,
+    var specificDefinition = definitionFor(
+            specifiedDefinitions: context.viewDefinition.definitions,
             type: CVUDefinitionType.uiNode,
             selector: currentItem.type,
             rendererName: context.rendererName)
@@ -242,24 +243,15 @@ class CVUController {
       required bool blankIfNoDefinition,
       required memri.PageController pageController,
       Key? key}) {
-    nodeDefinition ??= nodeDefinitionFor(cvuContext);
-    CVUUINode? node = nodeDefinition?.children.asMap()[0];
-    CVUUINodeResolver? nodeResolver;
+    CVUUINode? node = nodeFor(cvuContext, nodeDefinition);
     if (node != null) {
-      nodeResolver = CVUUINodeResolver(
-          context: cvuContext, lookup: lookup, node: node, db: db, pageController: pageController);
-    } else if ((nodeDefinitionFor(cvuContext)?.children ?? []).length > 0) {
-      node = nodeDefinitionFor(cvuContext)?.children.first;
-      nodeResolver = CVUUINodeResolver(
-          context: cvuContext, lookup: lookup, node: node!, db: db, pageController: pageController);
-    } else if ((defaultViewDefinitionFor(cvuContext)?.children ?? []).length > 0) {
-      node = defaultViewDefinitionFor(cvuContext)?.children.first;
-      nodeResolver = CVUUINodeResolver(
-          context: cvuContext, lookup: lookup, node: node!, db: db, pageController: pageController);
-    }
-    if (nodeResolver != null) {
       return CVUElementView(
-        nodeResolver: nodeResolver,
+        nodeResolver: CVUUINodeResolver(
+            context: cvuContext,
+            lookup: lookup,
+            node: node,
+            db: db,
+            pageController: pageController),
         key: key,
       );
     } else if (!blankIfNoDefinition && cvuContext.currentItem?.type != null) {
@@ -268,5 +260,11 @@ class CVUController {
           style: TextStyle(fontFamily: "caption"));
     }
     return Empty();
+  }
+
+  CVUUINode? nodeFor(CVUContext cvuContext, [CVUDefinitionContent? nodeDefinition]) {
+    nodeDefinition ??= nodeDefinitionFor(cvuContext);
+    return nodeDefinition?.children.asMap()[0] ??
+        defaultViewDefinitionFor(cvuContext)?.children.asMap()[0];
   }
 }
