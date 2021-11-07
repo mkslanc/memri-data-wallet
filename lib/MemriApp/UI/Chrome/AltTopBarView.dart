@@ -23,7 +23,7 @@ class AltTopBarView extends StatefulWidget {
 }
 
 class _TopBarViewState extends State<AltTopBarView> {
-  late ViewContextController? viewContext;
+  ViewContextController? viewContext;
 
   late Future<String?> title;
 
@@ -46,6 +46,7 @@ class _TopBarViewState extends State<AltTopBarView> {
   void dispose() {
     super.dispose();
     widget.pageController.removeListener(updateState);
+    viewContext?.removeListener(updateState);
   }
 
   void updateState() {
@@ -62,7 +63,9 @@ class _TopBarViewState extends State<AltTopBarView> {
 
   @override
   Widget build(BuildContext context) {
+    viewContext?.removeListener(updateState);
     viewContext = widget.pageController.topMostContext;
+    viewContext?.addListener(updateState);
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
     actions.insert(
         0, CVUActionOpenCVUEditor(vars: {"title": CVUValueConstant(CVUConstantString("Script"))}));
