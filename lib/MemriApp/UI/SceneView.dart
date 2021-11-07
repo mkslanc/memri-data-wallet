@@ -32,12 +32,20 @@ class _SceneViewState extends State<SceneView> {
   int? secondaryViewCols;
 
   init() {
-    mainViewCols = widget
-        .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
-        .syncInteger("cols");
-    secondaryViewCols = widget
-        .sceneController.secondaryPageController.topMostContext?.viewDefinitionPropertyResolver
-        .syncInteger("cols");
+    var mainContext = widget.sceneController.mainPageController.topMostContext;
+    var secondaryContext = widget.sceneController.secondaryPageController.topMostContext;
+
+    mainViewCols =
+        mainContext?.viewDefinitionPropertyResolver.syncInteger("cols") ?? mainContext?.config.cols;
+    mainContext?.config.cols = mainViewCols;
+    secondaryViewCols = secondaryContext != null
+        ? secondaryContext.viewDefinitionPropertyResolver.syncInteger("cols") ??
+            secondaryContext.config.cols ??
+            secondaryViewCols
+        : null;
+
+    secondaryContext?.config.cols = secondaryViewCols;
+
     showTopBar = widget
             .sceneController.mainPageController.topMostContext?.viewDefinitionPropertyResolver
             .syncBoolean("showTopBar") ??

@@ -19,11 +19,13 @@ ViewContext _$ViewContextFromJson(Map<String, dynamic> json) => ViewContext(
       focusedItem: json['focusedItem'] == null
           ? null
           : ItemRecord.fromJson(json['focusedItem'] as Map<String, dynamic>),
+      cols: json['cols'] as int?,
       pageLabel: json['pageLabel'] as String,
     );
 
 Map<String, dynamic> _$ViewContextToJson(ViewContext instance) => <String, dynamic>{
       'pageLabel': instance.pageLabel,
+      'cols': instance.cols,
       'viewName': instance.viewName,
       'rendererName': instance.rendererName,
       'viewDefinition': instance.viewDefinition,
