@@ -1,23 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/UI/Renderers/Renderer.dart';
 
-import '../ViewContextController.dart';
-
-class SingleItemRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  SingleItemRendererView({required this.pageController, required this.viewContext});
+class SingleItemRendererView extends Renderer {
+  SingleItemRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _SingleItemRendererViewState createState() => _SingleItemRendererViewState();
 }
 
-class _SingleItemRendererViewState extends State<SingleItemRendererView> {
+class _SingleItemRendererViewState extends RendererViewState {
   EdgeInsets? insets;
 
   Color? backgroundColor;
@@ -28,13 +24,13 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
   initState() {
     super.initState();
     _init = init();
-    widget.pageController.addListener(updateState);
+    pageController.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
-    widget.pageController.removeListener(updateState);
+    pageController.removeListener(updateState);
   }
 
   updateState() {
@@ -42,36 +38,23 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
   }
 
   Future init() async {
-    insets = await widget.viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
+    insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.fromLTRB(30, 0, 30, 0);
-    backgroundColor = await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
   }
 
   CVUDefinitionContent? get nodeDefinition {
     CVUDefinitionContent? viewDefinition;
-    var viewName = widget.viewContext.config.viewName;
+    var viewName = viewContext.config.viewName;
     if (viewName != null) {
-      viewDefinition = widget.viewContext.cvuController.viewDefinitionFor(viewName: viewName);
+      viewDefinition = viewContext.cvuController.viewDefinitionFor(viewName: viewName);
     }
-    viewDefinition ??= widget.viewContext.config.viewDefinition;
+    viewDefinition ??= viewContext.config.viewDefinition;
 
     return viewDefinition.definitions
         .firstWhereOrNull((definition) => definition.selector == "[renderer = singleItem]")
         ?.parsed;
-  }
-
-  Widget? get emptyResult {
-    var emptyResultDef = widget.viewContext.cvuController
-        .viewDefinitionFor(
-            viewName: widget.viewContext.config.viewName ?? widget.viewContext.config.rendererName)
-        ?.properties["emptyResult"];
-
-    var emptyResultSubdef = emptyResultDef?.getSubdefinition();
-    if (emptyResultSubdef != null) {
-      return widget.viewContext.render(nodeDefinition: emptyResultSubdef);
-    }
-    return null;
   }
 
   @override
@@ -80,13 +63,13 @@ class _SingleItemRendererViewState extends State<SingleItemRendererView> {
         future: _init,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           return ValueListenableBuilder(
-              valueListenable: widget.viewContext.itemsValueNotifier,
+              valueListenable: viewContext.itemsValueNotifier,
               builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                var item = widget.viewContext.focusedItem ?? widget.viewContext.items.asMap()[0];
+                var item = viewContext.focusedItem ?? viewContext.items.asMap()[0];
                 Widget group;
                 if (item != null) {
-                  group = widget.viewContext.render(
-                      item: item, items: widget.viewContext.items, nodeDefinition: nodeDefinition);
+                  group = viewContext.render(
+                      item: item, items: viewContext.items, nodeDefinition: nodeDefinition);
                 } else {
                   group = emptyResult ?? Center(child: Text("No item selected"));
                 }

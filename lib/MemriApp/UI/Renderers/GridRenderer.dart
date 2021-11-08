@@ -1,41 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
-import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
-import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
+import 'Renderer.dart';
+
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
-class GridRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  GridRendererView({required this.pageController, required this.viewContext});
+class GridRendererView extends Renderer {
+  GridRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _GridRendererViewState createState() => _GridRendererViewState();
 }
 
-class _GridRendererViewState extends State<GridRendererView> {
-  late final memri.PageController pageController;
-  late final ViewContextController viewContext;
-  late bool isInEditMode;
-  bool singleChoice = false;
-
-  late Binding<Set<int>> selectedIndicesBinding;
-  late Set<int> selectedIndices;
+class _GridRendererViewState extends RendererViewState {
   late EdgeInsets insets;
 
   late Future _init;
 
+  @override
   initState() {
     super.initState();
-    pageController = widget.pageController;
-    viewContext = widget.viewContext;
     _init = init();
 
     pageController.isInEditMode.addListener(updateState);
@@ -143,55 +132,24 @@ class _GridRendererViewState extends State<GridRendererView> {
                           }).toList(),
                         ),
                       )
-                    : Padding(
-                        padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Spacer(),
-                            Text(
-                              "No results",
-                              style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
-                              textAlign: TextAlign.center,
-                            ),
-                            Spacer()
-                          ],
-                        ),
-                      );
+                    : emptyResult ??
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Spacer(),
+                              Text(
+                                "No results",
+                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                              Spacer()
+                            ],
+                          ),
+                        );
               })
           : Empty(),
     );
-  }
-
-  selectionMode(index) {
-    if (isInEditMode) {
-      return () {
-        setState(() {
-          if (!singleChoice) {
-            if (!selectedIndices.remove(index)) {
-              selectedIndices.add(index);
-            }
-          } else {
-            selectedIndices.clear();
-            selectedIndices.add(index);
-          }
-
-          selectedIndicesBinding.set(selectedIndices);
-        });
-      };
-    } else {
-      return () {
-        var item = viewContext.items.asMap()[index];
-
-        if (item != null) {
-          var presses = viewContext.rendererDefinitionPropertyResolver.actions("onPress") ??
-              viewContext.nodePropertyResolver(item)?.actions("onPress");
-          if (presses != null) {
-            presses.forEach((press) async =>
-                await press.execute(pageController, viewContext.getCVUContext(item: item)));
-          }
-        }
-      };
-    }
   }
 }

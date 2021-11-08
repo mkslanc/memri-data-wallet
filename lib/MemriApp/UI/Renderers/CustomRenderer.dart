@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'Renderer.dart';
 
-import '../ViewContextController.dart';
-
-class CustomRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  CustomRendererView({required this.pageController, required this.viewContext});
+class CustomRendererView extends Renderer {
+  CustomRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _CustomRendererViewState createState() => _CustomRendererViewState();
 }
 
-class _CustomRendererViewState extends State<CustomRendererView> {
-  late final ViewContextController viewContext;
-
+class _CustomRendererViewState extends RendererViewState {
   CVUDefinitionContent? get nodeDefinition {
     var viewDefinition;
     var viewName = viewContext.config.viewName;
@@ -30,7 +24,6 @@ class _CustomRendererViewState extends State<CustomRendererView> {
   @override
   initState() {
     super.initState();
-    viewContext = widget.viewContext;
     widget.pageController.addListener(updateState);
   }
 
