@@ -32,7 +32,7 @@ class CVULookupNode with EquatableMixin {
     } else if (lookupType is CVULookupTypeFunction) {
       return '$name(${lookupType.args.map((element) => element.toCVUString()).join(", ")})';
     } else {
-      return '$name${isArray ? "[${lookupType is CVULookupTypeLookup ? lookupType.subexpressions?.map((element) => element.toCVUString()).join(", ") : ""}]" : ""}';
+      return '$name${isArray ? "[${lookupType is CVULookupTypeLookup ? (lookupType.subexpressions?.map((element) => element.toCVUString()).join(", ") ?? "") : ""}]" : ""}';
     }
   }
 
