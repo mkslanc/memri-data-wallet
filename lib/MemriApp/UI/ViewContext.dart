@@ -35,6 +35,8 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
 
   String pageLabel;
 
+  int? cols;
+
   String? get viewName => _viewName;
 
   set viewName(String? value) {
@@ -90,6 +92,7 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
       CVUDefinitionContent? viewDefinition,
       CVUViewArguments? viewArguments,
       ItemRecord? focusedItem,
+      int? this.cols,
       required this.pageLabel})
       : this._rendererName = rendererName,
         this._query = query,
@@ -102,8 +105,16 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
   Map<String, dynamic> toJson() => _$ViewContextToJson(this);
 
   @override
-  List<Object?> get props =>
-      [_viewName, _rendererName, _viewDefinition, _query, _viewArguments, _focusedItem, pageLabel];
+  List<Object?> get props => [
+        _viewName,
+        _rendererName,
+        _viewDefinition,
+        _query,
+        _viewArguments,
+        _focusedItem,
+        pageLabel,
+        cols
+      ];
 }
 
 /// A class type that holds a ViewContext struct. This allows the struct to be shared between objects while maintaining value semantics.

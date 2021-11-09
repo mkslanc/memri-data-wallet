@@ -196,6 +196,7 @@ class _GeneralEditorRendererViewState extends RendererViewState {
   List<Widget> get stackContent {
     var currentItem = viewContext.focusedItem;
     if (currentItem != null) {
+      var _usedFields = usedFields;
       return [
         SizedBox(
           height: pageController.showTopBar ? 0 : 80,
@@ -205,8 +206,9 @@ class _GeneralEditorRendererViewState extends RendererViewState {
                   viewContext: viewContext,
                   layout: layoutSection,
                   item: currentItem,
-                  usedFields: usedFields,
-                  isEditing: !viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                  usedFields: _usedFields,
+                  isEditing:
+                      !viewContext.config.viewArguments!.args["readOnly"]!.value.value,
                   pageController: pageController,
                 ))
             .toList()

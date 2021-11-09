@@ -21,7 +21,6 @@ class CVUViewArguments with EquatableMixin {
   // The item that is `.` when resolving these view arguments
   ItemRecord? argumentItem;
 
-  // The item that is `.` when resolving these view arguments
   List<ItemRecord>? argumentItems;
 
   // The view arguments of the parent view (used to resolve)
