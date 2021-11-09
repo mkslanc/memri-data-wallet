@@ -207,8 +207,7 @@ class _GeneralEditorRendererViewState extends RendererViewState {
                   layout: layoutSection,
                   item: currentItem,
                   usedFields: _usedFields,
-                  isEditing:
-                      !viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                  isEditing: !viewContext.config.viewArguments!.args["readOnly"]!.value.value,
                   pageController: pageController,
                 ))
             .toList()

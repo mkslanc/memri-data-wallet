@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
@@ -197,12 +198,20 @@ class _ListRendererViewState extends RendererViewState {
       visualDensity: VisualDensity(horizontal: -2, vertical: -2),
       contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
           index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-      title: Row(
-        children: [
-          if (isSelected) Icon(Icons.face),
-          Expanded(child: title),
-        ],
-      ),
+      title: isInEditMode
+          ? Row(
+              children: [
+                SvgPicture.asset(
+                  "assets/images/check.svg",
+                  color: isSelected ? Colors.black : Color(0xffDFDEDE),
+                ),
+                SizedBox(
+                  width: 18,
+                ),
+                Expanded(child: title),
+              ],
+            )
+          : title,
       onTap: callback,
     );
     if (isDismissible) {

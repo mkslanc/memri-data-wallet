@@ -37,5 +37,5 @@ class CVUViewArguments with EquatableMixin {
   Map<String, dynamic> toJson() => _$CVUViewArgumentsToJson(this);
 
   @override
-  List<Object?> get props => [args, argumentItem, parentArguments];
+  List<Object?> get props => [args, argumentItem, parentArguments, subViewArguments];
 }
