@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:html/parser.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -568,6 +570,39 @@ class CVULookupController {
               return null;
             }
             currentValue = LookupStepItems(items);
+            break;
+          case "fromjson":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var exp = nodeType.args.asMap()[0];
+              if (exp == null) {
+                return null;
+              }
+
+              String? property = await resolve<String>(expression: exp, context: context, db: db);
+              if (property == null) {
+                return null;
+              }
+
+              var values = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  var obj = jsonDecode(string);
+                  if (obj == null || obj[property] == null) {
+                    return value;
+                  }
+                  return PropertyDatabaseValueString(obj[property]);
+                }
+              }).toList();
+
+              currentValue = LookupStepValues(values);
+            } else {
+              return null;
+            }
             break;
           default:
             return null;
