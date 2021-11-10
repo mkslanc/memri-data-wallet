@@ -29,3 +29,8 @@ docker run --rm -e UID="$UID" -e GID="$GROUPS" -e SDK_REGISTRY_TOKEN="....." --w
 3. Run command 
    - `flutter build ios` from console to build iOS app (**available only at MacOS**)
    - `flutter build apk` from console to build Android app. This command will generate a "fat" (all ABIs included) apk. There are other build artifacts possible as well, e.g. per-abi ones and others. Please refer to the general Flutter documentation for that.
+
+## To run locally:
+Run command 
+   - `flutter run -d chrome --debug` from console to run in debug mode
+   - `flutter run -d chrome --profile` from console to run in profile mode (main mode for now)
