@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import 'Renderer.dart';
 
 class CustomRendererView extends Renderer {
@@ -11,6 +12,8 @@ class CustomRendererView extends Renderer {
 }
 
 class _CustomRendererViewState extends RendererViewState {
+  late Future _init;
+
   CVUDefinitionContent? get nodeDefinition {
     var viewDefinition;
     var viewName = viewContext.config.viewName;
@@ -21,9 +24,14 @@ class _CustomRendererViewState extends RendererViewState {
     return viewDefinition ?? viewContext.config.viewDefinition.definitions.asMap()[0]?.parsed;
   }
 
+  Future init() async {
+    scrollable = await viewContext.viewDefinitionPropertyResolver.boolean("scrollable") ?? true;
+  }
+
   @override
   initState() {
     super.initState();
+    _init = init();
     widget.pageController.addListener(updateState);
   }
 
@@ -42,7 +50,25 @@ class _CustomRendererViewState extends RendererViewState {
     if (nodeDefinition == null) {
       return Text("No view defined");
     } else {
-      return viewContext.render(nodeDefinition: nodeDefinition);
+      return FutureBuilder(
+          future: _init,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (scrollable) {
+                return CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: viewContext.render(nodeDefinition: nodeDefinition),
+                      fillOverscroll: false,
+                    ),
+                  ],
+                );
+              }
+              return viewContext.render(nodeDefinition: nodeDefinition);
+            }
+            return Empty();
+          });
     }
   }
 }

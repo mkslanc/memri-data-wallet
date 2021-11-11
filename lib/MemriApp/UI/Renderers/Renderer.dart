@@ -18,6 +18,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   bool singleChoice = false;
   late Binding<Set<int>> selectedIndicesBinding;
   late Set<int> selectedIndices;
+  bool scrollable = true;
 
   @override
   initState() {
