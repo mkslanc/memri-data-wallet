@@ -14,7 +14,7 @@ class FlowStack<T> extends StatelessWidget {
       spacing,
       this.alignment = WrapCrossAlignment.start,
       required this.content})
-      : this.spacing = Point(0, 0);
+      : this.spacing = spacing ?? Point(0, 0);
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +22,12 @@ class FlowStack<T> extends StatelessWidget {
       child: Stack(
         children: [
           ColoredBox(color: Colors.transparent),
-          SizedBox(
-            width: 250,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: alignment,
-              spacing: spacing.y.toDouble(),
-              runSpacing: spacing.x.toDouble(),
-              children: data.map((e) => content(e)).expand((element) => element).toList(),
-            ),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: alignment,
+            spacing: spacing.y.toDouble(),
+            runSpacing: spacing.x.toDouble(),
+            children: data.map((e) => content(e)).expand((element) => element).toList(),
           ),
         ],
       ),
