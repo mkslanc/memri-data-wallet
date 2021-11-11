@@ -27,7 +27,6 @@ import 'package:memri/MemriApp/Controllers/Database/Schema.dart';
 import 'package:memri/MemriApp/Controllers/Plugins/PluginHandler.dart';
 import 'package:memri/MemriApp/UI/ViewContext.dart';
 import 'package:memri/MemriApp/UI/ViewContextController.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -430,11 +429,22 @@ class CVUActionAddItem extends CVUAction {
       }
 
       /// Take all the properties defined in the template definition (in CVU) and map them against the schema. Resolve the CVU based on the type expected by the schema.
-      List<ItemPropertyRecord> properties = (await Future.wait(
-              template.properties.keys.toList().map<Future<ItemPropertyRecord?>>((key) async {
-        ResolvedType? valueType = db.schema.expectedType(type, key);
+      await Future.wait(
+          template.properties.keys.toList().map<Future<ItemPropertyRecord?>>((key) async {
+        var isReverse = false;
+        var cleanKey = key;
+        if (key.startsWith("~")) {
+          isReverse = true;
+          cleanKey = key.substring(1);
+          var source = await template.item(key);
+          if (source == null) {
+            return;
+          }
+          type = source.type;
+        }
+        ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
         if (valueType == null) {
-          return null;
+          return;
         }
         if (valueType is ResolvedTypeProperty) {
           var propertyType = valueType.value;
@@ -475,57 +485,57 @@ class CVUActionAddItem extends CVUAction {
             }
           }();
           if (propertyDatabaseValue != null) {
-            return ItemPropertyRecord(
-                itemRowID: itemRowId, name: key, value: propertyDatabaseValue);
+            await ItemPropertyRecord(itemRowID: itemRowId, name: key, value: propertyDatabaseValue)
+                .save(db.databasePool, isNew: true);
           }
         } else if (valueType is ResolvedTypeEdge) {
-          // todo migrate: Make sure this passes
-          var target = await template.item(key);
+          var target = await template.item(isReverse ? key : cleanKey);
           var targetRowId = target?.rowId;
           if (targetRowId == null) {
-            return null;
+            return;
           }
           await ItemEdgeRecord(
-                  selfRowID: itemRowId, sourceRowID: itemRowId, name: key, targetRowID: targetRowId)
+                  sourceRowID: isReverse ? targetRowId : itemRowId,
+                  name: cleanKey,
+                  targetRowID: isReverse ? itemRowId : targetRowId)
               .save();
         }
-      })))
-          .compactMap<ItemPropertyRecord>();
+      }));
 
-      await Future.forEach<ItemPropertyRecord>(properties, (property) async {
-        await property.save(db.databasePool, isNew: true);
-      });
-
-      var renderer = "generalEditor";
-      var viewDefinition =
-          AppController.shared.cvuController.viewDefinitionForItemRecord(itemRecord: item);
-      if (viewDefinition == null) {
-        return;
-      }
-      var defaultRenderer = viewDefinition.properties["defaultRenderer"];
-      if (defaultRenderer is CVUValueConstant) {
-        var defaultRendererValue = defaultRenderer.value;
-        if (defaultRendererValue is CVUConstantArgument) {
-          renderer = defaultRendererValue.value;
+      var openNewView = await resolver.boolean("openNewView", true);
+      if (openNewView!) {
+        var renderer = "generalEditor";
+        var viewDefinition =
+            AppController.shared.cvuController.viewDefinitionForItemRecord(itemRecord: item);
+        if (viewDefinition == null) {
+          return;
         }
+        var defaultRenderer = viewDefinition.properties["defaultRenderer"];
+        if (defaultRenderer is CVUValueConstant) {
+          var defaultRendererValue = defaultRenderer.value;
+          if (defaultRendererValue is CVUConstantArgument) {
+            renderer = defaultRendererValue.value;
+          }
+        }
+
+        var newVars = Map.of(vars);
+        if (newVars["viewArguments"] != null) {
+          (newVars["viewArguments"] as CVUValueSubdefinition).value.properties.update(
+              "readOnly", (value) => CVUValueConstant(CVUConstantBool(false)),
+              ifAbsent: () => CVUValueConstant(CVUConstantBool(false)));
+        } else {
+          newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
+            "readOnly": CVUValueConstant(CVUConstantBool(false)),
+          }));
+        }
+
+        await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
+            .execute(pageController, context.replacingItem(item));
+        pageController.sceneController.mainPageController.topMostContext
+            ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
       }
 
-      var newVars = Map.of(vars);
-      if (newVars["viewArguments"] != null) {
-        (newVars["viewArguments"] as CVUValueSubdefinition).value.properties.update(
-            "readOnly", (value) => CVUValueConstant(CVUConstantBool(false)),
-            ifAbsent: () => CVUValueConstant(CVUConstantBool(false)));
-      } else {
-        newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
-          "readOnly": CVUValueConstant(CVUConstantBool(false)),
-        }));
-      }
-
-      await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
-          .execute(pageController, context.replacingItem(item));
-
-      pageController.sceneController.mainPageController.topMostContext
-          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
+      pageController.scheduleUIUpdate();
     }
   }
 }
@@ -870,7 +880,7 @@ class CVUActionLink extends CVUAction {
 
     var edge = ItemEdgeRecord(
         sourceRowID: subjectItem.rowId, name: edgeType, targetRowID: currentItem.rowId);
-    edge.save(db.databasePool);
+    await edge.save(db.databasePool);
 
     pageController.scheduleUIUpdate();
   }
