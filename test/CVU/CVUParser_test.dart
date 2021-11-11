@@ -696,4 +696,11 @@ Text {
     }
 }""");
   });
+
+  test('testItem', () {
+    var snippet = """Person {
+    item: {{.}}
+}""";
+    expect(parseToCVUString(snippet), snippet);
+  });
 }
