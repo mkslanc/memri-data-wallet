@@ -357,7 +357,7 @@
                 onPress: openView {
                     viewName: "labelling-app-step-4"
                     viewArguments: {
-                        selectedDataset: {{selectedItems("datasetList").first()}}
+                        selectedDataset: {{selectedDataset}}
                         propertyName: {{selectedItems("itemProperty").first().propertyName}}
                         item: {{item}}
                     }
@@ -474,12 +474,21 @@
                 styleName: primaryButton
 
                 Text {
-                    text: "Next step"
+                    text: "Save app and close panel"
                 }
 
-                onPress: openView {
-                    viewName: "labelling-app-step-2"
-                }
+                onPress: [
+                    link {
+                        subject: {{selectedDataset}}
+                        edgeType: "dataset"
+                        distinct: true
+                    }
+                    setProperty {
+                        subject: {{item}}
+                        property: "name"
+                        value: "{selectedDataset.name}_{item.uid}"
+                    }
+                    ]
             }
 
             Button {

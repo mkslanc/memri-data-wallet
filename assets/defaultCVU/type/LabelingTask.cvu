@@ -103,6 +103,26 @@ LabelingTask > singleItem {
 
 }
 
+LabelingTask > list {
+    onPress: noop
+
+    VStack {
+        alignment: left
+
+        HStack {
+            alignment: left
+
+            Text {
+                text: {{.name or "Draft: Labeling app"}}
+                font: 18 semibold
+                color: primary
+                padding: 0 0 3 0
+            }
+        }
+
+    }
+}
+
 .allLabelingTasks {
     name: "all-labeling-tasks"
     title: "Data tasks"
