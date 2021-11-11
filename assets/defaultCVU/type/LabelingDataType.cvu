@@ -1,36 +1,29 @@
 LabelingDataType > grid {
-    onPress: pluginRun {
-        name: {{.name}}
-        plugin: {{.}}
-        container: {{.container}}
-        pluginModule: {{.pluginModule}}
-        pluginName: {{.pluginName}}
-        targetItemId: {{.id}}
-    }
+    onPress: noop
 
 
-        VStack {
-            alignment: center
-            height: 93
-            width: 91
-            background: #FAFAFA
+    VStack {
+        alignment: center
+        height: 93
+        width: 91
+        background: #FAFAFA
 
-            Image {
-                show: {{.icon}}
-                isVector: true
-                bundleImage: {{.icon}}
-                color: #FE570F
-                width: 20
-                height: 20
-            }
-
-            Text {
-                text: "{.name}"
-                font: bodyText1
-                color: #FE570F
-                padding: 13 0 0 0
-            }
+        Image {
+            show: {{.icon}}
+            isVector: true
+            bundleImage: {{.icon}}
+            color: #FE570F
+            width: 20
+            height: 20
         }
+
+        Text {
+            text: "{.name}"
+            font: bodyText1
+            color: #FE570F
+            padding: 13 0 0 0
+        }
+    }
 
 }
 
