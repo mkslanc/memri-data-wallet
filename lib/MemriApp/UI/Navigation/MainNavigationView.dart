@@ -18,7 +18,9 @@ class _MainNavigationViewState extends State<MainNavigationView> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SvgPicture.asset("assets/images/ico_hamburger.svg"),
+        TextButton(
+            onPressed: () => widget.sceneController.navigationIsVisible.value = true,
+            child: SvgPicture.asset("assets/images/ico_hamburger.svg")),
         SizedBox(
           width: 34,
         ),

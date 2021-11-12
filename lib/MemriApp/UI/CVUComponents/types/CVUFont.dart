@@ -106,6 +106,8 @@ class CVUFont {
       color: Color(0xff333333));
   static const bodyText1 = TextStyle(
       fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+  static const bodyBold = TextStyle(
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xff333333));
   static const bodyText2 = TextStyle(
       fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const buttonLabel = TextStyle(

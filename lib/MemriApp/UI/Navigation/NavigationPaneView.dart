@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/FactoryReset.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -21,83 +21,33 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
 
   _NavigationPaneViewState(this.sceneController);
 
-  //@ObservedObject var keyboardResponder = KeyboardResponder.shared
-
   bool showSettings = false;
 
   Widget build(BuildContext context) {
     sceneController.setupObservations();
-    return ColoredBox(
-      color: Colors.white,
-      child: Column(
-        children: [
-          FutureBuilder(
-            future: sceneController.navigationItems,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasError) {
-                print(snapshot.error.toString());
-                return Text(
-                  "Error occurred",
-                  style: TextStyle(color: Colors.red),
-                );
-              }
-              if (snapshot.hasData) {
-                List<Widget> widgets = [];
-                var items = snapshot.data;
-                items.forEach((navItem) {
-                  if (navItem is NavigationElementItem) {
-                    var item = navItem.value;
-                    widgets.add(NavigationItemView(item: item, sceneController: sceneController));
-                  } else if (navItem is NavigationElementHeading) {
-                    var title = navItem.value;
-                    widgets.add(NavigationHeadingView(title: title));
-                  } else {
-                    widgets.add(NavigationLineView());
-                  }
-                });
-                return Expanded(
-                  child: Column(
-                    children: [
-                      NavigationItemView(
-                        item: Item(name: "Add items", targetViewName: "adding", icon: "plus"),
-                        sceneController: sceneController,
-                        textColor: Colors.black,
-                      ),
-                      NavigationLineView(),
-                      Expanded(child: Column(children: widgets)),
-                      NavigationLineView(),
-                      NavigationItemView(
-                          item: Item(
-                              name: "Apps and Plugins", targetViewName: "allPlugins", icon: "zap"),
-                          sceneController: sceneController),
-                      /* NavigationItemView(
-                          item:
-                              Item(name: "Settings", targetViewName: "settings", icon: "settings"),
-                          sceneController: sceneController),*/
-                      //TODO: we don't have settings right now
-                      NavigationLineView(),
-                      NavigationItemView(
-                          item: Item(
-                              name: "Logout",
-                              callback: () => factoryReset(context),
-                              icon: "log-out"),
-                          sceneController: sceneController),
-                    ],
-                  ),
-                );
-              }
-              return Padding(
-                padding: EdgeInsets.all(20),
-                child: SizedBox(
-                  child: CircularProgressIndicator(),
-                  width: 60,
-                  height: 60,
-                ),
-              );
-            },
-          )
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+            onPressed: () => widget.sceneController.navigationIsVisible.value = false,
+            child: SvgPicture.asset("assets/images/ico_close.svg")),
+        SizedBox(
+          height: 71,
+        ),
+        Expanded(
+            child: Row(
+          children: [
+            Column(
+              children: [
+                Text(
+                  "Account",
+                  style: CVUFont.bodyBold.copyWith(color: Colors.white),
+                )
+              ],
+            )
+          ],
+        ))
+      ],
     );
   }
 }

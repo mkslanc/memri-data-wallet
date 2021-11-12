@@ -14,6 +14,8 @@ import 'package:memri/MemriApp/UI/Navigation/MainNavigationView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
+import 'Navigation/NavigationWrapperView.dart';
+
 /// This is the view used to display the browser content of each scene
 class SceneView extends StatefulWidget {
   final SceneController sceneController;
@@ -84,44 +86,46 @@ class _SceneViewState extends State<SceneView> {
       child: Stack(
         children: [
           LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  color: Color(0xffF4F4F4),
-                  height: 150,
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                          height: 150,
-                          child: MainNavigationView(
-                            sceneController: widget.sceneController,
-                          ))
-                    ],
-                  ),
-                ),
-                ColoredBox(
-                  color: Colors.white,
-                  child: SizedBox(
-                    width: constraints.maxWidth,
-                    height: constraints.maxHeight - 190,
-                    child: Column(
-                      children: [
-                        TopBarView(
-                          pageController: widget.sceneController.mainPageController,
-                        ),
-                        Expanded(
-                          child: NavigationHolder(
-                            widget.sceneController.mainPageController.navigationController,
-                          ),
-                        ),
-                      ],
+            return NavigationWrapperView(
+                sceneController: widget.sceneController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      color: Color(0xffF4F4F4),
+                      height: 150,
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                              height: 150,
+                              child: MainNavigationView(
+                                sceneController: widget.sceneController,
+                              ))
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
+                    ColoredBox(
+                      color: Colors.white,
+                      child: SizedBox(
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight - 190,
+                        child: Column(
+                          children: [
+                            TopBarView(
+                              pageController: widget.sceneController.mainPageController,
+                            ),
+                            Expanded(
+                              child: NavigationHolder(
+                                widget.sceneController.mainPageController.navigationController,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ));
           }),
           ValueListenableBuilder(
             builder: (BuildContext context, bool value, Widget? child) {
