@@ -591,21 +591,6 @@
       "value_type": "string"
     },
     {
-      "item_type": "LabelingDataType",
-      "property": "icon",
-      "value_type": "string"
-    },
-    {
-      "item_type": "LabelingDataType",
-      "property": "name",
-      "value_type": "string"
-    },
-    {
-      "item_type": "LabelingTask",
-      "property": "name",
-      "value_type": "string"
-    },
-    {
       "item_type": "Location",
       "property": "latitude",
       "value_type": "double"
@@ -1156,6 +1141,11 @@
       "source_type": "Account",
       "edge": "owner",
       "target_type": "Person"
+    },
+    {
+      "source_type": "Account",
+      "edge": "profilePicture",
+      "target_type": "Photo"
     },
     {
       "source_type": "Account",

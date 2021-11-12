@@ -1166,31 +1166,9 @@ class CVUActionSetProperty extends CVUAction {
     CVUValue? value = vars["value"];
 
     if (expectedType == null || value == null) return;
-    var resolvedValue;
-    switch (expectedType) {
-      case SchemaValueType.string:
-        resolvedValue = await lookup.resolve<String>(value: value, context: context, db: db);
-        break;
-      case SchemaValueType.bool:
-        resolvedValue = await lookup.resolve<bool>(value: value, context: context, db: db);
-        break;
-      case SchemaValueType.int:
-        resolvedValue = await lookup.resolve<int>(value: value, context: context, db: db);
-        break;
-      case SchemaValueType.double:
-        resolvedValue = await lookup.resolve<double>(value: value, context: context, db: db);
-        break;
-      case SchemaValueType.datetime:
-        resolvedValue = await lookup.resolve<DateTime>(value: value, context: context, db: db);
-        break;
-      case SchemaValueType.blob:
-        resolvedValue = await lookup.resolve<String>(value: value, context: context, db: db);
-        break;
-    }
-
-    if (resolvedValue == null) return;
-    var databaseValue = PropertyDatabaseValue.create(resolvedValue, expectedType);
-
+    var databaseValue = await PropertyDatabaseValue.createFromCVUValue(
+        cvuValue: value, propertyType: expectedType, context: context, db: db);
+    if (databaseValue == null) return;
     await subjectItem.setPropertyValue(property, databaseValue);
 
     pageController.topMostContext
