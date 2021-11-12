@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/FactoryReset.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
@@ -74,7 +73,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                       /* NavigationItemView(
                           item:
                               Item(name: "Settings", targetViewName: "settings", icon: "settings"),
-                          sceneController: sceneController),*/ //TODO: we don't have settings right now
+                          sceneController: sceneController),*/
+                      //TODO: we don't have settings right now
                       NavigationLineView(),
                       NavigationItemView(
                           item: Item(
@@ -153,29 +153,10 @@ class NavigationItemView extends StatelessWidget {
               sceneController.navigationIsVisible.value = false;
             }
           : item.callback,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 17, horizontal: 34),
-        child: Center(
-          child: item.icon != null
-              ? SvgPicture.asset(
-                  "assets/images/" + item.icon! + ".svg",
-                  color: textColor != null ? textColor : Color(0xff989898),
-                  semanticsLabel: item.name,
-                )
-              : Text(
-                  item.name.capitalizingFirst(),
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: textColor),
-                ),
-        ),
+      child: Text(
+        item.name,
+        style: CVUFont.bodyText1,
       ),
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) return Colors.white12;
-              return Colors.transparent;
-            },
-          ),
-          alignment: Alignment.topLeft),
     );
   }
 }

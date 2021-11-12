@@ -3,12 +3,14 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
-import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/SimpleFilterPanel.dart';
 
 import '../ViewContextController.dart';
-import 'SearchView.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
@@ -60,31 +62,26 @@ class _TopBarViewState extends State<TopBarView> {
   @override
   Widget build(BuildContext context) {
     viewContext = widget.pageController.topMostContext;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 60, 30, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FutureBuilder(
-              future: title,
-              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                if (snapshot.hasData) {
-                  return Text(
-                    snapshot.data!,
-                    style: CVUFont.headline2,
-                  );
-                } else {
-                  return Text("");
-                }
-              }),
-          SizedBox(
-            height: 22,
-          ),
-          if (viewContext != null) ...[
-            SizedBox(height: 78, child: SearchView(viewContext: viewContext!)),
-            SimpleFilterPanel(viewContext: viewContext!)
-          ]
-        ],
+    return Container(
+      height: 40,
+      color: Color(0xffF4F4F4),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (viewContext != null) ...[
+              SimpleFilterPanel(viewContext: viewContext!),
+              Spacer(),
+              ActionButton(
+                action: CVUActionOpenCVUEditor(
+                    vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),
+                viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
+                pageController: widget.pageController,
+              )
+            ]
+          ],
+        ),
       ),
     );
   }

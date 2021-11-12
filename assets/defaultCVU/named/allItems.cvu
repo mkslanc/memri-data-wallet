@@ -21,3 +21,14 @@
         }
     }
 }
+
+
+.allItemsForDS {
+    title: "All data"
+    defaultRenderer: list
+
+    [datasource = pod] {
+        query: Photo Note Person Account MessageChannel
+        sortProperty: dateModified
+    }
+}

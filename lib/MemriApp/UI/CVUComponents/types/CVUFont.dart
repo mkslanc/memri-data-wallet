@@ -117,7 +117,7 @@ class CVUFont {
       letterSpacing: 1.04,
       color: Color(0xff333333));
   static const link = TextStyle(
-      fontFamily: 'Karla', fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const smallCaps = TextStyle(
       fontFamily: 'Karla',
       fontSize: 10,
@@ -125,7 +125,7 @@ class CVUFont {
       letterSpacing: 0.11,
       color: Color(0xff333333));
   static const tabList = TextStyle(
-      fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const bodyTiny = TextStyle(
       fontFamily: 'Karla', fontSize: 10, fontWeight: FontWeight.w400, color: Color(0xff333333));
 }

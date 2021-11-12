@@ -607,7 +607,7 @@ class CVUActionOpenPlugin extends CVUAction {
     await pageController.sceneController.navigateToNewContext(
         animated: false,
         viewName: viewName,
-        pageController: pageController.sceneController.secondaryPageController,
+        pageController: pageController,
         targetItem: account ?? plugin);
   }
 }

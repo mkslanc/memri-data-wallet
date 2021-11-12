@@ -8,10 +8,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
-import 'package:memri/MemriApp/UI/Chrome/AltTopBarView.dart';
 import 'package:memri/MemriApp/UI/Chrome/TopBarView.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/FilterPanelView.dart';
-import 'package:memri/MemriApp/UI/Navigation/NavigationWrapperView.dart';
+import 'package:memri/MemriApp/UI/Navigation/MainNavigationView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
@@ -82,108 +81,91 @@ class _SceneViewState extends State<SceneView> {
   Widget build(BuildContext context) {
     return SafeArea(
       top: true,
-      child: NavigationWrapperView(
-          sceneController: widget.sceneController,
-          child: Stack(
-            children: [
-              LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ColoredBox(
-                      color: Colors.white,
-                      child: SizedBox(
-                        width: mainViewCols != null
-                            ? constraints.maxWidth / 10 * mainViewCols! - 1
-                            : constraints.maxWidth - 1,
-                        height: constraints.maxHeight,
-                        child: Column(
-                          children: [
-                            showTopBar
-                                ? TopBarView(
-                                    pageController: widget.sceneController.mainPageController,
-                                  )
-                                : Empty(),
-                            Expanded(
-                              child: NavigationHolder(
-                                widget.sceneController.mainPageController.navigationController,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    VerticalDivider(
-                      width: 1,
-                      color: Color(0xffE5E5E5),
-                    ),
-                    ColoredBox(
-                      color: Colors.white,
-                      child: SizedBox(
-                        width: secondaryViewCols != null
-                            ? constraints.maxWidth / 10 * secondaryViewCols!
-                            : 0,
-                        child: Column(
-                          children: [
-                            if (widget.sceneController.secondaryPageController.topMostContext !=
-                                null)
-                              AltTopBarView(
-                                  pageController: widget.sceneController.secondaryPageController),
-                            Expanded(
-                              child: NavigationHolder(
-                                widget.sceneController.secondaryPageController.navigationController,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-              ValueListenableBuilder(
-                builder: (BuildContext context, bool value, Widget? child) {
-                  var currentContext = widget.sceneController.mainPageController.topMostContext;
-                  if (value && currentContext != null) {
-                    return Stack(
-                      alignment: Alignment.bottomCenter,
+      child: Stack(
+        children: [
+          LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  color: Color(0xffF4F4F4),
+                  height: 150,
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                          height: 150,
+                          child: MainNavigationView(
+                            sceneController: widget.sceneController,
+                          ))
+                    ],
+                  ),
+                ),
+                ColoredBox(
+                  color: Colors.white,
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight - 190,
+                    child: Column(
                       children: [
-                        GestureDetector(
-                          onTap: () => widget.sceneController.filterPanelIsVisible.value = false,
-                          child: ColoredBox(
-                            color: Colors.black45,
-                            child: SizedBox.expand(),
+                        TopBarView(
+                          pageController: widget.sceneController.mainPageController,
+                        ),
+                        Expanded(
+                          child: NavigationHolder(
+                            widget.sceneController.mainPageController.navigationController,
                           ),
                         ),
-                        FilterPanelView(viewContext: currentContext)
                       ],
-                    );
-                  } else {
-                    return Empty();
-                  }
-                },
-                valueListenable: widget.sceneController.filterPanelIsVisible,
-              ),
-              if (widget.sceneController.mainPageController.canNavigateBack)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 15, 0, 0),
-                  child: SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        widget.sceneController.mainPageController.navigateBack();
-                      },
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.black,
-                      ),
                     ),
                   ),
                 ),
-            ],
-          )),
+              ],
+            );
+          }),
+          ValueListenableBuilder(
+            builder: (BuildContext context, bool value, Widget? child) {
+              var currentContext = widget.sceneController.mainPageController.topMostContext;
+              if (value && currentContext != null) {
+                return Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    GestureDetector(
+                      onTap: () => widget.sceneController.filterPanelIsVisible.value = false,
+                      child: ColoredBox(
+                        color: Colors.black45,
+                        child: SizedBox.expand(),
+                      ),
+                    ),
+                    FilterPanelView(viewContext: currentContext)
+                  ],
+                );
+              } else {
+                return Empty();
+              }
+            },
+            valueListenable: widget.sceneController.filterPanelIsVisible,
+          ),
+          if (widget.sceneController.mainPageController.canNavigateBack)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 15, 0, 0),
+              child: SizedBox(
+                height: 50,
+                width: 50,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    widget.sceneController.mainPageController.navigateBack();
+                  },
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
