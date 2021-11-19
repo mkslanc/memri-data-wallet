@@ -1,0 +1,16 @@
+Dataset > list {
+    onPress: noop
+
+    HStack {
+        alignment: left
+
+        Text {
+            text: {{.name.plainString() or "Untitled"}}
+            lineLimit: 1
+            font: bodyText1
+            color: #737373
+        }
+    }
+}
+
+

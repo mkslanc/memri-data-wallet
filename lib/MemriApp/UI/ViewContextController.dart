@@ -257,19 +257,18 @@ class ViewContextController extends ChangeNotifier {
   bool get hasItems => items.isNotEmpty;
 
   // MARK: Selection State
-  List<String> selectedItems = <String>[];
+  List<int> selectedItems = <int>[];
 
   Binding<Set<int>> get selectedIndicesBinding {
     return Binding(
         () => Set.of(selectedItems
-            .map((uid) => items.indexWhere((item) => item.uid == uid))
+            .map((rowId) => items.indexWhere((item) => item.rowId == rowId))
             .whereType<int>()
-            .toList()), (newValue) {
-      selectedItems = Set.of(newValue
-              .map<String?>((index) => items.asMap()[index]?.uid)
-              .whereType<String>()
-              .toList())
-          .toList();
+            .toList()), (Set<int> newValue) {
+      selectedItems =
+          Set.of(newValue.toList().compactMap((index) => items.asMap()[index]?.rowId)).toList();
+      config.viewArguments?.args["selectedItems"] =
+          CVUValueArray(selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
     });
   }
 

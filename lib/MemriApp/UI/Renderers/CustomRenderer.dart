@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
+import 'Renderer.dart';
 
-import '../ViewContextController.dart';
-
-class CustomRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  CustomRendererView({required this.pageController, required this.viewContext});
+class CustomRendererView extends Renderer {
+  CustomRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _CustomRendererViewState createState() => _CustomRendererViewState();
 }
 
-class _CustomRendererViewState extends State<CustomRendererView> {
-  late final ViewContextController viewContext;
+class _CustomRendererViewState extends RendererViewState {
+  late Future _init;
 
   CVUDefinitionContent? get nodeDefinition {
     var viewDefinition;
@@ -27,10 +24,14 @@ class _CustomRendererViewState extends State<CustomRendererView> {
     return viewDefinition ?? viewContext.config.viewDefinition.definitions.asMap()[0]?.parsed;
   }
 
+  Future init() async {
+    scrollable = await viewContext.viewDefinitionPropertyResolver.boolean("scrollable") ?? true;
+  }
+
   @override
   initState() {
     super.initState();
-    viewContext = widget.viewContext;
+    _init = init();
     widget.pageController.addListener(updateState);
   }
 
@@ -49,7 +50,25 @@ class _CustomRendererViewState extends State<CustomRendererView> {
     if (nodeDefinition == null) {
       return Text("No view defined");
     } else {
-      return viewContext.render(nodeDefinition: nodeDefinition);
+      return FutureBuilder(
+          future: _init,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (scrollable) {
+                return CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: viewContext.render(nodeDefinition: nodeDefinition),
+                      fillOverscroll: false,
+                    ),
+                  ],
+                );
+              }
+              return viewContext.render(nodeDefinition: nodeDefinition);
+            }
+            return Empty();
+          });
     }
   }
 }

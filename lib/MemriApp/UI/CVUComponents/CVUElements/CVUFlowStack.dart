@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/Components/Layout/FlowStack.dart';
-import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
 
@@ -17,11 +16,11 @@ class CVUFlowStack extends StatefulWidget {
 }
 
 class _CVUFlowStackState extends State<CVUFlowStack> {
-  late final List<ItemRecord> content;
+  List<ItemRecord> content = [];
 
-  late final Point spacing;
+  Point spacing = Point(0, 0);
 
-  late final Future _init;
+  late Future _init;
 
   @override
   initState() {
@@ -34,6 +33,12 @@ class _CVUFlowStackState extends State<CVUFlowStack> {
     spacing = await widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    _init = init();
+    super.didUpdateWidget(oldWidget);
+  }
+
   Future<List<ItemRecord>> get _content async {
     return widget.nodeResolver.propertyResolver.items("list");
   }
@@ -43,13 +48,10 @@ class _CVUFlowStackState extends State<CVUFlowStack> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return FlowStack<ItemRecord>(
-                data: content,
-                spacing: spacing,
-                content: (listItem) => widget.nodeResolver.childrenInForEach(usingItem: listItem));
-          }
-          return Empty();
+          return FlowStack<ItemRecord>(
+              data: content,
+              spacing: spacing,
+              content: (listItem) => widget.nodeResolver.childrenInForEach(usingItem: listItem));
         });
   }
 }

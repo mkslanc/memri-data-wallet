@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Helpers/CalendarHelper.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
-import '../ViewContextController.dart';
 import 'CalendarRendererModel.dart';
+import 'Renderer.dart';
 
 /// The calendar renderer
 /// This presents the data in a month-style calendar view
 /// Dots are used to represent days on which items fall
 /// Pressing on a day will show a timeline view focused on that day
-class CalendarRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  CalendarRendererView({required this.pageController, required this.viewContext});
+class CalendarRendererView extends Renderer {
+  CalendarRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _CalendarRendererViewState createState() => _CalendarRendererViewState();
 }
 
-class _CalendarRendererViewState extends State<CalendarRendererView> {
+class _CalendarRendererViewState extends RendererViewState {
   final calendarHelper = CalendarHelper();
 
   late final Color backgroundColor;

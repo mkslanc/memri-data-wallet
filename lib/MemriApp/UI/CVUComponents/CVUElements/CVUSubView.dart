@@ -40,12 +40,6 @@ class _CVUSubViewState extends State<CVUSubView> {
     _init = init();
   }
 
-  @override
-  didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _init = init();
-  }
-
   init() async {
     items = await widget.nodeResolver.propertyResolver.items("query");
     content = await _content;
@@ -97,7 +91,11 @@ class _CVUSubViewState extends State<CVUSubView> {
       viewArguments = CVUViewArguments(
           args: viewArgs?.value.properties,
           argumentItem: nodeItem,
-          argumentItems: widget.nodeResolver.context.items);
+          argumentItems: widget.nodeResolver.context.items,
+          parentArguments: widget.nodeResolver.context.viewArguments);
+    } else {
+      viewArguments = CVUViewArguments(
+          parentArguments: widget.nodeResolver.context.viewArguments); //TODO: not sure
     }
 
     var newContext = CVUContext(
@@ -117,6 +115,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         rendererName: rendererName,
         viewDefinition: viewDefinition,
         viewArguments: viewArguments,
+        focusedItem: nodeItem,
         query: queryConfig);
     var holder = ViewContextHolder(config);
     var viewControllerContext = ViewContextController(
@@ -124,7 +123,10 @@ class _CVUSubViewState extends State<CVUSubView> {
         databaseController: AppController.shared.databaseController,
         cvuController: AppController.shared.cvuController,
         pageController: widget.nodeResolver.pageController);
-
+    var id = await widget.nodeResolver.propertyResolver.string("id");
+    if (id != null) {
+      widget.nodeResolver.context.viewArguments?.subViewArguments[id] = viewArguments;
+    }
     return viewControllerContext;
   }
 
@@ -150,22 +152,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         future: _init,
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Expanded(
-              child: Column(
-                children: [
-                  if (title != null)
-                    Column(
-                      children: space(10, [
-                        Text(
-                          title!,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        )
-                      ]),
-                    ),
-                  Expanded(child: renderer)
-                ],
-              ),
-            );
+            return Flexible(child: renderer);
           }
           return Empty();
         });

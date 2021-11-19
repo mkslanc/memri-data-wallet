@@ -17,6 +17,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/Components/MemriDatePicker.dart';
 import 'package:memri/MemriApp/UI/Components/Text/TextField/MemriTextfield.dart';
+import 'package:memri/MemriApp/UI/Renderers/Renderer.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
@@ -80,43 +81,41 @@ class GeneralEditorLayoutItem {
 
 /// The GeneralEditorRenderer
 /// This presents an editor for a single item
-class GeneralEditorRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  GeneralEditorRendererView({required this.pageController, required this.viewContext});
+class GeneralEditorRendererView extends Renderer {
+  GeneralEditorRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _GeneralEditorRendererViewState createState() => _GeneralEditorRendererViewState();
 }
 
-class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
+class _GeneralEditorRendererViewState extends RendererViewState {
   updateState() => setState(() {});
 
   @override
   initState() {
     super.initState();
-    widget.pageController.addListener(updateState);
+    pageController.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
-    widget.pageController.removeListener(updateState);
+    pageController.removeListener(updateState);
   }
 
   List<GeneralEditorLayoutItem> get layout {
-    var currentItem = widget.viewContext.focusedItem;
+    var currentItem = viewContext.focusedItem;
     if (currentItem == null) {
       return [];
     }
-    var viewLayout = widget.viewContext.cvuController
+    var viewLayout = viewContext.cvuController
             .viewDefinitionForItemRecord(itemRecord: currentItem)
             ?.definitions
             .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
             ?.get("layout") ??
-        widget.viewContext.cvuController
-            .viewDefinitionFor(viewName: widget.viewContext.config.viewName ?? "")
+        viewContext.cvuController
+            .viewDefinitionFor(viewName: viewContext.config.viewName ?? "")
             ?.definitions
             .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
             ?.get("layout");
@@ -127,9 +126,8 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
       viewDefs.addAll(values.compactMap((value) => value.getSubdefinition()?.properties));
     }
 
-    var generalLayout = widget.viewContext.cvuController
-        .rendererDefinitionForSelector(
-            selector: "[renderer = ${widget.viewContext.config.rendererName}]")
+    var generalLayout = viewContext.cvuController
+        .rendererDefinitionForSelector(selector: "[renderer = ${viewContext.config.rendererName}]")
         ?.properties["layout"];
     List<Map<String, CVUValue>>? generalDefs = [];
     if (generalLayout is CVUValueArray) {
@@ -141,8 +139,7 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
     }
 
     var showDefaultLayout = true;
-    var showDefaultLayoutValue =
-        widget.viewContext.config.viewDefinition.properties["showDefaultLayout"];
+    var showDefaultLayoutValue = viewContext.config.viewDefinition.properties["showDefaultLayout"];
     if (showDefaultLayoutValue is CVUValueConstant) {
       if (showDefaultLayoutValue.value is CVUConstantBool) {
         showDefaultLayout = (showDefaultLayoutValue.value as CVUConstantBool).value;
@@ -197,22 +194,21 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   }
 
   List<Widget> get stackContent {
-    var currentItem = widget.viewContext.focusedItem;
+    var currentItem = viewContext.focusedItem;
     if (currentItem != null) {
       var _usedFields = usedFields;
       return [
         SizedBox(
-          height: widget.pageController.showTopBar ? 0 : 80,
+          height: pageController.showTopBar ? 0 : 80,
         ),
         ...layout
             .map((layoutSection) => GeneralEditorSection(
-                  viewContext: widget.viewContext,
+                  viewContext: viewContext,
                   layout: layoutSection,
                   item: currentItem,
                   usedFields: _usedFields,
-                  isEditing:
-                      !widget.viewContext.config.viewArguments!.args["readOnly"]!.value.value,
-                  pageController: widget.pageController,
+                  isEditing: !viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                  pageController: pageController,
                 ))
             .toList()
       ];
@@ -223,7 +219,7 @@ class _GeneralEditorRendererViewState extends State<GeneralEditorRendererView> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: widget.pageController.isInEditMode,
+        valueListenable: pageController.isInEditMode,
         builder: (BuildContext context, bool value, Widget? child) {
           return RefreshIndicator(
             onRefresh: () async => updateState(),
