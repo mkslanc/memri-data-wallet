@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/Navigation/AdditionalNavigationView.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -35,17 +36,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
           height: 71,
         ),
         Expanded(
-            child: Row(
-          children: [
-            Column(
-              children: [
-                Text(
-                  "Account",
-                  style: CVUFont.bodyBold.copyWith(color: Colors.white),
-                )
-              ],
-            )
-          ],
+            child: AdditionalNavigationView(
+          sceneController: sceneController,
         ))
       ],
     );

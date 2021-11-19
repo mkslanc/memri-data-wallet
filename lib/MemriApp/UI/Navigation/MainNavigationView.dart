@@ -25,20 +25,9 @@ class _MainNavigationViewState extends State<MainNavigationView> {
           width: 34,
         ),
         SvgPicture.asset("assets/images/ico_search.svg"),
-        SizedBox(
-          width: 34,
-        ),
-        SvgPicture.asset("assets/images/plus.svg"),
         Spacer(),
         NavigationItemView(
-          item: Item(name: 'Dataflows'),
-          sceneController: widget.sceneController,
-        ),
-        SizedBox(
-          width: 30,
-        ),
-        NavigationItemView(
-          item: Item(name: 'All data', targetViewName: "allItemsForDS"),
+          item: Item(name: 'Data', targetViewName: "allItemsForDS"),
           sceneController: widget.sceneController,
         ),
         SizedBox(
@@ -52,7 +41,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
           width: 30,
         ),
         NavigationItemView(
-          item: Item(name: 'Plugins', targetViewName: "allPlugins"),
+          item: Item(name: 'Apps', targetViewName: "allPlugins"),
           sceneController: widget.sceneController,
         ),
         Spacer(),

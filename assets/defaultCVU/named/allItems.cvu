@@ -28,7 +28,7 @@
     defaultRenderer: list
 
     [datasource = pod] {
-        query: Photo Note Person Account MessageChannel
+        query: File Note Person Account MessageChannel
         sortProperty: dateModified
     }
 }
