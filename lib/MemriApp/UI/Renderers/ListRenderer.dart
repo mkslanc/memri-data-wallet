@@ -34,7 +34,7 @@ class _ListRendererViewState extends State<ListRendererView> {
   late bool separatorsEnabled;
   late bool isInEditMode;
   late bool isReverse;
-  bool isDismissible = false;
+  bool isDismissible = true;
 
   late Binding<Set<int>> selectedIndicesBinding;
   late Set<int> selectedIndices;
@@ -48,6 +48,7 @@ class _ListRendererViewState extends State<ListRendererView> {
     _init = init();
 
     pageController.isInEditMode.addListener(updateIsInEditMode);
+    viewContext.addListener(updateState);
   }
 
   updateIsInEditMode() async {
@@ -58,6 +59,11 @@ class _ListRendererViewState extends State<ListRendererView> {
   dispose() {
     super.dispose();
     pageController.isInEditMode.removeListener(updateIsInEditMode);
+    viewContext.removeListener(updateState);
+  }
+
+  updateState() {
+    setState(() {});
   }
 
   Future<void> init() async {
@@ -111,47 +117,50 @@ class _ListRendererViewState extends State<ListRendererView> {
         future: _init,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return ValueListenableBuilder(
-              valueListenable: viewContext.itemsValueNotifier,
-              builder: (context, value, child) {
-                if (viewContext.items.isNotEmpty) {
-                  selectedIndices = selectedIndicesBinding.get();
-                  var lastIndex = viewContext.items.length - 1;
-                  var elements = List<Widget>.from(viewContext.items
-                      .mapIndexed((index, item) =>
-                          [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
-                      .expand((element) => element));
+            if (!viewContext.isLoaded) {
+              return Center(
+                child: SizedBox(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                ),
+              );
+            }
+            if (viewContext.hasItems) {
+              selectedIndices = selectedIndicesBinding.get();
+              var lastIndex = viewContext.items.length - 1;
+              var elements = List<Widget>.from(viewContext.items
+                  .mapIndexed((index, item) =>
+                      [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
+                  .expand((element) => element));
 
-                  if (additional != null) {
-                    elements.insert(0, _buildSeparator());
-                    elements.insertAll(0, [
-                      _buildSeparator(),
-                      ListTile(
-                        key: Key(Uuid().v4()),
-                        dense: true,
-                        minVerticalPadding: 0,
-                        visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                        contentPadding:
-                            EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
-                        title: additional!,
-                      )
-                    ]);
-                  }
-                  return RefreshIndicator(
-                    onRefresh: () async =>
-                        setState(() => pageController.topMostContext?.setupQueryObservation()),
-                    child: ListView.custom(
-                      reverse: isReverse,
-                      shrinkWrap: true,
-                      padding: EdgeInsets.fromLTRB(
-                          0,
-                          pageController.showTopBar ? insets.top : insets.top + 80,
-                          0,
-                          insets.bottom),
-                      childrenDelegate: SliverChildListDelegate(elements),
-                    ),
-                    //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
-                    /*child: ListView.separated(
+              if (additional != null) {
+                elements.insert(0, _buildSeparator());
+                elements.insertAll(0, [
+                  _buildSeparator(),
+                  ListTile(
+                    key: Key(Uuid().v4()),
+                    dense: true,
+                    minVerticalPadding: 0,
+                    visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                    contentPadding:
+                        EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                    title: additional!,
+                  )
+                ]);
+              }
+              return RefreshIndicator(
+                onRefresh: () async =>
+                    setState(() => pageController.topMostContext?.setupQueryObservation()),
+                child: ListView.custom(
+                  reverse: isReverse,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.fromLTRB(0,
+                      pageController.showTopBar ? insets.top : insets.top + 80, 0, insets.bottom),
+                  childrenDelegate: SliverChildListDelegate(elements),
+                ),
+                //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
+                /*child: ListView.separated(
                       shrinkWrap: true,
                       // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
@@ -161,54 +170,52 @@ class _ListRendererViewState extends State<ListRendererView> {
                       },
                       separatorBuilder: (context, index) => _buildSeparator(),
                       itemCount: viewContext.items.length)*/
-                  );
-                } else {
-                  List<Widget> elements = [];
-                  if (additional != null) {
-                    elements.insertAll(0, [
-                      _buildSeparator(),
-                      ListTile(
-                        key: Key(Uuid().v4()),
-                        dense: true,
-                        minVerticalPadding: 0,
-                        visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                        contentPadding:
-                            EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
-                        title: additional!,
-                      )
-                    ]);
-                  }
-                  return Column(
-                    children: [
-                      if (elements.isNotEmpty)
-                        ListView.custom(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.fromLTRB(
-                              0,
-                              pageController.showTopBar ? insets.top : insets.top + 80,
-                              0,
-                              insets.bottom),
-                          childrenDelegate: SliverChildListDelegate(elements),
-                        ),
-                      emptyResult ??
-                          Padding(
-                            padding: EdgeInsets.all(30),
-                            child: Center(
-                              child: Text(
-                                "No items",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Color.fromRGBO(0, 0, 0, 0.7),
-                                    backgroundColor: backgroundColor),
-                              ),
-                            ),
+              );
+            } else {
+              List<Widget> elements = [];
+              if (additional != null) {
+                elements.insertAll(0, [
+                  _buildSeparator(),
+                  ListTile(
+                    key: Key(Uuid().v4()),
+                    dense: true,
+                    minVerticalPadding: 0,
+                    visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                    contentPadding:
+                        EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                    title: additional!,
+                  )
+                ]);
+              }
+              return Column(
+                children: [
+                  if (elements.isNotEmpty)
+                    ListView.custom(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.fromLTRB(
+                          0,
+                          pageController.showTopBar ? insets.top : insets.top + 80,
+                          0,
+                          insets.bottom),
+                      childrenDelegate: SliverChildListDelegate(elements),
+                    ),
+                  emptyResult ??
+                      Padding(
+                        padding: EdgeInsets.all(30),
+                        child: Center(
+                          child: Text(
+                            "No items",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: Color.fromRGBO(0, 0, 0, 0.7),
+                                backgroundColor: backgroundColor),
                           ),
-                    ],
-                  );
-                }
-              },
-            );
+                        ),
+                      ),
+                ],
+              );
+            }
           } else {
             return SizedBox(
               child: CircularProgressIndicator(),

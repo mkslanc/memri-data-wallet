@@ -84,6 +84,9 @@ class _GridRendererViewState extends State<GridRendererView> {
           ? ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
               builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                if (!viewContext.isLoaded) {
+                  return Empty();
+                }
                 return Column(
                   children: [
                     viewContext.hasItems
