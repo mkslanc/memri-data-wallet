@@ -679,8 +679,10 @@ class ItemRecord with EquatableMixin {
         var expectedType = dbController.schema.expectedPropertyType(item.type, propertyName);
         if (expectedType == null) {
           //first initialization with existing pod crashes without this
-          if (item.type == "ItemPropertySchema" &&
-              ["itemType", "propertyName", "valueType"].contains(propertyName)) {
+          if ((item.type == "ItemPropertySchema" &&
+                  ["itemType", "propertyName", "valueType"].contains(propertyName)) ||
+              (item.type == "ItemEdgeSchema" && //TODO should already be in schema
+                  ["edgeName", "sourceType", "targetType"].contains(propertyName))) {
             expectedType = SchemaValueType.string;
           } else {
             return;
