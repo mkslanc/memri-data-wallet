@@ -224,6 +224,12 @@
                 }
             }
 
+            HTMLView {
+                maxHeight: 200
+                maxWidth: 200
+                src: {{.~account.authUrl}}
+            }
+
             HStack {
                 alignment: left
                 padding: 15 0 0 0
