@@ -375,6 +375,17 @@ Person > list {
                 cornerRadius: 50
             }
 
+            Text {
+                text: "{.displayName}"
+                font: 12 regular
+                color: #737373
+            }
+
+            Text {
+                text: "{.firstName} {.lastName}"
+                font: 12 regular
+                color: #737373
+            }
 
             Text {
                 text: "{.firstName} {.lastName}"
