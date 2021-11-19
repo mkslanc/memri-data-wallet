@@ -683,4 +683,24 @@ Text {
     }
 }""");
   });
+
+  test('testIsArray', () {
+    var snippet = """MessageChannel > list {
+Text {
+    text: "{.~messageChannel[].first().photo}"
+  }
+}""";
+    expect(parseToCVUString(snippet), """MessageChannel > list {
+    Text {
+        text: "{.~messageChannel[].first().photo}"
+    }
+}""");
+  });
+
+  test('testItem', () {
+    var snippet = """Person {
+    item: {{.}}
+}""";
+    expect(parseToCVUString(snippet), snippet);
+  });
 }

@@ -659,8 +659,10 @@ class CVULookupController {
   }
 
   CVUExpressionNode? _getNamedExpression(List<CVUExpressionNode> expressions, String name) {
-    return expressions.firstWhereOrNull(
-        (expression) => expression is CVUExpressionNodeNamed && expression.key == name);
+    return (expressions.firstWhereOrNull(
+                (expression) => expression is CVUExpressionNodeNamed && expression.key == name)
+            as CVUExpressionNodeNamed?)
+        ?.value;
   }
 
   Future<List<Map<String, dynamic>>> getSort(List<CVUExpressionNode> expressions, String edgeType,

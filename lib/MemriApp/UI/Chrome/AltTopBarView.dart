@@ -3,6 +3,9 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
@@ -20,7 +23,7 @@ class AltTopBarView extends StatefulWidget {
 }
 
 class _TopBarViewState extends State<AltTopBarView> {
-  late ViewContextController? viewContext;
+  ViewContextController? viewContext;
 
   late Future<String?> title;
 
@@ -43,6 +46,7 @@ class _TopBarViewState extends State<AltTopBarView> {
   void dispose() {
     super.dispose();
     widget.pageController.removeListener(updateState);
+    viewContext?.removeListener(updateState);
   }
 
   void updateState() {
@@ -59,15 +63,19 @@ class _TopBarViewState extends State<AltTopBarView> {
 
   @override
   Widget build(BuildContext context) {
+    viewContext?.removeListener(updateState);
     viewContext = widget.pageController.topMostContext;
-    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
+    viewContext?.addListener(updateState);
+    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
+    actions.insert(
+        0, CVUActionOpenCVUEditor(vars: {"title": CVUValueConstant(CVUConstantString("Script"))}));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
           height: 54,
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            if (actions != null && viewContext != null)
+            if (actions.isNotEmpty && viewContext != null)
               ...actions.map((action) => ActionButton(
                     action: action,
                     viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),

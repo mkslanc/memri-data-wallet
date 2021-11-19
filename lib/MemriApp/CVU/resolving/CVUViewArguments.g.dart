@@ -16,10 +16,14 @@ CVUViewArguments _$CVUViewArgumentsFromJson(Map<String, dynamic> json) => CVUVie
       parentArguments: json['parentArguments'] == null
           ? null
           : CVUViewArguments.fromJson(json['parentArguments'] as Map<String, dynamic>),
+      argumentItems: (json['argumentItems'] as List<dynamic>?)
+          ?.map((e) => ItemRecord.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$CVUViewArgumentsToJson(CVUViewArguments instance) => <String, dynamic>{
       'args': instance.args,
       'argumentItem': instance.argumentItem,
+      'argumentItems': instance.argumentItems,
       'parentArguments': instance.parentArguments,
     };

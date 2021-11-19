@@ -32,7 +32,10 @@ abstract class CVUExpressionNode extends Equatable {
   String toCVUString() {
     var expressionNode = this;
     if (expressionNode is CVUExpressionNodeLookup) {
-      return expressionNode.nodes.map((element) => element.toCVUString()).join(".");
+      return expressionNode.nodes.length == 1 &&
+              expressionNode.nodes.first.type is CVULookupTypeDefault
+          ? "."
+          : expressionNode.nodes.map((element) => element.toCVUString()).join(".");
     } else if (expressionNode is CVUExpressionNodeStringMode) {
       return expressionNode.nodes.map((element) {
         if (element is CVUExpressionNodeConstant) {

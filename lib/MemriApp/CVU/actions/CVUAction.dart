@@ -64,6 +64,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionAddItem(vars: vars);
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
+    case "opencvueditor":
+      return ({Map<String, CVUValue>? vars}) => CVUActionOpenCVUEditor(vars: vars);
     case "openlink":
       return ({Map? vars}) => CVUActionOpenLink(vars: vars);
     case "openviewbyname":
@@ -238,6 +240,23 @@ class CVUActionOpenView extends CVUAction {
         customDefinition: customDefinition,
         viewArguments: viewArguments,
         pageController: pageController);
+  }
+}
+
+class CVUActionOpenCVUEditor extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionOpenCVUEditor({Map<String, CVUValue>? vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    vars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
+      if (context.rendererName != null)
+        "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
+      if (context.viewName != null)
+        "viewName": CVUValueConstant(CVUConstantString(context.viewName!))
+    }));
+    await CVUActionOpenView(vars: vars, renderer: "cvueditor").execute(pageController, context);
   }
 }
 

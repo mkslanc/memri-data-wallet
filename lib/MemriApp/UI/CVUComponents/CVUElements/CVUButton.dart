@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUTextPropertiesModifier.dart';
@@ -20,6 +21,7 @@ class CVUButton extends StatefulWidget {
 class _CVUButtonState extends State<CVUButton> {
   TextProperties? resolvedTextProperties;
   bool isLink = false;
+  ButtonStyle? style;
 
   late Future _init;
 
@@ -83,6 +85,7 @@ class _CVUButtonState extends State<CVUButton> {
   init() async {
     resolvedTextProperties = await widget.textProperties;
     isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
+    style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
   }
 
   @override
@@ -100,9 +103,8 @@ class _CVUButtonState extends State<CVUButton> {
                   onPressed: onPress,
                   child: widget.nodeResolver.childrenInForEachWithWrap(),
                   style: TextButton.styleFrom(
-                      textStyle: resolvedTextProperties?.textStyle ?? TextStyle(),
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                          textStyle: resolvedTextProperties?.textStyle ?? TextStyle())
+                      .merge(style),
                 );
         });
   }
