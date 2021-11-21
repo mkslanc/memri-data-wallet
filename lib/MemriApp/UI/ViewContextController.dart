@@ -229,9 +229,9 @@ class ViewContextController extends ChangeNotifier {
   // MARK: Query RESULT
   /// This holds the array of results for the query. If `isObserving` is set to true, this will be up to date with any changes in the database.
   // @Published
-  List<ItemRecord> _items = [];
+  List<ItemRecord>? _items;
 
-  List<ItemRecord> get items => _items;
+  List<ItemRecord> get items => _items ?? [];
 
   set items(List<ItemRecord> items) {
     if (config.focusedItem != null) {
@@ -244,7 +244,7 @@ class ViewContextController extends ChangeNotifier {
     if (focusedItem != null) {
       focusedItem = items[focusedIndex];
     }
-    itemsValueNotifier.value = _items;
+    itemsValueNotifier.value = _items!;
     notifyListeners();
   }
 
@@ -252,6 +252,9 @@ class ViewContextController extends ChangeNotifier {
       ValueNotifier([]); //TODO not sure if this is right architecture
 
   // AnyPublisher<[ItemRecord], Never> _itemsChangePublisher;
+
+  /// Convenience variable returning whether the items are loaded or not
+  bool get isLoaded => _items != null;
 
   /// Convenience variable returning whether there are any items
   bool get hasItems => items.isNotEmpty;

@@ -337,7 +337,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
             join += " " + element.joinQuery;
             joinTables.add(dbController.databasePool.getTable(element.table));
           });
-          orderBy = "prop.value $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
+          orderBy =
+              "${sortOrder == "DESC" ? "MAX" : "MIN"}(prop.value) $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
         } else {
           orderBy = "dateModified $sortOrder, dateCreated $sortOrder";
         }

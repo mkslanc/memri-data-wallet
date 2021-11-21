@@ -80,6 +80,9 @@ class _GridRendererViewState extends RendererViewState {
           ? ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
               builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                if (!viewContext.isLoaded) {
+                  return Empty();
+                }
                 return viewContext.hasItems
                     ? RefreshIndicator(
                         onRefresh: () async =>
