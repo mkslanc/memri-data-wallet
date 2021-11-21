@@ -22,7 +22,7 @@
                         _type: Note
                     }
                     viewArguments {
-                        mainView: false
+
                     }
                 }
 

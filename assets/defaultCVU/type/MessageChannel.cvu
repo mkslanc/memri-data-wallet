@@ -82,7 +82,7 @@ MessageChannel > list {
         viewArguments {
             channelUID: {{.uid}}
             channel: {{.}}
-         mainView: false
+
         }
     }
 

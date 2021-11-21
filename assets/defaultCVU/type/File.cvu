@@ -4,7 +4,7 @@ File > list {
         clearStack: true
         viewArguments: {
             currentItem: {{.}}
-            mainView: false
+
         }
     }
 

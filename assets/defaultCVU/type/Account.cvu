@@ -93,7 +93,7 @@ Account > list {
         renderer: singleitem
         clearStack: true
         viewArguments: {
-            mainView: false
+
         }
     }
     VStack {

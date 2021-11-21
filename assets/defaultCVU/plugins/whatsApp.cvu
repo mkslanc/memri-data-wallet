@@ -50,7 +50,7 @@
                             viewName: "pluginRunWait"
                             clearStack: true
                             viewArguments {
-                                mainView: false
+
                             }
                         }
                         pluginRun {
@@ -252,7 +252,7 @@
                             viewName: "inbox"
                             clearStack: true
                             viewArguments {
-                                mainView: true
+
                             }
                         }
                         ]

@@ -49,7 +49,7 @@
                             viewName: "SentimentAnalysisRun"
                             clearStack: true
                             viewArguments {
-                                mainView: false
+
                             }
                         }
                         pluginRun {
@@ -201,7 +201,7 @@
                             viewName: "SentimentAnalysisRun"
                             clearStack: true
                             viewArguments {
-                                mainView: false
+
                             }
                         }
                         pluginRun {

@@ -42,7 +42,7 @@
                 viewName: "updates"
                 clearStack: true
                 viewArguments: {
-                    mainView: false
+
                 }
             }
         }
@@ -87,7 +87,7 @@
                 openplugin {
                     pluginName: "WhatsappPlugin"
                     viewArguments: {
-                        mainView: false
+
                         clearStack: true
                     }
                 }
@@ -112,7 +112,7 @@
                 openplugin {
                     pluginName: "GmailImporter"
                     viewArguments: {
-                        mainView: false
+
                         clearStack: true
                     }
                 }
@@ -137,7 +137,7 @@
                 openplugin {
                     pluginName: "InstagramPlugin"
                     viewArguments: {
-                        mainView: false
+
                         clearStack: true
                     }
                 }

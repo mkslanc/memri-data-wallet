@@ -132,7 +132,7 @@ Message > list {
             onPress: openView {
                 renderer: photoViewer
                 viewArguments {
-                    mainView: false
+
                 }
             }
 

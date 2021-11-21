@@ -17,7 +17,7 @@
                      _type: Note
                  }
                  viewArguments {
-                     mainView: false
+
                  }
              }
 
@@ -51,7 +51,7 @@
                clearStack: true
                inheritDatasource: false
                viewArguments {
-                   mainView: false
+
                }
            }
 

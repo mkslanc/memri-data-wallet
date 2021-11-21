@@ -14,10 +14,9 @@
             onPress: [
             openView {
                 viewName: "create-labelling-app"
-                clearStack: true
                 inheritDatasource: false
                 viewArguments {
-                    mainView: false
+
                 }
             }]
 
