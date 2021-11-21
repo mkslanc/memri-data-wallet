@@ -41,7 +41,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
           width: 30,
         ),
         NavigationItemView(
-          item: Item(name: 'Apps', targetViewName: "allPlugins"),
+          item: Item(name: 'Apps', targetViewName: "apps-and-plugins"),
           sceneController: widget.sceneController,
         ),
         Spacer(),

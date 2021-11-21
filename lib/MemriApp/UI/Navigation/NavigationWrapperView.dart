@@ -25,21 +25,38 @@ class NavigationWrapperView extends StatelessWidget {
   }
 
   Widget body(BoxConstraints geom) {
-    //TODO: animation
     return Stack(
       children: [
-        SizedBox(width: geom.maxWidth, height: geom.maxHeight, child: child),
+        SizedBox(
+          width: geom.maxWidth,
+          height: geom.maxHeight,
+          child: child,
+        ),
         ValueListenableBuilder(
           builder: (BuildContext context, bool value, Widget? child) {
             if (value) {
-              return Container(
-                  height: 368,
-                  width: geom.maxWidth,
-                  color: Color(0xff4F56FE),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
-                    child: NavigationPaneView(sceneController: sceneController),
-                  ));
+              return Stack(
+                children: [
+                  GestureDetector(
+                    onTap: () => sceneController.navigationIsVisible.value = false,
+                    child: SizedBox(
+                      width: geom.maxWidth,
+                      height: geom.maxHeight,
+                      child: ColoredBox(
+                        color: Colors.transparent,
+                      ),
+                    ),
+                  ),
+                  Container(
+                      height: 368,
+                      width: geom.maxWidth,
+                      color: Color(0xff4F56FE),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
+                        child: NavigationPaneView(sceneController: sceneController),
+                      )),
+                ],
+              );
             } else {
               return Empty();
             }
@@ -50,7 +67,7 @@ class NavigationWrapperView extends StatelessWidget {
     );
   }
 
-  /* Widget bodyForLargeScreen(BoxConstraints geom) {
+/* Widget bodyForLargeScreen(BoxConstraints geom) {
     var navigationPanelWidth = navWidth(geom);
     return ColoredBox(
       color: Color(0xffE5E5E5),
