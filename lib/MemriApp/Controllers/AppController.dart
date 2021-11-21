@@ -143,8 +143,8 @@ class AppController {
       return;
     }
     await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
-    await updateState();
     onCompletion(null);
+    await updateState();
   }
 
   connectToPod(SetupConfig config, Future Function() callback) async {

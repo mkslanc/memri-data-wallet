@@ -182,12 +182,14 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                                       ),
                                     ),
                                   if (isCopied)
-                                    TextButton(
-                                      onPressed: () async {
-                                        appController.state = AppState.authenticated;
-                                      },
-                                      style: primaryButtonStyle,
-                                      child: Text("Keys saved"),
+                                    Flexible(
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          appController.state = AppState.authenticated;
+                                        },
+                                        style: primaryButtonStyle,
+                                        child: Text("Keys saved"),
+                                      ),
                                     ),
                                 ],
                               ),
