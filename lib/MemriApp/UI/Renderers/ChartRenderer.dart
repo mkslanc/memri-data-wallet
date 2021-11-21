@@ -1,27 +1,23 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
-
-import '../ViewContextController.dart';
+import 'Renderer.dart';
 
 /// The chart renderer.
 /// This renderer displays the data in a chart (eg. line, bar, pie)
-class ChartRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  ChartRendererView({required this.pageController, required this.viewContext});
+class ChartRendererView extends Renderer {
+  ChartRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _ChartRendererViewState createState() => _ChartRendererViewState();
 }
 
-class _ChartRendererViewState extends State<ChartRendererView> {
+class _ChartRendererViewState extends RendererViewState {
   late String? chartTitle;
 
   late String? chartSubtitle;

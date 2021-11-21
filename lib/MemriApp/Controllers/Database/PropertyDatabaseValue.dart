@@ -10,9 +10,11 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:moor/moor.dart';
 
+import 'DatabaseController.dart';
 import 'Schema.dart';
 
 /// This type is used as an intermediate for storing and retrieving values from the database
@@ -112,40 +114,44 @@ abstract class PropertyDatabaseValue with EquatableMixin {
     }
   }
 
-  static PropertyDatabaseValue? createFromCVUValue(
-      CVUValue cvuValue, SchemaValueType propertyType) {
-    if (cvuValue is! CVUValueConstant) {
-      return null;
-    }
-    CVUConstant value = cvuValue.value;
-
+  static Future<PropertyDatabaseValue?> createFromCVUValue(
+      {required CVUValue cvuValue,
+      required SchemaValueType propertyType,
+      required CVUContext context,
+      required DatabaseController db}) async {
+    var lookup = CVULookupController();
+    var resolvedValue;
     switch (propertyType) {
       case SchemaValueType.double:
-        if (value is! CVUConstantNumber) {
+        resolvedValue = await lookup.resolve<double>(value: cvuValue, context: context, db: db);
+        if (resolvedValue == null) {
           return null;
         }
-        return PropertyDatabaseValueDouble(value.value);
+        return PropertyDatabaseValueDouble(resolvedValue);
       case SchemaValueType.bool:
-        if (value is! CVUConstantBool) {
+        resolvedValue = await lookup.resolve<bool>(value: cvuValue, context: context, db: db);
+        if (resolvedValue == null) {
           return null;
         }
-        return PropertyDatabaseValueInt(value.value ? 1 : 0);
+        return PropertyDatabaseValueBool(resolvedValue);
       case SchemaValueType.int:
-        if (value is! CVUConstantInt) {
+        resolvedValue = await lookup.resolve<int>(value: cvuValue, context: context, db: db);
+        if (resolvedValue == null) {
           return null;
         }
-        return PropertyDatabaseValueInt(value.value);
+        return PropertyDatabaseValueInt(resolvedValue);
       case SchemaValueType.string:
-        if (value is! CVUConstantString) {
+        resolvedValue = await lookup.resolve<String>(value: cvuValue, context: context, db: db);
+        if (resolvedValue == null) {
           return null;
         }
-        return PropertyDatabaseValueString(value.value);
+        return PropertyDatabaseValueString(resolvedValue);
       case SchemaValueType.datetime:
-        if (value is! CVUConstantInt) {
+        resolvedValue = await lookup.resolve<int>(value: cvuValue, context: context, db: db);
+        if (resolvedValue == null) {
           return null;
         }
-        return PropertyDatabaseValueInt(value.value);
-      //TODO ? return PropertyDatabaseValueDatetime(DateTime.fromMillisecondsSinceEpoch(value.value));
+        return PropertyDatabaseValueInt(resolvedValue);
       default:
         return null;
     }

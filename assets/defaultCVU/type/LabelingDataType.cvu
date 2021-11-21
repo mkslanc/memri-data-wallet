@@ -1,0 +1,47 @@
+LabelingDataType > grid {
+    onPress: noop
+
+
+    VStack {
+        alignment: center
+        height: 93
+        width: 91
+        background: #FAFAFA
+
+        Image {
+            show: {{.icon}}
+            isVector: true
+            bundleImage: {{.icon}}
+            color: #FE570F
+            width: 20
+            height: 20
+        }
+
+        Text {
+            text: "{.name}"
+            font: bodyText1
+            color: #FE570F
+            padding: 13 0 0 0
+        }
+    }
+
+}
+
+.allLabelingDataTypes {
+    name: "all-labeling-data-types"
+    title: "Data types"
+    emptyResultText: "There are no Labeling data types"
+    defaultRenderer: grid
+    sortFields: dateModified dateCreated
+    cols: 4
+
+    [datasource = pod] {
+        query: LabelingDataType
+        sortProperty: dateModified
+        sortAscending: true
+    }
+
+    [renderer = grid] {
+        edgeInset: 0
+    }
+}

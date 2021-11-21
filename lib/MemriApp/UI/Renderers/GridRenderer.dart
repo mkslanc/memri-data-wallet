@@ -1,39 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
-import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
-import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
+import 'Renderer.dart';
+
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
-class GridRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  GridRendererView({required this.pageController, required this.viewContext});
+class GridRendererView extends Renderer {
+  GridRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _GridRendererViewState createState() => _GridRendererViewState();
 }
 
-class _GridRendererViewState extends State<GridRendererView> {
-  late final memri.PageController pageController;
-  late final ViewContextController viewContext;
-  late bool isInEditMode;
-
-  late Binding<Set<int>> selectedIndicesBinding;
-  late Set<int> selectedIndices;
+class _GridRendererViewState extends RendererViewState {
+  late EdgeInsets insets;
 
   late Future _init;
 
+  @override
   initState() {
     super.initState();
-    pageController = widget.pageController;
-    viewContext = widget.viewContext;
     _init = init();
 
     pageController.isInEditMode.addListener(updateState);
@@ -66,11 +57,16 @@ class _GridRendererViewState extends State<GridRendererView> {
       }
     }();
 
+    insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
+        EdgeInsets.fromLTRB(5, pageController.showTopBar ? 5 : 80, 5, 5);
+
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
 
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", pageController.isInEditMode.value))!;
+    singleChoice =
+        await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
@@ -84,115 +80,76 @@ class _GridRendererViewState extends State<GridRendererView> {
           ? ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
               builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                if (!viewContext.isLoaded) {
-                  return Empty();
-                }
-                return Column(
-                  children: [
-                    viewContext.hasItems
-                        ? Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: () async => setState(
-                                  () => pageController.topMostContext?.setupQueryObservation()),
-                              child: GridView.count(
-                                //TODO layout
-                                physics: AlwaysScrollableScrollPhysics(),
-                                scrollDirection: scrollDirection,
-                                childAspectRatio: 4 / 5,
-                                shrinkWrap: true,
-                                primary: false,
-                                padding: EdgeInsets.fromLTRB(
-                                    5, pageController.showTopBar ? 5 : 80, 5, 5),
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
-                                crossAxisCount: 3,
-                                children: viewContext.items.mapIndexed((index, item) {
-                                  var isSelected = selectedIndices.contains(index);
-                                  return GestureDetector(
-                                    onTap: selectionMode(index),
-                                    child: Stack(
-                                      alignment: Alignment.bottomRight,
-                                      children: [
-                                        viewContext.render(item: item),
-                                        if (isInEditMode && !isSelected)
-                                          SizedBox.expand(
-                                            child:
-                                                ColoredBox(color: Colors.white.withOpacity(0.15)),
-                                          ),
-                                        if (isSelected)
-                                          Padding(
-                                            padding: const EdgeInsets.all(20),
-                                            child: Container(
-                                              height: 30,
-                                              width: 30,
-                                              child: Stack(
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  Circle(
-                                                      color: Colors.blue,
-                                                      border: Border.all(
-                                                          color: Colors.white, width: 2)),
-                                                  Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 15,
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                      ],
+                return viewContext.hasItems
+                    ? RefreshIndicator(
+                        onRefresh: () async =>
+                            setState(() => pageController.topMostContext?.setupQueryObservation()),
+                        child: GridView.count(
+                          //TODO layout
+                          addRepaintBoundaries: false,
+                          physics: AlwaysScrollableScrollPhysics(),
+                          scrollDirection: scrollDirection,
+                          childAspectRatio: 2,
+                          shrinkWrap: true,
+                          primary: false,
+                          padding: insets,
+                          //crossAxisSpacing: 5,
+                          //mainAxisSpacing: 5,
+                          crossAxisCount: 3,
+                          children: viewContext.items.mapIndexed((index, item) {
+                            var isSelected = selectedIndices.contains(index);
+                            return GestureDetector(
+                              onTap: selectionMode(index),
+                              child: Stack(
+                                alignment: Alignment.topLeft,
+                                children: [
+                                  viewContext.render(item: item),
+                                  if (isInEditMode && !isSelected)
+                                    SizedBox.expand(
+                                      child: ColoredBox(color: Colors.white.withOpacity(0.15)),
                                     ),
-                                  );
-                                }).toList(),
+                                  if (isSelected)
+                                    Container(
+                                      height: 30,
+                                      width: 30,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Circle(
+                                              color: Colors.blue,
+                                              border: Border.all(color: Colors.white, width: 2)),
+                                          Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 15,
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                ],
                               ),
-                            ),
-                          )
-                        : Padding(
-                            padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Spacer(),
-                                Text(
-                                  "No results",
-                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
-                                  textAlign: TextAlign.center,
-                                ),
-                                Spacer()
-                              ],
-                            ),
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    : emptyResult ??
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(30, 40, 30, 30),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Spacer(),
+                              Text(
+                                "No results",
+                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                              Spacer()
+                            ],
                           ),
-                  ],
-                );
+                        );
               })
           : Empty(),
     );
-  }
-
-  selectionMode(index) {
-    if (isInEditMode) {
-      return () {
-        setState(() {
-          if (!selectedIndices.remove(index)) {
-            selectedIndices.add(index);
-          }
-          selectedIndicesBinding.set(selectedIndices);
-        });
-      };
-    } else {
-      return () {
-        var item = viewContext.items.asMap()[index];
-
-        if (item != null) {
-          var presses = viewContext.rendererDefinitionPropertyResolver.actions("onPress") ??
-              viewContext.nodePropertyResolver(item)?.actions("onPress");
-          if (presses != null) {
-            presses.forEach((press) async =>
-                await press.execute(pageController, viewContext.getCVUContext(item: item)));
-          }
-        }
-      };
-    }
   }
 }

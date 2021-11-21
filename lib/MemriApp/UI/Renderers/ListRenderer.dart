@@ -1,50 +1,38 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/UI/Components/PluginModeSwitcher.dart';
+import 'package:memri/MemriApp/UI/Renderers/Renderer.dart';
 import 'package:uuid/uuid.dart';
-
-import '../ViewContextController.dart';
 
 /// The list renderer
 /// This presents the data in a list (aka tableView)
-class ListRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  ListRendererView({required this.pageController, required this.viewContext});
+class ListRendererView extends Renderer {
+  ListRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _ListRendererViewState createState() => _ListRendererViewState();
 }
 
-class _ListRendererViewState extends State<ListRendererView> {
-  late final memri.PageController pageController;
-  late final ViewContextController viewContext;
-
+class _ListRendererViewState extends RendererViewState {
   late EdgeInsets insets;
   late Point spacing;
   late Color backgroundColor;
   late bool separatorsEnabled;
-  late bool isInEditMode;
   late bool isReverse;
   bool isDismissible = true;
 
-  late Binding<Set<int>> selectedIndicesBinding;
-  late Set<int> selectedIndices;
-
   late Future _init;
 
+  @override
   initState() {
     super.initState();
-    pageController = widget.pageController;
-    viewContext = widget.viewContext;
     _init = init();
 
     pageController.isInEditMode.addListener(updateIsInEditMode);
@@ -75,6 +63,8 @@ class _ListRendererViewState extends State<ListRendererView> {
     separatorsEnabled =
         !(await viewContext.rendererDefinitionPropertyResolver.boolean("hideSeparators", false))!;
     isReverse = (await viewContext.rendererDefinitionPropertyResolver.boolean("isReverse", false))!;
+    singleChoice =
+        await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
 
     await initEditMode();
   }
@@ -85,30 +75,6 @@ class _ListRendererViewState extends State<ListRendererView> {
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
-  }
-
-  Widget? get additional {
-    var additionalDef = viewContext.cvuController
-        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
-        ?.properties["additional"];
-
-    var additionalSubdef = additionalDef?.getSubdefinition();
-    if (additionalSubdef != null) {
-      return viewContext.render(nodeDefinition: additionalSubdef);
-    }
-    return null;
-  }
-
-  Widget? get emptyResult {
-    var emptyResultDef = viewContext.cvuController
-        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
-        ?.properties["emptyResult"];
-
-    var emptyResultSubdef = emptyResultDef?.getSubdefinition();
-    if (emptyResultSubdef != null) {
-      return viewContext.render(nodeDefinition: emptyResultSubdef);
-    }
-    return null;
   }
 
   @override
@@ -230,24 +196,31 @@ class _ListRendererViewState extends State<ListRendererView> {
     var title = ColoredBox(
         key: Key(item.uid), color: backgroundColor, child: viewContext.render(item: item));
     var callback = selectionMode(index);
-    Widget tile = isInEditMode
-        ? CheckboxListTile(
-            key: Key(item.uid),
-            dense: true,
-            title: title,
-            onChanged: callback,
-            value: selectedIndices.contains(index),
-            controlAffinity: ListTileControlAffinity.leading)
-        : ListTile(
-            key: Key(item.uid),
-            dense: true,
-            minVerticalPadding: 0,
-            visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-            contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2,
-                insets.right, index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-            title: title,
-            onTap: callback,
-          );
+    var isSelected = selectedIndices.contains(index);
+
+    Widget tile = ListTile(
+      key: Key(item.uid),
+      dense: true,
+      minVerticalPadding: 0,
+      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+      contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
+          index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+      title: isInEditMode
+          ? Row(
+              children: [
+                SvgPicture.asset(
+                  "assets/images/check.svg",
+                  color: isSelected ? Colors.black : Color(0xffDFDEDE),
+                ),
+                SizedBox(
+                  width: 18,
+                ),
+                Expanded(child: title),
+              ],
+            )
+          : title,
+      onTap: callback,
+    );
     if (isDismissible) {
       tile = Dismissible(
           direction: DismissDirection.endToStart,
@@ -276,30 +249,4 @@ class _ListRendererViewState extends State<ListRendererView> {
           color: separatorsEnabled ? null : Colors.transparent,
         ),
       );
-
-  selectionMode(index) {
-    if (isInEditMode) {
-      return (bool? newValue) {
-        setState(() {
-          if (!selectedIndices.remove(index)) {
-            selectedIndices.add(index);
-          }
-          selectedIndicesBinding.set(selectedIndices);
-        });
-      };
-    } else {
-      return () {
-        var item = viewContext.items.asMap()[index];
-
-        if (item != null) {
-          var presses = viewContext.rendererDefinitionPropertyResolver.actions("onPress") ??
-              viewContext.nodePropertyResolver(item)?.actions("onPress");
-          if (presses != null) {
-            presses.forEach((press) async =>
-                await press.execute(pageController, viewContext.getCVUContext(item: item)));
-          }
-        }
-      };
-    }
-  }
 }
