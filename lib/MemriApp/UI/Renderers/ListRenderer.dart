@@ -26,7 +26,7 @@ class _ListRendererViewState extends RendererViewState {
   late Color backgroundColor;
   late bool separatorsEnabled;
   late bool isReverse;
-  bool isDismissible = true;
+  bool isDismissible = false;
 
   late Future _init;
 
