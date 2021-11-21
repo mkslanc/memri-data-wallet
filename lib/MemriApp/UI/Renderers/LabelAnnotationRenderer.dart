@@ -3,33 +3,28 @@ import 'package:flutter/rendering.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
-import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
-
-import '../ViewContextController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+
+import 'Renderer.dart';
 
 /// The Label Annotation renderer
 /// This renderer can be used to annotate items with Labels
 /// - Set the `labelType` to a unique ID representing the type of labels
 /// - Set the `labelOptions` property to an array of Strings (representing the options)
 /// - You may also provide a `labelOptionIcons` property with an array of icon names (in matching order with `labelOptions` array)
-class LabelAnnotationRendererView extends StatefulWidget {
-  final memri.PageController pageController;
-  final ViewContextController viewContext;
-
-  LabelAnnotationRendererView({required this.pageController, required this.viewContext});
+class LabelAnnotationRendererView extends Renderer {
+  LabelAnnotationRendererView({required pageController, required viewContext})
+      : super(pageController: pageController, viewContext: viewContext);
 
   @override
   _LabelAnnotationRendererViewState createState() => _LabelAnnotationRendererViewState();
 }
 
-class _LabelAnnotationRendererViewState extends State<LabelAnnotationRendererView> {
-  late ViewContextController viewContext;
-
+class _LabelAnnotationRendererViewState extends RendererViewState {
   ValueNotifier<Set<String>> _selectedLabels = ValueNotifier(Set<String>());
 
   Set<String> get selectedLabels => _selectedLabels.value;
@@ -41,7 +36,6 @@ class _LabelAnnotationRendererViewState extends State<LabelAnnotationRendererVie
   @override
   void initState() {
     super.initState();
-    viewContext = widget.viewContext;
   }
 
   Future<String> get labelType async {

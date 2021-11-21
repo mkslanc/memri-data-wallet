@@ -6,45 +6,49 @@ Account {
 
     contextPane {
         buttons: star schedule
-        
+
         actions: [
             showOverlay { title: "Share with..." }
             addToPanel { title: "Add to list..." }
             duplicate { title: "Duplicate Note" }
-        ]
-        
-        navigate: [
-            openView {
-                title: "Timeline of this note"
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+            ]
+
+            navigate: [
+                openView {
+                    title: "Timeline of this note"
+                    view: {
+                        defaultRenderer: timeline
+
+                        [datasource = pod] {
+                            query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                            sortProperty: dateCreated
+                            sortAscending: true
+                        }
+
+                        [renderer = timeline] {
+                            timeProperty: dateCreated
+                        }
                     }
                 }
-            }
-            openViewByName {
-                title: "Starred notes"
-                viewName: "filter-starred"
-                viewArguments: {
-                    include: "all-notes"
+                openViewByName {
+                    title: "Starred notes"
+                    viewName: "filter-starred"
+                    viewArguments: {
+                        include: "all-notes"
+                    }
                 }
-            }
-            openSessionByName {
-                title: "All notes"
-                sessionName: "all-notes"
-            }
-        ]
+                openSessionByName {
+                    title: "All notes"
+                    sessionName: "all-notes"
+                }
+                ]
     }
-    
+
     [renderer = custom] {
+
+    }
+
+    Account > custom {
         RichTextfield {
             content: {{.content}}
             title: {{.title}}
@@ -56,18 +60,18 @@ Account {
 .allAccounts {
     defaultRenderer: list
     cols: 4
-    
+
     title: "All Accounts"
     [datasource = pod] {
         query: Account
     }
-    
-    
-    
+
+
+
     [renderer = generalEditor] {
         EditorRow {
             title: "{title}"
-            
+
             Text {
                 text: {{.name}}
                 show: {{readOnly}}

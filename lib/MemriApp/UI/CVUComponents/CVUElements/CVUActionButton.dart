@@ -100,6 +100,7 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                   future: validAction.getViewContext(
                       CVUContext(
                           currentItem: widget.nodeResolver.context.currentItem,
+                          items: widget.nodeResolver.context.items,
                           viewName: validAction.viewName,
                           rendererName: validAction.renderer,
                           viewArguments: viewArguments),

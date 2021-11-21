@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:memri/MemriApp/Controllers/API/AuthKey.dart';
 import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
@@ -528,7 +529,7 @@ class ItemRecord with EquatableMixin {
   static Future<List<ItemRecord?>?> fromSyncItemDictList(
       {required List<dynamic> responseObjects,
       required DatabaseController dbController,
-      int partitionLimit = 100,
+      int partitionLimit = kIsWeb ? 25 : 100, //TODO: quick fix for web
       String? documentsDirectory}) async {
     var edges = <Map<String, dynamic>>[];
     var properties = <Map<String, dynamic>>[];
@@ -679,8 +680,10 @@ class ItemRecord with EquatableMixin {
         var expectedType = dbController.schema.expectedPropertyType(item.type, propertyName);
         if (expectedType == null) {
           //first initialization with existing pod crashes without this
-          if (item.type == "ItemPropertySchema" &&
-              ["itemType", "propertyName", "valueType"].contains(propertyName)) {
+          if ((item.type == "ItemPropertySchema" &&
+                  ["itemType", "propertyName", "valueType"].contains(propertyName)) ||
+              (item.type == "ItemEdgeSchema" && //TODO should already be in schema
+                  ["edgeName", "sourceType", "targetType"].contains(propertyName))) {
             expectedType = SchemaValueType.string;
           } else {
             return;
