@@ -249,13 +249,17 @@ class CVUActionOpenCVUEditor extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {
-    vars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
-      if (context.rendererName != null)
-        "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
-      if (context.viewName != null)
-        "viewName": CVUValueConstant(CVUConstantString(context.viewName!))
-    }));
-    await CVUActionOpenView(vars: vars, renderer: "cvueditor").execute(pageController, context);
+    if (context.rendererName == "cvueditor") {
+      await CVUActionNavigateBack().execute(pageController, context);
+    } else {
+      vars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
+        if (context.rendererName != null)
+          "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
+        if (context.viewName != null)
+          "viewName": CVUValueConstant(CVUConstantString(context.viewName!))
+      }));
+      await CVUActionOpenView(vars: vars, renderer: "cvueditor").execute(pageController, context);
+    }
   }
 }
 
