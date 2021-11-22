@@ -17,21 +17,40 @@ class CVUHTMLView extends StatefulWidget {
 }
 
 class _CVUHTMLViewState extends State<CVUHTMLView> {
-  late final Future<String?> _content;
+  late String? _content;
+  late String? src;
+
+  late Future _init;
 
   @override
   initState() {
     super.initState();
-    _content = widget.nodeResolver.propertyResolver.string("content");
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
+  init() async {
+    src = await widget.nodeResolver.propertyResolver.string("src");
+    _content = await widget.nodeResolver.propertyResolver.string("content");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _content,
-        builder: (BuildContext builder, AsyncSnapshot<String?> snapshot) {
-          if (snapshot.hasData) {
-            return EmailView(emailHTML: snapshot.data);
+        future: _init,
+        builder: (BuildContext builder, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (_content != null || src != null) {
+              return EmailView(
+                emailHTML: _content,
+                src: src,
+              );
+            }
           }
           return Empty();
         });
