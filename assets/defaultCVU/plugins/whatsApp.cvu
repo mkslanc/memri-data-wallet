@@ -93,7 +93,7 @@
 
     }
 
-    Plugin > singleItem {
+    Account > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -102,52 +102,6 @@
                 text: "Step 2"
                 font: link
                 padding: 0 5
-            }
-
-            Text {
-                text: "On your computer"
-                font: headline1
-            }
-
-            HStack {
-                alignment: left
-                Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
-                    alignment: center
-                    resizable: true
-                    sizingMode: fit
-                    color: #989898
-                    font: 20
-                }
-
-
-                Text {
-                    text: "Open this link to your personal QR code."
-                    font: bodyText2
-                    color: #737373
-                }
-
-
-
-            }
-
-            HStack {
-                alignment: left
-                Button {
-                    isLink: true
-                    padding: 15 0 0 0
-
-                    Text {
-                        text: {{.~account.authUrl}}
-                        font: link
-                        color: #00f
-                    }
-
-                    onPress: openLink {
-                        link: {{.~account.authUrl}}
-                    }
-                }
             }
 
             Text {
@@ -233,8 +187,8 @@
             }
 
             HTMLView {
-                maxHeight: 200
-                maxWidth: 200
+                maxHeight: 300
+                maxWidth: 300
                 src: {{.~account.authUrl}}
             }
 
@@ -296,7 +250,7 @@
 
     }
 
-    Plugin > singleItem {
+    Account > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -335,7 +289,7 @@
 
     }
 
-    Plugin > singleItem {
+    Account > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
