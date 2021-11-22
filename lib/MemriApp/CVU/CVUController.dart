@@ -78,10 +78,8 @@ class CVUController {
     definition.parsed = content;
     var storedDefinitionItems = await databaseController.databasePool
         .itemPropertyRecordsSelect("querystr", value: definition.querystr);
-    var storedDefinitionIds = storedDefinitionItems
-        .map((item) => item is StringDb ? item.item : null)
-        .toList()
-        .compactMap<int>();
+    var storedDefinitionIds =
+        storedDefinitionItems.compactMap<int>((item) => item is StringDb ? item.item : null);
     var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
         .where((item) => item.type == "CVUStoredDefinition");
     if (validStoredDefinitions.length != 1) {
