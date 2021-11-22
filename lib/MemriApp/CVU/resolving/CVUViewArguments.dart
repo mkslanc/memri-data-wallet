@@ -26,6 +26,9 @@ class CVUViewArguments with EquatableMixin {
   // The view arguments of the parent view (used to resolve)
   CVUViewArguments? parentArguments;
 
+  // The view arguments of the sub views (used to resolve)
+  Map<String, CVUViewArguments> subViewArguments = {};
+
   CVUViewArguments(
       {Map<String, CVUValue>? args, this.argumentItem, this.parentArguments, this.argumentItems})
       : this.args = args ?? {};
@@ -34,5 +37,5 @@ class CVUViewArguments with EquatableMixin {
   Map<String, dynamic> toJson() => _$CVUViewArgumentsToJson(this);
 
   @override
-  List<Object?> get props => [args, argumentItem, parentArguments];
+  List<Object?> get props => [args, argumentItem, parentArguments, subViewArguments];
 }

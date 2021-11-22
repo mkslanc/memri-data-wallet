@@ -281,6 +281,16 @@
       "value_type": "string"
     },
     {
+      "item_type": "Dataset",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Dataset",
+      "property": "querystr",
+      "value_type": "string"
+    },
+    {
       "item_type": "Diet",
       "property": "abstract",
       "value_type": "string"
@@ -563,6 +573,21 @@
     {
       "item_type": "LabelAnnotation",
       "property": "labels",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingDataType",
+      "property": "icon",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingDataType",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingTask",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -1301,6 +1326,26 @@
       "source_type": "LabelAnnotation",
       "edge": "annotatedItem",
       "target_type": "Any"
+    },
+    {
+      "source_type": "LabelingDataType",
+      "edge": "dataset",
+      "target_type": "Dataset"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "dataset",
+      "target_type": "Dataset"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "labelOption",
+      "target_type": "Label"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "view",
+      "target_type": "CVUStoredDefinition"
     },
     {
       "source_type": "MediaObject",

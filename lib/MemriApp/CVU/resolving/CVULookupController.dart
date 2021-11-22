@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:html/parser.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -177,6 +179,17 @@ class CVULookupController {
           context: context,
           db: db,
           additionalType: ItemRecord)) as List<ItemRecord>;
+    } else if (value is CVUValueArray) {
+      var cvuValueArray =
+          (await resolve<List>(value: value, context: context, db: db, additionalType: CVUValue))
+              as List<CVUValue>;
+
+      return (await Future.wait(cvuValueArray
+              .map((cvuValue) async =>
+                  await resolve<ItemRecord>(value: cvuValue, context: context, db: db))
+              .toList()))
+          .whereType<ItemRecord>()
+          .toList();
     } else {
       return [];
     }
@@ -528,6 +541,65 @@ class CVULookupController {
                 }
               }).toList();
               currentValue = LookupStepValues(titleCased);
+            } else {
+              return null;
+            }
+            break;
+          case "selecteditems":
+            var exp = nodeType.args.asMap()[0];
+            var viewArgs = context.viewArguments;
+            if (viewArgs == null) {
+              return null;
+            }
+            if (exp != null) {
+              String? id = await resolve<String>(expression: exp, context: context, db: db);
+              if (id == null) {
+                return null;
+              }
+              viewArgs = viewArgs.subViewArguments[id];
+            }
+            if (viewArgs?.args["selectedItems"] == null) {
+              return null;
+            }
+            List<ItemRecord> items = await resolve<List>(
+                value: viewArgs!.args["selectedItems"],
+                db: db,
+                context: context,
+                additionalType: ItemRecord) as List<ItemRecord>;
+            if (items.isEmpty) {
+              return null;
+            }
+            currentValue = LookupStepItems(items);
+            break;
+          case "fromjson":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var exp = nodeType.args.asMap()[0];
+              if (exp == null) {
+                return null;
+              }
+
+              String? property = await resolve<String>(expression: exp, context: context, db: db);
+              if (property == null) {
+                return null;
+              }
+
+              var values = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  var obj = jsonDecode(string);
+                  if (obj == null || obj[property] == null) {
+                    return value;
+                  }
+                  return PropertyDatabaseValueString(obj[property]);
+                }
+              }).toList();
+
+              currentValue = LookupStepValues(values);
             } else {
               return null;
             }

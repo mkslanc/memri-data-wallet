@@ -337,7 +337,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
             join += " " + element.joinQuery;
             joinTables.add(dbController.databasePool.getTable(element.table));
           });
-          orderBy = "prop.value $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
+          orderBy =
+              "${sortOrder == "DESC" ? "MAX" : "MIN"}(prop.value) $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
         } else {
           orderBy = "dateModified $sortOrder, dateCreated $sortOrder";
         }
@@ -560,18 +561,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     })))
         .compactMap();
 
-    var properties = filterDef?.subdefinition("properties");
-    List<DatabaseQueryCondition> propertyConditions = (await Future.wait<DatabaseQueryCondition?>(
-            (properties?.properties.keys.toList() ?? [])
-                .map<Future<DatabaseQueryCondition?>>((key) async {
-      dynamic value = await properties?.boolean(key);
-      if (value == null) {
-        value = await properties?.string(key) ?? "";
-      }
-      return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-    })))
-        .compactMap();
-
     var queryConfig = inheritQuery?.clone() ?? DatabaseQueryConfig();
     var itemTypes =
         await datasourceResolver?.stringArray("query") ?? [targetItem?.type].compactMap();
@@ -582,6 +571,22 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     if (uidList.isNotEmpty) {
       queryConfig.itemRowIDs = uidList;
     }
+
+    var properties = filterDef?.subdefinition("properties");
+    List<DatabaseQueryCondition> propertyConditions = (await Future.wait<DatabaseQueryCondition?>(
+            (properties?.properties.keys.toList() ?? [])
+                .map<Future<DatabaseQueryCondition?>>((key) async {
+      dynamic value;
+      var schemaType = databaseController?.schema.expectedPropertyType(itemTypes[0], key) ??
+          SchemaValueType.string;
+      if (schemaType == SchemaValueType.bool) {
+        value = await properties?.boolean(key);
+      } else {
+        value = await properties?.string(key) ?? "";
+      }
+      return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
+    })))
+        .compactMap();
 
     var sortDef = datasourceResolver?.subdefinition("sort");
 

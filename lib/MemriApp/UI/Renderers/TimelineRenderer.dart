@@ -13,36 +13,37 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../ViewContextController.dart';
+import 'Renderer.dart';
 
 /// The timeline renderer
 /// This presents the data in chronological order in a vertically scrolling `timeline`
-class TimelineRendererView extends StatefulWidget {
+class TimelineRendererView extends Renderer {
   final memri.PageController pageController;
   final ViewContextController viewContext;
 
   TimelineRendererView(
-      {required this.pageController, required this.viewContext, this.minSectionHeight = 40});
-
+      {required this.pageController, required this.viewContext, this.minSectionHeight = 40})
+      : super(pageController: pageController, viewContext: viewContext);
   final double minSectionHeight;
 
   @override
   _TimelineRendererViewState createState() => _TimelineRendererViewState();
 }
 
-class _TimelineRendererViewState extends State<TimelineRendererView> {
+class _TimelineRendererViewState extends RendererViewState<TimelineRendererView> {
   late Future<TimelineRendererModel> _generateModel;
 
   @override
   initState() {
     super.initState();
-    widget.viewContext.addListener(updateState);
+    viewContext.addListener(updateState);
     _generateModel = generateModel();
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.viewContext.removeListener(updateState);
+    viewContext.removeListener(updateState);
   }
 
   void updateState() {
@@ -53,9 +54,9 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
   Future<TimelineRendererModel> generateModel() async {
     var timelineRendererModel = TimelineRendererModel();
     await timelineRendererModel.init(
-        dataItems: widget.viewContext.items,
+        dataItems: viewContext.items,
         itemDateTimeResolver: (item) async {
-          return await widget.viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
+          return await viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
               item.dateModified;
         },
         detailLevel: await detailLevel,
@@ -65,13 +66,12 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
 
   Future<TimelineDetailLevel> get detailLevel async {
     return TimelineDetailLevelExtension.init(
-            await widget.viewContext.rendererDefinitionPropertyResolver.string("detailLevel")) ??
+            await viewContext.rendererDefinitionPropertyResolver.string("detailLevel")) ??
         TimelineDetailLevel.hour;
   }
 
   Future<bool> get mostRecentFirst async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver
-        .boolean("recentFirst", true))!;
+    return (await viewContext.rendererDefinitionPropertyResolver.boolean("recentFirst", true))!;
   }
 
   List<List<Widget>> sections(TimelineRendererModel model) {
@@ -91,14 +91,12 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
                         CVUActionOpenView(
                                 renderer: "list",
                                 uids: Set.from(element.items.map((item) => item.rowId)))
-                            .execute(widget.pageController, widget.viewContext.getCVUContext());
+                            .execute(pageController, viewContext.getCVUContext());
                       } else if (element.items.length > 0) {
                         var item = element.items.first;
-                        var press =
-                            widget.viewContext.nodePropertyResolver(item)?.action("onPress");
+                        var press = viewContext.nodePropertyResolver(item)?.action("onPress");
                         if (press != null) {
-                          press.execute(
-                              widget.pageController, widget.viewContext.getCVUContext(item: item));
+                          press.execute(pageController, viewContext.getCVUContext(item: item));
                         }
                       }
                     },
@@ -127,7 +125,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
           backgroundColor: Colors.grey);
     } else if (element.items.length > 0) {
       var item = element.items.first;
-      return widget.viewContext.render(item: item);
+      return viewContext.render(item: item);
     } else {
       return Empty();
     }
@@ -151,8 +149,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               TimelineRendererModel model = snapshot.data!;
-              var padding =
-                  EdgeInsets.fromLTRB(0, widget.pageController.showTopBar ? 8 : 80, 10, 8);
+              var padding = EdgeInsets.fromLTRB(0, pageController.showTopBar ? 8 : 80, 10, 8);
               var widgetSections = sections(model);
               var index = 0;
               var lastIndex = widgetSections.length - 1;
@@ -176,7 +173,7 @@ class _TimelineRendererViewState extends State<TimelineRendererView> {
 
   final double leadingInset = 60;
 
-  // TODO: Clean up this function. Should probably define for each `DetailLevel` individually
+// TODO: Clean up this function. Should probably define for each `DetailLevel` individually
   Widget header(TimelineRendererModel model, TimelineGroup group, CalendarHelper calendarHelper) {
     var matchesNow = calendarHelper.isSameAsNow(group.date, model.detailLevel.relevantComponents);
 

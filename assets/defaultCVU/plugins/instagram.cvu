@@ -8,6 +8,10 @@
     title: "Connect Instagram account"
 
     [renderer = singleItem] {
+
+    }
+
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -78,6 +82,10 @@
     title: "Connect Instagram account"
 
     [renderer = singleItem]{
+
+    }
+
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -180,6 +188,7 @@
                 }
             }
         }
+
     }
 }
 
@@ -193,6 +202,9 @@
     title: "Connect Instagram account"
 
     [renderer = singleItem]{
+
+    }
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -228,6 +240,10 @@
     title: "Connect Instagram account"
 
     [renderer = singleItem]{
+
+    }
+
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30

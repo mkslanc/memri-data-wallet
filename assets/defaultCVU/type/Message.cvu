@@ -66,6 +66,10 @@ Message {
         }
 
         [renderer = custom] {
+
+        }
+
+        Message > custom {
             RichTextfield {
                 content: {{.content}}
                 title: {{.title}}
