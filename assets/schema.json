@@ -1154,6 +1154,11 @@
     },
     {
       "source_type": "Account",
+      "edge": "profilePicture",
+      "target_type": "Photo"
+    },
+    {
+      "source_type": "Account",
       "edge": "trust",
       "target_type": "Account"
     },
