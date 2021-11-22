@@ -121,11 +121,11 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                       maxLines: null,
                     )),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (definitions.isNotEmpty) {
                           newCVU = newCVU!.replaceAll('"', "'");
                           var parsed = CVUController.parseCVUString(newCVU!);
-                          parsed.forEach((node) {
+                          await Future.forEach<CVUParsedDefinition>(parsed, (node) async {
                             var definition = viewContext.cvuController.definitionFor(
                                 type: node.type,
                                 selector: node.selector,
@@ -133,7 +133,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                                 viewName: node.name,
                                 specifiedDefinitions: definitions);
                             if (definition != null) {
-                              definition.parsed = node.parsed;
+                              await widget.pageController.appController.cvuController
+                                  .updateDefinition(definition, node.parsed);
                             }
                           });
                         }
