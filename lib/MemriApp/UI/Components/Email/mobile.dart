@@ -48,8 +48,8 @@ class _EmailViewUIKitState extends State<EmailViewUIKit> {
     var jsURL = "assets/HTMLResources/purify.min.js";
     try {
       var jsContent = await rootBundle.loadString(jsURL);
-      await _webViewController.evaluateJavascript(jsContent);
-      await _webViewController.evaluateJavascript(getContentLoaderString());
+      await _webViewController.runJavascript(jsContent);
+      await _webViewController.runJavascript(getContentLoaderString());
     } catch (e) {
       print(e);
       return;
