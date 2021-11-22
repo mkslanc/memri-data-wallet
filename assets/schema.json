@@ -147,7 +147,17 @@
     },
     {
       "item_type": "CVUStoredDefinition",
+      "property": "renderer",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CVUStoredDefinition",
       "property": "selector",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CVUStoredDefinition",
+      "property": "type",
       "value_type": "string"
     },
     {

@@ -117,7 +117,8 @@ abstract class CVUConstant with EquatableMixin {
       return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 2);
     } else if (cvuConstant is CVUConstantString) {
       String escaped = cvuConstant.value.replaceAll("\"", "\\\"");
-      return insideStringMode ? escaped : '"$escaped"';
+      var quote = cvuConstant.isSingleQuote ? "'" : '"';
+      return insideStringMode ? escaped : "$quote$escaped$quote";
     } else if (cvuConstant is CVUConstantBool) {
       return cvuConstant.value ? "true" : "false";
     } else if (cvuConstant is CVUConstantColorHex) {
@@ -188,8 +189,9 @@ class CVUConstantInt extends CVUConstant {
 @JsonSerializable(createToJson: false)
 class CVUConstantString extends CVUConstant {
   final String value;
+  final bool isSingleQuote;
 
-  CVUConstantString(this.value);
+  CVUConstantString(this.value, [this.isSingleQuote = false]);
 
   factory CVUConstantString.fromJson(Map<String, dynamic> json) =>
       _$CVUConstantStringFromJson(json);

@@ -123,7 +123,7 @@ class CVUExpressionParser {
       throw CVUExpressionParseErrorsUnexpectedToken(lastToken!);
     }
     var value = token.value;
-    return CVUExpressionNodeConstant(CVUConstantString(value));
+    return CVUExpressionNodeConstant(CVUConstantString(value, token.isSingleQuote));
   }
 
   CVUExpressionNode parseBool() {

@@ -53,7 +53,7 @@ class AppController {
   AppController() {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
-    cvuController = CVUController();
+    cvuController = CVUController(databaseController);
     pubsubController = PubSubController(databaseController);
     permissionController = PermissionsController();
   }
@@ -123,6 +123,7 @@ class AppController {
             if (useDemoData) await databaseController.setupWithDemoData();
             if (config is SetupConfigLocal) isInDemoMode = true;
             await Settings.shared.set("defaults/general/isInDemoMode", isInDemoMode);
+            await cvuController.storeDefinitions();
           }
           if (_podConnectionConfig != null) {
             if (config is SetupConfigNewPod) {

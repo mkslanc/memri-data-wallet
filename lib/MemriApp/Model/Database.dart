@@ -216,6 +216,18 @@ class Database extends _$Database {
     }
   }
 
+  Future<List<dynamic>> itemPropertyRecordsSelect(String name,
+      {dynamic value, int? item, List<int>? items}) {
+    var query = "name = ?";
+    var binding = <Variable<dynamic>>[Variable(name)];
+    if (value != null) {
+      query += " AND value = ?";
+      binding.add(Variable(value));
+    }
+
+    return itemPropertyRecordsCustomSelect(query, binding);
+  }
+
   Future<List<dynamic>> itemPropertyRecordsCustomSelect(String query,
       [List<Variable<dynamic>>? binding, bool isFTS = false]) async {
     binding ??= [];
