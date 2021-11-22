@@ -9,8 +9,9 @@ import 'dart:io';
 
 class EmailViewUIKit extends StatefulWidget {
   final String emailHTML;
+  final String? src;
 
-  EmailViewUIKit({this.emailHTML = ""});
+  EmailViewUIKit({this.emailHTML = "", this.src});
 
   @override
   _EmailViewUIKitState createState() => _EmailViewUIKitState();
@@ -38,9 +39,12 @@ class _EmailViewUIKitState extends State<EmailViewUIKit> {
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
           _webViewController = webViewController;
-          _webViewController.loadUrl(Uri.dataFromString(widget.emailHTML,
-                  mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
-              .toString());
+          var source = (widget.src != null)
+              ? widget.src
+              : Uri.dataFromString(widget.emailHTML,
+                      mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+                  .toString();
+          _webViewController.loadUrl(source!);
         });
   }
 

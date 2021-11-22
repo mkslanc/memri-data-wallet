@@ -62,6 +62,14 @@
     "pluginName": "SentimentAnalysis"
   },
   {
+    "_type": "Plugin",
+    "pluginType": "app",
+    "name": "Account linker",
+    "container": "gitlab.memri.io:5050/plugins/account-linker:dev-latest",
+    "pluginModule": "account_linker.plugin",
+    "pluginName": "AccountLinkerPlugin"
+  },
+  {
     "_type": "Setting",
     "keystr": "defaults/general/gui/showEditButton",
     "json": "{\"value\":false}"
