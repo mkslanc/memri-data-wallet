@@ -8,6 +8,10 @@
     title: "App"
 
     [renderer = singleItem] {
+
+    }
+
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -65,7 +69,6 @@
                 }
             }
         }
-    }
 }
 
 .AccountLinkerPlugin-done {
@@ -78,6 +81,10 @@
     title: "App"
 
     [renderer = singleItem]{
+
+    }
+
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -107,6 +114,10 @@
     title: "App"
 
     [renderer = singleItem]{
+
+    }
+
+    Plugin > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
