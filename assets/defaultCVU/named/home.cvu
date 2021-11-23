@@ -1,147 +1,218 @@
 .home {
     cols: 6
     defaultRenderer: custom
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     showTopBar: false
+
     VStack {
         alignment: topleft
         padding: 60 30 0 30
 
         Text {
-            text: "Hello, Human!"
+            color: #333333
             font: headline1
+            padding: 0 0 71 0
+            text: "Import your data and create ML model on that data."
+            width: 671
         }
 
-        Text {
-            text: "This is an early alpha version of memri app."
-            font: bodyText2
-            color: #737373
-            padding: 0 10
-        }
+        HStack {
+            alignment: topleft
+            spacing: 30
 
-        Text {
-            text: "If you like it, (and it works!), send the team a hi five. We’ll be notified on our slack channel."
-            font: bodyText2
-            color: #737373
-        }
+            VStack {
+                alignment: topleft
 
-        Button {
-            isLink: true
-            padding: 25 0 0 0
-
-            Text {
-                text: "Sending my hi five!"
-                font: bodyText2
-                color: #FE570F
-                padding: 17 0 0 0
-            }
-
-            onPress: openView {
-                viewName: "updates"
-                clearStack: true
-                viewArguments: {
-
+                Text {
+                    font: link
+                    text: "01"
                 }
-            }
-        }
 
-
-
-        Text {
-            text: "Here are some things you need to do first:"
-            font: headline2
-            padding: 81 0 0 0
-        }
-
-        Text {
-            text: "You benefit most from memri when you import the most of your data into in."
-            font: bodyText2
-            color: #737373
-            padding: 14 0 0 0
-        }
-
-        Text {
-            text: "Here are some plugins we’ve been developing recently. You will find a full list here at Apps&plugins page."
-            font: bodyText2
-            color: #737373
-            padding: 14 0 0 0
-        }
-
-        Button {
-            isLink: true
-            padding: 43 0 0 0
-
-            Text {
-                text: "✓ Connect Whatsapp"
-                font: link
-                color: #FE570F
-            }
-
-            onPress: [
-                openView {
-                    viewName: "allPlugins"
-                    clearStack: true
+                Text {
+                    color: #333333
+                    font: headline2
+                    text: "Connect and collect your data"
                 }
-                openplugin {
-                    pluginName: "WhatsappPlugin"
-                    viewArguments: {
 
-                        clearStack: true
+                Text {
+                    font: bodyText1
+                    text: "Connect to whatsapp, gmail or instagram or develop an importer yourself."
+                }
+
+                Text {
+                    font: bodyText1
+                    padding: 6 0 20 0
+                    text: "Or upload manually a csv."
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openplugin
+                        {
+                            clearStack: true
+                            pluginName: "GmailImporter"
+                        }
+                    ]
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "Connect Gmail"
                     }
                 }
-            ]
-        }
 
-        Button {
-            isLink: true
-            padding: 25 0 0 0
+                Button {
+                    isLink: true
+                    onPress: [
+                        openplugin
+                        {
+                            clearStack: true
+                            pluginName: "WhatsappPlugin"
+                        }
+                    ]
+                    padding: 20 0 0 0
 
-            Text {
-                text: "✓ Connect Gmail Account"
-                font: link
-                color: #FE570F
-            }
-
-            onPress: [
-                openView {
-                    viewName: "allPlugins"
-                    clearStack: true
-                }
-                openplugin {
-                    pluginName: "GmailImporter"
-                    viewArguments: {
-
-                        clearStack: true
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "Connect Whatsapp"
                     }
                 }
-            ]
-        }
 
-        Button {
-            isLink: true
-            padding: 25 0 0 0
+                Button {
+                    isLink: true
+                    onPress: [
+                        openplugin
+                        {
+                            clearStack: true
+                            pluginName: "InstagramPlugin"
+                        }
+                    ]
+                    padding: 20 0 0 0
 
-            Text {
-                text: "✓ Connect Instagram"
-                font: link
-                color: #FE570F
-            }
-
-            onPress: [
-                openView {
-                    viewName: "allPlugins"
-                    clearStack: true
-                }
-                openplugin {
-                    pluginName: "InstagramPlugin"
-                    viewArguments: {
-
-                        clearStack: true
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "Connect Instagram"
                     }
                 }
-            ]
+            }
+
+            VStack {
+                width: 323
+                alignment: topleft
+
+                Text {
+                    font: link
+                    text: "02"
+                }
+
+                Text {
+                    color: #333333
+                    font: headline2
+                    text: "Create a labelled dataset"
+                }
+
+                Text {
+                    font: bodyText1
+                    padding: 0 0 20 0
+                    text: "Tellus felis montes, egestas augue duis vitae nisl viverra. Est fringilla netus consequat vitae viverra elementum justo, enim. Eget ut dolor justo, diam quis pharetra."
+                }
+
+                Button {
+                    isLink: true
+                    onPress: noop
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "Create a new dataset"
+                    }
+                }
+            }
+
+            VStack {
+                width: 323
+                alignment: topleft
+
+                Text {
+                    font: link
+                    text: "03"
+                }
+
+                Text {
+                    color: #333333
+                    font: headline2
+                    text: "Build a ML model"
+                }
+
+                Text {
+                    font: bodyText1
+                    text: "End result: trained model"
+                }
+
+                Text {
+                    font: bodyText1
+                    padding: 6 0 0 0
+                    text: "Project ends and then may become a plugin"
+                }
+
+                Text {
+                    font: bodyText1
+                    padding: 6 0 20 0
+                    text: "Training is not a part of a plugin"
+                }
+
+                Button {
+                    isLink: true
+                    onPress: noop
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "Create a new ML model"
+                    }
+                }
+            }
+
+            VStack {
+                width: 323
+                alignment: topleft
+
+                Text {
+                    font: link
+                    text: "04"
+                }
+
+                Text {
+                    color: #333333
+                    font: headline2
+                    text: "Plug in and publish"
+                }
+
+                Text {
+                    font: bodyText1
+                    text: "Tellus felis montes, egestas augue duis vitae nisl viverra. Est fringilla netus consequat vitae viverra elementum justo, enim. Eget ut dolor justo, diam quis pharetra."
+                }
+
+                Button {
+                    isLink: true
+                    onPress: openView {
+                         viewName: "apps-and-plugins"
+                         inheritDatasource: false
+                         clearStack: true
+                     }
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "See available apps"
+                    }
+                }
+            }
         }
     }
 }

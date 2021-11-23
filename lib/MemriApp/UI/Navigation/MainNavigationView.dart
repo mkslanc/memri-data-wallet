@@ -45,7 +45,10 @@ class _MainNavigationViewState extends State<MainNavigationView> {
           sceneController: widget.sceneController,
         ),
         Spacer(),
-        SvgPicture.asset("assets/images/logo.svg"),
+        InkWell(
+            onTap: () => widget.sceneController
+                .navigateToNewContext(clearStack: true, animated: false, viewName: "home"),
+            child: SvgPicture.asset("assets/images/logo.svg"))
       ],
     );
   }

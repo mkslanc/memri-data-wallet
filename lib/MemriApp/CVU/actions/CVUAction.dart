@@ -618,11 +618,8 @@ class CVUActionOpenPlugin extends CVUAction {
       }
     }
 
-    await pageController.sceneController.navigateToNewContext(
-        animated: false,
-        viewName: viewName,
-        pageController: pageController,
-        targetItem: account ?? plugin);
+    await CVUActionOpenView(vars: vars, viewName: viewName)
+        .execute(pageController, context.replacingItem(account ?? plugin));
   }
 }
 
