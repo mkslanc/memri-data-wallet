@@ -123,7 +123,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                     TextButton(
                       onPressed: () async {
                         if (definitions.isNotEmpty) {
-                          newCVU = newCVU!.replaceAll('"', "'");
+                          newCVU = newCVU!;
                           var parsed = CVUController.parseCVUString(newCVU!);
                           await Future.forEach<CVUParsedDefinition>(parsed, (node) async {
                             var definition = viewContext.cvuController.definitionFor(
