@@ -31,10 +31,10 @@ extension IndexedMapExtension<T> on List<T> {
   }
 
   /// Groups elements into map by [keyOf].
-  Map<K, T> toMapByKey<K>(K Function(T element) keyOf) {
+  Map<K, T> toMapByKey<K>(K Function(T element) keyOf, [T Function(T element)? valueOf]) {
     var result = <K, T>{};
     for (var element in this) {
-      result[keyOf(element)] = element;
+      result[keyOf(element)] = valueOf != null ? valueOf(element) : element;
     }
     return result;
   }

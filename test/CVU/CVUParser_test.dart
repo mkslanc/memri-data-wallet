@@ -679,7 +679,7 @@ Text {
 }""";
     expect(parseToCVUString(snippet), """MessageChannel > list {
     Text {
-        text: "{.~messageChannel[sort: \"dateSent DESC\", limit: 1].first().photo}"
+        text: "{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().photo}"
     }
 }""");
   });
@@ -700,6 +700,13 @@ Text {
   test('testItem', () {
     var snippet = """Person {
     item: {{.}}
+}""";
+    expect(parseToCVUString(snippet), snippet);
+  });
+
+  test('testQuotes', () {
+    var snippet = """Text {
+    text: "{.dateModified.format('time')}"
 }""";
     expect(parseToCVUString(snippet), snippet);
   });

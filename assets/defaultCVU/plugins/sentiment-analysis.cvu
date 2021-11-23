@@ -325,7 +325,7 @@
     showContextualBottomBar: false
     showBottomBar: false
     showTopBar: false
-    title: "Connect Instagram account"
+    title: "App"
 
     [renderer = singleItem]{
 

@@ -116,21 +116,21 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   }
 
   grabFocus() {
-    _controller.evaluateJavascript("window.editor.focus();");
+    _controller.runJavascript("window.editor.focus();");
   }
 
   updateSearchState() {
     var script = widget.viewContext.searchString != null
         ? "window.editor.options.editable = true; window.editor.commands.find(\"${widget.viewContext.searchString!.escapeForJavascript()}\"); window.editor.options.editable = ${widget.viewContext.pageController.isInEditMode.value};"
         : "window.editor.commands.clearSearch();";
-    return _controller.evaluateJavascript(script);
+    return _controller.runJavascript(script);
   }
 
   executeEditorCommand(String format, [Map<String, dynamic>? info]) {
     info ??= {};
     var infoString = jsonEncode(info);
     var script = "window.editor.commands.$format($infoString);";
-    _controller.evaluateJavascript(script);
+    _controller.runJavascript(script);
   }
 
   Future<Uri> _initShowHtml() async {
@@ -183,13 +183,13 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
 
   setContent(Future<String?> content) async {
     var _content = (await content)?.escapeForJavascript() ?? "";
-    _controller.evaluateJavascript(
+    _controller.runJavascript(
         "window.editor.options.content = \"$_content\"; window.editor.view.updateState(window.editor.createState());");
   }
 
   switchEditMode() {
     setState(() {
-      _controller.evaluateJavascript(
+      _controller.runJavascript(
           "window.editor.options.editable = ${widget.viewContext.pageController.isInEditMode.value};");
       if (!widget.viewContext.pageController.isInEditMode.value) {
         SystemChannels.textInput.invokeMethod('TextInput.hide');

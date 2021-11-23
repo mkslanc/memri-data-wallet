@@ -375,9 +375,8 @@ Person > list {
                 cornerRadius: 50
             }
 
-
             Text {
-                text: "{.firstName} {.lastName}"
+                text: {{.displayName or .fullName()}}
                 font: 12 regular
                 color: #737373
             }

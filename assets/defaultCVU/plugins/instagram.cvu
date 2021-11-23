@@ -85,7 +85,7 @@
 
     }
 
-    Plugin > singleItem {
+    Account > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -204,7 +204,7 @@
     [renderer = singleItem]{
 
     }
-    Plugin > singleItem {
+    Account > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -243,7 +243,7 @@
 
     }
 
-    Plugin > singleItem {
+    Account > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 0 30

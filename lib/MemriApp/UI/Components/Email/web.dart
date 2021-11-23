@@ -6,8 +6,9 @@ import 'package:uuid/uuid.dart';
 
 class EmailViewUIKit extends StatefulWidget {
   final String emailHTML;
+  final String? src;
 
-  EmailViewUIKit({this.emailHTML = ""});
+  EmailViewUIKit({this.emailHTML = "", this.src});
 
   @override
   _EmailViewUIKitState createState() => _EmailViewUIKitState();
@@ -19,13 +20,19 @@ class _EmailViewUIKitState extends State<EmailViewUIKit> {
   @override
   void initState() {
     // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(
-        createdViewId,
-        (int viewId) => html.IFrameElement()
-          ..width = MediaQuery.of(context).size.width.toString()
-          ..height = MediaQuery.of(context).size.height.toString()
-          ..srcdoc = widget.emailHTML + loadPurifier() + getContentLoaderString()
-          ..style.border = 'none');
+    ui.platformViewRegistry.registerViewFactory(createdViewId, (int viewId) {
+      var iframe = html.IFrameElement()
+        ..width = MediaQuery.of(context).size.width.toString()
+        ..height = MediaQuery.of(context).size.height.toString()
+        ..style.border = 'none';
+      if (widget.src != null) {
+        iframe.src = widget.src;
+      } else {
+        iframe.srcdoc = widget.emailHTML + loadPurifier() + getContentLoaderString();
+      }
+
+      return iframe;
+    });
     super.initState();
   }
 
@@ -56,6 +63,10 @@ class _EmailViewUIKitState extends State<EmailViewUIKit> {
         metaWidth.name = "viewport";
         metaWidth.content = "width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no";
         document.getElementsByTagName('head')[0].appendChild(metaWidth);
+        setTimeout(function() {
+          location.reload();
+        }, 2000);
+        
     </script>
        """;
   }

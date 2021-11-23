@@ -10,6 +10,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Enum.dart';
 
 import 'CVUUINode.dart';
 import 'CVUValue.dart';
@@ -146,6 +147,9 @@ class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
 
   /// The renderer for which this definition is valid (optional)
   String? renderer;
+
+  String get querystr =>
+      "type='${type.inString}', domain='${domain.inString}', selector='${selector ?? ""}', name='${name ?? ""}', renderer='${renderer ?? ""}'";
 
   CVUDefinitionContent parsed;
 

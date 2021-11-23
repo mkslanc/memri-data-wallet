@@ -3297,6 +3297,7 @@
   {
     "_type":"CVUStoredDefinition",
     "uid": 202108041600,
+    "name": "demo",
     "definition": ".demo-plugin {\n    title: \"TEST CVU\"\n    defaultRenderer: custom\n    showContextualBottomBar: false\n    showBottomBar: false\n    showDefaultLayout: false\n\n    [renderer = custom] {\n        HStack {\n                Text {\n                    text: \"Demo View Rendered from CVUStoredDefinition\"\n                    font: 16 semibold\n                    color: #000\n                    padding: 5 8 5 8\n                }\n            }\n    }\n}\n"
   },
   {
