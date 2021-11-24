@@ -27,7 +27,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
         SvgPicture.asset("assets/images/ico_search.svg"),
         Spacer(),
         NavigationItemView(
-          item: Item(name: 'Data', targetViewName: "allItemsForDS"),
+          item: Item(name: 'Data', targetViewName: "allData"),
           sceneController: widget.sceneController,
         ),
         SizedBox(
