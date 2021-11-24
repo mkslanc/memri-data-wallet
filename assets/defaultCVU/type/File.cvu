@@ -1,7 +1,6 @@
 File > list {
     onPress: openView {
         renderer: "singleItem"
-        clearStack: true
         viewArguments: {
             currentItem: {{.}}
 

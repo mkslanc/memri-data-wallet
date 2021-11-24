@@ -1,0 +1,86 @@
+.allData {
+    defaultRenderer: custom
+    scrollable: false
+    title: "All Data"
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 60 30
+        maxWidth: 910
+
+        HStack {
+            alignment: bottomleft
+
+            Text {
+                color: #333333
+                font: headline2
+                text: "Datastreams"
+            }
+
+            Spacer
+
+            Button {
+                isLink: true
+                onPress: noop
+
+                Text {
+                    color: #FE570F
+                    font: link
+                    text: "Create new importer"
+                }
+            }
+        }
+
+        Text {
+            height: 200
+            text: "Place for data streams"
+        }
+
+        HStack {
+            alignment: bottomleft
+            padding: 60 0 30 0
+
+            Text {
+                color: #333333
+                font: headline2
+                text: "Uploaded data"
+            }
+
+            Spacer
+
+            Button {
+                isLink: true
+                onPress: [
+                    openView
+                    {
+                        clearStack: true
+                        inheritDatasource: false
+                        viewName: "upload"
+                    }
+                    ]
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        text: "Upload new data"
+                    }
+            }
+        }
+
+        SubView {
+            view: {
+                defaultRenderer: list
+                viewName: assetsNew
+
+                [datasource = pod] {
+                    query: File Note
+                }
+
+                [renderer = list] {
+                    edgeInset: 0
+                    onPress: noop
+                }
+            }
+        }
+    }
+}
