@@ -58,7 +58,6 @@ class _FileDropZoneState extends State<FileDropZone> {
       ),
       SizedBox(
         width: 243,
-        height: double.infinity,
         child: Padding(
           padding: EdgeInsets.fromLTRB(33, 0, 0, 0),
           child: SingleChildScrollView(
