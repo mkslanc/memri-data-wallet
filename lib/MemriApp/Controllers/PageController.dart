@@ -107,11 +107,15 @@ class PageController extends ChangeNotifier {
   bool get canNavigateBack => navigationStack.state.length > 1;
 
   navigateBack() {
+    navigateTo(navigationStack.state.length - 2);
+  }
+
+  navigateTo(index) {
     var navStack = navigationStack;
-    if (navStack.state.isEmpty) return;
+    if (navStack.state.isEmpty || navStack.state.length <= index) return;
 
     isInEditMode.value = false;
-    navStack.state.removeLast();
+    navStack.state.removeRange(index + 1, navStack.state.length);
 
     topMostContext = navStack.state.isNotEmpty ? makeContext(navStack.state.last) : null;
     navigationStack = navStack;

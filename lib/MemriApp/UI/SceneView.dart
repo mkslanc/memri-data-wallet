@@ -150,24 +150,6 @@ class _SceneViewState extends State<SceneView> {
             },
             valueListenable: widget.sceneController.filterPanelIsVisible,
           ),
-          if (widget.sceneController.mainPageController.canNavigateBack)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 15, 0, 0),
-              child: SizedBox(
-                height: 50,
-                width: 50,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    widget.sceneController.mainPageController.navigateBack();
-                  },
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.arrow_back,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

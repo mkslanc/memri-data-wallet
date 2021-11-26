@@ -78,7 +78,6 @@ MessageChannel > list {
 
     onPress: openView {
         viewName: messageChannelView
-        clearStack: true
         viewArguments {
             channelUID: {{.uid}}
             channel: {{.}}

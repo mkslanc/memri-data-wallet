@@ -7,6 +7,7 @@ import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:memri/MemriApp/UI/Chrome/BreadCrumbs.dart';
 import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/SimpleFilterPanel.dart';
 
@@ -72,6 +73,7 @@ class _TopBarViewState extends State<TopBarView> {
           children: [
             if (viewContext != null) ...[
               SimpleFilterPanel(viewContext: viewContext!),
+              BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
               Spacer(),
               ActionButton(
                 action: CVUActionOpenCVUEditor(
