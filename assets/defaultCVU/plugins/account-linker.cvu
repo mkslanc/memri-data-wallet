@@ -70,6 +70,7 @@
             }
         }
 }
+}
 
 .AccountLinkerPlugin-done {
     cols: 4
