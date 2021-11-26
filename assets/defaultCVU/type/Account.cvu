@@ -91,7 +91,6 @@ Account {
 Account > list {
     onPress: openView {
         renderer: singleitem
-        clearStack: true
         viewArguments: {
 
         }
