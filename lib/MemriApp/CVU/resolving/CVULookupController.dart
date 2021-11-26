@@ -434,7 +434,7 @@ class CVULookupController {
                 String name = [
                   await resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
                   await resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
-                ].map((element) => element!.asString()).join(" ");
+                ].map((element) => (element?.asString() ?? "")).join(" ");
                 currentValue = LookupStepValues([PropertyDatabaseValueString(name)]);
               } else {
                 return null;
