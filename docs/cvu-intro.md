@@ -11,13 +11,13 @@ Let's dive in and create a view to render the notes in the list view.
 
 In order to define how notes are rendered, let's create a new cvu file called "note.cvu" and add a selector for a list of notes. For illustration purpose we also add the selector for a single note:
 
-```less
+```css
 /* A view for a single note */
 Note {
 
 }
 ```
-```less
+```css
 /* A view for multiples notes */
 Note[] {
 
@@ -26,7 +26,7 @@ Note[] {
 
 Like in CSS, selectors select the content to which the instructions are applied. In the case of CSS these instructions are styling applied to HTML elements. In the case of CVU these are rendering instructions applied to data items. See this wiki article for a complete list of supported definitions.
 
-```less
+```css
 Note[] {
     /* Sets the list as the default renderer when notes are viewed */
     defaultRenderer: list
@@ -40,7 +40,7 @@ Note[] {
 ## Rendering instructions
 We can define how to render our data, in this case our notes, in various renderers. Let's start with a definition for the list renderer.
 
-```less
+```css
 [renderer = list] {
     slideRightActions: schedule
 
