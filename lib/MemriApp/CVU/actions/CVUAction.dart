@@ -5,6 +5,7 @@
 //  Created by T Brennan on 8/1/21.
 //
 
+import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
@@ -339,7 +340,11 @@ class CVUActionOpenViewByName extends CVUAction {
             .string("defaultRenderer") ??
         defaultRenderer))();
 
-    var queryConfig = DatabaseQueryConfig();
+    var datasource = viewDefinition.definitions
+        .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
+    var queryConfig =
+        await DatabaseQueryConfig.queryConfigWith(context: newContext, datasource: datasource);
+
     if (itemType != null) {
       queryConfig.itemTypes = [itemType!];
     } else {
@@ -535,8 +540,6 @@ class CVUActionAddItem extends CVUAction {
 
         await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
             .execute(pageController, context.replacingItem(item));
-        pageController.sceneController.mainPageController.topMostContext
-            ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
       }
 
       pageController.scheduleUIUpdate();
@@ -672,10 +675,7 @@ class CVUActionPluginRun extends CVUAction {
       await edge.save();
 
       await PluginHandler.run(
-          plugin: plugin,
-          runner: pluginRunItem,
-          sceneController: pageController.sceneController,
-          context: context);
+          plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
     } catch (error) {
       print("Error starting plugin: $error");
     }
@@ -811,8 +811,6 @@ class CVUActionDelete extends CVUAction {
         pageController.navigateBack();
       }
     }
-    pageController.sceneController.mainPageController.topMostContext
-        ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
   }
 }
 
@@ -963,8 +961,6 @@ class CVUActionStar extends CVUAction {
     var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
     try {
       await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
-      pageController.sceneController.mainPageController.topMostContext
-          ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
     } catch (error) {
       print(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
