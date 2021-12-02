@@ -1,7 +1,6 @@
 Message {
     title: {{.title or "Untitled" }}
     defaultRenderer: custom
-    cols: 6
 
     [renderer = custom] {
 
@@ -17,81 +16,33 @@ Message {
 }
 
 Message > list {
+   VStack {
+       alignment: topleft
 
-    VStack {
-        alignment: topleft
-        HStack {
-            alignment: left
+       HStack {
+           alignment: left
 
-            Image {
-                image: {{.sender.owner.profilePicture or .sender.profilePicture or "assets/images/person.png"}}
-                sizingMode: fill
-                minHeight: 30
-                maxHeight: 30
-                minWidth: 30
-                maxWidth: 30
-                cornerRadius: 50
-            }
+           Image {
+               cornerRadius: 50
+               image: {{.sender.owner.profilePicture OR .sender.profilePicture OR "assets/images/person.png"}}
+               maxHeight: 30
+               maxWidth: 30
+               minHeight: 30
+               minWidth: 30
+               sizingMode: fill
+           }
 
-
-            Text {
-                text: {{.sender.owner.fullName() or .sender.displayName }}
-                font: 12 regular
-                color: #737373
-            }
-
-            Spacer
-
-            Text {
-                text: "{.dateSent}"
-                color: #989898
-                font: 10 regular
-                padding: 0 19 0 0
-            }
-
-            Image {
-                systemName: "ellipsis"
-                color: #DFDEDE
-                font: 24 light
-                padding: 5 0 5 0
-            }
-        }
-
-        HStack {
-            alignment: right
-
-            MemriButton {
-                item: {{.label}}
-            }
-        }
-
-        Button {
-            show: {{.photo}}
-            onPress: openView {
-                renderer: photoViewer
-                viewArguments {
-
-                }
-            }
-
-            Image {
-                image: {{.photo}}
-                sizingMode: fit
-                cornerRadius: 5
-                maxWidth: 250
-            }
-        }
-
-        SmartText {
-            show: {{.content}}
-            text: {{.content.plainString()}}
-            font: bodyText2
-            color: #333333
-            padding: 0 0 30 0
-        }
-
-    }
-
+           Text {
+               background: {{.sender.owner = me OR .sender.isMe ? "#4F56FE" : "#F8F8F8"}}
+               color: {{.sender.owner = me OR .sender.isMe ? "#FBFBFB" : "#333333"}}
+               cornerRadiusOnly: 0 5 5 5
+               font: bodyText2
+               padding: 15 10
+               show: {{.content}}
+               text: {{.content.plainString()}}
+           }
+       }
+   }
 }
 
 .allMessages {

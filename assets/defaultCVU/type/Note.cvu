@@ -109,7 +109,6 @@ Note > timeline {
     emptyResultText: "There are no notes here yet"
     defaultRenderer: list
     sortFields: title dateModified dateAccessed dateCreated
-    cols: 6
 
     [datasource = pod] {
         query: "Note"
@@ -159,7 +158,6 @@ Note > NoteEditor {
 Note {
     defaultRenderer: noteEditor
     editActionButton: toggleEditMode
-    cols: 6
 
     [renderer = noteEditor] {
         content: {{.content}}

@@ -6,7 +6,6 @@
     scrollable: false
 
     title: "Labelling app"
-    cols: 6
 
     VStack {
         alignment: topleft
@@ -162,7 +161,6 @@
     showBottomBar: false
     showTopBar: false
     title: "Labelling app"
-    cols: 6
     scrollable: false
 
     VStack {
@@ -267,7 +265,6 @@
     showBottomBar: false
     showTopBar: false
     title: "Labelling app"
-    cols: 6
     scrollable: false
 
     VStack {
@@ -388,7 +385,6 @@
     showBottomBar: false
     showTopBar: false
     title: "Labelling app"
-    cols: 6
     scrollable: false
 
     VStack {

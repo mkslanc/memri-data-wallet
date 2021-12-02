@@ -85,7 +85,6 @@
 
 Person {
     defaultRenderer: singleitem
-    cols: 6
     [renderer = generalEditor] {
         layout: [
             { section: pageTitle }
@@ -329,7 +328,6 @@ Person > timeline {
     title: "People"
     defaultRenderer: list
     emptyResultText: "There are no people here yet"
-    cols: 4
 
     [datasource = pod] {
         query: "Person"
@@ -403,7 +401,6 @@ Person > timeline {
 .mixedAccountsAndPersons {
     title: "People"
     defaultRenderer: list
-    cols: 4
 
     emptyResult: {
         VStack {

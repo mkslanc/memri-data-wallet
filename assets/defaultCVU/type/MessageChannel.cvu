@@ -40,6 +40,7 @@ MessageChannel {
 }
 
 .messageChannelView {
+    showTopBar: false
     defaultRenderer: list
     title: {{channel.~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject or channel.receiver.owner.fullname() or channel.name or channel.topic}}
     cols: 6
@@ -61,7 +62,7 @@ MessageChannel {
 
     [renderer = list] {
         isReverse: true
-        hideSeparators: false
+        hideSeparators: true
     }
 
     Message > list {
@@ -75,64 +76,43 @@ MessageChannel {
 
 
 MessageChannel > list {
+  onPress: [
+      openView
+      {
+          clearStack: true
+          viewArguments: {
+              channel: {{.}}
+              channelUID: {{.uid}}
+              pageLabel: "inboxData"
+              readOnly: true
+          }
+          viewName: messageChannelView
+      }
+  ]
 
-    onPress: openView {
-        viewName: messageChannelView
-        viewArguments {
-            channelUID: {{.uid}}
-            channel: {{.}}
+  VStack {
+      alignment: topleft
 
-        }
-    }
+      HStack {
+          alignment: left
 
-    VStack {
-        alignment: topleft
+          Image {
+              cornerRadius: 50
+              image: {{.~messageChannel.sender.owner.profilePicture OR .photo OR .receiver.profilePicture OR .receiver.owner.profilePicture OR .~messageChannel.sender.profilePicture OR "assets/images/person.png"}}
+              maxHeight: 30
+              maxWidth: 30
+              minHeight: 30
+              minWidth: 30
+              sizingMode: fill
+          }
 
-        HStack {
-            alignment: left
-
-            Image {
-                image: {{.photo or .receiver.profilePicture or .receiver.owner.profilePicture or "assets/images/person.png"}}
-                sizingMode: fill
-                minHeight: 30
-                maxHeight: 30
-                minWidth: 30
-                maxWidth: 30
-                cornerRadius: 50
-            }
-
-
-            Text {
-                text: {{.name or .receiver.owner.fullName() or .~messageChannel.sender.identifier }}
-                font: 12 regular
-                color: #737373
-            }
-
-            Spacer
-            Text {
-                text: "{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().dateSent}"
-                color: #989898
-                padding: 0 19 0 0
-                font: 10 regular
-            }
-        }
-
-        Text {
-            text: "{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().photo ? '[Photo]' : .~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject or .~messageChannel[sort: 'dateSent DESC', limit: 1].first().content.plainString() or 'No messages yet'}"
-            lineLimit: 1
-            font: 12 regular
-            color: #333333
-        }
-
-        Text {
-            show: {{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject}}
-            text: {{.~messageChannel[sort: 'dateSent DESC', limit: 1].first().content.plainString() or ""}}
-            lineLimit: 1
-            font: 10 regular
-            color: #989898
-        }
-
-    }
+          Text {
+              color: #737373
+              font: 12 regular
+              text: {{.receiver.owner.fullName() OR .name OR .~messageChannel.sender.identifier}}
+          }
+      }
+  }
 }
 
 .allMessageChannels {

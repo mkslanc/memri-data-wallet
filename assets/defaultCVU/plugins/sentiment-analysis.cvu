@@ -1,10 +1,8 @@
 .SentimentAnalysisRun {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem] {
@@ -138,12 +136,10 @@
 
 
 .SentimentAnalysis-done {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem] {
@@ -219,12 +215,10 @@
 }
 
 .SentimentAnalysisData {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem] {
@@ -319,12 +313,10 @@
 }
 
 .SentimentAnalysis-error {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem]{

@@ -1,10 +1,8 @@
 .AccountLinkerPluginRun {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem] {
@@ -69,12 +67,10 @@
 }
 
 .AccountLinkerPlugin-done {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem]{
@@ -98,12 +94,10 @@
 }
 
 .AccountLinkerPlugin-error {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "App"
 
     [renderer = singleItem]{
