@@ -25,20 +25,15 @@ class TopBarView extends StatefulWidget {
 
 class _TopBarViewState extends State<TopBarView> {
   late ViewContextController? viewContext;
-  late Future<String?> title;
+  late Future<void> _init;
 
-  Future<String?> get _title async {
-    return await widget.pageController.topMostContext?.viewDefinitionPropertyResolver
-            .string("title") ??
-        (viewContext?.focusedItem != null
-            ? await viewContext!.itemPropertyResolver?.string("title")
-            : "");
-  }
+  Color? backgroundColor = Color(0xffF4F4F4);
+  bool showEditCode = false;
 
   @override
   initState() {
     super.initState();
-    title = _title;
+    _init = init();
     widget.pageController.addListener(updateState);
   }
 
@@ -50,39 +45,53 @@ class _TopBarViewState extends State<TopBarView> {
 
   void updateState() {
     setState(() {
-      title = _title;
+      _init = init();
     });
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    title = _title;
+    _init = init();
+  }
+
+  Future<void> init() async {
+    var viewContext = widget.pageController.topMostContext;
+
+    backgroundColor =
+        await viewContext?.viewDefinitionPropertyResolver.color("tobBarColor") ?? Color(0xffF4F4F4);
+    showEditCode =
+        await viewContext?.viewDefinitionPropertyResolver.boolean("showEditCode") ?? true;
   }
 
   @override
   Widget build(BuildContext context) {
     viewContext = widget.pageController.topMostContext;
-    return Container(
-      height: 40,
-      color: Color(0xffF4F4F4),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (viewContext != null) ...[
-              SimpleFilterPanel(viewContext: viewContext!),
-              BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
-              Spacer(),
-              ActionButton(
-                action: CVUActionOpenCVUEditor(
-                    vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),
-                viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
-                pageController: widget.pageController,
-              )
-            ]
-          ],
+    return FutureBuilder(
+      future: _init,
+      builder: (context, snapshot) => Container(
+        height: 40,
+        color: backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (viewContext != null) ...[
+                SimpleFilterPanel(viewContext: viewContext!),
+                BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
+                Spacer(),
+                if (showEditCode) ...[
+                  ActionButton(
+                    action: CVUActionOpenCVUEditor(
+                        vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),
+                    viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
+                    pageController: widget.pageController,
+                  )
+                ]
+              ]
+            ],
+          ),
         ),
       ),
     );
