@@ -58,6 +58,11 @@ class AppController {
     permissionController = PermissionsController();
   }
 
+  Future init() async {
+    await databaseController.init();
+    await cvuController.init();
+  }
+
   Future onLaunch() async {
     await updateState();
   }
@@ -242,6 +247,7 @@ class AppController {
     await Authentication.deleteRootKey();
     await Authentication.createRootKey();
 
+    await SceneController.sceneController.reset();
     if (!isInDemoMode) {
       await syncStream?.cancel();
       syncStream = null;
@@ -253,7 +259,9 @@ class AppController {
     await FileStorageController.deleteFileStorage();
     pubsubController.reset();
 
-    await SceneController.sceneController.reset();
+    cvuController.reset();
+    await init();
+    await SceneController.sceneController.init();
 
     await setIsAuthenticated(false);
     isNewPodSetup = false;
