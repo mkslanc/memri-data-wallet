@@ -44,8 +44,25 @@ class CVUController {
       }
     } catch (error) {
       print(error);
-      this.definitions = [];
+      definitions = [];
     }
+  }
+
+  resetToDefault() async {
+    reset();
+    try {
+      definitions = await CVUController.parseCVU();
+      await Future.forEach<CVUParsedDefinition>(
+          definitions, (definition) async => await updateDefinition(definition, definition.parsed));
+    } catch (error) {
+      print(error);
+      definitions = [];
+    }
+  }
+
+  reset() {
+    definitions = [];
+    storedDefinitions = [];
   }
 
   static Future<List<CVUParsedDefinition>> parseCVU([String? string]) async {
