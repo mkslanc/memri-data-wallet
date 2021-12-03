@@ -434,6 +434,10 @@ class Database extends _$Database {
   Future<int> navigationStateSave(NavigationStack record) async {
     return await into(navigationState).insertOnConflictUpdate(record.toCompanion());
   }
+
+  Future<int> navigationStateDelete(NavigationStack record) async {
+    return await (delete(navigationState)..where((t) => t.sessionID.equals(record.sessionID))).go();
+  }
 }
 
 class ItemPropertyRecordTableData {

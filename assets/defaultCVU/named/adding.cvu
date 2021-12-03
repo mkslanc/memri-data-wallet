@@ -4,7 +4,6 @@
     showContextualBottomBar: false
     showBottomBar: false
     showTopBar: false
-    cols: 2
 
     VStack {
         alignment: topleft

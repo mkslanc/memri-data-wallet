@@ -85,7 +85,6 @@ EmailMessage > timeline {
 
 EmailMessage {
     defaultRenderer: singleitem
-    cols: 6
 }
 
 EmailMessage > singleItem {

@@ -4,7 +4,6 @@ LabelingTask {
     showBottomBar: false
     showTopBar: false
     title: "Labelling app"
-    cols: 6
 
     [renderer = singleItem] {
         edgeInset: 0
@@ -129,7 +128,6 @@ LabelingTask > list {
     emptyResultText: "There are no Labeling tasks"
     defaultRenderer: singleRenderer
     sortFields: dateModified dateCreated
-    cols: 4
 
     [datasource = pod] {
         query: LabelingTask

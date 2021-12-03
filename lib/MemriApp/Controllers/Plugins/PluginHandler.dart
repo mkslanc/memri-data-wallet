@@ -3,13 +3,13 @@ import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
-import '../SceneController.dart';
+import '../PageController.dart' as memri;
 
 class PluginHandler {
   static run(
       {required ItemRecord plugin,
       required ItemRecord runner,
-      required SceneController sceneController,
+      required memri.PageController pageController,
       required CVUContext context}) async {
     AppController.shared.pubsubController.startObservingItemProperty(
         item: runner,
@@ -24,16 +24,13 @@ class PluginHandler {
                 presentCVUforPlugin(
                     plugin: plugin,
                     runner: runner,
-                    sceneController: sceneController,
+                    pageController: pageController,
                     context: context);
                 break;
               case "done":
               case "error":
                 stopPlugin(
-                    plugin: plugin,
-                    runner: runner,
-                    sceneController: sceneController,
-                    status: status);
+                    plugin: plugin, runner: runner, pageController: pageController, status: status);
                 break;
               default:
                 break;
@@ -48,7 +45,7 @@ class PluginHandler {
   static stopPlugin(
       {required ItemRecord plugin,
       required ItemRecord runner,
-      required SceneController sceneController,
+      required memri.PageController pageController,
       required String status}) async {
     AppController.shared.pubsubController
         .stopObservingItemProperty(item: runner, property: "status");
@@ -56,19 +53,17 @@ class PluginHandler {
     var pluginName = (await plugin.property("pluginName"))!.$value.value;
     var item = await runner.edgeItem("account");
 
-    await sceneController.navigateToNewContext(
-        clearStack: true, animated: false, viewName: "allPlugins"); //TODO
-    await sceneController.navigateToNewContext(
+    await pageController.sceneController.navigateToNewContext(
         animated: false,
         viewName: "${pluginName}-$status",
-        pageController: sceneController.secondaryPageController,
+        pageController: pageController,
         targetItem: item);
   }
 
   static presentCVUforPlugin(
       {required ItemRecord plugin,
       required ItemRecord runner,
-      required SceneController sceneController,
+      required memri.PageController pageController,
       required CVUContext context}) async {
     var runnerRowId = runner.rowId;
 
@@ -97,12 +92,10 @@ class PluginHandler {
 
     await runner.setPropertyValue("status", PropertyDatabaseValueString("cvuPresented"));
 
-    await sceneController.navigateToNewContext(
-        clearStack: true, animated: false, viewName: "allPlugins");
-    await sceneController.navigateToNewContext(
+    await pageController.sceneController.navigateToNewContext(
         animated: false,
         viewName: "${pluginName}-userActionNeeded",
-        pageController: sceneController.secondaryPageController,
+        pageController: pageController,
         targetItem: item);
   }
 }

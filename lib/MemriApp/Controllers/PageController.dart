@@ -21,6 +21,7 @@ class PageController extends ChangeNotifier {
   bool showTopBar = true;
   String label;
   MemriUINavigationController navigationController = MemriUINavigationController();
+  bool isPageActive = true;
 
   PageController(this.sceneController, this.label);
 
@@ -39,10 +40,13 @@ class PageController extends ChangeNotifier {
       }
       navigationController.setViewControllers(widget);
     } else {
-      _navigationStack = NavigationStack(pageLabel: label);
+      navStack = NavigationStack(pageLabel: label);
       var viewContext = await CVUActionOpenViewByName(viewName: viewName)
           .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
+      _navigationStack = navStack;
       if (viewContext != null) {
+        navStack.state = [ViewContextHolder(viewContext.config)];
+        navigationStack = navStack;
         topMostContext = viewContext;
         navigationController
             .setViewControllers(SceneContentView(pageController: this, viewContext: viewContext));
@@ -55,8 +59,9 @@ class PageController extends ChangeNotifier {
   }
 
   reset() {
+    isPageActive = false;
     closeStack = [];
-    _navigationStack = null;
+    navigationStack = null;
     navigationController = MemriUINavigationController(); //TODO: change when navigation fixed
   }
 
@@ -98,10 +103,14 @@ class PageController extends ChangeNotifier {
 
   NavigationStack get navigationStack => _navigationStack!;
 
-  set navigationStack(NavigationStack newValue) {
+  set navigationStack(NavigationStack? newValue) {
+    if (newValue == null) {
+      navigationStack.delete();
+    } else {
+      navigationStack.save();
+    }
     _navigationStack = newValue;
     notifyListeners();
-    navigationStack.save();
   }
 
   bool get canNavigateBack => navigationStack.state.length > 1;

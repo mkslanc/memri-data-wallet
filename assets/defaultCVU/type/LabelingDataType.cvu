@@ -33,7 +33,6 @@ LabelingDataType > grid {
     emptyResultText: "There are no Labeling data types"
     defaultRenderer: grid
     sortFields: dateModified dateCreated
-    cols: 4
 
     [datasource = pod] {
         query: LabelingDataType

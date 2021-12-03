@@ -31,6 +31,8 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
 
   late double cornerRadius;
 
+  late List<double> cornerRadiusOnly;
+
   late double opacity;
 
   late double? shadow;
@@ -55,6 +57,7 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
     minHeight = await widget.nodeResolver.propertyResolver.minHeight ?? 0;
     maxHeight = await widget.nodeResolver.propertyResolver.maxHeight ?? double.infinity;
     cornerRadius = await widget.nodeResolver.propertyResolver.cornerRadius;
+    cornerRadiusOnly = await widget.nodeResolver.propertyResolver.cornerRadiusOnly;
     opacity = await widget.nodeResolver.propertyResolver.opacity;
     shadow = await widget.nodeResolver.propertyResolver.shadow;
     border = await widget.nodeResolver.propertyResolver.borderColor;
@@ -102,6 +105,17 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
             if (cornerRadius > 0) {
               childWidget = ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
+                child: childWidget,
+              );
+            }
+            if (cornerRadiusOnly.isNotEmpty) {
+              childWidget = ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(cornerRadiusOnly[0]),
+                  topRight: Radius.circular(cornerRadiusOnly[1]),
+                  bottomRight: Radius.circular(cornerRadiusOnly[2]),
+                  bottomLeft: Radius.circular(cornerRadiusOnly[3]),
+                ),
                 child: childWidget,
               );
             }
