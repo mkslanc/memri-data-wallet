@@ -411,23 +411,20 @@ class CVULookupController {
             }
 
             var exp = nodeType.args.asMap()[0];
-            if (exp == null) {
-              currentValue = LookupStepValues([
-                PropertyDatabaseValueString(
-                    ((currentValue.values.asMap()[0]?.value * 100) as double).format(1))
-              ]);
-            } else {
-              double? arg = await resolve<double>(expression: exp, context: context, db: db);
+            double? arg;
+            if (exp != null) {
+              arg = await resolve<double>(expression: exp, context: context, db: db);
               if (arg == null) {
                 return null;
-              } else {
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
-                      ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double)
-                          .format(1))
-                ]);
               }
+            } else {
+              arg = 1;
             }
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueString(
+                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double).format(1))
+            ]);
+
             break;
           case "fullname":
             if (currentValue is LookupStepItems) {

@@ -19,10 +19,8 @@ class _CVUObserverState extends State<CVUObserver> {
   late TextProperties resolvedTextProperties;
 
   ItemRecord? item;
-
   String? property;
-  String? test;
-  late Stream<List<dynamic>> propertyStream;
+  Stream<List<dynamic>>? propertyStream;
 
   late Future _init;
 
@@ -41,7 +39,9 @@ class _CVUObserverState extends State<CVUObserver> {
   init() async {
     property = await widget.nodeResolver.propertyResolver.string("property");
     item = await widget.nodeResolver.propertyResolver.item("item");
-    initPropertyRecordStream();
+    if (property != null && item != null) {
+      initPropertyRecordStream();
+    }
   }
 
   initPropertyRecordStream() {
@@ -57,14 +57,11 @@ class _CVUObserverState extends State<CVUObserver> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          if (property != null && item != null) {
-            return StreamBuilder(
-                stream: propertyStream,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  return widget.nodeResolver.childrenInForEachWithWrap();
-                });
-          }
-          return widget.nodeResolver.childrenInForEachWithWrap();
+          return StreamBuilder(
+              stream: propertyStream,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                return widget.nodeResolver.childrenInForEachWithWrap();
+              });
         });
   }
 }
