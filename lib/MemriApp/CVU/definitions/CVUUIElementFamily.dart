@@ -39,7 +39,8 @@ enum CVUUIElementFamily {
   FileThumbnail,
   Null,
   Grid,
-  DropZone
+  DropZone,
+  Observer
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {
