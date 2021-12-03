@@ -77,7 +77,6 @@ Post > list {
     emptyResultText: "There are no posts here yet"
     defaultRenderer: list
     showTopBar: true
-    cols: 6
 
     [datasource = pod] {
         query: "Post"

@@ -55,7 +55,7 @@ class _BrowserViewState extends State<BrowserView> {
   initState() {
     super.initState();
     viewContext = widget.viewContext;
-    pageController = widget.pageController ?? SceneController.sceneController.mainPageController;
+    pageController = widget.pageController ?? SceneController.sceneController.pageControllers.first;
     _title = widget.viewContext.viewDefinitionPropertyResolver.string("title");
     viewContext.onAppear();
   }

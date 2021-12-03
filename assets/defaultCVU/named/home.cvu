@@ -1,5 +1,4 @@
 .home {
-    cols: 6
     defaultRenderer: custom
     showBottomBar: false
     showContextualBottomBar: false
@@ -218,7 +217,6 @@
 }
 
 .updates {
-    cols: 3
     defaultRenderer: custom
     showSearchBar: false
     showContextualBottomBar: false

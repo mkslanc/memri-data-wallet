@@ -1,10 +1,8 @@
 .WhatsappPluginRun {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "Connect WhatsApp account"
 
     [renderer = singleItem] {
@@ -81,12 +79,10 @@
 }
 
 .WhatsappPlugin-userActionNeeded {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "Connect WhatsApp account"
 
     [renderer = singleItem]{
@@ -238,12 +234,10 @@
 }
 
 .WhatsappPlugin-done {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "Connect WhatsApp account"
 
     [renderer = singleItem]{
@@ -277,12 +271,10 @@
 }
 
 .WhatsappPlugin-error {
-    cols: 4
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
     showBottomBar: false
-    showTopBar: false
     title: "Connect WhatsApp account"
 
     [renderer = singleItem]{

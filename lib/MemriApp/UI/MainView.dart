@@ -46,6 +46,7 @@ class _MainViewState extends State<MainView> {
       if (await Authentication.storageDoesNotExist) {
         await Authentication.createRootKey();
       }
+      await AppController.shared.init();
       await sceneController.init();
       await AppController.shared.onLaunch();
     } on Exception catch (e) {

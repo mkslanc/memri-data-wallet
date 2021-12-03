@@ -187,7 +187,6 @@ PluginRun > list {
 }
 
 .pluginRunWait {
-    cols: 4
     defaultRenderer: custom
     showSearchBar: false
     showContextualBottomBar: false

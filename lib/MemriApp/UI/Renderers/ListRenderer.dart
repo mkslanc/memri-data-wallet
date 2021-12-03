@@ -103,7 +103,6 @@ class _ListRendererViewState extends RendererViewState {
               if (additional != null) {
                 elements.insert(0, _buildSeparator());
                 elements.insertAll(0, [
-                  _buildSeparator(),
                   ListTile(
                     key: Key(Uuid().v4()),
                     dense: true,

@@ -1,8 +1,27 @@
 .inbox {
     name: "inbox"
     title: "Inbox"
+    defaultRenderer: scene
+
+    [renderer = scene] {
+        pages: {
+             inboxChannels: "inbox-channels"
+             inboxData: ""
+        }
+
+    }
+
+}
+
+.inbox-channels {
+    name: "inbox"
+    title: "Inbox"
     defaultRenderer: list
     cols: 4
+    showTopBar: true
+    topBarColor: "#FFFFFF"
+    showEditCode: false
+
     emptyResult: {
         VStack {
             padding: 0 30 50 30
@@ -89,13 +108,15 @@
 
     filterButtons: [
         openView {
-            viewName: "inbox"
+            viewName: "inbox-channels"
             title: "all"
             clearStack: true
             inheritDatasource: false
+            color: "#FE570F"
         },
         filter {
-            title: "pinned"
+            color: "#FE570F"
+            title: "whatsapp"
             clearStack: true
             datasource: {
                 query: MessageChannel
@@ -132,7 +153,7 @@
                     padding: 13 0 7 0
 
                     Image {
-                        bundleImage: "coffee"
+                        bundleImage: "plus"
                         isVector: true
                         sizingMode: fill
                         minHeight: 30
@@ -140,10 +161,11 @@
                         minWidth: 30
                         maxWidth: 30
                         cornerRadius: 50
+                        color: #FE570F
                     }
 
                     Text {
-                        text: "Social updates"
+                        text: "Compose"
                         font: 12 regular
                         color: #FE570F
                     }

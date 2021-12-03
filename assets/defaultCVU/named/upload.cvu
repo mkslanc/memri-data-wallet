@@ -1,5 +1,4 @@
 .upload {
-    cols: 7
     defaultRenderer: custom
     scrollable: false
     showBottomBar: false

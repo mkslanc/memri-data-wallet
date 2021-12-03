@@ -166,7 +166,6 @@ Plugin > grid {
     emptyResultText: "There are no Plugins"
     defaultRenderer: list
     sortFields: datatype dateModified dateAccessed dateCreated
-    cols: 4
 
     [datasource = pod] {
         query: Plugin

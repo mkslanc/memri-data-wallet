@@ -3,6 +3,7 @@ import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
@@ -21,42 +22,42 @@ class ActionButton extends StatefulWidget {
 }
 
 class _ActionButtonState extends State<ActionButton> {
-  late Future<String?> _title;
+  late Future<void> _init;
 
   String title = "";
+  Color color = Color(0xff333333);
 
   @override
   initState() {
     super.initState();
-    initTitle();
+    _init = init();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    initTitle();
+    _init = init();
   }
 
-  initTitle() {
-    _title = widget.action.getString("title", widget.viewContext);
+  init() async {
+    title = await widget.action.getString("title", widget.viewContext) ?? "";
+    var colorString = await widget.action.getString("color", widget.viewContext) ?? "black";
+    color = CVUColor(color: colorString).value;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: _title,
+    return FutureBuilder(
+      future: _init,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          title = snapshot.data ?? "";
-        }
         return TextButton(
             child: Text(
               title,
-              style: CVUFont.link,
+              style: CVUFont.link.copyWith(color: color),
             ),
             onPressed: () async {
               await widget.action.execute(widget.pageController, widget.viewContext);
-              setState(() => initTitle());
+              _init = init();
             });
       },
     );

@@ -2,7 +2,6 @@
     name: "assets"
     title: "Assets"
     defaultRenderer: list
-    cols: 4
     emptyResult: {
         VStack {
             padding: 0 30 50 30

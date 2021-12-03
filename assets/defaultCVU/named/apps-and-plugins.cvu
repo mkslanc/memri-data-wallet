@@ -3,7 +3,6 @@
     title: "Apps and Plugins"
     emptyResultText: "There are no Plugins"
     defaultRenderer: list
-    cols: 4
 
     [datasource = pod] {
         query: Plugin LabelingTask
@@ -13,7 +12,7 @@
         Button {
             onPress: [
             openView {
-                viewName: "create-labelling-app"
+                viewName: "inbox"
                 inheritDatasource: false
                 viewArguments {
 
@@ -23,23 +22,8 @@
             HStack {
                 alignment: left
                 padding: 13 0 7 0
-
-                Image {
-                    bundleImage: "zap"
-                    isVector: true
-                    sizingMode: fill
-                    minHeight: 30
-                    maxHeight: 30
-                    minWidth: 30
-                    maxWidth: 30
-                    cornerRadius: 50
-                    color: #FE570F
-                }
-
                 Text {
-                    text: "Create new labelling app"
-                    font: link
-                    color: #FE570F
+                    text: "Inbox"
                 }
             }
         }
