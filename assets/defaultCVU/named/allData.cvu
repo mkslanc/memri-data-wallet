@@ -82,7 +82,7 @@
                             property: "progress"
 
                             Text {
-                                color: {{.~plugin[].last().status = "error" ? #FE570F : #15B599}}
+                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
                                 font: body_tiny
                                 show: {{.~plugin[].last().status != "ready"}}
                                 text: "{.~plugin[].last().status = 'done' ? 'Active' : .~plugin[].last().status = 'error' ? 'Error' : 'Active'}"
