@@ -19,7 +19,7 @@
     defaultRenderer: list
     cols: 4
     showTopBar: true
-    tobBarColor: "#FFFFFF"
+    topBarColor: "#FFFFFF"
     showEditCode: false
 
     emptyResult: {
