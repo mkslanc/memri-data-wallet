@@ -1,5 +1,8 @@
 # Memri frontend
-The flutter application is the front-end for the Memri [pod](https://gitlab.memri.io/memri/pod). [Flutter](https://flutter.dev/) is a framework to build natively compiled, multi-platform (web/desktop/ios/android) applications from a single codebase. The current flutter application codebase is focussed on publishing in flutter-web.
+The flutter application is the frontend for the Memri [pod](https://gitlab.memri.io/memri/pod). [Flutter](https://flutter.dev/) is a framework to build natively compiled, multi-platform (web/desktop/ios/android) applications from a single codebase. The current flutter application codebase is focussed on publishing in flutter-web.
+
+## Try it out
+The pre-alpha version of the Memri frontend is freely available at [memri.docs.memri.io/flutter-app](https://memri.docs.memri.io/flutter-app/#/), and can be used by connecting to your local pod or the public memri hosted pod (alpha) at [dev.pod.memri.io](https://dev.pod.memri.io/). Regardless of your setup: only you have access to the data in your pod. Note that this is a very early release, for help or questions reach out on [Discord]("https://discord.com/invite/BcRfajJk4k").
 
 ## Build & Run (Flutter-web)
 
