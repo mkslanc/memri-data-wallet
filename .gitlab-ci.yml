@@ -37,3 +37,9 @@ pages:
   only:
     - dev
 
+memri-docs:
+  stage: deploy
+  only:
+    - dev
+  trigger: memri/docs.memri.io
+

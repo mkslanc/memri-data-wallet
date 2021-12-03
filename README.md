@@ -1,36 +1,25 @@
-# Memri
+# Memri frontend
+The flutter application is the frontend for the Memri [pod](https://gitlab.memri.io/memri/pod). [Flutter](https://flutter.dev/) is a framework to build natively compiled, multi-platform (web/desktop/ios/android) applications from a single codebase. The current flutter application codebase is focussed on publishing in flutter-web.
 
-Memri Flutter application
+## Try it out
+The pre-alpha version of the Memri frontend is freely available at [memri.docs.memri.io/flutter-app](https://memri.docs.memri.io/flutter-app/#/), and can be used by connecting to your local pod or the public memri hosted pod (alpha) at [dev.pod.memri.io](https://dev.pod.memri.io/). Regardless of your setup: only you have access to the data in your pod. After first login, your credentials will be stored locally for re-use when you revisit the app. To create a new account after first login, [delete your browser database](https://stackoverflow.com/questions/9384128/how-to-delete-indexeddb#answer-9389289) or connect from an incognito tab (in this case your data will be lost after closing the tab). Note that this is a very early release, for help or questions reach out on [Discord]("https://discord.com/invite/BcRfajJk4k").
 
+## Build & Run (Flutter-web)
 
-# Bulding
+To build the Memri flutter-app locally, you need to either install the Flutter environment locally, or use the docker build. Currently the app is tested and built for flutter web.
 
-To build the app locally, you need to either install the Flutter environment locally, or use the docker build.
+### Build:
+Install Flutter SDK [mac](https://flutter.dev/docs/get-started/install/macos), [windows](https://flutter.dev/docs/get-started/install/windows), [linux](https://flutter.dev/docs/get-started/install/linux)
 
-You'll also need a working MapBox key (the `SDK_REGISTRY_TOKEN` environment variable below). Please ask for one from the team if you're an active contributor, or generate a personal one from mapbox (TODO: improve this? ideas welcome, e.g. if there's a script to generate key if not present).
-
-## To build using docker:
+### Run:
+Execute 
 ```
-docker run --rm -e UID="$UID" -e GID="$GROUPS" -e SDK_REGISTRY_TOKEN="....." --workdir /project -v "$PWD":/project matspfeiffer/flutter build apk
+flutter run -d chrome --profile
+``` 
+to run in [profile mode](https://docs.flutter.dev/testing/build-modes#profile) (recommended). For [debug mode](https://docs.flutter.dev/testing/build-modes#debug), run:
 ```
+flutter run -d chrome --debug
+```
+## CVU
+The Memri flutter application uses an inhouse language, [CVU](./docs/cvu-intro), that allows you to define your UI by creating elements in the POD. As the UI definition lives in the database, the Memri UI is dynamic, which allows users to dynamically redefine their UI without recompiling the app or downloading a new release. Additionally, it allows for a microservices architecture, in which community built plugins can easily define their own UI. [Read more here](./docs/cvu-intro).
 
-## To build locally:
-**On MacOS:** 
-1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/macos to install Flutter SDK
-
-**On Windows:**
-1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/windows to install Flutter SDK
-
-**On Linux:**
-1. Follow official Flutter guide - https://flutter.dev/docs/get-started/install/linux to install Flutter SDK
-
-**For all platforms:**
-2. Setup environment variable `SDK_REGISTRY_TOKEN`
-3. Run command 
-   - `flutter build ios` from console to build iOS app (**available only at MacOS**)
-   - `flutter build apk` from console to build Android app. This command will generate a "fat" (all ABIs included) apk. There are other build artifacts possible as well, e.g. per-abi ones and others. Please refer to the general Flutter documentation for that.
-
-## To run locally:
-Run command 
-   - `flutter run -d chrome --debug` from console to run in debug mode
-   - `flutter run -d chrome --profile` from console to run in profile mode (main mode for now)
