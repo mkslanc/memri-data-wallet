@@ -29,10 +29,13 @@ class SceneView extends StatefulWidget {
 class _SceneViewState extends State<SceneView> {
   Map<int, int> viewCols = {};
   Map<int, bool> showTopBar = {};
-  late int pagesCount;
+  int pagesCount = 0;
 
   init() {
-    pagesCount = widget.sceneController.pageControllers.length;
+    if (pagesCount != widget.sceneController.pageControllers.length) {
+      pagesCount = widget.sceneController.pageControllers.length;
+      viewCols = {};
+    }
     widget.sceneController.pageControllers.forEachIndexed((index, pageController) {
       var viewContext = pageController.topMostContext;
       int cols = viewContext?.viewDefinitionPropertyResolver.syncInteger("cols") ??
@@ -44,7 +47,7 @@ class _SceneViewState extends State<SceneView> {
       viewCols[index] = cols;
 
       showTopBar[index] =
-          viewContext?.viewDefinitionPropertyResolver.syncBoolean("showTopBar") ?? true;
+          viewContext?.viewDefinitionPropertyResolver.syncBoolean("showTopBar") ?? false;
     });
   }
 
@@ -86,7 +89,7 @@ class _SceneViewState extends State<SceneView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (widget.showMainNavigation)
+                    if (widget.showMainNavigation) ...[
                       Container(
                         color: Color(0xffF4F4F4),
                         height: 150,
@@ -101,6 +104,9 @@ class _SceneViewState extends State<SceneView> {
                           ],
                         ),
                       ),
+                      if (widget.sceneController.pageControllers.isNotEmpty)
+                        TopBarView(pageController: widget.sceneController.pageControllers.first)
+                    ],
                     Row(
                         children: widget.sceneController.pageControllers
                             .mapIndexed((index, pageController) => [
