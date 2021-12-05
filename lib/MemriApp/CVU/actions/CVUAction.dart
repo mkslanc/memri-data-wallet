@@ -250,7 +250,7 @@ class CVUActionOpenCVUEditor extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {
-    var label = "cvuEditor";
+    var label = "mainCVUEditor";
     var cvuEditorPageController = pageController.sceneController.pageControllerByLabel(label);
     if (cvuEditorPageController != null) {
       pageController.topMostContext?.config.cols = null; //TODO
@@ -265,6 +265,7 @@ class CVUActionOpenCVUEditor extends CVUAction {
       }));
       cvuEditorPageController = await pageController.sceneController.addPageController(label);
       pageController.topMostContext?.config.cols = 5; //TODO
+      pageController.navigationStack = pageController.navigationStack;
       await CVUActionOpenView(vars: vars, viewName: "cvuEditor", renderer: "cvueditor")
           .execute(cvuEditorPageController, context);
     }

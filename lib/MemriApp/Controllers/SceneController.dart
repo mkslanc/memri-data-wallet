@@ -17,22 +17,43 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'AppController.dart';
 import 'Database/DatabaseQuery.dart';
 import 'Database/ItemRecord.dart';
+import 'Database/NavigationStack.dart';
 import 'PageController.dart' as memri;
 
 /// The scene controller is specific to a particular `window` of the app. On the iPhone there is usually only one. There may be multiple eg. if multitasking on iPad or multiple windows on mac
 class SceneController extends ChangeNotifier {
   AppController appController = AppController.shared;
   static late SceneController sceneController;
+  SceneController? parentSceneController;
+  List<SceneController> subSceneControllers = [];
 
   List<memri.PageController> pageControllers = [];
 
   init([List<Map<String, String>>? pages]) async {
     try {
-      pages ??= [
-        {"label": "main", "viewName": "home"}
-      ];
+      var navStackList = <String, NavigationStack>{};
+      if (pages == null) {
+        var savedNavStackList = await NavigationStack.fetchAll(appController.databaseController);
+        pages = savedNavStackList.compactMap((navStack) {
+          if (navStack.pageLabel.startsWith("main")) {
+            navStackList[navStack.pageLabel] = navStack;
+            return {"label": navStack.pageLabel};
+          }
+        });
+
+        if (pages.length > 1) {
+          navStackList.forEach((key, value) {
+            value.state.last.config.cols ??= 5;
+          }); //TODO cols part logic is not clear, so just dirty hack for now
+        }
+      }
+      if (pages.isEmpty) {
+        pages.add({"label": "main", "viewName": "home"});
+      }
+
       await Future.forEach<Map<String, String>>(pages, (page) async {
-        await addPageController(page["label"]!, page["viewName"]);
+        await addPageController(page["label"]!,
+            viewName: page["viewName"], navStack: navStackList[page["label"]]);
       });
     } catch (e) {
       throw e;
@@ -41,9 +62,10 @@ class SceneController extends ChangeNotifier {
     setupObservations(); //TODO
   }
 
-  Future<memri.PageController> addPageController(String label, [String? viewName]) async {
+  Future<memri.PageController> addPageController(String label,
+      {String? viewName, String? rendererName, NavigationStack? navStack}) async {
     var pageController = memri.PageController(this, label);
-    await pageController.init(viewName ?? "");
+    await pageController.init(viewName ?? "", rendererName: rendererName, navStack: navStack);
     pageController.addListener(() => notifyListeners());
     pageControllers.add(pageController);
     return pageController;
@@ -58,6 +80,8 @@ class SceneController extends ChangeNotifier {
     navigationIsVisible.value = false;
     pageControllers.forEach((pageController) => pageController.reset());
     pageControllers = [];
+    parentSceneController?.subSceneControllers
+        .removeWhere((subSceneController) => subSceneController == this);
   }
 
   bool isBigScreen = true;

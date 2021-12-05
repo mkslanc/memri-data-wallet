@@ -5,6 +5,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/ResetCVUToDefault.dart';
@@ -48,9 +49,29 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     var renderer = viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["renderer"]);
 
+    await collectDefinitions(
+        viewName: viewName, renderer: renderer, currentViewContext: viewContext);
+
+    if (definitions.isNotEmpty) {
+      newCVU = definitions.map((node) => node.toCVUString(0, "    ", true)).join("\n\n");
+    }
+
+    controller.text = newCVU ?? "No cvu found to edit";
+  }
+
+  collectDefinitions(
+      {String? viewName,
+      String? renderer,
+      ViewContextController? currentViewContext,
+      SceneController? sceneController}) async {
+    currentViewContext ??= viewContext;
+    sceneController ??= widget.pageController.sceneController;
+    viewName ??= currentViewContext.config.viewName;
+    renderer ??= currentViewContext.config.rendererName;
+
     CVUParsedDefinition? viewDefinition;
     if (viewName != null && viewName != "customView") {
-      viewDefinition = viewContext.cvuController
+      viewDefinition = currentViewContext.cvuController
           .definitionFor(type: CVUDefinitionType.view, viewName: viewName, exactSelector: true);
 
       var datasource = viewDefinition?.parsed.definitions
@@ -62,7 +83,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       var itemTypes = await datasourceResolver?.stringArray("query");
 
       itemTypes?.forEach((itemType) {
-        var nodeDefinition = viewContext.cvuController.definitionFor(
+        var nodeDefinition = currentViewContext!.cvuController.definitionFor(
             type: CVUDefinitionType.uiNode, selector: itemType, rendererName: renderer);
 
         if (nodeDefinition != null) {
@@ -70,14 +91,14 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
         }
       });
     } else {
-      viewDefinition = viewContext.cvuController.definitionFor(
+      viewDefinition = currentViewContext.cvuController.definitionFor(
           type: CVUDefinitionType.view,
-          selector: viewContext.focusedItem!.type,
+          selector: currentViewContext.focusedItem!.type,
           exactSelector: true);
 
-      var nodeDefinition = viewContext.cvuController.definitionFor(
+      var nodeDefinition = currentViewContext.cvuController.definitionFor(
           type: CVUDefinitionType.uiNode,
-          selector: viewContext.focusedItem?.type,
+          selector: currentViewContext.focusedItem?.type,
           rendererName: renderer);
 
       if (nodeDefinition != null) {
@@ -86,23 +107,36 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     }
 
     if (viewDefinition != null) {
+      var subSceneDefinitions = currentViewContext.cvuController.definitionFor(
+          selector: "[renderer = $renderer]",
+          type: CVUDefinitionType.renderer,
+          specifiedDefinitions: viewDefinition.parsed.definitions);
+      if (subSceneDefinitions != null) {
+        await collectSubSceneDefinitions(sceneController);
+      }
       definitions.add(viewDefinition);
     }
 
-    var globalDefinition = viewContext.cvuController
+    var globalDefinition = currentViewContext.cvuController
             .definitionFor(type: CVUDefinitionType.renderer, rendererName: renderer) ??
-        viewContext.cvuController
+        currentViewContext.cvuController
             .definitionFor(selector: "[renderer = $renderer]", type: CVUDefinitionType.renderer);
 
     if (globalDefinition != null) {
       definitions.add(globalDefinition);
     }
+  }
 
-    if (definitions.isNotEmpty) {
-      newCVU = definitions.map((node) => node.toCVUString(0, "    ", true)).join("\n\n");
-    }
-
-    controller.text = newCVU ?? "No cvu found to edit";
+  collectSubSceneDefinitions(SceneController sceneController) async {
+    await Future.forEach<SceneController>(sceneController.subSceneControllers,
+        (subSceneController) async {
+      await Future.forEach<memri.PageController>(subSceneController.pageControllers,
+          (pageController) async {
+        var subViewContext = pageController.topMostContext;
+        await collectDefinitions(
+            currentViewContext: subViewContext, sceneController: subSceneController);
+      });
+    });
   }
 
   String? newCVU;

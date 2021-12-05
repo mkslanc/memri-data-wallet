@@ -426,6 +426,10 @@ class Database extends _$Database {
         .get();
   }
 
+  Future<List<NavigationStateData>> navigationStateFetchAll() async {
+    return await (select(navigationState)).get();
+  }
+
   Future<NavigationStateData?> navigationStateFetchOne(String pageLabel) async {
     return await (select(navigationState)..where((t) => t.pageLabel.equals(pageLabel)))
         .getSingleOrNull();

@@ -25,8 +25,8 @@ class PageController extends ChangeNotifier {
 
   PageController(this.sceneController, this.label);
 
-  init(String viewName, {String? rendererName}) async {
-    var navStack = await NavigationStack.fetchOne(label, appController.databaseController);
+  init(String viewName, {String? rendererName, NavigationStack? navStack}) async {
+    navStack ??= await NavigationStack.fetchOne(label, appController.databaseController);
     if (navStack != null) {
       if (navStack.state.length > 0) {
         topMostContext = makeContext(navStack.state.last);
