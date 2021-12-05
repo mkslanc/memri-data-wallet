@@ -37,7 +37,7 @@
             Button {
                 width: 180
                 onPress: openView {
-                    viewName: "inbox"
+                    viewName: "inbox-channels"
                     clearStack: true
                     inheritDatasource: false
                 }
