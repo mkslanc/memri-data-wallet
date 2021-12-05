@@ -32,16 +32,26 @@ class SceneController extends ChangeNotifier {
         {"label": "main", "viewName": "home"}
       ];
       await Future.forEach<Map<String, String>>(pages, (page) async {
-        var pageController = memri.PageController(this, page["label"]!);
-        await pageController.init(page["viewName"] ?? "");
-        pageController.addListener(() => notifyListeners());
-        pageControllers.add(pageController);
+        await addPageController(page["label"]!, page["viewName"]);
       });
     } catch (e) {
       throw e;
     }
 
     setupObservations(); //TODO
+  }
+
+  Future<memri.PageController> addPageController(String label, [String? viewName]) async {
+    var pageController = memri.PageController(this, label);
+    await pageController.init(viewName ?? "");
+    pageController.addListener(() => notifyListeners());
+    pageControllers.add(pageController);
+    return pageController;
+  }
+
+  removePageController(pageController) {
+    pageControllers.removeWhere((element) => element == pageController);
+    pageController.reset();
   }
 
   reset() async {
