@@ -80,5 +80,5 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
   Map<String, dynamic> toJson() => _$CVUUINodeToJson(this);
 
   @override
-  List<Object?> get props => [type, children, properties, id];
+  List<Object?> get props => [type, children, properties];
 }
