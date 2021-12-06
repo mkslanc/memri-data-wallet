@@ -1,6 +1,6 @@
 .apps-and-plugins {
     name: "apps-and-plugins"
-    title: "Apps and Plugins"
+    title: "All apps"
     emptyResultText: "There are no Plugins"
     defaultRenderer: list
 

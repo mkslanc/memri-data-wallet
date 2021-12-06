@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 
-resetCVUToDefault(context, memri.PageController pageController) {
+resetCVUToDefault(BuildContext context, memri.PageController pageController,
+    [List<CVUParsedDefinition>? definitions]) {
   showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
@@ -11,8 +13,9 @@ resetCVUToDefault(context, memri.PageController pageController) {
       actions: <Widget>[
         TextButton(
           onPressed: () async {
-            await AppController.shared.cvuController.resetToDefault();
+            await AppController.shared.cvuController.resetToDefault(definitions);
             Navigator.pop(context);
+            pageController.sceneController.scheduleUIUpdate();
           },
           child: const Text('OK'),
         ),

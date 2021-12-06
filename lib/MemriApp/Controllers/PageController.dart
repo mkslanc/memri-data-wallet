@@ -25,37 +25,26 @@ class PageController extends ChangeNotifier {
 
   PageController(this.sceneController, this.label);
 
-  init(String viewName, {String rendererName = "custom"}) async {
-    var navStack = await NavigationStack.fetchOne(label, appController.databaseController);
+  init(String viewName, {String? rendererName, NavigationStack? navStack}) async {
+    navStack ??= await NavigationStack.fetchOne(label, appController.databaseController);
     if (navStack != null) {
-      _navigationStack = navStack;
-      Widget widget;
       if (navStack.state.length > 0) {
-        var topView = navStack.state.last;
-        var context = makeContext(topView);
-        topMostContext = context;
-        widget = SceneContentView(pageController: this, viewContext: context);
-      } else {
-        widget = Empty();
+        topMostContext = makeContext(navStack.state.last);
       }
-      navigationController.setViewControllers(widget);
     } else {
       navStack = NavigationStack(pageLabel: label);
-      var viewContext = await CVUActionOpenViewByName(viewName: viewName)
-          .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
-      _navigationStack = navStack;
-      if (viewContext != null) {
-        navStack.state = [ViewContextHolder(viewContext.config)];
-        navigationStack = navStack;
-        topMostContext = viewContext;
-        navigationController
-            .setViewControllers(SceneContentView(pageController: this, viewContext: viewContext));
-      } else {
-        navigationController.setViewControllers(Center(
-          child: Text("Welcome to Memri"),
-        ));
+      if (viewName.isNotEmpty || rendererName != null) {
+        topMostContext = await CVUActionOpenViewByName(viewName: viewName)
+            .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
+        navStack.state = [ViewContextHolder(topMostContext!.config)];
       }
     }
+
+    _navigationStack = navStack;
+    var widget = topMostContext != null
+        ? SceneContentView(pageController: this, viewContext: topMostContext!)
+        : Empty();
+    navigationController.setViewControllers(widget);
   }
 
   reset() {

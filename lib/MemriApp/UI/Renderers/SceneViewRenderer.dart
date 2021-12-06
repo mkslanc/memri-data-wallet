@@ -29,6 +29,8 @@ class _SceneViewRendererViewState extends RendererViewState {
 
   Future<void> init() async {
     _sceneController = SceneController();
+    _sceneController.parentSceneController = pageController.sceneController;
+    _sceneController.parentSceneController!.subSceneControllers.add(_sceneController);
     var pageResolver = viewContext.rendererDefinitionPropertyResolver.subdefinition("pages");
 
     pageResolver?.properties.forEach((label, viewName) {
@@ -47,6 +49,12 @@ class _SceneViewRendererViewState extends RendererViewState {
   void dispose() {
     super.dispose();
     _sceneController.reset();
+  }
+
+  @override
+  void didUpdateWidget(covariant Renderer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sceneController.scheduleUIUpdate();
   }
 
   @override

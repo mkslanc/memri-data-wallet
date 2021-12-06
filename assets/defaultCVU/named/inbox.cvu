@@ -37,7 +37,7 @@
             Button {
                 width: 180
                 onPress: openView {
-                    viewName: "inbox"
+                    viewName: "inbox-channels"
                     clearStack: true
                     inheritDatasource: false
                 }
@@ -114,39 +114,11 @@
             inheritDatasource: false
             color: "#FE570F"
         },
-        filter {
-            color: "#FE570F"
-            title: "whatsapp"
-            clearStack: true
-            datasource: {
-                query: MessageChannel
-                sort: {
-                    targetType: "Message"
-                    edgeSource: {
-                        name: messageChannel
-                        sortProperty: dateSent
-                        sortAscending: false
-                    }
-                }
-                filter: {
-                    properties: {
-                        starred: true
-                    }
-                }
-            }
-        },
         ]
 
         additional: {
             Button {
-                onPress: openView {
-                    viewName: "allPosts"
-                    clearStack: true
-                    inheritDatasource: false
-                    viewArguments {
-
-                    }
-                }
+                onPress: noop
 
                 HStack {
                     alignment: left
