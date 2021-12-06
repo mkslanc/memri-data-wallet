@@ -1,159 +1,48 @@
 Message {
     title: {{.title or "Untitled" }}
     defaultRenderer: custom
-    editActionButton: toggleEditMode
-    cols: 6
-    filterButtons: [
-        openView {
-            icon: "increase.indent"
-            title: "Show Timeline"
-            
-            view: {
-                defaultRenderer: timeline
-                
-                [datasource = pod] {
-                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                    sortProperty: dateCreated
-                    sortAscending: true
-                }
-                
-                [renderer = timeline] {
-                    timeProperty: dateCreated
-                }
-            }
-        }
-        showContextPane
-        ]
 
-        contextPane {
-            buttons: star schedule
-
-            actions: [
-                showOverlay { title: "Share with..." }
-                addToPanel { title: "Add to list..." }
-                duplicate { title: "Duplicate Note" }
-                ]
-
-                navigate: [
-                    openView {
-                        title: "Timeline of this note"
-                        view: {
-                            defaultRenderer: timeline
-
-                            [datasource = pod] {
-                                query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                                sortProperty: dateCreated
-                                sortAscending: true
-                            }
-
-                            [renderer = timeline] {
-                                timeProperty: dateCreated
-                            }
-                        }
-                    }
-                    openViewByName {
-                        title: "Starred notes"
-                        viewName: "filter-starred"
-                        viewArguments: {
-                            include: "all-notes"
-                        }
-                    }
-                    openSessionByName {
-                        title: "All notes"
-                        sessionName: "all-notes"
-                    }
-                    ]
-        }
-
-        [renderer = custom] {
-
-        }
-
-        Message > custom {
-            RichTextfield {
-                content: {{.content}}
-                title: {{.title}}
-                fontSize: 18
-            }
-        }
-}
-
-Message > list {
-
-    VStack {
-        alignment: topleft
-        HStack {
-            alignment: left
-
-            Image {
-                image: {{.sender.owner.profilePicture or .sender.profilePicture or "assets/images/person.png"}}
-                sizingMode: fill
-                minHeight: 30
-                maxHeight: 30
-                minWidth: 30
-                maxWidth: 30
-                cornerRadius: 50
-            }
-
-
-            Text {
-                text: {{.sender.owner.fullName() or .sender.displayName }}
-                font: 12 regular
-                color: #737373
-            }
-
-            Spacer
-
-            Text {
-                text: "{.dateSent}"
-                color: #989898
-                font: 10 regular
-                padding: 0 19 0 0
-            }
-
-            Image {
-                systemName: "ellipsis"
-                color: #DFDEDE
-                font: 24 light
-                padding: 5 0 5 0
-            }
-        }
-
-        HStack {
-            alignment: right
-
-            MemriButton {
-                item: {{.label}}
-            }
-        }
-
-        Button {
-            show: {{.photo}}
-            onPress: openView {
-                renderer: photoViewer
-                viewArguments {
-                    mainView: false
-                }
-            }
-
-            Image {
-                image: {{.photo}}
-                sizingMode: fit
-                cornerRadius: 5
-                maxWidth: 250
-            }
-        }
-
-        SmartText {
-            show: {{.content}}
-            text: {{.content.plainString()}}
-            font: bodyText2
-            color: #333333
-            padding: 0 0 30 0
-        }
+    [renderer = custom] {
 
     }
 
+    Message > custom {
+        RichTextfield {
+            content: {{.content}}
+            title: {{.title}}
+            fontSize: 18
+        }
+    }
+}
+
+Message > list {
+   VStack {
+       alignment: topleft
+
+       HStack {
+           alignment: left
+
+           Image {
+               cornerRadius: 50
+               image: {{.sender.owner.profilePicture OR .sender.profilePicture OR "assets/images/person.png"}}
+               maxHeight: 30
+               maxWidth: 30
+               minHeight: 30
+               minWidth: 30
+               sizingMode: fill
+           }
+
+           Text {
+               background: {{.sender.owner = me OR .sender.isMe ? "#4F56FE" : "#F8F8F8"}}
+               color: {{.sender.owner = me OR .sender.isMe ? "#FBFBFB" : "#333333"}}
+               cornerRadiusOnly: 0 5 5 5
+               font: bodyText2
+               padding: 15 10
+               show: {{.content}}
+               text: {{.content.plainString()}}
+           }
+       }
+   }
 }
 
 .allMessages {

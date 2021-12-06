@@ -27,6 +27,14 @@ class NavigationStack extends Equatable {
     state = jsonData.map((stateElement) => ViewContextHolder.fromJson(stateElement)).toList();
   }
 
+  static Future<List<NavigationStack>> fetchAll([DatabaseController? db]) async {
+    db ??= AppController.shared.databaseController;
+    List<NavigationStateData> navigationStateList = await db.databasePool.navigationStateFetchAll();
+    return navigationStateList
+        .map((navigationState) => NavigationStack.fromNavigationStateData(navigationState))
+        .toList();
+  }
+
   static Future<NavigationStack?> fetchOne(String pageLabel, [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
     NavigationStateData? navigationState = await db.databasePool.navigationStateFetchOne(pageLabel);
@@ -39,6 +47,11 @@ class NavigationStack extends Equatable {
   save([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
     await db.navigationStateSave(this);
+  }
+
+  delete([Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    await db.navigationStateDelete(this);
   }
 
   NavigationStateCompanion toCompanion() {

@@ -1,8 +1,27 @@
 .inbox {
     name: "inbox"
     title: "Inbox"
+    defaultRenderer: scene
+
+    [renderer = scene] {
+        pages: {
+             inboxChannels: "inbox-channels"
+             inboxData: ""
+        }
+
+    }
+
+}
+
+.inbox-channels {
+    name: "inbox"
+    title: "Inbox"
     defaultRenderer: list
     cols: 4
+    showTopBar: true
+    topBarColor: "#FFFFFF"
+    showEditCode: false
+
     emptyResult: {
         VStack {
             padding: 0 30 50 30
@@ -18,7 +37,7 @@
             Button {
                 width: 180
                 onPress: openView {
-                    viewName: "inbox"
+                    viewName: "inbox-channels"
                     clearStack: true
                     inheritDatasource: false
                 }
@@ -89,50 +108,24 @@
 
     filterButtons: [
         openView {
-            viewName: "inbox"
+            viewName: "inbox-channels"
             title: "all"
             clearStack: true
             inheritDatasource: false
-        },
-        filter {
-            title: "pinned"
-            clearStack: true
-            datasource: {
-                query: MessageChannel
-                sort: {
-                    targetType: "Message"
-                    edgeSource: {
-                        name: messageChannel
-                        sortProperty: dateSent
-                        sortAscending: false
-                    }
-                }
-                filter: {
-                    properties: {
-                        starred: true
-                    }
-                }
-            }
+            color: "#FE570F"
         },
         ]
 
         additional: {
             Button {
-                onPress: openView {
-                    viewName: "allPosts"
-                    clearStack: true
-                    inheritDatasource: false
-                    viewArguments {
-                        mainView: false
-                    }
-                }
+                onPress: noop
 
                 HStack {
                     alignment: left
                     padding: 13 0 7 0
 
                     Image {
-                        bundleImage: "coffee"
+                        bundleImage: "plus"
                         isVector: true
                         sizingMode: fill
                         minHeight: 30
@@ -140,10 +133,11 @@
                         minWidth: 30
                         maxWidth: 30
                         cornerRadius: 50
+                        color: #FE570F
                     }
 
                     Text {
-                        text: "Social updates"
+                        text: "Compose"
                         font: 12 regular
                         color: #FE570F
                     }

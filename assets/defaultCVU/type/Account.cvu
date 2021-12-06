@@ -1,6 +1,5 @@
 
 Account {
-    cols: 6
     defaultRenderer: singleitem
     editActionButton: toggleEditMode
 
@@ -59,7 +58,6 @@ Account {
 
 .allAccounts {
     defaultRenderer: list
-    cols: 4
 
     title: "All Accounts"
     [datasource = pod] {
@@ -91,9 +89,8 @@ Account {
 Account > list {
     onPress: openView {
         renderer: singleitem
-        clearStack: true
         viewArguments: {
-            mainView: false
+
         }
     }
     VStack {
@@ -118,14 +115,6 @@ Account > list {
                 text: {{.displayName or .identifier}}
                 font: 12 regular
                 color: #737373
-            }
-
-            Spacer
-            Image {
-                systemName: "ellipsis"
-                color: #DFDEDE
-                font: 24 light
-                padding: 5 0 5 0
             }
         }
     }

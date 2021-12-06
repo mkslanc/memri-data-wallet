@@ -21,10 +21,10 @@ class _SimpleFilterPanelState extends State<SimpleFilterPanel> {
         ? SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
-              height: 35,
+              height: 40,
               child: Row(
                   children: space(
-                10,
+                20,
                 actions.map((action) => ActionButton(
                     action: action,
                     viewContext: widget.viewContext.getCVUContext(),

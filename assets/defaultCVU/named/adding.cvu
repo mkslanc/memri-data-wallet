@@ -4,7 +4,6 @@
     showContextualBottomBar: false
     showBottomBar: false
     showTopBar: false
-    cols: 2
 
     VStack {
         alignment: topleft
@@ -17,7 +16,7 @@
                      _type: Note
                  }
                  viewArguments {
-                     mainView: false
+
                  }
              }
 
@@ -51,7 +50,7 @@
                clearStack: true
                inheritDatasource: false
                viewArguments {
-                   mainView: false
+
                }
            }
 

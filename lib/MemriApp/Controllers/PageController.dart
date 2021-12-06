@@ -21,42 +21,36 @@ class PageController extends ChangeNotifier {
   bool showTopBar = true;
   String label;
   MemriUINavigationController navigationController = MemriUINavigationController();
+  bool isPageActive = true;
 
   PageController(this.sceneController, this.label);
 
-  init(String viewName, {String rendererName = "custom"}) async {
-    var navStack = await NavigationStack.fetchOne(label, appController.databaseController);
+  init(String viewName, {String? rendererName, NavigationStack? navStack}) async {
+    navStack ??= await NavigationStack.fetchOne(label, appController.databaseController);
     if (navStack != null) {
-      _navigationStack = navStack;
-      Widget widget;
       if (navStack.state.length > 0) {
-        var topView = navStack.state.last;
-        var context = makeContext(topView);
-        topMostContext = context;
-        widget = SceneContentView(pageController: this, viewContext: context);
-      } else {
-        widget = Empty();
+        topMostContext = makeContext(navStack.state.last);
       }
-      navigationController.setViewControllers(widget);
     } else {
-      _navigationStack = NavigationStack(pageLabel: label);
-      var viewContext = await CVUActionOpenViewByName(viewName: viewName)
-          .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
-      if (viewContext != null) {
-        topMostContext = viewContext;
-        navigationController
-            .setViewControllers(SceneContentView(pageController: this, viewContext: viewContext));
-      } else {
-        navigationController.setViewControllers(Center(
-          child: Text("Welcome to Memri"),
-        ));
+      navStack = NavigationStack(pageLabel: label);
+      if (viewName.isNotEmpty || rendererName != null) {
+        topMostContext = await CVUActionOpenViewByName(viewName: viewName)
+            .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
+        navStack.state = [ViewContextHolder(topMostContext!.config)];
       }
     }
+
+    _navigationStack = navStack;
+    var widget = topMostContext != null
+        ? SceneContentView(pageController: this, viewContext: topMostContext!)
+        : Empty();
+    navigationController.setViewControllers(widget);
   }
 
   reset() {
+    isPageActive = false;
     closeStack = [];
-    _navigationStack = null;
+    navigationStack = null;
     navigationController = MemriUINavigationController(); //TODO: change when navigation fixed
   }
 
@@ -98,20 +92,28 @@ class PageController extends ChangeNotifier {
 
   NavigationStack get navigationStack => _navigationStack!;
 
-  set navigationStack(NavigationStack newValue) {
+  set navigationStack(NavigationStack? newValue) {
+    if (newValue == null) {
+      navigationStack.delete();
+    } else {
+      navigationStack.save();
+    }
     _navigationStack = newValue;
     notifyListeners();
-    navigationStack.save();
   }
 
   bool get canNavigateBack => navigationStack.state.length > 1;
 
   navigateBack() {
+    navigateTo(navigationStack.state.length - 2);
+  }
+
+  navigateTo(index) {
     var navStack = navigationStack;
-    if (navStack.state.isEmpty) return;
+    if (navStack.state.isEmpty || navStack.state.length <= index) return;
 
     isInEditMode.value = false;
-    navStack.state.removeLast();
+    navStack.state.removeRange(index + 1, navStack.state.length);
 
     topMostContext = navStack.state.isNotEmpty ? makeContext(navStack.state.last) : null;
     navigationStack = navStack;

@@ -408,10 +408,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   Future<List<JoinQueryStruct>?> combineSortEdgesQuery(
       {required CVUPropertyResolver sortResolver,
       required DatabaseController dbController,
-      List<JoinQueryStruct>? conditions,
-      String? targetType}) async {
+      List<JoinQueryStruct>? conditions}) async {
     conditions ??= [];
-    String? targetItemType;
+    String? targetType = await sortResolver.string("targetType");
     if (itemTypes.isNotEmpty) {
       //Assigning sortProperty to special type - edge
       sortProperty = "edge";
@@ -446,15 +445,15 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         });
 
         if (edgeSorting.properties["name"] != null) {
-          var sortPropertyName = await edgeSorting.string("name");
+          var sortEdgeName = await edgeSorting.string("name");
 
           var join;
           if (conditions.isEmpty || conditions.last.direction == null) {
             join =
-                "LEFT JOIN edges $tableAliasName ON items.row_id = $tableAliasName.$oppositeDirection AND $tableAliasName.name = '$sortPropertyName'"; //TODO: source/target
+                "LEFT JOIN edges $tableAliasName ON items.row_id = $tableAliasName.$oppositeDirection AND $tableAliasName.name = '$sortEdgeName'"; //TODO: source/target
           } else {
             join =
-                "LEFT JOIN edges $tableAliasName ON ${conditions.last.direction} = $tableAliasName.$direction AND $tableAliasName.name = '$sortPropertyName'"; //TODO: source/target
+                "LEFT JOIN edges $tableAliasName ON ${conditions.last.direction} = $tableAliasName.$oppositeDirection AND $tableAliasName.name = '$sortEdgeName'"; //TODO: source/target
           }
           if (subCond.isNotEmpty) {
             join += ' AND (${subCond.join(" OR ")})';
@@ -465,18 +464,14 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
           if (edgeSorting.properties["sortProperty"] != null) {
             var sortPropertyCondition = await edgeSorting.string("sortProperty");
-            if (targetType != null) {
-              targetItemType = targetType;
-            } else {
-              targetItemType = dbController.schema
-                  .expectedTargetType(targetType ?? itemTypes.first, sortPropertyName!);
-            }
-            if (targetItemType == null) {
-              print("No target type for $sortPropertyName");
+
+            targetType ??= dbController.schema.expectedTargetType(itemTypes.first, sortEdgeName!);
+            if (targetType == null) {
+              print("No target type for $sortEdgeName");
               return conditions;
             }
             SchemaValueType? schemaValueType =
-                dbController.schema.expectedPropertyType(targetItemType, sortPropertyCondition!);
+                dbController.schema.expectedPropertyType(targetType, sortPropertyCondition!);
             if (schemaValueType == null) {
               print("No schema type for property $sortPropertyCondition");
               return conditions;
@@ -513,10 +508,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
               table: "edges", joinQuery: join, direction: "$tableAliasName.$direction"));
         }
         return combineSortEdgesQuery(
-            sortResolver: edgeSorting,
-            dbController: dbController,
-            conditions: conditions,
-            targetType: targetItemType);
+            sortResolver: edgeSorting, dbController: dbController, conditions: conditions);
       }
     }
     return conditions;
@@ -591,10 +583,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     var sortDef = datasourceResolver?.subdefinition("sort");
 
     if (sortDef != null) {
-      var targetType = await sortDef.string("targetType");
       queryConfig.sortEdges = await queryConfig.combineSortEdgesQuery(
           sortResolver: sortDef,
-          targetType: targetType,
           dbController: databaseController ?? AppController.shared.databaseController);
     }
 

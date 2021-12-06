@@ -411,18 +411,20 @@ class CVULookupController {
             }
 
             var exp = nodeType.args.asMap()[0];
-            if (exp == null) {
-              return null;
+            double? arg;
+            if (exp != null) {
+              arg = await resolve<double>(expression: exp, context: context, db: db);
+              if (arg == null) {
+                return null;
+              }
+            } else {
+              arg = 1;
             }
-            double? arg = await resolve<double>(expression: exp, context: context, db: db);
-            if (arg == null) {
-              return null;
-            }
-
             currentValue = LookupStepValues([
               PropertyDatabaseValueString(
                   ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double).format(1))
             ]);
+
             break;
           case "fullname":
             if (currentValue is LookupStepItems) {
@@ -434,7 +436,7 @@ class CVULookupController {
                 String name = [
                   await resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
                   await resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
-                ].map((element) => element!.asString()).join(" ");
+                ].map((element) => (element?.asString() ?? "")).join(" ");
                 currentValue = LookupStepValues([PropertyDatabaseValueString(name)]);
               } else {
                 return null;

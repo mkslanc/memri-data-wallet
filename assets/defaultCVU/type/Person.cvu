@@ -85,174 +85,71 @@
 
 Person {
     defaultRenderer: singleitem
-    showTopBar: false
-    cols: 6
-
-    actionButton:
-    [
-        star
-        ]
-
-        /*include:
-        "defaultButtonsForItem" { type: Person }*/
-
-        editActionButton: toggleEditMode
-        filterButtons: [
-            openView {
-                icon: "increase.indent"
-                title: "{$showtimeline}"
-
-                view: {
-                    defaultRenderer: timeline
-
-                    [datasource = pod] {
-                        query: AuditItem
-                        filter: {
-                            edgeSources: {
-                                changelog: {{uid}}
-                            }
-                        }
-                    }
-
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
-                }
-            }
-            openView {
-                icon: "calendar"
-                title: "{$showtimeline}"
-
-                view: {
-                    defaultRenderer: timeline
-
-                    [datasource = pod] {
-                        query: EmailMessage Message Note Photo
-                        edgeTargetsOperator: "OR"
-                        filter: {
-                            edgeTargets: {
-                                sender: {{.account.uid}}
-                                includes: {{uid}}
-                            }
-                        }
-                    }
-
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
-                }
-            }
-            showContextPane
+    [renderer = generalEditor] {
+        layout: [
+            { section: pageTitle }
+            { section: profilePicture, exclude: labels }
+            { section: email, fields: email }
+            { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber, showTitle: false }
+            { section: addresses, edges: address, type: Address, showTitle: false }
+            { section: web, edges: website, type: Website, showTitle: false }
+            { section: onlineProfiles, edges: account, type: Account, showTitle: false }
+            { section: birthday, fields: birthDate }
             ]
 
-            contextPane {
-                title: "{.firstName} {.lastName}"
-                buttons: star schedule
-                changeLog: "{.describeChangelog()}"
+            pageTitle {
+                showTitle: false
 
-                navigate: [
-                    openView {
-                        title: "Person"
-                        renderer: generalEditor
-                        view: {
-                            defaultRenderer: timeline
+                VStack {
+                    alignment: topleft
 
-                            [datasource = pod] {
-                                query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                                sortProperty: dateCreated
-                                sortAscending: true
-                            }
-
-                            [renderer = timeline] {
-                                timeProperty: dateCreated
-                            }
-                        }
+                    Text {
+                        font: headline2
+                        text: "Contact details"
+                        padding: 0 0 14 0
                     }
-                    openViewByName {
-                        title: "{$starred} {type.plural()}"
-                        viewName: "filter-starred"
-                        renderer: "grid"
-                        viewArguments: {
-                            include: "all-{type}"
-                        }
-                    }
-                    openSessionByName {
-                        title: "All Persons"
-                        sessionName: "all-person"
-                    }
-                    ]
 
-                    labels: {{ .label[] }}
+                }
             }
 
+            profilePicture {
+                showTitle: false
 
-            /* end include */
+                HStack {
+                    padding: 10 0 0 0
+                    alignment: left
 
-            [renderer = generalEditor] {
-                layout: [
-                    { section: pageTitle }
-                    { section: profilePicture, exclude: labels }
-                    { section: email, fields: email }
-                    { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber, showTitle: false }
-                    { section: addresses, edges: address, type: Address, showTitle: false }
-                    { section: web, edges: website, type: Website, showTitle: false }
-                    { section: onlineProfiles, edges: account, type: Account, showTitle: false }
-                    { section: birthday, fields: birthDate }
-                    ]
-
-                    pageTitle {
-                        showTitle: false
-
-                        VStack {
-                            alignment: topleft
-
-                            Text {
-                                font: headline2
-                                text: "Contact details"
-                                padding: 0 0 14 0
-                            }
-
-                        }
+                    Image {
+                        image: {{.profilePicture}}
+                        sizingMode: fill
+                        maxWidth: 30
+                        maxHeight: 30
+                        cornerRadius: 50
                     }
 
-                    profilePicture {
-                        showTitle: false
-
-                        HStack {
-                            padding: 10 0 0 0
-                            alignment: left
-
-                            Image {
-                                image: {{.profilePicture}}
-                                sizingMode: fill
-                                maxWidth: 30
-                                maxHeight: 30
-                                cornerRadius: 50
-                            }
-
-                            Text {
-                                padding: 0 0 0 15
-                                font: 12
-                                color: #333333
-                                text: "{.firstName} {.lastName}"
-                            }
-
-                            Spacer
-                            Image {
-                                systemName: "ellipsis"
-                                color: #DFDEDE
-                                font: 24 light
-                                padding: 5 0 5 0
-                            }
-
-                        }
+                    Text {
+                        padding: 0 0 0 15
+                        font: 12
+                        color: #333333
+                        text: "{.firstName} {.lastName}"
                     }
 
+                    Spacer
+                    Image {
+                        systemName: "ellipsis"
+                        color: #DFDEDE
+                        font: 24 light
+                        padding: 5 0 5 0
+                    }
+
+                }
             }
 
-            [renderer = timeline] {
-                timeProperty: dateCreated
-            }
+    }
+
+    [renderer = timeline] {
+        timeProperty: dateCreated
+    }
 }
 
 Person > singleitem {
@@ -353,9 +250,8 @@ Person > singleitem {
 Person > list {
     onPress: openView {
         renderer: singleitem
-        clearStack: true
         viewArguments: {
-            mainView: false
+
         }
     }
     VStack {
@@ -432,7 +328,6 @@ Person > timeline {
     title: "People"
     defaultRenderer: list
     emptyResultText: "There are no people here yet"
-    cols: 4
 
     [datasource = pod] {
         query: "Person"
@@ -506,7 +401,6 @@ Person > timeline {
 .mixedAccountsAndPersons {
     title: "People"
     defaultRenderer: list
-    cols: 4
 
     emptyResult: {
         VStack {

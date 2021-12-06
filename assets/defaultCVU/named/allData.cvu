@@ -1,0 +1,150 @@
+.allData {
+    defaultRenderer: custom
+    scrollable: false
+    title: "All Data"
+
+    VStack {
+        alignment: topleft
+        maxWidth: 910
+        padding: 60 30 60 30
+
+        HStack {
+            alignment: bottomleft
+
+            Text {
+                color: #333333
+                font: headline2
+                text: "Datastreams"
+            }
+
+            Spacer
+
+            Button {
+                isLink: true
+                onPress: noop
+
+                Text {
+                    color: #FE570F
+                    font: link
+                    text: "Create new importer"
+                }
+            }
+        }
+
+        SubView {
+            view: {
+                defaultRenderer: grid
+                viewName: pluginsGrid
+
+                [datasource = pod] {
+                    filter: {
+                        properties: {
+                            pluginType: "importer"
+                        }
+                    }
+                    query: Plugin
+                }
+
+                [renderer = grid] {
+                    onPress: noop
+                }
+
+                Plugin > grid {
+                    VStack {
+                        alignment: topleft
+                        background: #F5F5F5
+                        height: 95
+                        padding: 10
+                        spacing: 5
+                        width: 205
+
+                        Text {
+                            color: #333333
+                            font: headline3
+                            text: {{.name}}
+                        }
+
+                        Text {
+                            color: #989898
+                            font: body_tiny
+                            padding: 5 0 0 0
+                            text: " feature variables"
+                        }
+
+                        Text {
+                            color: #989898
+                            font: body_tiny
+                            text: " MB"
+                        }
+
+                        Observer {
+                            item: {{.~plugin[].last()}}
+                            property: "progress"
+
+                            Text {
+                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
+                                font: body_tiny
+                                show: {{.~plugin[].last().status != "ready"}}
+                                text: "{.~plugin[].last().status = 'error' ? 'Error' : 'Active'}"
+                            }
+
+                            Text {
+                                color: #4F56FE
+                                font: body_tiny
+                                show: {{.~plugin[].last().status = "ready" OR .~plugin[].last().status = "cvuPresented"}}
+                                text: "Downloading data {.~plugin[].last().progress.percent()} %"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        HStack {
+            alignment: bottomleft
+            padding: 60 0 30 0
+
+            Text {
+                color: #333333
+                font: headline2
+                text: "Uploaded data"
+            }
+
+            Spacer
+
+            Button {
+                isLink: true
+                onPress: [
+                    openView
+                    {
+                        clearStack: true
+                        inheritDatasource: false
+                        viewName: "upload"
+                    }
+                ]
+
+                Text {
+                    color: #FE570F
+                    font: link
+                    text: "Upload new data"
+                }
+            }
+        }
+
+        SubView {
+            view: {
+                defaultRenderer: list
+                viewName: assetsNew
+
+                [datasource = pod] {
+                    query: File Note
+                }
+
+                [renderer = list] {
+                    edgeInset: 0
+                    onPress: noop
+                }
+            }
+        }
+    }
+}

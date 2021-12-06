@@ -19,6 +19,7 @@ import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Enum.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/Model/Database.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElementView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
@@ -44,8 +45,35 @@ class CVUController {
       }
     } catch (error) {
       print(error);
-      this.definitions = [];
+      definitions = [];
     }
+  }
+
+  resetToDefault(List<CVUParsedDefinition>? revertingDefinitions) async {
+    try {
+      revertingDefinitions ??= definitions;
+      var defaultDefinitions = await CVUController.parseCVU();
+      await Future.forEach<CVUParsedDefinition>(revertingDefinitions, (revertingDefinition) async {
+        var defaultDefinition = definitionFor(
+            type: revertingDefinition.type,
+            selector: revertingDefinition.selector,
+            rendererName: revertingDefinition.renderer,
+            viewName: revertingDefinition.name,
+            specifiedDefinitions: defaultDefinitions);
+        if (defaultDefinition == null || defaultDefinition.parsed == revertingDefinition.parsed) {
+          return;
+        }
+        await updateDefinition(revertingDefinition, defaultDefinition.parsed);
+      });
+    } catch (error) {
+      print(error);
+      definitions = [];
+    }
+  }
+
+  reset() {
+    definitions = [];
+    storedDefinitions = [];
   }
 
   static Future<List<CVUParsedDefinition>> parseCVU([String? string]) async {
@@ -135,9 +163,9 @@ class CVUController {
           domain: EnumExtension.rawValue<CVUDefinitionDomain>(
                   CVUDefinitionDomain.values, properties["domain"]) ??
               CVUDefinitionDomain.user,
-          selector: properties["selector"],
-          name: properties["name"],
-          renderer: properties["renderer"],
+          selector: (properties["selector"] as String?)?.nullIfBlank,
+          name: (properties["name"] as String?)?.nullIfBlank,
+          renderer: (properties["renderer"] as String?)?.nullIfBlank,
           type: EnumExtension.rawValue<CVUDefinitionType>(
                   CVUDefinitionType.values, properties["type"]) ??
               CVUDefinitionType.other,

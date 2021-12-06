@@ -996,6 +996,11 @@
       "value_type": "string"
     },
     {
+      "item_type": "PluginRun",
+      "property": "progress",
+      "value_type": "double"
+    },
+    {
       "item_type": "Post",
       "property": "externalId",
       "value_type": "string"

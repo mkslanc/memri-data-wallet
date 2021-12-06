@@ -1,48 +1,77 @@
 .apps-and-plugins {
     name: "apps-and-plugins"
-    title: "Apps and Plugins"
+    title: "All apps"
     emptyResultText: "There are no Plugins"
     defaultRenderer: list
-    cols: 4
 
     [datasource = pod] {
         query: Plugin LabelingTask
     }
+    [renderer = list] {
+        edgeInset: 30
+        spacing: 30
+        hideSeparators: true
+    }
 
     additional: {
+
+
         Button {
+            isLink: true
             onPress: [
-            openView {
-                viewName: "create-labelling-app"
-                clearStack: true
-                inheritDatasource: false
-                viewArguments {
-                    mainView: false
-                }
-            }]
+                openView {
+                    viewName: "inbox"
+                    inheritDatasource: false
+                    viewArguments {
 
-            HStack {
-                alignment: left
-                padding: 13 0 7 0
+                    }
+                }]
 
-                Image {
-                    bundleImage: "zap"
-                    isVector: true
-                    sizingMode: fill
-                    minHeight: 30
-                    maxHeight: 30
-                    minWidth: 30
-                    maxWidth: 30
-                    cornerRadius: 50
-                    color: #FE570F
+                VStack {
+                    alignment: left
+                    background: #F5F5F5
+                    padding: 20
+                    maxWidth: 550
+
+                    HStack {
+                        alignment: left
+
+                        Text {
+                            text: "Inbox"
+                            font: headline2
+                            color: #333333
+                        }
+                        Spacer
+                        Text {
+                            color: #15B599
+                            text: "Running"
+                        }
+                    }
+
+
+                    Text {
+                        text: ""
+                        removeWhiteSpace: true
+                        maxChar: 100
+                        color: #989898
+                        font: 14 regular
+                        padding: 15 0 10 0
+                    }
+
+                    HStack {
+                        alignment: left
+                        Text {
+                            text: "Open"
+                            font: btn_label
+                            color: #333333
+                        }
+                    }
+
+
+
                 }
 
-                Text {
-                    text: "Create new labelling app"
-                    font: link
-                    color: #FE570F
-                }
-            }
+
         }
     }
 }

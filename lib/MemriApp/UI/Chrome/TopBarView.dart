@@ -3,12 +3,15 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
-import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
+import 'package:memri/MemriApp/UI/Chrome/BreadCrumbs.dart';
+import 'package:memri/MemriApp/UI/Components/Button/ActionButton.dart';
 import 'package:memri/MemriApp/UI/FilterPanel/SimpleFilterPanel.dart';
 
 import '../ViewContextController.dart';
-import 'SearchView.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
@@ -22,20 +25,15 @@ class TopBarView extends StatefulWidget {
 
 class _TopBarViewState extends State<TopBarView> {
   late ViewContextController? viewContext;
-  late Future<String?> title;
+  late Future<void> _init;
 
-  Future<String?> get _title async {
-    return await widget.pageController.topMostContext?.viewDefinitionPropertyResolver
-            .string("title") ??
-        (viewContext?.focusedItem != null
-            ? await viewContext!.itemPropertyResolver?.string("title")
-            : "");
-  }
+  Color? backgroundColor = Color(0xffF4F4F4);
+  bool showEditCode = false;
 
   @override
   initState() {
     super.initState();
-    title = _title;
+    _init = init();
     widget.pageController.addListener(updateState);
   }
 
@@ -47,44 +45,54 @@ class _TopBarViewState extends State<TopBarView> {
 
   void updateState() {
     setState(() {
-      title = _title;
+      _init = init();
     });
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    title = _title;
+    _init = init();
+  }
+
+  Future<void> init() async {
+    var viewContext = widget.pageController.topMostContext;
+
+    backgroundColor =
+        await viewContext?.viewDefinitionPropertyResolver.color("topBarColor") ?? Color(0xffF4F4F4);
+    showEditCode =
+        await viewContext?.viewDefinitionPropertyResolver.boolean("showEditCode") ?? true;
   }
 
   @override
   Widget build(BuildContext context) {
     viewContext = widget.pageController.topMostContext;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 60, 30, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FutureBuilder(
-              future: title,
-              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                if (snapshot.hasData) {
-                  return Text(
-                    snapshot.data!,
-                    style: CVUFont.headline2,
-                  );
-                } else {
-                  return Text("");
-                }
-              }),
-          SizedBox(
-            height: 22,
+    return FutureBuilder(
+      future: _init,
+      builder: (context, snapshot) => Container(
+        height: 40,
+        color: backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (viewContext != null) ...[
+                SimpleFilterPanel(viewContext: viewContext!),
+                BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
+                Spacer(),
+                if (showEditCode) ...[
+                  ActionButton(
+                    action: CVUActionOpenCVUEditor(
+                        vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),
+                    viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
+                    pageController: widget.pageController,
+                  )
+                ]
+              ]
+            ],
           ),
-          if (viewContext != null) ...[
-            SizedBox(height: 78, child: SearchView(viewContext: viewContext!)),
-            SimpleFilterPanel(viewContext: viewContext!)
-          ]
-        ],
+        ),
       ),
     );
   }

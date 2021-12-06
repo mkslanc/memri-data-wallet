@@ -24,9 +24,9 @@ class _PluginModeSwitcherState extends State<PluginModeSwitcher> {
             var isDev = currentContainer.contains(RegExp(r":dev-.+$"));
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              padding: const EdgeInsets.symmetric(horizontal: 60.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text("Dev"),
                   Switch(

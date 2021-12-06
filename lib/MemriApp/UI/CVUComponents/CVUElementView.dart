@@ -11,6 +11,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUGrid.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUMessageComposer.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUObserver.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUSubView.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTextPropertiesModifier.dart';
 
@@ -96,7 +97,7 @@ class _CVUElementViewState extends State<CVUElementView> {
       case CVUUIElementFamily.HorizontalLine:
         return Divider(
           height: 1,
-        ); //TODO
+        );
       case CVUUIElementFamily.Circle:
         return CVUShapeCircle(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Rectangle:
@@ -105,8 +106,6 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUHTMLView(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.TimelineItem:
         return CVUTimelineItem(nodeResolver: widget.nodeResolver);
-      /*case CVUUIElementFamily.FileThumbnail:
-      // return CVU_FileThumbnail(nodeResolver: nodeResolver);*/
       case CVUUIElementFamily.Spacer:
         return Spacer();
       case CVUUIElementFamily.Empty:
@@ -125,12 +124,10 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUActionButton(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.MessageComposer:
         return CVUMessageComposer(nodeResolver: widget.nodeResolver);
-//        case CVUUIElementFamily.Picker:
-//            picker
-//        case CVUUIElementFamily.EditorSection:
-//            return CVU_EditorSection(nodeResolver: nodeResolver);
       case CVUUIElementFamily.DropZone:
         return CVUDropZone(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.Observer:
+        return CVUObserver(nodeResolver: widget.nodeResolver);
       default:
         return Text("${widget.nodeResolver.node.type} not implemented yet.");
     }

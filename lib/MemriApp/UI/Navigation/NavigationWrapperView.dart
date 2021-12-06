@@ -2,8 +2,6 @@
 // NavigationView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/Navigation/NavigationPaneView.dart';
@@ -19,41 +17,24 @@ class NavigationWrapperView extends StatelessWidget {
 
   NavigationWrapperView({required this.sceneController, required this.child});
 
-  double navWidth(BoxConstraints geom) {
-    if (geom.maxWidth >= 1345) {
-      return 120;
-    }
-    return geom.maxWidth / 12;
-  }
-
-  double cappedOffset(BoxConstraints geom) {
-    if (sceneController.navigationIsVisible.value) {
-      return max(min(0, offset), -navWidth(geom));
-    } else {
-      return min(max(0, offset), navWidth(geom));
-    }
-  }
-
-  double fractionVisible(BoxConstraints geom) {
-    var fraction = cappedOffset(geom).abs() / navWidth(geom);
-    return sceneController.navigationIsVisible.value ? 1 - fraction : fraction;
-  }
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      return bodyForLargeScreen(constraints);
+      return body(constraints);
     });
   }
 
   Widget body(BoxConstraints geom) {
-    //TODO: animation
     return Stack(
       children: [
-        SizedBox(width: geom.maxWidth, height: geom.maxHeight, child: child),
+        SizedBox(
+          width: geom.maxWidth,
+          height: geom.maxHeight,
+          child: child,
+        ),
         ValueListenableBuilder(
           builder: (BuildContext context, bool value, Widget? child) {
-            if (value || offset > 0) {
+            if (value) {
               return Stack(
                 children: [
                   GestureDetector(
@@ -62,14 +43,18 @@ class NavigationWrapperView extends StatelessWidget {
                       width: geom.maxWidth,
                       height: geom.maxHeight,
                       child: ColoredBox(
-                        color: Color.fromRGBO(0, 0, 0, fractionVisible(geom) * 0.5),
+                        color: Colors.transparent,
                       ),
                     ),
                   ),
-                  SizedBox(
-                      width: navWidth(geom),
-                      height: geom.maxHeight,
-                      child: NavigationPaneView(sceneController: sceneController))
+                  Container(
+                      height: 368,
+                      width: geom.maxWidth,
+                      color: Color(0xff4F56FE),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
+                        child: NavigationPaneView(sceneController: sceneController),
+                      )),
                 ],
               );
             } else {
@@ -82,7 +67,7 @@ class NavigationWrapperView extends StatelessWidget {
     );
   }
 
-  Widget bodyForLargeScreen(BoxConstraints geom) {
+/* Widget bodyForLargeScreen(BoxConstraints geom) {
     var navigationPanelWidth = navWidth(geom);
     return ColoredBox(
       color: Color(0xffE5E5E5),
@@ -92,10 +77,6 @@ class NavigationWrapperView extends StatelessWidget {
               width: navWidth(geom),
               height: geom.maxHeight,
               child: NavigationPaneView(sceneController: sceneController)),
-          VerticalDivider(
-            width: 1,
-            color: Color(0xffE5E5E5),
-          ),
           Expanded(child: child),
           if (geom.maxWidth - navigationPanelWidth > 1345)
             Padding(
@@ -103,5 +84,5 @@ class NavigationWrapperView extends StatelessWidget {
         ],
       ),
     );
-  }
+  }*/
 }

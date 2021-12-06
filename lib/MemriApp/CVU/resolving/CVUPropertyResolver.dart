@@ -14,6 +14,7 @@ import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Helpers/Binding.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
@@ -134,10 +135,29 @@ class CVUPropertyResolver {
         .toList();
   }
 
+  List<String> syncStringArray(String key) => resolveStringArray(valueArray(key));
+
+  List<String> resolveStringArray(List<CVUValue> value) {
+    return value.compactMap((val) {
+      if (val is CVUValueConstant) {
+        if (val.value is CVUConstantString || val.value is CVUConstantArgument) {
+          return val.value.value.toString();
+        }
+      }
+    });
+  }
+
   Future<List<int>> intArray(String key) async {
     return (await Future.wait(valueArray(key).map((CVUValue element) async =>
             await lookup.resolve<int>(value: element, context: this.context, db: this.db))))
         .whereType<int>()
+        .toList();
+  }
+
+  Future<List<double>> numberArray(String key) async {
+    return (await Future.wait(valueArray(key).map((CVUValue element) async =>
+            await lookup.resolve<double>(value: element, context: this.context, db: this.db))))
+        .whereType<double>()
         .toList();
   }
 
@@ -756,6 +776,20 @@ class CVUPropertyResolver {
 
   Future<double> get cornerRadius async {
     return await cgFloat("cornerRadius") ?? 0;
+  }
+
+  Future<List<double>> get cornerRadiusOnly async {
+    var values = await numberArray("cornerRadiusOnly");
+    if (values.isNotEmpty && values.length != 4) {
+      if (values.length == 1) {
+        values.fillRange(1, 4, values[0]);
+      } else if (values.length == 2) {
+        values.addAll(values);
+      } else {
+        values.add(0);
+      }
+    }
+    return values;
   }
 
   Future<Point?> get spacing async {
