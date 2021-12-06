@@ -101,39 +101,42 @@ class _SceneViewState extends State<SceneView> {
                           ],
                         ),
                       ),
-                    Row(
-                        children: widget.sceneController.pageControllers
-                            .mapIndexed((index, pageController) => [
-                                  VerticalDivider(
-                                    width: 1,
-                                    color: Color(0xffE5E5E5),
-                                  ),
-                                  ColoredBox(
-                                    color: Colors.white,
-                                    child: SizedBox(
-                                      width: constraints.maxWidth / 10 * viewCols[index]! -
-                                          (index > 0 && index == pagesCount - 1 ? 0 : 1),
-                                      height: constraints.maxHeight -
-                                          (widget.showMainNavigation ? 190 : 0),
-                                      child: Column(
-                                        children: [
-                                          if (showTopBar[index]!)
-                                            TopBarView(
-                                              pageController: pageController,
-                                            ),
-                                          Expanded(
-                                            child: NavigationHolder(
-                                              pageController.navigationController,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                    ColoredBox(
+                      color: Colors.white,
+                      child: Row(
+                          children: widget.sceneController.pageControllers
+                              .mapIndexed((index, pageController) => [
+                                    VerticalDivider(
+                                      width: 1,
+                                      color: Color(0xffE5E5E5),
                                     ),
-                                  )
-                                ])
-                            .expand((element) => element)
-                            .skip(1)
-                            .toList()),
+                                    ColoredBox(
+                                      color: Colors.white,
+                                      child: SizedBox(
+                                        width: constraints.maxWidth / 10 * viewCols[index]! -
+                                            (index > 0 && index == pagesCount - 1 ? 0 : 1),
+                                        height: constraints.maxHeight -
+                                            (widget.showMainNavigation ? 190 : 0),
+                                        child: Column(
+                                          children: [
+                                            if (showTopBar[index]!)
+                                              TopBarView(
+                                                pageController: pageController,
+                                              ),
+                                            Expanded(
+                                              child: NavigationHolder(
+                                                pageController.navigationController,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ])
+                              .expand((element) => element)
+                              .skip(1)
+                              .toList()),
+                    ),
                   ],
                 ));
           }),

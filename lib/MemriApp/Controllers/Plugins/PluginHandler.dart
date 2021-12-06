@@ -28,6 +28,7 @@ class PluginHandler {
                     context: context);
                 break;
               case "done":
+              case "daemon":
               case "error":
                 stopPlugin(
                     plugin: plugin, runner: runner, pageController: pageController, status: status);

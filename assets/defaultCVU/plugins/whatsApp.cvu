@@ -200,12 +200,18 @@
                     }
 
                     onPress: [
-                        back
+                        openView {
+                            viewName: "pluginRunWait"
+                            clearStack: true
+                            viewArguments {
+
+                            }
+                        }
                         wait {
-                            seconds: 7
+                            seconds: 6
                         }
                         openView {
-                            viewName: "inbox"
+                            viewName: {{.~account.status = "error" ? "WhatsappPlugin-error" : "WhatsappPlugin-done"}}
                             clearStack: true
                             viewArguments {
 
@@ -223,10 +229,15 @@
                         color: #333333
                     }
 
-                    onPress: delete {
-                        close: true
+                    onPress: [
+                    delete {
                         subject: {{.~account}}
                     }
+                    openView {
+                        viewName: "apps-and-plugins"
+                        clearStack: true
+                    }
+                    ]
                 }
             }
         }
@@ -250,7 +261,7 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Step 3"
+                text: "Success!"
                 font: link
                 padding: 0 5
             }
@@ -261,11 +272,29 @@
             }
 
             Text {
-                text: "WhatsApp has been successfully synced to your pod."
+                text: "WhatsApp has been successfully synced to your pod. Your data is being imported."
                 font: bodyText2
                 color: #737373
                 padding: 0 10
             }
+
+            Button {
+                    padding: 60 0 0 0
+
+                    Text {
+                        text: "<  Back to data page"
+                        font: button_label
+                        color: #FE570F
+                    }
+
+                    onPress: openView {
+                            viewName: "apps-and-plugins"
+                            clearStack: true
+                            viewArguments {
+
+                            }
+                        }
+                }
         }
     }
 }
@@ -302,6 +331,24 @@
                 font: bodyText2
                 color: #737373
                 padding: 0 10
+            }
+
+            Button {
+                padding: 60 0 0 0
+
+                Text {
+                    text: "<  Back to data page"
+                    font: button_label
+                    color: #FE570F
+                }
+
+                onPress: openView {
+                        viewName: "apps-and-plugins"
+                        clearStack: true
+                        viewArguments {
+
+                        }
+                    }
             }
         }
     }

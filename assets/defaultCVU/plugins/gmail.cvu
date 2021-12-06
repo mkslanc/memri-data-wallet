@@ -15,9 +15,16 @@
             padding: 60 30 0 30
 
             Text {
+                text: "Authenticate your Gmail account"
+                color: #333333
+                font: headline3
+                padding: 0 0 60 0
+            }
+
+            Text {
                 text: "Step 1"
                 font: link
-                padding: 0 5
+                padding: 0 0
             }
 
             Text {
@@ -102,42 +109,10 @@
                 }
             }
 
-            Button {
-                styleName: primaryButton
-
-                Text {
-                    text: "Connect!"
-                }
-
-                onPress: openView {
-                    viewName: "gmail-step-2"
-                }
-            }
-        }
-    }
-}
-
-.gmail-step-2 {
-    defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
-    showBottomBar: false
-    title: "Connect Gmail account"
-
-    [renderer = singleItem]{
-
-
-    }
-
-    Plugin > singleItem {
-        VStack {
-            alignment: topleft
-            padding: 60 30 0 30
-
             Text {
                 text: "Step 2"
                 font: link
-                padding: 0 5
+                padding: 60 0 0
             }
 
             Text {
@@ -311,7 +286,7 @@
                     padding: 0 0 0 20
 
                     Text {
-                        text: "Previous step"
+                        text: "Cancel"
                         font: button_label
                         color: #333333
                     }
@@ -320,7 +295,213 @@
                 }
             }
         }
+    }
+}
 
+.gmail-step-2 {
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    title: "Connect Gmail account"
+
+    [renderer = singleItem]{
+
+
+    }
+
+    Plugin > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 2"
+                font: link
+                padding: 60 0 0
+            }
+
+            Text {
+                text: "Enable IMAP forwarding"
+                font: headline1
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Go to your Google Account and select Security."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: 'Under "Signing in to Google," select App Passwords.  You may need to sign in.'
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "For Select App select Mail."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "For Device select Other."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "For Name type Memri."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Tap Generate."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 0 0 25 0
+                Image {
+                    bundleImage: "arrow-right-circle"
+                    isVector: true
+                    alignment: center
+                    resizable: true
+                    sizingMode: fit
+                    color: #989898
+                    font: 20
+                }
+
+                Text {
+                    text: "Save the generated password for the next step."
+                    font: bodyText2
+                    color: #737373
+                }
+            }
+
+            HStack {
+                alignment: left
+
+                Button {
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Oke."
+                    }
+
+                    onPress: [
+                        openView {
+                            viewName: "pluginRunWait"
+                            clearStack: true
+                            viewArguments {
+
+                            }
+                        }
+                        pluginRun {
+                            name: {{.name}}
+                            container: {{.container}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                            pluginId: {{.id}}
+                        }
+                        ]
+                }
+
+                Button {
+                    padding: 0 0 0 20
+
+                    Text {
+                        text: "Cancel"
+                        font: button_label
+                        color: #333333
+                    }
+
+                    onPress: back
+                }
+            }
+
+        }
     }
 }
 
@@ -412,6 +593,16 @@
 
                             }
                         }
+                        wait {
+                            seconds: 6
+                        }
+                        openView {
+                            viewName: {{.~account.status = "error" ? "GmailImporter-error" : "GmailImporter-done"}}
+                            clearStack: true
+                            viewArguments {
+
+                            }
+                        }
                         sync
                         setProperty {
                             subject: {{.~account}}
@@ -476,6 +667,80 @@
                 color: #737373
                 padding: 0 10
             }
+
+            Button {
+                padding: 60 0 0 0
+
+                Text {
+                    text: "<  Back to data page"
+                    font: button_label
+                    color: #FE570F
+                }
+
+                onPress: openView {
+                    viewName: "apps-and-plugins"
+                    clearStack: true
+                    viewArguments {
+
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+.GmailImporter-daemon {
+    defaultRenderer: singleItem
+    showSearchBar: false
+    showContextualBottomBar: false
+    showBottomBar: false
+    title: "Connect Gmail account"
+
+    [renderer = singleItem]{
+
+    }
+
+    Account > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 30 0 30
+
+            Text {
+                text: "Step 3"
+                font: link
+                padding: 0 5
+            }
+
+            Text {
+                text: "Gmail connected!"
+                font: headline1
+            }
+
+            Text {
+                text: "Gmail has been successfully synced to your pod."
+                font: bodyText2
+                color: #737373
+                padding: 0 10
+            }
+
+            Button {
+                padding: 60 0 0 0
+
+                Text {
+                    text: "<  Back to data page"
+                    font: button_label
+                    color: #FE570F
+                }
+
+                onPress: openView {
+                    viewName: "apps-and-plugins"
+                    clearStack: true
+                    viewArguments {
+
+                    }
+                }
+            }
         }
 
     }
@@ -513,6 +778,24 @@
                 font: bodyText2
                 color: #737373
                 padding: 0 10
+            }
+
+            Button {
+                padding: 60 0 0 0
+
+                Text {
+                    text: "<  Back to data page"
+                    font: button_label
+                    color: #FE570F
+                }
+
+                onPress: openView {
+                    viewName: "apps-and-plugins"
+                    clearStack: true
+                    viewArguments {
+
+                    }
+                }
             }
         }
     }
