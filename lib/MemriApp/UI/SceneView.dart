@@ -104,6 +104,9 @@ class _SceneViewState extends State<SceneView> {
                           ],
                         ),
                       ),
+                      if (widget.sceneController.pageControllers.isNotEmpty)
+                        TopBarView(pageController: widget.sceneController.pageControllers.first)
+                    ],
                     ColoredBox(
                       color: Colors.white,
                       child: Row(
