@@ -82,6 +82,10 @@ class CVUFont {
       size: bodyTiny.fontSize!,
       weight: bodyTiny.fontWeight,
     ),
+    "body_tiny_bold": CVUFont(
+      size: bodyTiny.fontSize!,
+      weight: FontWeight.w700,
+    ),
   };
 
   static const headline1 = TextStyle(

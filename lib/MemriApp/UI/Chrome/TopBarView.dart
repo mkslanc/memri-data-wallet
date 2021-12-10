@@ -67,6 +67,8 @@ class _TopBarViewState extends State<TopBarView> {
   @override
   Widget build(BuildContext context) {
     viewContext = widget.pageController.topMostContext;
+    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
+
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
@@ -81,6 +83,11 @@ class _TopBarViewState extends State<TopBarView> {
                 SimpleFilterPanel(viewContext: viewContext!),
                 BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
                 Spacer(),
+                ...actions.map((action) => ActionButton(
+                      action: action,
+                      viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
+                      pageController: widget.pageController,
+                    )),
                 if (showEditCode) ...[
                   ActionButton(
                     action: CVUActionOpenCVUEditor(

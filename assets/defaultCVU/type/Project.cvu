@@ -1,0 +1,104 @@
+Project {
+    defaultRenderer: singleItem
+    title: "Create new project"
+
+    [renderer = singleItem] {
+    }
+}
+
+Project > singleItem {
+    VStack {
+        Text {
+            text: "Hello world!"
+        }
+    }
+}
+
+Project > list {
+    onPress: noop
+
+    HStack {
+        alignment: topleft
+
+        VStack {
+            alignment: topleft
+
+            Text {
+                color: #333333
+                font: headline2
+                padding: 0 0 10 0
+                text: {{.name OR "Draft: Project"}}
+            }
+
+            HStack {
+                alignment: topleft
+                spacing: 200
+
+                Text {
+                    font: "body_tiny_bold"
+                    text: {{.dataset.name OR "No Dataset"}}
+                }
+
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        font: "body_tiny_bold"
+                        padding: 0 0 10 0
+                        text: {{.dataset.classification.name OR "Undefined"}}
+                    }
+
+                    Text {
+                        font: "body_tiny"
+                        color: "#989898"
+                        text: "{.dataset.variables.count() OR '0'} variables"
+                    }
+                }
+            }
+        }
+
+        Spacer
+
+        Image {
+            color: #DFDEDE
+            font: 24 light
+            padding: 5 0 5 0
+            systemName: "ellipsis"
+        }
+    }
+}
+
+.allProjects {
+    actionButton: [
+        addItem
+        {
+            template: {
+                _type: Project
+            }
+            title: "Create new project"
+            color: "#FE570F"
+        }
+        ]
+        defaultRenderer: list
+        emptyResult: {
+            HStack {
+                Text {
+                    text: "There are no projects right now"
+                }
+            }
+        }
+        name: "all-projects"
+        sortFields: dateModified dateCreated
+        title: "All projects"
+
+        [datasource = pod] {
+            query: Project
+            sortAscending: true
+            sortProperty: dateModified
+        }
+
+        [renderer = list] {
+            edgeInset: 30 30 10 30
+            spacing: 0 20
+        }
+}

@@ -1180,5 +1180,13 @@
     "_type": "Dataset",
     "name": "Instagram posts",
     "querystr": "{\"type\":\"Post\", \"service\": \"Instagram\"}"
+  },
+  {
+    "_type": "TextClassification",
+    "name": "Text classification (binary)"
+  },
+  {
+    "_type": "TextClassification",
+    "name": "Text classification (multiple)"
   }
 ]

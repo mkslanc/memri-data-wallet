@@ -161,6 +161,11 @@
       "value_type": "string"
     },
     {
+      "item_type": "Classification",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
       "item_type": "Country",
       "property": "latitude",
       "value_type": "double"
@@ -982,6 +987,11 @@
     },
     {
       "item_type": "PluginRun",
+      "property": "progress",
+      "value_type": "double"
+    },
+    {
+      "item_type": "PluginRun",
       "property": "settings",
       "value_type": "string"
     },
@@ -994,11 +1004,6 @@
       "item_type": "PluginRun",
       "property": "targetItemId",
       "value_type": "string"
-    },
-    {
-      "item_type": "PluginRun",
-      "property": "progress",
-      "value_type": "double"
     },
     {
       "item_type": "Post",
@@ -1018,6 +1023,16 @@
     {
       "item_type": "Post",
       "property": "type",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Project",
+      "property": "gitlabUrl",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Project",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -1063,6 +1078,11 @@
     {
       "item_type": "SuggestedMerge",
       "property": "task",
+      "value_type": "string"
+    },
+    {
+      "item_type": "TextClassification",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -1246,6 +1266,16 @@
       "source_type": "CurrencySetting",
       "edge": "wallet",
       "target_type": "Wallet"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "classification",
+      "target_type": "Classification"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "variable",
+      "target_type": "Any"
     },
     {
       "source_type": "Diet",
@@ -1591,6 +1621,16 @@
       "source_type": "Post",
       "edge": "photo",
       "target_type": "Photo"
+    },
+    {
+      "source_type": "Project",
+      "edge": "dataset",
+      "target_type": "Dataset"
+    },
+    {
+      "source_type": "Project",
+      "edge": "labelingTask",
+      "target_type": "LabelingTask"
     },
     {
       "source_type": "Receipt",
