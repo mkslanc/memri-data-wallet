@@ -5,8 +5,14 @@
     defaultRenderer: list
 
     [datasource = pod] {
-        query: Plugin LabelingTask
+        query: Plugin
+        filter: {
+            properties: {
+                pluginType: "app"
+            }
+        }
     }
+
     [renderer = list] {
         edgeInset: 30
         spacing: 30

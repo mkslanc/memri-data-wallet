@@ -2,7 +2,6 @@
 // BottomBar.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
