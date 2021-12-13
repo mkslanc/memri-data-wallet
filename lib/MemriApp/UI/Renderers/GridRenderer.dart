@@ -106,7 +106,9 @@ class _GridRendererViewState extends RendererViewState {
                               child: Stack(
                                 alignment: Alignment.topLeft,
                                 children: [
-                                  viewContext.render(item: item),
+                                  MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: viewContext.render(item: item)),
                                   if (isInEditMode && !isSelected)
                                     SizedBox.expand(
                                       child: ColoredBox(color: Colors.white.withOpacity(0.15)),
