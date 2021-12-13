@@ -46,20 +46,23 @@
                 }
 
                 [renderer = grid] {
-                    onPress: noop
+                    onPress: openPlugin {
+                        plugin: {{.}}
+                    }
                 }
 
                 Plugin > grid {
                     VStack {
-                        alignment: topleft
-                        background: #F5F5F5
-                        height: 95
+                        alignment: leftspacebetween
+                        background: {{.~plugin[].last() ? "#F5F5F5" : "#FFFFFF"}}
+                        border: "#F0F0F0"
+                        height: 96
                         padding: 10
                         spacing: 5
                         width: 205
 
                         Text {
-                            color: #333333
+                            color: {{.~plugin[].last() ? "#333333" : "#999999"}}
                             font: headline3
                             text: {{.name}}
                         }
@@ -68,13 +71,13 @@
                             color: #989898
                             font: body_tiny
                             padding: 5 0 0 0
-                            text: " feature variables"
+                            text: {{.~plugin[].last() ? " feature variables" : " "}}
                         }
 
                         Text {
                             color: #989898
                             font: body_tiny
-                            text: " MB"
+                            text: {{.~plugin[].last() ? " MB" : " "}}
                         }
 
                         Observer {
@@ -82,16 +85,17 @@
                             property: "progress"
 
                             Text {
-                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
-                                font: body_tiny
-                                show: {{.~plugin[].last().status != "ready"}}
-                                text: "{.~plugin[].last().status = 'error' ? 'Error' : 'Active'}"
+                                padding: 0 10 0 0
+                                color: {{.~plugin[].last() ? .~plugin[].last().status = "error" ? "#FE570F" : "#15B599" : "#FE570F"}}
+                                font: {{.~plugin[].last() ? "body_tiny" : "body_tiny_bold"}}
+                                show: {{.~plugin[].last().status != "ready" AND .~plugin[].last().progress != 1}}
+                                text: "{.~plugin[].last() ? .~plugin[].last().status = 'error' ? 'Error' : 'Active' : 'Connect'}"
                             }
 
                             Text {
                                 color: #4F56FE
                                 font: body_tiny
-                                show: {{.~plugin[].last().status = "ready" OR .~plugin[].last().status = "cvuPresented"}}
+                                show: {{.~plugin[].last().status = "daemon" OR .~plugin[].last().status = "cvuPresented"}}
                                 text: "Downloading data {.~plugin[].last().progress.percent()} %"
                             }
                         }
