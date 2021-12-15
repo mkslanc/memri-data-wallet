@@ -19,12 +19,33 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   late Binding<Set<int>> selectedIndicesBinding;
   late Set<int> selectedIndices;
   bool scrollable = true;
+  bool isBlocked = false;
+  ValueNotifier? blockedFromStorage;
 
   @override
   initState() {
     super.initState();
     pageController = widget.pageController;
     viewContext = widget.viewContext;
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    blockedFromStorage?.removeListener(updateBlockedState);
+  }
+
+  Future<void> init() async {
+    blockedFromStorage =
+        pageController.appController.databaseController.storage[pageController.label]?["isBlocked"];
+    isBlocked = blockedFromStorage?.value ?? false;
+    blockedFromStorage?.addListener(updateBlockedState);
+  }
+
+  updateBlockedState() {
+    setState(() {
+      isBlocked = blockedFromStorage?.value ?? false;
+    });
   }
 
   Widget? get additional {

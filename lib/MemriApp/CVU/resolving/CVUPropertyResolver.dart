@@ -757,7 +757,7 @@ class CVUPropertyResolver {
   }
 
   Future<Offset> get offset async {
-    var val = await this.cgPoint("offset");
+    var val = await cgPoint("offset");
     if (val == null) {
       return Offset.zero;
     }
