@@ -21,7 +21,7 @@ unit_test:
 build_web:
   stage: build
   script:
-    - flutter build web --profile
+    - flutter build web --profile --web-renderer html
     - sed -i 's#<base href="/">#<base href="/flutter-app/">#g' build/web/index.html
   artifacts:
     paths:
