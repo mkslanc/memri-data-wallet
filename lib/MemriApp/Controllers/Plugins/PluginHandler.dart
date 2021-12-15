@@ -50,15 +50,6 @@ class PluginHandler {
       required String status}) async {
     AppController.shared.pubsubController
         .stopObservingItemProperty(item: runner, property: "status");
-
-    var pluginName = (await plugin.property("pluginName"))!.$value.value;
-    var item = await runner.edgeItem("account");
-
-    await pageController.sceneController.navigateToNewContext(
-        animated: false,
-        viewName: "${pluginName}-$status",
-        pageController: pageController,
-        targetItem: item);
   }
 
   static presentCVUforPlugin(

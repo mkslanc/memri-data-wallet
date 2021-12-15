@@ -148,6 +148,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionOpenPopup(vars: vars);
     case "wait":
       return ({Map? vars}) => CVUActionWait(vars: vars);
+    case "block":
+      return ({Map? vars}) => CVUActionBlock(vars: vars);
     default:
       return null;
   }
@@ -1309,6 +1311,43 @@ class CVUActionWait extends CVUAction {
 
     if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
       await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {});
+    }
+  }
+}
+
+class CVUActionBlock extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionBlock({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+    var pageLabelProp = vars["pageLabel"];
+    if (pageLabelProp == null) return null;
+
+    String? pageLabel =
+        await lookup.resolve<String>(value: pageLabelProp, context: context, db: db);
+    if (pageLabel == null) {
+      return;
+    }
+    if (db.storage.containsKey(pageLabel)) {
+      db.storage[pageLabel]["isBlocked"] = ValueNotifier(true);
+    } else {
+      db.storage.addEntries([
+        MapEntry(pageLabel, {"isBlocked": ValueNotifier(true)})
+      ]);
+    }
+
+    var seconds = vars["seconds"];
+
+    if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
+      await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {
+        if (db.storage.containsKey(pageLabel)) {
+          (db.storage[pageLabel]["isBlocked"] as ValueNotifier).value = false;
+        }
+      });
     }
   }
 }
