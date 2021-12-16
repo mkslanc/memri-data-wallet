@@ -471,6 +471,19 @@ class CVUPropertyResolver {
         case "bottomright":
           return AlignmentResolver(
               mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
+        case "topspacebetween":
+        case "spacebetweentop":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.start);
+        case "bottomspacebetween":
+        case "spacebetweenbottom":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.end);
+        case "spacebetween":
+        case "centerspacebetween":
+        case "spacebetweencenter":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.center);
         default:
           return AlignmentResolver(
               mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
@@ -512,6 +525,19 @@ class CVUPropertyResolver {
         case "bottomright":
           return AlignmentResolver(
               mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
+        case "leftspacebetween":
+        case "spacebetweenleft":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.start);
+        case "rightspacebetween":
+        case "spacebetweenright":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.end);
+        case "spacebetween":
+        case "centerspacebetween":
+        case "spacebetweencenter":
+          return AlignmentResolver(
+              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.center);
         default:
           return AlignmentResolver(
               mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);

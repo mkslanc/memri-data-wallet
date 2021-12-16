@@ -621,10 +621,6 @@ class ItemRecord with EquatableMixin {
       {required List<Map<String, dynamic>> edges, required DatabaseController dbController}) async {
     var edgeItems = <dynamic>[];
     edges.forEach((edge) {
-      if (edge is! Map<String, dynamic>) {
-        return null;
-      }
-
       edgeItems.addAll([edge["_item"], edge]);
     });
 
