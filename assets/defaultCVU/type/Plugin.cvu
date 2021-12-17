@@ -75,7 +75,6 @@ Plugin > list {
         VStack {
             alignment: left
             background: #F5F5F5
-            maxWidth: 550
             padding: 20
 
 
