@@ -1,4 +1,4 @@
-image: cirrusci/flutter:stable
+image: cirrusci/flutter:2.5.3
 
 stages:
   - lint
@@ -21,7 +21,7 @@ unit_test:
 build_web:
   stage: build
   script:
-    - flutter build web --profile --web-renderer html
+    - flutter build web --profile
     - sed -i 's#<base href="/">#<base href="/flutter-app/">#g' build/web/index.html
   artifacts:
     paths:
