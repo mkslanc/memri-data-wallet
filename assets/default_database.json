@@ -59,7 +59,8 @@
     "name": "Sentiment analysis app",
     "container": "gitlab.memri.io:5050/plugins/sentiment-analysis:dev-latest",
     "pluginModule": "sentiment_analysis",
-    "pluginName": "SentimentAnalysis"
+    "pluginName": "SentimentAnalysis",
+    "itemDescription": "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
   },
   {
     "_type": "Plugin",
@@ -67,7 +68,8 @@
     "name": "Account linker",
     "container": "gitlab.memri.io:5050/plugins/account-linker:dev-latest",
     "pluginModule": "account_linker.plugin",
-    "pluginName": "AccountLinkerPlugin"
+    "pluginName": "AccountLinkerPlugin",
+    "itemDescription": "Account linker allows linking accounts from multiple services. You can use these connections to browse through your data in new ways and give your data additional context."
   },
   {
     "_type": "Setting",

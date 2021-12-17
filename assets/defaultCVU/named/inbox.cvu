@@ -2,6 +2,7 @@
     name: "inbox"
     title: "Inbox"
     defaultRenderer: scene
+    cols: 10
 
     [renderer = scene] {
         pages: {
