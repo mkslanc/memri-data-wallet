@@ -192,11 +192,10 @@ class ItemEdgeRecord {
     }
   }
 
-  static Future<ItemRecord?> fromSyncEdgeDict(
-      {required Map<String, dynamic> dict, required DatabaseController dbController}) async {
+  static ItemEdgeRecord? fromSyncEdgeDict(
+      {required Map<String, dynamic> dict, required DatabaseController dbController}) {
     if (dict["source"] != null && dict["target"] != null && dict["name"] != null) {
-      ItemEdgeRecord newEdge = ItemEdgeRecord.fromSyncDict(dict);
-      await newEdge.save(dbController.databasePool);
+      return ItemEdgeRecord.fromSyncDict(dict);
     } else {
       print("ERROR: Source, target or name is missing for edge");
     }

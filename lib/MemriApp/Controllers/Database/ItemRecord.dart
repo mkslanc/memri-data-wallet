@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:memri/MemriApp/Controllers/API/AuthKey.dart';
 import 'package:memri/MemriApp/Controllers/API/PodAPIPayloads.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
@@ -529,78 +528,80 @@ class ItemRecord with EquatableMixin {
   static Future<List<ItemRecord?>?> fromSyncItemDictList(
       {required List<dynamic> responseObjects,
       required DatabaseController dbController,
-      int partitionLimit = kIsWeb ? 25 : 100, //TODO: quick fix for web
       String? documentsDirectory}) async {
     var edges = <Map<String, dynamic>>[];
     var properties = <Map<String, dynamic>>[];
     var schemaProperties = <Map<String, dynamic>>[];
-    var objects = responseObjects.partition(partitionLimit); //works faster
-    await Future.forEach<List<dynamic>>(objects, (responseObjects) async {
-      await dbController.databasePool.transaction(() async {
-        List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
-        var itemList =
-            (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
-        var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
-          if (dict is! Map<String, dynamic>) return null;
-          dict["rowId"] = itemList[dict["id"]]?.rowId;
-          return dict;
-        });
 
-        await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
-          // If the item has file and it does not exist on disk, mark the file to be downloaded
-          if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
-            String? fileName = dict["sha256"];
-            if (fileName != null &&
-                !(await FileStorageController.fileExists(
-                    (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
-              dict["fileState"] = FileState.needsDownload;
-            }
-          }
-
-          var newItem = await ItemRecord.fromSyncItemDict(dict: dict, dbController: dbController);
-
-          if (dict["type"] == "ItemPropertySchema" || dict["type"] == "ItemEdgeSchema") {
-            schemaProperties.add({"item": newItem, "properties": dict});
-          } else {
-            if (schemaProperties.isNotEmpty) {
-              await propertiesFromSyncItemDict(
-                  dictList: schemaProperties, dbController: dbController, reloadSchema: true);
-              schemaProperties = [];
-            }
-            properties.add({"item": newItem, "properties": dict});
-          }
-
-          var itemEdges = dict["[[edges]]"];
-          if (itemEdges is List && itemEdges.isNotEmpty) {
-            edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
-              return edge is Map<String, dynamic>
-                  ? (edge..addAll({"source": newItem, "dict": dict}))
-                  : null;
-            }));
-          }
-        });
+    await dbController.databasePool.transaction(() async {
+      List<ItemRecord> itemRecords = [];
+      List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
+      var itemList =
+          (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
+      var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
+        if (dict is! Map<String, dynamic>) return null;
+        dict["rowId"] = itemList[dict["id"]]?.rowId;
+        return dict;
       });
+      await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+        // If the item has file and it does not exist on disk, mark the file to be downloaded
+        if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
+          String? fileName = dict["sha256"];
+          if (fileName != null &&
+              !(await FileStorageController.fileExists(
+                  (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
+            dict["fileState"] = FileState.needsDownload;
+          }
+        }
+
+        var newItem = await ItemRecord.fromSyncItemDict(dict: dict, dbController: dbController);
+        if (newItem != null) itemRecords.add(newItem);
+      });
+
+      await dbController.databasePool.itemRecordInsertAll(itemRecords);
+      List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(uidList, dbController));
+      for (var i = 0; i < newItemList.length; i++) {
+        var newItem = newItemList[i];
+        var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
+        if (dict["type"] == "ItemPropertySchema" || dict["type"] == "ItemEdgeSchema") {
+          schemaProperties.add({"item": newItem, "properties": dict});
+        } else {
+          properties.add({"item": newItem, "properties": dict});
+        }
+
+        var itemEdges = dict["[[edges]]"];
+        if (itemEdges is List && itemEdges.isNotEmpty) {
+          edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
+            return edge is Map<String, dynamic>
+                ? (edge..addAll({"source": newItem, "dict": dict}))
+                : null;
+          }));
+        }
+      }
     });
 
     if (schemaProperties.isNotEmpty) {
-      dbController.databasePool.transaction(() async {
-        await propertiesFromSyncItemDict(
-            dictList: schemaProperties, dbController: dbController, reloadSchema: true);
+      await dbController.databasePool.transaction(() async {
+        List<ItemPropertyRecord> itemProperties = [];
+        itemProperties.addAll(
+            propertiesFromSyncItemDict(dictList: schemaProperties, dbController: dbController));
+
+        await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
+        await dbController.schema.load(dbController.databasePool);
       });
     }
 
-    var groupedEdges = edges.partition(partitionLimit);
-    await Future.forEach<List<Map<String, dynamic>>>(groupedEdges, (edges) async {
-      await dbController.databasePool.transaction(() async {
-        await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
-      });
+    await dbController.databasePool.transaction(() async {
+      var edgesRecords =
+          await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
+      await dbController.databasePool.itemEdgeRecordInsertAll(edgesRecords);
     });
 
-    var groupedProperties = properties.partition(partitionLimit);
-    await Future.forEach<List<Map<String, dynamic>>>(groupedProperties, (properties) async {
-      await dbController.databasePool.transaction(() async {
-        await propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
-      });
+    await dbController.databasePool.transaction(() async {
+      List<ItemPropertyRecord> itemProperties = [];
+      itemProperties
+          .addAll(propertiesFromSyncItemDict(dictList: properties, dbController: dbController));
+      await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
     });
   }
 
@@ -610,26 +611,22 @@ class ItemRecord with EquatableMixin {
     if (id == null) {
       return null;
     }
-
     ItemRecord newItem = ItemRecord.fromSyncDict(dict);
-    await newItem.save(dbController.databasePool);
-
     return newItem;
   }
 
-  static edgesFromSyncItemDict(
+  static Future<List<ItemEdgeRecord>> edgesFromSyncItemDict(
       {required List<Map<String, dynamic>> edges, required DatabaseController dbController}) async {
     var edgeItems = <dynamic>[];
     edges.forEach((edge) {
       edgeItems.addAll([edge["_item"], edge]);
     });
-
+    List<ItemEdgeRecord> edgeRecords = [];
     var groupedEdgeItems = edgeItems.toMapByKey((item) => item["id"] as String);
     var groupedEdgeItemRecords =
         (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList(), dbController))
             .toMapByKey((item) => item.uid);
-
-    await Future.forEach<Map<String, dynamic>>(edges, (edge) async {
+    edges.forEach((edge) {
       ItemRecord self = groupedEdgeItemRecords[edge["id"]]!;
       ItemRecord target = groupedEdgeItemRecords[edge["_item"]["id"]]!;
 
@@ -644,14 +641,17 @@ class ItemRecord with EquatableMixin {
         "targetRowId": target.rowId,
         "sourceRowId": source.rowId
       };
-      await ItemEdgeRecord.fromSyncEdgeDict(dict: edgeDict, dbController: dbController);
+      var edgeRecord = ItemEdgeRecord.fromSyncEdgeDict(dict: edgeDict, dbController: dbController);
+      if (edgeRecord != null) edgeRecords.add(edgeRecord);
     });
+
+    return edgeRecords;
   }
 
-  static propertiesFromSyncItemDict(
+  static List<ItemPropertyRecord> propertiesFromSyncItemDict(
       {required List<Map<String, dynamic>> dictList,
       required DatabaseController dbController,
-      bool reloadSchema = false}) async {
+      bool reloadSchema = false}) {
     var excludeList = [
       "type",
       "id",
@@ -661,14 +661,10 @@ class ItemRecord with EquatableMixin {
       "deleted",
     ];
 
-    var items = dictList.map<ItemRecord>((dict) => dict["item"] as ItemRecord).toList();
-    var allProperties = await ItemRecord.getPropertiesForItems(items, dbController);
-    var groupedProperties = (allProperties.groupListsBy((property) => property.itemRowID)).map(
-        (rowId, properties) => MapEntry(rowId, properties.toMapByKey((property) => property.name)));
-
-    await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+    List<ItemPropertyRecord> itemProperties = [];
+    dictList.forEach((dict) {
       ItemRecord item = dict["item"];
-      await Future.forEach(dict["properties"].entries, (MapEntry entry) async {
+      (dict["properties"] as Map).entries.forEach((MapEntry entry) {
         String propertyName = entry.key;
         if (excludeList.contains(propertyName))
           return; //TODO: figure out why we receiving these schema item property types from pod
@@ -687,16 +683,11 @@ class ItemRecord with EquatableMixin {
         }
         var propertyValue = getPropertyFromSync(item.type, propertyName, entry.value);
         var databaseValue = PropertyDatabaseValue.create(propertyValue, expectedType);
-        await item.setPropertyValue(propertyName, databaseValue,
-            db: dbController,
-            state: SyncState.noChanges,
-            isNew: groupedProperties[item.rowId!]?[propertyName] == null);
+        itemProperties.add(
+            ItemPropertyRecord(itemRowID: item.rowId!, name: propertyName, value: databaseValue));
       });
     });
-
-    if (reloadSchema) {
-      await dbController.schema.load(dbController.databasePool);
-    }
+    return itemProperties;
   }
 
   Future<Map<String, dynamic>?> schemaPropertyDict(DatabaseController dbController) async {
