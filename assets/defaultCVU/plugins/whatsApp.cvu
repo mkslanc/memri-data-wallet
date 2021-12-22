@@ -219,7 +219,7 @@
                         }
                         block {
                             pageLabel: "inboxChannels"
-                            seconds: 120
+                            seconds: 15
                         }
                         ]
                 }
