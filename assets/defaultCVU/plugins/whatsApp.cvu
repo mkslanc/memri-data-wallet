@@ -320,7 +320,7 @@
                 }
 
                 onPress: openView {
-                    viewName: "apps-and-plugins"
+                    viewName: "allData"
                     clearStack: true
                     viewArguments {
 

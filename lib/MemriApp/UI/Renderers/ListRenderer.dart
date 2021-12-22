@@ -9,6 +9,7 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/Components/PluginModeSwitcher.dart';
 import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import 'package:memri/MemriApp/UI/Renderers/Renderer.dart';
+import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 import 'package:uuid/uuid.dart';
 
 /// The list renderer
@@ -73,13 +74,7 @@ class _ListRendererViewState extends RendererViewState {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (!viewContext.isLoaded) {
-              return Center(
-                child: SizedBox(
-                  child: CircularProgressIndicator(),
-                  width: 60,
-                  height: 60,
-                ),
-              );
+              return Empty();
             }
             if (viewContext.hasItems) {
               selectedIndices = selectedIndicesBinding.get();
@@ -171,11 +166,7 @@ class _ListRendererViewState extends RendererViewState {
               );
             }
           } else {
-            return SizedBox(
-              child: CircularProgressIndicator(),
-              width: 60,
-              height: 60,
-            );
+            return Empty();
           }
         });
   }
