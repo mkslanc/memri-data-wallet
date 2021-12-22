@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'unsupported.dart' if (dart.library.html) 'web.dart' if (dart.library.io) 'mobile.dart';
 
-class EmailView extends StatelessWidget {
-  final String? emailHTML;
+class HtmlView extends StatelessWidget {
+  final String? html;
   final String? src;
 
-  EmailView({this.emailHTML, this.src});
+  HtmlView({this.html, this.src});
 
   @override
   Widget build(BuildContext context) {
-    return EmailViewUIKit(emailHTML: emailHTML ?? "", src: src);
+    return HtmlViewUIKit(html: html, src: src);
   }
 }
