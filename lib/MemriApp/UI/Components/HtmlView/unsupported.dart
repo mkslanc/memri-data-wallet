@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-class EmailViewUIKit extends StatelessWidget {
-  final String emailHTML;
+class HtmlViewUIKit extends StatelessWidget {
+  final String? html;
   final String? src;
+  final Function? callback;
 
-  EmailViewUIKit({this.emailHTML = "", this.src});
+  HtmlViewUIKit({this.html, this.src, this.callback});
 
   @override
   Widget build(BuildContext context) {
