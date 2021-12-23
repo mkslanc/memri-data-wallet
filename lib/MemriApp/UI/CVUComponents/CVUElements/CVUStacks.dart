@@ -34,6 +34,12 @@ class _CVUHStackState extends State<CVUHStack> {
     _init = init();
   }
 
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
   init() async {
     alignment = await widget.nodeResolver.propertyResolver.alignment("row");
     spacing = await widget.nodeResolver.propertyResolver.spacing;
@@ -85,6 +91,12 @@ class _CVUVStackState extends State<CVUVStack> {
     _init = init();
   }
 
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
   init() async {
     alignment = await widget.nodeResolver.propertyResolver.alignment("column");
     spacing = await widget.nodeResolver.propertyResolver.spacing;
@@ -131,6 +143,12 @@ class _CVUZStackState extends State<CVUZStack> {
   @override
   initState() {
     super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init = init();
   }
 
