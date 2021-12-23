@@ -21,10 +21,7 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
   void initState() {
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(createdViewId, (int viewId) {
-      var iframe = html.IFrameElement()
-        ..width = MediaQuery.of(context).size.width.toString()
-        ..height = MediaQuery.of(context).size.height.toString()
-        ..style.border = 'none';
+      var iframe = html.IFrameElement()..style.border = 'none';
       if (widget.src != null) {
         iframe.src = widget.src;
       } else if (widget.html != null) {
