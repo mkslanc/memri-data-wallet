@@ -401,8 +401,6 @@ exports.buildDom = function buildDom(arr, parent, refs) {
                 el[n] = val;
             } else if (n === "ref") {
                 if (refs) refs[val] = el;
-            } else if (n === "style") {
-                if (typeof val == "string") el.style.cssText = val;
             } else if (val != null) {
                 el.setAttribute(n, val);
             }
@@ -494,34 +492,7 @@ exports.hasCssString = function(id, doc) {
     }
 };
 
-var strictCSP;
-var cssCache = [];
-exports.useStrictCSP = function(value) {
-    strictCSP = value;
-    if (value == false) insertPendingStyles();
-    else if (!cssCache) cssCache = [];
-};
-
-function insertPendingStyles() {
-    var cache = cssCache;
-    cssCache = null;
-    cache && cache.forEach(function(item) {
-        importCssString(item[0], item[1]);
-    });
-}
-
-function importCssString(cssText, id, target) {
-    if (typeof document == "undefined")
-        return;
-    if (cssCache) {
-        if (target) {
-            insertPendingStyles();
-        } else if (target === false) {
-            return cssCache.push([cssText, id]);
-        }
-    }
-    if (strictCSP) return;
-
+exports.importCssString = function importCssString(cssText, id, target) {
     var container = target;
     if (!target || !target.getRootNode) {
         container = document;
@@ -546,8 +517,7 @@ function importCssString(cssText, id, target) {
     if (container == doc)
         container = exports.getDocumentHead(doc);
     container.insertBefore(style, container.firstChild);
-}
-exports.importCssString = importCssString;
+};
 
 exports.importCssStylsheet = function(uri, doc) {
     exports.buildDom(["link", {rel: "stylesheet", href: uri}], exports.getDocumentHead(doc));
@@ -589,6 +559,10 @@ exports.scrollbarWidth = function(document) {
     return noScrollbar-withScrollbar;
 };
 
+if (typeof document == "undefined") {
+    exports.importCssString = function() {};
+}
+
 exports.computedStyle = function(element, style) {
     return window.getComputedStyle(element, "") || {};
 };
@@ -604,8 +578,6 @@ exports.HAS_CSS_TRANSFORMS = false;
 exports.HI_DPI = useragent.isWin
     ? typeof window !== "undefined" && window.devicePixelRatio >= 1.5
     : true;
-
-if (useragent.isChromeOS) exports.HI_DPI = false;
 
 if (typeof document !== "undefined") {
     var div = document.createElement("div");
@@ -2834,16 +2806,18 @@ function DragdropHandler(mouseHandler) {
 
     var editor = mouseHandler.editor;
 
-    var dragImage = dom.createElement("div");
-    dragImage.style.cssText = "top:-100px;position:absolute;z-index:2147483647;opacity:0.5";
-    dragImage.textContent = "\xa0";
+    var blankImage = dom.createElement("img");
+    blankImage.src = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+    if (useragent.isOpera)
+        blankImage.style.cssText = "width:1px;height:1px;position:fixed;top:0;left:0;z-index:2147483647;opacity:0;";
 
     var exports = ["dragWait", "dragWaitEnd", "startDrag", "dragReadyEnd", "onMouseDrag"];
 
-    exports.forEach(function(x) {
-        mouseHandler[x] = this[x];
+     exports.forEach(function(x) {
+         mouseHandler[x] = this[x];
     }, this);
     editor.on("mousedown", this.onMouseDown.bind(mouseHandler));
+
 
     var mouseTarget = editor.container;
     var dragSelectionMarker, x, y;
@@ -2868,12 +2842,14 @@ function DragdropHandler(mouseHandler) {
 
         var dataTransfer = e.dataTransfer;
         dataTransfer.effectAllowed = editor.getReadOnly() ? "copy" : "copyMove";
-        editor.container.appendChild(dragImage);
-
-        dataTransfer.setDragImage && dataTransfer.setDragImage(dragImage, 0, 0);
-        setTimeout(function() {
-            editor.container.removeChild(dragImage);
-        });
+        if (useragent.isOpera) {
+            editor.container.appendChild(blankImage);
+            blankImage.scrollTop = 0;
+        }
+        dataTransfer.setDragImage && dataTransfer.setDragImage(blankImage, 0, 0);
+        if (useragent.isOpera) {
+            editor.container.removeChild(blankImage);
+        }
         dataTransfer.clearData();
         dataTransfer.setData("Text", editor.session.getTextRange());
 
@@ -3812,13 +3788,12 @@ exports.AppConfig = AppConfig;
 
 });
 
-ace.define("ace/config",["require","exports","module","ace/lib/lang","ace/lib/oop","ace/lib/net","ace/lib/dom","ace/lib/app_config"], function(require, exports, module) {
+ace.define("ace/config",["require","exports","module","ace/lib/lang","ace/lib/oop","ace/lib/net","ace/lib/app_config"], function(require, exports, module) {
 "no use strict";
 
 var lang = require("./lib/lang");
 var oop = require("./lib/oop");
 var net = require("./lib/net");
-var dom = require("./lib/dom");
 var AppConfig = require("./lib/app_config").AppConfig;
 
 module.exports = exports = new AppConfig();
@@ -3836,13 +3811,13 @@ var options = {
     suffix: ".js",
     $moduleUrls: {},
     loadWorkerFromBlob: true,
-    sharedPopups: false,
-    useStrictCSP: null
+    sharedPopups: false
 };
 
 exports.get = function(key) {
     if (!options.hasOwnProperty(key))
         throw new Error("Unknown config key: " + key);
+
     return options[key];
 };
 
@@ -3851,8 +3826,6 @@ exports.set = function(key, value) {
         options[key] = value;
     else if (this.setDefaultValue("", key, value) == false)
         throw new Error("Unknown config key: " + key);
-    if (key == "useStrictCSP")
-        dom.useStrictCSP(value);
 };
 
 exports.all = function() {
@@ -3999,7 +3972,7 @@ function deHyphenate(str) {
     return str.replace(/-(.)/g, function(m, m1) { return m1.toUpperCase(); });
 }
 
-exports.version = "1.4.13";
+exports.version = "1.4.12";
 
 });
 
@@ -4074,7 +4047,6 @@ var MouseHandler = function(editor) {
 
 (function() {
     this.onMouseEvent = function(name, e) {
-        if (!this.editor.session) return;
         this.editor._emit(name, new MouseEvent(e, this.editor));
     };
 
@@ -4124,7 +4096,7 @@ var MouseHandler = function(editor) {
         var onCaptureEnd = function(e) {
             editor.off("beforeEndOperation", onOperationEnd);
             clearInterval(timerId);
-            if (editor.session) onCaptureInterval();
+            onCaptureInterval();
             self[self.state + "End"] && self[self.state + "End"](e);
             self.state = "";
             self.isMousePressed = renderer.$isMousePressed = false;
@@ -5545,6 +5517,7 @@ var Selection = function(session) {
     this.detach = function() {
         this.lead.detach();
         this.anchor.detach();
+        this.session = this.doc = null;
     };
 
     this.fromOrientedRange = function(range) {
@@ -5760,7 +5733,7 @@ var Tokenizer = function(rules) {
 
     this.removeCapturingGroups = function(src) {
         var r = src.replace(
-            /\\.|\[(?:\\.|[^\\\]])*|\(\?[:=!<]|(\()/g,
+            /\\.|\[(?:\\.|[^\\\]])*|\(\?[:=!]|(\()/g,
             function(x, y) {return y ? "(?:" : x;}
         );
         return r;
@@ -8718,38 +8691,21 @@ function Folding() {
         if (location == null) {
             range = new Range(0, 0, this.getLength(), 0);
             if (expandInner == null) expandInner = true;
-        } else if (typeof location == "number") {
+        } else if (typeof location == "number")
             range = new Range(location, 0, location, this.getLine(location).length);
-        } else if ("row" in location) {
+        else if ("row" in location)
             range = Range.fromPoints(location, location);
-        } else if (Array.isArray(location)) {
-            folds = [];
-            location.forEach(function(range) {
-                folds = folds.concat(this.unfold(range));
-            }, this);
-            return folds;
-        } else {
+        else
             range = location;
-        }
         
         folds = this.getFoldsInRangeList(range);
-        var outermostFolds = folds;
-        while (
-            folds.length == 1
-            && Range.comparePoints(folds[0].start, range.start) < 0 
-            && Range.comparePoints(folds[0].end, range.end) > 0
-        ) {
-            this.expandFolds(folds);
-            folds = this.getFoldsInRangeList(range);
-        }
-        
         if (expandInner != false) {
             this.removeFolds(folds);
         } else {
             this.expandFolds(folds);
         }
-        if (outermostFolds.length)
-            return outermostFolds;
+        if (folds.length)
+            return folds;
     };
     this.isRowFolded = function(docRow, startFoldRow) {
         return !!this.getFoldLine(docRow, startFoldRow);
@@ -9416,7 +9372,7 @@ EditSession.$uid = 0;
     oop.implement(this, EventEmitter);
     this.setDocument = function(doc) {
         if (this.doc)
-            this.doc.off("change", this.$onChange);
+            this.doc.removeListener("change", this.$onChange);
 
         this.doc = doc;
         doc.on("change", this.$onChange);
@@ -10942,9 +10898,6 @@ EditSession.$uid = 0;
         }
         this.$stopWorker();
         this.removeAllListeners();
-        if (this.doc) {
-            this.doc.off("change", this.$onChange);
-        }
         this.selection.detach();
     };
 
@@ -11336,7 +11289,7 @@ var Search = function() {
             var len = re.length;
             var forEachInLine = function(row, offset, callback) {
                 var startRow = backwards ? row - len + 1 : row;
-                if (startRow < 0 || startRow + len > session.getLength()) return;
+                if (startRow < 0) return;
                 var line = session.getLine(startRow);
                 var startIndex = line.search(re[0]);
                 if (!backwards && startIndex < offset || startIndex === -1) return;
@@ -11754,7 +11707,6 @@ function bindKey(win, mac) {
 }
 exports.commands = [{
     name: "showSettingsMenu",
-    description: "Show settings menu",
     bindKey: bindKey("Ctrl-,", "Command-,"),
     exec: function(editor) {
         config.loadModule("ace/ext/settings_menu", function(module) {
@@ -11765,7 +11717,6 @@ exports.commands = [{
     readOnly: true
 }, {
     name: "goToNextError",
-    description: "Go to next error",
     bindKey: bindKey("Alt-E", "F4"),
     exec: function(editor) {
         config.loadModule("./ext/error_marker", function(module) {
@@ -11776,7 +11727,6 @@ exports.commands = [{
     readOnly: true
 }, {
     name: "goToPreviousError",
-    description: "Go to previous error",
     bindKey: bindKey("Alt-Shift-E", "Shift-F4"),
     exec: function(editor) {
         config.loadModule("./ext/error_marker", function(module) {
@@ -11823,7 +11773,6 @@ exports.commands = [{
     readOnly: true
 }, {
     name: "toggleFoldWidget",
-    description: "Toggle fold widget",
     bindKey: bindKey("F2", "F2"),
     exec: function(editor) { editor.session.toggleFoldWidget(); },
     multiSelectAction: "forEach",
@@ -11831,7 +11780,6 @@ exports.commands = [{
     readOnly: true
 }, {
     name: "toggleParentFoldWidget",
-    description: "Toggle parent fold widget",
     bindKey: bindKey("Alt-F2", "Alt-F2"),
     exec: function(editor) { editor.session.toggleFoldWidget(true); },
     multiSelectAction: "forEach",
@@ -12558,7 +12506,6 @@ exports.commands = [{
     scrollIntoView: "none"
 }, {
     name: "addLineAfter",
-    description: "Add new line after the current line",
     exec: function(editor) {
         editor.selection.clearSelection();
         editor.navigateLineEnd();
@@ -12568,7 +12515,6 @@ exports.commands = [{
     scrollIntoView: "cursor"
 }, {
     name: "addLineBefore",
-    description: "Add new line before the current line",
     exec: function(editor) {
         editor.selection.clearSelection();
         var cursor = editor.getCursorPosition();
@@ -13324,7 +13270,7 @@ Editor.$uid = 0;
         }
         var e = {text: text};
         this._signal("copy", e);
-        clipboard.lineMode = copyLine ? e.text : false;
+        clipboard.lineMode = copyLine ? e.text : "";
         return e.text;
     };
     this.onCopy = function() {
@@ -13344,7 +13290,7 @@ Editor.$uid = 0;
         this._signal("paste", e);
         var text = e.text;
 
-        var lineMode = text === clipboard.lineMode;
+        var lineMode = text == clipboard.lineMode;
         var session = this.session;
         if (!this.inMultiSelectMode || this.inVirtualSelectionMode) {
             if (lineMode)
@@ -16688,16 +16634,12 @@ var Cursor = function(parentEl) {
         for (var i = cursors.length; i--; )
             cursors[i].style.animationDuration = this.blinkInterval + "ms";
 
-        this.$isAnimating = true;
         setTimeout(function() {
-            if (this.$isAnimating) {
-                dom.addCssClass(this.element, "ace_animate-blinking");
-            }
+            dom.addCssClass(this.element, "ace_animate-blinking");
         }.bind(this));
     };
     
     this.$stopCssAnimation = function() {
-        this.$isAnimating = false;
         dom.removeCssClass(this.element, "ace_animate-blinking");
     };
 
@@ -16768,7 +16710,6 @@ var Cursor = function(parentEl) {
         this.$stopCssAnimation();
 
         if (this.smoothBlinking) {
-            this.$isSmoothBlinking = false;
             dom.removeCssClass(this.element, "ace_smooth-blinking");
         }
         
@@ -16780,11 +16721,8 @@ var Cursor = function(parentEl) {
         }
 
         if (this.smoothBlinking) {
-            this.$isSmoothBlinking = true;
-            setTimeout(function() {
-                if (this.$isSmoothBlinking) {
-                    dom.addCssClass(this.element, "ace_smooth-blinking");
-                }
+            setTimeout(function(){
+                dom.addCssClass(this.element, "ace_smooth-blinking");
             }.bind(this));
         }
         
@@ -17785,7 +17723,7 @@ margin: 0 10px;\
 var useragent = require("./lib/useragent");
 var HIDE_TEXTAREA = useragent.isIE;
 
-dom.importCssString(editorCss, "ace_editor.css", false);
+dom.importCssString(editorCss, "ace_editor.css");
 
 var VirtualRenderer = function(container, theme) {
     var _self = this;
@@ -17796,8 +17734,6 @@ var VirtualRenderer = function(container, theme) {
     if (dom.HI_DPI) dom.addCssClass(this.container, "ace_hidpi");
 
     this.setTheme(theme);
-    if (config.get("useStrictCSP") == null) 
-        config.set("useStrictCSP", false);
 
     this.$gutter = dom.createElement("div");
     this.$gutter.className = "ace_gutter";
@@ -18049,7 +17985,7 @@ var VirtualRenderer = function(container, theme) {
 
         if (this.resizing)
             this.resizing = 0;
-        this.scrollBarH.scrollLeft = this.scrollBarV.scrollTop = null;
+        this.scrollBarV.scrollLeft = this.scrollBarV.scrollTop = null;
     };
     
     this.$updateCachedSize = function(force, gutterWidth, width, height) {
@@ -18815,7 +18751,7 @@ var VirtualRenderer = function(container, theme) {
     };
     this.scrollTo = function(x, y) {
         this.session.setScrollTop(y);
-        this.session.setScrollLeft(x);
+        this.session.setScrollLeft(y);
     };
     this.scrollBy = function(deltaX, deltaY) {
         deltaY && this.session.setScrollTop(this.session.getScrollTop() + deltaY);
@@ -20873,7 +20809,7 @@ background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZ
 exports.$id = "ace/theme/textmate";
 
 var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass, false);
+dom.importCssString(exports.cssText, exports.cssClass);
 });
 
 ace.define("ace/line_widgets",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
@@ -21420,7 +21356,7 @@ dom.importCssString("\
         border-left-color: transparent!important;\
         top: -5px;\
     }\
-", "error_marker.css", false);
+", "");
 
 });
 
@@ -21542,10 +21478,11 @@ __webpack_require__(5);
 __webpack_require__(6);
 __webpack_require__(7);
 __webpack_require__(8);
-const cvu_mode_1 = __webpack_require__(9);
+__webpack_require__(9);
+const cvu_mode_1 = __webpack_require__(10);
 var Editor = ace_builds_1.default.require("ace/editor").Editor;
 var Renderer = ace_builds_1.default.require("ace/virtual_renderer").VirtualRenderer;
-var theme = ace_builds_1.default.require("ace/theme/textmate");
+var theme = ace_builds_1.default.require("ace/theme/dracula");
 var cvumode = new cvu_mode_1.Mode();
 var { HashHandler } = ace_builds_1.default.require("ace/keyboard/hash_handler");
 var event = ace_builds_1.default.require("ace/lib/event");
@@ -21563,6 +21500,14 @@ var menuKb = new HashHandler([
         exec: function () {
             sendResult();
         }
+    },
+    {
+        name: "autoindent",
+        description: "Auto Indent",
+        bindKey: { win: "Ctrl-Shift-F", mac: "Cmd-Shift-F" },
+        exec: function () { editor.autoIndent(); },
+        multiSelectAction: "forEachLine",
+        scrollIntoView: "animate"
     }
 ]);
 event.addCommandKeyListener(window, function (e, hashId, keyCode) {
@@ -21573,18 +21518,13 @@ event.addCommandKeyListener(window, function (e, hashId, keyCode) {
         command.exec();
     }
 });
-var { setBox } = __webpack_require__(11);
 var editor = new Editor(new Renderer(null, theme));
+editor.setTheme("ace/theme/dracula");
 var session = ace_builds_1.default.createEditSession("", cvumode);
 editor.setSession(session);
-var onResize = function () {
-    setBox(editor.container, 0, 0, window.innerWidth, window.innerHeight);
-};
-window.onresize = onResize;
 document.body.innerHTML = "";
 editor.$options.readOnly.set.call(editor, editor.$readOnly);
 document.body.appendChild(editor.container);
-onResize();
 window.parent.addEventListener('message', handleMessage, false);
 function handleMessage(e) {
     if (typeof e.data != "string")
@@ -21593,6 +21533,10 @@ function handleMessage(e) {
     switch (data["action"]) {
         case "setData":
             editor.setValue(data["content"]);
+            editor.selection.setRange({
+                start: 0,
+                end: 0
+            });
             break;
         case "getData":
             sendResult();
@@ -21771,7 +21715,7 @@ var keyUtil = require("../lib/keys");
 
 var MAX_COUNT = 999;
 
-dom.importCssString(searchboxCss, "ace_searchbox", false);
+dom.importCssString(searchboxCss, "ace_searchbox");
 
 var SearchBox = function(editor, range, showReplaceForm) {
     var div = dom.createElement("div");
@@ -22129,9 +22073,8 @@ exports.Search = function(editor, isReplace) {
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {ace.define("ace/snippets",["require","exports","module","ace/lib/dom","ace/lib/oop","ace/lib/event_emitter","ace/lib/lang","ace/range","ace/range_list","ace/keyboard/hash_handler","ace/tokenizer","ace/clipboard","ace/editor"], function(require, exports, module) {
+/* WEBPACK VAR INJECTION */(function(module) {ace.define("ace/snippets",["require","exports","module","ace/lib/oop","ace/lib/event_emitter","ace/lib/lang","ace/range","ace/range_list","ace/keyboard/hash_handler","ace/tokenizer","ace/clipboard","ace/lib/dom","ace/editor"], function(require, exports, module) {
 "use strict";
-var dom = require("./lib/dom");
 var oop = require("./lib/oop");
 var EventEmitter = require("./lib/event_emitter").EventEmitter;
 var lang = require("./lib/lang");
@@ -23113,14 +23056,14 @@ var moveRelative = function(point, start) {
 };
 
 
-dom.importCssString("\
+require("./lib/dom").importCssString("\
 .ace_snippet-marker {\
     -moz-box-sizing: border-box;\
     box-sizing: border-box;\
     background: rgba(194, 193, 208, 0.09);\
     border: 1px dotted rgba(211, 208, 235, 0.62);\
     position: absolute;\
-}", "snippets.css", false);
+}");
 
 exports.snippetManager = new SnippetManager();
 
@@ -23472,7 +23415,7 @@ dom.importCssString("\
     line-height: 1.4;\
     background: #25282c;\
     color: #c1c1c1;\
-}", "autocompletion.css", false);
+}", "autocompletion.css");
 
 exports.AcePopup = AcePopup;
 exports.$singleLineEditor = $singleLineEditor;
@@ -23796,14 +23739,19 @@ var Autocomplete = function() {
             return this.openPopup(this.editor, "", keepPopupPosition);
         }
         var _id = this.gatherCompletionsId;
-        var detachIfFinished = function(results) {
-            if (!results.finished) return;
-            return this.detach();
-        }.bind(this);
+        this.gatherCompletions(this.editor, function(err, results) {
+            var detachIfFinished = function() {
+                if (!results.finished) return;
+                return this.detach();
+            }.bind(this);
 
-        var processResults = function(results) {
             var prefix = results.prefix;
-            var matches = results.matches;
+            var matches = results && results.matches;
+
+            if (!matches || !matches.length)
+                return detachIfFinished();
+            if (prefix.indexOf(results.prefix) !== 0 || _id != this.gatherCompletionsId)
+                return;
 
             this.completions = new FilteredList(matches);
 
@@ -23813,39 +23761,14 @@ var Autocomplete = function() {
             this.completions.setFilter(prefix);
             var filtered = this.completions.filtered;
             if (!filtered.length)
-                return detachIfFinished(results);
+                return detachIfFinished();
             if (filtered.length == 1 && filtered[0].value == prefix && !filtered[0].snippet)
-                return detachIfFinished(results);
+                return detachIfFinished();
             if (this.autoInsert && filtered.length == 1 && results.finished)
                 return this.insertMatch(filtered[0]);
 
             this.openPopup(this.editor, prefix, keepPopupPosition);
-        }.bind(this);
-
-        var isImmediate = true;
-        var immediateResults = null;
-        this.gatherCompletions(this.editor, function(err, results) {
-            var prefix = results.prefix;
-            var matches = results && results.matches;
-
-            if (!matches || !matches.length)
-                return detachIfFinished(results);
-            if (prefix.indexOf(results.prefix) !== 0 || _id != this.gatherCompletionsId)
-                return;
-            if (isImmediate) {
-                immediateResults = results;
-                return;
-            }
-
-            processResults(results);
         }.bind(this));
-        
-        isImmediate = false;
-        if (immediateResults) {
-            var results = immediateResults;
-            immediateResults = null;
-            processResults(results);
-        }
     };
 
     this.cancelContextMenu = function() {
@@ -24379,7 +24302,7 @@ margin: 0px;\
 .ace_optionsMenuEntry button:hover{\
 background: #f0f0f0;\
 }";
-dom.importCssString(cssText, "settings_menu.css", false);
+dom.importCssString(cssText);
 
 module.exports.overlayPage = function overlayPage(editor, contentElement, callback) {
     var closer = document.createElement('div');
@@ -24483,7 +24406,7 @@ var supportedModes = {
     Apex:        ["apex|cls|trigger|tgr"],
     AQL:         ["aql"],
     AsciiDoc:    ["asciidoc|adoc"],
-    ASL:         ["dsl|asl|asl.json"],
+    ASL:         ["dsl|asl"],
     Assembly_x86:["asm|a"],
     AutoHotKey:  ["ahk"],
     BatchFile:   ["bat|cmd"],
@@ -24550,7 +24473,6 @@ var supportedModes = {
     Julia:       ["jl"],
     Kotlin:      ["kt|kts"],
     LaTeX:       ["tex|latex|ltx|bib"],
-    Latte:       ["latte"],
     LESS:        ["less"],
     Liquid:      ["liquid"],
     Lisp:        ["lisp"],
@@ -24567,7 +24489,6 @@ var supportedModes = {
     Maze:        ["mz"],
     MediaWiki:   ["wiki|mediawiki"],
     MEL:         ["mel"],
-    MIPS:        ["s|asm"],
     MIXAL:       ["mixal"],
     MUSHCode:    ["mc|mush"],
     MySQL:       ["mysql"],
@@ -24580,6 +24501,7 @@ var supportedModes = {
     OCaml:       ["ml|mli"],
     Pascal:      ["pas|p"],
     Perl:        ["pl|pm"],
+    Perl6:       ["p6|pl6|pm6"],
     pgSQL:       ["pgsql"],
     PHP:         ["php|inc|phtml|shtml|php3|php4|php5|phps|phpt|aw|ctp|module"],
     PHP_Laravel_blade: ["blade.php"],
@@ -24594,7 +24516,6 @@ var supportedModes = {
     Python:      ["py"],
     QML:         ["qml"],
     R:           ["r"],
-    Raku:        ["raku|rakumod|rakutest|p6|pl6|pm6"],
     Razor:       ["cshtml|asp"],
     RDoc:        ["Rd"],
     Red:         ["red|reds"],
@@ -24606,13 +24527,11 @@ var supportedModes = {
     SCAD:        ["scad"],
     Scala:       ["scala|sbt"],
     Scheme:      ["scm|sm|rkt|oak|scheme"],
-    Scrypt:      ["scrypt"],
     SCSS:        ["scss"],
     SH:          ["sh|bash|^.bashrc"],
     SJS:         ["sjs"],
     Slim:        ["slim|skim"],
     Smarty:      ["smarty|tpl"],
-    Smithy:      ["smithy"],
     snippets:    ["snippets"],
     Soy_Template:["soy"],
     Space:       ["space"],
@@ -24628,7 +24547,7 @@ var supportedModes = {
     Textile:     ["textile"],
     Toml:        ["toml"],
     TSX:         ["tsx"],
-    Twig:        ["twig|swig"],
+    Twig:        ["latte|twig|swig"],
     Typescript:  ["ts|typescript|str"],
     Vala:        ["vala"],
     VBScript:    ["vbs|vb"],
@@ -24660,7 +24579,6 @@ var nameOverrides = {
     Perl6: "Perl 6",
     AutoHotKey: "AutoHotkey / AutoIt"
 };
-
 var modesByName = {};
 for (var name in supportedModes) {
     var data = supportedModes[name];
@@ -24712,7 +24630,6 @@ var themeData = [
     ["Mono Industrial"      ,"mono_industrial"         ,  "dark"],
     ["Monokai"              ,"monokai"                 ,  "dark"],
     ["Nord Dark"            ,"nord_dark"               ,  "dark"],
-    ["One Dark"             ,"one_dark"                ,  "dark"],
     ["Pastel on dark"       ,"pastel_on_dark"          ,  "dark"],
     ["Solarized Dark"       ,"solarized_dark"          ,  "dark"],
     ["Terminal"             ,"terminal"                ,  "dark"],
@@ -25487,7 +25404,7 @@ dom.importCssString("\
     line-height: 1.4;\
     background: #25282c;\
     color: #c1c1c1;\
-}", "autocompletion.css", false);
+}", "autocompletion.css");
 
 exports.AcePopup = AcePopup;
 exports.$singleLineEditor = $singleLineEditor;
@@ -25553,9 +25470,8 @@ exports.getCompletionPrefix = function (editor) {
 
 });
 
-ace.define("ace/snippets",["require","exports","module","ace/lib/dom","ace/lib/oop","ace/lib/event_emitter","ace/lib/lang","ace/range","ace/range_list","ace/keyboard/hash_handler","ace/tokenizer","ace/clipboard","ace/editor"], function(require, exports, module) {
+ace.define("ace/snippets",["require","exports","module","ace/lib/oop","ace/lib/event_emitter","ace/lib/lang","ace/range","ace/range_list","ace/keyboard/hash_handler","ace/tokenizer","ace/clipboard","ace/lib/dom","ace/editor"], function(require, exports, module) {
 "use strict";
-var dom = require("./lib/dom");
 var oop = require("./lib/oop");
 var EventEmitter = require("./lib/event_emitter").EventEmitter;
 var lang = require("./lib/lang");
@@ -26537,14 +26453,14 @@ var moveRelative = function(point, start) {
 };
 
 
-dom.importCssString("\
+require("./lib/dom").importCssString("\
 .ace_snippet-marker {\
     -moz-box-sizing: border-box;\
     box-sizing: border-box;\
     background: rgba(194, 193, 208, 0.09);\
     border: 1px dotted rgba(211, 208, 235, 0.62);\
     position: absolute;\
-}", "snippets.css", false);
+}");
 
 exports.snippetManager = new SnippetManager();
 
@@ -26819,14 +26735,19 @@ var Autocomplete = function() {
             return this.openPopup(this.editor, "", keepPopupPosition);
         }
         var _id = this.gatherCompletionsId;
-        var detachIfFinished = function(results) {
-            if (!results.finished) return;
-            return this.detach();
-        }.bind(this);
+        this.gatherCompletions(this.editor, function(err, results) {
+            var detachIfFinished = function() {
+                if (!results.finished) return;
+                return this.detach();
+            }.bind(this);
 
-        var processResults = function(results) {
             var prefix = results.prefix;
-            var matches = results.matches;
+            var matches = results && results.matches;
+
+            if (!matches || !matches.length)
+                return detachIfFinished();
+            if (prefix.indexOf(results.prefix) !== 0 || _id != this.gatherCompletionsId)
+                return;
 
             this.completions = new FilteredList(matches);
 
@@ -26836,39 +26757,14 @@ var Autocomplete = function() {
             this.completions.setFilter(prefix);
             var filtered = this.completions.filtered;
             if (!filtered.length)
-                return detachIfFinished(results);
+                return detachIfFinished();
             if (filtered.length == 1 && filtered[0].value == prefix && !filtered[0].snippet)
-                return detachIfFinished(results);
+                return detachIfFinished();
             if (this.autoInsert && filtered.length == 1 && results.finished)
                 return this.insertMatch(filtered[0]);
 
             this.openPopup(this.editor, prefix, keepPopupPosition);
-        }.bind(this);
-
-        var isImmediate = true;
-        var immediateResults = null;
-        this.gatherCompletions(this.editor, function(err, results) {
-            var prefix = results.prefix;
-            var matches = results && results.matches;
-
-            if (!matches || !matches.length)
-                return detachIfFinished(results);
-            if (prefix.indexOf(results.prefix) !== 0 || _id != this.gatherCompletionsId)
-                return;
-            if (isImmediate) {
-                immediateResults = results;
-                return;
-            }
-
-            processResults(results);
         }.bind(this));
-        
-        isImmediate = false;
-        if (immediateResults) {
-            var results = immediateResults;
-            immediateResults = null;
-            processResults(results);
-        }
     };
 
     this.cancelContextMenu = function() {
@@ -27157,7 +27053,7 @@ margin: 0px;\
 .ace_optionsMenuEntry button:hover{\
 background: #f0f0f0;\
 }";
-dom.importCssString(cssText, "settings_menu.css", false);
+dom.importCssString(cssText);
 
 module.exports.overlayPage = function overlayPage(editor, contentElement, callback) {
     var closer = document.createElement('div');
@@ -27261,7 +27157,7 @@ var supportedModes = {
     Apex:        ["apex|cls|trigger|tgr"],
     AQL:         ["aql"],
     AsciiDoc:    ["asciidoc|adoc"],
-    ASL:         ["dsl|asl|asl.json"],
+    ASL:         ["dsl|asl"],
     Assembly_x86:["asm|a"],
     AutoHotKey:  ["ahk"],
     BatchFile:   ["bat|cmd"],
@@ -27328,7 +27224,6 @@ var supportedModes = {
     Julia:       ["jl"],
     Kotlin:      ["kt|kts"],
     LaTeX:       ["tex|latex|ltx|bib"],
-    Latte:       ["latte"],
     LESS:        ["less"],
     Liquid:      ["liquid"],
     Lisp:        ["lisp"],
@@ -27345,7 +27240,6 @@ var supportedModes = {
     Maze:        ["mz"],
     MediaWiki:   ["wiki|mediawiki"],
     MEL:         ["mel"],
-    MIPS:        ["s|asm"],
     MIXAL:       ["mixal"],
     MUSHCode:    ["mc|mush"],
     MySQL:       ["mysql"],
@@ -27358,6 +27252,7 @@ var supportedModes = {
     OCaml:       ["ml|mli"],
     Pascal:      ["pas|p"],
     Perl:        ["pl|pm"],
+    Perl6:       ["p6|pl6|pm6"],
     pgSQL:       ["pgsql"],
     PHP:         ["php|inc|phtml|shtml|php3|php4|php5|phps|phpt|aw|ctp|module"],
     PHP_Laravel_blade: ["blade.php"],
@@ -27372,7 +27267,6 @@ var supportedModes = {
     Python:      ["py"],
     QML:         ["qml"],
     R:           ["r"],
-    Raku:        ["raku|rakumod|rakutest|p6|pl6|pm6"],
     Razor:       ["cshtml|asp"],
     RDoc:        ["Rd"],
     Red:         ["red|reds"],
@@ -27384,13 +27278,11 @@ var supportedModes = {
     SCAD:        ["scad"],
     Scala:       ["scala|sbt"],
     Scheme:      ["scm|sm|rkt|oak|scheme"],
-    Scrypt:      ["scrypt"],
     SCSS:        ["scss"],
     SH:          ["sh|bash|^.bashrc"],
     SJS:         ["sjs"],
     Slim:        ["slim|skim"],
     Smarty:      ["smarty|tpl"],
-    Smithy:      ["smithy"],
     snippets:    ["snippets"],
     Soy_Template:["soy"],
     Space:       ["space"],
@@ -27406,7 +27298,7 @@ var supportedModes = {
     Textile:     ["textile"],
     Toml:        ["toml"],
     TSX:         ["tsx"],
-    Twig:        ["twig|swig"],
+    Twig:        ["latte|twig|swig"],
     Typescript:  ["ts|typescript|str"],
     Vala:        ["vala"],
     VBScript:    ["vbs|vb"],
@@ -27438,7 +27330,6 @@ var nameOverrides = {
     Perl6: "Perl 6",
     AutoHotKey: "AutoHotkey / AutoIt"
 };
-
 var modesByName = {};
 for (var name in supportedModes) {
     var data = supportedModes[name];
@@ -27754,10 +27645,13 @@ prompt.commands = function(editor, callback) {
             var platform = handler.platform;
             var cbn = handler.byName;
             for (var i in cbn) {
-                var key = cbn[i].bindKey;
-                if (typeof key !== "string") {
-                    key = key && key[platform] || "";
+                var key;
+                if (cbn[i].bindKey && cbn[i].bindKey[platform] !== null) {
+                    key = cbn[i].bindKey["win"];
+                } else {
+                    key = "";
                 }
+
                 var commands = cbn[i];
                 var description = commands.description || normalizeName(commands.name);
                 if (!Array.isArray(commands))
@@ -27914,7 +27808,7 @@ dom.importCssString(".ace_prompt_container {\
     background: white;\
     border-radius: 2px;\
     box-shadow: 0px 2px 3px 0px #555;\
-}", "promtp.css", false);
+}");
 
 
 exports.prompt = prompt;
@@ -27933,10 +27827,151 @@ exports.prompt = prompt;
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* WEBPACK VAR INJECTION */(function(module) {ace.define("ace/theme/dracula",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+
+exports.isDark = true;
+exports.cssClass = "ace-dracula";
+exports.cssText = "\
+.ace-dracula .ace_gutter {\
+background: #282a36;\
+color: rgb(144,145,148)\
+}\
+.ace-dracula .ace_print-margin {\
+width: 1px;\
+background: #44475a\
+}\
+.ace-dracula {\
+background-color: #282a36;\
+color: #f8f8f2\
+}\
+.ace-dracula .ace_cursor {\
+color: #f8f8f0\
+}\
+.ace-dracula .ace_marker-layer .ace_selection {\
+background: #44475a\
+}\
+.ace-dracula.ace_multiselect .ace_selection.ace_start {\
+box-shadow: 0 0 3px 0px #282a36;\
+border-radius: 2px\
+}\
+.ace-dracula .ace_marker-layer .ace_step {\
+background: rgb(198, 219, 174)\
+}\
+.ace-dracula .ace_marker-layer .ace_bracket {\
+margin: -1px 0 0 -1px;\
+border: 1px solid #a29709\
+}\
+.ace-dracula .ace_marker-layer .ace_active-line {\
+background: #44475a\
+}\
+.ace-dracula .ace_gutter-active-line {\
+background-color: #44475a\
+}\
+.ace-dracula .ace_marker-layer .ace_selected-word {\
+box-shadow: 0px 0px 0px 1px #a29709;\
+border-radius: 3px;\
+}\
+.ace-dracula .ace_fold {\
+background-color: #50fa7b;\
+border-color: #f8f8f2\
+}\
+.ace-dracula .ace_keyword {\
+color: #ff79c6\
+}\
+.ace-dracula .ace_constant.ace_language {\
+color: #bd93f9\
+}\
+.ace-dracula .ace_constant.ace_numeric {\
+color: #bd93f9\
+}\
+.ace-dracula .ace_constant.ace_character {\
+color: #bd93f9\
+}\
+.ace-dracula .ace_constant.ace_character.ace_escape {\
+color: #ff79c6\
+}\
+.ace-dracula .ace_constant.ace_other {\
+color: #bd93f9\
+}\
+.ace-dracula .ace_support.ace_function {\
+color: #8be9fd\
+}\
+.ace-dracula .ace_support.ace_constant {\
+color: #6be5fd\
+}\
+.ace-dracula .ace_support.ace_class {\
+font-style: italic;\
+color: #66d9ef\
+}\
+.ace-dracula .ace_support.ace_type {\
+font-style: italic;\
+color: #66d9ef\
+}\
+.ace-dracula .ace_storage {\
+color: #ff79c6\
+}\
+.ace-dracula .ace_storage.ace_type {\
+font-style: italic;\
+color: #8be9fd\
+}\
+.ace-dracula .ace_invalid {\
+color: #F8F8F0;\
+background-color: #ff79c6\
+}\
+.ace-dracula .ace_invalid.ace_deprecated {\
+color: #F8F8F0;\
+background-color: #bd93f9\
+}\
+.ace-dracula .ace_string {\
+color: #f1fa8c\
+}\
+.ace-dracula .ace_comment {\
+color: #6272a4\
+}\
+.ace-dracula .ace_variable {\
+color: #50fa7b\
+}\
+.ace-dracula .ace_variable.ace_parameter {\
+font-style: italic;\
+color: #ffb86c\
+}\
+.ace-dracula .ace_entity.ace_other.ace_attribute-name {\
+color: #50fa7b\
+}\
+.ace-dracula .ace_entity.ace_name.ace_function {\
+color: #50fa7b\
+}\
+.ace-dracula .ace_entity.ace_name.ace_tag {\
+color: #ff79c6\
+}\
+.ace-dracula .ace_invisible {\
+color: #626680;\
+}\
+.ace-dracula .ace_indent-guide {\
+background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAEklEQVQImWNgYGBgYHB3d/8PAAOIAdULw8qMAAAAAElFTkSuQmCC) right repeat-y\
+}";
+exports.$selectionColorConflict = true;
+
+var dom = require("../lib/dom");
+dom.importCssString(exports.cssText, exports.cssClass);
+});                (function() {
+                    ace.require(["ace/theme/dracula"], function(m) {
+                        if ( true && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 var ace = __webpack_require__(1);
-__webpack_require__(10);
+__webpack_require__(11);
 var oop = ace.require("ace/lib/oop");
 var TextMode = ace.require("ace/mode/text").Mode;
 var FoldMode = ace.require("ace/mode/folding/cstyle").FoldMode;
@@ -28203,7 +28238,7 @@ exports.Mode = Mode;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {ace.define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
@@ -29005,40 +29040,6 @@ exports.Mode = Mode;
                 })();
             
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(0)(module)))
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-exports.findHost = function (el, constructor) {
-    while (el) {
-        if (el.$host && (!constructor || el.$host.constructor === constructor))
-            return el.$host;
-        el = el.parentElement;
-    }
-};
-exports.findNode = function (node, className) {
-    while (node && node.classList) {
-        if (node.classList.contains(className))
-            return node;
-        node = node.parentNode;
-    }
-    return null;
-};
-exports.setBox = function (el, x, y, w, h) {
-    if (w) {
-        w = Math.max(w, 0);
-    }
-    if (h) {
-        h = Math.max(h, 0);
-    }
-    var s = el.style;
-    s.left = x + "px";
-    s.top = y + "px";
-    s.width = w + "px";
-    s.height = h + "px";
-};
-
 
 /***/ })
 /******/ ]);
