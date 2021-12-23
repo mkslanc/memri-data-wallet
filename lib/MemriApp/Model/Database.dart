@@ -72,6 +72,17 @@ class Database extends _$Database {
     return await into(items).insert(record.toCompanion());
   }
 
+  Future itemRecordInsertAll(List<ItemRecord> records) async {
+    List<ItemsCompanion> itemsCompanions = [];
+    for (var record in records) {
+      itemsCompanions.add(record.toCompanion());
+    }
+
+    await batch((batch) {
+      batch.insertAll(items, itemsCompanions, mode: InsertMode.insertOrReplace);
+    });
+  }
+
   Future<int> itemRecordSave(ItemRecord record) async {
     return await into(items).insertOnConflictUpdate(record.toCompanion());
   }
@@ -121,9 +132,9 @@ class Database extends _$Database {
     }
 
     await batch((batch) {
-      batch.insertAll(strings, stringCompanions);
-      batch.insertAll(integers, integerCompanions);
-      batch.insertAll(reals, realCompanions);
+      batch.insertAll(strings, stringCompanions, mode: InsertMode.insertOrReplace);
+      batch.insertAll(integers, integerCompanions, mode: InsertMode.insertOrReplace);
+      batch.insertAll(reals, realCompanions, mode: InsertMode.insertOrReplace);
     });
   }
 
@@ -352,7 +363,7 @@ class Database extends _$Database {
     }
 
     await batch((batch) {
-      batch.insertAll(edges, edgeCompanions);
+      batch.insertAll(edges, edgeCompanions, mode: InsertMode.insertOrReplace);
     });
   }
 

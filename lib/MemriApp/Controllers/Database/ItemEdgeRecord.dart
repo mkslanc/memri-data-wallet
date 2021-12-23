@@ -191,14 +191,4 @@ class ItemEdgeRecord {
       print("ERROR: Could not locate edge for synced edge: $syncedEdge");
     }
   }
-
-  static Future<ItemRecord?> fromSyncEdgeDict(
-      {required Map<String, dynamic> dict, required DatabaseController dbController}) async {
-    if (dict["source"] != null && dict["target"] != null && dict["name"] != null) {
-      ItemEdgeRecord newEdge = ItemEdgeRecord.fromSyncDict(dict);
-      await newEdge.save(dbController.databasePool);
-    } else {
-      print("ERROR: Source, target or name is missing for edge");
-    }
-  }
 }
