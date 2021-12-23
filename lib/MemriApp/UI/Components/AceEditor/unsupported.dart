@@ -8,7 +8,7 @@ class AceEditorController {
 
   AceEditorController(this.onResultReceived);
 
-  updateEditorContent(String? newcontent) {
+  updateEditorContent(String? newContent) {
     print("Error: not implemented now");
   }
 

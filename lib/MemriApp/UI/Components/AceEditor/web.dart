@@ -13,19 +13,23 @@ class AceEditorController {
     _initWindowListeners();
   }
 
-  updateEditorContent(String? newcontent) {
-    _content = newcontent;
-    if (!_isEditorLoaded || _content == null) return;
-    _postMessage(data: {"content": content}, action: "setData");
+  updateEditorContent(String? newContent) {
+    if (newContent == _content) return;
+    _content = newContent;
+    if (_isEditorLoaded && _content != null) _setEditorContent();
   }
 
   requestEditorData() {
     _postMessage(action: "getData");
   }
 
+  _setEditorContent() {
+    _postMessage(data: {"content": content}, action: "setData");
+  }
+
   _editorIsLoaded() {
     _isEditorLoaded = true;
-    updateEditorContent(_content);
+    if (_content != null) _setEditorContent();
   }
 
   _postMessage({Map<String, dynamic>? data, String? action}) {
