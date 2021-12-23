@@ -4,31 +4,28 @@ import 'dart:ui' as ui;
 
 import 'package:uuid/uuid.dart';
 
-class EmailViewUIKit extends StatefulWidget {
-  final String emailHTML;
+class HtmlViewUIKit extends StatefulWidget {
+  final String? html;
   final String? src;
 
-  EmailViewUIKit({this.emailHTML = "", this.src});
+  HtmlViewUIKit({this.html, this.src});
 
   @override
-  _EmailViewUIKitState createState() => _EmailViewUIKitState();
+  _HtmlViewUIKitState createState() => _HtmlViewUIKitState();
 }
 
-class _EmailViewUIKitState extends State<EmailViewUIKit> {
+class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
   String createdViewId = Uuid().v4();
 
   @override
   void initState() {
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(createdViewId, (int viewId) {
-      var iframe = html.IFrameElement()
-        ..width = MediaQuery.of(context).size.width.toString()
-        ..height = MediaQuery.of(context).size.height.toString()
-        ..style.border = 'none';
+      var iframe = html.IFrameElement()..style.border = 'none';
       if (widget.src != null) {
         iframe.src = widget.src;
-      } else {
-        iframe.srcdoc = widget.emailHTML + loadPurifier() + getContentLoaderString();
+      } else if (widget.html != null) {
+        iframe.srcdoc = widget.html! + loadPurifier() + getContentLoaderString();
       }
 
       return iframe;

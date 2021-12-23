@@ -7,17 +7,17 @@ import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:io';
 
-class EmailViewUIKit extends StatefulWidget {
-  final String emailHTML;
+class HtmlViewUIKit extends StatefulWidget {
+  final String? html;
   final String? src;
 
-  EmailViewUIKit({this.emailHTML = "", this.src});
+  HtmlViewUIKit({this.html, this.src});
 
   @override
-  _EmailViewUIKitState createState() => _EmailViewUIKitState();
+  _HtmlViewUIKitState createState() => _HtmlViewUIKitState();
 }
 
-class _EmailViewUIKitState extends State<EmailViewUIKit> {
+class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
   late WebViewController _webViewController;
 
   @override
@@ -37,15 +37,17 @@ class _EmailViewUIKitState extends State<EmailViewUIKit> {
         initialUrl: 'about:blank',
         onPageFinished: (String url) => _loadContent(),
         javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController) {
-          _webViewController = webViewController;
-          var source = (widget.src != null)
-              ? widget.src
-              : Uri.dataFromString(widget.emailHTML,
-                      mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
-                  .toString();
-          _webViewController.loadUrl(source!);
-        });
+        onWebViewCreated: (widget.html == null && widget.src == null)
+            ? null
+            : (WebViewController webViewController) {
+                _webViewController = webViewController;
+                var source = (widget.src != null)
+                    ? widget.src
+                    : Uri.dataFromString(widget.html!,
+                            mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+                        .toString();
+                _webViewController.loadUrl(source!);
+              });
   }
 
   _loadContent() async {
