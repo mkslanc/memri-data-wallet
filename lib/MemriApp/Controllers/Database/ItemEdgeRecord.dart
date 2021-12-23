@@ -191,13 +191,4 @@ class ItemEdgeRecord {
       print("ERROR: Could not locate edge for synced edge: $syncedEdge");
     }
   }
-
-  static ItemEdgeRecord? fromSyncEdgeDict(
-      {required Map<String, dynamic> dict, required DatabaseController dbController}) {
-    if (dict["source"] != null && dict["target"] != null && dict["name"] != null) {
-      return ItemEdgeRecord.fromSyncDict(dict);
-    } else {
-      print("ERROR: Source, target or name is missing for edge");
-    }
-  }
 }
