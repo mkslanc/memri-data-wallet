@@ -40,11 +40,19 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
 
   late Offset offset;
 
-  late final Future _init;
+  late Future _init;
+
+  bool isInited = false;
 
   @override
   initState() {
     super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init = init();
   }
 
@@ -65,11 +73,12 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
 
   @override
   Widget build(BuildContext context) {
-    var childWidget = widget.child;
     return FutureBuilder(
         future: _init,
         builder: (BuildContext context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          var childWidget = widget.child;
+          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          if (isInited) {
             if (widget.nodeResolver.node.type == CVUUIElementFamily.SubView) {
               //TODO this is a really bad workaround
               if (maxHeight == double.infinity) {
