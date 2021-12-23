@@ -539,12 +539,11 @@ class ItemRecord with EquatableMixin {
       var itemList =
           (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
       var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
-        if (dict is! Map<String, dynamic>) return null;
+        if (dict is! Map<String, dynamic> || dict["id"] == null) return null;
         dict["rowId"] = itemList[dict["id"]]?.rowId;
         return dict;
       });
       await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
-        if (dict["id"] == null) return;
         // If the item has file and it does not exist on disk, mark the file to be downloaded
         if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
           String? fileName = dict["sha256"];
@@ -608,31 +607,26 @@ class ItemRecord with EquatableMixin {
     edges.forEach((edge) {
       edgeItems.addAll([edge["_item"], edge]);
     });
-    List<ItemEdgeRecord> edgeRecords = [];
-    var groupedEdgeItems = edgeItems.toMapByKey((item) => item["id"] as String);
+    var uidList = edgeItems.map((item) => item["id"] as String).toList();
     var groupedEdgeItemRecords =
-        (await ItemRecord.fetchWithUIDs(groupedEdgeItems.keys.toList(), dbController))
-            .toMapByKey((item) => item.uid);
-    edges.forEach((edge) {
+        (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
+    return edges.map((edge) {
       ItemRecord self = groupedEdgeItemRecords[edge["id"]]!;
       ItemRecord target = groupedEdgeItemRecords[edge["_item"]["id"]]!;
 
       ItemRecord source = edge["source"];
 
       var edgeDict = {
-        "self": edge["id"],
+        "self": self.uid,
         "source": source.uid,
         "name": edge["_edge"],
-        "target": edge["_item"]["id"],
+        "target": target.uid,
         "selfRowId": self.rowId,
         "targetRowId": target.rowId,
         "sourceRowId": source.rowId
       };
-      var edgeRecord = ItemEdgeRecord.fromSyncEdgeDict(dict: edgeDict, dbController: dbController);
-      if (edgeRecord != null) edgeRecords.add(edgeRecord);
-    });
-
-    return edgeRecords;
+      return ItemEdgeRecord.fromSyncDict(edgeDict);
+    }).toList();
   }
 
   static List<ItemPropertyRecord> propertiesFromSyncItemDict(
