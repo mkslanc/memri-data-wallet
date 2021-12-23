@@ -544,6 +544,7 @@ class ItemRecord with EquatableMixin {
         return dict;
       });
       await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+        if (dict["id"] == null) return;
         // If the item has file and it does not exist on disk, mark the file to be downloaded
         if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
           String? fileName = dict["sha256"];
@@ -554,8 +555,7 @@ class ItemRecord with EquatableMixin {
           }
         }
 
-        var newItem = await ItemRecord.fromSyncItemDict(dict: dict, dbController: dbController);
-        if (newItem != null) itemRecords.add(newItem);
+        itemRecords.add(ItemRecord.fromSyncDict(dict));
       });
 
       await dbController.databasePool.itemRecordInsertAll(itemRecords);
@@ -563,7 +563,7 @@ class ItemRecord with EquatableMixin {
       for (var i = 0; i < newItemList.length; i++) {
         var newItem = newItemList[i];
         var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
-        if (dict["type"] == "ItemPropertySchema" || dict["type"] == "ItemEdgeSchema") {
+        if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
           schemaProperties.add({"item": newItem, "properties": dict});
         } else {
           properties.add({"item": newItem, "properties": dict});
@@ -581,38 +581,25 @@ class ItemRecord with EquatableMixin {
     });
 
     if (schemaProperties.isNotEmpty) {
+      var schemaItemProperties =
+          propertiesFromSyncItemDict(dictList: schemaProperties, dbController: dbController);
       await dbController.databasePool.transaction(() async {
-        List<ItemPropertyRecord> itemProperties = [];
-        itemProperties.addAll(
-            propertiesFromSyncItemDict(dictList: schemaProperties, dbController: dbController));
-
-        await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
+        await dbController.databasePool.itemPropertyRecordInsertAll(schemaItemProperties);
         await dbController.schema.load(dbController.databasePool);
       });
     }
 
+    var edgesRecords =
+        await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
     await dbController.databasePool.transaction(() async {
-      var edgesRecords =
-          await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
       await dbController.databasePool.itemEdgeRecordInsertAll(edgesRecords);
     });
 
+    var itemProperties =
+        propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
     await dbController.databasePool.transaction(() async {
-      List<ItemPropertyRecord> itemProperties = [];
-      itemProperties
-          .addAll(propertiesFromSyncItemDict(dictList: properties, dbController: dbController));
       await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
     });
-  }
-
-  static Future<ItemRecord?> fromSyncItemDict(
-      {required Map<String, dynamic> dict, required DatabaseController dbController}) async {
-    var id = dict["id"];
-    if (id == null) {
-      return null;
-    }
-    ItemRecord newItem = ItemRecord.fromSyncDict(dict);
-    return newItem;
   }
 
   static Future<List<ItemEdgeRecord>> edgesFromSyncItemDict(
