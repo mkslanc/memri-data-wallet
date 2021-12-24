@@ -27983,12 +27983,13 @@ var CvuHighlightRules = function () {
         "constant.language": "false|Infinity|NaN|nil|no|null|null|off|on|super|this|true|undefined|yes",
         "support.type": "left|top|right|bottom|center|lefttop|topleft|topright|righttop|leftbottom|bottomleft|rightbottom|bottomright",
         "support.constant": "regular|bold|semibold|heavy|light|ultralight|black|fit|fill",
-        "storage.type": "VStack|HStack|ZStack|EditorSection|EditorRow|EditorLabel|Button|FlowStack|Text|Textfield|ItemCell|SubView|Map|Picker|SecureField|ActionButton|MemriButton|Image|Circle|HorizontalLine|Rectangle|RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action",
+        "storage.type": "VStack|HStack|ZStack|EditorSection|EditorRow|EditorLabel|Button|FlowStack|Text|Textfield|ItemCell|SubView|Map|Picker|SecureField|ActionButton|MemriButton|Image|Circle|HorizontalLine|Rectangle|" +
+            "RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action|Observer|HTMLView|TimelineItem|TextField|Toggle|DropZone",
         "keyword": "and|AND|or|OR|equals|EQUALS|not|NOT|" +
             "back|addItem|openView|openDynamicView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showOverlay|showNavigation|share|addToPanel|duplicate|schedule|addToList|" +
             "duplicateNote|noteTimeline|starredNotes|allNotes|exampleUnpack|delete|setRenderer|select|selectAll|unselectAll|showAddLabel|openLabelView|setProperty|" +
             "showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|link|addSelectionToList|closePopup|noop|unlink|multiAction|runIndexerRun|runImporterRun|setSetting" +
-            "datasource|view"
+            "datasource|view|filter|pluginRun|sync|wait|block|requestlocation|requeststorage|requestcontacts|openpopup|openPlugin"
     }, "identifier");
     var propertyKeywords = "\\b(showtimeline|currentSessionIndex|textalign|sessionDefinitions|name|currentViewIndex|viewDefinitions|editMode|showFilterPanel|" +
         "showContextPane|screenshot|emptyResultText|title|subTitle|filterText|activeRenderer|defaultRenderer|backTitle|searchHint|" +
@@ -28002,7 +28003,11 @@ var CvuHighlightRules = function () {
         "minWidth|bundleImage|groups|iconHeading|run|importerInstance|indexer|description|bold|dataItem|renderers|uid|edgeInset|" +
         "hSpacing|slideRightActions|debug|italic|underline|strikethrough|viewName|style|blur|zindex|rowbackground|frame|cornerborder|shadow|" +
         "offset|highlight|lightInputText|inputText|activeColor|activeBackgroundColor|inactiveColor|inactiveBackgroundColor|renderAs|showTitle|" +
-        "opensView" +
+        "opensView|width|height|isLink|onPress|scrollable|item|isVector|sizingMode|edgeType|distinct|rows|styleName|showSearchBar|showBottomBar|showTopBar|selectedDataType|" +
+        "openNewView|selectedDataset|propertyName|singleChoice|id|_type|lineLimit|filter|properties|itemType|edgeSources|content|file|" +
+        "inheritDatasource|cornerRadiusOnly|sort|targetType|edgeTarget|clearStack|cols|pageLabel|isReverse|hideSeparators|edgeTargets|" +
+        "topBarColor|additional|edgeSource|emptyResult|pages|datasource|renderer|src|seconds|container|pluginModule|pluginName|pluginId|" +
+        "count|actions|items|secure|plugin|targetItemId" +
         ")(?=\\b\\s*:)";
     var parensMap = {
         "}": "{",
