@@ -7,7 +7,9 @@ import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/Components/AceEditor/AceEditor.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/ResetCVUToDefault.dart';
 
 import '../ViewContextController.dart';
@@ -24,9 +26,7 @@ class CVUEditorRendererView extends StatefulWidget {
 
 class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   late final ViewContextController viewContext;
-  late Future _init;
-
-  late TextEditingController controller = TextEditingController();
+  late final AceEditorController controller;
 
   List<CVUParsedDefinition> definitions = [];
 
@@ -34,15 +34,16 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   initState() {
     super.initState();
     viewContext = widget.viewContext;
-    _init = init();
+    controller = AceEditorController(saveCVU);
+    initCVU();
   }
 
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    initCVU();
   }
 
-  init() async {
+  Future<void> initCVU() async {
     definitions = [];
     var viewName = viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["viewName"]);
@@ -52,11 +53,10 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     await collectDefinitions(
         viewName: viewName, renderer: renderer, currentViewContext: viewContext);
 
-    if (definitions.isNotEmpty) {
-      newCVU = definitions.map((node) => node.toCVUString(0, "    ", true)).join("\n\n");
-    }
-
-    controller.text = newCVU ?? "No cvu found to edit";
+    var cvuString =
+        definitions.map((node) => node.toCVUString(0, "    ", true)).join("\n\n").nullIfBlank ??
+            "No cvu found to edit";
+    controller.updateEditorContent(cvuString);
   }
 
   collectDefinitions(
@@ -139,8 +139,6 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     });
   }
 
-  String? newCVU;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -155,7 +153,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                 style: TextButton.styleFrom(
                     backgroundColor: Color(0xFFFE570F),
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
-                onPressed: save,
+                onPressed: controller.requestEditorData,
                 child: Text(
                   "Save view",
                   style: TextStyle(color: CVUColor.white),
@@ -178,30 +176,18 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
             ],
           ),
           Expanded(
-              child: FutureBuilder(
-            future: _init,
-            builder: (context, snapshot) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 30),
-                child: TextFormField(
-                  decoration: InputDecoration(),
-                  style: TextStyle(color: CVUColor.white),
-                  controller: controller,
-                  onChanged: (String newValue) async {
-                    newCVU = newValue;
-                  },
-                  keyboardType: TextInputType.multiline,
-                  minLines: 6,
-                  maxLines: null,
-                )),
+              child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 30),
+            child: AceEditor(controller),
           )),
         ],
       ),
     );
   }
 
-  save() async {
+  saveCVU() async {
     if (definitions.isNotEmpty) {
-      var parsed = CVUController.parseCVUString(newCVU!);
+      var parsed = CVUController.parseCVUString(controller.content);
       await Future.forEach<CVUParsedDefinition>(parsed, (node) async {
         var definition = viewContext.cvuController.definitionFor(
             type: node.type,

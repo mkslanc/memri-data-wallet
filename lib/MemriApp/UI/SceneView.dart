@@ -38,8 +38,8 @@ class _SceneViewState extends State<SceneView> {
     }
     widget.sceneController.pageControllers.forEachIndexed((index, pageController) {
       var viewContext = pageController.topMostContext;
-      int cols = viewContext?.viewDefinitionPropertyResolver.syncInteger("cols") ??
-          viewContext?.config.cols ??
+      int cols = viewContext?.config.cols ??
+          viewContext?.viewDefinitionPropertyResolver.syncInteger("cols") ??
           viewCols[index] ??
           (index == 0 ? 10 : 0);
 
@@ -93,14 +93,13 @@ class _SceneViewState extends State<SceneView> {
                       Container(
                         color: Color(0xffF4F4F4),
                         height: 150,
-                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                         child: Column(
                           children: [
                             SizedBox(
-                                height: 150,
                                 child: MainNavigationView(
-                                  sceneController: widget.sceneController,
-                                ))
+                              sceneController: widget.sceneController,
+                            ))
                           ],
                         ),
                       ),

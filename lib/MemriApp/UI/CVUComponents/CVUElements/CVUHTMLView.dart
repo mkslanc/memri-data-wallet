@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/MemriApp/UI/Components/Email/EmailView.dart';
+import 'package:memri/MemriApp/UI/Components/HtmlView/HtmlView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 
 import '../CVUUINodeResolver.dart';
@@ -46,8 +46,8 @@ class _CVUHTMLViewState extends State<CVUHTMLView> {
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (_content != null || src != null) {
-              return EmailView(
-                emailHTML: _content,
+              return HtmlView(
+                html: _content,
                 src: src,
               );
             }

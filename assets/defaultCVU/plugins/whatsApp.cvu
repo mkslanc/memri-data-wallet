@@ -217,6 +217,10 @@
 
                             }
                         }
+                        block {
+                            pageLabel: "inboxChannels"
+                            seconds: 15
+                        }
                         ]
                 }
 
@@ -230,14 +234,14 @@
                     }
 
                     onPress: [
-                    delete {
-                        subject: {{.~account}}
-                    }
-                    openView {
-                        viewName: "apps-and-plugins"
-                        clearStack: true
-                    }
-                    ]
+                        delete {
+                            subject: {{.~account}}
+                        }
+                        openView {
+                            viewName: "apps-and-plugins"
+                            clearStack: true
+                        }
+                        ]
                 }
             }
         }
@@ -273,28 +277,56 @@
 
             Text {
                 text: "WhatsApp has been successfully synced to your pod. Your data is being imported."
-                font: bodyText2
+                font: bodyText1
                 color: #737373
-                padding: 0 10
+                padding: 10 0 12 0
+            }
+
+            Text {
+                text: "Your data is being imported. This may take a while."
+                font: bodyText1
+                color: #737373
+                padding: 0 0 60 0
+            }
+
+            HStack {
+                alignment: bottomleft
+                spacing: 10
+
+                Text {
+                    text: "Uploading data:"
+                    font: bodyText1
+                }
+
+                Observer {
+                    item: {{.~account}}
+                    property: "progress"
+
+                    Text {
+                        color: #4F56FE
+                        font: headline1
+                        text: "{.~account.progress.percent()}%"
+                    }
+                }
             }
 
             Button {
-                    padding: 60 0 0 0
+                padding: 60 0 0 0
 
-                    Text {
-                        text: "<  Back to data page"
-                        font: button_label
-                        color: #FE570F
-                    }
-
-                    onPress: openView {
-                            viewName: "apps-and-plugins"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
+                Text {
+                    text: "<  Back to data page"
+                    font: button_label
+                    color: #FE570F
                 }
+
+                onPress: openView {
+                    viewName: "apps-and-plugins"
+                    clearStack: true
+                    viewArguments {
+
+                    }
+                }
+            }
         }
     }
 }
@@ -343,12 +375,12 @@
                 }
 
                 onPress: openView {
-                        viewName: "apps-and-plugins"
-                        clearStack: true
-                        viewArguments {
+                    viewName: "apps-and-plugins"
+                    clearStack: true
+                    viewArguments {
 
-                        }
                     }
+                }
             }
         }
     }

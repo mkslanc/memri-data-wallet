@@ -2,11 +2,12 @@
     name: "inbox"
     title: "Inbox"
     defaultRenderer: scene
+    cols: 10
 
     [renderer = scene] {
         pages: {
-             inboxChannels: "inbox-channels"
-             inboxData: ""
+            inboxChannels: "inbox-channels"
+            inboxData: "inbox-data"
         }
 
     }
@@ -144,4 +145,55 @@
                 }
             }
         }
+}
+
+
+.inbox-data {
+    name: "inbox"
+    title: "Inbox"
+    defaultRenderer: list
+    cols: 6
+    showTopBar: false
+    topBarColor: "#FFFFFF"
+    showEditCode: false
+
+    [datasource = pod] {
+        filter: {
+            properties: {
+                pluginType: "importer"
+            }
+        }
+        query: Plugin
+    }
+
+    [renderer = list] {
+        onPress: noop
+        hideSeparators: true
+        hideSwitcher: true
+    }
+
+    Plugin > list {
+            HStack {
+            show: {{.~plugin[].last().status = "daemon" OR .~plugin[].last().status = "cvuPresented"}}
+            alignment: topleft
+                spacing: 10
+
+                Text {
+                    text: "Uploading {.name} data:"
+                    font: bodyText1
+                }
+
+                Observer {
+                    item: {{.~plugin[].last()}}
+                    property: "progress"
+
+                    Text {
+                        color: #4F56FE
+                        font: headline1
+                        text: "{.~plugin[].last().progress.percent()}%"
+                    }
+                }
+            }
+
+    }
 }

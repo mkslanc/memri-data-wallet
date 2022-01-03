@@ -7,6 +7,7 @@ import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/UI/Components/PluginModeSwitcher.dart';
+import 'package:memri/MemriApp/UI/Components/ShapesAndProgress/Circle.dart';
 import 'package:memri/MemriApp/UI/Renderers/Renderer.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,6 +28,7 @@ class _ListRendererViewState extends RendererViewState {
   late bool separatorsEnabled;
   late bool isReverse;
   bool isDismissible = false;
+  bool hideSwitcher = false;
 
   late Future _init;
 
@@ -44,6 +46,7 @@ class _ListRendererViewState extends RendererViewState {
     setState(() {});
   }
 
+  @override
   dispose() {
     super.dispose();
     pageController.isInEditMode.removeListener(updateIsInEditMode);
@@ -54,7 +57,9 @@ class _ListRendererViewState extends RendererViewState {
     setState(() {});
   }
 
+  @override
   Future<void> init() async {
+    super.init();
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.only(top: 0, left: 30, bottom: 0, right: 30);
     spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
@@ -65,7 +70,8 @@ class _ListRendererViewState extends RendererViewState {
     isReverse = (await viewContext.rendererDefinitionPropertyResolver.boolean("isReverse", false))!;
     singleChoice =
         await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
-
+    hideSwitcher =
+        await viewContext.rendererDefinitionPropertyResolver.boolean("hideSwitcher") ?? false;
     await initEditMode();
   }
 
@@ -192,9 +198,9 @@ class _ListRendererViewState extends RendererViewState {
   }
 
   Widget _buildItem(ItemRecord item, int index) {
-    var title = ColoredBox(
-        key: Key(item.uid), color: backgroundColor, child: viewContext.render(item: item));
-    var callback = selectionMode(index);
+    var titleWidget = isBlocked ? blockedSkeleton : viewContext.render(item: item);
+    var title = ColoredBox(key: Key(item.uid), color: backgroundColor, child: titleWidget);
+    var callback = isBlocked ? null : selectionMode(index);
     var isSelected = selectedIndices.contains(index);
 
     Widget tile = ListTile(
@@ -234,11 +240,50 @@ class _ListRendererViewState extends RendererViewState {
     }
 
     //TODO: hardcoded part for now, we could migrate this to cvu, when switches will allow to use different actions instead of bindings
-    if (widget.pageController.appController.isDevelopersMode && item.type == "Plugin") {
+    if (widget.pageController.appController.isDevelopersMode &&
+        item.type == "Plugin" &&
+        !hideSwitcher) {
       tile = Column(children: [PluginModeSwitcher(item), tile]);
     }
 
     return tile;
+  }
+
+  get blockedSkeleton {
+    return Column(children: [
+      Row(
+        children: [
+          SizedBox(
+            height: 30,
+            width: 30,
+            child: Circle(
+              color: Color(0xffF0F0F0),
+            ),
+          ),
+          SizedBox(
+            width: 15,
+          ),
+          Expanded(
+              child: Container(
+            height: 19,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color: Color(
+                0xffF0F0F0,
+              ),
+            ),
+            child: Text(" "),
+          )),
+          SizedBox(
+            width: 24,
+          ),
+          Icon(
+            Icons.more_horiz,
+            color: Color(0xffDFDEDE),
+          )
+        ],
+      )
+    ]);
   }
 
   _buildSeparator() => Padding(

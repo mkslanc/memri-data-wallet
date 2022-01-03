@@ -3,6 +3,7 @@
     title: "All apps"
     emptyResultText: "There are no Plugins"
     defaultRenderer: list
+    cols: 5
 
     [datasource = pod] {
         query: Plugin
@@ -20,8 +21,6 @@
     }
 
     additional: {
-
-
         Button {
             isLink: true
             onPress: [
@@ -37,7 +36,6 @@
                     alignment: left
                     background: #F5F5F5
                     padding: 20
-                    maxWidth: 550
 
                     HStack {
                         alignment: left
@@ -56,11 +54,11 @@
 
 
                     Text {
-                        text: ""
+                        text: "The Inbox app displays all incoming messages and emails, and allows sending and receiving them. It requires the use of at least one messenger or email importer."
                         removeWhiteSpace: true
                         maxChar: 100
                         color: #989898
-                        font: 14 regular
+                        font: body_tiny
                         padding: 15 0 10 0
                     }
 
@@ -73,11 +71,7 @@
                         }
                     }
 
-
-
                 }
-
-
         }
     }
 }
