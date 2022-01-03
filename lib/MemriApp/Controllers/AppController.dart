@@ -253,9 +253,9 @@ class AppController {
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
-
-    await databaseController.delete();
     await FileStorageController.deleteFileStorage();
+    await databaseController.delete();
+
     pubsubController.reset();
 
     cvuController.reset();
