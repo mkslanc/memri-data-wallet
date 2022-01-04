@@ -24,7 +24,7 @@ class TopBarView extends StatefulWidget {
 }
 
 class _TopBarViewState extends State<TopBarView> {
-  late ViewContextController? viewContext;
+  ViewContextController? viewContext;
   late Future<void> _init;
 
   Color? backgroundColor = Color(0xffF4F4F4);
@@ -44,9 +44,7 @@ class _TopBarViewState extends State<TopBarView> {
   }
 
   void updateState() {
-    setState(() {
-      _init = init();
-    });
+    _init = init();
   }
 
   @override
@@ -56,7 +54,7 @@ class _TopBarViewState extends State<TopBarView> {
   }
 
   Future<void> init() async {
-    var viewContext = widget.pageController.topMostContext;
+    viewContext = widget.pageController.topMostContext;
 
     backgroundColor =
         await viewContext?.viewDefinitionPropertyResolver.color("topBarColor") ?? Color(0xffF4F4F4);
@@ -66,7 +64,6 @@ class _TopBarViewState extends State<TopBarView> {
 
   @override
   Widget build(BuildContext context) {
-    viewContext = widget.pageController.topMostContext;
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
 
     return FutureBuilder(
