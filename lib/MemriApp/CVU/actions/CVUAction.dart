@@ -548,7 +548,7 @@ class CVUActionAddItem extends CVUAction {
           }));
         }
 
-        await CVUActionOpenView(vars: newVars, viewName: type, renderer: renderer)
+        await CVUActionOpenView(vars: newVars, renderer: renderer)
             .execute(pageController, context.replacingItem(item));
       }
 

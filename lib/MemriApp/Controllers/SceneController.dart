@@ -43,7 +43,7 @@ class SceneController extends ChangeNotifier {
 
         if (pages.length > 1) {
           navStackList.forEach((key, value) {
-            value.state.last.config.cols ??= 5;
+            if (value.state.isNotEmpty) value.state.last.config.cols ??= 5;
           }); //TODO cols part logic is not clear, so just dirty hack for now
         }
       }

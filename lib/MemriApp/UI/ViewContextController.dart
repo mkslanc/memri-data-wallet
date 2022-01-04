@@ -234,16 +234,16 @@ class ViewContextController extends ChangeNotifier {
   List<ItemRecord> get items => _items ?? [];
 
   set items(List<ItemRecord> items) {
-    if (config.focusedItem != null) {
+    /*if (config.focusedItem != null) {//TODO doesn't work correctly with add item action
       if (items.indexOf(config.focusedItem!) < 0) {
         config.focusedItem = null;
       }
-    }
+    }*/
 
     _items = items;
-    if (focusedItem != null) {
+    /*if (focusedItem != null) {
       focusedItem = items[focusedIndex];
-    }
+    }*/
     itemsValueNotifier.value = _items!;
     notifyListeners();
   }
