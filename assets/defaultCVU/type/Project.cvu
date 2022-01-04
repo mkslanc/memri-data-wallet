@@ -1,21 +1,117 @@
 Project {
     defaultRenderer: singleItem
     title: "Create new project"
+    cols: 8
 
     [renderer = singleItem] {
+        scrollable: false
     }
 }
 
 Project > singleItem {
     VStack {
+        alignment: topleft
+        padding: 60 0 0 0
+
         Text {
-            text: "Hello world!"
+            color: #333333
+            font: headline2
+            padding: 0 0 30 0
+            text: "Project name"
+        }
+
+        Textfield {
+            background: #F0F0F0
+            border: #000 1
+            hint: "Your project name"
+            rows: 1
+            width: 571
+        }
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 80 0 10 0
+            text: "Select dataset source"
+        }
+
+        Text {
+            color: #333333
+            font: bodyText1
+            padding: 0 0 20 0
+            text: "Select the data source that will be used in your app. If you want the app to make predictions about your conversations, you can select: Messages."
+        }
+
+        Text {
+            background: #F5F5F5
+            color: #333333
+            font: tablist
+            padding: 10
+            text: "Datasources"
+        }
+
+        SubView {
+            id: datasetId
+            view: {
+                defaultRenderer: grid
+                editMode: true
+                singleChoice: true
+                viewName: pluginsProjectGrid
+
+                [datasource = pod] {
+                    query: Dataset
+                }
+
+                [renderer = grid] {
+                    onPress: noop
+                }
+            }
+        }
+
+        HStack {
+            alignment: left
+
+            Button {
+                onPress: [
+                    openView
+                    {
+                        viewArguments: {
+                            item: {{.}}
+                            selectedDataType: {{selectedItems("dataTypeGrid").first()}}
+                        }
+                        viewName: "labelling-app-step-2"
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Set up your data"
+                }
+            }
+
+            Button {
+                onPress: [
+                    delete
+                    {
+                        close: true
+                    }
+                ]
+                padding: 0 0 0 15
+
+                Text {
+                    color: #333333
+                    font: button_label
+                    text: "Cancel"
+                }
+            }
         }
     }
 }
 
 Project > list {
-    onPress: noop
+    onPress: openView {
+            renderer: singleItem
+        }
 
     HStack {
         alignment: topleft

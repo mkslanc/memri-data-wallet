@@ -1278,6 +1278,21 @@
       "target_type": "Any"
     },
     {
+      "source_type": "Dataset",
+      "edge": "classification",
+      "target_type": "Classification"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "plugin",
+      "target_type": "Plugin"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "variable",
+      "target_type": "Any"
+    },
+    {
       "source_type": "Diet",
       "edge": "contentLocation",
       "target_type": "Location"
