@@ -25,7 +25,8 @@ Project > singleItem {
             border: #000 1
             hint: "Your project name"
             rows: 1
-            width: 571
+            value: {{.name}}
+            maxWidth: 571
         }
 
         Text {
@@ -51,7 +52,7 @@ Project > singleItem {
         }
 
         SubView {
-            id: datasetId
+            id: datasetGrid
             view: {
                 defaultRenderer: grid
                 editMode: true
@@ -77,15 +78,23 @@ Project > singleItem {
                     {
                         viewArguments: {
                             item: {{.}}
-                            selectedDataType: {{selectedItems("dataTypeGrid").first()}}
+                            readOnly: true
+                            selectedDataset: {{selectedItems("datasetGrid").first()}}
                         }
-                        viewName: "labelling-app-step-2"
+                        viewName: "project-variables"
                     }
                 ]
                 styleName: primaryButton
 
                 Text {
                     text: "Set up your data"
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
                 }
             }
 
@@ -175,26 +184,27 @@ Project > list {
             color: "#FE570F"
         }
         ]
-        defaultRenderer: list
-        emptyResult: {
-            HStack {
-                Text {
-                    text: "There are no projects right now"
-                }
+    defaultRenderer: list
+    emptyResult: {
+        HStack {
+            Text {
+                text: "There are no projects right now"
             }
         }
-        name: "all-projects"
-        sortFields: dateModified dateCreated
-        title: "All projects"
+    }
+    name: "all-projects"
+    sortFields: dateModified dateCreated
+    title: "All projects"
 
-        [datasource = pod] {
-            query: Project
-            sortAscending: true
-            sortProperty: dateModified
-        }
+    [datasource = pod] {
+        query: Project
+        sortAscending: true
+        sortProperty: dateModified
+    }
 
-        [renderer = list] {
-            edgeInset: 30 30 10 30
-            spacing: 0 20
-        }
+    [renderer = list] {
+        edgeInset: 30 30 10 30
+        spacing: 0 20
+    }
 }
+
