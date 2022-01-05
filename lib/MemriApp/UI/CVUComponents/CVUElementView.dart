@@ -93,10 +93,6 @@ class _CVUElementViewState extends State<CVUElementView> {
         return Divider(
           height: 1,
         );
-      case CVUUIElementFamily.HorizontalLine:
-        return Divider(
-          height: 1,
-        );
       case CVUUIElementFamily.Circle:
         return CVUShapeCircle(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Rectangle:
