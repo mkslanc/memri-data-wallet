@@ -62,47 +62,41 @@ class _CVUSubViewState extends State<CVUSubView> {
       return null;
     }
     var defaultRenderer = viewDefinition.properties["defaultRenderer"];
-    if (defaultRenderer == null || defaultRenderer is! CVUValueConstant) {
-      return null;
+    String? rendererName;
+    if (defaultRenderer is CVUValueConstant && defaultRenderer.value is CVUConstantArgument) {
+      rendererName = (defaultRenderer.value as CVUConstantArgument).value;
     }
-    if (defaultRenderer.value is! CVUConstantArgument) {
-      return null;
-    }
-    String rendererName = (defaultRenderer.value as CVUConstantArgument).value;
+
     var viewNameProp = viewDefinition.properties["viewName"];
-    if (viewNameProp == null || viewNameProp is! CVUValueConstant) {
+    String? viewName;
+    if (viewNameProp is CVUValueConstant && viewNameProp.value is CVUConstantArgument) {
+      viewName = (viewNameProp.value as CVUConstantArgument).value;
+    }
+
+    if (rendererName == null) {
       return null;
     }
-    if (viewNameProp.value is! CVUConstantArgument) {
-      return null;
-    }
-    String viewName = (viewNameProp.value as CVUConstantArgument).value;
+
     var datasource = viewDefinition.definitions
         .firstWhereOrNull((element) => element.type == CVUDefinitionType.datasource);
-    if (datasource == null) {
-      return null;
-    }
-    ItemRecord? initialItem = await widget.nodeResolver.propertyResolver.item("initialItem");
-    var nodeItem = initialItem ?? widget.nodeResolver.context.currentItem;
 
-    CVUViewArguments? viewArguments;
-    if (viewDefinition.properties["viewArguments"] != null) {
-      var viewArgs = viewDefinition.properties["viewArguments"];
-      viewArguments = CVUViewArguments(
-          args: viewArgs?.value.properties,
-          argumentItem: nodeItem,
-          argumentItems: widget.nodeResolver.context.items,
-          parentArguments: widget.nodeResolver.context.viewArguments);
-    } else {
-      viewArguments = CVUViewArguments(
-          parentArguments: widget.nodeResolver.context.viewArguments); //TODO: not sure
-    }
+    ItemRecord? initialItem = await widget.nodeResolver.propertyResolver.item("initialItem");
+    List<ItemRecord> initialItems =
+        await widget.nodeResolver.propertyResolver.items("initialItems");
+
+    var viewArgs = viewDefinition.properties["viewArguments"];
+    var viewArguments = CVUViewArguments(
+        args: viewArgs?.value.properties,
+        argumentItem: initialItem,
+        argumentItems: initialItems,
+        parentArguments: widget.nodeResolver.context.viewArguments);
 
     var newContext = CVUContext(
-        currentItem: nodeItem,
-        items: widget.nodeResolver.context.items,
+        currentItem: initialItem,
+        items: initialItems,
         selector: null,
         viewName: viewName,
+        rendererName: rendererName,
         viewDefinition: viewDefinition,
         viewArguments: viewArguments);
 
@@ -115,7 +109,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         rendererName: rendererName,
         viewDefinition: viewDefinition,
         viewArguments: viewArguments,
-        focusedItem: nodeItem,
+        focusedItem: initialItem,
         query: queryConfig);
     var holder = ViewContextHolder(config);
     var viewControllerContext = ViewContextController(
