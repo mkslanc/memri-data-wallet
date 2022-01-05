@@ -21,7 +21,7 @@ class MemriTextField<T> extends StatefulWidget {
       this.secureMode = false,
       this.isEditing = true,
       this.isMultiline = false,
-      this.isCollapsed = true})
+      this.isCollapsed = false})
       : futureBinding = null;
 
   MemriTextField.async(
@@ -32,7 +32,7 @@ class MemriTextField<T> extends StatefulWidget {
       this.secureMode = false,
       this.isEditing = true,
       this.isMultiline = false,
-      this.isCollapsed = true})
+      this.isCollapsed = false})
       : binding = null;
 
   @override
@@ -109,6 +109,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       style: widget.style,
       decoration: InputDecoration(
           isCollapsed: widget.isCollapsed,
+          contentPadding: EdgeInsets.symmetric(horizontal: 10),
           border: InputBorder.none,
           hintText: widget.hint,
           hintStyle: widget.hintStyle),
@@ -127,6 +128,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       style: widget.style,
       decoration: InputDecoration(
           isCollapsed: widget.isCollapsed,
+          contentPadding: EdgeInsets.symmetric(horizontal: 10),
           border: InputBorder.none,
           hintText: widget.hint,
           hintStyle: widget.hintStyle),
@@ -147,6 +149,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
       style: widget.style,
       decoration: InputDecoration(
           isCollapsed: widget.isCollapsed,
+          contentPadding: EdgeInsets.symmetric(horizontal: 10),
           border: InputBorder.none,
           hintText: widget.hint,
           hintStyle: widget.hintStyle),
