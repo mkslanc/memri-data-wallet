@@ -16,7 +16,7 @@ part 'CVUViewArguments.g.dart';
 @JsonSerializable()
 class CVUViewArguments with EquatableMixin {
   // The view arguments
-  Map<String, CVUValue> args;
+  Map<String, CVUValue> args = {};
 
   // The item that is `.` when resolving these view arguments
   ItemRecord? argumentItem;
@@ -24,16 +24,28 @@ class CVUViewArguments with EquatableMixin {
   List<ItemRecord>? argumentItems;
 
   // The view arguments of the parent view (used to resolve)
+  @JsonKey(ignore: true)
   CVUViewArguments? parentArguments;
 
   // The view arguments of the sub views (used to resolve)
   Map<String, CVUViewArguments> subViewArguments = {};
 
-  CVUViewArguments(
-      {Map<String, CVUValue>? args, this.argumentItem, this.parentArguments, this.argumentItems})
-      : this.args = args ?? {};
+  //used to deserialize from json for parentArguments //TODO maybe there's better way
+  List<CVUViewArguments> childrenArguments = [];
 
-  factory CVUViewArguments.fromJson(Map<String, dynamic> json) => _$CVUViewArgumentsFromJson(json);
+  CVUViewArguments(
+      {Map<String, CVUValue>? args, this.argumentItem, this.parentArguments, this.argumentItems}) {
+    this.args = args ?? {};
+    this.parentArguments?.childrenArguments.add(this);
+  }
+
+  factory CVUViewArguments.fromJson(Map<String, dynamic> json) {
+    var viewArguments = _$CVUViewArgumentsFromJson(json);
+    viewArguments.childrenArguments.forEach((subArgument) {
+      subArgument.parentArguments = viewArguments;
+    });
+    return viewArguments;
+  }
   Map<String, dynamic> toJson() => _$CVUViewArgumentsToJson(this);
 
   @override
