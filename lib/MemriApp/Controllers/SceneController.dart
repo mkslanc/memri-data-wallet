@@ -29,7 +29,7 @@ class SceneController extends ChangeNotifier {
 
   List<memri.PageController> pageControllers = [];
 
-  init([List<Map<String, String>>? pages]) async {
+  init([List<Map<String, dynamic>>? pages]) async {
     try {
       var navStackList = <String, NavigationStack>{};
       if (pages == null) {
@@ -51,9 +51,11 @@ class SceneController extends ChangeNotifier {
         pages.add({"label": "main", "viewName": "home"});
       }
 
-      await Future.forEach<Map<String, String>>(pages, (page) async {
+      await Future.forEach<Map<String, dynamic>>(pages, (page) async {
         await addPageController(page["label"]!,
-            viewName: page["viewName"], navStack: navStackList[page["label"]]);
+            viewName: page["viewName"],
+            navStack: navStackList[page["label"]],
+            viewArguments: page["viewArguments"]);
       });
     } catch (e) {
       throw e;
@@ -63,9 +65,13 @@ class SceneController extends ChangeNotifier {
   }
 
   Future<memri.PageController> addPageController(String label,
-      {String? viewName, String? rendererName, NavigationStack? navStack}) async {
+      {String? viewName,
+      String? rendererName,
+      NavigationStack? navStack,
+      CVUViewArguments? viewArguments}) async {
     var pageController = memri.PageController(this, label);
-    await pageController.init(viewName ?? "", rendererName: rendererName, navStack: navStack);
+    await pageController.init(viewName ?? "",
+        rendererName: rendererName, navStack: navStack, viewArguments: viewArguments);
     pageController.addListener(() => notifyListeners());
     pageControllers.add(pageController);
     return pageController;
