@@ -24,9 +24,9 @@ Project > singleItem {
             background: #F0F0F0
             border: #000 1
             hint: "Your project name"
+            maxWidth: 571
             rows: 1
             value: {{.name}}
-            maxWidth: 571
         }
 
         Text {
@@ -57,10 +57,10 @@ Project > singleItem {
                 defaultRenderer: grid
                 editMode: true
                 singleChoice: true
-                viewName: pluginsProjectGrid
+                viewName: datasetsGrid
 
                 [datasource = pod] {
-                    query: Dataset
+                    query: DatasetType
                 }
 
                 [renderer = grid] {
@@ -79,7 +79,7 @@ Project > singleItem {
                         viewArguments: {
                             item: {{.}}
                             readOnly: true
-                            selectedDataset: {{selectedItems("datasetGrid").first()}}
+                            selectedDataset: {{subView("datasetGrid").selectedItems().first()}}
                         }
                         viewName: "project-variables"
                     }
@@ -118,9 +118,12 @@ Project > singleItem {
 }
 
 Project > list {
-    onPress: openView {
+    onPress: [
+        openView
+        {
             renderer: singleItem
         }
+    ]
 
     HStack {
         alignment: topleft
@@ -139,9 +142,19 @@ Project > list {
                 alignment: topleft
                 spacing: 200
 
-                Text {
-                    font: "body_tiny_bold"
-                    text: {{.dataset.name OR "No Dataset"}}
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        font: "body_tiny_bold"
+                        text: {{.dataset.datasetType.name OR "No Dataset"}}
+                    }
+
+                    Text {
+                        color: "#989898"
+                        font: "body_tiny"
+                        text: {{.dataset.datasetType.plugin.name}}
+                    }
                 }
 
                 VStack {
@@ -150,13 +163,13 @@ Project > list {
                     Text {
                         font: "body_tiny_bold"
                         padding: 0 0 10 0
-                        text: {{.dataset.classification.name OR "Undefined"}}
+                        text: {{.dataset.classification.name OR ""}}
                     }
 
                     Text {
-                        font: "body_tiny"
                         color: "#989898"
-                        text: "{.dataset.variables.count() OR '0'} variables"
+                        font: "body_tiny"
+                        text: "{.dataset.variable[].count() OR '0'} variables"
                     }
                 }
             }
@@ -208,3 +221,199 @@ Project > list {
     }
 }
 
+.project-variables {
+    cols: 10
+    defaultRenderer: scene
+    name: "inbox"
+    title: "Inbox"
+
+    [renderer = scene] {
+        pages: {
+            featureVariables: "feature-variables"
+            projectSummary: "project-summary"
+        }
+        viewArguments: {
+            project: {{item}}
+            selectedDataset: {{selectedDataset}}
+        }
+    }
+}
+
+.feature-variables {
+    cols: 8
+    defaultRenderer: custom
+    scrollable: false
+    title: "Set up your data"
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 0 0 30 0
+            text: "Set up your data"
+        }
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 70 0 10 0
+            text: "Select feature variables"
+        }
+
+        Text {
+            font: bodyText1
+            text: "Choose the type of data you will use in your app. For instance, select: text if you want the app to work on messages and emails."
+        }
+
+        SubView {
+            id: featureVariables
+            view: {
+                defaultRenderer: grid
+                editMode: true
+                viewArguments: {
+                    selectedDataset: {{selectedDataset}}
+                }
+
+                [datasource = pod] {
+                    filter: {
+                        properties: {
+                            itemType: {{selectedDataset.querystr.fromjson("type")}}
+                        }
+                    }
+                    query: ItemPropertySchema
+                    sortAscending: true
+                    sortProperty: dateModified
+                }
+
+                [renderer = grid] {
+                    edgeInset: 0
+                    layout: flow
+                    showDefaultSelections: false
+                    spacing: 5
+                }
+
+                ItemPropertySchema > grid {
+                    Wrap {
+                        background: {{isSelected ? "#33FE570F" : "#F5F5F5"}}
+                        cornerRadius: 2
+                        padding: 10 12
+
+                        Text {
+                            color: {{isSelected ? "#FE570F" : "#999999"}}
+                            font: tab_list
+                            lineLimit: 1
+                            text: {{.propertyName.plainString() OR "Untitled"}}
+                        }
+
+                        Image {
+                            alignment: center
+                            bundleImage: "check"
+                            color: {{isSelected ? "#FE570F" : "#DFDEDE"}}
+                            isVector: true
+                            padding: 0 0 0 17
+                        }
+                    }
+                }
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 30 0 0 0
+
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        openNewView: false
+                        template: {
+                            _type: "Dataset"
+                            datasetType: {{selectedDataset}}
+                            variable: {{subView("featureVariables").selectedItems()}}
+                            ~dataset: {{project}}
+                        }
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Configure labelling editor"
+                    textalign: bottom
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            Button {
+                onPress: back
+                padding: 0 0 0 15
+
+                Text {
+                    color: #333333
+                    font: button_label
+                    text: "Back to project setup"
+                }
+            }
+        }
+    }
+}
+
+.project-summary {
+    cols: 2
+    defaultRenderer: custom
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "SUMMARY"
+        }
+
+        Text {
+            font: headline2
+            padding: 0 0 30 0
+            text: {{selectedDataset.name}}
+        }
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "SOURCE"
+        }
+
+        Text {
+            font: ul
+            padding: 0 0 20 0
+            text: {{selectedDataset.plugin.name}}
+        }
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "DATA TYPE"
+        }
+
+        Text {
+            font: ul
+            padding: 0 0 20 0
+            text: "Text"
+        }
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "FEATURE VARIABLES"
+        }
+    }
+}
