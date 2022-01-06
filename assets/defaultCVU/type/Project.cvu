@@ -1,10 +1,10 @@
 Project {
+    cols: 8
     defaultRenderer: singleItem
     title: "Create new project"
-    cols: 8
 
     [renderer = singleItem] {
-        scrollable: false
+        scrollable: true
     }
 }
 
@@ -64,13 +64,16 @@ Project > singleItem {
                 }
 
                 [renderer = grid] {
+                    layout: "flow"
                     onPress: noop
+                    spacing: 30
                 }
             }
         }
 
         HStack {
             alignment: left
+            padding: 30 0 0 0
 
             Button {
                 onPress: [
@@ -140,10 +143,10 @@ Project > list {
 
             HStack {
                 alignment: topleft
-                spacing: 200
 
                 VStack {
                     alignment: topleft
+                    width: 200
 
                     Text {
                         font: "body_tiny_bold"
@@ -159,11 +162,12 @@ Project > list {
 
                 VStack {
                     alignment: topleft
+                    width: 200
 
                     Text {
                         font: "body_tiny_bold"
                         padding: 0 0 10 0
-                        text: {{.dataset.classification.name OR ""}}
+                        text: {{.dataset.classification.name OR "dfsf"}}
                     }
 
                     Text {

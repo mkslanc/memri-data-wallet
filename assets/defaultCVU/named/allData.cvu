@@ -46,9 +46,14 @@
                 }
 
                 [renderer = grid] {
-                    onPress: openPlugin {
-                        plugin: {{.}}
-                    }
+                    layout: "flow"
+                    onPress: [
+                        openPlugin
+                        {
+                            plugin: {{.}}
+                        }
+                    ]
+                    spacing: 30
                 }
 
                 Plugin > grid {
@@ -85,9 +90,9 @@
                             property: "progress"
 
                             Text {
-                                padding: 0 10 0 0
                                 color: {{.~plugin[].last() ? .~plugin[].last().status = "error" ? "#FE570F" : "#15B599" : "#FE570F"}}
                                 font: {{.~plugin[].last() ? "body_tiny" : "body_tiny_bold"}}
+                                padding: 0 10 0 0
                                 show: {{.~plugin[].last().status != "ready" AND .~plugin[].last().progress != 1}}
                                 text: "{.~plugin[].last() ? .~plugin[].last().status = 'error' ? 'Error' : 'Active' : 'Connect'}"
                             }
