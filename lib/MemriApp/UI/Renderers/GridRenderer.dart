@@ -42,7 +42,6 @@ class _GridRendererViewState extends RendererViewState {
 
   updateState() async {
     await init();
-    setState(() {});
   }
 
   init() async {
