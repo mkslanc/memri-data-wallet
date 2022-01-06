@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUUINode.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
 import 'package:memri/MemriApp/UI/Components/AceEditor/AceEditor.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/ResetCVUToDefault.dart';
@@ -63,7 +68,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       {String? viewName,
       String? renderer,
       ViewContextController? currentViewContext,
-      SceneController? sceneController}) async {
+      SceneController? sceneController,
+      CVUDefinitionContent? subViewDefinition}) async {
     currentViewContext ??= viewContext;
     sceneController ??= widget.pageController.sceneController;
     viewName ??= currentViewContext.config.viewName;
@@ -74,7 +80,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       viewDefinition = currentViewContext.cvuController
           .definitionFor(type: CVUDefinitionType.view, viewName: viewName, exactSelector: true);
 
-      var datasource = viewDefinition?.parsed.definitions
+      var datasource = (subViewDefinition ?? viewDefinition?.parsed)
+          ?.definitions
           .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
       var datasourceResolver = datasource?.parsed.propertyResolver(
           context: CVUContext(),
@@ -82,12 +89,12 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
           db: widget.pageController.appController.databaseController);
       var itemTypes = await datasourceResolver?.stringArray("query");
 
-      itemTypes?.forEach((itemType) {
+      await Future.forEach<String>(itemTypes ?? <String>[], (itemType) async {
         var nodeDefinition = currentViewContext!.cvuController.definitionFor(
             type: CVUDefinitionType.uiNode, selector: itemType, rendererName: renderer);
 
         if (nodeDefinition != null) {
-          definitions.add(nodeDefinition);
+          await addDefinition(nodeDefinition, viewContext, sceneController!);
         }
       });
     } else {
@@ -102,19 +109,22 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
           rendererName: renderer);
 
       if (nodeDefinition != null) {
-        definitions.add(nodeDefinition);
+        await addDefinition(nodeDefinition, viewContext, sceneController);
       }
     }
 
     if (viewDefinition != null) {
-      var subSceneDefinitions = currentViewContext.cvuController.definitionFor(
-          selector: "[renderer = $renderer]",
-          type: CVUDefinitionType.renderer,
-          specifiedDefinitions: viewDefinition.parsed.definitions);
-      if (subSceneDefinitions != null) {
-        await collectSubSceneDefinitions(sceneController);
+      if (renderer == "scene") {
+        var subSceneRendererDefinition = currentViewContext.cvuController.definitionFor(
+            selector: "[renderer = $renderer]",
+            type: CVUDefinitionType.renderer,
+            specifiedDefinitions: viewDefinition.parsed.definitions);
+        if (subSceneRendererDefinition != null) {
+          await collectSubSceneDefinitions(sceneController);
+        }
       }
-      definitions.add(viewDefinition);
+
+      await addDefinition(viewDefinition, viewContext, sceneController);
     }
 
     var globalDefinition = currentViewContext.cvuController
@@ -123,7 +133,60 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
             .definitionFor(selector: "[renderer = $renderer]", type: CVUDefinitionType.renderer);
 
     if (globalDefinition != null) {
-      definitions.add(globalDefinition);
+      await addDefinition(globalDefinition, viewContext, sceneController);
+    }
+  }
+
+  addDefinition(CVUParsedDefinition definition, ViewContextController currentViewContext,
+      SceneController sceneController) async {
+    definition.parsed.properties.forEach((key, value) {});
+
+    await Future.forEach<CVUUINode>(definition.parsed.children,
+        (node) async => await addSubViewDefinitions(node, viewContext, sceneController));
+
+    definitions.add(definition);
+  }
+
+  addSubViewDefinitions(CVUUINode node, ViewContextController currentViewContext,
+      SceneController sceneController) async {
+    if (node.type == CVUUIElementFamily.SubView) {
+      var nodeResolver = CVUUINodeResolver(
+          context: CVUContext(),
+          lookup: currentViewContext.lookupController,
+          node: node,
+          db: currentViewContext.databaseController,
+          pageController: currentViewContext.pageController);
+
+      var viewDefinition = nodeResolver.propertyResolver.value("view")?.getSubdefinition();
+      if (viewDefinition == null) {
+        return null;
+      }
+
+      var defaultRenderer = viewDefinition.properties["defaultRenderer"];
+      String? rendererName;
+      if (defaultRenderer is CVUValueConstant && defaultRenderer.value is CVUConstantArgument) {
+        rendererName = (defaultRenderer.value as CVUConstantArgument).value;
+      }
+
+      var viewNameProp = viewDefinition.properties["viewName"];
+      String? viewName;
+      if (viewNameProp is CVUValueConstant && viewNameProp.value is CVUConstantArgument) {
+        viewName = (viewNameProp.value as CVUConstantArgument).value;
+      }
+
+      if (rendererName == null) {
+        return null;
+      }
+
+      await collectDefinitions(
+          viewName: viewName,
+          renderer: rendererName,
+          currentViewContext: currentViewContext, //TODO maybe should be new viewContext:
+          sceneController: sceneController,
+          subViewDefinition: viewDefinition);
+    } else {
+      await Future.forEach<CVUUINode>(node.children,
+          (subNode) async => await addSubViewDefinitions(subNode, viewContext, sceneController));
     }
   }
 
