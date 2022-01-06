@@ -11,9 +11,8 @@ import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
 /// - Set the `color` property to change text color
 class CVUText extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  final Future<TextProperties> textProperties;
 
-  CVUText({required this.nodeResolver, required this.textProperties});
+  CVUText({required this.nodeResolver});
 
   @override
   _CVUTextState createState() => _CVUTextState();
@@ -42,7 +41,8 @@ class _CVUTextState extends State<CVUText> {
 
   init() async {
     content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
-    resolvedTextProperties = await widget.textProperties;
+    resolvedTextProperties =
+        await CVUTextPropertiesModifier(nodeResolver: widget.nodeResolver).init();
   }
 
   @override
@@ -74,9 +74,8 @@ class _CVUTextState extends State<CVUText> {
 /// - Set the `color` property to change text color
 class CVUSmartText extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  final Future<TextProperties> textProperties;
 
-  CVUSmartText({required this.nodeResolver, required this.textProperties});
+  CVUSmartText({required this.nodeResolver});
 
   @override
   _CVUSmartTextState createState() => _CVUSmartTextState();
@@ -102,7 +101,8 @@ class _CVUSmartTextState extends State<CVUSmartText> {
   }
 
   init() async {
-    resolvedTextProperties = await widget.textProperties;
+    resolvedTextProperties =
+        await CVUTextPropertiesModifier(nodeResolver: widget.nodeResolver).init();
     content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
   }
 

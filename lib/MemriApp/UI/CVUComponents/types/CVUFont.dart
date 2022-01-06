@@ -86,6 +86,10 @@ class CVUFont {
       size: bodyTiny.fontSize!,
       weight: FontWeight.w700,
     ),
+    "ul": CVUFont(
+      size: ul.fontSize!,
+      weight: ul.fontWeight,
+    ),
   };
 
   static const headline1 = TextStyle(
@@ -134,4 +138,6 @@ class CVUFont {
       fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const bodyTiny = TextStyle(
       fontFamily: 'Karla', fontSize: 10, fontWeight: FontWeight.w400, color: Color(0xff333333));
+  static const ul = TextStyle(
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
 }
