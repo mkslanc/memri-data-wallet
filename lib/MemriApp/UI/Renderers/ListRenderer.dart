@@ -36,20 +36,12 @@ class _ListRendererViewState extends RendererViewState {
   initState() {
     super.initState();
     _init = init();
-
-    pageController.isInEditMode.addListener(updateIsInEditMode);
     viewContext.addListener(updateState);
-  }
-
-  updateIsInEditMode() async {
-    await initEditMode();
-    setState(() {});
   }
 
   @override
   dispose() {
     super.dispose();
-    pageController.isInEditMode.removeListener(updateIsInEditMode);
     viewContext.removeListener(updateState);
   }
 
@@ -72,15 +64,6 @@ class _ListRendererViewState extends RendererViewState {
         await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
     hideSwitcher =
         await viewContext.rendererDefinitionPropertyResolver.boolean("hideSwitcher") ?? false;
-    await initEditMode();
-  }
-
-  Future<void> initEditMode() async {
-    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
-        .boolean("editMode", pageController.isInEditMode.value))!;
-
-    selectedIndicesBinding = viewContext.selectedIndicesBinding;
-    selectedIndices = selectedIndicesBinding.get();
   }
 
   @override
@@ -210,7 +193,7 @@ class _ListRendererViewState extends RendererViewState {
       visualDensity: VisualDensity(horizontal: -2, vertical: -2),
       contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
           index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
-      title: isInEditMode
+      title: isInEditMode && showDefaultSelections
           ? Row(
               children: [
                 SvgPicture.asset(

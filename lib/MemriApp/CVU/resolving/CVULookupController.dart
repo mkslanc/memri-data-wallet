@@ -547,24 +547,30 @@ class CVULookupController {
               return null;
             }
             break;
-          case "selecteditems":
+
+          case "subview":
             var exp = nodeType.args.asMap()[0];
+            String? id = await resolve<String>(expression: exp, context: context, db: db);
+            if (id == null) {
+              return null;
+            }
+            var subViewArgs = context.viewArguments?.subViewArguments[id];
+            if (subViewArgs == null) {
+              return null;
+            }
+            context = CVUContext(
+                currentItem: context.currentItem, items: context.items, viewArguments: subViewArgs);
+            break;
+          case "selecteditems":
             var viewArgs = context.viewArguments;
             if (viewArgs == null) {
               return null;
             }
-            if (exp != null) {
-              String? id = await resolve<String>(expression: exp, context: context, db: db);
-              if (id == null) {
-                return null;
-              }
-              viewArgs = viewArgs.subViewArguments[id];
-            }
-            if (viewArgs?.args["selectedItems"] == null) {
+            if (viewArgs.args["selectedItems"] == null) {
               return null;
             }
             List<ItemRecord> items = await resolve<List>(
-                value: viewArgs!.args["selectedItems"],
+                value: viewArgs.args["selectedItems"],
                 db: db,
                 context: context,
                 additionalType: ItemRecord) as List<ItemRecord>;

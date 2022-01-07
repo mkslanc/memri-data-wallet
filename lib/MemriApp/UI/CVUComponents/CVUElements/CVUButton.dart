@@ -10,9 +10,8 @@ import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 /// - Use the `onPress` property to provide a CVU Action for the button
 class CVUButton extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
-  final Future<TextProperties> textProperties;
 
-  CVUButton({required this.nodeResolver, required this.textProperties});
+  CVUButton({required this.nodeResolver});
 
   @override
   _CVUButtonState createState() => _CVUButtonState();
@@ -83,7 +82,8 @@ class _CVUButtonState extends State<CVUButton> {
   }
 
   init() async {
-    resolvedTextProperties = await widget.textProperties;
+    resolvedTextProperties =
+        await CVUTextPropertiesModifier(nodeResolver: widget.nodeResolver).init();
     isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
   }
@@ -97,11 +97,11 @@ class _CVUButtonState extends State<CVUButton> {
           return isLink
               ? InkWell(
                   onTap: onPress,
-                  child: widget.nodeResolver.childrenInForEachWithWrap(),
+                  child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
                 )
               : TextButton(
                   onPressed: onPress,
-                  child: widget.nodeResolver.childrenInForEachWithWrap(),
+                  child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
                   style: TextButton.styleFrom(
                           textStyle: resolvedTextProperties?.textStyle ?? TextStyle())
                       .merge(style),

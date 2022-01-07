@@ -169,3 +169,49 @@ class _CVUZStackState extends State<CVUZStack> {
         });
   }
 }
+
+class CVUWrap extends StatefulWidget {
+  final CVUUINodeResolver nodeResolver;
+
+  CVUWrap({required this.nodeResolver});
+
+  @override
+  _CVUWrapState createState() => _CVUWrapState();
+}
+
+class _CVUWrapState extends State<CVUWrap> {
+  Point? spacing;
+
+  late Future _init;
+
+  @override
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  @override
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
+  init() async {
+    spacing = await widget.nodeResolver.propertyResolver.spacing;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: _init,
+        builder: (BuildContext builder, snapshot) {
+          return Wrap(
+            spacing: spacing?.x.toDouble() ?? 0,
+            runSpacing: spacing?.y.toDouble() ?? 0,
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: widget.nodeResolver.childrenInForEach(),
+          );
+        });
+  }
+}

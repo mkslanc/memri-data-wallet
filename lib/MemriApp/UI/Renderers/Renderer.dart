@@ -21,17 +21,20 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   bool scrollable = true;
   bool isBlocked = false;
   ValueNotifier? blockedFromStorage;
+  bool showDefaultSelections = true;
 
   @override
   initState() {
     super.initState();
     pageController = widget.pageController;
     viewContext = widget.viewContext;
+    pageController.isInEditMode.addListener(updateIsInEditMode);
   }
 
   @override
   dispose() {
     super.dispose();
+    pageController.isInEditMode.removeListener(updateIsInEditMode);
     blockedFromStorage?.removeListener(updateBlockedState);
   }
 
@@ -40,12 +43,29 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
         pageController.appController.databaseController.storage[pageController.label]?["isBlocked"];
     isBlocked = blockedFromStorage?.value ?? false;
     blockedFromStorage?.addListener(updateBlockedState);
+    showDefaultSelections =
+        await viewContext.rendererDefinitionPropertyResolver.boolean("showDefaultSelections") ??
+            true;
+    await initEditMode();
   }
 
   updateBlockedState() {
     setState(() {
       isBlocked = blockedFromStorage?.value ?? false;
     });
+  }
+
+  Future<void> initEditMode() async {
+    isInEditMode = (await viewContext.viewDefinitionPropertyResolver
+        .boolean("editMode", pageController.isInEditMode.value))!;
+
+    selectedIndicesBinding = viewContext.selectedIndicesBinding;
+    selectedIndices = selectedIndicesBinding.get();
+  }
+
+  updateIsInEditMode() async {
+    await initEditMode();
+    setState(() {});
   }
 
   Widget? get additional {

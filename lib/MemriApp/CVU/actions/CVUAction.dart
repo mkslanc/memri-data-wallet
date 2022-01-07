@@ -308,21 +308,24 @@ class CVUActionOpenViewByName extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {}
 
   Future<ViewContextController?> getViewContext(
-      CVUContext context, memri.PageController pageController) async {
+      CVUContext context, memri.PageController pageController,
+      {CVUViewArguments? viewArguments} //TODO
+      ) async {
     CVUDefinitionContent? customDefinition;
     var view = vars["view"];
     if (view is CVUValueSubdefinition) {
       customDefinition = view.value;
     }
-    CVUViewArguments viewArguments;
-    view = vars["viewArguments"];
-    if (view is CVUValueSubdefinition) {
-      viewArguments = CVUViewArguments(
-          args: view.value.properties,
-          argumentItem: context.currentItem,
-          parentArguments: context.viewArguments);
-    } else {
-      viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
+    if (viewArguments == null) {
+      view = vars["viewArguments"];
+      if (view is CVUValueSubdefinition) {
+        viewArguments = CVUViewArguments(
+            args: view.value.properties,
+            argumentItem: context.currentItem,
+            parentArguments: context.viewArguments);
+      } else {
+        viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
+      }
     }
 
     AppController appController = AppController.shared;
@@ -508,16 +511,19 @@ class CVUActionAddItem extends CVUAction {
                 .save(db.databasePool, isNew: true);
           }
         } else if (valueType is ResolvedTypeEdge) {
-          var target = await template.item(isReverse ? key : cleanKey);
-          var targetRowId = target?.rowId;
-          if (targetRowId == null) {
-            return;
+          var targets = await template.items(isReverse ? key : cleanKey);
+          if (targets.isEmpty) return;
+          for (var i = 0; i < targets.length; i++) {
+            var targetRowId = targets[i].rowId;
+            if (targetRowId == null) {
+              return;
+            }
+            await ItemEdgeRecord(
+                    sourceRowID: isReverse ? targetRowId : itemRowId,
+                    name: cleanKey,
+                    targetRowID: isReverse ? itemRowId : targetRowId)
+                .save();
           }
-          await ItemEdgeRecord(
-                  sourceRowID: isReverse ? targetRowId : itemRowId,
-                  name: cleanKey,
-                  targetRowID: isReverse ? itemRowId : targetRowId)
-              .save();
         }
       }));
 
