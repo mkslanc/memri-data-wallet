@@ -167,7 +167,7 @@ Project > list {
                     Text {
                         font: "body_tiny_bold"
                         padding: 0 0 10 0
-                        text: {{.dataset.classification.name OR "dfsf"}}
+                        text: {{.dataset.classification.name OR ""}}
                     }
 
                     Text {
