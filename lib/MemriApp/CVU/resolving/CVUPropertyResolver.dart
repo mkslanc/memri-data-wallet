@@ -313,6 +313,10 @@ class CVUPropertyResolver {
         var action = array[i];
         if (action is CVUValueConstant) {
           if (action.value is CVUConstantArgument) {
+            var type = cvuAction((action.value as CVUConstantArgument).value);
+            if (type == null) {
+              continue;
+            }
             Map<String, CVUValue> vars = {};
             var def = array.asMap()[i + 1];
             if (def is CVUValueSubdefinition) {
@@ -325,10 +329,6 @@ class CVUPropertyResolver {
                   vars[key] = value;
                 }
               }
-            }
-            var type = cvuAction((action.value as CVUConstantArgument).value);
-            if (type == null) {
-              continue;
             }
             actions.add(type(vars: vars));
           } else {
@@ -355,8 +355,7 @@ class CVUPropertyResolver {
         if (type == null) {
           return null;
         }
-        Map<String, CVUValue> emptyVars = {};
-        return type(vars: emptyVars);
+        return type();
       } else {
         return null;
       }

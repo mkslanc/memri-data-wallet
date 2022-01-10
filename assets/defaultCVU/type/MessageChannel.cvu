@@ -66,11 +66,11 @@ MessageChannel {
     }
 
     Message > list {
-        onPress: doNothing
+        onPress: noop
     }
 
     Message > timeline {
-        onPress: doNothing
+        onPress: noop
     }
 }
 

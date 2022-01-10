@@ -240,15 +240,18 @@ class CVUParser {
       }
     }
 
-    addUIElement(CVUUIElementFamily type, CVUDefinitionContent properties) {
-      parsedContent.children.add(
-          CVUUINode(type: type, children: properties.children, properties: properties.properties));
+    addUIElement(CVUUIElementFamily type, CVUDefinitionContent properties, CVUToken token) {
+      parsedContent.children.add(CVUUINode(
+          type: type,
+          children: properties.children,
+          properties: properties.properties,
+          tokenLocation: token.location));
     }
 
     while (true) {
       CVUToken token = popCurrentToken();
       if (token is CVUTokenBool) {
-        stack.add(CVUValueConstant(CVUConstantBool(token.value)));
+        stack.add(CVUValueConstant(CVUConstantBool(token.value), tokenLocation: token.location));
       } else if (token is CVUTokenBracketOpen) {
         if (stack.length == 0 && lastKey != null) {
           isArrayMode = true;
@@ -272,14 +275,14 @@ class CVUParser {
           throw CVUParseErrorsExpectedIdentifier(lastToken!);
         }
 
-        stack.add(CVUValueSubdefinition(parseDict(lastKey)));
+        stack.add(CVUValueSubdefinition(parseDict(lastKey), tokenLocation: token.location));
       } else if (token is CVUTokenCurlyBracketClose) {
         setPropertyValue();
         return parsedContent; // DONE
       } else if (token is CVUTokenColon) {
         throw CVUParseErrorsExpectedKey(lastToken!);
       } else if (token is CVUTokenExpression) {
-        stack.add(CVUValueExpression(createExpression(token.value)));
+        stack.add(CVUValueExpression(createExpression(token.value), tokenLocation: token.location));
       } else if (token is CVUTokenIdentifier) {
         var v = token.value;
         if (lastKey == null) {
@@ -298,12 +301,12 @@ class CVUParser {
               properties = parseDict(v);
             }
 
-            addUIElement(type, properties);
+            addUIElement(type, properties, token);
           } else if (v == "userstate" || v == "viewarguments" || v == "contextpane") {
             if (nextToken is CVUTokenCurlyBracketOpen) {
               popCurrentToken();
               CVUDefinitionContent properties = parseDict();
-              stack.add(CVUValueSubdefinition(properties));
+              stack.add(CVUValueSubdefinition(properties, tokenLocation: token.location));
             }
           } else if (nextToken is CVUTokenCurlyBracketOpen) {
             lastKey = v;
@@ -313,7 +316,7 @@ class CVUParser {
             parsedContent.definitions.add(parseDefinition(identifierNode));
           }
         } else {
-          stack.add(CVUValueConstant(CVUConstantArgument(v)));
+          stack.add(CVUValueConstant(CVUConstantArgument(v), tokenLocation: token.location));
         }
       } else if (token is CVUTokenNewline || token is CVUTokenComma || token is CVUTokenSemiColon) {
         if (token is CVUTokenNewline || token is CVUTokenComma) {
@@ -327,9 +330,9 @@ class CVUParser {
         setPropertyValue();
         lastKey = null;
       } else if (token is CVUTokenNil) {
-        stack.add(CVUValueConstant(CVUConstantNil()));
+        stack.add(CVUValueConstant(CVUConstantNil(), tokenLocation: token.location));
       } else if (token is CVUTokenNumber) {
-        stack.add(CVUValueConstant(CVUConstantNumber(token.value)));
+        stack.add(CVUValueConstant(CVUConstantNumber(token.value), tokenLocation: token.location));
       } else if (token is CVUTokenString) {
         var v = token.value;
         if (!isArrayMode && (peekCurrentToken() is CVUTokenColon)) {
@@ -339,12 +342,14 @@ class CVUParser {
         } else if (lastKey == null) {
           lastKey = v;
         } else {
-          stack.add(CVUValueConstant(CVUConstantString(v)));
+          stack.add(CVUValueConstant(CVUConstantString(v), tokenLocation: token.location));
         }
       } else if (token is CVUTokenStringExpression) {
-        stack.add(CVUValueExpression(createExpression(token.value, true)));
+        stack.add(
+            CVUValueExpression(createExpression(token.value, true), tokenLocation: token.location));
       } else if (token is CVUTokenColor) {
-        stack.add(CVUValueConstant(CVUConstantColorHex(token.value)));
+        stack
+            .add(CVUValueConstant(CVUConstantColorHex(token.value), tokenLocation: token.location));
       } else {
         throw CVUParseErrorsUnexpectedToken(lastToken!);
       }

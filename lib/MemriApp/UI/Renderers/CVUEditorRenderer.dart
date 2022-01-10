@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVUParseErrors.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVUValidator.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUINode.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
@@ -11,6 +15,7 @@ import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Enum.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUUINodeResolver.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
@@ -39,13 +44,46 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   initState() {
     super.initState();
     viewContext = widget.viewContext;
-    controller = AceEditorController(saveCVU);
+    controller = AceEditorController(saveCVU, validate: validate);
     initCVU();
   }
 
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     initCVU();
+  }
+
+  Future<List<Map<String, dynamic>>> validate(content) async {
+    List<CVUParsedDefinition> parsed = <CVUParsedDefinition>[];
+    try {
+      parsed = CVUController.parseCVUString(content);
+    } on CVUParseErrors catch (error) {
+      var errorString = error.toErrorString(content);
+      var resultErrorString = errorString.substring(0, min(100, errorString.length));
+      if (resultErrorString != errorString) resultErrorString += "...";
+      return [
+        {
+          "type": "error",
+          "row": error.token.ln,
+          "column": error.token.ch,
+          "text": resultErrorString
+        }
+      ];
+    }
+
+    var validator = CVUValidator(
+        lookupController: CVULookupController(),
+        databaseController: widget.pageController.appController.databaseController);
+    await validator.validate(parsed);
+
+    return (validator.errors + validator.warnings)
+        .map((annotation) => {
+              "type": annotation.type.inString,
+              "row": annotation.row,
+              "column": annotation.column,
+              "text": annotation.message
+            })
+        .toList();
   }
 
   Future<void> initCVU() async {

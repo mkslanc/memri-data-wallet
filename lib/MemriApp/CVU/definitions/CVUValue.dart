@@ -6,6 +6,7 @@
 //
 
 import 'package:equatable/equatable.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVULexer.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 
 import 'CVUParsedDefinition.dart';
@@ -20,7 +21,7 @@ part 'CVUValue.g.dart';
 class CVUValueExpression extends CVUValue {
   final CVUExpressionNode value;
 
-  CVUValueExpression(this.value);
+  CVUValueExpression(this.value, {CVUTokenLocation? tokenLocation}) : super(tokenLocation);
 
   factory CVUValueExpression.fromJson(Map<String, dynamic> json) =>
       _$CVUValueExpressionFromJson(json);
@@ -32,7 +33,7 @@ class CVUValueExpression extends CVUValue {
 class CVUValueConstant extends CVUValue {
   final CVUConstant value;
 
-  CVUValueConstant(this.value);
+  CVUValueConstant(this.value, {CVUTokenLocation? tokenLocation}) : super(tokenLocation);
 
   factory CVUValueConstant.fromJson(Map<String, dynamic> json) => _$CVUValueConstantFromJson(json);
   Map<String, dynamic> toJson() =>
@@ -43,7 +44,7 @@ class CVUValueConstant extends CVUValue {
 class CVUValueItem extends CVUValue {
   final int value;
 
-  CVUValueItem(this.value);
+  CVUValueItem(this.value, {CVUTokenLocation? tokenLocation}) : super(tokenLocation);
 
   factory CVUValueItem.fromJson(Map<String, dynamic> json) => _$CVUValueItemFromJson(json);
   Map<String, dynamic> toJson() =>
@@ -54,7 +55,7 @@ class CVUValueItem extends CVUValue {
 class CVUValueArray extends CVUValue {
   final List<CVUValue> value;
 
-  CVUValueArray(this.value);
+  CVUValueArray(this.value, {CVUTokenLocation? tokenLocation}) : super(tokenLocation);
 
   factory CVUValueArray.fromJson(Map<String, dynamic> json) => _$CVUValueArrayFromJson(json);
   Map<String, dynamic> toJson() =>
@@ -65,7 +66,7 @@ class CVUValueArray extends CVUValue {
 class CVUValueDictionary extends CVUValue {
   final Map<String, CVUValue> value;
 
-  CVUValueDictionary(this.value);
+  CVUValueDictionary(this.value, {CVUTokenLocation? tokenLocation}) : super(tokenLocation);
 
   factory CVUValueDictionary.fromJson(Map<String, dynamic> json) =>
       _$CVUValueDictionaryFromJson(json);
@@ -77,7 +78,7 @@ class CVUValueDictionary extends CVUValue {
 class CVUValueSubdefinition extends CVUValue {
   final CVUDefinitionContent value;
 
-  CVUValueSubdefinition(this.value);
+  CVUValueSubdefinition(this.value, {CVUTokenLocation? tokenLocation}) : super(tokenLocation);
 
   factory CVUValueSubdefinition.fromJson(Map<String, dynamic> json) =>
       _$CVUValueSubdefinitionFromJson(json);
@@ -89,7 +90,9 @@ class CVUValueSubdefinition extends CVUValue {
 abstract class CVUValue with EquatableMixin implements CVUStringConvertible {
   get value;
 
-  CVUValue();
+  CVUTokenLocation? tokenLocation;
+
+  CVUValue([this.tokenLocation]);
 
   @override
   String toCVUString(int depth, String tab, bool includeInitialTab) {

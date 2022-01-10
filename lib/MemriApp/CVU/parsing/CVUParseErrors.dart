@@ -4,6 +4,8 @@
 
 import 'dart:math';
 
+import 'package:equatable/equatable.dart';
+
 import 'CVULexer.dart';
 
 class CVUParseErrorsUnexpectedToken extends CVUParseErrors {
@@ -14,12 +16,16 @@ class CVUParseErrorsUnknownDefinition extends CVUParseErrors {
   final String name;
 
   CVUParseErrorsUnknownDefinition(this.name, CVUToken token) : super(token);
+
+  List<Object?> get props => [token, name];
 }
 
 class CVUParseErrorsExpectedCharacter extends CVUParseErrors {
   final String character;
 
   CVUParseErrorsExpectedCharacter(this.character, CVUToken token) : super(token);
+
+  List<Object?> get props => [token, character];
 }
 
 class CVUParseErrorsExpectedDefinition extends CVUParseErrors {
@@ -46,7 +52,7 @@ class CVUParseErrorsMissingExpressionClose extends CVUParseErrors {
   CVUParseErrorsMissingExpressionClose(CVUToken token) : super(token);
 }
 
-class CVUParseErrors implements Exception {
+class CVUParseErrors with EquatableMixin implements Exception {
   final CVUToken token;
 
   CVUParseErrors(this.token);
@@ -60,8 +66,8 @@ class CVUParseErrors implements Exception {
       if (parts[2] == "") {
         return "at the end of the file";
       } else {
-        int line = (int.parse(parts[2] ?? -2)) + 1;
-        int char = (int.parse(parts[3] ?? -2)) + 1;
+        int line = (parts[2] ?? -2) + 1;
+        int char = (parts[3] ?? -2) + 1;
         return 'at line:$line and character:$char';
       }
     }
@@ -106,7 +112,7 @@ class CVUParseErrors implements Exception {
     }
 
     List<String> lines = code.split("\n");
-    int line = int.parse(parts[2]);
+    int line = parts[2];
     if (line > 0) {
       int ch = parts[3] ?? 0;
       List beforeLinesList = lines;
@@ -124,4 +130,7 @@ class CVUParseErrors implements Exception {
       return message;
     }
   }
+
+  @override
+  List<Object?> get props => [token];
 }

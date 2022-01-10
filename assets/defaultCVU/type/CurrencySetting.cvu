@@ -70,12 +70,5 @@ CurrencySetting > list {
                 padding: 10
             }
         }
-
-        Text {
-            background: {{ "secondaryBackground" }}
-            font: 24 regular
-            color: primary
-            padding: 10
-        }
     }
 } 
