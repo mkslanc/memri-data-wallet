@@ -12,8 +12,6 @@ import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUGrid.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUMessageComposer.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUObserver.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUSubView.dart';
-import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUTextPropertiesModifier.dart';
-
 import 'CVUElements/CVUActionButton.dart';
 import 'CVUElements/CVUButton.dart';
 import 'CVUElements/CVUDropZone.dart';
@@ -55,7 +53,7 @@ class _CVUElementViewState extends State<CVUElementView> {
     _showNode = widget.nodeResolver.propertyResolver.showNode;
   }
 
-  Widget resolvedComponent([Future<TextProperties>? textProperties]) {
+  Widget resolvedComponent() {
     switch (widget.nodeResolver.node.type) {
       case CVUUIElementFamily.ForEach:
         return CVUForEach(
@@ -66,10 +64,11 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUVStack(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.ZStack:
         return CVUZStack(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.Wrap:
+        return CVUWrap(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Text:
         return CVUText(
           nodeResolver: widget.nodeResolver,
-          textProperties: textProperties!,
         );
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: widget.nodeResolver);
@@ -78,7 +77,6 @@ class _CVUElementViewState extends State<CVUElementView> {
       case CVUUIElementFamily.SmartText:
         return CVUSmartText(
           nodeResolver: widget.nodeResolver,
-          textProperties: textProperties!,
         );
       case CVUUIElementFamily.Textfield:
         return CVUTextField(nodeResolver: widget.nodeResolver);
@@ -87,7 +85,6 @@ class _CVUElementViewState extends State<CVUElementView> {
       case CVUUIElementFamily.Button:
         return CVUButton(
           nodeResolver: widget.nodeResolver,
-          textProperties: textProperties!,
         );
       case CVUUIElementFamily.Divider:
         return Divider(
@@ -163,9 +160,7 @@ class _CVUElementViewState extends State<CVUElementView> {
           if (showNode == true) {
             return needsModifier
                 ? CVUAppearanceModifier(
-                    nodeResolver: widget.nodeResolver,
-                    child: resolvedComponent(
-                        CVUTextPropertiesModifier(nodeResolver: widget.nodeResolver).init()))
+                    nodeResolver: widget.nodeResolver, child: resolvedComponent())
                 : resolvedComponent();
           }
           return Empty();

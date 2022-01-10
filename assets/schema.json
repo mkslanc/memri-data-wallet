@@ -296,12 +296,12 @@
       "value_type": "string"
     },
     {
-      "item_type": "Dataset",
+      "item_type": "DatasetType",
       "property": "name",
       "value_type": "string"
     },
     {
-      "item_type": "Dataset",
+      "item_type": "DatasetType",
       "property": "querystr",
       "value_type": "string"
     },
@@ -1274,23 +1274,18 @@
     },
     {
       "source_type": "Dataset",
+      "edge": "datasetType",
+      "target_type": "DatasetType"
+    },
+    {
+      "source_type": "Dataset",
       "edge": "variable",
       "target_type": "Any"
     },
     {
-      "source_type": "Dataset",
-      "edge": "classification",
-      "target_type": "Classification"
-    },
-    {
-      "source_type": "Dataset",
+      "source_type": "DatasetType",
       "edge": "plugin",
       "target_type": "Plugin"
-    },
-    {
-      "source_type": "Dataset",
-      "edge": "variable",
-      "target_type": "Any"
     },
     {
       "source_type": "Diet",
@@ -1390,7 +1385,7 @@
     {
       "source_type": "LabelingDataType",
       "edge": "dataset",
-      "target_type": "Dataset"
+      "target_type": "DatasetType"
     },
     {
       "source_type": "LabelingTask",

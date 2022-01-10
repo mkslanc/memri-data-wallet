@@ -65,4 +65,5 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.Grid: 'Grid',
   CVUUIElementFamily.DropZone: 'DropZone',
   CVUUIElementFamily.Observer: 'Observer',
+  CVUUIElementFamily.Wrap: 'Wrap',
 };

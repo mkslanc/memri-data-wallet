@@ -1,9 +1,9 @@
-Dataset {
+DatasetType {
     title: "{.name}"
     defaultRenderer: list
 }
 
-Dataset > list {
+DatasetType > list {
     onPress: noop
 
     HStack {
@@ -18,7 +18,7 @@ Dataset > list {
     }
 }
 
-Dataset > grid {
+DatasetType > grid {
     onPress: noop
 
     VStack {

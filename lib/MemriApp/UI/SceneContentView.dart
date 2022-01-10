@@ -28,7 +28,8 @@ class SceneContentView extends StatefulWidget {
   final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  SceneContentView({required this.pageController, required this.viewContext});
+  SceneContentView({required this.pageController, required this.viewContext, Key? key})
+      : super(key: key);
 
   @override
   _SceneContentViewState createState() => _SceneContentViewState(pageController, viewContext);

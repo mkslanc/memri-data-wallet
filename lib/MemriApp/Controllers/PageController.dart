@@ -25,7 +25,8 @@ class PageController extends ChangeNotifier {
 
   PageController(this.sceneController, this.label);
 
-  init(String viewName, {String? rendererName, NavigationStack? navStack}) async {
+  init(String viewName,
+      {String? rendererName, NavigationStack? navStack, CVUViewArguments? viewArguments}) async {
     navStack ??= await NavigationStack.fetchOne(label, appController.databaseController);
     if (navStack != null) {
       if (navStack.state.length > 0) {
@@ -34,8 +35,9 @@ class PageController extends ChangeNotifier {
     } else {
       navStack = NavigationStack(pageLabel: label);
       if (viewName.isNotEmpty || rendererName != null) {
-        topMostContext = await CVUActionOpenViewByName(viewName: viewName)
-            .getViewContext(CVUContext(viewName: viewName, rendererName: rendererName), this);
+        topMostContext = await CVUActionOpenViewByName(viewName: viewName).getViewContext(
+            CVUContext(viewName: viewName, rendererName: rendererName), this,
+            viewArguments: viewArguments);
         navStack.state = [ViewContextHolder(topMostContext!.config)];
       }
     }
