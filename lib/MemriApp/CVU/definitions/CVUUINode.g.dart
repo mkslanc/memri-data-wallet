@@ -14,6 +14,9 @@ CVUUINode _$CVUUINodeFromJson(Map<String, dynamic> json) => CVUUINode(
       properties: (json['properties'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, CVUValue.fromJson(e)),
       ),
+      tokenLocation: json['tokenLocation'] == null
+          ? null
+          : CVUTokenLocation.fromJson(json['tokenLocation'] as Map<String, dynamic>),
     )
       ..shouldExpandWidth = json['shouldExpandWidth'] as bool
       ..shouldExpandHeight = json['shouldExpandHeight'] as bool
@@ -23,6 +26,7 @@ Map<String, dynamic> _$CVUUINodeToJson(CVUUINode instance) => <String, dynamic>{
       'type': _$CVUUIElementFamilyEnumMap[instance.type],
       'children': instance.children,
       'properties': instance.properties,
+      'tokenLocation': instance.tokenLocation,
       'shouldExpandWidth': instance.shouldExpandWidth,
       'shouldExpandHeight': instance.shouldExpandHeight,
       'id': instance.id,

@@ -6,10 +6,14 @@ class AceEditorController {
   String? _content;
   String get content => _content!;
 
+  String _validatedContent = "";
+
   final VoidCallback onResultReceived;
+  final Future<List<Map<String, dynamic>>> Function(String)? validate;
+
   bool _isEditorLoaded = false;
 
-  AceEditorController(this.onResultReceived) {
+  AceEditorController(this.onResultReceived, {this.validate}) {
     _initWindowListeners();
   }
 
@@ -41,11 +45,23 @@ class AceEditorController {
   }
 
   _initWindowListeners() {
-    html.window.onMessage.listen((event) {
+    html.window.onMessage.listen((event) async {
       var data = jsonDecode(event.data);
       switch (data["action"]) {
         case "ready":
           _editorIsLoaded();
+          break;
+        case "requestValidation":
+          if (validate == null) return;
+          if (data["content"] == _validatedContent) return;
+          _validatedContent = data["content"];
+          try {
+            var annotations = await validate!.call(_validatedContent);
+            _postMessage(action: "updateValidation", data: {"annotations": annotations});
+          } catch (error) {
+            print(error);
+          }
+
           break;
         case "result":
           _content = data["content"];

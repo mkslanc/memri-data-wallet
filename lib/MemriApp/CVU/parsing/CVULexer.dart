@@ -2,7 +2,11 @@
 // CVULexer.swift
 // Copyright © 2020 memri. All rights reserved.
 
+import 'package:equatable/equatable.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUParseErrors.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'CVULexer.g.dart';
 
 class CVUTokenOperator extends CVUToken {
   final CVUOperator value;
@@ -106,11 +110,32 @@ class CVUTokenEOF extends CVUToken {
   CVUTokenEOF() : super();
 }
 
-abstract class CVUToken {
+@JsonSerializable()
+class CVUTokenLocation {
+  final int ln;
+  final int ch;
+
+  CVUTokenLocation(this.ln, this.ch);
+
+  factory CVUTokenLocation.fromJson(Map<String, dynamic> json) => _$CVUTokenLocationFromJson(json);
+  Map<String, dynamic> toJson() => _$CVUTokenLocationToJson(this);
+}
+
+abstract class CVUToken with EquatableMixin {
   final int? ln;
   final int? ch;
 
-  CVUToken([this.ln, this.ch]);
+  get value => null;
+
+  late final CVUTokenLocation? location;
+
+  CVUToken([this.ln, this.ch]) {
+    if (ln != null && ch != null) {
+      location = CVUTokenLocation(ln!, ch!);
+    }
+  }
+
+  get props => [value, ln, ch];
 
   List toParts() {
     List parts = [];
