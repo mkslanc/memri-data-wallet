@@ -1,0 +1,138 @@
+Dataset {
+    defaultRenderer: singleItem
+    cols: 8
+    title: "Set up your data"
+
+    [renderer = singleItem] {
+        scrollable: false
+    }
+}
+
+Dataset > singleItem {
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 0 0 30 0
+            text: "Set up your data"
+        }
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 70 0 10 0
+            text: "Select feature variables"
+        }
+
+        Text {
+            font: bodyText1
+            text: "Choose the type of data you will use in your app. For instance, select: text if you want the app to work on messages and emails."
+        }
+
+        SubView {
+            id: featureVariables
+            view: {
+                defaultRenderer: grid
+                editMode: true
+                viewArguments: {
+                    selectedDataset: {{selectedDataset}}
+                }
+
+                [datasource = pod] {
+                    filter: {
+                        properties: {
+                            itemType: {{selectedDataset.querystr.fromjson("type")}}
+                        }
+                    }
+                    query: ItemPropertySchema
+                    sortAscending: true
+                    sortProperty: dateModified
+                }
+
+                [renderer = grid] {
+                    edgeInset: 0
+                    layout: flow
+                    showDefaultSelections: false
+                    spacing: 5
+                }
+
+                ItemPropertySchema > grid {
+                    Wrap {
+                        background: {{isSelected ? "#33FE570F" : "#F5F5F5"}}
+                        cornerRadius: 2
+                        padding: 10 12
+
+                        Text {
+                            color: {{isSelected ? "#FE570F" : "#999999"}}
+                            font: tab_list
+                            lineLimit: 1
+                            text: {{.propertyName.plainString() OR "Untitled"}}
+                        }
+
+                        Image {
+                            alignment: center
+                            bundleImage: "check"
+                            color: {{isSelected ? "#FE570F" : "#DFDEDE"}}
+                            isVector: true
+                            padding: 0 0 0 17
+                        }
+                    }
+                }
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 30 0 0 0
+
+            Button {
+                onPress: [
+                    link
+                    {
+                        edgeType: "feature"
+                        subject: {{subView("featureVariables").selectedItems()}}
+                    }
+                    addItem
+                    {
+                        initialItem: {{.labelingTask}}
+                        openNewView: true
+                        template: {
+                            _type: "LabelingTask"
+                            taskType: {{items(type: "TextClassification").first()}}
+                        }
+                        viewArguments: {
+                        }
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Configure labelling editor"
+                    textalign: bottom
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            Button {
+                onPress: back
+                padding: 0 0 0 15
+
+                Text {
+                    color: #333333
+                    font: button_label
+                    text: "Back to project setup"
+                }
+            }
+        }
+    }
+}
+

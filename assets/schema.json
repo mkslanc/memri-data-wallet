@@ -161,8 +161,13 @@
       "value_type": "string"
     },
     {
-      "item_type": "Classification",
-      "property": "name",
+      "item_type": "CategoricalLabel",
+      "property": "allowSharing",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "CategoricalLabel",
+      "property": "labels",
       "value_type": "string"
     },
     {
@@ -293,6 +298,16 @@
     {
       "item_type": "CurrencySetting",
       "property": "tokenAddress",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Dataset",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Dataset",
+      "property": "querystr",
       "value_type": "string"
     },
     {
@@ -591,8 +606,13 @@
       "value_type": "string"
     },
     {
-      "item_type": "LabelingDataType",
-      "property": "icon",
+      "item_type": "LabelOption",
+      "property": "color",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelOption",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -1203,6 +1223,16 @@
       "target_type": "Location"
     },
     {
+      "source_type": "CategoricalLabel",
+      "edge": "annotatedItem",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "CategoricalLabel",
+      "edge": "labelOption",
+      "target_type": "LabelOption"
+    },
+    {
       "source_type": "Country",
       "edge": "flag",
       "target_type": "Photo"
@@ -1269,18 +1299,23 @@
     },
     {
       "source_type": "Dataset",
-      "edge": "classification",
-      "target_type": "Classification"
-    },
-    {
-      "source_type": "Dataset",
       "edge": "datasetType",
       "target_type": "DatasetType"
     },
     {
       "source_type": "Dataset",
-      "edge": "variable",
+      "edge": "entry",
       "target_type": "Any"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "feature",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "labelingTask",
+      "target_type": "LabelingTask"
     },
     {
       "source_type": "DatasetType",
@@ -1383,19 +1418,19 @@
       "target_type": "Any"
     },
     {
-      "source_type": "LabelingDataType",
-      "edge": "dataset",
-      "target_type": "DatasetType"
-    },
-    {
       "source_type": "LabelingTask",
-      "edge": "dataset",
-      "target_type": "Dataset"
+      "edge": "labelAnnotation",
+      "target_type": "LabelAnnotation"
     },
     {
       "source_type": "LabelingTask",
       "edge": "labelOption",
-      "target_type": "Label"
+      "target_type": "LabelOption"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "taskType",
+      "target_type": "LabelingDataType"
     },
     {
       "source_type": "LabelingTask",
@@ -1636,11 +1671,6 @@
       "source_type": "Project",
       "edge": "dataset",
       "target_type": "Dataset"
-    },
-    {
-      "source_type": "Project",
-      "edge": "labelingTask",
-      "target_type": "LabelingTask"
     },
     {
       "source_type": "Receipt",
