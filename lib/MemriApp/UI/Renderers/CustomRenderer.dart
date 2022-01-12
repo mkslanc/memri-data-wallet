@@ -1,3 +1,4 @@
+import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -21,7 +22,11 @@ class _CustomRendererViewState extends RendererViewState {
       viewDefinition = viewContext.cvuController.viewDefinitionFor(viewName: viewName);
     }
 
-    return viewDefinition ?? viewContext.config.viewDefinition.definitions.asMap()[0]?.parsed;
+    return viewDefinition ??
+        viewContext.config.viewDefinition.definitions
+            .firstWhereOrNull((definition) =>
+                definition.type == CVUDefinitionType.renderer && definition.name == "custom")
+            ?.parsed;
   }
 
   Future init() async {
@@ -59,13 +64,15 @@ class _CustomRendererViewState extends RendererViewState {
                   slivers: [
                     SliverFillRemaining(
                       hasScrollBody: false,
-                      child: viewContext.render(nodeDefinition: nodeDefinition),
+                      child: viewContext.render(
+                          nodeDefinition: nodeDefinition, items: widget.viewContext.items),
                       fillOverscroll: false,
                     ),
                   ],
                 );
               }
-              return viewContext.render(nodeDefinition: nodeDefinition);
+              return viewContext.render(
+                  nodeDefinition: nodeDefinition, items: widget.viewContext.items);
             }
             return Empty();
           });
