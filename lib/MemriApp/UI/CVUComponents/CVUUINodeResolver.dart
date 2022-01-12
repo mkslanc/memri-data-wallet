@@ -33,9 +33,9 @@ class CVUUINodeResolver {
       required this.db,
       required this.pageController});
 
-  Widget childrenInForEachWithWrap({centered = false}) {
+  Widget childrenInForEachWithWrap({centered = false, ItemRecord? usingItem}) {
     return Wrap(
-      children: childrenInForEach(),
+      children: childrenInForEach(usingItem: usingItem),
       alignment: centered ? WrapAlignment.center : WrapAlignment.start,
       runAlignment: centered ? WrapAlignment.center : WrapAlignment.start,
       crossAxisAlignment: centered ? WrapCrossAlignment.center : WrapCrossAlignment.start,
