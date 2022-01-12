@@ -29,12 +29,14 @@ LabelingTask > singleItem {
         }
 
         SubView {
+            height: 60
             id: featureVariables
+            maxWidth: 550
             view: {
                 defaultRenderer: custom
                 editMode: true
                 viewArguments: {
-                    dataset: {{item}}
+                    task: {{.}}
                 }
 
                 [datasource = pod] {
@@ -45,18 +47,18 @@ LabelingTask > singleItem {
 
                 [renderer = custom] {
                     Dropdown {
-                        item: {{dataset}}
+                        item: {{task}}
                         list: {{items}}
                         maxWidth: 550
                         onChange: [
                             link
                             {
                                 distinct: true
-                                edgeType: "classification"
-                                subject: {{dataset}}
+                                edgeType: "taskType"
+                                subject: {{task}}
                             }
                         ]
-                        value: "classification"
+                        value: "taskType"
 
                         Text {
                             color: #FE570F
@@ -69,9 +71,77 @@ LabelingTask > singleItem {
             }
         }
 
+        Text {
+            font: bodyText1
+            padding: 60 0 20 0
+            text: "Define the labels you want to use in your app:"
+        }
+
+        FlowStack {
+            list: {{.labelOption[]}}
+            spacing: 15
+
+            Wrap {
+                background: #F5F5F5
+                cornerRadius: 20
+
+                Text {
+                    color: #333333
+                    font: bodyText1
+                    padding: 5 9 5 10
+                    text: "{.name}"
+                }
+
+                Button {
+                    isLink: true
+                    onPress: noop
+                    padding: 0 11 0 0
+
+                    Text {
+                        text: "x"
+                        textAlign: center
+                    }
+                }
+            }
+        }
+
+        HStack {
+            alignment: center
+            background: #F0F0F0
+
+            Textfield {
+                background: #F0F0F0
+                border: #333 1
+                hint: "e.g. positive"
+                minHeight: 15
+                rows: 1
+                width: 150
+            }
+
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        openNewView: false
+                        template: {
+                            _type: "LabelOption"
+                            name: "completely toxic"
+                            ~labelOption: {{.}}
+                        }
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Add new label"
+                    textAlign: center
+                }
+            }
+        }
+
         HStack {
             alignment: left
-            padding: 30 0 0 0
+            padding: 50 0 0 0
 
             Button {
                 onPress: [
@@ -94,7 +164,7 @@ LabelingTask > singleItem {
                 styleName: primaryButton
 
                 Text {
-                    text: "Configure labelling editor"
+                    text: "Preview editor"
                     textalign: bottom
                 }
 
@@ -113,7 +183,7 @@ LabelingTask > singleItem {
                 Text {
                     color: #333333
                     font: button_label
-                    text: "Back to project setup"
+                    text: "Back to data setup"
                 }
             }
         }

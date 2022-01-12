@@ -39,6 +39,7 @@ Dataset > singleItem {
                 editMode: true
                 viewArguments: {
                     selectedDataset: {{selectedDataset}}
+                    selectedItems: {{item(207)}} {{item(208)}}
                 }
 
                 [datasource = pod] {
@@ -92,7 +93,7 @@ Dataset > singleItem {
                 onPress: [
                     link
                     {
-                        edgeType: "feature"
+                        edgeType: "~feature"
                         subject: {{subView("featureVariables").selectedItems()}}
                     }
                     addItem
@@ -102,8 +103,10 @@ Dataset > singleItem {
                         template: {
                             _type: "LabelingTask"
                             taskType: {{items(type: "TextClassification").first()}}
+                            ~labelingTask: {{.}}
                         }
                         viewArguments: {
+                            readOnly: false
                         }
                     }
                 ]

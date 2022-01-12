@@ -84,6 +84,7 @@ Project > singleItem {
                         template: {
                             _type: "Dataset"
                             datasetType: {{subView("datasetGrid").selectedItems().first()}}
+                            ~dataset: {{.}}
                         }
                         viewArguments: {
                             item: {{.}}
