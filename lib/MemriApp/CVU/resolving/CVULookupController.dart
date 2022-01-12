@@ -290,20 +290,29 @@ class CVULookupController {
       } else if (nodeType is CVULookupTypeFunction) {
         List<CVUExpressionNode> args = nodeType.args;
         switch (node.name.toLowerCase()) {
-          case "item":
+          case "items":
             var exp = nodeType.args.asMap()[0];
             if (exp == null) {
               return null;
             }
-            int? itemRowId = await resolve<int>(expression: exp, context: context, db: db);
-            if (itemRowId == null) {
-              return null;
+            var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
+            if (byType != null) {
+              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db);
+              if (items.isEmpty) {
+                return null;
+              }
+              currentValue = LookupStepItems(items);
+            } else {
+              int? itemRowId = await resolve<int>(expression: exp, context: context, db: db);
+              if (itemRowId == null) {
+                return null;
+              }
+              ItemRecord? item = await ItemRecord.fetchWithRowID(itemRowId, db);
+              if (item == null) {
+                return null;
+              }
+              currentValue = LookupStepItems([item]);
             }
-            ItemRecord? item = await ItemRecord.fetchWithRowID(itemRowId, db);
-            if (item == null) {
-              return null;
-            }
-            currentValue = LookupStepItems([item]);
             break;
           case "joined":
             if (currentValue == null || currentValue is! LookupStepValues) {
