@@ -58,7 +58,7 @@ LabelingTask > singleItem {
                                 subject: {{task}}
                             }
                         ]
-                        value: "taskType"
+                        edgeName: "taskType"
 
                         Text {
                             color: #FE570F

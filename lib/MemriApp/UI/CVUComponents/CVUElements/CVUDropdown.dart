@@ -55,9 +55,9 @@ class _CVUDropdownState extends State<CVUDropdown> {
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
     items = await widget.nodeResolver.propertyResolver.items("list");
 
-    var value = await widget.nodeResolver.propertyResolver.string("value");
-    if (value != null) {
-      selectedItem = (await widget.nodeResolver.propertyResolver.edge("item", value));
+    var edgeName = await widget.nodeResolver.propertyResolver.string("edgeName");
+    if (edgeName != null) {
+      selectedItem = (await widget.nodeResolver.propertyResolver.edge("item", edgeName));
     }
 
     selectedItem ??= items.asMap()[0];
