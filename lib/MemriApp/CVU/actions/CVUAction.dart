@@ -8,6 +8,7 @@
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -31,6 +32,7 @@ import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -150,6 +152,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionWait(vars: vars);
     case "block":
       return ({Map? vars}) => CVUActionBlock(vars: vars);
+    case "createlabelingtask":
+      return ({Map? vars}) => CVUActionCreateLabelingTask(vars: vars);
     default:
       return null;
   }
@@ -1365,5 +1369,46 @@ class CVUActionBlock extends CVUAction {
         }
       });
     }
+  }
+}
+
+class CVUActionCreateLabelingTask extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionCreateLabelingTask({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var template = resolver.subdefinition("template");
+    if (template == null) {
+      return;
+    }
+    var itemType = await resolver.string("_type");
+    if (itemType == null) {
+      return;
+    }
+    List<ItemRecord> featureItems = await resolver.items("features");
+    var cvu =
+        '.labelingAnnotation${Uuid().v4()} { \n ${itemType} > labelAnnotation {\n VStack {\n alignment: left\n padding: 30\n spacing: 5\n';
+    for (var feature in featureItems) {
+      var propertyName = (await feature.propertyValue("propertyName", db))?.value;
+      if (propertyName != null) {
+        cvu += '\nText {\n text: "{.${propertyName}}"\n font: headline1 \n}';
+      }
+    }
+    cvu += '\n}\n}\n}';
+    var cvuID = await CVUController.storeDefinition(cvu, db);
+    if (cvuID == null) {
+      return;
+    }
+    var newVars = Map.of(vars);
+    (newVars["template"] as CVUValueSubdefinition)
+        .value
+        .properties
+        .update("view", (value) => CVUValueItem(cvuID), ifAbsent: () => CVUValueItem(cvuID));
+    await CVUActionAddItem(vars: newVars).execute(pageController, context);
   }
 }
