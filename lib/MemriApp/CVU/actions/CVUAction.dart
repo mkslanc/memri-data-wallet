@@ -872,7 +872,7 @@ class CVUActionLink extends CVUAction {
     if (subjectItems.isEmpty) return;
 
     String? edgeType = await resolver.string("edgeType");
-    bool? unique = await resolver.boolean("edgeType", false);
+    bool? unique = await resolver.boolean("distinct", false);
     if (currentItem == null || edgeType == null || unique == null) {
       return;
     }
