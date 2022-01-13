@@ -77,14 +77,20 @@ Project > singleItem {
 
             Button {
                 onPress: [
-                    openView
+                    addItem
                     {
+                        initialItem: {{.dataset}}
+                        openNewView: true
+                        template: {
+                            _type: "Dataset"
+                            datasetType: {{subView("datasetGrid").selectedItems().first()}}
+                            ~dataset: {{.}}
+                        }
                         viewArguments: {
                             item: {{.}}
-                            readOnly: true
+                            readOnly: false
                             selectedDataset: {{subView("datasetGrid").selectedItems().first()}}
                         }
-                        viewName: "project-variables"
                     }
                 ]
                 styleName: primaryButton
@@ -167,13 +173,13 @@ Project > list {
                     Text {
                         font: "body_tiny_bold"
                         padding: 0 0 10 0
-                        text: {{.dataset.classification.name OR ""}}
+                        text: {{.dataset.labelingTask.taskType.name OR ""}}
                     }
 
                     Text {
                         color: "#989898"
                         font: "body_tiny"
-                        text: "{.dataset.variable[].count() OR '0'} variables"
+                        text: "{.dataset.feature[].count() OR '0'} variables"
                     }
                 }
             }
@@ -279,6 +285,7 @@ Project > list {
                 editMode: true
                 viewArguments: {
                     selectedDataset: {{selectedDataset}}
+                    selectedItems: {{item(73)}} {{item(74)}}
                 }
 
                 [datasource = pod] {
@@ -332,12 +339,18 @@ Project > list {
                 onPress: [
                     addItem
                     {
-                        openNewView: false
+                        initialItem: {{project.dataset}}
+                        openNewView: true
                         template: {
                             _type: "Dataset"
+                            classification: {{items(type: "TextClassification").first()}}
                             datasetType: {{selectedDataset}}
                             variable: {{subView("featureVariables").selectedItems()}}
                             ~dataset: {{project}}
+                        }
+                        viewArguments: {
+                            item: {{.}}
+                            readOnly: false
                         }
                     }
                 ]

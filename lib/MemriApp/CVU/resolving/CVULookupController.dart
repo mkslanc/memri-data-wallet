@@ -305,6 +305,22 @@ class CVULookupController {
             }
             currentValue = LookupStepItems([item]);
             break;
+          case "items":
+            var exp = nodeType.args.asMap()[0];
+            if (exp == null) {
+              return null;
+            }
+            var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
+            if (byType != null) {
+              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db);
+              if (items.isEmpty) {
+                return null;
+              }
+              currentValue = LookupStepItems(items);
+            } else {
+              return null;
+            }
+            break;
           case "joined":
             if (currentValue == null || currentValue is! LookupStepValues) {
               return null;

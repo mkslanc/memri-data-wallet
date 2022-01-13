@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUUIElementFamily.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUAppearanceModifier.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUDropdown.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUGrid.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUMessageComposer.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/CVUElements/CVUObserver.dart';
@@ -124,6 +125,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUDropZone(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Observer:
         return CVUObserver(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.Dropdown:
+        return CVUDropdown(nodeResolver: widget.nodeResolver);
       default:
         return Text("${widget.nodeResolver.node.type} not implemented yet.");
     }
