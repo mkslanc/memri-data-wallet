@@ -116,6 +116,7 @@ LabelingTask > singleItem {
                 minHeight: 15
                 rows: 1
                 width: 150
+                value: {{.name}}
             }
 
             Button {

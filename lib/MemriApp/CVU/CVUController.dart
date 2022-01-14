@@ -169,6 +169,49 @@ class CVUController {
     });
   }
 
+  static Future<int?> storeDefinition(String string, DatabaseController databaseController) async {
+    var parsedDefinitions = parseCVUString(string);
+    if (parsedDefinitions.isNotEmpty) {
+      var definition = parsedDefinitions[0];
+      var definitionId;
+      await databaseController.databasePool.transaction(() async {
+        List<ItemPropertyRecord> properties = [];
+        var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
+        definitionId = await storedDefinition.save(databaseController.databasePool);
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "domain",
+            value: PropertyDatabaseValueString(definition.domain.inString)));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "name",
+            value: PropertyDatabaseValueString(definition.name ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "renderer",
+            value: PropertyDatabaseValueString(definition.renderer ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "selector",
+            value: PropertyDatabaseValueString(definition.selector ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "type",
+            value: PropertyDatabaseValueString(definition.type.inString)));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "definition",
+            value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "querystr",
+            value: PropertyDatabaseValueString(definition.querystr)));
+        await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+      });
+      return definitionId;
+    }
+  }
+
   loadStoredDefinitions() async {
     if (storedDefinitions.isNotEmpty) {
       return;
