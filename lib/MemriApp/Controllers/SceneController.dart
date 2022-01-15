@@ -55,7 +55,8 @@ class SceneController extends ChangeNotifier {
         await addPageController(page["label"]!,
             viewName: page["viewName"],
             navStack: navStackList[page["label"]],
-            viewArguments: page["viewArguments"]);
+            viewArguments: page["viewArguments"],
+            targetItem: page["targetItem"]);
       });
     } catch (e) {
       throw e;
@@ -68,10 +69,14 @@ class SceneController extends ChangeNotifier {
       {String? viewName,
       String? rendererName,
       NavigationStack? navStack,
-      CVUViewArguments? viewArguments}) async {
+      CVUViewArguments? viewArguments,
+      ItemRecord? targetItem}) async {
     var pageController = memri.PageController(this, label);
     await pageController.init(viewName ?? "",
-        rendererName: rendererName, navStack: navStack, viewArguments: viewArguments);
+        rendererName: rendererName,
+        navStack: navStack,
+        viewArguments: viewArguments,
+        targetItem: targetItem);
     pageController.addListener(() => notifyListeners());
     pageControllers.add(pageController);
     return pageController;
@@ -181,7 +186,12 @@ class SceneController extends ChangeNotifier {
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
 
+    var viewArgs = viewDefinition.properties["viewArguments"];
     viewArguments ??= CVUViewArguments();
+    viewArguments.argumentItem = targetItem;
+    if (viewArgs is CVUValueSubdefinition) {
+      viewArguments.args = viewArgs.value.properties;
+    }
     var pageLabelVal = viewArguments.args["pageLabel"]?.value;
     String pageLabel;
     if (pageLabelVal != null) {

@@ -40,7 +40,8 @@ class _SceneViewRendererViewState extends RendererViewState {
         "label": label,
         "viewName": ((viewName as CVUValueConstant).value as CVUConstantString).value,
         "viewArguments": CVUViewArguments(
-            args: viewArguments?.properties, parentArguments: viewContext.config.viewArguments)
+            args: viewArguments?.properties, parentArguments: viewContext.config.viewArguments),
+        "targetItem": widget.viewContext.focusedItem
       }); //TODO resolve normally
     });
     if (pages.isEmpty) {

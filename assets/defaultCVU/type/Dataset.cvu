@@ -39,7 +39,6 @@ Dataset > singleItem {
                 editMode: true
                 viewArguments: {
                     selectedDataset: {{selectedDataset}}
-                    selectedItems: {{item(207)}} {{item(208)}}
                 }
 
                 [datasource = pod] {
@@ -106,6 +105,7 @@ Dataset > singleItem {
                             ~labelingTask: {{.}}
                         }
                         viewArguments: {
+                            task: {{.}}
                             readOnly: false
                         }
                     }
