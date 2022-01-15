@@ -1184,6 +1184,7 @@
   },
   {
     "_type": "TextClassification",
-    "name": "Text classification (multiple)"
+    "name": "Text classification (multiple)",
+    "labelType": "CategoricalLabel"
   }
 ]
