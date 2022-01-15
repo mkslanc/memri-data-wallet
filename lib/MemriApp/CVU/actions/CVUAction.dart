@@ -5,9 +5,12 @@
 //  Created by T Brennan on 8/1/21.
 //
 
+import 'dart:convert';
+
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/MemriApp/CVU/CVUController.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
@@ -31,6 +34,7 @@ import 'package:memri/MemriApp/UI/ViewContextController.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -150,6 +154,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionWait(vars: vars);
     case "block":
       return ({Map? vars}) => CVUActionBlock(vars: vars);
+    case "createlabelingtask":
+      return ({Map? vars}) => CVUActionCreateLabelingTask(vars: vars);
     default:
       return null;
   }
@@ -1354,5 +1360,86 @@ class CVUActionBlock extends CVUAction {
         }
       });
     }
+  }
+}
+
+class CVUActionCreateLabelingTask extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionCreateLabelingTask({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var template = resolver.subdefinition("template");
+    if (template == null) {
+      return;
+    }
+    var dataset = await resolver.item("dataset");
+    if (dataset == null) {
+      print("CreateLabelingTask error: dataset not resolved");
+      return;
+    }
+    var datasetType = await dataset.edgeItem("datasetType", db: db);
+    if (datasetType == null) {
+      print("CreateLabelingTask error: dataset type not resolved");
+      return;
+    }
+    var query = (await datasetType.propertyValue("querystr"))?.asString();
+    if (query == null) {
+      print("CreateLabelingTask error: couldn't find query from dataset type");
+      return;
+    }
+    var decodedQuery = jsonDecode(query);
+    var itemType = decodedQuery["type"];
+    if (itemType == null) {
+      return;
+    }
+    var filterQuery = Map.of(decodedQuery);
+    filterQuery.remove('type');
+    List<DatabaseQueryConditionPropertyEquals> properties = [];
+    filterQuery.forEach((key, value) {
+      properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+    });
+
+    List<ItemRecord> selfItems = [];
+    var databaseQueryConfig =
+        DatabaseQueryConfig(itemTypes: [itemType], pageSize: 0, conditions: properties);
+    databaseQueryConfig.dbController = db;
+    var edgesFromFilteredItems = (await databaseQueryConfig.constructFilteredRequest()).map((item) {
+      var selfItem = ItemRecord(type: "Edge");
+      selfItems.add(selfItem);
+      return ItemEdgeRecord(
+          name: "entry",
+          selfUID: selfItem.uid,
+          sourceRowID: dataset.rowId,
+          targetRowID: item.rowId);
+    }).toList();
+    await db.databasePool.itemRecordInsertAll(selfItems);
+    await db.databasePool.itemEdgeRecordInsertAll(edgesFromFilteredItems);
+
+    List<ItemRecord> featureItems = await resolver.items("features");
+    var cvu =
+        '.labelingAnnotation${Uuid().v4()} { \n ${itemType} > labelAnnotation {\n VStack {\n alignment: left\n padding: 30\n spacing: 5\n';
+    for (var feature in featureItems) {
+      var propertyName = (await feature.propertyValue("propertyName", db))?.value;
+      if (propertyName != null) {
+        cvu += '\nText {\n text: "{.${propertyName}}"\n font: headline1 \n}';
+      }
+    }
+    cvu += '\n}\n}\n}';
+    var cvuID = await CVUController.storeDefinition(cvu, db);
+    if (cvuID == null) {
+      print("CreateLabelingTask error: definition haven't saved");
+      return;
+    }
+    var newVars = Map.of(vars);
+    (newVars["template"] as CVUValueSubdefinition)
+        .value
+        .properties
+        .update("view", (value) => CVUValueItem(cvuID), ifAbsent: () => CVUValueItem(cvuID));
+    await CVUActionAddItem(vars: newVars).execute(pageController, context);
   }
 }

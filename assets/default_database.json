@@ -1180,10 +1180,6 @@
   },
   {
     "_type": "TextClassification",
-    "name": "Text classification (binary)"
-  },
-  {
-    "_type": "TextClassification",
     "name": "Text classification (multiple)",
     "labelType": "CategoricalLabel"
   }

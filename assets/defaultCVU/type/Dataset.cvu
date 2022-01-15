@@ -95,8 +95,10 @@ Dataset > singleItem {
                         edgeType: "~feature"
                         subject: {{subView("featureVariables").selectedItems()}}
                     }
-                    addItem
+                    createLabelingTask
                     {
+                        dataset: {{.}}
+                        features: {{subView("featureVariables").selectedItems()}}
                         initialItem: {{.labelingTask}}
                         openNewView: true
                         template: {
