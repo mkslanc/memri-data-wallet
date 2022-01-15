@@ -166,7 +166,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         sortEdges: sortEdges);
   }
 
-  _constructFilteredRequest([Set<int>? searchRowIDs]) async {
+  Future<List<Item>> constructFilteredRequest([Set<int>? searchRowIDs]) async {
     List<dynamic> intersection(List<List<dynamic>> arrays) {
       if (arrays.length == 0) {
         return [];
@@ -397,9 +397,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       }
     }
 
-    List<dynamic> result = await _constructFilteredRequest(searchIDs);
+    List<Item> result = await constructFilteredRequest(searchIDs);
     if (result.length > 0) {
-      yield result.map((item) => ItemRecord.fromItem(item as Item)).toList();
+      yield result.map((item) => ItemRecord.fromItem(item)).toList();
     } else {
       yield [];
     }
