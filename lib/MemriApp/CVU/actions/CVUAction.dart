@@ -5,6 +5,8 @@
 //  Created by T Brennan on 8/1/21.
 //
 
+import 'dart:convert';
+
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1386,10 +1388,49 @@ class CVUActionCreateLabelingTask extends CVUAction {
     if (template == null) {
       return;
     }
-    var itemType = await resolver.string("_type");
+    var dataset = await resolver.item("dataset");
+    if (dataset == null) {
+      print("CreateLabelingTask error: dataset not resolved");
+      return;
+    }
+    var datasetType = await dataset.edgeItem("datasetType", db: db);
+    if (datasetType == null) {
+      print("CreateLabelingTask error: dataset type not resolved");
+      return;
+    }
+    var query = (await datasetType.propertyValue("querystr"))?.asString();
+    if (query == null) {
+      print("CreateLabelingTask error: couldn't find query from dataset type");
+      return;
+    }
+    var decodedQuery = jsonDecode(query);
+    var itemType = decodedQuery["type"];
     if (itemType == null) {
       return;
     }
+    var filterQuery = Map.of(decodedQuery);
+    filterQuery.remove('type');
+    List<DatabaseQueryConditionPropertyEquals> properties = [];
+    filterQuery.forEach((key, value) {
+      properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+    });
+
+    List<ItemRecord> selfItems = [];
+    var databaseQueryConfig =
+        DatabaseQueryConfig(itemTypes: [itemType], pageSize: 0, conditions: properties);
+    databaseQueryConfig.dbController = db;
+    var edgesFromFilteredItems = (await databaseQueryConfig.constructFilteredRequest()).map((item) {
+      var selfItem = ItemRecord(type: "Edge");
+      selfItems.add(selfItem);
+      return ItemEdgeRecord(
+          name: "entry",
+          selfUID: selfItem.uid,
+          sourceRowID: dataset.rowId,
+          targetRowID: item.rowId);
+    }).toList();
+    await db.databasePool.itemRecordInsertAll(selfItems);
+    await db.databasePool.itemEdgeRecordInsertAll(edgesFromFilteredItems);
+
     List<ItemRecord> featureItems = await resolver.items("features");
     var cvu =
         '.labelingAnnotation${Uuid().v4()} { \n ${itemType} > labelAnnotation {\n VStack {\n alignment: left\n padding: 30\n spacing: 5\n';
@@ -1402,6 +1443,7 @@ class CVUActionCreateLabelingTask extends CVUAction {
     cvu += '\n}\n}\n}';
     var cvuID = await CVUController.storeDefinition(cvu, db);
     if (cvuID == null) {
+      print("CreateLabelingTask error: definition haven't saved");
       return;
     }
     var newVars = Map.of(vars);
