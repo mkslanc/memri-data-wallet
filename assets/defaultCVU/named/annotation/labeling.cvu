@@ -1,5 +1,5 @@
 .labelingAnnotation {
-    cols: 7
+    cols: 9
     defaultRenderer: labelAnnotation
     emptyResultText: "There are no annotations here yet"
 }
@@ -15,7 +15,7 @@
     LabelingTask > singleItem {
         VStack {
             alignment: topleft
-            padding: 60 30 30 30
+            padding: 60 0 30 0
 
             Text {
                 color: #999999
@@ -37,6 +37,7 @@
 
             HStack {
                 alignment: left
+                padding: 0
 
                 Text {
                     color: #999999
@@ -106,7 +107,8 @@
             Text {
                 color: #999999
                 font: small_caps
-                text: "Labels"
+                padding: 20 0 0 0
+                text: "LABELS"
             }
 
             SubView {
@@ -129,7 +131,7 @@
                     [renderer = list] {
                         edgeInset: 0
                         hideSeparators: true
-                        spacing: 5
+                        spacing: 0
                     }
 
                     LabelOption > list {
@@ -160,7 +162,7 @@
 }
 
 .labeling {
-    cols: 10
+    cols: 12
     defaultRenderer: scene
     name: "labeling"
     title: "Labeling"

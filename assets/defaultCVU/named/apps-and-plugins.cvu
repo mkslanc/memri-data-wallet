@@ -3,7 +3,7 @@
     title: "All apps"
     emptyResultText: "There are no Plugins"
     defaultRenderer: list
-    cols: 5
+    cols: 6
 
     [datasource = pod] {
         query: Plugin

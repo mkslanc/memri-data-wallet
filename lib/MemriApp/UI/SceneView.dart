@@ -119,7 +119,7 @@ class _SceneViewState extends State<SceneView> {
                                       ColoredBox(
                                         color: Colors.white,
                                         child: SizedBox(
-                                          width: constraints.maxWidth / 10 * viewCols[index]! -
+                                          width: constraints.maxWidth / 12 * viewCols[index]! -
                                               (index > 0 && index == pagesCount - 1 ? 0 : 1),
                                           height: constraints.maxHeight -
                                               (widget.showMainNavigation ? 190 : 0),

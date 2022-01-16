@@ -2,5 +2,5 @@
     name: "cvuEditor"
     title: "CVU Editor"
     defaultRenderer: cvuEditor
-    cols: 5
+    cols: 6
 }
