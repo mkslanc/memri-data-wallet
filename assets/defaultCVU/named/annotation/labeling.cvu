@@ -1,0 +1,177 @@
+.labelingAnnotation {
+    cols: 7
+    defaultRenderer: labelAnnotation
+    emptyResultText: "There are no annotations here yet"
+}
+
+.labelingSummary {
+    cols: 3
+    defaultRenderer: singleItem
+
+    [renderer = singleItem] {
+        scrollable: false
+    }
+
+    LabelingTask > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 30 30 30
+
+            Text {
+                color: #999999
+                font: small_caps
+                text: "SUMMARY"
+            }
+
+            Text {
+                font: headline2
+                padding: 0 0 30 0
+                text: {{.~labelingTask.datasetType.name}}
+            }
+
+            Text {
+                color: #999999
+                font: small_caps
+                text: "TASK"
+            }
+
+            HStack {
+                alignment: left
+
+                Text {
+                    color: #999999
+                    font: ul
+                    text: "Submitted"
+                }
+
+                Text {
+                    color: #333333
+                    font: ul
+                    text: "{.labelAnnotation[.isSubmitted = true].count()} annotations"
+                }
+
+                VStack {
+                    alignment: top
+
+                    Text {
+                        color: #333333
+                        font: small_caps
+                        text: "{.labelAnnotation[.isSubmitted = true].count().percent(.~labelingTask.entry[].count())}%"
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+
+                Text {
+                    color: #999999
+                    font: ul
+                    text: "Skipped"
+                }
+
+                Text {
+                    color: #333333
+                    font: ul
+                    text: "{.labelAnnotation[.isSubmitted = false].count()} annotations"
+                }
+
+                VStack {
+                    alignment: top
+
+                    Text {
+                        color: #333333
+                        font: small_caps
+                        text: "{.labelAnnotation[.isSubmitted = false].count().percent(.~labelingTask.entry[].count())}%"
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+
+                Text {
+                    color: #999999
+                    font: ul
+                    text: "Dataset"
+                }
+
+                Text {
+                    color: #333333
+                    font: ul
+                    text: "{.~labelingTask.entry[].count()} annotations"
+                }
+            }
+
+            Text {
+                color: #999999
+                font: small_caps
+                text: "Labels"
+            }
+
+            SubView {
+                view: {
+                    defaultRenderer: list
+                    editMode: false
+                    viewArguments: {
+                        labelingTask: {{labelingTask}}
+                    }
+
+                    [datasource = pod] {
+                        filter: {
+                            edgeSources: {
+                                labelOption: {{labelingTask}}
+                            }
+                        }
+                        query: LabelOption
+                    }
+
+                    [renderer = list] {
+                        edgeInset: 0
+                        hideSeparators: true
+                        spacing: 5
+                    }
+
+                    LabelOption > list {
+                        HStack {
+                            alignment: left
+
+                            Text {
+                                color: #333333
+                                font: ul
+                                text: "{.name} {.~categoricalLabel[].count()}"
+                            }
+
+                            VStack {
+                                alignment: top
+
+                                Text {
+                                    color: #333333
+                                    font: small_caps
+                                    text: "{.~categoricalLabel[].count().percent(.~labelOption.~labelingTask.entry[].count())} %"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.labeling {
+    cols: 10
+    defaultRenderer: scene
+    name: "labeling"
+    title: "Labeling"
+
+    [renderer = scene] {
+        pages: {
+            labelingAnnotation: "labelingAnnotation"
+            labelingSummary: "labelingSummary"
+        }
+        viewArguments: {
+            labelingTask: {{.}}
+        }
+    }
+}

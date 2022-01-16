@@ -10,6 +10,7 @@ LabelingTask {
     }
 }
 
+
 LabelingTask > singleItem {
     VStack {
         alignment: topleft
@@ -47,6 +48,7 @@ LabelingTask > singleItem {
 
                 [renderer = custom] {
                     Dropdown {
+                        edgeName: "taskType"
                         item: {{task}}
                         list: {{items}}
                         maxWidth: 550
@@ -58,7 +60,6 @@ LabelingTask > singleItem {
                                 subject: {{task}}
                             }
                         ]
-                        edgeName: "taskType"
 
                         Text {
                             color: #FE570F
@@ -115,8 +116,8 @@ LabelingTask > singleItem {
                 hint: "e.g. positive"
                 minHeight: 15
                 rows: 1
-                width: 150
                 value: {{.name}}
+                width: 150
             }
 
             Button {
@@ -146,26 +147,15 @@ LabelingTask > singleItem {
 
             Button {
                 onPress: [
-                    addItem
+                    openView
                     {
-                        openNewView: true
-                        template: {
-                            _type: "Dataset"
-                            classification: {{items(type: "TextClassification").first()}}
-                            datasetType: {{selectedDataset}}
-                            variable: {{subView("featureVariables").selectedItems()}}
-                            ~dataset: {{project}}
-                        }
-                        viewArguments: {
-                            item: {{.}}
-                            readOnly: false
-                        }
+                        viewName: "labeling"
                     }
                 ]
                 styleName: primaryButton
 
                 Text {
-                    text: "Preview editor"
+                    text: "Label your data"
                     textalign: bottom
                 }
 
