@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/SceneView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
@@ -18,7 +19,7 @@ class SceneViewRendererView extends Renderer {
 class _SceneViewRendererViewState extends RendererViewState {
   late SceneController _sceneController;
   late Future<void> _init;
-  var pages = <Map<String, String>>[];
+  var pages = <Map<String, dynamic>>[];
 
   @override
   void initState() {
@@ -31,11 +32,16 @@ class _SceneViewRendererViewState extends RendererViewState {
     _sceneController.parentSceneController = pageController.sceneController;
     _sceneController.parentSceneController!.subSceneControllers.add(_sceneController);
     var pageResolver = viewContext.rendererDefinitionPropertyResolver.subdefinition("pages");
+    var viewArguments =
+        viewContext.rendererDefinitionPropertyResolver.subdefinition("viewArguments");
 
     pageResolver?.properties.forEach((label, viewName) {
       pages.add({
         "label": label,
-        "viewName": ((viewName as CVUValueConstant).value as CVUConstantString).value
+        "viewName": ((viewName as CVUValueConstant).value as CVUConstantString).value,
+        "viewArguments": CVUViewArguments(
+            args: viewArguments?.properties, parentArguments: viewContext.config.viewArguments),
+        "targetItem": widget.viewContext.focusedItem
       }); //TODO resolve normally
     });
     if (pages.isEmpty) {

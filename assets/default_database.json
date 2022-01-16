@@ -26,6 +26,7 @@
     "icon": "grid"
   },
   {
+    "uid": 20001,
     "_type": "Plugin",
     "pluginType": "importer",
     "name": "WhatsApp",
@@ -36,6 +37,7 @@
     "pluginName": "WhatsappPlugin"
   },
   {
+    "uid": 20002,
     "_type": "Plugin",
     "pluginType": "importer",
     "name": "Gmail plugin",
@@ -45,6 +47,7 @@
     "icon": "mail"
   },
   {
+    "uid": 20003,
     "_type": "Plugin",
     "pluginType": "importer",
     "name": "Instagram",
@@ -1137,50 +1140,47 @@
     "_type": "Country"
   },
   {
-    "_type": "LabelingDataType",
-    "name": "Texts",
-    "icon": "file-text",
-    "allEdges": [
-      {
-        "_type": "dataset",
-        "targetType": "Dataset",
-        "uid": 10000
-      },
-      {
-        "_type": "dataset",
-        "targetType": "Dataset",
-        "uid": 10001
-      }
-    ]
-  },
-  {
-    "_type": "LabelingDataType",
-    "name": "Images",
-    "icon": "image",
-    "allEdges": [
-      {
-        "_type": "dataset",
-        "targetType": "Dataset",
-        "uid": 10002
-      }
-    ]
-  },
-  {
     "uid": 10000,
-    "_type": "Dataset",
+    "_type": "DatasetType",
     "name": "Whatsapp messages",
-    "querystr": "{\"type\":\"Message\", \"service\": \"Whatsapp\"}"
+    "querystr": "{\"type\":\"Message\", \"service\": \"Whatsapp\"}",
+    "allEdges": [
+      {
+        "_type": "plugin",
+        "targetType": "Plugin",
+        "uid": 20001
+      }
+    ]
   },
   {
     "uid": 10001,
-    "_type": "Dataset",
+    "_type": "DatasetType",
     "name": "Gmail messages",
-    "querystr": "{\"type\":\"EmailMessage\", \"service\": \"Gmail\"}"
+    "querystr": "{\"type\":\"EmailMessage\", \"service\": \"Gmail\"}",
+    "allEdges": [
+      {
+        "_type": "plugin",
+        "targetType": "Plugin",
+        "uid": 20002
+      }
+    ]
   },
   {
     "uid": 10002,
-    "_type": "Dataset",
+    "_type": "DatasetType",
     "name": "Instagram posts",
-    "querystr": "{\"type\":\"Post\", \"service\": \"Instagram\"}"
+    "querystr": "{\"type\":\"Post\", \"service\": \"Instagram\"}",
+    "allEdges": [
+      {
+        "_type": "plugin",
+        "targetType": "Plugin",
+        "uid": 20003
+      }
+    ]
+  },
+  {
+    "_type": "TextClassification",
+    "name": "Text classification (multiple)",
+    "labelType": "CategoricalLabel"
   }
 ]

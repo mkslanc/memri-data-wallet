@@ -305,6 +305,22 @@ class CVULookupController {
             }
             currentValue = LookupStepItems([item]);
             break;
+          case "items":
+            var exp = nodeType.args.asMap()[0];
+            if (exp == null) {
+              return null;
+            }
+            var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
+            if (byType != null) {
+              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db);
+              if (items.isEmpty) {
+                return null;
+              }
+              currentValue = LookupStepItems(items);
+            } else {
+              return null;
+            }
+            break;
           case "joined":
             if (currentValue == null || currentValue is! LookupStepValues) {
               return null;
@@ -547,24 +563,30 @@ class CVULookupController {
               return null;
             }
             break;
-          case "selecteditems":
+
+          case "subview":
             var exp = nodeType.args.asMap()[0];
+            String? id = await resolve<String>(expression: exp, context: context, db: db);
+            if (id == null) {
+              return null;
+            }
+            var subViewArgs = context.viewArguments?.subViewArguments[id];
+            if (subViewArgs == null) {
+              return null;
+            }
+            context = CVUContext(
+                currentItem: context.currentItem, items: context.items, viewArguments: subViewArgs);
+            break;
+          case "selecteditems":
             var viewArgs = context.viewArguments;
             if (viewArgs == null) {
               return null;
             }
-            if (exp != null) {
-              String? id = await resolve<String>(expression: exp, context: context, db: db);
-              if (id == null) {
-                return null;
-              }
-              viewArgs = viewArgs.subViewArguments[id];
-            }
-            if (viewArgs?.args["selectedItems"] == null) {
+            if (viewArgs.args["selectedItems"] == null) {
               return null;
             }
             List<ItemRecord> items = await resolve<List>(
-                value: viewArgs!.args["selectedItems"],
+                value: viewArgs.args["selectedItems"],
                 db: db,
                 context: context,
                 additionalType: ItemRecord) as List<ItemRecord>;
@@ -711,15 +733,12 @@ class CVULookupController {
       return items;
     }
 
-    List<ItemRecord> resultItems = <ItemRecord>[];
-    Future.forEach<ItemRecord>(items, (item) async {
-      CVUContext context = CVUContext(currentItem: item);
-      if (await resolve<bool>(expression: exp, context: context, db: db) ?? false) {
-        resultItems.add(item);
-      }
-    }); //TODO check if there is a better way to filter async
-
-    return resultItems;
+    return (await Future.wait(items.map((item) async =>
+            (await resolve<bool>(expression: exp, context: CVUContext(currentItem: item), db: db) ??
+                    false)
+                ? item
+                : null)))
+        .compactMap();
   }
 
   Future<T?> _resolveNamedExpression<T>(List<CVUExpressionNode> expressions, String name,

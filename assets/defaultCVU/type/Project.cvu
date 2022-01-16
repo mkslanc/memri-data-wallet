@@ -1,0 +1,663 @@
+Project {
+    cols: 9
+    defaultRenderer: singleItem
+    title: "Create new project"
+
+    [renderer = singleItem] {
+        scrollable: true
+    }
+}
+
+Project > singleItem {
+    VStack {
+        alignment: topleft
+        padding: 60 0 0 0
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 0 0 30 0
+            text: "Project name"
+        }
+
+        Textfield {
+            background: #F0F0F0
+            border: #000 1
+            hint: "Your project name"
+            maxWidth: 571
+            rows: 1
+            value: {{.name}}
+        }
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 80 0 10 0
+            text: "Select dataset source"
+        }
+
+        Text {
+            color: #333333
+            font: bodyText1
+            padding: 0 0 20 0
+            text: "Select the data source that will be used in your app. If you want the app to make predictions about your conversations, you can select: Messages."
+        }
+
+        Text {
+            background: #F5F5F5
+            color: #333333
+            font: tablist
+            padding: 10
+            text: "Datasources"
+        }
+
+        SubView {
+            id: datasetGrid
+            view: {
+                defaultRenderer: grid
+                editMode: true
+                singleChoice: true
+                viewName: datasetsGrid
+
+                [datasource = pod] {
+                    query: DatasetType
+                }
+
+                [renderer = grid] {
+                    layout: "flow"
+                    onPress: noop
+                    spacing: 30
+                }
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 30 0 0 0
+
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        initialItem: {{.dataset}}
+                        openNewView: true
+                        template: {
+                            _type: "Dataset"
+                            datasetType: {{subView("datasetGrid").selectedItems().first()}}
+                            ~dataset: {{.}}
+                        }
+                        viewArguments: {
+                            item: {{.}}
+                            readOnly: false
+                            selectedDataset: {{subView("datasetGrid").selectedItems().first()}}
+                        }
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Set up your data"
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            Button {
+                onPress: [
+                    delete
+                    {
+                        close: true
+                    }
+                ]
+                padding: 0 0 0 15
+
+                Text {
+                    color: #333333
+                    font: button_label
+                    text: "Cancel"
+                }
+            }
+        }
+    }
+}
+
+Project > list {
+    onPress: [
+            openView
+            {
+                viewArguments: {
+                    selectedProject: {{.}}
+                }
+                viewName: "project-overview"
+            }
+        ]
+
+    HStack {
+        alignment: topleft
+
+        VStack {
+            alignment: topleft
+
+            Text {
+                color: #333333
+                font: headline2
+                padding: 0 0 10 0
+                text: {{.name OR "Draft: Project"}}
+            }
+
+            HStack {
+                alignment: topleft
+
+                VStack {
+                    alignment: topleft
+                    width: 200
+
+                    Text {
+                        font: "body_tiny_bold"
+                        text: {{.dataset.datasetType.name OR "No Dataset"}}
+                    }
+
+                    Text {
+                        color: "#989898"
+                        font: "body_tiny"
+                        text: {{.dataset.datasetType.plugin.name}}
+                    }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 200
+
+                    Text {
+                        font: "body_tiny_bold"
+                        padding: 0 0 10 0
+                        text: {{.dataset.labelingTask.taskType.name OR ""}}
+                    }
+
+                    Text {
+                        color: "#989898"
+                        font: "body_tiny"
+                        text: "{.dataset.feature[].count() OR '0'} variables"
+                    }
+                }
+            }
+        }
+
+        Spacer
+
+        Image {
+            color: #DFDEDE
+            font: 24 light
+            padding: 5 0 5 0
+            systemName: "ellipsis"
+        }
+    }
+}
+
+.allProjects {
+    actionButton: [
+        addItem
+        {
+            template: {
+                _type: Project
+            }
+            title: "Create new project"
+            color: "#FE570F"
+        }
+        ]
+    defaultRenderer: list
+    emptyResult: {
+        HStack {
+            Text {
+                text: "There are no projects right now"
+            }
+        }
+    }
+    name: "all-projects"
+    sortFields: dateModified dateCreated
+    title: "All projects"
+
+    [datasource = pod] {
+        query: Project
+        sortAscending: true
+        sortProperty: dateModified
+    }
+
+    [renderer = list] {
+        edgeInset: 30 30 10 30
+        spacing: 0 20
+    }
+}
+
+.project-variables {
+    cols: 12
+    defaultRenderer: scene
+    name: "inbox"
+    title: "Inbox"
+
+    [renderer = scene] {
+        pages: {
+            featureVariables: "feature-variables"
+            projectSummary: "project-summary"
+        }
+        viewArguments: {
+            project: {{item}}
+            selectedDataset: {{selectedDataset}}
+        }
+    }
+}
+
+.feature-variables {
+    cols: 9
+    defaultRenderer: custom
+    scrollable: false
+    title: "Set up your data"
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 0 0 30 0
+            text: "Set up your data"
+        }
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 70 0 10 0
+            text: "Select feature variables"
+        }
+
+        Text {
+            font: bodyText1
+            text: "Choose the type of data you will use in your app. For instance, select: text if you want the app to work on messages and emails."
+        }
+
+        SubView {
+            id: featureVariables
+            view: {
+                defaultRenderer: grid
+                editMode: true
+                viewArguments: {
+                    selectedDataset: {{selectedDataset}}
+                }
+
+                [datasource = pod] {
+                    filter: {
+                        properties: {
+                            itemType: {{selectedDataset.querystr.fromjson("type")}}
+                        }
+                    }
+                    query: ItemPropertySchema
+                    sortAscending: true
+                    sortProperty: dateModified
+                }
+
+                [renderer = grid] {
+                    edgeInset: 0
+                    layout: flow
+                    showDefaultSelections: false
+                    spacing: 5
+                }
+
+                ItemPropertySchema > grid {
+                    Wrap {
+                        background: {{isSelected ? "#33FE570F" : "#F5F5F5"}}
+                        cornerRadius: 2
+                        padding: 10 12
+
+                        Text {
+                            color: {{isSelected ? "#FE570F" : "#999999"}}
+                            font: tab_list
+                            lineLimit: 1
+                            text: {{.propertyName.plainString() OR "Untitled"}}
+                        }
+
+                        Image {
+                            alignment: center
+                            bundleImage: "check"
+                            color: {{isSelected ? "#FE570F" : "#DFDEDE"}}
+                            isVector: true
+                            padding: 0 0 0 17
+                        }
+                    }
+                }
+            }
+        }
+
+        HStack {
+            alignment: left
+            padding: 30 0 0 0
+
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        initialItem: {{project.dataset}}
+                        openNewView: true
+                        template: {
+                            _type: "Dataset"
+                            classification: {{items(type: "TextClassification").first()}}
+                            datasetType: {{selectedDataset}}
+                            variable: {{subView("featureVariables").selectedItems()}}
+                            ~dataset: {{project}}
+                        }
+                        viewArguments: {
+                            item: {{.}}
+                            readOnly: false
+                        }
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Configure labelling editor"
+                    textalign: bottom
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            Button {
+                onPress: back
+                padding: 0 0 0 15
+
+                Text {
+                    color: #333333
+                    font: button_label
+                    text: "Back to project setup"
+                }
+            }
+        }
+    }
+}
+
+.project-summary {
+    cols: 3
+    defaultRenderer: custom
+
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "SUMMARY"
+        }
+
+        Text {
+            font: headline2
+            padding: 0 0 30 0
+            text: {{selectedDataset.name}}
+        }
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "SOURCE"
+        }
+
+        Text {
+            font: ul
+            padding: 0 0 20 0
+            text: {{selectedDataset.plugin.name}}
+        }
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "DATA TYPE"
+        }
+
+        Text {
+            font: ul
+            padding: 0 0 20 0
+            text: "Text"
+        }
+
+        Text {
+            color: #999999
+            font: small_caps
+            text: "FEATURE VARIABLES"
+        }
+    }
+}
+
+.project-overview {
+    cols: 6
+    defaultRenderer: singleItem
+    scrollable: false
+    title: "{selectedProject.name} summary"
+
+    [renderer = singleItem] {
+        scrollable: false
+    }
+
+    Project > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 0 0 0
+
+            Text {
+                color: #333333
+                font: headline2
+                padding: 0 0 30 0
+                text: {{.name}}
+            }
+
+            HStack {
+                alignment: topleft
+
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        font: "body_bold"
+                        text: {{.dataset.datasetType.name OR "No Dataset"}}
+                    }
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        padding: 30 0 0 0
+                        text: "SOURCE"
+                    }
+
+                    Text {
+                        font: ul
+                        padding: 0 0 20 0
+                        text: {{.dataset.datasetType.plugin.name}}
+                    }
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        text: "DATA TYPE"
+                    }
+
+                    Text {
+                        font: ul
+                        padding: 0 0 20 0
+                        text: "Text"
+                    }
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        text: "FEATURE VARIABLES"
+                    }
+
+                    FlowStack {
+                        list: {{.dataset.feature[]}}
+                        spacing: 3
+
+                        HStack {
+                            alignment: left
+
+                            Text {
+                                font: ul
+                                text: "{.propertyName}"
+                            }
+                        }
+                    }
+
+                    Spacer
+                }
+
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        font: "body_bold"
+                        padding: 0 0 10 0
+                        text: {{.dataset.labelingTask.taskType.name OR ""}}
+                    }
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        padding: 20 0 0 0
+                        text: "TASK"
+                    }
+
+                    HStack {
+                        alignment: left
+                        padding: 0
+
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Submitted"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            text: "{.labelingTask.labelAnnotation[.isSubmitted = true].count()} annotations"
+                        }
+
+                        VStack {
+                            alignment: top
+
+                            Text {
+                                color: #333333
+                                font: small_caps
+                                text: "{.labelingTask.labelAnnotation[.isSubmitted = true].count().percent(.dataset.entry[].count())}%"
+                            }
+                        }
+                    }
+
+                    HStack {
+                        alignment: left
+
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Skipped"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            text: "{.labelingTask.labelAnnotation[.isSubmitted = false].count()} annotations"
+                        }
+
+                        VStack {
+                            alignment: top
+
+                            Text {
+                                color: #333333
+                                font: small_caps
+                                text: "{.labelingTask.labelAnnotation[.isSubmitted = false].count().percent(.dataset.entry[].count())}%"
+                            }
+                        }
+                    }
+
+                    HStack {
+                        alignment: left
+
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Dataset"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            text: "{.dataset.entry[].count()} annotations"
+                        }
+                    }
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        padding: 20 0 0 0
+                        text: "LABELS"
+                    }
+
+                    SubView {
+                        view: {
+                            defaultRenderer: list
+                            editMode: false
+                            viewArguments: {
+                                labelingTask: {{selectedProject.dataset.labelingTask}}
+                            }
+
+                            [datasource = pod] {
+                                filter: {
+                                    edgeSources: {
+                                        labelOption: {{labelingTask}}
+                                    }
+                                }
+                                query: LabelOption
+                            }
+
+                            [renderer = list] {
+                                edgeInset: 0
+                                hideSeparators: true
+                                spacing: 0
+                            }
+
+                            LabelOption > list {
+                                HStack {
+                                    alignment: left
+
+                                    Text {
+                                        color: #333333
+                                        font: ul
+                                        text: "{.name} {.~categoricalLabel[].count()}"
+                                    }
+
+                                    VStack {
+                                        alignment: top
+
+                                        Text {
+                                            color: #333333
+                                            font: small_caps
+                                            text: "{.~categoricalLabel[].count().percent(.~labelOption.~labelingTask.entry[].count())} %"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

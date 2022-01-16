@@ -56,6 +56,10 @@ class CVUFont {
         size: bodyText1.fontSize!,
         weight: bodyText1.fontWeight,
         letterSpacing: bodyText1.letterSpacing),
+    "body_bold": CVUFont(
+        size: bodyBold.fontSize!,
+        weight: bodyBold.fontWeight,
+        letterSpacing: bodyBold.letterSpacing),
     "bodyText2": CVUFont(
         size: bodyText2.fontSize!,
         weight: bodyText2.fontWeight,
@@ -81,6 +85,14 @@ class CVUFont {
     "body_tiny": CVUFont(
       size: bodyTiny.fontSize!,
       weight: bodyTiny.fontWeight,
+    ),
+    "body_tiny_bold": CVUFont(
+      size: bodyTiny.fontSize!,
+      weight: FontWeight.w700,
+    ),
+    "ul": CVUFont(
+      size: ul.fontSize!,
+      weight: ul.fontWeight,
     ),
   };
 
@@ -130,4 +142,6 @@ class CVUFont {
       fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
   static const bodyTiny = TextStyle(
       fontFamily: 'Karla', fontSize: 10, fontWeight: FontWeight.w400, color: Color(0xff333333));
+  static const ul = TextStyle(
+      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
 }

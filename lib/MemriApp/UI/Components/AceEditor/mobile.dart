@@ -5,8 +5,9 @@ class AceEditorController {
   String get content => _content!;
 
   final VoidCallback onResultReceived;
+  final Future<List<Map<String, dynamic>>> Function(String)? validate;
 
-  AceEditorController(this.onResultReceived);
+  AceEditorController(this.onResultReceived, {this.validate});
 
   updateEditorContent(String? newContent) {
     print("Error: not implemented now");

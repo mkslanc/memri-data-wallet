@@ -161,6 +161,21 @@
       "value_type": "string"
     },
     {
+      "item_type": "CategoricalLabel",
+      "property": "allowSharing",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "CategoricalLabel",
+      "property": "isSubmitted",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "CategoricalLabel",
+      "property": "labels",
+      "value_type": "string"
+    },
+    {
       "item_type": "Country",
       "property": "latitude",
       "value_type": "double"
@@ -297,6 +312,16 @@
     },
     {
       "item_type": "Dataset",
+      "property": "querystr",
+      "value_type": "string"
+    },
+    {
+      "item_type": "DatasetType",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "DatasetType",
       "property": "querystr",
       "value_type": "string"
     },
@@ -582,17 +607,37 @@
     },
     {
       "item_type": "LabelAnnotation",
+      "property": "isSubmitted",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "LabelAnnotation",
       "property": "labels",
       "value_type": "string"
     },
     {
+      "item_type": "LabelOption",
+      "property": "color",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelOption",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
       "item_type": "LabelingDataType",
-      "property": "icon",
+      "property": "labelType",
       "value_type": "string"
     },
     {
       "item_type": "LabelingDataType",
       "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingTask",
+      "property": "currentLabelOption",
       "value_type": "string"
     },
     {
@@ -982,6 +1027,11 @@
     },
     {
       "item_type": "PluginRun",
+      "property": "progress",
+      "value_type": "double"
+    },
+    {
+      "item_type": "PluginRun",
       "property": "settings",
       "value_type": "string"
     },
@@ -994,11 +1044,6 @@
       "item_type": "PluginRun",
       "property": "targetItemId",
       "value_type": "string"
-    },
-    {
-      "item_type": "PluginRun",
-      "property": "progress",
-      "value_type": "double"
     },
     {
       "item_type": "Post",
@@ -1018,6 +1063,16 @@
     {
       "item_type": "Post",
       "property": "type",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Project",
+      "property": "gitlabUrl",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Project",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -1063,6 +1118,16 @@
     {
       "item_type": "SuggestedMerge",
       "property": "task",
+      "value_type": "string"
+    },
+    {
+      "item_type": "TextClassification",
+      "property": "labelType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "TextClassification",
+      "property": "name",
       "value_type": "string"
     },
     {
@@ -1183,6 +1248,16 @@
       "target_type": "Location"
     },
     {
+      "source_type": "CategoricalLabel",
+      "edge": "annotatedItem",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "CategoricalLabel",
+      "edge": "categoricalLabel",
+      "target_type": "LabelOption"
+    },
+    {
       "source_type": "Country",
       "edge": "flag",
       "target_type": "Photo"
@@ -1246,6 +1321,31 @@
       "source_type": "CurrencySetting",
       "edge": "wallet",
       "target_type": "Wallet"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "datasetType",
+      "target_type": "DatasetType"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "entry",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "feature",
+      "target_type": "Any"
+    },
+    {
+      "source_type": "Dataset",
+      "edge": "labelingTask",
+      "target_type": "LabelingTask"
+    },
+    {
+      "source_type": "DatasetType",
+      "edge": "plugin",
+      "target_type": "Plugin"
     },
     {
       "source_type": "Diet",
@@ -1343,19 +1443,19 @@
       "target_type": "Any"
     },
     {
-      "source_type": "LabelingDataType",
-      "edge": "dataset",
-      "target_type": "Dataset"
-    },
-    {
       "source_type": "LabelingTask",
-      "edge": "dataset",
-      "target_type": "Dataset"
+      "edge": "labelAnnotation",
+      "target_type": "Any"
     },
     {
       "source_type": "LabelingTask",
       "edge": "labelOption",
-      "target_type": "Label"
+      "target_type": "LabelOption"
+    },
+    {
+      "source_type": "LabelingTask",
+      "edge": "taskType",
+      "target_type": "Any"
     },
     {
       "source_type": "LabelingTask",
@@ -1591,6 +1691,11 @@
       "source_type": "Post",
       "edge": "photo",
       "target_type": "Photo"
+    },
+    {
+      "source_type": "Project",
+      "edge": "dataset",
+      "target_type": "Dataset"
     },
     {
       "source_type": "Receipt",

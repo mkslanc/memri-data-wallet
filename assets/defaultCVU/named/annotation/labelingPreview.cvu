@@ -1,0 +1,122 @@
+.labelingEditorPreview {
+    cols: 4
+    defaultRenderer: singleItem
+
+    LabelingTask > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 30 30 30
+
+            Text {
+                color: #333333
+                font: 20 headline2
+                text: "Preview the labelling editor"
+            }
+
+            Text {
+                color: #333333
+                font: 14 body
+                text: "Preview and adjust  the labeling interface."
+            }
+
+            Button {
+                isLink: true
+                onPress: [
+                    openView
+                    {
+                        view: {
+                            clearSecondary: false
+                        }
+                        viewArguments: {
+                            labelingTask: {{.}}
+                        }
+                        viewName: "labelingCVUEditor"
+                    }
+                ]
+
+                Text {
+                    color: #FE570F
+                    font: 14 body
+                    text: "<>  Open code editor"
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 50 0 0 0
+
+                Button {
+                    onPress: [
+                        openView
+                        {
+                            viewArguments: {
+                                pageLabel: "~main"
+                            }
+                            viewName: "labeling"
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Label your data"
+                        textalign: bottom
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    onPress: [
+                        back
+                        {
+                            pageLabel: "~main"
+                        }
+                    ]
+                    padding: 0 0 0 15
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Back to labelling configuration"
+                    }
+                }
+            }
+        }
+    }
+}
+
+.labelingAnnotationPreview {
+    cols: 6
+    defaultRenderer: labelAnnotation
+    emptyResultText: "There are no annotations here yet"
+    inPreviewMode: true
+}
+
+.labelingPreview {
+    cols: 10
+    defaultRenderer: scene
+    name: "labelingPreview"
+    title: "Preview labeling editor"
+
+    [renderer = scene] {
+        pages: {
+            labelingAnnEditorPreview: "labelingEditorPreview"
+            labelingAnnotation: "labelingAnnotationPreview"
+        }
+        viewArguments: {
+            labelingTask: {{.}}
+        }
+    }
+}
+
+.labelingCVUEditor {
+    cols: 4
+    customDefinition: {{labelingTask.view.definition}}
+    defaultRenderer: cvuEditor
+    mode: customLocation
+}

@@ -34,7 +34,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
           width: 30,
         ),
         NavigationItemView(
-          item: Item(name: 'Projects'),
+          item: Item(name: 'Projects', targetViewName: "allProjects"),
           sceneController: widget.sceneController,
         ),
         SizedBox(

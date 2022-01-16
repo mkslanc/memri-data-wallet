@@ -29,7 +29,7 @@ class SceneController extends ChangeNotifier {
 
   List<memri.PageController> pageControllers = [];
 
-  init([List<Map<String, String>>? pages]) async {
+  init([List<Map<String, dynamic>>? pages]) async {
     try {
       var navStackList = <String, NavigationStack>{};
       if (pages == null) {
@@ -43,7 +43,7 @@ class SceneController extends ChangeNotifier {
 
         if (pages.length > 1) {
           navStackList.forEach((key, value) {
-            value.state.last.config.cols ??= 5;
+            if (value.state.isNotEmpty) value.state.last.config.cols ??= 5;
           }); //TODO cols part logic is not clear, so just dirty hack for now
         }
       }
@@ -51,9 +51,12 @@ class SceneController extends ChangeNotifier {
         pages.add({"label": "main", "viewName": "home"});
       }
 
-      await Future.forEach<Map<String, String>>(pages, (page) async {
+      await Future.forEach<Map<String, dynamic>>(pages, (page) async {
         await addPageController(page["label"]!,
-            viewName: page["viewName"], navStack: navStackList[page["label"]]);
+            viewName: page["viewName"],
+            navStack: navStackList[page["label"]],
+            viewArguments: page["viewArguments"],
+            targetItem: page["targetItem"]);
       });
     } catch (e) {
       throw e;
@@ -63,9 +66,17 @@ class SceneController extends ChangeNotifier {
   }
 
   Future<memri.PageController> addPageController(String label,
-      {String? viewName, String? rendererName, NavigationStack? navStack}) async {
+      {String? viewName,
+      String? rendererName,
+      NavigationStack? navStack,
+      CVUViewArguments? viewArguments,
+      ItemRecord? targetItem}) async {
     var pageController = memri.PageController(this, label);
-    await pageController.init(viewName ?? "", rendererName: rendererName, navStack: navStack);
+    await pageController.init(viewName ?? "",
+        rendererName: rendererName,
+        navStack: navStack,
+        viewArguments: viewArguments,
+        targetItem: targetItem);
     pageController.addListener(() => notifyListeners());
     pageControllers.add(pageController);
     return pageController;
@@ -175,7 +186,12 @@ class SceneController extends ChangeNotifier {
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
 
+    var viewArgs = viewDefinition.properties["viewArguments"];
     viewArguments ??= CVUViewArguments();
+    viewArguments.argumentItem = targetItem;
+    if (viewArgs is CVUValueSubdefinition) {
+      viewArguments.args = viewArgs.value.properties;
+    }
     var pageLabelVal = viewArguments.args["pageLabel"]?.value;
     String pageLabel;
     if (pageLabelVal != null) {
@@ -230,12 +246,20 @@ class SceneController extends ChangeNotifier {
 
     var pageIndex = pageControllers.indexOf(pageController);
     if (pageIndex < pageControllers.length - 1) {
-      for (var index = pageIndex + 1; index < pageControllers.length; index++) {
-        var secondaryPageController = pageControllers[index];
-        secondaryPageController.topMostContext = null; // TODO: ??
-        secondaryPageController.navigationController.setViewControllers(Empty());
-        secondaryPageController.navigationStack.state = [];
-        secondaryPageController.navigationStack = secondaryPageController.navigationStack;
+      var clearSecondary = true;
+      var clearSecondaryVal = viewDefinition.properties["clearSecondary"];
+      if (clearSecondaryVal is CVUValueConstant && clearSecondaryVal.value is CVUConstantBool) {
+        clearSecondary = clearSecondaryVal.value.asBool()!;
+      }
+
+      if (clearSecondary) {
+        for (var index = pageIndex + 1; index < pageControllers.length; index++) {
+          var secondaryPageController = pageControllers[index];
+          secondaryPageController.topMostContext = null; // TODO: ??
+          secondaryPageController.navigationController.setViewControllers(Empty());
+          secondaryPageController.navigationStack.state = [];
+          secondaryPageController.navigationStack = secondaryPageController.navigationStack;
+        }
       }
     }
 

@@ -33,8 +33,13 @@ class CVUUINodeResolver {
       required this.db,
       required this.pageController});
 
-  Widget childrenInForEachWithWrap() {
-    return Wrap(children: childrenInForEach());
+  Widget childrenInForEachWithWrap({centered = false, ItemRecord? usingItem}) {
+    return Wrap(
+      children: childrenInForEach(usingItem: usingItem),
+      alignment: centered ? WrapAlignment.center : WrapAlignment.start,
+      runAlignment: centered ? WrapAlignment.center : WrapAlignment.start,
+      crossAxisAlignment: centered ? WrapCrossAlignment.center : WrapCrossAlignment.start,
+    );
   }
 
   List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {

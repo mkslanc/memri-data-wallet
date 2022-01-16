@@ -2,7 +2,7 @@
     name: "inbox"
     title: "Inbox"
     defaultRenderer: scene
-    cols: 10
+    cols: 12
 
     [renderer = scene] {
         pages: {
@@ -152,7 +152,7 @@
     name: "inbox"
     title: "Inbox"
     defaultRenderer: list
-    cols: 6
+    cols: 8
     showTopBar: false
     topBarColor: "#FFFFFF"
     showEditCode: false

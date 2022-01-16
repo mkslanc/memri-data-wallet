@@ -39,7 +39,9 @@ enum CVUUIElementFamily {
   Null,
   Grid,
   DropZone,
-  Observer
+  Observer,
+  Wrap,
+  Dropdown
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {

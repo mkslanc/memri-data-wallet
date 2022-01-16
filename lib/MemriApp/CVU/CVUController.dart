@@ -14,6 +14,7 @@ import 'package:memri/MemriApp/CVU/parsing/CVUParser.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVULookupController.dart';
 import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemPropertyRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
@@ -121,26 +122,94 @@ class CVUController {
 
   storeDefinitions() async {
     await databaseController.databasePool.transaction(() async {
-      await Future.forEach<CVUParsedDefinition>(definitions, (definition) async {
+      List<ItemPropertyRecord> properties = [];
+      Map<String, CVUParsedDefinition> definitionsByUID = {};
+
+      definitions.forEach((definition) {
         var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
         storedDefinitions.add(storedDefinition);
-        await storedDefinition.save();
-        await storedDefinition.setPropertyValue(
-            "domain", PropertyDatabaseValueString(definition.domain.inString));
-        await storedDefinition.setPropertyValue(
-            "name", PropertyDatabaseValueString(definition.name ?? ""));
-        await storedDefinition.setPropertyValue(
-            "renderer", PropertyDatabaseValueString(definition.renderer ?? ""));
-        await storedDefinition.setPropertyValue(
-            "selector", PropertyDatabaseValueString(definition.selector ?? ""));
-        await storedDefinition.setPropertyValue(
-            "type", PropertyDatabaseValueString(definition.type.inString));
-        await storedDefinition.setPropertyValue(
-            "definition", PropertyDatabaseValueString(definition.toCVUString(0, "    ", true)));
-        await storedDefinition.setPropertyValue(
-            "querystr", PropertyDatabaseValueString(definition.querystr));
+        definitionsByUID[storedDefinition.uid] = definition;
       });
+      await databaseController.databasePool.itemRecordInsertAll(storedDefinitions);
+
+      List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
+          storedDefinitions.map((e) => e.uid).toList(), databaseController));
+      newItemList.forEach((item) {
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "domain",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.domain.inString)));
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "name",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.name ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "renderer",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.renderer ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "selector",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.selector ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "type",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.type.inString)));
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "definition",
+            value: PropertyDatabaseValueString(
+                definitionsByUID[item.uid]!.toCVUString(0, "    ", true))));
+        properties.add(ItemPropertyRecord(
+            itemRowID: item.rowId!,
+            name: "querystr",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.querystr)));
+      });
+      await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
     });
+  }
+
+  static Future<int?> storeDefinition(String string, DatabaseController databaseController) async {
+    var parsedDefinitions = parseCVUString(string);
+    if (parsedDefinitions.isNotEmpty) {
+      var definition = parsedDefinitions[0];
+      var definitionId;
+      await databaseController.databasePool.transaction(() async {
+        List<ItemPropertyRecord> properties = [];
+        var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
+        definitionId = await storedDefinition.save(databaseController.databasePool);
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "domain",
+            value: PropertyDatabaseValueString(definition.domain.inString)));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "name",
+            value: PropertyDatabaseValueString(definition.name ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "renderer",
+            value: PropertyDatabaseValueString(definition.renderer ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "selector",
+            value: PropertyDatabaseValueString(definition.selector ?? "")));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "type",
+            value: PropertyDatabaseValueString(definition.type.inString)));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "definition",
+            value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
+        properties.add(ItemPropertyRecord(
+            itemRowID: definitionId,
+            name: "querystr",
+            value: PropertyDatabaseValueString(definition.querystr)));
+        await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+      });
+      return definitionId;
+    }
   }
 
   loadStoredDefinitions() async {

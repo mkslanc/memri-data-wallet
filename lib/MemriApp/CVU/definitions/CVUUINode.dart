@@ -3,6 +3,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:equatable/equatable.dart';
+import 'package:memri/MemriApp/CVU/parsing/CVULexer.dart';
 import 'package:memri/MemriApp/CVU/parsing/CVUStringConvertible.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,6 +20,7 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
   final CVUUIElementFamily type;
   List<CVUUINode> children = [];
   Map<String, CVUValue> properties = {};
+  CVUTokenLocation? tokenLocation;
 
   bool shouldExpandWidth =
       false; //TODO maybe there is a better way to handle flutter layout constraints and expands?
@@ -26,7 +28,8 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
 
   String id = Uuid().v4();
 
-  CVUUINode({required this.type, required this.children, required this.properties}) {
+  CVUUINode(
+      {required this.type, required this.children, required this.properties, this.tokenLocation}) {
     children.forEach((element) {
       if (element.shouldExpandWidth ||
           ((element.type == CVUUIElementFamily.Spacer || element.type == CVUUIElementFamily.Text) &&
