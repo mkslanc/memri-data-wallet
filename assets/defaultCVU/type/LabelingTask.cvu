@@ -160,13 +160,13 @@ LabelingTask > singleItem {
                 onPress: [
                     openView
                     {
-                        viewName: "labeling"
+                        viewName: "labelingPreview"
                     }
                 ]
                 styleName: primaryButton
 
                 Text {
-                    text: "Label your data"
+                    text: "Preview editor"
                     textalign: bottom
                 }
 
