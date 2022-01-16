@@ -28,7 +28,6 @@ enum CVUUIElementFamily {
   Empty,
   Spacer,
   Divider,
-  HorizontalLine,
   Circle,
   Rectangle,
   EditorSection,

@@ -52,7 +52,6 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.Empty: 'Empty',
   CVUUIElementFamily.Spacer: 'Spacer',
   CVUUIElementFamily.Divider: 'Divider',
-  CVUUIElementFamily.HorizontalLine: 'HorizontalLine',
   CVUUIElementFamily.Circle: 'Circle',
   CVUUIElementFamily.Rectangle: 'Rectangle',
   CVUUIElementFamily.EditorSection: 'EditorSection',

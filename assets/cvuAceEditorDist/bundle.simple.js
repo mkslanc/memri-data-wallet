@@ -21544,6 +21544,8 @@ __webpack_require__(7);
 __webpack_require__(8);
 __webpack_require__(9);
 const cvu_mode_1 = __webpack_require__(10);
+// @ts-ignore
+const css = __webpack_require__(12);
 var Editor = ace_builds_1.default.require("ace/editor").Editor;
 var Renderer = ace_builds_1.default.require("ace/virtual_renderer").VirtualRenderer;
 var theme = ace_builds_1.default.require("ace/theme/dracula");
@@ -21569,7 +21571,9 @@ var menuKb = new HashHandler([
         name: "autoindent",
         description: "Auto Indent",
         bindKey: { win: "Ctrl-Shift-F", mac: "Cmd-Shift-F" },
-        exec: function () { editor.autoIndent(); },
+        exec: function () {
+            editor.autoIndent();
+        },
         multiSelectAction: "forEachLine",
         scrollIntoView: "animate"
     }
@@ -21583,7 +21587,7 @@ event.addCommandKeyListener(window, function (e, hashId, keyCode) {
     }
 });
 var editor = new Editor(new Renderer(null, theme));
-editor.setTheme("ace/theme/dracula");
+editor.setTheme({ cssText: css, cssClass: "ace-memri", isDark: true });
 var session = ace_builds_1.default.createEditSession("", cvumode);
 editor.setSession(session);
 document.body.innerHTML = "";
@@ -28104,7 +28108,7 @@ var CvuHighlightRules = function () {
         "support.type": "left|top|right|bottom|center|lefttop|topleft|topright|righttop|leftbottom|bottomleft|rightbottom|bottomright",
         "support.constant": "regular|bold|semibold|heavy|light|ultralight|black|fit|fill",
         "storage.type": "VStack|HStack|ZStack|EditorSection|EditorRow|EditorLabel|Button|FlowStack|Text|Textfield|ItemCell|SubView|Map|Picker|SecureField|ActionButton|MemriButton|Image|Circle|HorizontalLine|Rectangle|" +
-            "RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action|Observer|HTMLView|TimelineItem|TextField|Toggle|DropZone",
+            "RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action|Observer|HTMLView|TimelineItem|TextField|Toggle|DropZone|Wrap|Dropdown",
         "keyword": "and|AND|or|OR|equals|EQUALS|not|NOT|" +
             "back|addItem|openView|openDynamicView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showOverlay|showNavigation|share|addToPanel|duplicate|schedule|addToList|" +
             "duplicateNote|noteTimeline|starredNotes|allNotes|exampleUnpack|delete|setRenderer|select|selectAll|unselectAll|showAddLabel|openLabelView|setProperty|" +
@@ -28123,11 +28127,11 @@ var CvuHighlightRules = function () {
         "minWidth|bundleImage|groups|iconHeading|run|importerInstance|indexer|description|bold|dataItem|renderers|uid|edgeInset|" +
         "hSpacing|slideRightActions|debug|italic|underline|strikethrough|viewName|style|blur|zindex|rowbackground|frame|cornerborder|shadow|" +
         "offset|highlight|lightInputText|inputText|activeColor|activeBackgroundColor|inactiveColor|inactiveBackgroundColor|renderAs|showTitle|" +
-        "opensView|width|height|isLink|onPress|scrollable|item|isVector|sizingMode|edgeType|distinct|rows|styleName|showSearchBar|showBottomBar|showTopBar|selectedDataType|" +
-        "openNewView|selectedDataset|propertyName|singleChoice|id|_type|lineLimit|filter|properties|itemType|edgeSources|content|file|" +
+        "opensView|width|height|isLink|onPress|scrollable|item|isVector|sizingMode|edgeType|distinct|rows|styleName|showSearchBar|showBottomBar|showTopBar|" +
+        "openNewView|propertyName|singleChoice|id|_type|lineLimit|filter|properties|itemType|edgeSources|content|file|" +
         "inheritDatasource|cornerRadiusOnly|sort|targetType|edgeTarget|clearStack|cols|pageLabel|isReverse|hideSeparators|edgeTargets|" +
         "topBarColor|additional|edgeSource|emptyResult|pages|datasource|renderer|src|seconds|container|pluginModule|pluginName|pluginId|" +
-        "count|actions|items|secure|plugin|targetItemId" +
+        "count|actions|items|secure|plugin|targetItemId|showDefaultSelections|layout" +
         ")(?=\\b\\s*:)";
     var parensMap = {
         "}": "{",
@@ -29165,6 +29169,12 @@ exports.Mode = Mode;
                 })();
             
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+module.exports = "\r\n.ace-memri .ace_gutter {\r\n  background: #333333;\r\n  color: rgb(144,145,148)\r\n}\r\n\r\n.ace-memri .ace_print-margin {\r\n  width: 1px;\r\n  background: #44475a\r\n}\r\n\r\n.ace-memri {\r\n  background-color: #333333;\r\n  color: #CDCBCB\r\n}\r\n\r\n.ace-memri .ace_cursor {\r\n  color: #f8f8f0\r\n}\r\n\r\n.ace-memri .ace_marker-layer .ace_selection {\r\n  background: #44475a\r\n}\r\n\r\n.ace-memri.ace_multiselect .ace_selection.ace_start {\r\n  box-shadow: 0 0 3px 0px #282a36;\r\n  border-radius: 2px\r\n}\r\n\r\n.ace-memri .ace_marker-layer .ace_step {\r\n  background: rgb(198, 219, 174)\r\n}\r\n\r\n.ace-memri .ace_marker-layer .ace_bracket {\r\n  margin: -1px 0 0 -1px;\r\n  border: 1px solid #a29709\r\n}\r\n\r\n.ace-memri .ace_marker-layer .ace_active-line {\r\n  background: #44475a\r\n}\r\n\r\n.ace-memri .ace_gutter-active-line {\r\n  background-color: #44475a\r\n}\r\n\r\n.ace-memri .ace_marker-layer .ace_selected-word {\r\n  box-shadow: 0px 0px 0px 1px #a29709;\r\n  border-radius: 3px;\r\n}\r\n\r\n.ace-memri .ace_fold {\r\n  background-color: #50fa7b;\r\n  border-color: #f8f8f2\r\n}\r\n\r\n.ace-memri .ace_keyword {\r\n  color: #EC827D\r\n}\r\n\r\n.ace-memri .ace_constant.ace_language {\r\n  color: #A28EFF\r\n}\r\n\r\n.ace-memri .ace_constant.ace_numeric {\r\n  color: #A28EFF\r\n}\r\n\r\n.ace-memri .ace_constant.ace_character {\r\n  color: #A28EFF\r\n}\r\n\r\n.ace-memri .ace_constant.ace_character.ace_escape {\r\n  color: #EC827D\r\n}\r\n\r\n.ace-memri .ace_constant.ace_other {\r\n  color: #A28EFF\r\n}\r\n\r\n.ace-memri .ace_support.ace_function {\r\n  color: #DEA54F\r\n}\r\n\r\n.ace-memri .ace_support.ace_constant {\r\n  color: #DEA54F\r\n}\r\n\r\n.ace-memri .ace_support.ace_class {\r\n  font-style: italic;\r\n  color: #DEA54F\r\n}\r\n\r\n.ace-memri .ace_support.ace_type {\r\n  font-style: italic;\r\n  color: #DEA54F\r\n}\r\n\r\n.ace-memri .ace_storage {\r\n  color: #EC827D\r\n}\r\n\r\n.ace-memri .ace_storage.ace_type {\r\n  font-style: italic;\r\n  color: #DEA54F\r\n}\r\n\r\n.ace-memri .ace_invalid {\r\n  color: #F8F8F0;\r\n  background-color: #EC827D\r\n}\r\n\r\n.ace-memri .ace_invalid.ace_deprecated {\r\n  color: #F8F8F0;\r\n  background-color: #A28EFF\r\n}\r\n\r\n.ace-memri .ace_string {\r\n  color: #80B2DD;\r\n}\r\n\r\n.ace-memri .ace_comment {\r\n  color: #E78DB8\r\n}\r\n\r\n.ace-memri .ace_variable {\r\n  color: #47B394\r\n}\r\n\r\n.ace-memri .ace_variable.ace_parameter {\r\n  font-style: italic;\r\n  color: #ffb86c\r\n}\r\n\r\n.ace-memri .ace_entity.ace_other.ace_attribute-name {\r\n  color: #47B394\r\n}\r\n\r\n.ace-memri .ace_entity.ace_name.ace_function {\r\n  color: #47B394\r\n}\r\n\r\n.ace-memri .ace_entity.ace_name.ace_tag {\r\n  color: #EC827D\r\n}\r\n.ace-memri .ace_invisible {\r\n  color: #626680;\r\n}\r\n\r\n.ace-memri .ace_indent-guide {\r\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAEklEQVQImWNgYGBgYHB3d/8PAAOIAdULw8qMAAAAAElFTkSuQmCC) right repeat-y\r\n}"
 
 /***/ })
 /******/ ]);
