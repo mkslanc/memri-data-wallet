@@ -104,6 +104,7 @@ class ViewContextController extends ChangeNotifier {
       {ItemRecord? item,
       List<ItemRecord>? items,
       String? overrideRenderer,
+      CVUDefinitionContent? overrideViewDefinition,
       CVUDefinitionContent? nodeDefinition,
       CVUViewArguments? viewArguments,
       bool blankIfNoDefinition = false}) {
@@ -112,6 +113,7 @@ class ViewContextController extends ChangeNotifier {
         cvuContext: getCVUContext(
             item: item,
             items: items,
+            overrideViewDefinition: overrideViewDefinition,
             overrideRenderer: overrideRenderer,
             viewArguments: viewArguments),
         nodeDefinition: nodeDefinition,
@@ -126,6 +128,7 @@ class ViewContextController extends ChangeNotifier {
       {ItemRecord? item,
       List<ItemRecord>? items,
       CVUViewArguments? viewArguments,
+      CVUDefinitionContent? overrideViewDefinition,
       String? overrideRenderer}) {
     return CVUContext(
         currentItem: item,
@@ -133,7 +136,7 @@ class ViewContextController extends ChangeNotifier {
         selector: null,
         viewName: config.viewName,
         rendererName: overrideRenderer ?? config.rendererName,
-        viewDefinition: config.viewDefinition,
+        viewDefinition: overrideViewDefinition ?? config.viewDefinition,
         viewArguments: viewArguments ?? config.viewArguments);
   }
 
