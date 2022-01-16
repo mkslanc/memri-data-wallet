@@ -637,6 +637,11 @@
     },
     {
       "item_type": "LabelingTask",
+      "property": "currentLabelOption",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingTask",
       "property": "name",
       "value_type": "string"
     },
