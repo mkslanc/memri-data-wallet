@@ -268,7 +268,7 @@ class CVUActionOpenCVUEditor extends CVUAction {
         "clearStack": CVUValueConstant(CVUConstantBool(true))
       }));
       cvuEditorPageController = await pageController.sceneController.addPageController(label);
-      pageController.topMostContext?.config.cols = 5; //TODO
+      pageController.topMostContext?.config.cols = 6; //TODO
       pageController.navigationStack = pageController.navigationStack;
       await CVUActionOpenView(vars: vars, viewName: "cvuEditor", renderer: "cvueditor")
           .execute(cvuEditorPageController, context);

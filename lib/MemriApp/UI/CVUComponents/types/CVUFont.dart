@@ -56,6 +56,10 @@ class CVUFont {
         size: bodyText1.fontSize!,
         weight: bodyText1.fontWeight,
         letterSpacing: bodyText1.letterSpacing),
+    "body_bold": CVUFont(
+        size: bodyBold.fontSize!,
+        weight: bodyBold.fontWeight,
+        letterSpacing: bodyBold.letterSpacing),
     "bodyText2": CVUFont(
         size: bodyText2.fontSize!,
         weight: bodyText2.fontWeight,
