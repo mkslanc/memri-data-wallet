@@ -10,7 +10,6 @@ LabelingTask {
     }
 }
 
-
 LabelingTask > singleItem {
     VStack {
         alignment: topleft
@@ -31,7 +30,7 @@ LabelingTask > singleItem {
 
         SubView {
             height: 60
-            id: featureVariables
+            id: taskType
             maxWidth: 550
             view: {
                 defaultRenderer: custom
@@ -95,7 +94,13 @@ LabelingTask > singleItem {
 
                 Button {
                     isLink: true
-                    onPress: noop
+                    onPress: [
+                        unlink
+                        {
+                            edgeType: "labelOption"
+                            subject: {{.~labelOption}}
+                        }
+                    ]
                     padding: 0 11 0 0
 
                     Text {
@@ -116,7 +121,7 @@ LabelingTask > singleItem {
                 hint: "e.g. positive"
                 minHeight: 15
                 rows: 1
-                value: {{.name}}
+                value: {{.currentLabelOption}}
                 width: 150
             }
 
@@ -127,9 +132,15 @@ LabelingTask > singleItem {
                         openNewView: false
                         template: {
                             _type: "LabelOption"
-                            name: "completely toxic"
+                            name: "{.currentLabelOption}"
                             ~labelOption: {{.}}
                         }
+                    }
+                    setProperty
+                    {
+                        property: "currentLabelOption"
+                        subject: {{.}}
+                        value: ""
                     }
                 ]
                 styleName: primaryButton
