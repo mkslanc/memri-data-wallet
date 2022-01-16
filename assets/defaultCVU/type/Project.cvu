@@ -285,7 +285,6 @@ Project > list {
                 editMode: true
                 viewArguments: {
                     selectedDataset: {{selectedDataset}}
-                    selectedItems: {{item(73)}} {{item(74)}}
                 }
 
                 [datasource = pod] {

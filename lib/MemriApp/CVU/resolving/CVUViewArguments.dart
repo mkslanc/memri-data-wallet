@@ -16,7 +16,10 @@ part 'CVUViewArguments.g.dart';
 @JsonSerializable()
 class CVUViewArguments with EquatableMixin {
   // The view arguments
-  Map<String, CVUValue> args = {};
+  Map<String, CVUValue> _args = {};
+
+  set args(Map<String, CVUValue> newArgs) => _args = Map.of(newArgs);
+  Map<String, CVUValue> get args => _args;
 
   // The item that is `.` when resolving these view arguments
   ItemRecord? argumentItem;

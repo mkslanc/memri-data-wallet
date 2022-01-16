@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:memri/MemriApp/CVU/CVUController.dart';
+import 'package:memri/MemriApp/CVU/definitions/CVUParsedDefinition.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemEdgeRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/IconData.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUColor.dart';
+import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/utilities.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
-import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
+import 'package:memri/MemriApp/Extensions/BaseTypes/Enum.dart';
 
 import 'Renderer.dart';
+
+enum LabelType { CategoricalLabel, BinaryLabel }
 
 /// The Label Annotation renderer
 /// This renderer can be used to annotate items with Labels
@@ -24,109 +29,197 @@ class LabelAnnotationRendererView extends Renderer {
 }
 
 class _LabelAnnotationRendererViewState extends RendererViewState {
+  late Future<void> _init;
+
+  late final ItemRecord labelingTask;
+  late final List<LabelOption> labelOptions;
+
+  LabelType labelType = LabelType.CategoricalLabel; //TODO resolve
+
+  late List<ItemRecord> currentItemList;
+  int currentIndex = 0;
+
+  Map<int, ItemRecord> itemAnnotationList = {};
+
+  CVUDefinitionContent? contentDefinition;
+
   ValueNotifier<Set<String>> _selectedLabels = ValueNotifier(Set<String>());
 
   Set<String> get selectedLabels => _selectedLabels.value;
 
   set selectedLabels(Set<String> newSelectedLabels) {
-    setState(() => _selectedLabels.value = newSelectedLabels);
+    _selectedLabels.value = Set.of(newSelectedLabels);
   }
 
   @override
   void initState() {
     super.initState();
+    labelingTask = widget.viewContext.focusedItem!;
+    _init = init();
   }
 
-  Future<String> get labelType async {
-    return await viewContext.rendererDefinitionPropertyResolver.string("labelType") ?? "UNDEFINED";
+  Future<void> init() async {
+    await loadDataset();
+    await loadLabelOptions();
+    await loadCVU();
   }
 
-  Future<List<String>> get labelOptionIcons async {
-    return await viewContext.rendererDefinitionPropertyResolver.stringArray("labelOptionIcons");
+  Future<void> loadDataset() async {
+    var dataset = await labelingTask.reverseEdgeItem("labelingTask");
+    currentItemList = await dataset!.edgeItems("entry");
+    var currentAnnotationList = await labelingTask.edgeItems("labelAnnotation");
+    await Future.forEach<ItemRecord>(currentAnnotationList, (labelAnnotation) async {
+      var annotatedItem = await labelAnnotation.edgeItem("annotatedItem");
+      if (annotatedItem != null) {
+        itemAnnotationList[annotatedItem.rowId!] = labelAnnotation;
+      }
+    });
   }
 
-  Future<List<LabelOption>> get labelOptions async {
-    var icons = (await labelOptionIcons).asMap();
-    return (await viewContext.rendererDefinitionPropertyResolver.stringArray("labelOptions"))
-        .mapIndexed((index, element) => LabelOption(
-            labelID: element,
-            text: element.titleCase(),
-            icon: Icon(MemriIcon.getByName(icons[index] ?? "tag"))))
-        .toList();
+  Future<void> loadLabelOptions() async {
+    labelOptions =
+        await Future.wait((await labelingTask.edgeItems("labelOption")).map((labelOption) async {
+      var labelString = (await labelOption.property("name"))!.$value.asString()!;
+      return LabelOption(labelID: labelOption.uid, text: labelString);
+    }));
+  }
+
+  loadCVU() async {
+    var cvuController = widget.pageController.appController.cvuController;
+    var view = await labelingTask.edgeItem("view");
+    var cvuContent = (await view?.propertyValue("definition"))?.value;
+    var cvuDefinition =
+        cvuContent != null ? (await CVUController.parseCVU(cvuContent)).asMap()[0] : null;
+    if (cvuDefinition != null) {
+      cvuController.definitions.add(cvuDefinition);
+      contentDefinition = cvuDefinition.parsed;
+    }
   }
 
   void moveToPreviousItem() {
-    selectedLabels = Set<String>();
-    if (viewContext.focusedIndex <= 0) {
-      moveToIndex(viewContext.items.length - 2);
+    if (currentIndex <= 0) {
+      moveToIndex(currentItemList.length - 1);
       return;
     }
-    moveToIndex(viewContext.focusedIndex - 1);
+    moveToIndex(currentIndex - 1);
   }
 
   void moveToNextItem() {
-    if (viewContext.focusedIndex >= viewContext.items.length - 1) {
+    widget.pageController.sceneController.scheduleUIUpdate();
+    if (currentIndex >= currentItemList.length - 1) {
       moveToIndex(0);
       return;
     }
-    moveToIndex(viewContext.focusedIndex + 1);
+    moveToIndex(currentIndex + 1);
   }
 
   void moveToIndex(int index) {
-    viewContext.focusedIndex = index;
-    loadExistingAnnotation();
+    setState(() {
+      currentIndex = index;
+      loadExistingAnnotation();
+    });
   }
 
-  void loadExistingAnnotation() async {
-    selectedLabels = await currentAnnotationLabels;
-  }
-
-  void applyCurrentItem() async {
-    var currItem = currentItem;
-    if (currItem == null) {
-      return;
+  Future<ItemRecord?> getOrCreateCurrentAnnotation() async {
+    if (currentItem == null) {
+      return null;
     }
-    var labelsString = selectedLabels.join(",");
+    var currentRowID = currentItem!.rowId!;
+    var labelAnnotation = currentAnnotation;
+    if (labelAnnotation == null) {
+      labelAnnotation = ItemRecord(type: labelType.inString);
+      await labelAnnotation.save();
 
-    var annotationItem = await currentAnnotation() ?? ItemRecord(type: "LabelAnnotation");
-    await annotationItem.setPropertyValue("labels", PropertyDatabaseValueString(labelsString));
+      var annotationItem = ItemEdgeRecord(
+          sourceRowID: labelAnnotation.rowId, name: "annotatedItem", targetRowID: currentRowID);
+      await annotationItem.save();
 
-    var edge = ItemEdgeRecord(
-        sourceRowID: annotationItem.rowId, name: "annotatedItem", targetRowID: currItem.rowId);
-    edge.save();
+      var labelEdge = ItemEdgeRecord(
+          sourceRowID: labelingTask.rowId,
+          name: "labelAnnotation",
+          targetRowID: labelAnnotation.rowId);
+      await labelEdge.save();
+
+      itemAnnotationList[currentRowID] = labelAnnotation;
+    }
+
+    return labelAnnotation;
+  }
+
+  Future<void> skipCurrentItem() async {
+    var labelAnnotation = await getOrCreateCurrentAnnotation();
+    if (labelAnnotation == null) return;
+
+    var isSubmitted = await labelAnnotation.property("isSubmitted");
+    if (isSubmitted == null) {
+      await labelAnnotation.setPropertyValue("isSubmitted", PropertyDatabaseValueBool(false));
+    }
 
     moveToNextItem();
   }
 
-  Future<ItemRecord?> currentAnnotation() async {
-    return await currentItem?.reverseEdgeItem("annotatedItem");
+  Future<void> applyCurrentItem() async {
+    var labelAnnotation = await getOrCreateCurrentAnnotation();
+    if (labelAnnotation == null) return;
+
+    var isSubmitted = await labelAnnotation.property("isSubmitted");
+    if (isSubmitted == null || isSubmitted.$value.value == false) {
+      await labelAnnotation.setPropertyValue("isSubmitted", PropertyDatabaseValueBool(true),
+          isNew: isSubmitted == null);
+    }
+
+    switch (labelType) {
+      case LabelType.CategoricalLabel:
+        var labels = await labelAnnotation.edges("categoricalLabel");
+        Future.forEach<ItemEdgeRecord>(labels, (label) async {
+          if (!selectedLabels.contains(label.targetUID)) {
+            await label.delete();
+          }
+        });
+        var newSelected =
+            selectedLabels.difference(labels.map((labelOption) => labelOption.targetUID).toSet());
+        await Future.forEach<String>(newSelected, (labelId) async {
+          var labelEdge = ItemEdgeRecord(
+              sourceRowID: labelAnnotation.rowId!, name: "categoricalLabel", targetUID: labelId);
+          await labelEdge.save();
+        });
+        break;
+      default:
+        break;
+    }
+
+    moveToNextItem();
   }
 
-  Future<Set<String>> get currentAnnotationLabels async {
-    return Set.from(
-        (await (await currentAnnotation())?.propertyValue("labels"))?.asString()?.split(",") ?? []);
+  ItemRecord? get currentAnnotation => itemAnnotationList[currentItem?.rowId];
+
+  Future<void> loadExistingAnnotation() async {
+    selectedLabels = Set<String>();
+    var annotation = currentAnnotation;
+    if (annotation == null) return;
+    switch (labelType) {
+      case LabelType.CategoricalLabel:
+        selectedLabels = (await annotation.edgeItems("categoricalLabel"))
+            .map((labelOption) => labelOption.uid)
+            .toSet();
+        break;
+      default:
+        break;
+    }
   }
 
   ItemRecord? get currentItem {
-    return widget.viewContext.items.asMap()[widget.viewContext.focusedIndex];
+    return currentItemList.asMap()[currentIndex];
   }
 
-  String? get progressText {
-    if (widget.viewContext.items.isEmpty) {
-      return null;
-    }
-    return "Item ${widget.viewContext.focusedIndex + 1} of ${widget.viewContext.items.length}";
-  }
+  bool get enableBackButton => currentIndex > 0;
 
-  bool get enableBackButton => widget.viewContext.focusedIndex > 0;
-
-  bool get enableSkipButton =>
-      widget.viewContext.focusedIndex < widget.viewContext.items.length - 1;
+  bool get enableSkipButton => currentIndex < currentItemList.length - 1;
 
   Widget get currentContent {
     var item = currentItem;
     if (item != null) {
-      return widget.viewContext.render(item: item);
+      return widget.viewContext.render(item: item, overrideViewDefinition: contentDefinition);
     } else {
       return Text(
         "No items to label",
@@ -137,37 +230,47 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   @override
   Widget build(BuildContext context) {
-    return LabelSelectionView(
-        options: labelOptions,
-        selected: _selectedLabels,
-        enabled: currentItem != null,
-        onBackPressed: moveToPreviousItem,
-        onCheckmarkPressed: applyCurrentItem,
-        onSkipPressed: moveToNextItem,
-        enableBackButton: enableBackButton,
-        enableCheckmarkButton: true,
-        enableSkipButton: enableSkipButton,
-        topText: progressText,
-        content: currentContent,
-        useScrollView: false,
-        onAppear: () {
-          loadExistingAnnotation();
-        });
+    return FutureBuilder(
+      future: _init,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return snapshot.connectionState == ConnectionState.done
+            ? LabelSelectionView(
+                options: labelOptions,
+                selected: _selectedLabels,
+                enabled: currentItem != null,
+                onBackPressed: moveToPreviousItem,
+                onCheckmarkPressed: applyCurrentItem,
+                onSkipPressed: skipCurrentItem,
+                enableBackButton: enableBackButton,
+                enableCheckmarkButton: true,
+                enableSkipButton: enableSkipButton,
+                content: currentContent,
+                useScrollView: false,
+                onAppear: () {
+                  loadExistingAnnotation();
+                },
+                labelType: labelType,
+              )
+            : Empty();
+      },
+    );
   }
 }
 
 class LabelOption {
   String labelID;
   String text;
-  Icon icon;
+  Icon? icon;
 
-  LabelOption({required this.labelID, required this.text, required this.icon});
+  LabelOption({required this.labelID, required this.text, this.icon});
 
   String get id => labelID;
 }
 
 class LabelSelectionView extends StatefulWidget {
-  final Future<List<LabelOption>> options;
+  final List<LabelOption> options;
+
+  final LabelType labelType;
 
   final ValueNotifier<Set<String>> selected;
   final bool enabled;
@@ -187,35 +290,111 @@ class LabelSelectionView extends StatefulWidget {
 
   final void Function() onAppear;
 
-  LabelSelectionView({
-    required this.options,
-    required this.selected,
-    required this.enabled,
-    required this.onBackPressed,
-    required this.onCheckmarkPressed,
-    required this.onSkipPressed,
-    required this.enableBackButton,
-    required this.enableCheckmarkButton,
-    required this.enableSkipButton,
-    this.topText,
-    required this.content,
-    this.useScrollView = true,
-    required this.onAppear,
-  });
+  LabelSelectionView(
+      {required this.options,
+      required this.selected,
+      required this.enabled,
+      required this.onBackPressed,
+      required this.onCheckmarkPressed,
+      required this.onSkipPressed,
+      required this.enableBackButton,
+      required this.enableCheckmarkButton,
+      required this.enableSkipButton,
+      this.topText,
+      required this.content,
+      this.useScrollView = true,
+      required this.onAppear,
+      required this.labelType});
 
   @override
   _LabelSelectionViewState createState() => _LabelSelectionViewState();
 }
 
 class _LabelSelectionViewState extends State<LabelSelectionView> {
-  late Future<List<LabelOption>> options;
-
   @override
   void initState() {
     super.initState();
-    options = widget.options;
     widget.onAppear();
   }
+
+  Widget get labelOptions => Container(
+        //height: 150,
+        child: Opacity(
+          opacity: widget.enabled ? 1 : 0.4,
+          child: ValueListenableBuilder<Set<String>>(
+            valueListenable: widget.selected,
+            builder: (context, value, child) {
+              var selected = value.toList();
+              return Wrap(
+                direction: Axis.vertical,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 5,
+                children: widget.options
+                    .map<Widget>((option) => TextButton(
+                          style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact, padding: EdgeInsets.all(0)),
+                          onPressed: () {
+                            if (selected.remove(option.id) == false) {
+                              selected.add(option.id);
+                            }
+                            widget.selected.value = selected.toSet();
+                          },
+                          child: Container(
+                            padding: EdgeInsets.fromLTRB(10, 5, 19, 5),
+                            decoration: BoxDecoration(
+                                color: selected.contains(option.id)
+                                    ? Color(0x33FE570F)
+                                    : Color(0xffF5F5F5),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Wrap(
+                              children: [
+                                if (option.icon != null) option.icon!,
+                                Text(
+                                  option.text,
+                                  style: CVUFont.bodyText1.copyWith(
+                                      color: selected.contains(option.id)
+                                          ? Color(0xffFE570F)
+                                          : Color(0xff333333)),
+                                )
+                              ],
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              );
+            },
+          ),
+        ),
+      );
+
+  List<Widget> get binaryOptions => [
+        SizedBox(
+          width: 10,
+        ),
+        TextButton(
+          child: SvgPicture.asset("assets/images/ico_ignore.svg", color: Color(0xFFF5F5F5)),
+          style: TextButton.styleFrom(
+            backgroundColor: Color(0xFFDFDEDE),
+            fixedSize: Size(50, 50),
+          ),
+          onPressed: null,
+        ),
+        SizedBox(
+          width: 10,
+        ),
+        TextButton(
+          child: SvgPicture.asset(
+            "assets/images/ico_close.svg",
+            color: Color(0xFFF5F5F5),
+          ),
+          style: TextButton.styleFrom(
+            backgroundColor: Color(0xFFFE570F),
+            fixedSize: Size(50, 50),
+          ),
+          onPressed: null,
+        )
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -240,81 +419,39 @@ class _LabelSelectionViewState extends State<LabelSelectionView> {
               ),
             )
           : Expanded(child: widget.content),
+      if (widget.labelType == LabelType.CategoricalLabel) labelOptions,
       Container(
-        height: 150,
-        child: Opacity(
-          opacity: widget.enabled ? 1 : 0.4,
-          child: FutureBuilder<List<LabelOption>>(
-            future: options,
-            builder: (context, AsyncSnapshot<List<LabelOption>> snapshot) =>
-                snapshot.connectionState == ConnectionState.done
-                    ? ValueListenableBuilder<Set<String>>(
-                        valueListenable: widget.selected,
-                        builder: (context, value, child) {
-                          List<String> selected = value.toList();
-                          return ListView(
-                            padding: EdgeInsets.zero,
-                            children: snapshot.data!
-                                .map<Widget>((option) => SizedBox(
-                                      height: 30,
-                                      child: ListTile(
-                                        visualDensity: VisualDensity.compact,
-                                        dense: true,
-                                        minVerticalPadding: 0,
-                                        title: TextButton(
-                                            onPressed: () {
-                                              if (selected.remove(option.id) == false) {
-                                                selected.add(option.id);
-                                              }
-                                              widget.selected.value = Set.from(selected);
-                                            },
-                                            child: Row(
-                                              children: [option.icon, Text(option.text)],
-                                            ),
-                                            style: TextButton.styleFrom(
-                                                visualDensity: VisualDensity.compact,
-                                                padding: EdgeInsets.all(0),
-                                                backgroundColor: selected.contains(option.id)
-                                                    ? Colors.blue
-                                                    : Colors.transparent,
-                                                primary: selected.contains(option.id)
-                                                    ? Colors.white
-                                                    : Colors.blue)),
-                                      ),
-                                    ))
-                                .toList(),
-                          );
-                        },
-                      )
-                    : Empty(),
-          ),
-        ),
-      ),
-      Divider(),
-      Container(
-        height: 50,
+        height: 100,
+        padding: EdgeInsets.symmetric(horizontal: 60, vertical: 25),
         child: Opacity(
           opacity: widget.enabled ? 1 : 0.4,
           child: Row(
             children: [
-              IconButton(
-                  icon: Icon(Icons.undo),
-                  onPressed: widget.enableBackButton ? widget.onBackPressed : null),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: Colors.green.withOpacity(widget.enableCheckmarkButton ? 1 : 0.5),
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.check),
-                    onPressed: widget.enableCheckmarkButton ? widget.onCheckmarkPressed : null,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
               TextButton(
-                  child: Text("Skip"),
+                  child: Icon(Icons.arrow_back, color: Color(0xFFF5F5F5)),
+                  style: TextButton.styleFrom(
+                      padding: EdgeInsets.all(10),
+                      fixedSize: Size(50, 50),
+                      backgroundColor:
+                          widget.enableBackButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
+                  onPressed: widget.enableBackButton ? widget.onBackPressed : null),
+              Spacer(),
+              TextButton(
+                child: SvgPicture.asset("assets/images/check.svg", color: Color(0xFFF5F5F5)),
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFF333333),
+                  fixedSize: Size(50, 50),
+                ),
+                onPressed: widget.enableCheckmarkButton ? widget.onCheckmarkPressed : null,
+              ),
+              if (widget.labelType == LabelType.BinaryLabel) ...binaryOptions,
+              Spacer(),
+              TextButton(
+                  child: Icon(Icons.arrow_forward, color: Color(0xFFF5F5F5)),
+                  style: TextButton.styleFrom(
+                      fixedSize: Size(50, 50),
+                      backgroundColor:
+                          widget.enableSkipButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
                   onPressed: widget.enableSkipButton ? widget.onSkipPressed : null),
             ],
           ),

@@ -107,6 +107,7 @@ Dataset > singleItem {
                             ~labelingTask: {{.}}
                         }
                         viewArguments: {
+                            task: {{.}}
                             readOnly: false
                         }
                     }

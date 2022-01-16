@@ -167,6 +167,11 @@
     },
     {
       "item_type": "CategoricalLabel",
+      "property": "isSubmitted",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "CategoricalLabel",
       "property": "labels",
       "value_type": "string"
     },
@@ -602,6 +607,11 @@
     },
     {
       "item_type": "LabelAnnotation",
+      "property": "isSubmitted",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "LabelAnnotation",
       "property": "labels",
       "value_type": "string"
     },
@@ -613,6 +623,11 @@
     {
       "item_type": "LabelOption",
       "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "LabelingDataType",
+      "property": "labelType",
       "value_type": "string"
     },
     {
@@ -1102,6 +1117,11 @@
     },
     {
       "item_type": "TextClassification",
+      "property": "labelType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "TextClassification",
       "property": "name",
       "value_type": "string"
     },
@@ -1229,7 +1249,7 @@
     },
     {
       "source_type": "CategoricalLabel",
-      "edge": "labelOption",
+      "edge": "categoricalLabel",
       "target_type": "LabelOption"
     },
     {
@@ -1420,7 +1440,7 @@
     {
       "source_type": "LabelingTask",
       "edge": "labelAnnotation",
-      "target_type": "LabelAnnotation"
+      "target_type": "Any"
     },
     {
       "source_type": "LabelingTask",
@@ -1430,7 +1450,7 @@
     {
       "source_type": "LabelingTask",
       "edge": "taskType",
-      "target_type": "LabelingDataType"
+      "target_type": "Any"
     },
     {
       "source_type": "LabelingTask",

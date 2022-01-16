@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
-import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
-import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/Navigation/AdditionalNavigationView.dart';
@@ -83,15 +80,6 @@ class NavigationItemView extends StatelessWidget {
           ? () {
               sceneController.navigateToNewContext(
                   clearStack: true, animated: false, viewName: item.targetViewName);
-              if (item.targetViewName == "home") {
-                //TODO: hardcoded part, due to uncertainty of ruling two different pages on the same time
-                sceneController.navigateToNewContext(
-                    clearStack: true,
-                    animated: false,
-                    viewName: "updates",
-                    viewArguments: CVUViewArguments(
-                        args: {"mainView": CVUValueConstant(CVUConstantBool(false))}));
-              }
               sceneController.navigationIsVisible.value = false;
             }
           : item.callback,

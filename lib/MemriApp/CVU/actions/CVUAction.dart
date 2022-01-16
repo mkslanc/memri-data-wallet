@@ -222,16 +222,12 @@ class CVUActionOpenView extends CVUAction {
         customDefinition = view.value;
       }
     }
-    CVUViewArguments viewArguments;
     var viewArgs = vars["viewArguments"];
-    if (viewArgs is CVUValueSubdefinition) {
-      viewArguments = CVUViewArguments(
-          args: viewArgs.value.properties,
-          argumentItem: context.currentItem,
-          parentArguments: context.viewArguments);
-    } else {
-      viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
-    }
+
+    var viewArguments = CVUViewArguments(
+        args: viewArgs is CVUValueSubdefinition ? viewArgs.value.properties : null,
+        argumentItem: context.currentItem,
+        parentArguments: context.viewArguments);
     DatabaseController db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: vars);
@@ -322,17 +318,10 @@ class CVUActionOpenViewByName extends CVUAction {
     if (view is CVUValueSubdefinition) {
       customDefinition = view.value;
     }
-    if (viewArguments == null) {
-      view = vars["viewArguments"];
-      if (view is CVUValueSubdefinition) {
-        viewArguments = CVUViewArguments(
-            args: view.value.properties,
-            argumentItem: context.currentItem,
-            parentArguments: context.viewArguments);
-      } else {
-        viewArguments = CVUViewArguments(parentArguments: context.viewArguments); //TODO: not sure
-      }
-    }
+    viewArguments ??=
+        CVUViewArguments(args: view is CVUValueSubdefinition ? view.value.properties : null);
+    viewArguments.argumentItem = context.currentItem;
+    viewArguments.parentArguments = context.viewArguments;
 
     AppController appController = AppController.shared;
     var db = appController.databaseController;

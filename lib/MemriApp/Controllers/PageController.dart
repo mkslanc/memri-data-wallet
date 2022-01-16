@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/CVU/definitions/CVUValue.dart';
 import 'package:memri/MemriApp/CVU/definitions/CVUValue_Constant.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUContext.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUViewArguments.dart';
+import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
 import 'package:memri/MemriApp/UI/SceneContentView.dart';
 import 'package:memri/MemriApp/UI/UIHelpers/NavigationHolder.dart';
@@ -26,7 +27,10 @@ class PageController extends ChangeNotifier {
   PageController(this.sceneController, this.label);
 
   init(String viewName,
-      {String? rendererName, NavigationStack? navStack, CVUViewArguments? viewArguments}) async {
+      {String? rendererName,
+      NavigationStack? navStack,
+      CVUViewArguments? viewArguments,
+      ItemRecord? targetItem}) async {
     navStack ??= await NavigationStack.fetchOne(label, appController.databaseController);
     if (navStack != null) {
       if (navStack.state.length > 0) {
@@ -36,7 +40,8 @@ class PageController extends ChangeNotifier {
       navStack = NavigationStack(pageLabel: label);
       if (viewName.isNotEmpty || rendererName != null) {
         topMostContext = await CVUActionOpenViewByName(viewName: viewName).getViewContext(
-            CVUContext(viewName: viewName, rendererName: rendererName), this,
+            CVUContext(viewName: viewName, rendererName: rendererName, currentItem: targetItem),
+            this,
             viewArguments: viewArguments);
         navStack.state = [ViewContextHolder(topMostContext!.config)];
       }
