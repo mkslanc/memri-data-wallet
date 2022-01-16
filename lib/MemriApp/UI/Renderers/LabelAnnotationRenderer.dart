@@ -31,8 +31,10 @@ class LabelAnnotationRendererView extends Renderer {
 class _LabelAnnotationRendererViewState extends RendererViewState {
   late Future<void> _init;
 
+  bool inPreviewMode = false;
+
   late final ItemRecord labelingTask;
-  late final List<LabelOption> labelOptions;
+  late List<LabelOption> labelOptions;
 
   LabelType labelType = LabelType.CategoricalLabel; //TODO resolve
 
@@ -58,10 +60,18 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     _init = init();
   }
 
+  didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
   Future<void> init() async {
     await loadDataset();
     await loadLabelOptions();
     await loadCVU();
+
+    inPreviewMode =
+        await viewContext.viewDefinitionPropertyResolver.boolean("inPreviewMode") ?? false;
   }
 
   Future<void> loadDataset() async {
@@ -239,8 +249,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                 selected: _selectedLabels,
                 enabled: currentItem != null,
                 onBackPressed: moveToPreviousItem,
-                onCheckmarkPressed: applyCurrentItem,
-                onSkipPressed: skipCurrentItem,
+                onCheckmarkPressed: inPreviewMode ? null : applyCurrentItem,
+                onSkipPressed: inPreviewMode ? moveToNextItem : skipCurrentItem,
                 enableBackButton: enableBackButton,
                 enableCheckmarkButton: true,
                 enableSkipButton: enableSkipButton,
@@ -276,7 +286,7 @@ class LabelSelectionView extends StatefulWidget {
   final bool enabled;
 
   final void Function() onBackPressed;
-  final void Function() onCheckmarkPressed;
+  final void Function()? onCheckmarkPressed;
   final void Function() onSkipPressed;
 
   final bool enableBackButton;

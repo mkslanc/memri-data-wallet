@@ -246,12 +246,20 @@ class SceneController extends ChangeNotifier {
 
     var pageIndex = pageControllers.indexOf(pageController);
     if (pageIndex < pageControllers.length - 1) {
-      for (var index = pageIndex + 1; index < pageControllers.length; index++) {
-        var secondaryPageController = pageControllers[index];
-        secondaryPageController.topMostContext = null; // TODO: ??
-        secondaryPageController.navigationController.setViewControllers(Empty());
-        secondaryPageController.navigationStack.state = [];
-        secondaryPageController.navigationStack = secondaryPageController.navigationStack;
+      var clearSecondary = true;
+      var clearSecondaryVal = viewDefinition.properties["clearSecondary"];
+      if (clearSecondaryVal is CVUValueConstant && clearSecondaryVal.value is CVUConstantBool) {
+        clearSecondary = clearSecondaryVal.value.asBool()!;
+      }
+
+      if (clearSecondary) {
+        for (var index = pageIndex + 1; index < pageControllers.length; index++) {
+          var secondaryPageController = pageControllers[index];
+          secondaryPageController.topMostContext = null; // TODO: ??
+          secondaryPageController.navigationController.setViewControllers(Empty());
+          secondaryPageController.navigationStack.state = [];
+          secondaryPageController.navigationStack = secondaryPageController.navigationStack;
+        }
       }
     }
 
