@@ -232,7 +232,19 @@ class CVUActionOpenView extends CVUAction {
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: vars);
 
-    await pageController.sceneController.navigateToNewContext(
+    var sceneController = pageController.sceneController; //TODO
+    var pageLabelVal = viewArguments.args["pageLabel"]?.value;
+    String pageLabel;
+    if (pageLabelVal != null) {
+      pageLabel = (pageLabelVal as CVUConstantString).value;
+      while (pageLabel.startsWith("~") && sceneController.parentSceneController != null) {
+        sceneController = sceneController.parentSceneController!;
+        pageLabel = pageLabel.substring(1);
+      }
+      viewArguments.args["pageLabel"] = CVUValueConstant(CVUConstantString(pageLabel));
+    }
+
+    await sceneController.navigateToNewContext(
         clearStack: await resolver.boolean("clearStack") ?? false,
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
         inheritDatasource: (await resolver.boolean("inheritDatasource", true))!,
@@ -391,6 +403,21 @@ class CVUActionNavigateBack extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var pageLabel = await resolver.string("pageLabel");
+    if (pageLabel != null) {
+      var sceneController = pageController.sceneController;
+      while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
+        print(pageLabel);
+        sceneController = sceneController.parentSceneController!;
+        pageLabel = pageLabel.substring(1);
+      }
+
+      pageController = sceneController.pageControllerByLabel(pageLabel) ?? pageController;
+    }
+
     await pageController.navigateBack();
   }
 }
