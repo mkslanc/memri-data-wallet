@@ -634,7 +634,8 @@ class CVUActionOpenPlugin extends CVUAction {
     }
     var pluginType = (await plugin.property("pluginType", db))!.$value.value;
 
-    List<ItemRecord> pluginRunList = await plugin.reverseEdgeItems("plugin", db: db);
+    List<ItemRecord> pluginRunList =
+        await plugin.reverseEdgeItems("plugin", db: db, sourceItemType: "PluginRun");
     pluginRunList.sort((a, b) => b.rowId! - a.rowId!);
 
     var lastPluginRun = pluginRunList.asMap()[0];

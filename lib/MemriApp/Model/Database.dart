@@ -399,7 +399,8 @@ class Database extends _$Database {
       {int? limit,
       bool? deleted = false,
       bool isReverse = false,
-      List<Map<String, dynamic>>? sort}) async {
+      List<Map<String, dynamic>>? sort,
+      String? itemType}) async {
     String query = "SELECT itemRecords.* from edges ";
     Set<TableInfo> readsFrom = {edges, items};
     var binding = <Variable<dynamic>>[];
@@ -409,7 +410,7 @@ class Database extends _$Database {
       binding.add(Variable(deleted));
     }
     query +=
-        " INNER JOIN items AS itemRecords ON (edges.${isReverse ? "source" : "target"} = itemRecords.rowId)";
+        " INNER JOIN items AS itemRecords ON (edges.${isReverse ? "source" : "target"} = itemRecords.rowId ${itemType != null ? "AND itemRecords.type = '$itemType'" : ""})";
     if (sort != null) {
       sort.forEach((sortParam) {
         TableInfo table = sortParam["table"];
