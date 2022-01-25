@@ -365,9 +365,12 @@ class ItemRecord with EquatableMixin {
   }
 
   Future<ItemRecord?> reverseEdgeItem(String? name,
-      {DatabaseController? db, bool? deleted = false, List<Map<String, dynamic>>? sort}) async {
-    var edgeItemRecords =
-        await reverseEdgeItems(name, db: db, deleted: deleted, limit: 1, sort: sort);
+      {DatabaseController? db,
+      bool? deleted = false,
+      List<Map<String, dynamic>>? sort,
+      String? sourceItemType}) async {
+    var edgeItemRecords = await reverseEdgeItems(name,
+        db: db, deleted: deleted, limit: 1, sort: sort, sourceItemType: sourceItemType);
     return edgeItemRecords.asMap()[0];
   }
 
@@ -375,14 +378,15 @@ class ItemRecord with EquatableMixin {
       {DatabaseController? db,
       bool? deleted = false,
       int? limit,
-      List<Map<String, dynamic>>? sort}) async {
+      List<Map<String, dynamic>>? sort,
+      String? sourceItemType}) async {
     db ??= AppController.shared.databaseController;
     Map<String, dynamic> properties = {"target": rowId};
     if (name != null) {
       properties["name"] = name;
     }
     return (await db.databasePool.edgeRecordsItemsCustomSelect(properties,
-            isReverse: true, limit: limit, sort: sort, deleted: deleted))
+            isReverse: true, limit: limit, sort: sort, deleted: deleted, itemType: sourceItemType))
         .map((owningItem) => ItemRecord.fromItem(owningItem))
         .toList();
   }
