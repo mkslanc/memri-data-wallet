@@ -1143,7 +1143,7 @@
     "uid": 10000,
     "_type": "DatasetType",
     "name": "Whatsapp messages",
-    "querystr": "{\"type\":\"Message\", \"service\": \"Whatsapp\"}",
+    "querystr": "{\"type\":\"Message\", \"service\": \"whatsapp\"}",
     "allEdges": [
       {
         "_type": "plugin",
@@ -1156,7 +1156,7 @@
     "uid": 10001,
     "_type": "DatasetType",
     "name": "Gmail messages",
-    "querystr": "{\"type\":\"EmailMessage\", \"service\": \"Gmail\"}",
+    "querystr": "{\"type\":\"EmailMessage\", \"service\": \"gmail\"}",
     "allEdges": [
       {
         "_type": "plugin",
@@ -1169,7 +1169,7 @@
     "uid": 10002,
     "_type": "DatasetType",
     "name": "Instagram posts",
-    "querystr": "{\"type\":\"Post\", \"service\": \"Instagram\"}",
+    "querystr": "{\"type\":\"Post\", \"service\": \"instagram\"}",
     "allEdges": [
       {
         "_type": "plugin",
