@@ -455,8 +455,13 @@ Project > list {
             Text {
                 color: #333333
                 font: headline2
-                padding: 0 0 30 0
-                text: {{.name}}
+                padding: 0 0 10 0
+                text: "Your dataset has been labeled!"
+            }
+
+            Text {
+                font: "bodyText1"
+                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
             }
 
             HStack {
@@ -464,68 +469,6 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-
-                    Text {
-                        font: "body_bold"
-                        text: {{.dataset.datasetType.name OR "No Dataset"}}
-                    }
-
-                    Text {
-                        color: #999999
-                        font: small_caps
-                        padding: 30 0 0 0
-                        text: "SOURCE"
-                    }
-
-                    Text {
-                        font: ul
-                        padding: 0 0 20 0
-                        text: {{.dataset.datasetType.plugin.name}}
-                    }
-
-                    Text {
-                        color: #999999
-                        font: small_caps
-                        text: "DATA TYPE"
-                    }
-
-                    Text {
-                        font: ul
-                        padding: 0 0 20 0
-                        text: "Text"
-                    }
-
-                    Text {
-                        color: #999999
-                        font: small_caps
-                        text: "FEATURE VARIABLES"
-                    }
-
-                    FlowStack {
-                        list: {{.dataset.feature[]}}
-                        spacing: 3
-
-                        HStack {
-                            alignment: left
-
-                            Text {
-                                font: ul
-                                text: "{.propertyName}"
-                            }
-                        }
-                    }
-
-                    Spacer
-                }
-
-                VStack {
-                    alignment: topleft
-
-                    Text {
-                        font: "body_bold"
-                        padding: 0 0 10 0
-                        text: {{.dataset.labelingTask.taskType.name OR ""}}
-                    }
 
                     Text {
                         color: #999999
@@ -547,16 +490,17 @@ Project > list {
                         Text {
                             color: #333333
                             font: ul
-                            text: "{.labelingTask.labelAnnotation[.isSubmitted = true].count()} annotations"
+                            text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = true].count()} annotations"
                         }
 
                         VStack {
                             alignment: top
+                            height: 22
 
                             Text {
                                 color: #333333
                                 font: small_caps
-                                text: "{.labelingTask.labelAnnotation[.isSubmitted = true].count().percent(.dataset.entry[].count())}%"
+                                text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = true].count().percent(.dataset.entry[].count())}%"
                             }
                         }
                     }
@@ -573,16 +517,17 @@ Project > list {
                         Text {
                             color: #333333
                             font: ul
-                            text: "{.labelingTask.labelAnnotation[.isSubmitted = false].count()} annotations"
+                            text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = false].count()} annotations"
                         }
 
                         VStack {
                             alignment: top
+                            height: 22
 
                             Text {
                                 color: #333333
                                 font: small_caps
-                                text: "{.labelingTask.labelAnnotation[.isSubmitted = false].count().percent(.dataset.entry[].count())}%"
+                                text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = false].count().percent(.dataset.entry[].count())}%"
                             }
                         }
                     }
@@ -602,6 +547,11 @@ Project > list {
                             text: "{.dataset.entry[].count()} annotations"
                         }
                     }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 400
 
                     Text {
                         color: #999999
@@ -640,11 +590,20 @@ Project > list {
                                     Text {
                                         color: #333333
                                         font: ul
-                                        text: "{.name} {.~categoricalLabel[].count()}"
+                                        padding: 0 0 0 0
+                                        text: "{.name}"
+                                    }
+
+                                    Text {
+                                        color: #333333
+                                        font: ul
+                                        padding: 0 0 0 0
+                                        text: "{.~categoricalLabel[].count()}"
                                     }
 
                                     VStack {
                                         alignment: top
+                                        height: 22
 
                                         Text {
                                             color: #333333
@@ -655,6 +614,39 @@ Project > list {
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 0 0 250 0
+
+                Button {
+                    onPress: noop
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Create your ML model"
+                        textalign: bottom
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    onPress: back
+                    padding: 0 0 0 15
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Back to labelling"
                     }
                 }
             }
