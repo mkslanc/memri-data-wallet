@@ -21,6 +21,7 @@ class CVUTextField extends StatefulWidget {
 
 class _CVUTextFieldState extends State<CVUTextField> {
   bool? secureMode;
+  bool? isCollapsed;
 
   String? hint;
   Color? color;
@@ -41,6 +42,7 @@ class _CVUTextFieldState extends State<CVUTextField> {
     hint = (await widget.nodeResolver.propertyResolver.string("hint"))?.nullIfBlank;
     contentBinding = await widget.nodeResolver.propertyResolver.binding<String>("value", null);
     color = await widget.nodeResolver.propertyResolver.color();
+    isCollapsed = await widget.nodeResolver.propertyResolver.boolean("isCollapsed", false);
   }
 
   @override
@@ -56,7 +58,8 @@ class _CVUTextFieldState extends State<CVUTextField> {
                     color: color,
                   ),
                   hint: hint,
-                  secureMode: secureMode!);
+                  secureMode: secureMode!,
+                  isCollapsed: isCollapsed!);
             default:
               return SizedBox(
                 child: CircularProgressIndicator(),
