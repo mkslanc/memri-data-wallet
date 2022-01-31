@@ -47,6 +47,9 @@ Dataset > singleItem {
                             itemType: {{selectedDataset.querystr.fromjson("type")}}
                         }
                     }
+                    groupBy: {
+                        properties: ["propertyName"]
+                    }
                     query: ItemPropertySchema
                     sortAscending: true
                     sortProperty: dateModified

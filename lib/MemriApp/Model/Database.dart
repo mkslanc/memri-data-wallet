@@ -96,16 +96,18 @@ class Database extends _$Database {
       List<TableInfo>? joinTables,
       int limit = 0,
       int offset = 0,
-      String? orderBy}) async {
+      String? orderBy,
+      String? groupBy}) async {
     if (query == "") {
       return await customSelect(
-          "SELECT * from items ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${limit != 0 ? "LIMIT $limit" : ""}",
+          "SELECT DISTINCT * from items ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${limit != 0 ? "LIMIT $limit" : ""}",
           variables: binding,
           readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
     }
     joinTables ??= [];
+
     return await customSelect(
-        "SELECT items.* from items $join WHERE $query ${orderBy != null ? "GROUP BY row_id ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${offset != 0 ? "OFFSET $offset" : ""}",
+        "SELECT DISTINCT items.* from items $join WHERE $query ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${offset != 0 ? "OFFSET $offset" : ""}",
         variables: binding,
         readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }

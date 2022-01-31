@@ -37,7 +37,10 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) => 
       sortEdges: (json['sortEdges'] as List<dynamic>?)
           ?.map((e) => JoinQueryStruct.fromJson(e as Map<String, dynamic>))
           .toList(),
-    )..deleted = json['deleted'] as bool?;
+    )
+      ..deleted = json['deleted'] as bool?
+      ..groupByProperties =
+          (json['groupByProperties'] as List<dynamic>).map((e) => e as String).toList();
 
 Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) => <String, dynamic>{
       'itemTypes': instance.itemTypes,
@@ -57,6 +60,7 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(DatabaseQueryConfig instance) =
       'sortEdges': instance.sortEdges,
       'edgeTargetsOperator': _$ConditionOperatorEnumMap[instance.edgeTargetsOperator],
       'count': instance.count,
+      'groupByProperties': instance.groupByProperties,
     };
 
 const _$ConditionOperatorEnumMap = {

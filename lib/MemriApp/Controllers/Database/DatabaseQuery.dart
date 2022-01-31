@@ -118,6 +118,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   int? count;
 
+  /// A list of conditions. eg. property name = "Demo note"
+  List<String> groupByProperties = [];
+
   DatabaseQueryConfig(
       {List<String>? itemTypes,
       Set<int>? itemRowIDs,
@@ -363,13 +366,34 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         orderBy = "$propertyOrderBy dateModified $sortOrder, dateCreated $sortOrder";
         break;
     }
+    var groupBy;
+    if (groupByProperties.isNotEmpty) {
+      //TODO: group by multiple properties
+      SchemaValueType? schemaValueType =
+          dbController.schema.expectedPropertyType(itemTypes.first, groupByProperties[0]);
+      if (schemaValueType != null) {
+        ItemRecordPropertyTable itemRecordPropertyTable =
+            PropertyDatabaseValue.toDBTableName(schemaValueType);
+        TableInfo table =
+            dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+        String tableName = table.aliasedName;
+        joinTables.add(table);
+        join +=
+            "LEFT JOIN $tableName as grouping ON items.row_id = grouping.item AND grouping.name = '${groupByProperties[0]}'";
+        groupBy = "grouping.value";
+      } else {
+        print("Error: Unknown property ${groupByProperties[0]} for ${itemTypes.first}");
+      }
+    }
+
     var finalQuery = "row_id IN (${rowIds.join(", ")})";
     return await dbController.databasePool.itemRecordsCustomSelect(finalQuery, [],
         join: join,
         joinTables: joinTables.toList(),
         limit: limit,
         offset: offset,
-        orderBy: orderBy);
+        orderBy: orderBy,
+        groupBy: groupBy);
   }
 
   _constructSearchRequest() async {
@@ -623,6 +647,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     if (count != null) {
       queryConfig.count = count;
     }
+
+    var groupByDef = datasourceResolver?.subdefinition("groupBy");
+    var groupByProperties = await groupByDef?.stringArray("properties");
+    queryConfig.groupByProperties = groupByProperties ?? [];
 
     return queryConfig;
   }
