@@ -157,7 +157,7 @@
     },
     {
       "item_type": "CVUStoredDefinition",
-      "property": "type",
+      "property": "definitionType",
       "value_type": "string"
     },
     {
