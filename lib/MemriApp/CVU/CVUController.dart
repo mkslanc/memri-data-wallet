@@ -153,7 +153,7 @@ class CVUController {
             value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.selector ?? "")));
         properties.add(ItemPropertyRecord(
             itemRowID: item.rowId!,
-            name: "type",
+            name: "definitionType",
             value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.type.inString)));
         properties.add(ItemPropertyRecord(
             itemRowID: item.rowId!,
@@ -196,7 +196,7 @@ class CVUController {
             value: PropertyDatabaseValueString(definition.selector ?? "")));
         properties.add(ItemPropertyRecord(
             itemRowID: definitionId,
-            name: "type",
+            name: "definitionType",
             value: PropertyDatabaseValueString(definition.type.inString)));
         properties.add(ItemPropertyRecord(
             itemRowID: definitionId,
@@ -236,7 +236,7 @@ class CVUController {
           name: (properties["name"] as String?)?.nullIfBlank,
           renderer: (properties["renderer"] as String?)?.nullIfBlank,
           type: EnumExtension.rawValue<CVUDefinitionType>(
-                  CVUDefinitionType.values, properties["type"]) ??
+                  CVUDefinitionType.values, properties["definitionType"]) ??
               CVUDefinitionType.other,
           parsed: definition.parsed);
     })));
