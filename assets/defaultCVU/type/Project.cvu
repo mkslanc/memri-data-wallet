@@ -623,7 +623,12 @@ Project > list {
                 padding: 0 0 250 0
 
                 Button {
-                    onPress: noop
+                    onPress: [
+                        openView
+                        {
+                            viewName: "create-new-model"
+                        }
+                    ]
                     styleName: primaryButton
 
                     Text {
