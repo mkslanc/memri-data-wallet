@@ -1,4 +1,37 @@
 .labelingAnnotation {
+    additional: {
+        HStack {
+            alignment: left
+            padding: 50
+
+            Button {
+                onPress: [
+                    openView
+                    {
+                        item: {{.~labelingTask.~dataset}}
+                        viewArguments: {
+                            pageLabel: "~main"
+                            selectedProject: {{.}}
+                        }
+                        viewName: "project-overview"
+                    }
+                ]
+                styleName: primaryButton
+
+                Text {
+                    text: "Finish labelling"
+                    textalign: bottom
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+        }
+    }
     cols: 9
     defaultRenderer: labelAnnotation
     emptyResultText: "There are no annotations here yet"
