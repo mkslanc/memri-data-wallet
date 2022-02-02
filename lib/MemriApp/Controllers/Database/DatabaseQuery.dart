@@ -315,6 +315,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     var join = "";
     Set<TableInfo> joinTables = {};
     var sortOrder = sortAscending ? "" : "DESC";
+    var groupBy;
+
     switch (sortProperty) {
       case "dateCreated":
         orderBy = "dateCreated $sortOrder, dateModified $sortOrder";
@@ -342,6 +344,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
           });
           orderBy =
               "${sortOrder == "DESC" ? "MAX" : "MIN"}(prop.value) $sortOrder, dateModified $sortOrder, dateCreated $sortOrder";
+          groupBy = "row_id";
         } else {
           orderBy = "dateModified $sortOrder, dateCreated $sortOrder";
         }
@@ -366,7 +369,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         orderBy = "$propertyOrderBy dateModified $sortOrder, dateCreated $sortOrder";
         break;
     }
-    var groupBy;
+
     if (groupByProperties.isNotEmpty) {
       //TODO: group by multiple properties
       SchemaValueType? schemaValueType =

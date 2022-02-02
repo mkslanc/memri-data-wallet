@@ -97,17 +97,18 @@ class Database extends _$Database {
       int limit = 0,
       int offset = 0,
       String? orderBy,
-      String? groupBy}) async {
+      String? groupBy,
+      bool distinct = true}) async {
     if (query == "") {
       return await customSelect(
-          "SELECT DISTINCT * from items ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${limit != 0 ? "LIMIT $limit" : ""}",
+          "SELECT ${distinct ? "DISTINCT" : ""} * from items ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${limit != 0 ? "LIMIT $limit" : ""}",
           variables: binding,
           readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
     }
     joinTables ??= [];
 
     return await customSelect(
-        "SELECT DISTINCT items.* from items $join WHERE $query ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${offset != 0 ? "OFFSET $offset" : ""}",
+        "SELECT ${distinct ? "DISTINCT" : ""} items.* from items $join WHERE $query ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${offset != 0 ? "OFFSET $offset" : ""}",
         variables: binding,
         readsFrom: {items, ...joinTables}).map((row) => Item.fromData(row.data, this)).get();
   }
