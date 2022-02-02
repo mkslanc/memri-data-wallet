@@ -75,7 +75,10 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
 
     var additionalSubdef = additionalDef?.getSubdefinition();
     if (additionalSubdef != null) {
-      return viewContext.render(nodeDefinition: additionalSubdef);
+      return viewContext.render(
+          nodeDefinition: additionalSubdef,
+          item: viewContext.focusedItem,
+          items: viewContext.items);
     }
     return null;
   }

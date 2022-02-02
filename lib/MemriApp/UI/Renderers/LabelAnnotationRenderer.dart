@@ -260,7 +260,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                   loadExistingAnnotation();
                 },
                 labelType: labelType,
-              )
+                additional: additional)
             : Empty();
       },
     );
@@ -298,6 +298,8 @@ class LabelSelectionView extends StatefulWidget {
   final Widget content;
   final bool useScrollView;
 
+  final Widget? additional;
+
   final void Function() onAppear;
 
   LabelSelectionView(
@@ -314,7 +316,8 @@ class LabelSelectionView extends StatefulWidget {
       required this.content,
       this.useScrollView = true,
       required this.onAppear,
-      required this.labelType});
+      required this.labelType,
+      this.additional});
 
   @override
   _LabelSelectionViewState createState() => _LabelSelectionViewState();
@@ -466,7 +469,8 @@ class _LabelSelectionViewState extends State<LabelSelectionView> {
             ],
           ),
         ),
-      )
+      ),
+      if (widget.additional != null) widget.additional!
     ]);
   }
 }
