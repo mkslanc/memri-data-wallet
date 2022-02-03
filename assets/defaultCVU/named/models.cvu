@@ -180,7 +180,12 @@
                 padding: 30 0 0 0
 
                 Button {
-                    onPress: noop
+                    onPress: [
+                        parsePlugin
+                        {
+                            url: {{.gitlabUrl}}
+                        }
+                    ]
                     styleName: primaryButton
 
                     Text {
