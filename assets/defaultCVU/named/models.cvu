@@ -1,198 +1,215 @@
 .create-new-model {
-    defaultRenderer: custom
+    defaultRenderer: singleItem
     scrollable: true
     title: "Create a new model"
 
-    VStack {
-        alignment: topleft
-        padding: 60 30 30 30
-
-        Text {
-            color: #333333
-            font: headline1
-            padding: 0 0 10 0
-            text: "Create a new model"
-        }
-
-        Text {
-            color: #333333
-            font: bodyText1
-            padding: 0 0 30 0
-            text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
-        }
-
-        Button {
-            isLink: true
-            onPress: noop
-
-            Text {
-                color: #E9500F
-                font: link
-                text: "How to create a model guide"
-            }
-
-            Image {
-                alignment: center
-                bundleImage: "ico_arrow"
-                color: #E9500F
-                isVector: true
-                padding: 0 0 0 15
-            }
-        }
-
-        Text {
-            color: #333333
-            font: headline1
-            padding: 60 0 20 0
-            text: "Convert model into plugin"
-        }
-
-        HStack {
-            alignment: left
-
-            Image {
-                alignment: center
-                bundleImage: "arrow-right-circle"
-                color: #989898
-                font: 20
-                isVector: true
-                resizable: true
-                sizingMode: fit
-            }
-
-            Text {
-                color: #999999
-                font: bodyText1
-                text: "On the Memri Gitlab, create a blank public repository for your plugin and clone the repo."
-            }
-        }
-
-        HStack {
-            alignment: left
-            padding: 0 0 30 0
-
-            Image {
-                alignment: center
-                bundleImage: "arrow-right-circle"
-                color: #989898
-                font: 20
-                isVector: true
-                resizable: true
-                sizingMode: fit
-            }
-
-            Text {
-                color: #999999
-                font: bodyText1
-                text: "From within the new repo, run the pymemri plugin template CLI."
-            }
-        }
-
-        Button {
-            isLink: true
-            onPress: noop
-
-            Text {
-                color: #E9500F
-                font: link
-                text: "See full documentation"
-            }
-
-            Image {
-                alignment: center
-                bundleImage: "ico_arrow"
-                color: #E9500F
-                isVector: true
-                padding: 0 0 0 15
-            }
-        }
-
-        Text {
-            color: #333333
-            font: headline1
-            padding: 60 0 20 0
-            text: "Deploy your data app from gitlab to pod"
-        }
-
-        Text {
-            color: #333333
-            font: bodyText1
-            padding: 0 0 10 0
-            text: "To be able to use your plugin, you have to publish a docker container with your plugin to the gitlab container registry of your repo. "
-        }
-
+    Project > singleItem {
         VStack {
             alignment: topleft
-            background: #F0F0F0
-            padding: 10
+            padding: 60 30 30 30
 
             Text {
                 color: #333333
-                font: small_caps
-                padding: 0 0 0 10
-                text: "YOUR PLUGIN GITLAB ADDRESS"
+                font: headline1
+                padding: 0 0 10 0
+                text: "Create a new model"
             }
-
-            Textfield {
-                background: #F0F0F0
-                border: #000 1
-                hint: "http://gitlab.memri.io:5050/plugins/myplugin:dev-latest"
-                isCollapsed: true
-                maxWidth: 571
-                rows: 1
-                value: {{.name}}
-            }
-        }
-
-        Button {
-            isLink: true
-            onPress: noop
-            padding: 20 0 0 0
 
             Text {
-                color: #E9500F
-                font: link
-                text: "Configuration set up guide"
+                color: #333333
+                font: bodyText1
+                padding: 0 0 30 0
+                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
             }
-
-            Image {
-                alignment: center
-                bundleImage: "ico_arrow"
-                color: #E9500F
-                isVector: true
-                padding: 0 0 0 15
-            }
-        }
-
-        HStack {
-            alignment: left
-            padding: 30 0 0 0
 
             Button {
-                onPress: noop
-                styleName: primaryButton
+                isLink: true
+                onPress: [
+                    openLink
+                    {
+                        link: "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"
+                    }
+                ]
 
                 Text {
-                    text: "Deploy your app"
-                    textalign: bottom
+                    color: #E9500F
+                    font: link
+                    text: "How to create a model guide"
                 }
 
                 Image {
                     alignment: center
                     bundleImage: "ico_arrow"
+                    color: #E9500F
                     isVector: true
                     padding: 0 0 0 15
                 }
             }
 
+            Text {
+                color: #333333
+                font: headline1
+                padding: 60 0 20 0
+                text: "Convert model into plugin"
+            }
+
+            HStack {
+                alignment: left
+
+                Image {
+                    alignment: center
+                    bundleImage: "arrow-right-circle"
+                    color: #989898
+                    font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
+                }
+
+                Text {
+                    color: #999999
+                    font: bodyText1
+                    text: "On the Memri Gitlab, create a blank public repository for your plugin and clone the repo."
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 0 0 30 0
+
+                Image {
+                    alignment: center
+                    bundleImage: "arrow-right-circle"
+                    color: #989898
+                    font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
+                }
+
+                Text {
+                    color: #999999
+                    font: bodyText1
+                    text: "From within the new repo, run the pymemri plugin template CLI."
+                }
+            }
+
             Button {
-                onPress: back
-                padding: 0 0 0 15
+                isLink: true
+                onPress: [
+                    openLink
+                    {
+                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model/"
+                    }
+                ]
+
+                Text {
+                    color: #E9500F
+                    font: link
+                    text: "See full documentation"
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    color: #E9500F
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            Text {
+                color: #333333
+                font: headline1
+                padding: 60 0 20 0
+                text: "Deploy your data app from gitlab to pod"
+            }
+
+            Text {
+                color: #333333
+                font: bodyText1
+                padding: 0 0 10 0
+                text: "To be able to use your plugin, you have to publish a docker container with your plugin to the gitlab container registry of your repo. "
+            }
+
+            VStack {
+                alignment: topleft
+                background: #F0F0F0
+                padding: 10
 
                 Text {
                     color: #333333
-                    font: button_label
-                    text: "Back to labelling summary"
+                    font: small_caps
+                    padding: 0 0 0 10
+                    text: "YOUR PLUGIN GITLAB ADDRESS"
+                }
+
+                Textfield {
+                    background: #F0F0F0
+                    border: #000 1
+                    hint: "http://gitlab.memri.io:5050/plugins/myplugin:dev-latest"
+                    isCollapsed: true
+                    maxWidth: 571
+                    rows: 1
+                    value: {{.gitlabUrl}}
+                }
+            }
+
+            Button {
+                isLink: true
+                onPress: noop
+                padding: 20 0 0 0
+
+                Text {
+                    color: #E9500F
+                    font: link
+                    text: "Configuration set up guide"
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    color: #E9500F
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 30 0 0 0
+
+                Button {
+                    onPress: [
+                        parsePlugin
+                        {
+                            url: {{.gitlabUrl}}
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Deploy your app"
+                        textalign: bottom
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    onPress: back
+                    padding: 0 0 0 15
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Back to labelling summary"
+                    }
                 }
             }
         }

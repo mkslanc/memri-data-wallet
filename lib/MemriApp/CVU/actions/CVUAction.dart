@@ -35,6 +35,7 @@ import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -156,6 +157,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionBlock(vars: vars);
     case "createlabelingtask":
       return ({Map? vars}) => CVUActionCreateLabelingTask(vars: vars);
+    case "parseplugin":
+      return ({Map? vars}) => CVUActionParsePluginItem(vars: vars);
     default:
       return null;
   }
@@ -682,7 +685,7 @@ class CVUActionPluginRun extends CVUAction {
     var pluginIdValue = vars["pluginId"];
     var pluginModuleValue = vars["pluginModule"];
     var pluginNameValue = vars["pluginName"];
-    var containerValue = vars["container"];
+    var containerValue = vars["containerImage"];
     if (pluginIdValue == null ||
         containerValue == null ||
         pluginModuleValue == null ||
@@ -1469,5 +1472,47 @@ class CVUActionCreateLabelingTask extends CVUAction {
         .properties
         .update("view", (value) => CVUValueItem(cvuID), ifAbsent: () => CVUValueItem(cvuID));
     await CVUActionAddItem(vars: newVars).execute(pageController, context);
+  }
+}
+
+class CVUActionParsePluginItem extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionParsePluginItem({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var url = await resolver.string("url");
+    if (url == null) {
+      throw "Repository URL is not provided!";
+    }
+    Uri? uri = Uri.tryParse(url + "/-/raw/main/metadata.json");
+    if (uri == null || !uri.hasAbsolutePath) {
+      throw "Url is not valid";
+    }
+    var response = await http.get(uri, headers: {"content-type": "application/json"});
+    if (response.statusCode != 200) {
+      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
+    }
+    var pluginJson = Utf8Decoder().convert(response.bodyBytes);
+    var decodedPlugin = jsonDecode(pluginJson);
+    var pluginItem = ItemRecord(type: "Plugin");
+    await pluginItem.save(db.databasePool);
+    var pluginProperties = Map.of(decodedPlugin);
+    List<ItemPropertyRecord> properties = [];
+    pluginProperties.forEach((key, value) {
+      if (value != null) {
+        if (key == "itemDescription")
+          key = "pluginDescription"; //TODO: change this after param in pyMemri will be changed
+        properties.add(ItemPropertyRecord(
+            itemRowID: pluginItem.rowId!,
+            name: key,
+            value: PropertyDatabaseValue.create(value, SchemaValueType.string)));
+      }
+    });
+    await db.databasePool.itemPropertyRecordInsertAll(properties);
   }
 }

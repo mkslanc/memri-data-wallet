@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/CVU/actions/CVUAction.dart';
 import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../CVUUINodeResolver.dart';
 import 'CVUTextPropertiesModifier.dart';
@@ -41,15 +42,23 @@ class _CVUButtonState extends State<CVUButton> {
     if (actions == null) {
       return;
     }
-    for (var action in actions) {
-      if (action is CVUActionOpenPopup) {
-        var settings = await action.setPopupSettings(
-            widget.nodeResolver.pageController, widget.nodeResolver.context);
-        if (settings != null) {
-          openPopup(settings);
+    try {
+      for (var action in actions) {
+        if (action is CVUActionOpenPopup) {
+          var settings = await action.setPopupSettings(
+              widget.nodeResolver.pageController, widget.nodeResolver.context);
+          if (settings != null) {
+            openPopup(settings);
+          }
+        } else {
+          await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
         }
+      }
+    } catch (e) {
+      if (e is String) {
+        openErrorPopup(e);
       } else {
-        await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
+        throw e;
       }
     }
   }
@@ -65,20 +74,36 @@ class _CVUButtonState extends State<CVUButton> {
             (action) {
               var title = action.vars["title"]?.value?.value;
               if (title != null) {
-                return TextButton(
+                return PointerInterceptor(
+                    child: TextButton(
                   onPressed: () async {
                     await action.execute(
                         widget.nodeResolver.pageController, widget.nodeResolver.context);
                     Navigator.pop(context, action.vars["title"]!.value.value);
                   },
                   child: Text(action.vars["title"]!.value.value),
-                );
+                ));
               } else {
                 return null;
               }
             },
           ).toList()),
     );
+  }
+
+  openErrorPopup(String text) {
+    return showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+            AlertDialog(title: Text("Error"), content: Text(text), actions: [
+              PointerInterceptor(
+                  child: TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                child: Text("Ok"),
+              ))
+            ]));
   }
 
   init() async {
