@@ -119,7 +119,7 @@ Plugin > grid {
     onPress: pluginRun {
         name: {{.name}}
         plugin: {{.}}
-        container: {{.container}}
+        container: {{.containerImage}}
         pluginModule: {{.pluginModule}}
         pluginName: {{.pluginName}}
         targetItemId: {{.id}}

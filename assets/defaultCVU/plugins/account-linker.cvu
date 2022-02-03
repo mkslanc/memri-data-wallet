@@ -46,7 +46,7 @@
 
                         pluginRun {
                             name: {{.name}}
-                            container: {{.container}}
+                            container: {{.containerImage}}
                             pluginModule: {{.pluginModule}}
                             pluginName: {{.pluginName}}
                             pluginId: {{.id}}

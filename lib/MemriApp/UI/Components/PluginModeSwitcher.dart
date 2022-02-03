@@ -17,7 +17,7 @@ class _PluginModeSwitcherState extends State<PluginModeSwitcher> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ItemPropertyRecord?>(
-        future: widget.item.property("container"),
+        future: widget.item.property("containerImage"),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var currentContainer = snapshot.data!.$value.asString()!;
@@ -41,7 +41,7 @@ class _PluginModeSwitcherState extends State<PluginModeSwitcher> {
                               RegExp(r"(:)prod(-.+$)"), (Match m) => "${m[1]}dev${m[2]}");
                         }
                         await widget.item.setPropertyValue(
-                            "container", PropertyDatabaseValueString(newContainer));
+                            "containerImage", PropertyDatabaseValueString(newContainer));
                         setState(() {});
                       }),
                   Text("Prod"),

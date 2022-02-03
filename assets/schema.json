@@ -962,7 +962,7 @@
     },
     {
       "item_type": "Plugin",
-      "property": "container",
+      "property": "containerImage",
       "value_type": "string"
     },
     {
@@ -977,7 +977,7 @@
     },
     {
       "item_type": "Plugin",
-      "property": "itemDescription",
+      "property": "pluginDescription",
       "value_type": "string"
     },
     {

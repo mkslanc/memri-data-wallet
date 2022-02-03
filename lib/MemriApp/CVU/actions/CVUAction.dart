@@ -685,7 +685,7 @@ class CVUActionPluginRun extends CVUAction {
     var pluginIdValue = vars["pluginId"];
     var pluginModuleValue = vars["pluginModule"];
     var pluginNameValue = vars["pluginName"];
-    var containerValue = vars["container"];
+    var containerValue = vars["containerImage"];
     if (pluginIdValue == null ||
         containerValue == null ||
         pluginModuleValue == null ||
@@ -1505,9 +1505,8 @@ class CVUActionParsePluginItem extends CVUAction {
     List<ItemPropertyRecord> properties = [];
     pluginProperties.forEach((key, value) {
       if (value != null) {
-        if (key == "containerImage")
-          key = "container"; //TODO: this is just until we validate change in schema
-
+        if (key == "itemDescription")
+          key = "pluginDescription"; //TODO: change this after param in pyMemri will be changed
         properties.add(ItemPropertyRecord(
             itemRowID: pluginItem.rowId!,
             name: key,
