@@ -279,6 +279,10 @@ class SceneController extends ChangeNotifier {
     return pageControllers.firstWhereOrNull((pageController) => pageController.label == label);
   }
 
+  exitEditMode() {
+    pageControllers.forEach((pageController) => pageController.isInEditMode.value = false);
+  }
+
   scheduleUIUpdate() {
     pageControllers.forEach((pageController) {
       pageController.scheduleUIUpdate();

@@ -78,6 +78,7 @@ class NavigationItemView extends StatelessWidget {
     return TextButton(
       onPressed: item.targetViewName != null
           ? () {
+              sceneController.exitEditMode();
               sceneController.navigateToNewContext(
                   clearStack: true, animated: false, viewName: item.targetViewName);
               sceneController.navigationIsVisible.value = false;
