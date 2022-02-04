@@ -66,28 +66,32 @@ Plugin {
 }
 
 Plugin > list {
-    onPress: openPlugin {
-        plugin: {{.}}
-    }
+    onPress: [
+        openPlugin
+        {
+            plugin: {{.}}
+        }
+    ]
 
     VStack {
         alignment: left
+
         VStack {
             alignment: left
             background: #F5F5F5
             padding: 20
 
-
-
             HStack {
                 alignment: left
 
                 Text {
-                    text: "{.name}"
-                    font: headline2
                     color: #333333
+                    font: headline2
+                    text: "{.name}"
                 }
+
                 Spacer
+
                 Text {
                     color: {{.~plugin[].last().status = "error" ? #FE570F : #333333}}
                     text: "{.~plugin[].last().status = 'done' ? 'active' : .~plugin[].last().status = 'error' ? 'error' : 'inactive'}"
@@ -95,20 +99,21 @@ Plugin > list {
             }
 
             Text {
-                text: "{.itemDescription}"
-                removeWhiteSpace: true
-                maxChar: 100
                 color: #989898
                 font: body_tiny
+                maxChar: 100
                 padding: 15 0 10 0
+                removeWhiteSpace: true
+                text: "{.pluginDescription}"
             }
 
             HStack {
                 alignment: left
+
                 Text {
-                    text: "{.pluginType != 'importer' ? 'Install' : .~plugin[].last().status = 'error' ? 'Re-authenticate' : 'Install'}"
-                    font: btn_label
                     color: #FE570F
+                    font: btn_label
+                    text: "{.pluginType != 'importer' ? 'Install' : .~plugin[].last().status = 'error' ? 'Re-authenticate' : 'Install'}"
                 }
             }
         }
