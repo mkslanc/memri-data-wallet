@@ -31,7 +31,7 @@
     "pluginType": "importer",
     "name": "WhatsApp",
     "dataType": "whatsapp",
-    "containerImage": "gitlab.memri.io:5050/plugins/whatsapp:dev-latest",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp:dev-latest",
     "icon": "message",
     "pluginModule": "whatsapp.plugin",
     "pluginName": "WhatsappPlugin"
@@ -41,7 +41,7 @@
     "_type": "Plugin",
     "pluginType": "importer",
     "name": "Gmail plugin",
-    "containerImage": "gitlab.memri.io:5050/plugins/gmail:dev-latest",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/gmail:dev-latest",
     "pluginModule": "gmail_importer.plugin",
     "pluginName": "GmailImporter",
     "icon": "mail"
@@ -51,7 +51,7 @@
     "_type": "Plugin",
     "pluginType": "importer",
     "name": "Instagram",
-    "containerImage": "gitlab.memri.io:5050/plugins/instagram:dev-latest",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/instagram:dev-latest",
     "pluginModule": "instagram.plugin",
     "pluginName": "InstagramPlugin",
     "icon": "mail"
@@ -60,7 +60,7 @@
     "_type": "Plugin",
     "pluginType": "app",
     "name": "Sentiment analysis app",
-    "containerImage": "gitlab.memri.io:5050/plugins/sentiment-analysis:dev-latest",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/sentiment-analysis:dev-latest",
     "pluginModule": "sentiment_analysis",
     "pluginName": "SentimentAnalysis",
     "pluginDescription": "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
@@ -69,7 +69,7 @@
     "_type": "Plugin",
     "pluginType": "app",
     "name": "Account linker",
-    "containerImage": "gitlab.memri.io:5050/plugins/account-linker:dev-latest",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/account-linker:dev-latest",
     "pluginModule": "account_linker.plugin",
     "pluginName": "AccountLinkerPlugin",
     "pluginDescription": "Account linker allows linking accounts from multiple services. You can use these connections to browse through your data in new ways and give your data additional context."

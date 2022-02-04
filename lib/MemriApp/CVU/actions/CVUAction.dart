@@ -685,11 +685,14 @@ class CVUActionPluginRun extends CVUAction {
     var pluginIdValue = vars["pluginId"];
     var pluginModuleValue = vars["pluginModule"];
     var pluginNameValue = vars["pluginName"];
-    var containerValue = vars["containerImage"];
+    var containerValue = vars["container"];
     if (pluginIdValue == null ||
         containerValue == null ||
         pluginModuleValue == null ||
-        pluginNameValue == null) return;
+        pluginNameValue == null) {
+      print("Not all params provided for PluginRun");
+      return;
+    }
 
     String? pluginId = await lookup.resolve<String>(value: pluginIdValue, context: context, db: db);
 
@@ -1505,7 +1508,7 @@ class CVUActionParsePluginItem extends CVUAction {
     List<ItemPropertyRecord> properties = [];
     pluginProperties.forEach((key, value) {
       if (value != null) {
-        if (key == "itemDescription")
+        if (key == "description")
           key = "pluginDescription"; //TODO: change this after param in pyMemri will be changed
         properties.add(ItemPropertyRecord(
             itemRowID: pluginItem.rowId!,
