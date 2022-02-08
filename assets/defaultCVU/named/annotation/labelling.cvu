@@ -68,55 +68,61 @@
                 text: "TASK"
             }
 
-            HStack {
-                alignment: left
-                padding: 0
-
-                Text {
-                    color: #999999
-                    font: ul
-                    text: "Submitted"
-                }
-
-                Text {
-                    color: #333333
-                    font: ul
-                    text: "{.labelAnnotation[.isSubmitted = true].count()} annotations"
-                }
+            Observer {
+                itemType: ""
 
                 VStack {
-                    alignment: top
+                    HStack {
+                        alignment: left
+                        padding: 0
 
-                    Text {
-                        color: #333333
-                        font: small_caps
-                        text: "{.labelAnnotation[.isSubmitted = true].count().percent(.~labellingTask.entry[].count())}%"
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Submitted"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            text: "{.labelAnnotation[.isSubmitted = true].count()} annotations"
+                        }
+
+                        VStack {
+                            alignment: top
+
+                            Text {
+                                color: #333333
+                                font: small_caps
+                                text: "{.labelAnnotation[.isSubmitted = true].count().percent(.~labellingTask.entry[].count())}%"
+                            }
+                        }
                     }
-                }
-            }
 
-            HStack {
-                alignment: left
+                    HStack {
+                        alignment: left
 
-                Text {
-                    color: #999999
-                    font: ul
-                    text: "Skipped"
-                }
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Skipped"
+                        }
 
-                Text {
-                    color: #333333
-                    font: ul
-                    text: "{.labelAnnotation[.isSubmitted = false].count()} annotations"
-                }
+                        Text {
+                            color: #333333
+                            font: ul
+                            text: "{.labelAnnotation[.isSubmitted = false].count()} annotations"
+                        }
 
-                VStack {
-                    alignment: top
+                        VStack {
+                            alignment: top
 
-                    Text {
-                        color: #333333
-                        font: small_caps
-                        text: "{.labelAnnotation[.isSubmitted = false].count().percent(.~labellingTask.entry[].count())}%"
+                            Text {
+                                color: #333333
+                                font: small_caps
+                                text: "{.labelAnnotation[.isSubmitted = false].count().percent(.~labellingTask.entry[].count())}%"
+                            }
+                        }
                     }
                 }
             }
@@ -168,22 +174,26 @@
                     }
 
                     LabelOption > list {
-                        HStack {
-                            alignment: left
+                        Observer {
+                            itemType: ""
 
-                            Text {
-                                color: #333333
-                                font: ul
-                                text: "{.name} {.~categoricalLabel[].count()}"
-                            }
-
-                            VStack {
-                                alignment: top
+                            HStack {
+                                alignment: left
 
                                 Text {
                                     color: #333333
-                                    font: small_caps
-                                    text: "{.~categoricalLabel[].count().percent(.~labelOption.~labellingTask.entry[].count())} %"
+                                    font: ul
+                                    text: "{.name} {.~categoricalLabel[].count()}"
+                                }
+
+                                VStack {
+                                    alignment: top
+
+                                    Text {
+                                        color: #333333
+                                        font: small_caps
+                                        text: "{.~categoricalLabel[].count().percent(.~labelOption.~labellingTask.entry[].count())} %"
+                                    }
                                 }
                             }
                         }
