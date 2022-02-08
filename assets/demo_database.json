@@ -9,7 +9,7 @@
   {
     "_type": "Indexer",
     "name": "Note Label Indexer",
-    "querystr": "Note",
+    "queryStr": "Note",
     "runDestination": "ios",
     "itemDescription": "This indexer extracts labels from notes. You can specify aliases in the labels to add keywords that are used to match against.",
     "icon": "tag"
@@ -17,7 +17,7 @@
   {
     "_type": "Indexer",
     "name": "Note List Indexer",
-    "querystr": "Note",
+    "queryStr": "Note",
     "indexerClass": "NotesListIndexer",
     "itemDescription": "This indexer extracts lists from notes. It detects both structured and unstructured lists",
     "icon": "text.badge.plus"

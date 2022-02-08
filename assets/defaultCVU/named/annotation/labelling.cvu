@@ -8,7 +8,7 @@
                 onPress: [
                     openView
                     {
-                        item: {{.~labelingTask.~dataset}}
+                        item: {{.~labellingTask.~dataset}}
                         viewArguments: {
                             pageLabel: "~main"
                             selectedProject: {{.}}
@@ -45,7 +45,7 @@
         scrollable: false
     }
 
-    LabelingTask > singleItem {
+    LabellingTask > singleItem {
         VStack {
             alignment: topleft
             padding: 60 0 30 0
@@ -59,7 +59,7 @@
             Text {
                 font: headline2
                 padding: 0 0 30 0
-                text: {{.~labelingTask.datasetType.name}}
+                text: {{.~labellingTask.datasetType.name}}
             }
 
             Text {
@@ -90,7 +90,7 @@
                     Text {
                         color: #333333
                         font: small_caps
-                        text: "{.labelAnnotation[.isSubmitted = true].count().percent(.~labelingTask.entry[].count())}%"
+                        text: "{.labelAnnotation[.isSubmitted = true].count().percent(.~labellingTask.entry[].count())}%"
                     }
                 }
             }
@@ -116,7 +116,7 @@
                     Text {
                         color: #333333
                         font: small_caps
-                        text: "{.labelAnnotation[.isSubmitted = false].count().percent(.~labelingTask.entry[].count())}%"
+                        text: "{.labelAnnotation[.isSubmitted = false].count().percent(.~labellingTask.entry[].count())}%"
                     }
                 }
             }
@@ -133,7 +133,7 @@
                 Text {
                     color: #333333
                     font: ul
-                    text: "{.~labelingTask.entry[].count()} annotations"
+                    text: "{.~labellingTask.entry[].count()} annotations"
                 }
             }
 
@@ -149,13 +149,13 @@
                     defaultRenderer: list
                     editMode: false
                     viewArguments: {
-                        labelingTask: {{labelingTask}}
+                        labellingTask: {{labellingTask}}
                     }
 
                     [datasource = pod] {
                         filter: {
                             edgeSources: {
-                                labelOption: {{labelingTask}}
+                                labelOption: {{labellingTask}}
                             }
                         }
                         query: LabelOption
@@ -183,7 +183,7 @@
                                 Text {
                                     color: #333333
                                     font: small_caps
-                                    text: "{.~categoricalLabel[].count().percent(.~labelOption.~labelingTask.entry[].count())} %"
+                                    text: "{.~categoricalLabel[].count().percent(.~labelOption.~labellingTask.entry[].count())} %"
                                 }
                             }
                         }
@@ -206,7 +206,7 @@
             labelingSummary: "labelingSummary"
         }
         viewArguments: {
-            labelingTask: {{.}}
+            labellingTask: {{.}}
         }
     }
 }

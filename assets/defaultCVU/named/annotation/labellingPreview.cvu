@@ -2,7 +2,7 @@
     cols: 4
     defaultRenderer: singleItem
 
-    LabelingTask > singleItem {
+    LabellingTask > singleItem {
         VStack {
             alignment: topleft
             padding: 60 30 30 30
@@ -28,7 +28,7 @@
                             clearSecondary: false
                         }
                         viewArguments: {
-                            labelingTask: {{.}}
+                            labellingTask: {{.}}
                         }
                         viewName: "labelingCVUEditor"
                     }
@@ -109,14 +109,14 @@
             labelingAnnotation: "labelingAnnotationPreview"
         }
         viewArguments: {
-            labelingTask: {{.}}
+            labellingTask: {{.}}
         }
     }
 }
 
 .labelingCVUEditor {
     cols: 4
-    customDefinition: {{labelingTask.view.definition}}
+    customDefinition: {{labellingTask.view.definition}}
     defaultRenderer: cvuEditor
     mode: customLocation
 }

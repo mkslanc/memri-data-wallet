@@ -33,7 +33,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   bool inPreviewMode = false;
 
-  late final ItemRecord labelingTask;
+  late final ItemRecord labellingTask;
   late List<LabelOption> labelOptions;
 
   LabelType labelType = LabelType.CategoricalLabel; //TODO resolve
@@ -56,7 +56,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   @override
   void initState() {
     super.initState();
-    labelingTask = widget.viewContext.focusedItem!;
+    labellingTask = widget.viewContext.focusedItem!;
     _init = init();
   }
 
@@ -75,9 +75,9 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   Future<void> loadDataset() async {
-    var dataset = await labelingTask.reverseEdgeItem("labelingTask");
+    var dataset = await labellingTask.reverseEdgeItem("labellingTask");
     currentItemList = await dataset!.edgeItems("entry");
-    var currentAnnotationList = await labelingTask.edgeItems("labelAnnotation");
+    var currentAnnotationList = await labellingTask.edgeItems("labelAnnotation");
     await Future.forEach<ItemRecord>(currentAnnotationList, (labelAnnotation) async {
       var annotatedItem = await labelAnnotation.edgeItem("annotatedItem");
       if (annotatedItem != null) {
@@ -88,7 +88,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   Future<void> loadLabelOptions() async {
     labelOptions =
-        await Future.wait((await labelingTask.edgeItems("labelOption")).map((labelOption) async {
+        await Future.wait((await labellingTask.edgeItems("labelOption")).map((labelOption) async {
       var labelString = (await labelOption.property("name"))!.$value.asString()!;
       return LabelOption(labelID: labelOption.uid, text: labelString);
     }));
@@ -96,7 +96,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   loadCVU() async {
     var cvuController = widget.pageController.appController.cvuController;
-    var view = await labelingTask.edgeItem("view");
+    var view = await labellingTask.edgeItem("view");
     var cvuContent = (await view?.propertyValue("definition"))?.value;
     var cvuDefinition =
         cvuContent != null ? (await CVUController.parseCVU(cvuContent)).asMap()[0] : null;
@@ -145,7 +145,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
       await annotationItem.save();
 
       var labelEdge = ItemEdgeRecord(
-          sourceRowID: labelingTask.rowId,
+          sourceRowID: labellingTask.rowId,
           name: "labelAnnotation",
           targetRowID: labelAnnotation.rowId);
       await labelEdge.save();

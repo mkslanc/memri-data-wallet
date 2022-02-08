@@ -1421,7 +1421,7 @@ class CVUActionCreateLabelingTask extends CVUAction {
       print("CreateLabelingTask error: dataset type not resolved");
       return;
     }
-    var query = (await datasetType.propertyValue("querystr"))?.asString();
+    var query = (await datasetType.propertyValue("queryStr"))?.asString();
     if (query == null) {
       print("CreateLabelingTask error: couldn't find query from dataset type");
       return;
@@ -1488,20 +1488,58 @@ class CVUActionParsePluginItem extends CVUAction {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var project = await resolver.item("project");
+    if (project == null) {
+      throw "Labelling project is not exist!";
+    }
     var url = await resolver.string("url");
     if (url == null) {
       throw "Repository URL is not provided!";
+    }
+    if (!url.startsWith("https://gitlab.memri.io/")) {
+      throw "Repository URL should lead to gitlab.memri.io project";
     }
     Uri? uri = Uri.tryParse(url + "/-/raw/main/metadata.json");
     if (uri == null || !uri.hasAbsolutePath) {
       throw "Url is not valid";
     }
-    var response = await http.get(uri, headers: {"content-type": "application/json"});
+
+    var searchNeedle = url.replaceFirst("https://gitlab.memri.io/", "");
+    var newUri = Uri.tryParse(
+        "https://gitlab.memri.io/api/v4/projects?search=$searchNeedle&search_namespaces=true");
+    if (newUri == null || !newUri.hasAbsolutePath) {
+      throw "Url is not valid";
+    }
+
+    var response = await http.get(newUri, headers: {"content-type": "application/json"});
     if (response.statusCode != 200) {
       throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
     }
-    var pluginJson = Utf8Decoder().convert(response.bodyBytes);
-    var decodedPlugin = jsonDecode(pluginJson);
+    var repoJson = Utf8Decoder().convert(response.bodyBytes);
+    var decodedRepo = jsonDecode(repoJson);
+    if (decodedRepo.length == 0 || decodedRepo[0]["id"] == null) {
+      throw "Gitlab project id not provided";
+    }
+    var projectId = decodedRepo[0]["id"];
+    if (projectId is! int) {
+      throw "Git Project Id has wrong type";
+    }
+    var repoUri = Uri.parse(
+        "https://gitlab.memri.io/api/v4/projects/$projectId/repository/files/metadata.json?ref=main");
+    response = await http.get(repoUri, headers: {"content-type": "application/json"});
+    if (response.statusCode != 200) {
+      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
+    }
+
+    var metaJson = Utf8Decoder().convert(response.bodyBytes);
+    var decodedMeta = jsonDecode(metaJson);
+    if (decodedMeta.length == 0 || decodedMeta["content"] == null) {
+      throw "Metadata.json is not available in provided repository link";
+    }
+
+    var encodedPlugin = Utf8Decoder().convert(base64Decode(decodedMeta["content"]));
+    var decodedPlugin = jsonDecode(encodedPlugin);
+
     var pluginItem = ItemRecord(type: "Plugin");
     await pluginItem.save(db.databasePool);
     var pluginProperties = Map.of(decodedPlugin);
@@ -1516,6 +1554,10 @@ class CVUActionParsePluginItem extends CVUAction {
             value: PropertyDatabaseValue.create(value, SchemaValueType.string)));
       }
     });
+    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(projectId));
+    await ItemEdgeRecord(
+            sourceRowID: project.rowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
+        .save(db.databasePool);
     await db.databasePool.itemPropertyRecordInsertAll(properties);
   }
 }
