@@ -149,6 +149,11 @@ class ItemEdgeRecord {
     return syncEdges;
   }
 
+  static Future insertAll(List<ItemEdgeRecord> records, {DatabaseController? dbController}) async {
+    dbController ??= AppController.shared.databaseController;
+    return await dbController.databasePool.itemEdgeRecordInsertAll(records);
+  }
+
   Future<Map<String, dynamic>?> syncDict([DatabaseController? dbController]) async {
     if (sourceRowID == null || targetRowID == null || selfRowID == null) {
       return null;
