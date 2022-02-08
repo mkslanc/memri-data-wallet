@@ -1,4 +1,4 @@
-LabelingDataType > grid {
+LabellingDataType > grid {
     onPress: noop
 
 
@@ -35,7 +35,7 @@ LabelingDataType > grid {
     sortFields: dateModified dateCreated
 
     [datasource = pod] {
-        query: LabelingDataType
+        query: LabellingDataType
         sortProperty: dateModified
         sortAscending: true
     }

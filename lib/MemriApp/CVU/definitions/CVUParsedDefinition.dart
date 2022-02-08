@@ -148,7 +148,7 @@ class CVUParsedDefinition extends CVUStringConvertible with EquatableMixin {
   /// The renderer for which this definition is valid (optional)
   String? renderer;
 
-  String get querystr =>
+  String get queryStr =>
       "type='${type.inString}', domain='${domain.inString}', selector='${selector ?? ""}', name='${name ?? ""}', renderer='${renderer ?? ""}'";
 
   CVUDefinitionContent parsed;

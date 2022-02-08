@@ -106,13 +106,13 @@ class CVUController {
   Future updateDefinition(CVUParsedDefinition definition, CVUDefinitionContent content) async {
     definition.parsed = content;
     var storedDefinitionItems = await databaseController.databasePool
-        .itemPropertyRecordsSelect("querystr", value: definition.querystr);
+        .itemPropertyRecordsSelect("queryStr", value: definition.queryStr);
     var storedDefinitionIds =
         storedDefinitionItems.compactMap<int>((item) => item is StringDb ? item.item : null);
     var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
         .where((item) => item.type == "CVUStoredDefinition");
     if (validStoredDefinitions.length != 1) {
-      print("Error! Could not find valid stored definition for: ${definition.querystr}");
+      print("Error! Could not find valid stored definition for: ${definition.queryStr}");
       return;
     }
     var storedDefinition = validStoredDefinitions.first;
@@ -162,8 +162,8 @@ class CVUController {
                 definitionsByUID[item.uid]!.toCVUString(0, "    ", true))));
         properties.add(ItemPropertyRecord(
             itemRowID: item.rowId!,
-            name: "querystr",
-            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.querystr)));
+            name: "queryStr",
+            value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.queryStr)));
       });
       await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
     });
@@ -204,8 +204,8 @@ class CVUController {
             value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
         properties.add(ItemPropertyRecord(
             itemRowID: definitionId,
-            name: "querystr",
-            value: PropertyDatabaseValueString(definition.querystr)));
+            name: "queryStr",
+            value: PropertyDatabaseValueString(definition.queryStr)));
         await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
       });
       return definitionId;

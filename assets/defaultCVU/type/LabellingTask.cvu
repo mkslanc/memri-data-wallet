@@ -1,4 +1,4 @@
-LabelingTask {
+LabellingTask {
     defaultRenderer: singleItem
     showSearchBar: false
     showBottomBar: false
@@ -10,7 +10,7 @@ LabelingTask {
     }
 }
 
-LabelingTask > singleItem {
+LabellingTask > singleItem {
     VStack {
         alignment: topleft
         padding: 60 0 0 0
@@ -192,7 +192,7 @@ LabelingTask > singleItem {
     }
 }
 
-LabelingTask > list {
+LabellingTask > list {
     onPress: noop
 
     VStack {
@@ -220,7 +220,7 @@ LabelingTask > list {
     sortFields: dateModified dateCreated
 
     [datasource = pod] {
-        query: LabelingTask
+        query: LabellingTask
         sortProperty: dateModified
         sortAscending: true
     }
