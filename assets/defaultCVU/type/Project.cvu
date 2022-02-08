@@ -176,7 +176,7 @@ Project > list {
                     Text {
                         font: "body_tiny_bold"
                         padding: 0 0 10 0
-                        text: {{.dataset.labelingTask.taskType.name OR ""}}
+                        text: {{.dataset.labellingTask.taskType.name OR ""}}
                     }
 
                     Text {
@@ -293,7 +293,7 @@ Project > list {
                 [datasource = pod] {
                     filter: {
                         properties: {
-                            itemType: {{selectedDataset.querystr.fromjson("type")}}
+                            itemType: {{selectedDataset.queryStr.fromjson("type")}}
                         }
                     }
                     query: ItemPropertySchema
@@ -490,7 +490,7 @@ Project > list {
                         Text {
                             color: #333333
                             font: ul
-                            text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = true].count()} annotations"
+                            text: "{.dataset.labellingTask.labelAnnotation[.isSubmitted = true].count()} annotations"
                         }
 
                         VStack {
@@ -500,7 +500,7 @@ Project > list {
                             Text {
                                 color: #333333
                                 font: small_caps
-                                text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = true].count().percent(.dataset.entry[].count())}%"
+                                text: "{.dataset.labellingTask.labelAnnotation[.isSubmitted = true].count().percent(.dataset.entry[].count())}%"
                             }
                         }
                     }
@@ -517,7 +517,7 @@ Project > list {
                         Text {
                             color: #333333
                             font: ul
-                            text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = false].count()} annotations"
+                            text: "{.dataset.labellingTask.labelAnnotation[.isSubmitted = false].count()} annotations"
                         }
 
                         VStack {
@@ -527,7 +527,7 @@ Project > list {
                             Text {
                                 color: #333333
                                 font: small_caps
-                                text: "{.dataset.labelingTask.labelAnnotation[.isSubmitted = false].count().percent(.dataset.entry[].count())}%"
+                                text: "{.dataset.labellingTask.labelAnnotation[.isSubmitted = false].count().percent(.dataset.entry[].count())}%"
                             }
                         }
                     }
@@ -565,13 +565,13 @@ Project > list {
                             defaultRenderer: list
                             editMode: false
                             viewArguments: {
-                                labelingTask: {{selectedProject.dataset.labelingTask}}
+                                labellingTask: {{selectedProject.dataset.labellingTask}}
                             }
 
                             [datasource = pod] {
                                 filter: {
                                     edgeSources: {
-                                        labelOption: {{labelingTask}}
+                                        labelOption: {{labellingTask}}
                                     }
                                 }
                                 query: LabelOption
@@ -608,7 +608,7 @@ Project > list {
                                         Text {
                                             color: #333333
                                             font: small_caps
-                                            text: "{.~categoricalLabel[].count().percent(.~labelOption.~labelingTask.entry[].count())} %"
+                                            text: "{.~categoricalLabel[].count().percent(.~labelOption.~labellingTask.entry[].count())} %"
                                         }
                                     }
                                 }

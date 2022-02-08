@@ -183,9 +183,11 @@
                     onPress: [
                         parsePlugin
                         {
+                            project: {{.}}
                             url: {{.gitlabUrl}}
                         }
-                        openView {
+                        openView
+                        {
                             viewName: "app-deployed"
                         }
                     ]

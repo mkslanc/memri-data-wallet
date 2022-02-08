@@ -127,6 +127,11 @@
     },
     {
       "item_type": "CVUStoredDefinition",
+      "property": "definitionType",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CVUStoredDefinition",
       "property": "domain",
       "value_type": "string"
     },
@@ -142,7 +147,7 @@
     },
     {
       "item_type": "CVUStoredDefinition",
-      "property": "querystr",
+      "property": "queryStr",
       "value_type": "string"
     },
     {
@@ -156,11 +161,6 @@
       "value_type": "string"
     },
     {
-      "item_type": "CVUStoredDefinition",
-      "property": "definitionType",
-      "value_type": "string"
-    },
-    {
       "item_type": "CategoricalLabel",
       "property": "allowSharing",
       "value_type": "bool"
@@ -169,11 +169,6 @@
       "item_type": "CategoricalLabel",
       "property": "isSubmitted",
       "value_type": "bool"
-    },
-    {
-      "item_type": "CategoricalLabel",
-      "property": "labels",
-      "value_type": "string"
     },
     {
       "item_type": "Country",
@@ -312,7 +307,7 @@
     },
     {
       "item_type": "Dataset",
-      "property": "querystr",
+      "property": "queryStr",
       "value_type": "string"
     },
     {
@@ -322,7 +317,7 @@
     },
     {
       "item_type": "DatasetType",
-      "property": "querystr",
+      "property": "queryStr",
       "value_type": "string"
     },
     {
@@ -497,7 +492,7 @@
     },
     {
       "item_type": "Indexer",
-      "property": "querystr",
+      "property": "queryStr",
       "value_type": "string"
     },
     {
@@ -532,7 +527,7 @@
     },
     {
       "item_type": "IndexerRun",
-      "property": "querystr",
+      "property": "queryStr",
       "value_type": "string"
     },
     {
@@ -611,11 +606,6 @@
       "value_type": "bool"
     },
     {
-      "item_type": "LabelAnnotation",
-      "property": "labels",
-      "value_type": "string"
-    },
-    {
       "item_type": "LabelOption",
       "property": "color",
       "value_type": "string"
@@ -626,22 +616,22 @@
       "value_type": "string"
     },
     {
-      "item_type": "LabelingDataType",
+      "item_type": "LabellingDataType",
       "property": "labelType",
       "value_type": "string"
     },
     {
-      "item_type": "LabelingDataType",
+      "item_type": "LabellingDataType",
       "property": "name",
       "value_type": "string"
     },
     {
-      "item_type": "LabelingTask",
+      "item_type": "LabellingTask",
       "property": "currentLabelOption",
       "value_type": "string"
     },
     {
-      "item_type": "LabelingTask",
+      "item_type": "LabellingTask",
       "property": "name",
       "value_type": "string"
     },
@@ -972,17 +962,22 @@
     },
     {
       "item_type": "Plugin",
+      "property": "gitProjectId",
+      "value_type": "int"
+    },
+    {
+      "item_type": "Plugin",
       "property": "icon",
       "value_type": "string"
     },
     {
       "item_type": "Plugin",
-      "property": "pluginDescription",
+      "property": "name",
       "value_type": "string"
     },
     {
       "item_type": "Plugin",
-      "property": "name",
+      "property": "pluginDescription",
       "value_type": "string"
     },
     {
@@ -1062,7 +1057,7 @@
     },
     {
       "item_type": "Post",
-      "property": "type",
+      "property": "postType",
       "value_type": "string"
     },
     {
@@ -1339,8 +1334,8 @@
     },
     {
       "source_type": "Dataset",
-      "edge": "labelingTask",
-      "target_type": "LabelingTask"
+      "edge": "labellingTask",
+      "target_type": "LabellingTask"
     },
     {
       "source_type": "DatasetType",
@@ -1443,22 +1438,22 @@
       "target_type": "Any"
     },
     {
-      "source_type": "LabelingTask",
+      "source_type": "LabellingTask",
       "edge": "labelAnnotation",
       "target_type": "Any"
     },
     {
-      "source_type": "LabelingTask",
+      "source_type": "LabellingTask",
       "edge": "labelOption",
       "target_type": "LabelOption"
     },
     {
-      "source_type": "LabelingTask",
+      "source_type": "LabellingTask",
       "edge": "taskType",
       "target_type": "Any"
     },
     {
-      "source_type": "LabelingTask",
+      "source_type": "LabellingTask",
       "edge": "view",
       "target_type": "CVUStoredDefinition"
     },
@@ -1696,6 +1691,11 @@
       "source_type": "Project",
       "edge": "dataset",
       "target_type": "Dataset"
+    },
+    {
+      "source_type": "Project",
+      "edge": "labellingPlugin",
+      "target_type": "Plugin"
     },
     {
       "source_type": "Receipt",

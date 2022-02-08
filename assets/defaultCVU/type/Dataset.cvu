@@ -44,7 +44,7 @@ Dataset > singleItem {
                 [datasource = pod] {
                     filter: {
                         properties: {
-                            itemType: {{selectedDataset.querystr.fromjson("type")}}
+                            itemType: {{selectedDataset.queryStr.fromjson("type")}}
                         }
                     }
                     groupBy: {
@@ -102,12 +102,12 @@ Dataset > singleItem {
                     {
                         dataset: {{.}}
                         features: {{subView("featureVariables").selectedItems()}}
-                        initialItem: {{.labelingTask}}
+                        initialItem: {{.labellingTask}}
                         openNewView: true
                         template: {
-                            _type: "LabelingTask"
+                            _type: "LabellingTask"
                             taskType: {{items(type: "TextClassification").first()}}
-                            ~labelingTask: {{.}}
+                            ~labellingTask: {{.}}
                         }
                         viewArguments: {
                             task: {{.}}
