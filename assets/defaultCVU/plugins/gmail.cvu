@@ -507,13 +507,12 @@
 
 .GmailImporter-userActionNeeded {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect Gmail account"
 
-    [renderer = singleItem]{
-
+    [renderer = singleItem] {
     }
 
     Account > singleItem {
@@ -522,115 +521,116 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Step 3"
                 font: link
                 padding: 0 5
+                text: "Step 3"
             }
 
             Text {
-                text: "Authenticate Gmail to memri"
                 font: headline1
+                text: "Authenticate Gmail to memri"
             }
 
             Text {
-                text: "Please provide your email address and the app password generated in the previous step."
-                font: bodyText2
                 color: #737373
+                font: bodyText2
                 padding: 0 10
+                text: "Please provide your email address and the app password generated in the previous step."
             }
 
             VStack {
-                background: #F0F0F0
                 alignment: topleft
+                background: #F0F0F0
                 padding: 8 10 8 10
+
                 Text {
-                    text: "YOUR GMAIL LOGIN"
-                    font: 10
                     color: #828282
+                    font: 10
+                    text: "YOUR GMAIL LOGIN"
                 }
 
-                TextField {
+                Textfield {
                     hint: "your login"
+                    isCollapsed: true
                     value: {{.identifier}}
                 }
             }
 
-
             VStack {
-                background: #F0F0F0
                 alignment: topleft
+                background: #F0F0F0
                 padding: 8 10 8 10
-                Text {
-                    text: "GENERATED APP PASSWORD"
-                    font: 10
-                    color: #737373
 
+                Text {
+                    color: #737373
+                    font: 10
+                    text: "GENERATED APP PASSWORD"
                 }
 
-                TextField {
+                Textfield {
+                    isCollapsed: true
                     secure: true
                     value: {{.secret}}
                 }
             }
-
 
             HStack {
                 alignment: left
                 padding: 15 0 0 0
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: "pluginRunWait"
+                        }
+                        wait
+                        {
+                            seconds: 6
+                        }
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: {{.~account.status = "error" ? "GmailImporter-error" : "GmailImporter-done"}}
+                        }
+                        sync
+                        setProperty
+                        {
+                            property: "status"
+                            subject: {{.~account}}
+                            value: "ready"
+                        }
+                    ]
                     styleName: primaryButton
 
                     Text {
                         text: "Engage!"
                     }
-
-                    onPress: [
-                        openView {
-                            viewName: "pluginRunWait"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        wait {
-                            seconds: 6
-                        }
-                        openView {
-                            viewName: {{.~account.status = "error" ? "GmailImporter-error" : "GmailImporter-done"}}
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        sync
-                        setProperty {
-                            subject: {{.~account}}
-                            property: "status"
-                            value: "ready"
-                        }
-                        ]
                 }
 
                 Button {
-                    padding: 0 0 0 20
-
-                    Text {
-                        text: "Cancel"
-                        font: button_label
-                        color: #333333
-                    }
-
                     onPress: [
-                        delete {
+                        delete
+                        {
                             subject: {{.~account}}
                         }
                         back
-                        ]
+                    ]
+                    padding: 0 0 0 20
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Cancel"
+                    }
                 }
             }
         }
-
     }
 }
 

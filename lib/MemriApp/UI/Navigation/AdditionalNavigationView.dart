@@ -114,7 +114,7 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                     style: CVUFont.bodyBold.copyWith(color: Colors.white),
                   ),
                   InkWell(
-                      onTap: () => launch("https://memri.io/privacy.html"),
+                      onTap: () => launch("https://memri.io/privacy/"),
                       child: Text(
                         "Privacy and  Security",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
