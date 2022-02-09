@@ -115,7 +115,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   void moveToNextItem() {
-    widget.pageController.sceneController.scheduleUIUpdate();
+    // widget.pageController.sceneController.scheduleUIUpdate();
     if (currentIndex >= currentItemList.length - 1) {
       moveToIndex(0);
       return;
@@ -180,19 +180,23 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
     switch (labelType) {
       case LabelType.CategoricalLabel:
-        var labels = await labelAnnotation.edges("categoricalLabel");
-        Future.forEach<ItemEdgeRecord>(labels, (label) async {
-          if (!selectedLabels.contains(label.targetUID)) {
-            await label.delete();
+        var labels = await labelAnnotation.edgeItems("categoricalLabel");
+        await Future.forEach<ItemRecord>(labels, (label) async {
+          if (!selectedLabels.contains(label.uid)) {
+            await ItemEdgeRecord(
+                    name: "categoricalLabel",
+                    targetRowID: label.rowId,
+                    sourceRowID: labelAnnotation.rowId)
+                .delete();
           }
         });
         var newSelected =
-            selectedLabels.difference(labels.map((labelOption) => labelOption.targetUID).toSet());
-        await Future.forEach<String>(newSelected, (labelId) async {
-          var labelEdge = ItemEdgeRecord(
-              sourceRowID: labelAnnotation.rowId!, name: "categoricalLabel", targetUID: labelId);
-          await labelEdge.save();
-        });
+            selectedLabels.difference(labels.map((labelOption) => labelOption.uid).toSet());
+        var labelEdges = newSelected
+            .map((labelId) => ItemEdgeRecord(
+                sourceRowID: labelAnnotation.rowId!, name: "categoricalLabel", targetUID: labelId))
+            .toList();
+        await ItemEdgeRecord.insertAll(labelEdges);
         break;
       default:
         break;

@@ -18,9 +18,10 @@ class CVUObserver extends StatefulWidget {
 class _CVUObserverState extends State<CVUObserver> {
   late TextProperties resolvedTextProperties;
 
-  ItemRecord? item;
-  String? property;
-  Stream<List<dynamic>>? propertyStream;
+  late ItemRecord? item;
+  late String? itemType;
+  late String? property;
+  Stream<List<dynamic>>? stream;
 
   late Future _init;
 
@@ -39,17 +40,25 @@ class _CVUObserverState extends State<CVUObserver> {
   init() async {
     property = await widget.nodeResolver.propertyResolver.string("property");
     item = await widget.nodeResolver.propertyResolver.item("item");
-    if (property != null && item != null) {
+    itemType = await widget.nodeResolver.propertyResolver.string("itemType");
+    if (itemType != null || (property != null && item != null)) {
       initPropertyRecordStream();
     }
   }
 
   initPropertyRecordStream() {
     //TODO: model from UI = bad
-    var query = "name = ? AND item = ?";
-    var binding = [Variable(property), Variable(item!.rowId)];
-    propertyStream = AppController.shared.databaseController.databasePool
-        .itemPropertyRecordsCustomSelectStream(query, binding);
+    var query = "";
+    var binding = <Variable<dynamic>>[Variable(property)];
+    if (itemType != null) {
+      stream = AppController.shared.databaseController.databasePool
+          .itemRecordsFetchByTypeStream(itemType!);
+    } else {
+      query = "name = ? AND item = ?";
+      binding = [Variable(property), Variable(item!.rowId)];
+      stream = AppController.shared.databaseController.databasePool
+          .itemPropertyRecordsCustomSelectStream(query, binding);
+    }
   }
 
   @override
@@ -58,7 +67,7 @@ class _CVUObserverState extends State<CVUObserver> {
         future: _init,
         builder: (BuildContext builder, snapshot) {
           return StreamBuilder(
-              stream: propertyStream,
+              stream: stream,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 return widget.nodeResolver.childrenInForEachWithWrap();
               });

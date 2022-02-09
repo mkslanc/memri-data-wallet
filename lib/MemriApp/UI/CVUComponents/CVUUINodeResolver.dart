@@ -43,7 +43,7 @@ class CVUUINodeResolver {
   }
 
   List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
-    var newContext = usingItem != null ? context.replacingItem(usingItem) : context;
+    var newContext = usingItem != null ? context.replacingItem(usingItem) : context.clone();
     var nodeChildren = node.children.asMap();
 
     return nodeChildren
