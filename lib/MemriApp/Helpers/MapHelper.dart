@@ -108,6 +108,7 @@ class MapHelper {
         return addressLookupResults[lookupHash];
       }
     }
+    return null;
   }
 }
 

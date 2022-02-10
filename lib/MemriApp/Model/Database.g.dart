@@ -328,57 +328,58 @@ class ItemsCompanion extends UpdateCompanion<Item> {
 }
 
 class Items extends Table with TableInfo<Items, Item> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  Items(this._db, [this._alias]);
+  Items(this.attachedDatabase, [this._alias]);
   final VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
   late final GeneratedColumn<int?> rowId = GeneratedColumn<int?>('row_id', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: 'PRIMARY KEY');
+      type: const IntType(), requiredDuringInsert: false, $customConstraints: 'PRIMARY KEY');
   final VerificationMeta _idMeta = const VerificationMeta('id');
   late final GeneratedColumn<String?> id = GeneratedColumn<String?>('id', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _typeMeta = const VerificationMeta('type');
   late final GeneratedColumn<String?> type = GeneratedColumn<String?>('type', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _dateCreatedMeta = const VerificationMeta('dateCreated');
   late final GeneratedColumnWithTypeConverter<DateTime, int?> dateCreated = GeneratedColumn<int?>(
           'dateCreated', aliasedName, false,
-          typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL')
+          type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL')
       .withConverter<DateTime>(Items.$converter0);
   final VerificationMeta _dateModifiedMeta = const VerificationMeta('dateModified');
   late final GeneratedColumnWithTypeConverter<DateTime, int?> dateModified = GeneratedColumn<int?>(
           'dateModified', aliasedName, false,
-          typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL')
+          type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL')
       .withConverter<DateTime>(Items.$converter1);
   final VerificationMeta _dateServerModifiedMeta = const VerificationMeta('dateServerModified');
   late final GeneratedColumnWithTypeConverter<DateTime, int?> dateServerModified =
       GeneratedColumn<int?>('dateServerModified', aliasedName, true,
-              typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: '')
+              type: const IntType(), requiredDuringInsert: false, $customConstraints: '')
           .withConverter<DateTime>(Items.$converter2);
   final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
   late final GeneratedColumn<bool?> deleted = GeneratedColumn<bool?>('deleted', aliasedName, false,
-      typeName: 'INTEGER',
+      type: const BoolType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT false',
       defaultValue: const CustomExpression<bool>('false'));
   final VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
   late final GeneratedColumn<String?> syncState = GeneratedColumn<String?>(
       'syncState', aliasedName, false,
-      typeName: 'TEXT',
+      type: const StringType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT \'create\'',
       defaultValue: const CustomExpression<String>('\'create\''));
   final VerificationMeta _fileStateMeta = const VerificationMeta('fileState');
   late final GeneratedColumn<String?> fileState = GeneratedColumn<String?>(
       'fileState', aliasedName, false,
-      typeName: 'TEXT',
+      type: const StringType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT \'skip\'',
       defaultValue: const CustomExpression<String>('\'skip\''));
   final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
   late final GeneratedColumn<bool?> syncHasPriority = GeneratedColumn<bool?>(
       'syncHasPriority', aliasedName, false,
-      typeName: 'INTEGER',
+      type: const BoolType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT false',
       defaultValue: const CustomExpression<bool>('false'));
@@ -441,12 +442,13 @@ class Items extends Table with TableInfo<Items, Item> {
   Set<GeneratedColumn> get $primaryKey => {rowId};
   @override
   Item map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Item.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
+    return Item.fromData(data, attachedDatabase,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   Items createAlias(String alias) {
-    return Items(_db, alias);
+    return Items(attachedDatabase, alias);
   }
 
   static TypeConverter<DateTime, int> $converter0 = const DateTimeConverter();
@@ -670,32 +672,33 @@ class EdgesCompanion extends UpdateCompanion<Edge> {
 }
 
 class Edges extends Table with TableInfo<Edges, Edge> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  Edges(this._db, [this._alias]);
+  Edges(this.attachedDatabase, [this._alias]);
   final VerificationMeta _selfMeta = const VerificationMeta('self');
   late final GeneratedColumn<int?> self = GeneratedColumn<int?>('self', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: 'PRIMARY KEY');
+      type: const IntType(), requiredDuringInsert: false, $customConstraints: 'PRIMARY KEY');
   final VerificationMeta _sourceMeta = const VerificationMeta('source');
   late final GeneratedColumn<int?> source = GeneratedColumn<int?>('source', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _targetMeta = const VerificationMeta('target');
   late final GeneratedColumn<int?> target = GeneratedColumn<int?>('target', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
   late final GeneratedColumn<String?> syncState = GeneratedColumn<String?>(
       'syncState', aliasedName, false,
-      typeName: 'TEXT',
+      type: const StringType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT \'create\'',
       defaultValue: const CustomExpression<String>('\'create\''));
   final VerificationMeta _syncHasPriorityMeta = const VerificationMeta('syncHasPriority');
   late final GeneratedColumn<bool?> syncHasPriority = GeneratedColumn<bool?>(
       'syncHasPriority', aliasedName, false,
-      typeName: 'INTEGER',
+      type: const BoolType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT false',
       defaultValue: const CustomExpression<bool>('false'));
@@ -742,12 +745,13 @@ class Edges extends Table with TableInfo<Edges, Edge> {
   Set<GeneratedColumn> get $primaryKey => {self};
   @override
   Edge map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Edge.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
+    return Edge.fromData(data, attachedDatabase,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   Edges createAlias(String alias) {
-    return Edges(_db, alias);
+    return Edges(attachedDatabase, alias);
   }
 
   @override
@@ -897,18 +901,19 @@ class IntegersCompanion extends UpdateCompanion<IntegerDb> {
 }
 
 class Integers extends Table with TableInfo<Integers, IntegerDb> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  Integers(this._db, [this._alias]);
+  Integers(this.attachedDatabase, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedColumn<int?> item = GeneratedColumn<int?>('item', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedColumn<int?> value = GeneratedColumn<int?>('value', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
@@ -942,12 +947,13 @@ class Integers extends Table with TableInfo<Integers, IntegerDb> {
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   IntegerDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return IntegerDb.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
+    return IntegerDb.fromData(data, attachedDatabase,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   Integers createAlias(String alias) {
-    return Integers(_db, alias);
+    return Integers(attachedDatabase, alias);
   }
 
   @override
@@ -1093,18 +1099,19 @@ class StringsCompanion extends UpdateCompanion<StringDb> {
 }
 
 class Strings extends Table with TableInfo<Strings, StringDb> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  Strings(this._db, [this._alias]);
+  Strings(this.attachedDatabase, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedColumn<int?> item = GeneratedColumn<int?>('item', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedColumn<String?> value = GeneratedColumn<String?>('value', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
@@ -1137,12 +1144,13 @@ class Strings extends Table with TableInfo<Strings, StringDb> {
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   StringDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return StringDb.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
+    return StringDb.fromData(data, attachedDatabase,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   Strings createAlias(String alias) {
-    return Strings(_db, alias);
+    return Strings(attachedDatabase, alias);
   }
 
   @override
@@ -1288,18 +1296,19 @@ class RealsCompanion extends UpdateCompanion<RealDb> {
 }
 
 class Reals extends Table with TableInfo<Reals, RealDb> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  Reals(this._db, [this._alias]);
+  Reals(this.attachedDatabase, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedColumn<int?> item = GeneratedColumn<int?>('item', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const IntType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedColumn<double?> value = GeneratedColumn<double?>('value', aliasedName, false,
-      typeName: 'REAL', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const RealType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
@@ -1332,12 +1341,13 @@ class Reals extends Table with TableInfo<Reals, RealDb> {
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   RealDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return RealDb.fromData(data, _db, prefix: tablePrefix != null ? '$tablePrefix.' : null);
+    return RealDb.fromData(data, attachedDatabase,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   Reals createAlias(String alias) {
-    return Reals(_db, alias);
+    return Reals(attachedDatabase, alias);
   }
 
   @override
@@ -1488,18 +1498,19 @@ class StringsSearch extends Table
     with
         TableInfo<StringsSearch, StringsSearchData>,
         VirtualTableInfo<StringsSearch, StringsSearchData> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  StringsSearch(this._db, [this._alias]);
+  StringsSearch(this.attachedDatabase, [this._alias]);
   final VerificationMeta _itemMeta = const VerificationMeta('item');
   late final GeneratedColumn<String?> item = GeneratedColumn<String?>('item', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: '');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: '');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>('name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: '');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: '');
   final VerificationMeta _valueMeta = const VerificationMeta('value');
   late final GeneratedColumn<String?> value = GeneratedColumn<String?>('value', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: '');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [item, name, value];
   @override
@@ -1533,13 +1544,13 @@ class StringsSearch extends Table
   Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
   @override
   StringsSearchData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return StringsSearchData.fromData(data, _db,
+    return StringsSearchData.fromData(data, attachedDatabase,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   StringsSearch createAlias(String alias) {
-    return StringsSearch(_db, alias);
+    return StringsSearch(attachedDatabase, alias);
   }
 
   @override
@@ -1689,21 +1700,24 @@ class NavigationStateCompanion extends UpdateCompanion<NavigationStateData> {
 }
 
 class NavigationState extends Table with TableInfo<NavigationState, NavigationStateData> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  NavigationState(this._db, [this._alias]);
+  NavigationState(this.attachedDatabase, [this._alias]);
   final VerificationMeta _sessionIDMeta = const VerificationMeta('sessionID');
   late final GeneratedColumn<String?> sessionID = GeneratedColumn<String?>(
       'sessionID', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'PRIMARY KEY NOT NULL');
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'PRIMARY KEY NOT NULL');
   final VerificationMeta _pageLabelMeta = const VerificationMeta('pageLabel');
   late final GeneratedColumn<String?> pageLabel = GeneratedColumn<String?>(
       'pageLabel', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const StringType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   final VerificationMeta _stateMeta = const VerificationMeta('state');
   late final GeneratedColumn<Uint8List?> state = GeneratedColumn<Uint8List?>(
       'state', aliasedName, false,
-      typeName: 'BLOB', requiredDuringInsert: true, $customConstraints: 'NOT NULL');
+      type: const BlobType(), requiredDuringInsert: true, $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [sessionID, pageLabel, state];
   @override
@@ -1739,13 +1753,13 @@ class NavigationState extends Table with TableInfo<NavigationState, NavigationSt
   Set<GeneratedColumn> get $primaryKey => {sessionID};
   @override
   NavigationStateData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return NavigationStateData.fromData(data, _db,
+    return NavigationStateData.fromData(data, attachedDatabase,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   NavigationState createAlias(String alias) {
-    return NavigationState(_db, alias);
+    return NavigationState(attachedDatabase, alias);
   }
 
   @override

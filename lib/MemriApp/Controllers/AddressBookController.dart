@@ -31,6 +31,7 @@ class AddressBookController {
     if (await Permission.contacts.request().isGranted) {
       return Contacts.streamContacts();
     }
+    return null;
   }
 
   static upsertContact(Contact contact) async {
@@ -159,6 +160,7 @@ class AddressBookController {
         return await ItemRecord.fetchWithRowID(addressItems[0].item);
       }
     }
+    return null;
   }
 
   static Future<bool> hasSameAddress(

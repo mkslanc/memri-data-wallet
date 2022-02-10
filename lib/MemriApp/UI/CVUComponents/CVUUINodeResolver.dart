@@ -101,6 +101,7 @@ class CVUUINodeResolver {
             context: context, lookup: lookup, node: child, db: db, pageController: pageController),
       );
     }
+    return null;
   }
 
   CVUPropertyResolver get propertyResolver {

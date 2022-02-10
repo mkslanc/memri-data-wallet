@@ -603,6 +603,7 @@ class ItemRecord with EquatableMixin {
     await dbController.databasePool.transaction(() async {
       await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
     });
+    return null;
   }
 
   static Future<List<ItemEdgeRecord>> edgesFromSyncItemDict(

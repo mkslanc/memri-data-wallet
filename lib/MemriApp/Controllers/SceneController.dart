@@ -39,6 +39,7 @@ class SceneController extends ChangeNotifier {
             navStackList[navStack.pageLabel] = navStack;
             return {"label": navStack.pageLabel};
           }
+          return null;
         });
 
         if (pages.length > 1) {
@@ -147,6 +148,7 @@ class SceneController extends ChangeNotifier {
         }
       }));
     }
+    return null;
   }
 
   StreamController<List<ItemRecord>> navigationItemRecords = StreamController.broadcast();
