@@ -144,6 +144,7 @@ class CVUPropertyResolver {
           return val.value.value.toString();
         }
       }
+      return null;
     });
   }
 
@@ -666,6 +667,7 @@ class CVUPropertyResolver {
           return null;
       }
     }
+    return null;
   }
 
   Future<CVUFont> font([String propertyName = "font", CVUFont? defaultValue]) async {

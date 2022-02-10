@@ -210,6 +210,7 @@ class CVUController {
       });
       return definitionId;
     }
+    return null;
   }
 
   loadStoredDefinitions() async {

@@ -37,6 +37,7 @@ class FileStorageController {
     fileURL ??= await getURLForFile(uuid!);
     var file = File(fileURL);
     if (await file.exists()) return file.readAsBytes();
+    return null;
   }
 
   static Future<ByteData> getByteDataFromAsset(String path) async {

@@ -553,6 +553,7 @@ class CVUActionAddItem extends CVUAction {
                   .save();
             }
           }
+          return null;
         }));
       }
 
