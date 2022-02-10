@@ -15,136 +15,108 @@
 }
 
 .inbox-channels {
-    name: "inbox"
-    title: "Inbox"
-    defaultRenderer: list
-    cols: 4
-    showTopBar: true
-    topBarColor: "#FFFFFF"
-    showEditCode: false
+    additional: {
+        Button {
+            onPress: noop
 
+            HStack {
+                alignment: left
+                padding: 13 0 7 0
+
+                Image {
+                    bundleImage: "plus"
+                    color: #FE570F
+                    cornerRadius: 50
+                    isVector: true
+                    maxHeight: 30
+                    maxWidth: 30
+                    minHeight: 30
+                    minWidth: 30
+                    sizingMode: fill
+                }
+
+                Text {
+                    color: #FE570F
+                    font: 12 regular
+                    text: "Compose"
+                }
+            }
+        }
+    }
+    cols: 4
+    defaultRenderer: list
     emptyResult: {
         VStack {
-            padding: 0 30 50 30
             alignment: center
+            padding: 0 30 50 30
 
             Divider
 
             Text {
-                text: "You have no messages yet."
                 font: headline2
                 padding: 50 0 20 0
+                text: "You have no messages yet."
             }
+
             Button {
+                onPress: [
+                    openView
+                    {
+                        clearStack: true
+                        inheritDatasource: false
+                        viewName: "inbox-channels"
+                    }
+                ]
                 width: 180
-                onPress: openView {
-                    viewName: "inbox-channels"
-                    clearStack: true
-                    inheritDatasource: false
-                }
 
                 HStack {
                     padding: 7 0 7 0
 
                     Image {
                         color: #FE570F
+                        maxHeight: 20
+                        maxWidth: 20
+                        minHeight: 20
+                        minWidth: 20
                         systemName: "refresh"
-                        minHeight: 20
-                        maxHeight: 20
-                        minWidth: 20
-                        maxWidth: 20
                     }
 
                     Text {
+                        color: #FE570F
+                        font: 12 regular
                         text: "Reload"
-                        font: 12 regular
-                        color: #FE570F
-                    }
-                }
-            }
-
-            Button {
-                width: 180
-                onPress: openView {
-                    viewName: "allPlugins"
-                    clearStack: true
-                    inheritDatasource: false
-                }
-
-                HStack {
-                    padding: 7 0 7 0
-
-                    Image {
-                        color: #FE570F
-                        bundleImage: "zap"
-                        isVector: true
-                        sizingMode: fill
-                        minHeight: 20
-                        maxHeight: 20
-                        minWidth: 20
-                        maxWidth: 20
-                    }
-
-                    Text {
-                        text: "Start importing"
-                        font: 12 regular
-                        color: #FE570F
                     }
                 }
             }
         }
     }
+    filterButtons: [
+        openView
+        {
+            clearStack: true
+            color: "#FE570F"
+            inheritDatasource: false
+            title: "all"
+            viewName: "inbox-channels"
+        }
+    ]
+    name: "inbox"
+    showEditCode: false
+    showTopBar: true
+    title: "Inbox"
+    topBarColor: "#FFFFFF"
 
     [datasource = pod] {
         query: MessageChannel
         sort: {
-            targetType: "Message"
             edgeSource: {
                 name: messageChannel
-                sortProperty: dateSent
                 sortAscending: false
+                sortProperty: dateSent
             }
+            targetType: "Message"
         }
     }
-
-    filterButtons: [
-        openView {
-            viewName: "inbox-channels"
-            title: "all"
-            clearStack: true
-            inheritDatasource: false
-            color: "#FE570F"
-        },
-        ]
-
-        additional: {
-            Button {
-                onPress: noop
-
-                HStack {
-                    alignment: left
-                    padding: 13 0 7 0
-
-                    Image {
-                        bundleImage: "plus"
-                        isVector: true
-                        sizingMode: fill
-                        minHeight: 30
-                        maxHeight: 30
-                        minWidth: 30
-                        maxWidth: 30
-                        cornerRadius: 50
-                        color: #FE570F
-                    }
-
-                    Text {
-                        text: "Compose"
-                        font: 12 regular
-                        color: #FE570F
-                    }
-                }
-            }
-        }
 }
 
 

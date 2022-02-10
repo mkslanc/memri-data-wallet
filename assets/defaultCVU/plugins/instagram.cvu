@@ -72,13 +72,12 @@
 
 .InstagramPlugin-userActionNeeded {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect Instagram account"
 
-    [renderer = singleItem]{
-
+    [renderer = singleItem] {
     }
 
     Account > singleItem {
@@ -87,104 +86,104 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Step 2"
                 font: link
                 padding: 0 5
+                text: "Step 2"
             }
 
             Text {
-                text: "Log in to your Instagram Account"
                 font: headline1
+                text: "Log in to your Instagram Account"
             }
 
             Text {
-                text: "Please provide your instagram username  and password to connect instragram to memri."
-                font: bodyText2
                 color: #737373
+                font: bodyText2
                 padding: 0 10
+                text: "Please provide your instagram username  and password to connect instragram to memri."
             }
 
             VStack {
-                background: #F0F0F0
                 alignment: topleft
+                background: #F0F0F0
                 padding: 8 10 8 10
+
                 Text {
-                    text: "YOUR INSTRAGRAM LOGIN"
-                    font: 10
                     color: #828282
+                    font: 10
+                    text: "YOUR INSTRAGRAM LOGIN"
                 }
 
-                TextField {
+                Textfield {
+                    isCollapsed: true
                     value: {{.identifier}}
                 }
             }
 
-
             VStack {
-                background: #F0F0F0
                 alignment: topleft
+                background: #F0F0F0
                 padding: 8 10 8 10
-                Text {
-                    text: "YOUR INSTRAGRAM PASSWORD"
-                    font: 10
-                    color: #737373
 
+                Text {
+                    color: #737373
+                    font: 10
+                    text: "YOUR INSTRAGRAM PASSWORD"
                 }
 
-                TextField {
+                Textfield {
+                    isCollapsed: true
                     secure: true
                     value: {{.secret}}
                 }
             }
-
 
             HStack {
                 alignment: left
                 padding: 15 0 0 0
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: "pluginRunWait"
+                        }
+                        sync
+                        setProperty
+                        {
+                            property: "status"
+                            subject: {{.~account}}
+                            value: "ready"
+                        }
+                    ]
                     styleName: primaryButton
 
                     Text {
                         text: "Log in"
                     }
-
-                    onPress: [
-                        openView {
-                            viewName: "pluginRunWait"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        sync
-                        setProperty {
-                            subject: {{.~account}}
-                            property: "status"
-                            value: "ready"
-                        }
-                        ]
                 }
 
                 Button {
-                    padding: 0 0 0 20
-
-                    Text {
-                        text: "Cancel"
-                        font: button_label
-                        color: #333333
-                    }
-
                     onPress: [
-                        delete {
+                        delete
+                        {
                             subject: {{.~account}}
                         }
                         back
-                        ]
+                    ]
+                    padding: 0 0 0 20
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Cancel"
+                    }
                 }
             }
         }
-
     }
 }
 
