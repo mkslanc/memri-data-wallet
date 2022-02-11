@@ -51,7 +51,8 @@ class _CVUDropdownState extends State<CVUDropdown> {
 
   init() async {
     resolvedTextProperties =
-        await CVUTextPropertiesModifier(nodeResolver: widget.nodeResolver).init();
+        await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
+            .init();
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
     items = await widget.nodeResolver.propertyResolver.items("list");
 

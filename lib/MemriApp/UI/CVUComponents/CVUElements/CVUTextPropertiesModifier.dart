@@ -1,19 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
-
-import '../CVUUINodeResolver.dart';
+import 'package:memri/MemriApp/CVU/resolving/CVUPropertyResolver.dart';
 
 /// Modifier used to apply text CVU properties (such as font, color, textAlignment, lineLimit)
 class CVUTextPropertiesModifier {
-  CVUUINodeResolver nodeResolver;
+  CVUPropertyResolver propertyResolver;
 
-  CVUTextPropertiesModifier({required this.nodeResolver});
+  CVUTextPropertiesModifier({required this.propertyResolver});
 
   Future<TextProperties> init() async {
-    var font = await nodeResolver.propertyResolver.font();
-    var color = await nodeResolver.propertyResolver.color();
-    var textAlign = await nodeResolver.propertyResolver.textAlignment();
-    var lineLimit = await nodeResolver.propertyResolver.lineLimit;
+    var font = await propertyResolver.font();
+    var color = await propertyResolver.color();
+    var textAlign = await propertyResolver.textAlignment();
+    var lineLimit = await propertyResolver.lineLimit;
     return TextProperties(
         textStyle: TextStyle(
           fontFamily: font.name,

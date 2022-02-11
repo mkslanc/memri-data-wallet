@@ -66,4 +66,5 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.Observer: 'Observer',
   CVUUIElementFamily.Wrap: 'Wrap',
   CVUUIElementFamily.Dropdown: 'Dropdown',
+  CVUUIElementFamily.RichText: 'RichText',
 };

@@ -66,10 +66,42 @@
                     sizingMode: fit
                 }
 
-                Text {
+                RichText {
                     color: #999999
                     font: bodyText1
-                    text: "On the Memri Gitlab, create a blank public repository for your plugin and clone the repo."
+                    spans: [
+                        {
+                            text: "On the "
+                        }
+                        {
+                            color: #E9500F
+                            font: 14 bold
+                            onPress: [
+                                openLink
+                                {
+                                    link: "https://gitlab.memri.io/memri/plugins"
+                                }
+                            ]
+                            text: "Memri Gitlab"
+                        }
+                        {
+                            text: ", create "
+                        }
+                        {
+                            color: #E9500F
+                            font: 14 bold
+                            onPress: [
+                                openLink
+                                {
+                                    link: "https://gitlab.memri.io/projects/new#blank_project"
+                                }
+                            ]
+                            text: "blank public repository"
+                        }
+                        {
+                            text: " for your plugin and clone the repo."
+                        }
+                    ]
                 }
             }
 
@@ -87,10 +119,22 @@
                     sizingMode: fit
                 }
 
-                Text {
+                RichText {
                     color: #999999
                     font: bodyText1
-                    text: "From within the new repo, run the pymemri plugin template CLI."
+                    spans: [
+                        {
+                            text: "From "
+                        }
+                        {
+                            color: black
+                            font: 14 bold
+                            text: "within the new repo"
+                        }
+                        {
+                            text: " run the pymemri plugin template CLI."
+                        }
+                    ]
                 }
             }
 

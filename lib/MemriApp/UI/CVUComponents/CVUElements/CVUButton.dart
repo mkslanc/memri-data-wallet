@@ -108,7 +108,8 @@ class _CVUButtonState extends State<CVUButton> {
 
   init() async {
     resolvedTextProperties =
-        await CVUTextPropertiesModifier(nodeResolver: widget.nodeResolver).init();
+        await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
+            .init();
     isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
   }

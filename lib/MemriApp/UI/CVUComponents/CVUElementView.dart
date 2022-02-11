@@ -123,6 +123,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUObserver(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Dropdown:
         return CVUDropdown(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.RichText:
+        return CVURichText(nodeResolver: widget.nodeResolver);
       default:
         return Text("${widget.nodeResolver.node.type} not implemented yet.");
     }
