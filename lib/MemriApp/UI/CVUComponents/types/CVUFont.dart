@@ -6,18 +6,19 @@ import 'package:flutter/material.dart';
 
 /// Represents a font in the CVU language
 class CVUFont {
-  String? name;
+  String name = "Karla";
   double size;
   FontWeight? weight;
   bool italic;
   double? letterSpacing;
 
   CVUFont(
-      {this.name,
+      {name = "Karla",
       this.size = 15,
       this.weight = FontWeight.normal,
       this.italic = false,
-      this.letterSpacing});
+      this.letterSpacing})
+      : this.name = name;
 
   Map<String, dynamic> get font {
     return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};

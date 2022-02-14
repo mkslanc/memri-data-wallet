@@ -56,6 +56,21 @@ class CVUPropertyResolver {
     return value.value;
   }
 
+  List<CVUPropertyResolver> subdefinitionArray(String key) {
+    CVUValue? value = properties[key];
+    if (value == null) {
+      return [];
+    }
+    return valueArray(key).compactMap((item) {
+      if (item is! CVUValueSubdefinition) return null;
+      return CVUPropertyResolver(
+          context: this.context,
+          lookup: this.lookup,
+          db: this.db,
+          properties: item.value.properties);
+    });
+  }
+
   CVUPropertyResolver? subdefinition(String key) {
     CVUValue? value = properties[key];
     if (value == null || value is! CVUValueSubdefinition) {
@@ -683,7 +698,7 @@ class CVUPropertyResolver {
     if (name != null && size != null) {
       var weight =
           await lookup.resolve<String>(value: values[1], context: this.context, db: this.db);
-      return CVUFont(name: name, size: size, weight: CVUFont.Weight[weight] ?? defaultValue.weight);
+      return CVUFont(size: size, weight: CVUFont.Weight[weight] ?? defaultValue.weight);
     } else {
       if (values.isNotEmpty) {
         var val = values[0];

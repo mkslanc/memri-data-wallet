@@ -41,7 +41,8 @@ enum CVUUIElementFamily {
   DropZone,
   Observer,
   Wrap,
-  Dropdown
+  Dropdown,
+  RichText
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {
