@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:memri/MemriApp/Controllers/FileStorageController_shared.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/Collection.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/constants/app_settings.dart';
 import 'package:uuid/uuid.dart';
 
 import '../AppController.dart';
@@ -97,7 +98,7 @@ class DemoData {
       {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
     await importData(
-        fileName: "default_database",
+        fileName: AppSettings.defaultDatabase,
         databaseController: databaseController,
         throwIfAgainstSchema: throwIfAgainstSchema);
   }

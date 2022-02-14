@@ -4,6 +4,7 @@ import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/Setup/OnboardingDeveloper.dart';
 import 'package:memri/MemriApp/UI/Setup/OnboardingLogin.dart';
 import 'package:memri/MemriApp/UI/style/light.dart';
+import 'package:memri/constants/app_settings.dart';
 
 import 'SetupScreenModel.dart';
 
@@ -162,7 +163,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
 
   handleSetup(bool localOnly) async {
     setState(() => model.state = PodSetupState.loading);
-    model.podURL = model.defaultPodURL;
+    model.podURL = AppSettings.defaultPodURL;
     var config = model.getSetupConfig(localOnly);
 
     if (config == null) {
