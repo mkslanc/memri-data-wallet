@@ -51,7 +51,8 @@ class SetupScreenModel {
       if (publicKey == null || databaseKey == null) {
         return null;
       }
-      var config = ExistingPodConfig(podURL ?? AppSettings.defaultPodURL, privateKey, publicKey, databaseKey);
+      var config = ExistingPodConfig(
+          podURL ?? AppSettings.defaultPodURL, privateKey, publicKey, databaseKey);
       return SetupConfigExistingPod(config);
     }
   }
