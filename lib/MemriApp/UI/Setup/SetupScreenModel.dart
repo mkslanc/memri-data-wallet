@@ -7,12 +7,11 @@
 
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/Extensions/BaseTypes/String.dart';
+import 'package:memri/constants/app_settings.dart';
 import 'package:uuid/uuid.dart';
 
 /// A model struct used by the setup screen to hold configuration until the user completes the setup
 class SetupScreenModel {
-  var defaultPodURL = "https://dev.pod.memri.io";
-  var defaultDevPodURL = "http://localhost:3030";
   String? podURL;
   String? podPrivateKey;
   String? podPublicKey;
@@ -24,7 +23,7 @@ class SetupScreenModel {
   String? errorString; //this is instead of PodSetupState error(String)
 
   String getPodURL() {
-    return podURL?.nullIfBlank ?? defaultPodURL;
+    return podURL?.nullIfBlank ?? AppSettings.defaultPodURL;
   }
 
   bool get isValidToProceedToConnect {
@@ -42,7 +41,7 @@ class SetupScreenModel {
     if (localOnly) {
       return SetupConfigLocal();
     } else if (this.setupAsNewPod) {
-      var config = NewPodConfig(podURL ?? defaultPodURL);
+      var config = NewPodConfig(podURL ?? AppSettings.defaultPodURL);
       return SetupConfigNewPod(config);
     } else {
       var privateKey =
@@ -52,7 +51,8 @@ class SetupScreenModel {
       if (publicKey == null || databaseKey == null) {
         return null;
       }
-      var config = ExistingPodConfig(podURL ?? defaultPodURL, privateKey, publicKey, databaseKey);
+      var config = ExistingPodConfig(
+          podURL ?? AppSettings.defaultPodURL, privateKey, publicKey, databaseKey);
       return SetupConfigExistingPod(config);
     }
   }

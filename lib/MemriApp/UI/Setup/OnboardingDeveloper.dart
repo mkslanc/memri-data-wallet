@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/AppController.dart';
 import 'package:memri/MemriApp/UI/CVUComponents/types/CVUFont.dart';
 import 'package:memri/MemriApp/UI/style/light.dart';
+import 'package:memri/constants/app_settings.dart';
 
 import 'OnboardingLogin.dart';
 import 'SetupScreenModel.dart';
@@ -23,7 +24,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
   void initState() {
     super.initState();
     podUrlController.addListener(_setPodUrl);
-    podUrlController.text = widget.model.defaultDevPodURL;
+    podUrlController.text = AppSettings.defaultDevPodURL;
   }
 
   @override
@@ -93,7 +94,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                                           controller: podUrlController,
                                           decoration: InputDecoration.collapsed(
                                             border: InputBorder.none,
-                                            hintText: widget.model.defaultPodURL,
+                                            hintText: AppSettings.defaultPodURL,
                                           ),
                                           style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
                                         ),
