@@ -5,6 +5,11 @@ stages:
   - test
   - build
   - deploy
+  - Deploy_To_Dev
+  - Build_QA
+  - Deploy_To_QA
+  - Build_Prod
+  - Deploy_To_Prod
 
 flutter_analyze:
   stage: lint
@@ -22,10 +27,79 @@ build_web:
   stage: build
   script:
     - flutter build web --profile
-    - sed -i 's#<base href="/">#<base href="/flutter-app/">#g' build/web/index.html
   artifacts:
     paths:
       - build/web
+
+Deploy_To_Dev:
+  stage: Deploy_To_Dev
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  environment:
+    name: dev
+  script:
+    - aws s3 sync build/web s3://${FlutterAppBucket}/dev --delete
+    - aws cloudfront create-invalidation --distribution-id ${DevDistributionId} --paths "/index.html"
+  only:
+    - dev
+
+Build_QA:
+  stage: Build_QA
+  when: manual
+  dependencies: []
+  allow_failure: false
+  script:
+    - mv lib/constants/app_settings.dart.qa lib/constants/app_settings.dart
+    - flutter build web --profile
+  artifacts:
+    paths:
+      - build/web
+  only:
+    - dev
+    - master
+    - ^release.+$
+
+Deploy_To_QA:
+  stage: Deploy_To_QA
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  dependencies: ["Build_QA"]
+  environment:
+    name: qa
+  script:
+    - aws s3 sync build/web s3://${FlutterAppBucket}/qa --delete
+    - aws cloudfront create-invalidation --distribution-id ${QADistributionId} --paths "/index.html"
+  only:
+    - dev
+    - master
+    - ^release.+$
+
+Build_Prod:
+  stage: Build_Prod
+  when: manual
+  dependencies: []
+  allow_failure: false
+  script:
+    - mv lib/constants/app_settings.dart.prod lib/constants/app_settings.dart
+    - flutter build web --profile
+  artifacts:
+    paths:
+      - build/web
+  only:
+    - master
+    - ^release.+$
+
+Deploy_To_Prod:
+  stage: Deploy_To_Prod
+  when: manual
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  dependencies: ["Build_Prod"]
+  environment:
+    name: prod
+  script:
+    - aws s3 sync build/web s3://${FlutterAppBucket}/prod --delete
+    - aws cloudfront create-invalidation --distribution-id ${ProdDistributionId} --paths "/index.html"
+  only:
+    - master
+    - ^release.+$
 
 pages:
   stage: deploy
@@ -42,4 +116,3 @@ memri-docs:
   only:
     - dev
   trigger: memri/docs.memri.io
-
