@@ -85,7 +85,7 @@ Build_Prod:
       - build/web
   only:
     - master
-    - ^release.+$
+    - /release*/
 
 Deploy_To_Prod:
   stage: Deploy_To_Prod
@@ -99,7 +99,7 @@ Deploy_To_Prod:
     - aws cloudfront create-invalidation --distribution-id ${ProdDistributionId} --paths "/index.html"
   only:
     - master
-    - ^release.+$
+    - /release*/
 
 pages:
   stage: deploy
