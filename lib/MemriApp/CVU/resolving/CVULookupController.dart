@@ -158,7 +158,7 @@ class CVULookupController {
     if (value is CVUValueConstant) {
       return null;
     } else if (value is CVUValueItem) {
-      return ItemRecord.fetchWithRowID(value.value, db);
+      return await ItemRecord.fetchWithRowID(value.value, db);
     } else if (value is CVUValueExpression) {
       return await resolve<ItemRecord>(expression: value.value, context: context, db: db);
     } else {
@@ -830,7 +830,8 @@ class CVULookupController {
               .whereType<ItemRecord>()
               .toList();
         }
-        cached = LookupStepItems(await filter(result, filterExpression, db));
+        var stepItems = await filter(result, filterExpression, db);
+        cached = LookupStepItems(stepItems);
         context.setCache(nodePath, cached);
         return cached;
       default:
@@ -896,7 +897,8 @@ class CVULookupController {
               if (itemRecord != null) result.add(itemRecord);
             });
           }
-          cached = LookupStepItems(await filter(result, filterExpression, db));
+          var stepItems = await filter(result, filterExpression, db);
+          cached = LookupStepItems(stepItems);
           context.setCache(nodePath, cached);
           return cached;
         } else {
