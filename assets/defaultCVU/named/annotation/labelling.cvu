@@ -69,7 +69,7 @@
             }
 
             Observer {
-                itemType: ""
+                itemType: "LabelOption"
 
                 VStack {
                     HStack {
@@ -175,7 +175,7 @@
 
                     LabelOption > list {
                         Observer {
-                            itemType: ""
+                            itemType: "LabelOption"
 
                             HStack {
                                 alignment: left
