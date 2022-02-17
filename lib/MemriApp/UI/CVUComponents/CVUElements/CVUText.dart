@@ -43,10 +43,10 @@ class _CVUTextState extends State<CVUText> {
   }
 
   init() async {
-    content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
     resolvedTextProperties =
         await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
             .init();
+    content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
   }
 
   @override
