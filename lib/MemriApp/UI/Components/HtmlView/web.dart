@@ -41,7 +41,7 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
   }
 
   String loadPurifier() {
-    return "<script src=\"/assets/HTMLResources/purify.min.js\"></script>";
+    return "<script src=\"assets/assets/HTMLResources/purify.min.js\"></script>";
   }
 
   String getContentLoaderString() {
