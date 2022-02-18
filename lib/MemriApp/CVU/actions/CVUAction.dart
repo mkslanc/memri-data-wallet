@@ -1505,7 +1505,9 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Url is not valid";
     }
 
-    var searchNeedle = url.replaceFirst("https://gitlab.memri.io/", "");
+    //TODO: for future we need to save branch
+    var searchNeedle =
+        url.replaceFirst("https://gitlab.memri.io/", "").replaceFirst(RegExp(r"\-\/tree.*$"), "");
     var newUri = Uri.tryParse(
         "https://gitlab.memri.io/api/v4/projects?search=$searchNeedle&search_namespaces=true");
     if (newUri == null || !newUri.hasAbsolutePath) {
