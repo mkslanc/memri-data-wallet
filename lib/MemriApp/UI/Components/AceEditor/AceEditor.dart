@@ -11,6 +11,6 @@ class AceEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlView(src: "assets/cvuAceEditorDist/index.html");
+    return HtmlView(src: "assets/assets/cvuAceEditorDist/index.html");
   }
 }
