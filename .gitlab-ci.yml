@@ -46,7 +46,6 @@ Build_QA:
   stage: Build_QA
   when: manual
   dependencies: []
-  allow_failure: false
   script:
     - mv lib/constants/app_settings.dart.qa lib/constants/app_settings.dart
     - flutter build web --profile
@@ -62,6 +61,8 @@ Deploy_To_QA:
   stage: Deploy_To_QA
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   dependencies: ["Build_QA"]
+  needs:
+    - Build_QA
   environment:
     name: qa
   script:
@@ -76,7 +77,6 @@ Build_Prod:
   stage: Build_Prod
   when: manual
   dependencies: []
-  allow_failure: false
   script:
     - mv lib/constants/app_settings.dart.prod lib/constants/app_settings.dart
     - flutter build web --profile
@@ -89,9 +89,10 @@ Build_Prod:
 
 Deploy_To_Prod:
   stage: Deploy_To_Prod
-  when: manual
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   dependencies: ["Build_Prod"]
+  needs:
+    - Build_Prod
   environment:
     name: prod
   script:
