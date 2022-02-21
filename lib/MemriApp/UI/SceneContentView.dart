@@ -7,6 +7,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:memri/MemriApp/Controllers/PageController.dart' as memri;
+import 'package:memri/MemriApp/UI/Renderers/PluginConfigRenderer.dart';
 import 'package:memri/MemriApp/UI/Renderers/SceneViewRenderer.dart';
 import 'Renderers/CVUEditorRenderer.dart';
 import 'Renderers/CalendarRenderer.dart';
@@ -93,6 +94,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return GeneralEditorRendererView(viewContext: viewContext, pageController: pageController);
       case "scene":
         return SceneViewRendererView(viewContext: viewContext, pageController: pageController);
+      case "pluginconfig":
+        return PluginConfigRendererView(viewContext: viewContext, pageController: pageController);
       default:
         return Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold));
     }
