@@ -282,8 +282,12 @@ class CVUActionOpenCVUEditor extends CVUAction {
           "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
         "clearStack": CVUValueConstant(CVUConstantBool(true))
       }));
+      int pageControllersCount = pageController.sceneController.pageControllers.length;
       cvuEditorPageController = await pageController.sceneController.addPageController(label);
-      pageController.topMostContext?.config.cols = 6; //TODO
+      int cols = (6 / pageControllersCount)
+          .round(); //TODO will kinda sorta work for 1-3 page controllers, cols logic is tech debt for now
+      pageController.sceneController.pageControllers.forEach(
+          (currentPageController) => currentPageController.topMostContext?.config.cols = cols);
       pageController.navigationStack = pageController.navigationStack;
       await CVUActionOpenView(vars: vars, viewName: "cvuEditor", renderer: "cvueditor")
           .execute(cvuEditorPageController, context);

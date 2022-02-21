@@ -6,6 +6,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import 'dart:math';
+
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/MemriApp/Controllers/SceneController.dart';
@@ -41,7 +43,7 @@ class _SceneViewState extends State<SceneView> {
       int cols = viewContext?.config.cols ??
           viewContext?.viewDefinitionPropertyResolver.syncInteger("cols") ??
           viewCols[index] ??
-          (index == 0 ? 10 : 0);
+          (index == 0 ? 12 : 0);
 
       viewContext?.config.cols = cols;
       viewCols[index] = cols;
@@ -119,8 +121,10 @@ class _SceneViewState extends State<SceneView> {
                                       ColoredBox(
                                         color: Colors.white,
                                         child: SizedBox(
-                                          width: constraints.maxWidth / 12 * viewCols[index]! -
-                                              (index > 0 && index == pagesCount - 1 ? 0 : 1),
+                                          width: max(
+                                              (constraints.maxWidth / 12 * viewCols[index]! -
+                                                  (index > 0 && index == pagesCount - 1 ? 0 : 1)),
+                                              0),
                                           height: constraints.maxHeight -
                                               (widget.showMainNavigation ? 190 : 0),
                                           child: Column(
