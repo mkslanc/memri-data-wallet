@@ -1,8 +1,8 @@
-import 'package:memri/MemriApp/Controllers/Database/DatabaseController.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/MemriApp/Controllers/Database/DatabaseQuery.dart';
-import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/controllers/database_query.dart';
+import 'package:memri/core/services/database/property_database_value.dart';
+import 'package:memri/models/database/item_record.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

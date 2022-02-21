@@ -4,6 +4,12 @@ The flutter application is the frontend for the Memri [pod](https://gitlab.memri
 ## Try it out
 The pre-alpha version of the Memri frontend is freely available at [memri.docs.memri.io/flutter-app](https://memri.docs.memri.io/flutter-app/#/), and can be used by connecting to your local pod or the public memri hosted pod (alpha) at [dev.pod.memri.io](https://dev.pod.memri.io/). Regardless of your setup: only you have access to the data in your pod. After first login, your credentials will be stored locally for re-use when you revisit the app. To create a new account after first login, [delete your browser database](https://stackoverflow.com/questions/9384128/how-to-delete-indexeddb#answer-9389289) or connect from an incognito tab (in this case your data will be lost after closing the tab). Note that this is a very early release, for help or questions reach out on [Discord]("https://discord.com/invite/BcRfajJk4k").
 
+## How to generate models?
+
+```
+flutter pub run build_runner watch --delete-conflicting-outputs
+```
+
 ## Build & Run (Flutter-web)
 
 To build the Memri flutter-app locally, you need to either install the Flutter environment locally, or use the docker build. Currently the app is tested and built for flutter web.

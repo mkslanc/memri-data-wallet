@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/MemriApp/Controllers/PermissionController.dart';
+import 'package:memri/controllers/permission_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Set<int> askedPermissions = {};
