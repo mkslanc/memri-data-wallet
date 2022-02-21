@@ -1,12 +1,11 @@
-.SentimentAnalysisRun {
+.ClassifierPluginRun {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "App"
 
     [renderer = singleItem] {
-
     }
 
     Plugin > singleItem {
@@ -15,66 +14,68 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Sentiment analysis"
                 font: headline1
                 padding: 0 0 22 0
+                text: "Sentiment analysis"
             }
 
             Text {
-                text: "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
                 font: bodyText2
+                text: "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
             }
 
             Text {
-                text: "Even fellow humans have difficulty understanding the emotions of others; people express their opinions in unique ways, so sentiment analysis presents a lot of challenges. It's important to keep in mind that machines cannot analyze sentiments in the same way humans can: they don't understand context unless it's explicitly mentioned, irony and sarcasm are hard to detect, and so on."
-                font: smallCaps
                 color: #737373
+                font: smallCaps
+                text: "Even fellow humans have difficulty understanding the emotions of others; people express their opinions in unique ways, so sentiment analysis presents a lot of challenges. It's important to keep in mind that machines cannot analyze sentiments in the same way humans can: they don't understand context unless it's explicitly mentioned, irony and sarcasm are hard to detect, and so on."
             }
 
             HStack {
-                show: {{!.~plugin}}
                 alignment: left
                 padding: 15 0 0 0
+                show: {{!.~plugin}}
+
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: "pluginRunWait"
+                        }
+                        pluginRun
+                        {
+                            config: {{.config}}
+                            container: {{.containerImage}}
+                            name: {{.name}}
+                            pluginId: {{.id}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                        }
+                    ]
                     styleName: primaryButton
 
                     Text {
                         text: "Install"
                     }
-
-                    onPress: [
-                        openView {
-                            viewName: "SentimentAnalysisRun"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        pluginRun {
-                            name: {{.name}}
-                            container: {{.containerImage}}
-                            pluginModule: {{.pluginModule}}
-                            pluginName: {{.pluginName}}
-                            pluginId: {{.id}}
-                        }
-                        ]
                 }
 
                 Button {
+                    onPress: back
                     padding: 0 0 0 20
 
                     Text {
-                        text: "Cancel"
-                        font: button_label
                         color: #333333
+                        font: button_label
+                        text: "Cancel"
                     }
-
-                    onPress: back
                 }
             }
 
             HStack {
                 show: {{.~plugin.last().status}}
+
                 Text {
                     text: "Please wait for response: this may take a while..."
                 }
@@ -135,7 +136,7 @@
 
 
 
-.SentimentAnalysis-done {
+.ClassifierPlugin-done {
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
@@ -167,7 +168,7 @@
                 height: 160
 
                 view {
-                    viewName: SentimentAnalysisData
+                    viewName: ClassifierPluginData
                     defaultRenderer: singleItem
 
                     [datasource = pod] {
@@ -194,7 +195,7 @@
 
                     onPress: [
                         openView {
-                            viewName: "SentimentAnalysisRun"
+                            viewName: "ClassifierPluginRun"
                             clearStack: true
                             viewArguments {
 
@@ -214,7 +215,7 @@
     }
 }
 
-.SentimentAnalysisData {
+.ClassifierPluginData {
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
@@ -312,7 +313,7 @@
     }
 }
 
-.SentimentAnalysis-error {
+.ClassifierPlugin-error {
     defaultRenderer: singleItem
     showSearchBar: false
     showContextualBottomBar: false
