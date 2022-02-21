@@ -1,77 +1,78 @@
 .apps-and-plugins {
+    additional: {
+        Button {
+            isLink: true
+            onPress: [
+                openView
+                {
+                    inheritDatasource: false
+                    viewArguments: {
+                    }
+                    viewName: "inbox"
+                }
+            ]
+
+            VStack {
+                alignment: left
+                background: #F5F5F5
+                padding: 20
+
+                HStack {
+                    alignment: left
+
+                    Text {
+                        color: #333333
+                        font: headline2
+                        text: "Inbox"
+                    }
+
+                    Spacer
+
+                    Text {
+                        color: #15B599
+                        text: "Running"
+                    }
+                }
+
+                Text {
+                    color: #989898
+                    font: body_tiny
+                    maxChar: 100
+                    padding: 15 0 10 0
+                    removeWhiteSpace: true
+                    text: "The Inbox app displays all incoming messages and emails, and allows sending and receiving them. It requires the use of at least one messenger or email importer."
+                }
+
+                HStack {
+                    alignment: left
+
+                    Text {
+                        color: #FE570F
+                        font: 14 btn_label
+                        text: "Open app"
+                    }
+                }
+            }
+        }
+    }
+    cols: 6
+    defaultRenderer: list
+    emptyResultText: "There are no Plugins"
     name: "apps-and-plugins"
     title: "All apps"
-    emptyResultText: "There are no Plugins"
-    defaultRenderer: list
-    cols: 6
 
     [datasource = pod] {
-        query: Plugin
         filter: {
             properties: {
                 pluginType: "app"
             }
         }
+        query: Plugin
     }
 
     [renderer = list] {
         edgeInset: 30
-        spacing: 30
         hideSeparators: true
-    }
-
-    additional: {
-        Button {
-            isLink: true
-            onPress: [
-                openView {
-                    viewName: "inbox"
-                    inheritDatasource: false
-                    viewArguments {
-
-                    }
-                }]
-
-                VStack {
-                    alignment: left
-                    background: #F5F5F5
-                    padding: 20
-
-                    HStack {
-                        alignment: left
-
-                        Text {
-                            text: "Inbox"
-                            font: headline2
-                            color: #333333
-                        }
-                        Spacer
-                        Text {
-                            color: #15B599
-                            text: "Running"
-                        }
-                    }
-
-
-                    Text {
-                        text: "The Inbox app displays all incoming messages and emails, and allows sending and receiving them. It requires the use of at least one messenger or email importer."
-                        removeWhiteSpace: true
-                        maxChar: 100
-                        color: #989898
-                        font: body_tiny
-                        padding: 15 0 10 0
-                    }
-
-                    HStack {
-                        alignment: left
-                        Text {
-                            text: "Open"
-                            font: btn_label
-                            color: #333333
-                        }
-                    }
-
-                }
-        }
+        spacing: 20
     }
 }

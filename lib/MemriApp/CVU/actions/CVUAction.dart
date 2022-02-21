@@ -698,17 +698,24 @@ class CVUActionPluginRun extends CVUAction {
       print("Not all params provided for PluginRun");
       return;
     }
+    var configValue = vars["config"];
 
     String? pluginId = await lookup.resolve<String>(value: pluginIdValue, context: context, db: db);
 
-    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!))!;
     String? container =
         await lookup.resolve<String>(value: containerValue, context: context, db: db);
+    if (container == null) return;
+
+    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!))!;
+
     String? pluginModule =
         await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
     String? pluginName =
         await lookup.resolve<String>(value: pluginNameValue, context: context, db: db) ?? "";
-    if (container == null) return;
+    String? config;
+    if (configValue != null) {
+      config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
+    }
 
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
@@ -723,7 +730,9 @@ class CVUActionPluginRun extends CVUAction {
       await pluginRunItem.setPropertyValue(
           "containerImage", PropertyDatabaseValueString(container));
       await pluginRunItem.setPropertyValue("status", PropertyDatabaseValueString("idle"));
-
+      if (config != null) {
+        await pluginRunItem.setPropertyValue("config", PropertyDatabaseValueString(config));
+      }
       var edge = ItemEdgeRecord(
           sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
       await edge.save();
@@ -1561,6 +1570,25 @@ class CVUActionParsePluginItem extends CVUAction {
             value: PropertyDatabaseValue.create(value, SchemaValueType.string)));
       }
     });
+
+    var configUri = Uri.parse(
+        "https://gitlab.memri.io/api/v4/projects/$projectId/repository/files/config.json?ref=main");
+    response = await http.get(configUri, headers: {"content-type": "application/json"});
+    if (response.statusCode != 200) {
+      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
+    }
+
+    var configJson = Utf8Decoder().convert(response.bodyBytes);
+    var decodedConfig = jsonDecode(configJson);
+
+    if (decodedConfig.length > 0 && decodedConfig["content"] != null) {
+      var encodedConfig = Utf8Decoder().convert(base64Decode(decodedConfig["content"]));
+      properties.add(ItemPropertyRecord(
+          itemRowID: pluginItem.rowId!,
+          name: "configJson",
+          value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
+    }
+
     await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(projectId));
     await ItemEdgeRecord(
             sourceRowID: project.rowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)

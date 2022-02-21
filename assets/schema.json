@@ -952,6 +952,16 @@
     },
     {
       "item_type": "Plugin",
+      "property": "config",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
+      "property": "configJson",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Plugin",
       "property": "containerImage",
       "value_type": "string"
     },
@@ -998,6 +1008,11 @@
     {
       "item_type": "PluginRun",
       "property": "authUrl",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
+      "property": "config",
       "value_type": "string"
     },
     {
