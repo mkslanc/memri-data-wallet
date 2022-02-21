@@ -66,13 +66,6 @@ Plugin {
 }
 
 Plugin > list {
-    onPress: [
-        openPlugin
-        {
-            plugin: {{.}}
-        }
-    ]
-
     VStack {
         alignment: left
 
@@ -110,10 +103,75 @@ Plugin > list {
             HStack {
                 alignment: left
 
-                Text {
-                    color: #FE570F
-                    font: btn_label
-                    text: "{.pluginType != 'importer' ? 'Install' : .~plugin[].last().status = 'error' ? 'Re-authenticate' : 'Install'}"
+                Button {
+                    Text {
+                        color: #FE570F
+                        font: 14 btn_label
+                        text: "Open app"
+                    }
+                }
+
+                Button {
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: "Configure UI"
+                    }
+                }
+
+                Button {
+                    onPress: [
+
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                                addPageIfMissing: true
+                                pageLabel: "mainSecond"
+                            }
+                            viewName: "pluginConfig"
+                        }
+                    ]
+                    show: {{.configJson}}
+
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: "Settings"
+                    }
+                }
+
+                Spacer
+
+                Button {
+                    onPress: [
+                        openPlugin
+                        {
+                            plugin: {{.}}
+                        }
+                    ]
+
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: {{.pluginType.last ? "Re-run" : "Run"}}
+                    }
+                }
+
+                Button {
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: "Abort"
+                    }
+                }
+
+                Button {
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: "Log"
+                    }
                 }
             }
         }

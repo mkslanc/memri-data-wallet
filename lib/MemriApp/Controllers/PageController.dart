@@ -124,7 +124,10 @@ class PageController extends ChangeNotifier {
 
     topMostContext = navStack.state.isNotEmpty ? makeContext(navStack.state.last) : null;
     navigationStack = navStack;
-    if (navStack.state.isEmpty) return;
+    if (navStack.state.isEmpty) {
+      sceneController.removePageController(this);
+      return;
+    }
 
     var vc =
         SceneContentView(pageController: this, viewContext: topMostContext!); //TODO: is this right?

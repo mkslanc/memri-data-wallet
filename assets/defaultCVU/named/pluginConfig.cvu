@@ -1,0 +1,6 @@
+.pluginConfig {
+    defaultRenderer: pluginConfig
+    name: "pluginConfig"
+    title: "Plugin config"
+    cols: 4
+}
