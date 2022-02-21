@@ -59,11 +59,12 @@
   {
     "_type": "Plugin",
     "pluginType": "app",
-    "name": "Sentiment analysis app",
-    "containerImage": "gitlab.memri.io:5050/memri/plugins/sentiment-analysis:prod-latest",
-    "pluginModule": "sentiment_analysis",
-    "pluginName": "SentimentAnalysis",
-    "pluginDescription": "Sentiment analysis app categorizes pieces of writing as positive, neutral, or negative based on emotional tone they carry. It uses natural language processing and machine learning techniques to produce quantitative results."
+    "name": "Sentiment Plugin",
+    "containerImage": "gitlab.memri.io:5050/eelcovdw/sentiment_plugin:dev-latest",
+    "pluginModule": "sentiment_plugin.plugin",
+    "pluginName": "ClassifierPlugin",
+    "pluginDescription": "A transformer based sentiment analyis plugin",
+    "configJson": "[{\"name\":\"item_type\",\"display\":\"Item Type\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":null,\"optional\":true},{\"name\":\"item_service\",\"display\":\"Item Service\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":null,\"optional\":true},{\"name\":\"model_name\",\"display\":\"Model Name\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":\"cardiffnlp/twitter-xlm-roberta-base-sentiment\",\"optional\":true},{\"name\":\"model_version\",\"display\":\"Model Version\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":\"0.1\",\"optional\":true}]"
   },
   {
     "_type": "Plugin",

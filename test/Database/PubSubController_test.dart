@@ -1,7 +1,7 @@
-import 'package:memri/MemriApp/Controllers/AppController.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/MemriApp/Controllers/Database/ItemRecord.dart';
-import 'package:memri/MemriApp/Controllers/Database/PropertyDatabaseValue.dart';
+import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/services/database/property_database_value.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ void main() {
     var record = ItemRecord(type: "PluginRun");
     await record.save();
     await record.setPropertyValue("status", PropertyDatabaseValueString("idle"));
-    appController.pubsubController.startObservingItemProperty(
+    appController.pubSubController.startObservingItemProperty(
         item: record,
         property: "status",
         desiredValue: PropertyDatabaseValueString("userActionNeeded"),
@@ -29,7 +29,7 @@ void main() {
           print("got `userActionNeeded`");
           expect(newValue.value, equals("userActionNeeded"));
 
-          appController.pubsubController.startObservingItemProperty(
+          appController.pubSubController.startObservingItemProperty(
               item: record,
               property: "status",
               desiredValue: PropertyDatabaseValueString("ready"),
@@ -56,7 +56,7 @@ void main() {
     var record = ItemRecord(type: "PluginRun");
     await record.save();
     await record.setPropertyValue("status", PropertyDatabaseValueString("idle"));
-    appController.pubsubController.startObservingItemProperty(
+    appController.pubSubController.startObservingItemProperty(
         item: record,
         property: "status",
         desiredValue: null,
