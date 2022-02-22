@@ -191,7 +191,7 @@
                 Textfield {
                     background: #F0F0F0
                     border: #000 1
-                    hint: "https://gitlab.memri.io/username/myplugin"
+                    hint: "http://gitlab.memri.io:5050/plugins/myplugin:dev-latest"
                     isCollapsed: true
                     maxWidth: 571
                     rows: 1
@@ -233,6 +233,7 @@
                         parsePlugin
                         {
                             project: {{.}}
+                            startItem: {{.dataset.datasetType.queryStr.fromjson("type")}}
                             url: {{.gitlabUrl}}
                         }
                         openView

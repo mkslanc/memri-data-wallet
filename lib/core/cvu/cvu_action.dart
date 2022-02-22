@@ -12,6 +12,7 @@ import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/database_query.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/apis/gitlab_api.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
@@ -1501,6 +1502,12 @@ class CVUActionParsePluginItem extends CVUAction {
     if (project == null) {
       throw "Labelling project is not exist!";
     }
+
+    var startItem = await resolver.string("startItem");
+    if (startItem == null) {
+      throw "Project doesn't have start item from dataset";
+    }
+
     var url = await resolver.string("url");
     if (url == null) {
       throw "Repository URL is not provided!";
@@ -1515,7 +1522,7 @@ class CVUActionParsePluginItem extends CVUAction {
 
     //TODO: for future we need to save branch
     var searchNeedle =
-        url.replaceFirst("https://gitlab.memri.io/", "").replaceFirst(RegExp(r"\-\/tree.*$"), "");
+        url.replaceFirst("https://gitlab.memri.io/", "").replaceFirst(RegExp(r"\/\-\/tree.*$"), "");
     var newUri = Uri.tryParse(
         "https://gitlab.memri.io/api/v4/projects?search=$searchNeedle&search_namespaces=true");
     if (newUri == null || !newUri.hasAbsolutePath) {
@@ -1531,24 +1538,21 @@ class CVUActionParsePluginItem extends CVUAction {
     if (decodedRepo.length == 0 || decodedRepo[0]["id"] == null) {
       throw "Gitlab project id not provided";
     }
-    var projectId = decodedRepo[0]["id"];
-    if (projectId is! int) {
+    var gitProjectId = decodedRepo[0]["id"];
+    if (gitProjectId is! int) {
       throw "Git Project Id has wrong type";
     }
-    var repoUri = Uri.parse(
-        "https://gitlab.memri.io/api/v4/projects/$projectId/repository/files/metadata.json?ref=main");
-    response = await http.get(repoUri, headers: {"content-type": "application/json"});
-    if (response.statusCode != 200) {
-      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
-    }
 
-    var metaJson = Utf8Decoder().convert(response.bodyBytes);
-    var decodedMeta = jsonDecode(metaJson);
-    if (decodedMeta.length == 0 || decodedMeta["content"] == null) {
-      throw "Metadata.json is not available in provided repository link";
-    }
+    await parsePluginSchema(gitProjectId: gitProjectId, db: db);
+    await createPlugin(gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
+  }
 
-    var encodedPlugin = Utf8Decoder().convert(base64Decode(decodedMeta["content"]));
+  createPlugin(
+      {required int gitProjectId,
+      required DatabaseController db,
+      required int projectRowId}) async {
+    var encodedPlugin = await GitlabApi.getTextFileContentFromGitlab(
+        gitProjectId: gitProjectId, filename: "metadata.json");
     var decodedPlugin = jsonDecode(encodedPlugin);
 
     var pluginItem = ItemRecord(type: "Plugin");
@@ -1566,28 +1570,81 @@ class CVUActionParsePluginItem extends CVUAction {
       }
     });
 
-    var configUri = Uri.parse(
-        "https://gitlab.memri.io/api/v4/projects/$projectId/repository/files/config.json?ref=main");
-    response = await http.get(configUri, headers: {"content-type": "application/json"});
-    if (response.statusCode != 200) {
-      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
-    }
+    var encodedConfig = await GitlabApi.getTextFileContentFromGitlab(
+        gitProjectId: gitProjectId, filename: "config.json");
+    properties.add(ItemPropertyRecord(
+        itemRowID: pluginItem.rowId!,
+        name: "configJson",
+        value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
 
-    var configJson = Utf8Decoder().convert(response.bodyBytes);
-    var decodedConfig = jsonDecode(configJson);
-
-    if (decodedConfig.length > 0 && decodedConfig["content"] != null) {
-      var encodedConfig = Utf8Decoder().convert(base64Decode(decodedConfig["content"]));
-      properties.add(ItemPropertyRecord(
-          itemRowID: pluginItem.rowId!,
-          name: "configJson",
-          value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
-    }
-
-    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(projectId));
+    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(gitProjectId));
     await ItemEdgeRecord(
-            sourceRowID: project.rowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
+            sourceRowID: projectRowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
         .save(db.databasePool);
     await db.databasePool.itemPropertyRecordInsertAll(properties);
+  }
+
+  parsePluginSchema({required int gitProjectId, required DatabaseController db}) async {
+    var encodedSchema = await GitlabApi.getTextFileContentFromGitlab(
+        gitProjectId: gitProjectId, filename: "schema.json");
+    var decodedSchema = jsonDecode(encodedSchema);
+    if (decodedSchema is! List) {
+      throw "Schema is invalid";
+    }
+    List<ItemPropertyRecord> properties = [];
+    for (var el in decodedSchema) {
+      var type = el["type"];
+      if (type != null && type is String) {
+        if (type == "ItemPropertySchema") {
+          var itemType = el["itemType"];
+          var propertyName = el["propertyName"];
+          var propertyValue = ItemRecord.reverseMapSchemaValueType(el["valueType"]);
+          if (itemType is String && propertyName is String && propertyValue is String) {
+            var recordRowId =
+                await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemPropertySchema"));
+            properties.addAll([
+              ItemPropertyRecord(
+                  itemRowID: recordRowId,
+                  name: "itemType",
+                  value: PropertyDatabaseValueString(itemType)),
+              ItemPropertyRecord(
+                  itemRowID: recordRowId,
+                  name: "propertyName",
+                  value: PropertyDatabaseValueString(propertyName)),
+              ItemPropertyRecord(
+                  itemRowID: recordRowId,
+                  name: "valueType",
+                  value: PropertyDatabaseValueString(propertyValue)),
+            ]);
+          }
+        } else {
+          if (type == "ItemEdgeSchema") {
+            var sourceType = el["sourceType"];
+            var edgeName = el["edgeName"];
+            var targetType = el["targetType"];
+            if (sourceType is String && edgeName is String && targetType is String) {
+              var recordRowId =
+                  await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemEdgeSchema"));
+              properties.addAll([
+                ItemPropertyRecord(
+                    itemRowID: recordRowId,
+                    name: "sourceType",
+                    value: PropertyDatabaseValueString(sourceType)),
+                ItemPropertyRecord(
+                    itemRowID: recordRowId,
+                    name: "edgeName",
+                    value: PropertyDatabaseValueString(edgeName)),
+                ItemPropertyRecord(
+                    itemRowID: recordRowId,
+                    name: "targetType",
+                    value: PropertyDatabaseValueString(targetType)),
+              ]);
+            }
+          }
+        }
+      }
+    }
+    await db.databasePool.itemPropertyRecordInsertAll(properties);
+    await db.schema.load(db.databasePool);
   }
 }
