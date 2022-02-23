@@ -1503,10 +1503,15 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Labelling project is not exist!";
     }
 
-    var startItem = await resolver.string("startItem");
-    if (startItem == null) {
-      throw "Project doesn't have start item from dataset";
+    var queryStr = await resolver.string("query");
+    if (queryStr == null) {
+      throw "Project couldn't receive query from dataset";
     }
+    var decodedQuery = jsonDecode(queryStr);
+    if (decodedQuery == null || decodedQuery["type"] == null) {
+      throw "Dataset doesn't have type property";
+    }
+    var filterProperties = Map.of(decodedQuery);
 
     var url = await resolver.string("url");
     if (url == null) {
@@ -1543,14 +1548,20 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Git Project Id has wrong type";
     }
 
+    List<ItemRecord> featureItems = await resolver.items("features");
+
     await parsePluginSchema(gitProjectId: gitProjectId, db: db);
-    await createPlugin(gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
+    var cvuRowId =
+        await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
+    await createPlugin(
+        gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!, cvuRowId: cvuRowId);
   }
 
   createPlugin(
       {required int gitProjectId,
       required DatabaseController db,
-      required int projectRowId}) async {
+      required int projectRowId,
+      required cvuRowId}) async {
     var encodedPlugin = await GitlabApi.getTextFileContentFromGitlab(
         gitProjectId: gitProjectId, filename: "metadata.json");
     var decodedPlugin = jsonDecode(encodedPlugin);
@@ -1582,6 +1593,9 @@ class CVUActionParsePluginItem extends CVUAction {
             sourceRowID: projectRowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
         .save(db.databasePool);
     await db.databasePool.itemPropertyRecordInsertAll(properties);
+    var viewEdge =
+        ItemEdgeRecord(name: "view", sourceRowID: pluginItem.rowId, targetRowID: cvuRowId);
+    await viewEdge.save(db.databasePool);
   }
 
   parsePluginSchema({required int gitProjectId, required DatabaseController db}) async {
@@ -1646,5 +1660,181 @@ class CVUActionParsePluginItem extends CVUAction {
     }
     await db.databasePool.itemPropertyRecordInsertAll(properties);
     await db.schema.load(db.databasePool);
+  }
+
+  Future<int> generatePluginCvu(
+      {required Map<dynamic, dynamic> filterProperties,
+      required List<ItemRecord> features,
+      required DatabaseController db}) async {
+    var startItemType = Map.of(filterProperties)["type"];
+    filterProperties.remove('type');
+    var propertiesFilter = "";
+    if (filterProperties.isNotEmpty) {
+      propertiesFilter += "filter: {\n properties: {\n";
+      filterProperties.forEach((key, value) {
+        propertiesFilter += '$key: "$value"\n';
+      });
+      propertiesFilter += "}}";
+    }
+
+    var cvu = '''.plugin${Uuid().v4()} { 
+        defaultRenderer: singleItem
+        [renderer = singleItem] {
+          scrollable: false
+        }
+        
+        [datasource = pod] {
+            query: Project
+        }
+    Project > singleItem {    
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            font: "headline2"
+            text: {{.labellingPlugin.name}}
+        }
+
+        HStack {
+            background: #1AE9500F
+
+            VStack {
+                alignment: left
+                padding: 30 20 45 20
+
+                Text {
+                    font: bodyText1
+                    padding: 0 0 25 0
+                    text: "Customize and preview your app using the CVU renderer on the right."
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/frontend/cvu-intro/"
+                        }
+                    ]
+
+                    Text {
+                        color: #E9500F
+                        font: link
+                        text: "Read our CVU guide"
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/frontend/cvu-ui-elements/"
+                        }
+                    ]
+
+                    Text {
+                        color: #E9500F
+                        font: link
+                        text: "See the full list of available CVU components"
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+            }
+
+            Spacer
+        }
+
+        VStack {
+            alignment: topleft
+            background: #F6F6F6
+            padding: 20
+
+            Text {
+                color: #999999
+                font: smallCaps
+                text: "USED DEFINED ATTRIBUTES:"
+            }
+            
+            FlowStack {
+                list: {{.dataset.feature[]}}
+                spacing: 4
+
+                Wrap {
+                    background: #fff
+
+                    Text {
+                        color: #999999
+                        font: tabList
+                        padding: 12 10 12 10
+                        text: "{.propertyName}"
+                    }
+                }
+            }
+
+            Text {
+                color: #999999
+                font: smallCaps
+                padding: 30 0 0 0
+                text: "EXAMPLE ITEMS:"
+            }
+
+            SubView {
+                height: 200
+                view: {
+                    defaultRenderer: list
+                    editMode: false
+
+                    [datasource = pod] {
+                        query: $startItemType
+                        $propertiesFilter
+                    }
+
+                    [renderer = list] {
+                        edgeInset: 0
+                        hideSeparators: true
+                        spacing: 0
+                    }
+
+                    $startItemType > list {
+                        VStack {
+                            alignment: left
+
+                            RichText {
+                                font: bodyText1
+                                spans: [''';
+    for (var feature in features) {
+      var propertyName = (await feature.propertyValue("propertyName", db))?.value;
+      if (propertyName != null) {
+        cvu += '\n {\n text: "{.${propertyName}} " \n}';
+      }
+    }
+
+    //TODO: hard-coded part for labels
+    cvu += '\n{ \n text: " - {.label.value OR \'Place for your label\'}" \n }';
+    //
+
+    cvu += '\n]\n}\n}\n}\n}\n}\n}\n}\n}\n}';
+    var cvuID = await CVUController.storeDefinition(cvu, db);
+    if (cvuID == null) {
+      throw "CVU couldn't be saved";
+    }
+    return cvuID;
   }
 }

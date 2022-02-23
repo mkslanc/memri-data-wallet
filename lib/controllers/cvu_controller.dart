@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
@@ -167,6 +168,7 @@ class CVUController {
     var parsedDefinitions = parseCVUString(string);
     if (parsedDefinitions.isNotEmpty) {
       var definition = parsedDefinitions[0];
+      AppController.shared.cvuController.definitions.add(definition);
       var definitionId;
       await databaseController.databasePool.transaction(() async {
         List<ItemPropertyRecord> properties = [];
