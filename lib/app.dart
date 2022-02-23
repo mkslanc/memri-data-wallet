@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/screens/authentication_screen.dart';
 import 'package:memri/screens/scene_view.dart';
 import 'package:memri/screens/setup/onboarding_keys.dart';
@@ -21,68 +20,60 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final AppController appController = AppController.shared;
-  late final SceneController sceneController;
-  late Future<void> _init;
   Exception? authError;
+  bool _isInitializing = true;
 
   _AppState();
 
   @override
   void initState() {
-    sceneController = SceneController();
-    SceneController.sceneController = sceneController;
+    SceneController.sceneController = SceneController();
+    init();
     super.initState();
-    _init = init();
   }
 
   Future<void> init() async {
     try {
-      if (await Authentication.storageDoesNotExist) {
-        await Authentication.createRootKey();
-      }
       await AppController.shared.init();
-      await sceneController.init();
-      await AppController.shared.onLaunch();
+      await SceneController.sceneController.init();
+      await AppController.shared.updateState();
     } on Exception catch (e) {
       authError = e;
       appController.state = AppState.authentication;
+    }
+    if (mounted) {
+      setState(() {
+        _isInitializing = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return ValueListenableBuilder(
-                valueListenable: appController.state,
-                builder: (BuildContext context, AppState value, Widget? child) {
-                  switch (value) {
-                    case AppState.setup:
-                      return OnboardingStart();
-                    case AppState.keySaving:
-                      return OnboardingKeys();
-                    case AppState.authentication:
-                      return AuthenticationScreen(
-                          authError: authError,
-                          callback: () {
-                            _init = init();
-                            setState(() {});
-                          });
-                    case AppState.authenticated:
-                      return SceneView(sceneController: sceneController);
-                  }
+    if (_isInitializing) {
+      return Center(child: SizedBox(width: 60, height: 60, child: CircularProgressIndicator()));
+    }
+    return ValueListenableBuilder(
+      valueListenable: appController.state,
+      builder: (BuildContext context, AppState value, Widget? child) {
+        switch (value) {
+          case AppState.setup:
+            return OnboardingStart();
+          case AppState.keySaving:
+            return OnboardingKeys();
+          case AppState.authentication:
+            return AuthenticationScreen(
+                authError: authError,
+                callback: () {
+                  setState(() {
+                    _isInitializing = true;
+                  });
+                  init();
                 });
-          } else {
-            return Center(
-              child: SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              ),
-            );
-          }
-        });
+          case AppState.authenticated:
+            return SceneView(sceneController: SceneController.sceneController);
+        }
+      },
+    );
   }
 }

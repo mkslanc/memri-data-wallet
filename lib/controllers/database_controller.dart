@@ -47,7 +47,7 @@ class DatabaseController {
     await databasePool.close();
     databasePool.attachedDatabase.close();
     if (!inMemory || kIsWeb) {
-      await deleteDb(databaseName);
+      deleteDb(databaseName);
     }
     isInited = false;
   }
