@@ -15,6 +15,7 @@ import 'package:memri/controllers/syncing/sync_controller_isolate.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/services/settings.dart';
+import 'package:memri/models/ui/setup_model.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum AppState { setup, keySaving, authentication, authenticated }
@@ -30,6 +31,7 @@ class AppController {
   StreamSubscription? syncStream;
   bool isDevelopersMode = false;
   Isolate? syncIsolate;
+  late SetupScreenModel model;
 
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
 
@@ -40,8 +42,31 @@ class AppController {
   static String keychainDatabaseKey = "memri_databaseKey";
 
   PodConnectionDetails? _podConnectionConfig;
-  bool isInDemoMode = false;
-  bool isNewPodSetup = false;
+  bool _isInDemoMode = false;
+  bool _isNewPodSetup = false;
+
+  // MARK: Authentication
+  bool _isAuthenticated = false; //TODO @anijanyan
+  bool get isAuthenticated {
+    return _isAuthenticated;
+  }
+
+  Future<void> setIsAuthenticated(bool newValue) async {
+    if (_isAuthenticated != newValue) {
+      _isAuthenticated = newValue;
+      await updateState();
+    }
+  }
+
+  requestAuthentication() async {
+    if (!await checkHasBeenSetup()) {
+      return;
+    }
+    await setIsAuthenticated(true);
+  }
+
+  bool get isOwnerKeyExist =>
+      _podConnectionConfig?.ownerKey != null && _podConnectionConfig!.ownerKey.length > 12;
 
   AppController() {
     databaseController = DatabaseController(inMemory: false);
@@ -49,6 +74,7 @@ class AppController {
     cvuController = CVUController(databaseController);
     pubSubController = PubSubController(databaseController);
     permissionController = PermissionsController();
+    model = SetupScreenModel();
   }
 
   Future init() async {
@@ -56,11 +82,7 @@ class AppController {
     await cvuController.init();
   }
 
-  Future onLaunch() async {
-    await updateState();
-  }
-
-  updateState() async {
+  Future<void> updateState() async {
     if (!await checkHasBeenSetup()) {
       state = AppState.setup;
       return;
@@ -71,14 +93,18 @@ class AppController {
       return;
     }
 
-    if (isNewPodSetup) {
+    if (_isNewPodSetup) {
       state = AppState.keySaving;
     } else {
       state = AppState.authenticated;
     }
 
-    isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
-    if (!isInDemoMode) {
+    await syncSchema();
+  }
+
+  Future<void> syncSchema() async {
+    _isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
+    if (!_isInDemoMode) {
       PodConnectionDetails connection = (await AppController.shared.podConnectionConfig)!;
       var receivePort = ReceivePort();
       var documentsDirectory;
@@ -105,48 +131,56 @@ class AppController {
         await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
-  // MARK: Setup
-  setupApp(
-      {required SetupConfig config,
-      bool useDemoData = true,
-      required void Function(Exception? error) onCompletion}) async {
-    await Future.delayed(Duration(
-        milliseconds:
-            200)); //TODO find the reason why setstate rebuilds widget too late without this in SetupScreenView
-    try {
-      if (!await databaseController.hasImportedDefaultData) {
-        await connectToPod(config, () async {
-          if (config is SetupConfigLocal || config is SetupConfigNewPod) {
-            await databaseController.importRequiredData();
-            if (useDemoData) await databaseController.setupWithDemoData();
-            if (config is SetupConfigLocal) isInDemoMode = true;
-            await Settings.shared.set("defaults/general/isInDemoMode", isInDemoMode);
-            await cvuController.storeDefinitions();
-          }
-          if (_podConnectionConfig != null) {
-            if (config is SetupConfigNewPod) {
-              isNewPodSetup = true;
-              await Settings.shared.set("defaults/pod/url", config.config.podURL);
-              //TODO owner and database key should not be stored in settings
-              await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
-              await Settings.shared
-                  .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
-            }
-
-            await syncController.sync();
-          }
-        });
-      }
-    } on Exception catch (error) {
-      onCompletion(error);
+  Future<void> initApp() async {
+    var config = model.getSetupConfig(false);
+    if (config == null) {
+      model.state = PodSetupState.idle;
       return;
     }
-    await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
-    onCompletion(null);
-    await updateState();
+    if (!await databaseController.hasImportedDefaultData) {
+      if (config is SetupConfigLocal || config is SetupConfigNewPod) {
+        databaseController.importRequiredData();
+        if (model.useDemoData) await databaseController.setupWithDemoData();
+        if (config is SetupConfigLocal) _isInDemoMode = true;
+        await Settings.shared.set("defaults/general/isInDemoMode", _isInDemoMode);
+        await cvuController.storeDefinitions();
+      }
+    }
   }
 
-  connectToPod(SetupConfig config, Future Function() callback) async {
+  // MARK: Setup
+  Future<void> setupApp({bool localOnly = false}) async {
+    var config = model.getSetupConfig(localOnly);
+    if (config == null) {
+      model.state = PodSetupState.idle;
+      return;
+    }
+    try {
+      await connectToPod(config);
+    } on Exception catch (error) {
+      model.state = PodSetupState.error;
+      model.errorString = error.toString();
+      return;
+    }
+
+    if (_podConnectionConfig != null) {
+      if (config is SetupConfigNewPod) {
+        await Settings.shared.set("defaults/pod/url", config.config.podURL);
+        //TODO owner and database key should not be stored in settings
+        await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
+        await Settings.shared.set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
+        _isNewPodSetup = true;
+      }
+    }
+    await syncController.sync();
+
+    syncSchema();
+
+    await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
+    _isAuthenticated = true;
+  }
+
+  Future<void> connectToPod(SetupConfig config) async {
     if (config is SetupConfigExistingPod) {
       var uri = Uri.parse(config.config.podURL);
       _podConnectionConfig = PodConnectionDetails(
@@ -168,6 +202,8 @@ class AppController {
           ownerKey: ownerKey,
           databaseKey: databaseKey);
     }
+    state = AppState.keySaving;
+    model.state = PodSetupState.idle;
 
     if (_podConnectionConfig != null) {
       if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
@@ -179,40 +215,14 @@ class AppController {
         throw Exception("Pod doesn't respond");
       }
     }
-
-    await callback();
   }
 
-  // MARK: Authentication
-  bool _isAuthenticated = false; //TODO @anijanyan
-  bool get isAuthenticated {
-    return _isAuthenticated;
-  }
-
-  Future<void> setIsAuthenticated(bool newValue) async {
-    if (_isAuthenticated != newValue) {
-      _isAuthenticated = newValue;
-      await updateState();
-    }
-  }
-
-  requestAuthentication() async {
-    if (!await checkHasBeenSetup()) {
-      return;
-    }
-    await setIsAuthenticated(true);
-  }
-
-  Future<bool> checkHasBeenSetup() async {
-    if (!await AppController.shared.databaseController.hasImportedSchema) {
-      return false;
-    }
-    return true;
-  }
+  Future<bool> checkHasBeenSetup() async =>
+      await AppController.shared.databaseController.hasImportedSchema;
 
   // MARK: Pod connection
   Future<PodConnectionDetails?> get podConnectionConfig async {
-    if (isInDemoMode) return null;
+    if (_isInDemoMode) return null;
     try {
       // Here you should retrieve the connection details stored in the database
       if (_podConnectionConfig == null) {
@@ -237,11 +247,11 @@ class AppController {
   }
 
   resetApp() async {
-    await Authentication.deleteRootKey();
-    await Authentication.createRootKey();
+    state = AppState.setup;
+    Authentication.createRootKey();
 
     await SceneController.sceneController.reset();
-    if (!isInDemoMode) {
+    if (!_isInDemoMode) {
       await syncStream?.cancel();
       syncStream = null;
       _podConnectionConfig = null;
@@ -253,13 +263,14 @@ class AppController {
     pubSubController.reset();
 
     cvuController.reset();
+    _isNewPodSetup = false;
+    _isInDemoMode = false;
+    isDevelopersMode = false;
+    _isAuthenticated = false;
+
     await init();
     await SceneController.sceneController.init();
-
-    await setIsAuthenticated(false);
-    isNewPodSetup = false;
-    isInDemoMode = false;
-    isDevelopersMode = false;
+    initApp();
   }
 }
 

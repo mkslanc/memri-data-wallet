@@ -9,19 +9,9 @@ import 'package:uuid/uuid.dart';
 class Authentication {
   static String rootKeyTag = "memriPrivateKey";
   static bool isOwnerAuthenticated = false;
-
   static String? lastRootPublicKey;
 
-  static authenticateOwner() async {
-    if (await storageDoesNotExist) {
-      throw Exception("Couldn't read value from storage");
-    }
-    isOwnerAuthenticated = true;
-  }
-
-  static Future<bool> get storageDoesNotExist async {
-    return false;
-  }
+  static bool get storageDoesNotExist => false;
 
   static SecureRandom getSecureRandom() {
     var secureRandom = FortunaRandom();
@@ -57,20 +47,12 @@ class Authentication {
     return keys;
   }
 
-  static Future<void> createRootKey() async {
-    isOwnerAuthenticated = true;
-  }
-
-  static Future<void> deleteRootKey() async {
-    return;
-  }
+  static void createRootKey() => isOwnerAuthenticated = true;
 
   static setOwnerAndDBKey(
       {required String privateKey, required String publicKey, required String dbKey}) async {
     await ItemRecord.setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
   }
 
-  static Future<AuthKeys> getOwnerAndDBKey() async {
-    return await ItemRecord.getOwnerAndDBKey();
-  }
+  static Future<AuthKeys> getOwnerAndDBKey() async => await ItemRecord.getOwnerAndDBKey();
 }

@@ -30,7 +30,7 @@ Future<void> deleteDb(databaseName) async {
   var store = txn.objectStore(dbName);
   await store.clear();
   await txn.completed;
-  window.location.reload();
+  // window.location.reload();
 }
 
 Future<DriftIsolate> createDriftIsolate(
