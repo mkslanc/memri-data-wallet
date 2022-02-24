@@ -29,6 +29,7 @@ import 'package:memri/models/database/item_property_record.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:memri/models/view_context.dart';
 import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -1669,10 +1670,13 @@ class CVUActionParsePluginItem extends CVUAction {
     var startItemType = Map.of(filterProperties)["type"];
     filterProperties.remove('type');
     var propertiesFilter = "";
+    Map<dynamic, dynamic> properties = {};
+
     if (filterProperties.isNotEmpty) {
       propertiesFilter += "filter: {\n properties: {\n";
       filterProperties.forEach((key, value) {
         propertiesFilter += '$key: "$value"\n';
+        properties.addEntries({MapEntry(key, value)});
       });
       propertiesFilter += "}}";
     }
@@ -1819,22 +1823,28 @@ class CVUActionParsePluginItem extends CVUAction {
                             RichText {
                                 font: bodyText1
                                 spans: [''';
+
     for (var feature in features) {
       var propertyName = (await feature.propertyValue("propertyName", db))?.value;
       if (propertyName != null) {
         cvu += '\n {\n text: "{.${propertyName}} " \n}';
+        if (!properties.containsKey(propertyName)) {
+          properties.addEntries({MapEntry(propertyName, null)});
+        }
       }
     }
 
     //TODO: hard-coded part for labels
     cvu += '\n{ \n text: " - {.label.value OR \'Place for your label\'}" \n }';
-    //
 
     cvu += '\n]\n}\n}\n}\n}\n}\n}\n}\n}\n}';
     var cvuID = await CVUController.storeDefinition(cvu, db);
     if (cvuID == null) {
       throw "CVU couldn't be saved";
     }
+    await MockDataGenerator.generateMockItems(
+        db: db, properties: properties, itemType: startItemType);
+
     return cvuID;
   }
 }
