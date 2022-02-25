@@ -725,8 +725,8 @@ class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
   factory DatabaseQueryConditionPropertyEquals.fromJson(Map<String, dynamic> json) =>
       _$DatabaseQueryConditionPropertyEqualsFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$DatabaseQueryConditionPropertyEqualsToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$DatabaseQueryConditionPropertyEqualsToJson(this)
+    ..addAll({"type": "DatabaseQueryConditionPropertyEquals"});
 }
 
 // This item has an edge pointing to 'x' item
@@ -739,8 +739,8 @@ class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
   factory DatabaseQueryConditionEdgeHasTarget.fromJson(Map<String, dynamic> json) =>
       _$DatabaseQueryConditionEdgeHasTargetFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$DatabaseQueryConditionEdgeHasTargetToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$DatabaseQueryConditionEdgeHasTargetToJson(this)
+    ..addAll({"type": "DatabaseQueryConditionEdgeHasTarget"});
 }
 
 @JsonSerializable()
@@ -752,8 +752,8 @@ class DatabaseQueryConditionEdgeHasSource extends DatabaseQueryCondition {
   factory DatabaseQueryConditionEdgeHasSource.fromJson(Map<String, dynamic> json) =>
       _$DatabaseQueryConditionEdgeHasSourceFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$DatabaseQueryConditionEdgeHasSourceToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$DatabaseQueryConditionEdgeHasSourceToJson(this)
+    ..addAll({"type": "DatabaseQueryConditionEdgeHasSource"});
 }
 
 @JsonSerializable()

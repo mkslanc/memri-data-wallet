@@ -9,6 +9,7 @@ part 'cvu_value_constant.g.dart';
 /// This can be an argument (single word string with no quotes), string, number, bool, colorHex (eg. #FFFFFF), or nil
 abstract class CVUConstant with EquatableMixin {
   get value => null;
+  get type => null;
 
   CVUConstant();
 
@@ -145,7 +146,9 @@ abstract class CVUConstant with EquatableMixin {
     }
   }
 
-  Map<String, dynamic> toJson() => {'value': value, 'type': runtimeType.toString()};
+  Map<String, dynamic> toJson() {
+    return {'value': value, 'type': type};
+  }
 
   @override
   List<Object?> get props => [value];
@@ -154,6 +157,7 @@ abstract class CVUConstant with EquatableMixin {
 @JsonSerializable(createToJson: false)
 class CVUConstantArgument extends CVUConstant {
   final String value;
+  get type => "CVUConstantArgument";
 
   CVUConstantArgument(this.value);
 
@@ -164,6 +168,7 @@ class CVUConstantArgument extends CVUConstant {
 @JsonSerializable(createToJson: false)
 class CVUConstantNumber extends CVUConstant {
   final double value;
+  get type => "CVUConstantNumber";
 
   CVUConstantNumber(this.value);
 
@@ -174,6 +179,7 @@ class CVUConstantNumber extends CVUConstant {
 @JsonSerializable(createToJson: false)
 class CVUConstantInt extends CVUConstant {
   final int value;
+  get type => "CVUConstantInt";
 
   CVUConstantInt(this.value);
 
@@ -184,6 +190,7 @@ class CVUConstantInt extends CVUConstant {
 class CVUConstantString extends CVUConstant {
   final String value;
   final bool isSingleQuote;
+  get type => "CVUConstantString";
 
   CVUConstantString(this.value, [this.isSingleQuote = false]);
 
@@ -194,6 +201,7 @@ class CVUConstantString extends CVUConstant {
 @JsonSerializable(createToJson: false)
 class CVUConstantBool extends CVUConstant {
   final bool value;
+  get type => "CVUConstantBool";
 
   CVUConstantBool(this.value);
 
@@ -203,6 +211,7 @@ class CVUConstantBool extends CVUConstant {
 @JsonSerializable(createToJson: false)
 class CVUConstantColorHex extends CVUConstant {
   final String value;
+  get type => "CVUConstantColorHex";
 
   CVUConstantColorHex(this.value);
 
@@ -210,4 +219,6 @@ class CVUConstantColorHex extends CVUConstant {
       _$CVUConstantColorHexFromJson(json);
 }
 
-class CVUConstantNil extends CVUConstant {}
+class CVUConstantNil extends CVUConstant {
+  get type => "CVUConstantNil";
+}

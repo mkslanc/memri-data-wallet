@@ -26,7 +26,7 @@ unit_test:
 build_web:
   stage: build
   script:
-    - flutter build web --profile
+    - flutter build web --release
   artifacts:
     paths:
       - build/web
@@ -48,7 +48,7 @@ Build_QA:
   dependencies: []
   script:
     - mv lib/constants/app_settings.dart.qa lib/constants/app_settings.dart
-    - flutter build web --profile
+    - flutter build web --release
   artifacts:
     paths:
       - build/web
@@ -79,7 +79,7 @@ Build_Prod:
   dependencies: []
   script:
     - mv lib/constants/app_settings.dart.prod lib/constants/app_settings.dart
-    - flutter build web --profile
+    - flutter build web --release
   artifacts:
     paths:
       - build/web

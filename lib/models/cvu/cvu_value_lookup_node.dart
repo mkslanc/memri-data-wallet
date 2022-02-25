@@ -39,7 +39,7 @@ class CVULookupNode with EquatableMixin {
 }
 
 class CVULookupTypeDefault extends CVULookupType {
-  Map<String, dynamic> toJson() => {"type": runtimeType.toString()};
+  Map<String, dynamic> toJson() => {"type": "CVULookupTypeDefault"};
 
   @override
   List<Object?> get props => [];
@@ -55,7 +55,7 @@ class CVULookupTypeLookup extends CVULookupType {
       _$CVULookupTypeLookupFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVULookupTypeLookupToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVULookupTypeLookupToJson(this)..addAll({"type": "CVULookupTypeLookup"});
 
   @override
   List<Object?> get props => [subexpressions];
@@ -71,7 +71,7 @@ class CVULookupTypeFunction extends CVULookupType {
       _$CVULookupTypeFunctionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVULookupTypeFunctionToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVULookupTypeFunctionToJson(this)..addAll({"type": "CVULookupTypeFunction"});
 
   @override
   List<Object?> get props => [args];

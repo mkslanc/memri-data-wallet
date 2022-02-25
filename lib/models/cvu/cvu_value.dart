@@ -20,7 +20,7 @@ class CVUValueExpression extends CVUValue {
       _$CVUValueExpressionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUValueExpressionToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUValueExpressionToJson(this)..addAll({"type": "CVUValueExpression"});
 }
 
 @JsonSerializable()
@@ -32,7 +32,7 @@ class CVUValueConstant extends CVUValue {
   factory CVUValueConstant.fromJson(Map<String, dynamic> json) => _$CVUValueConstantFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUValueConstantToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUValueConstantToJson(this)..addAll({"type": "CVUValueConstant"});
 }
 
 @JsonSerializable()
@@ -43,8 +43,7 @@ class CVUValueItem extends CVUValue {
 
   factory CVUValueItem.fromJson(Map<String, dynamic> json) => _$CVUValueItemFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$CVUValueItemToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$CVUValueItemToJson(this)..addAll({"type": "CVUValueItem"});
 }
 
 @JsonSerializable()
@@ -55,8 +54,7 @@ class CVUValueArray extends CVUValue {
 
   factory CVUValueArray.fromJson(Map<String, dynamic> json) => _$CVUValueArrayFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$CVUValueArrayToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$CVUValueArrayToJson(this)..addAll({"type": "CVUValueArray"});
 }
 
 @JsonSerializable()
@@ -69,7 +67,7 @@ class CVUValueDictionary extends CVUValue {
       _$CVUValueDictionaryFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUValueDictionaryToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUValueDictionaryToJson(this)..addAll({"type": "CVUValueDictionary"});
 }
 
 @JsonSerializable()
@@ -82,7 +80,7 @@ class CVUValueSubdefinition extends CVUValue {
       _$CVUValueSubdefinitionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUValueSubdefinitionToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUValueSubdefinitionToJson(this)..addAll({"type": "CVUValueSubdefinition"});
 }
 
 /// A value of a CVU property that can be serialised both to CVU format and to JSON

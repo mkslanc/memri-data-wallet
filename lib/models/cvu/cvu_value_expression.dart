@@ -134,7 +134,7 @@ class CVUExpressionNodeLookup extends CVUExpressionNode {
       _$CVUExpressionNodeLookupFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeLookupToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeLookupToJson(this)..addAll({"type": "CVUExpressionNodeLookup"});
 
   @override
   List<Object?> get props => [nodes];
@@ -150,7 +150,7 @@ class CVUExpressionNodeStringMode extends CVUExpressionNode {
       _$CVUExpressionNodeStringModeFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeStringModeToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeStringModeToJson(this)..addAll({"type": "CVUExpressionNodeStringMode"});
 
   @override
   List<Object?> get props => [nodes];
@@ -168,7 +168,7 @@ class CVUExpressionNodeConditional extends CVUExpressionNode {
       _$CVUExpressionNodeConditionalFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeConditionalToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeConditionalToJson(this)..addAll({"type": "CVUExpressionNodeConditional"});
 
   @override
   List<Object?> get props => [condition, trueExp, falseExp];
@@ -185,7 +185,7 @@ class CVUExpressionNodeOr extends CVUExpressionNode {
       _$CVUExpressionNodeOrFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeOrToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeOrToJson(this)..addAll({"type": "CVUExpressionNodeOr"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -201,7 +201,7 @@ class CVUExpressionNodeNegation extends CVUExpressionNode {
       _$CVUExpressionNodeNegationFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeNegationToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeNegationToJson(this)..addAll({"type": "CVUExpressionNodeNegation"});
 
   @override
   List<Object?> get props => [expression];
@@ -218,7 +218,7 @@ class CVUExpressionNodeAddition extends CVUExpressionNode {
       _$CVUExpressionNodeAdditionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeAdditionToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeAdditionToJson(this)..addAll({"type": "CVUExpressionNodeAddition"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -235,7 +235,7 @@ class CVUExpressionNodeSubtraction extends CVUExpressionNode {
       _$CVUExpressionNodeSubtractionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeSubtractionToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeSubtractionToJson(this)..addAll({"type": "CVUExpressionNodeSubtraction"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -251,8 +251,8 @@ class CVUExpressionNodeMultiplication extends CVUExpressionNode {
   factory CVUExpressionNodeMultiplication.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeMultiplicationFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeMultiplicationToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$CVUExpressionNodeMultiplicationToJson(this)
+    ..addAll({"type": "CVUExpressionNodeMultiplication"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -269,7 +269,7 @@ class CVUExpressionNodeDivision extends CVUExpressionNode {
       _$CVUExpressionNodeDivisionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeDivisionToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeDivisionToJson(this)..addAll({"type": "CVUExpressionNodeDivision"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -285,7 +285,7 @@ class CVUExpressionNodeConstant extends CVUExpressionNode {
       _$CVUExpressionNodeConstantFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeConstantToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeConstantToJson(this)..addAll({"type": "CVUExpressionNodeConstant"});
 
   @override
   List<Object?> get props => [value];
@@ -302,7 +302,7 @@ class CVUExpressionNodeLessThan extends CVUExpressionNode {
       _$CVUExpressionNodeLessThanFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeLessThanToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeLessThanToJson(this)..addAll({"type": "CVUExpressionNodeLessThan"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -319,7 +319,7 @@ class CVUExpressionNodeGreaterThan extends CVUExpressionNode {
       _$CVUExpressionNodeGreaterThanFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeGreaterThanToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeGreaterThanToJson(this)..addAll({"type": "CVUExpressionNodeGreaterThan"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -335,8 +335,8 @@ class CVUExpressionNodeLessThanOrEqual extends CVUExpressionNode {
   factory CVUExpressionNodeLessThanOrEqual.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeLessThanOrEqualFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeLessThanOrEqualToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$CVUExpressionNodeLessThanOrEqualToJson(this)
+    ..addAll({"type": "CVUExpressionNodeLessThanOrEqual"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -352,8 +352,8 @@ class CVUExpressionNodeGreaterThanOrEqual extends CVUExpressionNode {
   factory CVUExpressionNodeGreaterThanOrEqual.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeGreaterThanOrEqualFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeGreaterThanOrEqualToJson(this)..addAll({"type": runtimeType.toString()});
+  Map<String, dynamic> toJson() => _$CVUExpressionNodeGreaterThanOrEqualToJson(this)
+    ..addAll({"type": "CVUExpressionNodeGreaterThanOrEqual"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -370,7 +370,7 @@ class CVUExpressionNodeAreEqual extends CVUExpressionNode {
       _$CVUExpressionNodeAreEqualFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeAreEqualToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeAreEqualToJson(this)..addAll({"type": "CVUExpressionNodeAreEqual"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -387,7 +387,7 @@ class CVUExpressionNodeAreNotEqual extends CVUExpressionNode {
       _$CVUExpressionNodeAreNotEqualFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeAreNotEqualToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeAreNotEqualToJson(this)..addAll({"type": "CVUExpressionNodeAreNotEqual"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -404,7 +404,7 @@ class CVUExpressionNodeAnd extends CVUExpressionNode {
       _$CVUExpressionNodeAndFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeAndToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeAndToJson(this)..addAll({"type": "CVUExpressionNodeAnd"});
 
   @override
   List<Object?> get props => [lhs, rhs];
@@ -421,7 +421,7 @@ class CVUExpressionNodeNamed extends CVUExpressionNode {
       _$CVUExpressionNodeNamedFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CVUExpressionNodeNamedToJson(this)..addAll({"type": runtimeType.toString()});
+      _$CVUExpressionNodeNamedToJson(this)..addAll({"type": "CVUExpressionNodeNamed"});
 
   @override
   List<Object?> get props => [key, value];
