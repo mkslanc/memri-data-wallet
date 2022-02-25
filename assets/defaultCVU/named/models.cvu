@@ -233,6 +233,8 @@
                         parsePlugin
                         {
                             project: {{.}}
+                            features: {{.dataset.feature[]}}
+                            query: {{.dataset.datasetType.queryStr}}
                             url: {{.gitlabUrl}}
                         }
                         openView
@@ -271,56 +273,73 @@
 }
 
 .app-deployed {
-    defaultRenderer: custom
+    defaultRenderer: singleItem
     title: "App deployed"
 
-    VStack {
-        alignment: topleft
-        padding: 60 30 30 30
+    Project > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 30 30 30
 
-        Text {
-            color: #333333
-            font: headline1
-            padding: 0 0 10 0
-            text: "Your app has been successfully deployed."
-        }
-
-        Text {
-            color: #333333
-            font: bodyText1
-            padding: 0 0 30 0
-            text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
-        }
-
-        HStack {
-            alignment: left
-            padding: 30 0 0 0
-
-            Button {
-                onPress: noop
-                styleName: primaryButton
-
-                Text {
-                    text: "Add UI to your app"
-                    textalign: bottom
-                }
-
-                Image {
-                    alignment: center
-                    bundleImage: "ico_arrow"
-                    isVector: true
-                    padding: 0 0 0 15
-                }
+            Text {
+                color: #333333
+                font: headline1
+                padding: 0 0 10 0
+                text: "Your app has been successfully deployed."
             }
 
-            Button {
-                onPress: back
-                padding: 0 0 0 15
+            Text {
+                color: #333333
+                font: bodyText1
+                padding: 0 0 30 0
+                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
+            }
 
-                Text {
-                    color: #333333
-                    font: button_label
-                    text: "Back to ML modelling"
+            HStack {
+                alignment: left
+                padding: 30 0 0 0
+
+                Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            item: {{.labellingPlugin}}
+                            viewName: {{.labellingPlugin.view.name}}
+                        }
+                        opencvueditor
+                        {
+                            openForce: true
+                            viewArguments: {
+                                customDefinition: {{projectItem.labellingPlugin.view.definition}}
+                                projectItem: {{.}}
+                            }
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Add UI to your app"
+                        textalign: bottom
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    onPress: back
+                    padding: 0 0 0 15
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Back to ML modelling"
+                    }
                 }
             }
         }

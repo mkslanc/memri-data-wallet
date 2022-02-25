@@ -104,6 +104,14 @@ Plugin > list {
                 alignment: left
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            inheritDatasource: false
+                            viewName: {{.view.name}}
+                        }
+                    ]
+
                     Text {
                         color: #FE570F
                         font: 14 btn_label
@@ -112,6 +120,22 @@ Plugin > list {
                 }
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            inheritDatasource: false
+                            viewName: {{.view.name}}
+                        }
+                        opencvueditor
+                        {
+                            openForce: true
+                            viewArguments: {
+                                customDefinition: {{pluginItem.view.definition}}
+                                pluginItem: {{.}}
+                            }
+                        }
+                    ]
+
                     Text {
                         color: #333333
                         font: 14 btn_label
@@ -121,7 +145,6 @@ Plugin > list {
 
                 Button {
                     onPress: [
-
                         openView
                         {
                             clearStack: true
