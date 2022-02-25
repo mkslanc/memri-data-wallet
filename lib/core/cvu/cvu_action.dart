@@ -244,6 +244,13 @@ class CVUActionOpenView extends CVUAction {
       viewArguments.args["pageLabel"] = CVUValueConstant(CVUConstantString(pageLabel));
     }
 
+    var cvuEditorPageController =
+        pageController.sceneController.pageControllerByLabel("mainCVUEditor");
+    if (cvuEditorPageController != null && viewName != "cvuEditor") {
+      pageController.topMostContext?.config.cols = null;
+      pageController.sceneController.removePageController(cvuEditorPageController);
+    }
+
     await sceneController.navigateToNewContext(
         clearStack: await resolver.boolean("clearStack") ?? false,
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
@@ -268,26 +275,50 @@ class CVUActionOpenCVUEditor extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var label = "mainCVUEditor";
     var cvuEditorPageController = pageController.sceneController.pageControllerByLabel(label);
-    if (cvuEditorPageController != null) {
+
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var forceOpen = (await resolver.boolean("forceOpen", false))!;
+
+    if (cvuEditorPageController != null && !forceOpen) {
       pageController.topMostContext?.config.cols = null; //TODO
       pageController.sceneController.removePageController(cvuEditorPageController);
     } else {
-      vars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
-        if (context.rendererName != null)
-          "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
-        if (context.viewName != null)
-          "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
-        "clearStack": CVUValueConstant(CVUConstantBool(true))
-      }));
+      var newVars = Map.of(vars);
+      var viewArguments = <String, CVUValue>{};
+      if (newVars["viewArguments"] != null) {
+        viewArguments =
+            Map.of((newVars["viewArguments"] as CVUValueSubdefinition).value.properties);
+      }
+      newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(
+          properties: viewArguments
+            ..addAll({
+              if (context.rendererName != null)
+                "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
+              if (context.viewName != null)
+                "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
+              "clearStack": CVUValueConstant(CVUConstantBool(true))
+            })));
+
       int pageControllersCount = pageController.sceneController.pageControllers.length;
+      if (forceOpen && cvuEditorPageController != null) {
+        pageController.topMostContext?.config.cols = null;
+        pageController.sceneController.removePageController(cvuEditorPageController);
+      }
+
       cvuEditorPageController = await pageController.sceneController.addPageController(label);
       int cols = (6 / pageControllersCount)
           .round(); //TODO will kinda sorta work for 1-3 page controllers, cols logic is tech debt for now
       pageController.sceneController.pageControllers.forEach(
           (currentPageController) => currentPageController.topMostContext?.config.cols = cols);
       pageController.navigationStack = pageController.navigationStack;
-      await CVUActionOpenView(vars: vars, viewName: "cvuEditor", renderer: "cvueditor")
-          .execute(cvuEditorPageController, context);
+
+      await CVUActionOpenView(
+        vars: newVars,
+        viewName: "cvuEditor",
+        renderer: "cvueditor",
+      ).execute(cvuEditorPageController, context);
     }
   }
 }
@@ -1551,7 +1582,6 @@ class CVUActionParsePluginItem extends CVUAction {
 
     List<ItemRecord> featureItems = await resolver.items("features");
 
-    await parsePluginSchema(gitProjectId: gitProjectId, db: db);
     var cvuRowId =
         await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
     await createPlugin(
@@ -1599,6 +1629,7 @@ class CVUActionParsePluginItem extends CVUAction {
     await viewEdge.save(db.databasePool);
   }
 
+  //TODO: this part is not used now, we will need it on next iterations
   parsePluginSchema({required int gitProjectId, required DatabaseController db}) async {
     var encodedSchema = await GitlabApi.getTextFileContentFromGitlab(
         gitProjectId: gitProjectId, filename: "schema.json");
@@ -1671,12 +1702,14 @@ class CVUActionParsePluginItem extends CVUAction {
     filterProperties.remove('type');
     var propertiesFilter = "";
     Map<dynamic, dynamic> properties = {};
+    List<DatabaseQueryConditionPropertyEquals> queryProperties = [];
 
     if (filterProperties.isNotEmpty) {
       propertiesFilter += "filter: {\n properties: {\n";
       filterProperties.forEach((key, value) {
         propertiesFilter += '$key: "$value"\n';
         properties.addEntries({MapEntry(key, value)});
+        queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
       propertiesFilter += "}}";
     }
@@ -1688,9 +1721,9 @@ class CVUActionParsePluginItem extends CVUAction {
         }
         
         [datasource = pod] {
-            query: Project
+            query: Plugin
         }
-    Project > singleItem {    
+    Plugin > singleItem {    
     VStack {
         alignment: topleft
         padding: 60 30 30 30
@@ -1842,8 +1875,14 @@ class CVUActionParsePluginItem extends CVUAction {
     if (cvuID == null) {
       throw "CVU couldn't be saved";
     }
-    await MockDataGenerator.generateMockItems(
-        db: db, properties: properties, itemType: startItemType);
+
+    var databaseQueryConfig =
+        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 0, conditions: queryProperties);
+    databaseQueryConfig.dbController = db;
+    var items = await databaseQueryConfig.constructFilteredRequest();
+    if (items.isEmpty)
+      await MockDataGenerator.generateMockItems(
+          db: db, properties: properties, itemType: startItemType);
 
     return cvuID;
   }

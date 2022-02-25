@@ -52,8 +52,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   Future<void> init() async {
     mode = await viewContext.viewDefinitionPropertyResolver.string("mode") ?? "inMainPage";
-    var customDefinition =
-        await viewContext.viewDefinitionPropertyResolver.string("customDefinition");
+
+    var customDefinition = await viewContext.viewDefinitionPropertyResolver
+        .resolveString(viewContext.config.viewArguments?.args["customDefinition"]);
 
     if (customDefinition != null) {
       definitions = await CVUController.parseCVU(customDefinition);
@@ -104,9 +105,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   initDefinitions() async {
     definitions = [];
-    var viewName = viewContext.viewDefinitionPropertyResolver
+    var viewName = await viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["viewName"]);
-    var renderer = viewContext.viewDefinitionPropertyResolver
+    var renderer = await viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["renderer"]);
 
     await collectDefinitions(

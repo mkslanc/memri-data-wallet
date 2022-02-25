@@ -109,17 +109,33 @@ Plugin > list {
                         {
                             inheritDatasource: false
                             viewName: {{.view.name}}
-                            item: {{.~labellingPlugin}}
                         }
-                        ]
-                        Text {
-                            color: #FE570F
-                            font: 14 btn_label
-                            text: "Open app"
-                        }
+                    ]
+
+                    Text {
+                        color: #FE570F
+                        font: 14 btn_label
+                        text: "Open app"
+                    }
                 }
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            inheritDatasource: false
+                            viewName: {{.view.name}}
+                        }
+                        opencvueditor
+                        {
+                            openForce: true
+                            viewArguments: {
+                                customDefinition: {{pluginItem.view.definition}}
+                                pluginItem: {{.}}
+                            }
+                        }
+                    ]
+
                     Text {
                         color: #333333
                         font: 14 btn_label
@@ -138,14 +154,14 @@ Plugin > list {
                             }
                             viewName: "pluginConfig"
                         }
-                        ]
-                        show: {{.configJson}}
+                    ]
+                    show: {{.configJson}}
 
-                        Text {
-                            color: #333333
-                            font: 14 btn_label
-                            text: "Settings"
-                        }
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: "Settings"
+                    }
                 }
 
                 Spacer
@@ -156,13 +172,13 @@ Plugin > list {
                         {
                             plugin: {{.}}
                         }
-                        ]
+                    ]
 
-                        Text {
-                            color: #333333
-                            font: 14 btn_label
-                            text: {{.pluginType.last ? "Re-run" : "Run"}}
-                        }
+                    Text {
+                        color: #333333
+                        font: 14 btn_label
+                        text: {{.pluginType.last ? "Re-run" : "Run"}}
+                    }
                 }
 
                 Button {

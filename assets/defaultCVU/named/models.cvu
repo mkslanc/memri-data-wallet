@@ -304,7 +304,16 @@
                         openView
                         {
                             clearStack: true
+                            item: {{.labellingPlugin}}
                             viewName: {{.labellingPlugin.view.name}}
+                        }
+                        opencvueditor
+                        {
+                            openForce: true
+                            viewArguments: {
+                                customDefinition: {{projectItem.labellingPlugin.view.definition}}
+                                projectItem: {{.}}
+                            }
                         }
                     ]
                     styleName: primaryButton
