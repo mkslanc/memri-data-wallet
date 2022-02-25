@@ -142,7 +142,7 @@ class SyncController {
       }
     }
     final syncController = SyncController(dbController);
-    runSyncStream = Stream.periodic(const Duration(seconds: AppSettings.syncControllerInterval))
+    runSyncStream = Stream.periodic(const Duration(seconds: AppSettings.syncControllerIntervalSecs))
         .listen((_) => syncController.sync(connectionConfig: config.connection));
   }
 
