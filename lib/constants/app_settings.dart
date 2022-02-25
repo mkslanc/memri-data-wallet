@@ -8,6 +8,7 @@ class AppSettings {
 
   /// Database
   static const String defaultDatabase = "dev_database";
+  static const int syncControllerInterval = 3;
 
   /// Logger
   static const Level loggerLevel = Level.debug;

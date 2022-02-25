@@ -11,11 +11,11 @@ import 'package:memri/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/controllers/permission_controller.dart';
 import 'package:memri/controllers/pub_sub_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/controllers/syncing/sync_controller.dart';
-import 'package:memri/controllers/syncing/sync_controller_isolate.dart';
+import 'package:memri/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/services/settings.dart';
+import 'package:memri/models/sync_config.dart';
 import 'package:memri/models/ui/setup_model.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -29,28 +29,25 @@ class AppController {
   late CVUController cvuController;
   late PubSubController pubSubController;
   late PermissionsController permissionController;
-  StreamSubscription? syncStream;
-  bool isDevelopersMode = false;
-  Isolate? syncIsolate;
   late SetupScreenModel model;
 
+  StreamSubscription? syncStream;
+  Isolate? syncIsolate;
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
-
-  get state => _state;
-
-  set state(newValue) => _state.value = newValue;
-
-  static String keychainDatabaseKey = "memri_databaseKey";
-
   PodConnectionDetails? _podConnectionConfig;
+
+  bool isDevelopersMode = false;
   bool _isInDemoMode = false;
   bool _isNewPodSetup = false;
 
   // MARK: Authentication
   bool _isAuthenticated = false; //TODO @anijanyan
-  bool get isAuthenticated {
-    return _isAuthenticated;
-  }
+
+  ValueNotifier<AppState> get state => _state;
+
+  set state(newValue) => _state.value = newValue;
+
+  bool get isAuthenticated => _isAuthenticated;
 
   Future<void> setIsAuthenticated(bool newValue) async {
     if (_isAuthenticated != newValue) {
@@ -99,32 +96,28 @@ class AppController {
     } else {
       state = AppState.authenticated;
     }
-
-    await syncSchema();
   }
 
   Future<void> syncSchema() async {
     _isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
     if (!_isInDemoMode) {
-      PodConnectionDetails connection = (await AppController.shared.podConnectionConfig)!;
+      PodConnectionDetails connection = (await podConnectionConfig)!;
       var receivePort = ReceivePort();
       var documentsDirectory;
       if (!kIsWeb) {
         documentsDirectory = (await getApplicationDocumentsDirectory()).path;
-        AppController.shared.syncIsolate = await Isolate.spawn(
-            runSync,
+        syncIsolate = await Isolate.spawn(
+            syncController.runSync,
             IsolateSyncConfig(
                 port: receivePort.sendPort,
                 connection: connection,
-                schema: AppController.shared.databaseController.schema,
+                schema: databaseController.schema,
                 documentsDirectory: documentsDirectory,
                 rootKey: Authentication.lastRootPublicKey,
-                isolate: AppController.shared.databaseController.driftIsolate!));
+                isolate: databaseController.driftIsolate!));
       } else {
-        runSyncWebWorker(
-          connection: connection,
-          schema: AppController.shared.databaseController.schema,
-        );
+        syncController
+            .runSync(SyncConfig(connection: connection, schema: databaseController.schema));
       }
     }
 
@@ -172,13 +165,12 @@ class AppController {
         await Settings.shared.set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
         _isNewPodSetup = true;
       }
+      await syncController.sync();
     }
-    await syncController.sync();
-
-    syncSchema();
 
     await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
     _isAuthenticated = true;
+    await syncSchema();
   }
 
   Future<void> connectToPod(SetupConfig config) async {
@@ -258,19 +250,26 @@ class AppController {
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
+    if (syncController.runSyncStream != null) {
+      syncController.runSyncStream!.cancel();
+    }
+
     await FileStorageController.deleteFileStorage();
     await databaseController.delete();
 
     pubSubController.reset();
 
     cvuController.reset();
-    _isNewPodSetup = false;
-    _isInDemoMode = false;
-    isDevelopersMode = false;
-    _isAuthenticated = false;
 
     await init();
     await SceneController.sceneController.init();
+
+    _isAuthenticated = false;
+    _isNewPodSetup = false;
+    _isInDemoMode = false;
+    isDevelopersMode = false;
+
+    await syncSchema();
     initApp();
   }
 }
