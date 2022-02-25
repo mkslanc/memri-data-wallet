@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:memri/controllers/syncing/sync_controller.dart';
+import 'package:memri/controllers/sync_controller.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
 

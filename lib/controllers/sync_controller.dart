@@ -1,18 +1,21 @@
 //  Created by T Brennan on 1/12/20.
 
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
-import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/core/services/database/shared.dart';
 import 'package:memri/models/database/database.dart';
 import 'package:memri/models/database/item_edge_record.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/models/sync_config.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:moor/moor.dart';
 
@@ -30,16 +33,6 @@ enum SyncControllerState {
   failed
 }
 
-runSyncWebWorker({required Schema schema, required PodConnectionDetails connection}) {
-  var dbController = DatabaseController();
-  dbController.schema = schema;
-  dbController.databasePool = Database.connect(connectToWorker());
-  final syncController = SyncController(dbController);
-
-  Stream.periodic(const Duration(milliseconds: 3000))
-      .listen((_) => syncController.sync(connectionConfig: connection));
-}
-
 class SyncController {
   bool syncing = false;
   String? lastError;
@@ -49,6 +42,7 @@ class SyncController {
   PodConnectionDetails? currentConnection;
   static String? documentsDirectory;
   static String? lastRootKey;
+  StreamSubscription? runSyncStream;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
@@ -131,6 +125,24 @@ class SyncController {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<void> runSync(SyncConfig config) async {
+    var dbController = DatabaseController();
+    dbController.schema = config.schema;
+    if (kIsWeb) {
+      dbController.databasePool = Database.connect(connectToWorker());
+    } else {
+      if (config is IsolateSyncConfig) {
+        SyncController.documentsDirectory = config.documentsDirectory;
+        SyncController.lastRootKey = config.rootKey;
+        dbController.driftIsolate = config.isolate;
+        dbController.databasePool = Database.connect(await config.isolate.connect());
+      }
+    }
+    final syncController = SyncController(dbController);
+    runSyncStream = Stream.periodic(const Duration(seconds: AppSettings.syncControllerInterval))
+        .listen((_) => syncController.sync(connectionConfig: config.connection));
   }
 
   sync({PodConnectionDetails? connectionConfig, Function(String?)? completion}) async {
