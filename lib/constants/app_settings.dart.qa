@@ -6,5 +6,5 @@ class AppSettings {
 
   static const String defaultDatabase = "prod_database";
 
-  static const int syncControllerInterval = 3;
+  static const int syncControllerIntervalSecs = 3;
 }
