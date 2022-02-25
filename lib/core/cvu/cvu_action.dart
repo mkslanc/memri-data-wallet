@@ -247,7 +247,6 @@ class CVUActionOpenView extends CVUAction {
     var cvuEditorPageController =
         pageController.sceneController.pageControllerByLabel("mainCVUEditor");
     if (cvuEditorPageController != null && viewName != "cvuEditor") {
-      pageController.topMostContext?.config.cols = null;
       pageController.sceneController.removePageController(cvuEditorPageController);
     }
 
@@ -282,7 +281,6 @@ class CVUActionOpenCVUEditor extends CVUAction {
     var forceOpen = (await resolver.boolean("forceOpen", false))!;
 
     if (cvuEditorPageController != null && !forceOpen) {
-      pageController.topMostContext?.config.cols = null; //TODO
       pageController.sceneController.removePageController(cvuEditorPageController);
     } else {
       var newVars = Map.of(vars);
@@ -303,7 +301,6 @@ class CVUActionOpenCVUEditor extends CVUAction {
 
       int pageControllersCount = pageController.sceneController.pageControllers.length;
       if (forceOpen && cvuEditorPageController != null) {
-        pageController.topMostContext?.config.cols = null;
         pageController.sceneController.removePageController(cvuEditorPageController);
       }
 

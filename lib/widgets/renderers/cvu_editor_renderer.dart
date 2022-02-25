@@ -331,9 +331,6 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   close() {
     if (mode == "inMainPage") {
-      //TODO
-      widget.pageController.sceneController.pageControllers.first.topMostContext?.config.cols =
-          null;
       widget.pageController.sceneController.removePageController(widget.pageController);
     } else {
       widget.pageController.navigateBack();

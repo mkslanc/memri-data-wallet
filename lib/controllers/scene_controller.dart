@@ -84,6 +84,7 @@ class SceneController extends ChangeNotifier {
 
   removePageController(memri.PageController pageController) {
     pageControllers.removeWhere((element) => element == pageController);
+    pageControllers.forEach((element) => element.topMostContext?.config.cols = null);
     pageController.reset();
   }
 
