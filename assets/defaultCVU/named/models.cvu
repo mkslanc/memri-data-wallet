@@ -191,7 +191,7 @@
                 Textfield {
                     background: #F0F0F0
                     border: #000 1
-                    hint: "http://gitlab.memri.io:5050/plugins/myplugin:dev-latest"
+                    hint: "https://gitlab.memri.io/username/myplugin"
                     isCollapsed: true
                     maxWidth: 571
                     rows: 1
