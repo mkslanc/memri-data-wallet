@@ -183,16 +183,13 @@ class AppController {
           databaseKey: config.config.podDatabaseKey);
     } else if (config is SetupConfigNewPod) {
       var uri = Uri.parse(config.config.podURL);
-
       var keys = await Authentication.createOwnerAndDBKey();
-      var ownerKey = keys.publicKey;
-      var databaseKey = keys.dbKey;
       _podConnectionConfig = PodConnectionDetails(
           scheme: uri.scheme,
           host: uri.host,
           port: uri.port,
-          ownerKey: ownerKey,
-          databaseKey: databaseKey);
+          ownerKey: keys.publicKey,
+          databaseKey: keys.dbKey);
     }
     state = AppState.keySaving;
     model.state = PodSetupState.idle;
@@ -249,15 +246,14 @@ class AppController {
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
+    await FileStorageController.deleteFileStorage();
+    await databaseController.delete();
+
     if (syncController.runSyncStream != null) {
       syncController.runSyncStream!.cancel();
     }
 
-    await FileStorageController.deleteFileStorage();
-    await databaseController.delete();
-
     pubSubController.reset();
-
     cvuController.reset();
 
     await init();
