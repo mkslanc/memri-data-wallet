@@ -1,3 +1,4 @@
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/models/database/item_record.dart';
@@ -26,7 +27,7 @@ void main() {
           if (newValue == null) {
             return;
           }
-          print("got `userActionNeeded`");
+          AppLogger.info("got `userActionNeeded`");
           expect(newValue.value, equals("userActionNeeded"));
 
           appController.pubSubController.startObservingItemProperty(
@@ -37,19 +38,19 @@ void main() {
                 if (newValue == null) {
                   return;
                 }
-                print("got `ready`");
+                AppLogger.info("got `ready`");
                 expect(newValue.value, equals("ready"));
               });
         });
 
     await record.setPropertyValue("status", PropertyDatabaseValueString("started"));
-    print("`started` passed");
+    AppLogger.info("`started` passed");
     await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
-    print("`userActionNeeded` passed");
+    AppLogger.info("`userActionNeeded` passed");
     await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
-    print("`userActionNeeded` passed");
+    AppLogger.info("`userActionNeeded` passed");
     await record.setPropertyValue("status", PropertyDatabaseValueString("ready"));
-    print("`ready` passed");
+    AppLogger.info("`ready` passed");
   });
 
   test('testPluginAuthenticationFlow2', () async {
@@ -64,11 +65,11 @@ void main() {
           if (newValue is PropertyDatabaseValueString) {
             var status = newValue.value;
 
-            print("got `$status`");
+            AppLogger.info("got `$status`");
 
             switch (status) {
               case "userActionNeeded":
-                print("presentCVUforPlugin");
+                AppLogger.info("presentCVUforPlugin");
                 break;
               default:
                 break;
@@ -78,13 +79,13 @@ void main() {
         });
 
     await record.setPropertyValue("status", PropertyDatabaseValueString("started"));
-    print("`started` passed");
+    AppLogger.info("`started` passed");
     await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
-    print("`userActionNeeded` passed");
+    AppLogger.info("`userActionNeeded` passed");
     await record.setPropertyValue("status", PropertyDatabaseValueString("userActionNeeded"));
-    print("`userActionNeeded` passed");
+    AppLogger.info("`userActionNeeded` passed");
     await record.setPropertyValue("status", PropertyDatabaseValueString("ready"));
-    print("`ready` passed");
+    AppLogger.info("`ready` passed");
   });
 
   tearDownAll(() async {

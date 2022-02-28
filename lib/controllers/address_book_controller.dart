@@ -1,4 +1,5 @@
 import 'package:flutter_contact/contacts.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -55,7 +56,7 @@ class AddressBookController {
             db: db.databasePool);
       } catch (e) {
         //TODO: what should we do with invalid phone numbers?
-        print(e);
+        AppLogger.err(e);
       }
     }
 
@@ -247,7 +248,7 @@ class AddressBookController {
         await newFileItem.setPropertyValue("filename", PropertyDatabaseValueString(fileName),
             db: dbController);
       } catch (e) {
-        print(e.toString());
+        AppLogger.err(e.toString());
       }
       await ItemEdgeRecord(
               sourceRowID: newImageItem.rowId, name: "file", targetRowID: newFileItem.rowId)
