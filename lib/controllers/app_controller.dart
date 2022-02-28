@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -231,7 +232,7 @@ class AppController {
       }
       return _podConnectionConfig!;
     } on Exception catch (error) {
-      print(error);
+      AppLogger.err(error);
       return null;
     }
   }

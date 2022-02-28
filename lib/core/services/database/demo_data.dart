@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
@@ -51,7 +52,7 @@ class DemoData {
       if (isRunningTests) {
         throw (string);
       } else {
-        print(string);
+        AppLogger.err(string);
       }
     }
 
@@ -121,7 +122,7 @@ class DemoData {
         throw (string);
       } else {
         // Notify developer of error in demo data, but continue
-        print(string);
+        AppLogger.err(string);
       }
     }
 
@@ -224,7 +225,7 @@ class DemoData {
         throw (string);
       } else {
         // Notify developer of error in demo data, but continue
-        print(string);
+        AppLogger.err(string);
       }
     }
 
@@ -235,7 +236,7 @@ class DemoData {
     }
 
     if (types[itemType] == null) {
-      print("$itemType not in schema");
+      AppLogger.warn("$itemType not in schema");
       return [];
     }
 

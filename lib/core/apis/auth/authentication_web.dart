@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/apis/auth/auth_key.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:pointycastle/export.dart';
@@ -45,8 +46,8 @@ class Authentication {
     var publicKey = keyPair.publicKey as ECPublicKey;
     var privateKeyStr = privateKey.d!.toRadixString(16);
     var publicKeyStr = publicKey.Q!.x!.toBigInteger()!.toRadixString(16);
-    print(publicKeyStr);
-    print(dbKey);
+    AppLogger.info(publicKeyStr);
+    AppLogger.info(dbKey);
     return GeneratedKeys(privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
   }
 

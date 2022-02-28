@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
@@ -334,7 +335,7 @@ class CVUActionOpenLink extends CVUAction {
           context: context, lookup: CVULookupController(), db: db, properties: vars);
       var url = await resolver.string("link");
       if (url != null) {
-        await canLaunch(url) ? await launch(url) : print('Could not launch $url');
+        await canLaunch(url) ? await launch(url) : AppLogger.err('Could not launch $url');
       }
     }
   }
@@ -442,7 +443,7 @@ class CVUActionNavigateBack extends CVUAction {
     if (pageLabel != null) {
       var sceneController = pageController.sceneController;
       while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
-        print(pageLabel);
+        AppLogger.info(pageLabel);
         sceneController = sceneController.parentSceneController!;
         pageLabel = pageLabel.substring(1);
       }
@@ -498,7 +499,7 @@ class CVUActionAddItem extends CVUAction {
         try {
           await item.save(db.databasePool);
         } catch (error) {
-          print("ERROR Adding item: " + error.toString());
+          AppLogger.err("ERROR Adding item: " + error.toString());
         }
 
         var itemRowId = item.rowId;
@@ -636,7 +637,7 @@ class CVUActionOpenPlugin extends CVUAction {
     var pluginNameValue = vars["pluginName"];
 
     if (pluginValue == null && pluginNameValue == null) {
-      print("Plugin data missing");
+      AppLogger.warn("Plugin data missing");
       return;
     }
     String? pluginName;
@@ -647,7 +648,7 @@ class CVUActionOpenPlugin extends CVUAction {
     if (plugin == null) {
       pluginName = await lookup.resolve<String>(value: pluginNameValue, context: context, db: db);
       if (pluginName == null) {
-        print("Plugin data missing");
+        AppLogger.warn("Plugin data missing");
         return;
       }
 
@@ -659,7 +660,7 @@ class CVUActionOpenPlugin extends CVUAction {
     }
 
     if (plugin == null) {
-      print("Plugin data missing");
+      AppLogger.warn("Plugin data missing");
       return;
     }
     if (pluginName == null) {
@@ -720,7 +721,7 @@ class CVUActionPluginRun extends CVUAction {
         containerValue == null ||
         pluginModuleValue == null ||
         pluginNameValue == null) {
-      print("Not all params provided for PluginRun");
+      AppLogger.warn("Not all params provided for PluginRun");
       return;
     }
     var configValue = vars["config"];
@@ -765,7 +766,7 @@ class CVUActionPluginRun extends CVUAction {
       await PluginHandler.run(
           plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
     } catch (error) {
-      print("Error starting plugin: $error");
+      AppLogger.err("Error starting plugin: $error");
     }
   }
 }
@@ -824,7 +825,7 @@ class CVUActionSync extends CVUAction {
 
       pageController.isInEditMode.value = false;
     } catch (error) {
-      print("Error starting sync: $error");
+      AppLogger.err("Error starting sync: $error");
     }
   }
 }
@@ -883,7 +884,7 @@ class CVUActionDelete extends CVUAction {
     }
     subjectItem ??= context.currentItem;
     if (subjectItem == null) {
-      print("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
+      AppLogger.warn("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
       return;
     }
 
@@ -951,7 +952,7 @@ class CVUActionLink extends CVUAction {
         if (currentEdge.name == edgeType) {
           var result = await currentEdge.delete();
           if (result != true) {
-            print(
+            AppLogger.err(
                 "ERROR CVUAction_link: item: ${subjectItems[0]!.type} with id: ${subjectItems[0]!.rowId} edge id: ${currentEdge.selfRowID}");
             return;
           }
@@ -1019,7 +1020,7 @@ class CVUActionUnlink extends CVUAction {
 
     var result = await edge.delete();
     if (result != true) {
-      print(
+      AppLogger.err(
           "ERROR CVUAction_Unlink: item: ${subjectItem.type} with id: ${subjectItem.rowId} edge id: ${edge.selfRowID}");
       return;
     }
@@ -1056,7 +1057,7 @@ class CVUActionStar extends CVUAction {
     try {
       await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
     } catch (error) {
-      print(
+      AppLogger.err(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
     }
   }
@@ -1240,7 +1241,7 @@ class CVUActionSetProperty extends CVUAction {
     ItemRecord? subjectItem =
         await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
     if (subjectItem == null) {
-      print("No subject item for property " + subjectVal?.value);
+      AppLogger.warn("No subject item for property " + subjectVal?.value);
       return;
     }
     String? property;
@@ -1452,17 +1453,17 @@ class CVUActionCreateLabelingTask extends CVUAction {
     }
     var dataset = await resolver.item("dataset");
     if (dataset == null) {
-      print("CreateLabelingTask error: dataset not resolved");
+      AppLogger.warn("CreateLabelingTask error: dataset not resolved");
       return;
     }
     var datasetType = await dataset.edgeItem("datasetType", db: db);
     if (datasetType == null) {
-      print("CreateLabelingTask error: dataset type not resolved");
+      AppLogger.warn("CreateLabelingTask error: dataset type not resolved");
       return;
     }
     var query = (await datasetType.propertyValue("queryStr"))?.asString();
     if (query == null) {
-      print("CreateLabelingTask error: couldn't find query from dataset type");
+      AppLogger.warn("CreateLabelingTask error: couldn't find query from dataset type");
       return;
     }
     var decodedQuery = jsonDecode(query);
@@ -1505,7 +1506,7 @@ class CVUActionCreateLabelingTask extends CVUAction {
     cvu += '\n}\n}\n}';
     var cvuID = await CVUController.storeDefinition(cvu, db);
     if (cvuID == null) {
-      print("CreateLabelingTask error: definition haven't saved");
+      AppLogger.warn("CreateLabelingTask error: definition haven't saved");
       return;
     }
     var newVars = Map.of(vars);

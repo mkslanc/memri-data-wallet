@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:json_annotation/json_annotation.dart' as annotation;
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
@@ -384,7 +385,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
             "LEFT JOIN $tableName as grouping ON items.row_id = grouping.item AND grouping.name = '${groupByProperties[0]}'";
         groupBy = "grouping.value";
       } else {
-        print("Error: Unknown property ${groupByProperties[0]} for ${itemTypes.first}");
+        AppLogger.err("Error: Unknown property ${groupByProperties[0]} for ${itemTypes.first}");
       }
     }
 
@@ -493,13 +494,13 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
             targetType ??= dbController.schema.expectedTargetType(itemTypes.first, sortEdgeName!);
             if (targetType == null) {
-              print("No target type for $sortEdgeName");
+              AppLogger.warn("No target type for $sortEdgeName");
               return conditions;
             }
             SchemaValueType? schemaValueType =
                 dbController.schema.expectedPropertyType(targetType, sortPropertyCondition!);
             if (schemaValueType == null) {
-              print("No schema type for property $sortPropertyCondition");
+              AppLogger.warn("No schema type for property $sortPropertyCondition");
               return conditions;
             }
             ItemRecordPropertyTable itemRecordPropertyTable =

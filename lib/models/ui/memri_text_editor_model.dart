@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 
 class MemriTextEditorModel {
@@ -30,7 +31,7 @@ class MemriTextEditorModel {
       var body = doc.body?.innerHtml ?? "";
       return [title, body];
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return [null, string];
     }
   }
@@ -44,7 +45,7 @@ class MemriTextEditorModel {
       titleElement.text = await title ?? "";
       return titleElement.outerHtml + (doc.body?.innerHtml ?? "");
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return await body;
     }
   }
