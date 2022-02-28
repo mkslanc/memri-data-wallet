@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -150,7 +151,7 @@ class SyncController {
           await setState(SyncControllerState.failed);
           throw Exception("Pod doesn't respond");
         } catch (e) {
-          print(e);
+          AppLogger.err(e);
           return false;
         }
       },
@@ -194,7 +195,7 @@ class SyncController {
     var sha256 = fileItemRecordToDownload["sha256"];
     var fileName = fileItemRecordToDownload["fileName"];
 
-    print("Downloading File: $fileName");
+    AppLogger.info("Downloading File: $fileName");
 
     await downloadFile(sha256, fileName, (error) async {
       if (error != null) {
@@ -506,7 +507,7 @@ class SyncController {
     var networkCall = await request.execute(connectionConfig);
     var error;
     if (networkCall.statusCode != 200) {
-      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
     await completion(error);
@@ -524,7 +525,7 @@ class SyncController {
     var networkCall = await request.execute(currentConnection!);
     var error;
     if (networkCall.statusCode != 200) {
-      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
     if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
@@ -551,7 +552,7 @@ class SyncController {
           await completion(Utf8Decoder().convert(networkCall.bodyBytes), null);
         return;
       }
-      print("ERROR: ${networkCall.statusCode} $error on file $fileURL");
+      AppLogger.err("ERROR: ${networkCall.statusCode} $error on file $fileURL");
     }
     if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
   }
@@ -570,7 +571,7 @@ class SyncController {
 
     var error;
     if (networkCall.statusCode != 200) {
-      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
     if (completion != null) await completion(error);

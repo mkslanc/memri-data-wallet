@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_logger.dart';
 
 class AceEditorController {
   String? _content;
@@ -61,7 +62,7 @@ class AceEditorController {
             var annotations = await validate!.call(_validatedContent);
             _postMessage(action: "updateValidation", data: {"annotations": annotations});
           } catch (error) {
-            print(error);
+            AppLogger.err(error);
           }
 
           break;

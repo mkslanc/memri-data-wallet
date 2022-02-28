@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
@@ -28,7 +29,7 @@ validate(String snippet, {errors = 0, warnings = 0, CVUParseErrors? parseError})
       expect(validator.errors.length, errors);
       expect(validator.warnings.length, warnings);
     } else {
-      print((validator.errors + validator.warnings)
+      AppLogger.err((validator.errors + validator.warnings)
           .map((annotation) => annotation.message)
           .join("\n"));
       expect(result, true);

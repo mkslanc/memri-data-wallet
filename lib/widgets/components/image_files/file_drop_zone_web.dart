@@ -6,6 +6,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
@@ -88,7 +89,7 @@ class _FileDropZoneState extends State<FileDropZone> {
           setState(() {});
         });
         reader.onError.listen((event) {
-          print('there was an error');
+          AppLogger.err('there was an error');
         });
         reader.readAsArrayBuffer(file);
       }
@@ -99,7 +100,7 @@ class _FileDropZoneState extends State<FileDropZone> {
         builder: (context) => DropzoneView(
           operation: DragOperation.copy,
           onCreated: (ctrl) => controller = ctrl,
-          onError: (ev) => print('Zone error: $ev'),
+          onError: (ev) => AppLogger.err('Zone error: $ev'),
           onHover: () {
             setState(() => highlighted = true);
           },
@@ -126,10 +127,10 @@ class _FileDropZoneState extends State<FileDropZone> {
       } else if (mime.startsWith("image/")) {
         await saveImage(fileName, fileData);
       } else {
-        print("Not resolved file type");
+        AppLogger.warn("Not resolved file type");
       }
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
     }
   }
 
