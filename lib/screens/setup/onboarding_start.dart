@@ -44,23 +44,17 @@ class _OnboardingStartState extends State<OnboardingStart> {
                             "Hello, you.",
                             style: CVUFont.headline1,
                           ),
-                          SizedBox(
-                            height: 30,
-                          ),
+                          SizedBox(height: 30),
                           Text(
                             "This is a test version of memri pod.",
                             style: CVUFont.bodyText2,
                           ),
-                          SizedBox(
-                            height: 20,
-                          ),
+                          SizedBox(height: 20),
                           Text(
                             "Unexpected errors, expected reactions, unknown turns taken, known karma striking back.",
                             style: CVUFont.bodyText2,
                           ),
-                          SizedBox(
-                            height: 45,
-                          ),
+                          SizedBox(height: 45),
                           Row(
                             children: [
                               TextButton(
@@ -68,9 +62,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                                 style: primaryButtonStyle,
                                 child: Text("Create new account"),
                               ),
-                              SizedBox(
-                                width: 10,
-                              ),
+                              SizedBox(width: 10),
                               TextButton(
                                 onPressed: () async {
                                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
@@ -83,9 +75,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                                 ),
                                 style: TextButton.styleFrom(backgroundColor: null),
                               ),
-                              SizedBox(
-                                width: 30,
-                              ),
+                              SizedBox(width: 30),
                               TextButton(
                                 onPressed: () async {
                                   Navigator.of(context).push(MaterialPageRoute(
@@ -118,9 +108,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                   SizedBox(
                       width: geom.maxWidth,
                       height: geom.maxHeight,
-                      child: ColoredBox(
-                        color: Color.fromRGBO(0, 0, 0, 0.7),
-                      )),
+                      child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
                   Center(
                     child: Column(
                       children: [
@@ -143,9 +131,11 @@ class _OnboardingStartState extends State<OnboardingStart> {
             ));
   }
 
-  handleSetup() {
-    setState(() => appController.model.state = PodSetupState.loading);
-    appController.model.podURL = AppSettings.defaultPodURL;
+  void handleSetup() {
+    setState(() {
+      appController.model.state = PodSetupState.loading;
+      appController.model.podURL = AppSettings.defaultPodURL;
+    });
     appController.setupApp();
   }
 }
