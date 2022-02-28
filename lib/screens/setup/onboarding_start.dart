@@ -21,6 +21,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
   @override
   void initState() {
     appController.initApp();
+    appController.model.podURL = AppSettings.defaultPodURL;
     super.initState();
   }
 
@@ -132,10 +133,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
   }
 
   void handleSetup() {
-    setState(() {
-      appController.model.state = PodSetupState.loading;
-      appController.model.podURL = AppSettings.defaultPodURL;
-    });
+    setState(() => appController.model.state = PodSetupState.loading);
     appController.setupApp();
   }
 }
