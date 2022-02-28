@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
@@ -20,16 +21,18 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
 
   @override
   void initState() {
-    super.initState();
     podPublicKeyController.addListener(_setPodPublicKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
+    appController.model.setupAsNewPod = false;
+    appController.model.podURL = AppSettings.defaultPodURL;
+    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     podPublicKeyController.dispose();
     podDatabaseKeyController.dispose();
+    super.dispose();
   }
 
   void _setPodPublicKey() {
@@ -124,7 +127,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                             Row(
                               children: [
                                 TextButton(
-                                  onPressed: () => handleSetup(),
+                                  onPressed: handleSetup,
                                   style: primaryButtonStyle,
                                   child: Text("Engage!"),
                                 ),
@@ -183,10 +186,8 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
   }
 
   void handleSetup() {
-    setState(() {
-      appController.model.setupAsNewPod = false;
-      appController.model.state = PodSetupState.loading;
-    });
+    setState(() => appController.model.state = PodSetupState.loading);
+    Navigator.of(context).pop();
     appController.setupApp();
   }
 }

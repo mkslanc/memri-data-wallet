@@ -19,15 +19,16 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
 
   @override
   void initState() {
-    super.initState();
     podUrlController.addListener(_setPodUrl);
     podUrlController.text = AppSettings.defaultDevPodURL;
+    appController.isDevelopersMode = true;
+    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     podUrlController.removeListener(_setPodUrl);
+    super.dispose();
   }
 
   void _setPodUrl() {
@@ -206,10 +207,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
   }
 
   void handleSetup(bool localOnly) {
-    setState(() {
-      appController.model.state = PodSetupState.loading;
-      appController.isDevelopersMode = true;
-    });
+    setState(() => appController.model.state = PodSetupState.loading);
     appController.setupApp(localOnly: localOnly);
   }
 }
