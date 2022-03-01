@@ -84,6 +84,8 @@ Project > singleItem {
                         template: {
                             _type: "Dataset"
                             datasetType: {{subView("datasetGrid").selectedItems().first()}}
+                            name: {{generateRandom("string")}}
+                            queryStr: {{subView("datasetGrid").selectedItems().first().queryStr}}
                             ~dataset: {{.}}
                         }
                         viewArguments: {

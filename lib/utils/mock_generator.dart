@@ -19,7 +19,7 @@ class MockDataGenerator {
           case "title":
             return faker.lorem.sentence();
           default:
-            return faker.randomGenerator.string(1);
+            return faker.food.dish().split(" ")[0] + '-' + faker.sport.name().split(" ")[0];
         }
       case SchemaValueType.bool:
         return Random().nextBool();

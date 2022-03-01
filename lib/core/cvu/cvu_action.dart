@@ -1728,7 +1728,7 @@ class CVUActionParsePluginItem extends CVUAction {
 
         Text {
             font: "headline2"
-            text: {{.labellingPlugin.name}}
+            text: {{.name}}
         }
 
         HStack {

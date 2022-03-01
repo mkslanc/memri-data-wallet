@@ -17,6 +17,7 @@ import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/date_time.dart';
 import 'package:memri/utils/extensions/number.dart';
 import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
@@ -627,6 +628,34 @@ class CVULookupController {
               currentValue = LookupStepValues(values);
             } else {
               return null;
+            }
+            break;
+          case "generaterandom":
+            var exp = nodeType.args.asMap()[0];
+            String? type = await resolve<String>(expression: exp, context: context, db: db);
+            if (type == null) {
+              return null;
+            }
+            //TODO: other types if we will need this
+            switch (type.toLowerCase()) {
+              case "string":
+                currentValue = LookupStepValues([
+                  PropertyDatabaseValueString(
+                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
+                ]);
+                break;
+              case "int":
+                currentValue = LookupStepValues([
+                  PropertyDatabaseValueString(
+                      MockDataGenerator.generateMockData(valueType: SchemaValueType.int))
+                ]);
+                break;
+              default:
+                currentValue = LookupStepValues([
+                  PropertyDatabaseValueString(
+                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
+                ]);
+                break;
             }
             break;
           default:
