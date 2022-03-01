@@ -646,7 +646,7 @@ class CVULookupController {
                 break;
               case "int":
                 currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
+                  PropertyDatabaseValueInt(
                       MockDataGenerator.generateMockData(valueType: SchemaValueType.int))
                 ]);
                 break;
