@@ -6,7 +6,6 @@ import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:memri/utils/extensions/collection.dart';
-import 'package:memri/widgets/components/plugin_mode_switcher.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
@@ -29,7 +28,6 @@ class _ListRendererViewState extends RendererViewState {
   late bool separatorsEnabled;
   late bool isReverse;
   bool isDismissible = false;
-  bool hideSwitcher = false;
 
   late Future _init;
 
@@ -63,8 +61,6 @@ class _ListRendererViewState extends RendererViewState {
     isReverse = (await viewContext.rendererDefinitionPropertyResolver.boolean("isReverse", false))!;
     singleChoice =
         await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
-    hideSwitcher =
-        await viewContext.rendererDefinitionPropertyResolver.boolean("hideSwitcher") ?? false;
   }
 
   @override
@@ -211,13 +207,6 @@ class _ListRendererViewState extends RendererViewState {
                 .then((value) => viewContext.setupQueryObservation());
           },
           child: tile);
-    }
-
-    //TODO: hardcoded part for now, we could migrate this to cvu, when switches will allow to use different actions instead of bindings
-    if (widget.pageController.appController.isDevelopersMode &&
-        item.type == "Plugin" &&
-        !hideSwitcher) {
-      tile = Column(children: [PluginModeSwitcher(item), tile]);
     }
 
     return tile;
