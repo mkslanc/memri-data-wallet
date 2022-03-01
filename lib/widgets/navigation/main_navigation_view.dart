@@ -24,7 +24,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
         SizedBox(
           width: 34,
         ),
-        SvgPicture.asset("assets/images/ico_search.svg"),
+        /*SvgPicture.asset("assets/images/ico_search.svg"),*/ //TODO: uncomment this after search implemented
         Spacer(),
         NavigationItemView(
           item: Item(name: 'Data', targetViewName: "allData"),
