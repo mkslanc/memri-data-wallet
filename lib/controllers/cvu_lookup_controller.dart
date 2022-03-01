@@ -637,26 +637,18 @@ class CVULookupController {
               return null;
             }
             //TODO: other types if we will need this
+            var valueType = SchemaValueType.string;
             switch (type.toLowerCase()) {
-              case "string":
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
-                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
-                ]);
-                break;
               case "int":
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
-                      MockDataGenerator.generateMockData(valueType: SchemaValueType.int))
-                ]);
+                valueType = SchemaValueType.int;
                 break;
-              default:
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
-                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
-                ]);
+              case "bool":
+                valueType = SchemaValueType.bool;
                 break;
             }
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueString(MockDataGenerator.generateMockData(valueType: valueType))
+            ]);
             break;
           default:
             return null;
