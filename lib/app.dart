@@ -21,14 +21,14 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final AppController appController = AppController.shared;
   Exception? authError;
-  bool _isInitializing = true;
+  late Future<void> _init;
 
   _AppState();
 
   @override
   void initState() {
     SceneController.sceneController = SceneController();
-    init();
+    _init = init();
     super.initState();
   }
 
@@ -41,39 +41,39 @@ class _AppState extends State<App> {
       authError = e;
       appController.state = AppState.authentication;
     }
-    if (mounted) {
-      setState(() {
-        _isInitializing = false;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isInitializing) {
-      return Center(child: SizedBox(width: 60, height: 60, child: CircularProgressIndicator()));
-    }
-    return ValueListenableBuilder(
-      valueListenable: appController.state,
-      builder: (BuildContext context, AppState value, Widget? child) {
-        switch (value) {
-          case AppState.setup:
-            return OnboardingStart();
-          case AppState.keySaving:
-            return OnboardingKeys();
-          case AppState.authentication:
-            return AuthenticationScreen(
-                authError: authError,
-                callback: () {
-                  setState(() {
-                    _isInitializing = true;
-                  });
-                  init();
-                });
-          case AppState.authenticated:
-            return SceneView(sceneController: SceneController.sceneController);
-        }
-      },
-    );
+    return FutureBuilder(
+        future: _init,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ValueListenableBuilder(
+              valueListenable: appController.state,
+              builder: (BuildContext context, AppState value, Widget? child) {
+                switch (value) {
+                  case AppState.setup:
+                    return OnboardingStart();
+                  case AppState.keySaving:
+                    return OnboardingKeys();
+                  case AppState.authentication:
+                    return AuthenticationScreen(
+                        authError: authError, callback: () => setState(() => _init = init()));
+                  case AppState.authenticated:
+                    return SceneView(sceneController: SceneController.sceneController);
+                }
+              },
+            );
+          } else {
+            return Center(
+              child: SizedBox(
+                child: CircularProgressIndicator(),
+                width: 60,
+                height: 60,
+              ),
+            );
+          }
+        });
   }
 }
