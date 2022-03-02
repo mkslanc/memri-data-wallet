@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/ui/setup_model.dart';
+import 'package:memri/models/pod_setup.dart';
 
 class OnboardingKeys extends StatefulWidget {
   const OnboardingKeys() : super();
@@ -14,7 +14,7 @@ class OnboardingKeys extends StatefulWidget {
 
 class _OnboardingKeysState extends State<OnboardingKeys> {
   AppController appController = AppController.shared;
-  SetupScreenModel model = SetupScreenModel();
+  PodSetupModel model = PodSetupModel();
   final podUrlController = TextEditingController();
   String ownerKey = '';
   String dbKey = '';

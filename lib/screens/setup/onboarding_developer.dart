@@ -3,7 +3,7 @@ import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/ui/setup_model.dart';
+import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
 
 class OnboardingDeveloper extends StatefulWidget {
@@ -22,6 +22,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
     podUrlController.addListener(_setPodUrl);
     podUrlController.text = AppSettings.defaultDevPodURL;
     appController.isDevelopersMode = true;
+    appController.model.setupAsNewPod = false;
     super.initState();
   }
 
@@ -101,9 +102,8 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                                     activeTrackColor: Color(0xff333333),
                                     activeColor: Colors.white,
                                     value: appController.model.useDemoData,
-                                    onChanged: (value) => setState(() {
-                                          appController.model.useDemoData = value;
-                                        })),
+                                    onChanged: (value) =>
+                                        setState(() => appController.model.useDemoData = value)),
                                 Text(
                                   "Use demo database",
                                   style: TextStyle(color: Color(0xff989898)),

@@ -3,7 +3,7 @@ import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/ui/setup_model.dart';
+import 'package:memri/models/pod_setup.dart';
 
 class OnboardingLogin extends StatefulWidget {
   final bool isDevelopersMode;

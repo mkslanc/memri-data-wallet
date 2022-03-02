@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:memri/constants/app_logger.dart';
+import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -16,8 +17,10 @@ import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:memri/models/sync_config.dart';
-import 'package:memri/models/ui/setup_model.dart';
+import 'package:memri/models/pod_setup.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:memri/utils/extensions/string.dart';
 
 enum AppState { setup, keySaving, authentication, authenticated }
 
@@ -29,7 +32,7 @@ class AppController {
   late CVUController cvuController;
   late PubSubController pubSubController;
   late PermissionsController permissionController;
-  late SetupScreenModel model;
+  late PodSetupModel model;
 
   StreamSubscription? syncStreamSub;
   Isolate? syncIsolate;
@@ -47,7 +50,14 @@ class AppController {
 
   set state(newValue) => _state.value = newValue;
 
-  bool get isAuthenticated => _isAuthenticated;
+  AppController() {
+    databaseController = DatabaseController(inMemory: false);
+    syncController = SyncController(databaseController);
+    cvuController = CVUController(databaseController);
+    pubSubController = PubSubController(databaseController);
+    permissionController = PermissionsController();
+    model = PodSetupModel();
+  }
 
   Future<void> setIsAuthenticated(bool newValue) async {
     if (_isAuthenticated != newValue) {
@@ -56,7 +66,7 @@ class AppController {
     }
   }
 
-  requestAuthentication() async {
+  Future<void> requestAuthentication() async {
     if (!await checkHasBeenSetup()) {
       return;
     }
@@ -65,15 +75,6 @@ class AppController {
 
   bool get isOwnerKeyExist =>
       _podConnectionConfig?.ownerKey != null && _podConnectionConfig!.ownerKey.length > 12;
-
-  AppController() {
-    databaseController = DatabaseController(inMemory: false);
-    syncController = SyncController(databaseController);
-    cvuController = CVUController(databaseController);
-    pubSubController = PubSubController(databaseController);
-    permissionController = PermissionsController();
-    model = SetupScreenModel();
-  }
 
   Future init() async {
     await databaseController.init();
@@ -85,17 +86,13 @@ class AppController {
       state = AppState.setup;
       return;
     }
-    if (!isAuthenticated) {
+    if (!_isAuthenticated) {
       state = AppState.authentication;
       await requestAuthentication();
       return;
     }
 
-    if (_isNewPodSetup) {
-      state = AppState.keySaving;
-    } else {
-      state = AppState.authenticated;
-    }
+    state = _isNewPodSetup ? AppState.keySaving : AppState.authenticated;
   }
 
   Future<void> syncStream() async {
@@ -125,10 +122,31 @@ class AppController {
         await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
+  SetupConfig? getSetupConfig(bool localOnly) {
+    if (localOnly) {
+      return SetupConfigLocal();
+    } else if (model.setupAsNewPod) {
+      var config = NewPodConfig(model.podURL ?? AppSettings.defaultPodURL);
+      return SetupConfigNewPod(config);
+    } else {
+      var privateKey =
+          model.podPrivateKey?.nullIfBlank ?? Uuid().v4(); //TODO: kill when we will have end-to-end
+      var publicKey = model.podPublicKey?.nullIfBlank;
+      var databaseKey = model.podDatabaseKey?.nullIfBlank;
+      if (publicKey == null || databaseKey == null) {
+        return null;
+      }
+      var config = ExistingPodConfig(
+          model.podURL ?? AppSettings.defaultPodURL, privateKey, publicKey, databaseKey);
+      return SetupConfigExistingPod(config);
+    }
+  }
+
   Future<void> importData(SetupConfig config) async {
-    if (!await databaseController.hasImportedDefaultData) {
+    bool test = await databaseController.hasImportedDefaultData;
+    if (!test) {
       if (config is SetupConfigLocal || config is SetupConfigNewPod) {
-        databaseController.importRequiredData();
+        await databaseController.importRequiredData();
         if (model.useDemoData) await databaseController.setupWithDemoData();
         if (config is SetupConfigLocal) _isInDemoMode = true;
         await Settings.shared.set("defaults/general/isInDemoMode", _isInDemoMode);
@@ -139,7 +157,7 @@ class AppController {
 
   // MARK: Setup
   Future<void> setupApp({bool localOnly = false}) async {
-    var config = model.getSetupConfig(localOnly);
+    var config = getSetupConfig(localOnly);
     if (config == null) {
       model.state = PodSetupState.idle;
       return;
@@ -156,13 +174,13 @@ class AppController {
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
+        _isNewPodSetup = true;
         await Settings.shared.set("defaults/pod/url", config.config.podURL);
         //TODO owner and database key should not be stored in settings
         await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
         await Settings.shared.set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
-        _isNewPodSetup = true;
       }
-      if (_isInDemoMode) await syncController.sync();
+      await syncController.sync();
     }
 
     await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
@@ -234,7 +252,6 @@ class AppController {
   }
 
   resetApp() async {
-    state = AppState.setup;
     Authentication.createRootKey();
 
     await SceneController.sceneController.reset();
@@ -246,6 +263,7 @@ class AppController {
     }
     await FileStorageController.deleteFileStorage();
     await databaseController.delete();
+    state = AppState.setup;
 
     if (syncController.runSyncStream != null) {
       syncController.runSyncStream!.cancel();
