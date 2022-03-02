@@ -31,7 +31,7 @@ class AppController {
   late PermissionsController permissionController;
   late SetupScreenModel model;
 
-  StreamSubscription? syncStream;
+  StreamSubscription? syncStreamSub;
   Isolate? syncIsolate;
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
   PodConnectionDetails? _podConnectionConfig;
@@ -98,7 +98,7 @@ class AppController {
     }
   }
 
-  Future<void> syncSchema() async {
+  Future<void> syncStream() async {
     _isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
     if (!_isInDemoMode) {
       PodConnectionDetails connection = (await podConnectionConfig)!;
@@ -125,8 +125,8 @@ class AppController {
         await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
-  Future<void> initApp() async {
-    var config = model.getSetupConfig(false);
+  Future<void> initApp({SetupConfig? setupConfig}) async {
+    var config = setupConfig ?? model.getSetupConfig(false);
     if (config == null) {
       model.state = PodSetupState.idle;
       return;
@@ -149,6 +149,9 @@ class AppController {
       model.state = PodSetupState.idle;
       return;
     }
+    if (localOnly) {
+      initApp(setupConfig: config);
+    }
     try {
       await connectToPod(config);
     } on Exception catch (error) {
@@ -170,7 +173,7 @@ class AppController {
 
     await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
     _isAuthenticated = true;
-    await syncSchema();
+    await syncStream();
   }
 
   Future<void> connectToPod(SetupConfig config) async {
@@ -242,8 +245,8 @@ class AppController {
 
     await SceneController.sceneController.reset();
     if (!_isInDemoMode) {
-      await syncStream?.cancel();
-      syncStream = null;
+      await syncStreamSub?.cancel();
+      syncStreamSub = null;
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
@@ -265,7 +268,6 @@ class AppController {
     _isInDemoMode = false;
     isDevelopersMode = false;
 
-    await syncSchema();
     initApp();
   }
 }
