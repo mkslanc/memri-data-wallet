@@ -125,12 +125,7 @@ class AppController {
         await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
-  Future<void> initApp({SetupConfig? setupConfig}) async {
-    var config = setupConfig ?? model.getSetupConfig(false);
-    if (config == null) {
-      model.state = PodSetupState.idle;
-      return;
-    }
+  Future<void> importData(SetupConfig config) async {
     if (!await databaseController.hasImportedDefaultData) {
       if (config is SetupConfigLocal || config is SetupConfigNewPod) {
         databaseController.importRequiredData();
@@ -149,11 +144,10 @@ class AppController {
       model.state = PodSetupState.idle;
       return;
     }
-    if (localOnly) {
-      initApp(setupConfig: config);
-    }
+
     try {
       await connectToPod(config);
+      await importData(config);
     } on Exception catch (error) {
       model.state = PodSetupState.error;
       model.errorString = error.toString();
@@ -168,7 +162,7 @@ class AppController {
         await Settings.shared.set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
         _isNewPodSetup = true;
       }
-      await syncController.sync();
+      if (_isInDemoMode) await syncController.sync();
     }
 
     await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
@@ -195,7 +189,7 @@ class AppController {
           ownerKey: keys.publicKey,
           databaseKey: keys.dbKey);
     }
-    state = AppState.keySaving;
+    state = config is SetupConfigNewPod ? AppState.keySaving : AppState.authenticated;
     model.state = PodSetupState.idle;
 
     if (_podConnectionConfig != null) {
@@ -267,8 +261,6 @@ class AppController {
     _isNewPodSetup = false;
     _isInDemoMode = false;
     isDevelopersMode = false;
-
-    initApp();
   }
 }
 
