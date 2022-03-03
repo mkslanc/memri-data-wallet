@@ -93,6 +93,8 @@ class AppController {
     }
 
     state = _isNewPodSetup ? AppState.keySaving : AppState.authenticated;
+
+    await syncStream();
   }
 
   Future<void> syncStream() async {
@@ -266,7 +268,7 @@ class AppController {
     state = AppState.setup;
 
     if (syncController.runSyncStream != null) {
-      syncController.runSyncStream!.cancel();
+      await syncController.runSyncStream!.cancel();
     }
 
     pubSubController.reset();

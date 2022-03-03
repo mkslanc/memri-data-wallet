@@ -114,7 +114,10 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                             Row(
                               children: [
                                 TextButton(
-                                  onPressed: () => handleSetup(false),
+                                  onPressed: () {
+                                    appController.model.setupAsNewPod = true;
+                                    handleSetup(false);
+                                  },
                                   style: primaryButtonStyle,
                                   child: Text("Create new account"),
                                 ),
