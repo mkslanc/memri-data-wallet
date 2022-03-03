@@ -187,7 +187,6 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
 
   void handleSetup() {
     setState(() => appController.model.state = PodSetupState.loading);
-    Navigator.of(context).pop();
-    appController.setupApp();
+    appController.setupApp(onPodConnected: () => Navigator.of(context).pop());
   }
 }

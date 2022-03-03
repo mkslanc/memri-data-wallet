@@ -211,7 +211,6 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
 
   void handleSetup(bool localOnly) {
     setState(() => appController.model.state = PodSetupState.loading);
-    Navigator.of(context).pop();
-    appController.setupApp(localOnly: localOnly);
+    appController.setupApp(localOnly: localOnly, onPodConnected: () => Navigator.of(context).pop());
   }
 }

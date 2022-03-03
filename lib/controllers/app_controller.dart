@@ -158,7 +158,7 @@ class AppController {
   }
 
   // MARK: Setup
-  Future<void> setupApp({bool localOnly = false}) async {
+  Future<void> setupApp({bool localOnly = false, VoidCallback? onPodConnected}) async {
     var config = getSetupConfig(localOnly);
     if (config == null) {
       model.state = PodSetupState.idle;
@@ -167,12 +167,17 @@ class AppController {
 
     try {
       await connectToPod(config);
-      await importData(config);
     } on Exception catch (error) {
       model.state = PodSetupState.error;
       model.errorString = error.toString();
       return;
     }
+
+    if (onPodConnected != null) onPodConnected();
+    state = config is SetupConfigNewPod ? AppState.keySaving : AppState.authenticated;
+    model.state = PodSetupState.idle;
+
+    await importData(config);
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
@@ -209,16 +214,12 @@ class AppController {
           ownerKey: keys.publicKey,
           databaseKey: keys.dbKey);
     }
-    state = config is SetupConfigNewPod ? AppState.keySaving : AppState.authenticated;
-    model.state = PodSetupState.idle;
 
     if (_podConnectionConfig != null) {
       if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
-        Duration(seconds: 3),
-        onTimeout: () {
-          throw Exception("Pod doesn't respond");
-        },
-      )) {
+            Duration(seconds: AppSettings.checkPodExistenceTimeoutSecs),
+            onTimeout: () => throw Exception("Pod doesn't respond"),
+          )) {
         throw Exception("Pod doesn't respond");
       }
     }

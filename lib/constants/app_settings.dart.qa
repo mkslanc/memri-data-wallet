@@ -9,6 +9,7 @@ class AppSettings {
   /// Database
   static const String defaultDatabase = "prod_database";
   static const int syncControllerIntervalSecs = 3;
+  static const int checkPodExistenceTimeoutSecs = 3;
 
   /// Logger
   static const Level loggerLevel = Level.error;
