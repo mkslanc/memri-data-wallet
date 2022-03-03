@@ -742,7 +742,11 @@ class CVUActionPluginRun extends CVUAction {
     if (configValue != null) {
       config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
     }
-
+    bool isMock =
+        await lookup.resolve<bool>(value: vars["isMock"], context: context, db: db) ?? false;
+    if (isMock) {
+      config = '{"isMock": true}';
+    }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
@@ -1808,7 +1812,7 @@ class CVUActionParsePluginItem extends CVUAction {
             }
             
             FlowStack {
-                list: {{.dataset.feature[]}}
+                list: {{.~labellingPlugin.dataset.feature[]}}
                 spacing: 4
 
                 Wrap {

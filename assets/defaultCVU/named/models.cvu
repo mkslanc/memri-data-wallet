@@ -311,24 +311,50 @@
                         {
                             openForce: true
                             viewArguments: {
+                                buttons: {
+
+                                    Button {
+                                        background: #4F56FE
+                                        onPress: [
+                                            pluginRun
+                                            {
+                                                isMock: true
+                                                container: {{.labellingPlugin.containerImage}}
+                                                name: {{.labellingPlugin.name}}
+                                                pluginId: {{.labellingPlugin.id}}
+                                                pluginModule: {{.labellingPlugin.pluginModule}}
+                                                pluginName: {{.labellingPlugin.pluginName}}
+                                            }
+                                            ]
+
+                                            Text {
+                                                color: #F5F5F5
+                                                font: link
+                                                padding: 3
+                                                text: "Run your app"
+                                            }
+                                    }
+
+
+                                }
                                 customDefinition: {{projectItem.labellingPlugin.view.definition}}
                                 projectItem: {{.}}
                             }
                         }
-                    ]
-                    styleName: primaryButton
+                        ]
+                        styleName: primaryButton
 
-                    Text {
-                        text: "Add UI to your app"
-                        textalign: bottom
-                    }
+                        Text {
+                            text: "Add UI to your app"
+                            textalign: bottom
+                        }
 
-                    Image {
-                        alignment: center
-                        bundleImage: "ico_arrow"
-                        isVector: true
-                        padding: 0 0 0 15
-                    }
+                        Image {
+                            alignment: center
+                            bundleImage: "ico_arrow"
+                            isVector: true
+                            padding: 0 0 0 15
+                        }
                 }
 
                 Button {
