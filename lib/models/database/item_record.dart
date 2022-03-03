@@ -972,4 +972,16 @@ class ItemRecord with EquatableMixin {
     }
     return AuthKeys(ownerKey: ownerKeyValue, dbKey: dbKeyValue);
   }
+
+  //TODO: copy also edges (would be recursive)
+  Future<ItemRecord> copy(DatabaseController db) async {
+    var newItem = ItemRecord(type: type);
+    await newItem.save();
+    var props = await properties(db);
+    props.forEach((element) {
+      element.itemRowID = newItem.rowId!;
+    });
+    await db.databasePool.itemPropertyRecordInsertAll(props);
+    return newItem;
+  }
 }

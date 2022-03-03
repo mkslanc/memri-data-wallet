@@ -2249,7 +2249,7 @@
     "uid": 500,
     "_type": "Relationship",
     "label": "Friend",
-    "value": 1000,
+    "proximityValue": 1000,
     "allEdges": [
       {
         "_type": "relationship",
@@ -2262,7 +2262,7 @@
     "uid": 501,
     "_type": "Relationship",
     "label": "Friend",
-    "value": 1000,
+    "proximityValue": 1000,
     "allEdges": [
       {
         "_type": "relationship",
