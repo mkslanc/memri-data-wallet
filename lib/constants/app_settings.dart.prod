@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 class AppSettings {
   AppSettings._();
 
-  static const String defaultPodURL = "https://dev.pod.memri.io";
+  static const String defaultPodURL = "https://uat.pod.memri.io";
   static const String defaultDevPodURL = "http://localhost:3030";
 
   /// Database
