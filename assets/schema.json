@@ -1122,7 +1122,7 @@
     },
     {
       "item_type": "Relationship",
-      "property": "value",
+      "property": "proximityValue",
       "value_type": "int"
     },
     {

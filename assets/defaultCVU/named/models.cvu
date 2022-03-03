@@ -19,7 +19,41 @@
                 color: #333333
                 font: bodyText1
                 padding: 0 0 30 0
-                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
+                text: "Use our preconfigured template, with setup, testing, and CI ready to go. Add a few lines of code and create your new app."
+            }
+
+            HStack {
+                alignment: left
+                background: #F0F0F0
+                maxWidth: 590
+
+                VStack {
+                    alignment: topleft
+                    padding: 10
+
+                    Text {
+                        color: #333333
+                        font: small_caps
+                        padding: 0 0 0 10
+                        text: "YOUR DATASET NAME"
+                    }
+
+                    Text {
+                        color: #989898
+                        padding: 0 0 0 10
+                        text: {{.dataset.name}}
+                    }
+                }
+
+                Spacer
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_log_out_rotated"
+                    color: #E9500F
+                    isVector: true
+                    padding: 0 14 0 0
+                }
             }
 
             Button {
@@ -30,6 +64,7 @@
                         link: "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"
                     }
                 ]
+                padding: 35 0 0 0
 
                 Text {
                     color: #E9500F
@@ -232,8 +267,8 @@
                     onPress: [
                         parsePlugin
                         {
-                            project: {{.}}
                             features: {{.dataset.feature[]}}
+                            project: {{.}}
                             query: {{.dataset.datasetType.queryStr}}
                             url: {{.gitlabUrl}}
                         }
