@@ -278,6 +278,11 @@ class ItemRecord with EquatableMixin {
     return await db.itemRecordInsert(this);
   }
 
+  static Future insertList(List<ItemRecord> records, {Database? db}) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    return await db.itemRecordInsertAll(records);
+  }
+
   Future<int> delete(DatabaseController db) async {
     deleted = true;
     syncState = SyncState.update;
@@ -561,7 +566,7 @@ class ItemRecord with EquatableMixin {
         itemRecords.add(ItemRecord.fromSyncDict(dict));
       });
 
-      await dbController.databasePool.itemRecordInsertAll(itemRecords);
+      await ItemRecord.insertList(itemRecords, db: dbController.databasePool);
       List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(uidList, dbController));
       for (var i = 0; i < newItemList.length; i++) {
         var newItem = newItemList[i];
