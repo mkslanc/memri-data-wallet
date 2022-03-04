@@ -556,28 +556,24 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     var filterDef = datasourceResolver?.subdefinition("filter");
 
     var edgeTargets = filterDef?.subdefinition("edgeTargets");
-    List<DatabaseQueryCondition> edgeTargetConditions = (await Future.wait<DatabaseQueryCondition?>(
-            (edgeTargets?.properties.keys.toList() ?? [])
-                .map<Future<DatabaseQueryCondition?>>((key) async {
+    var edgeTargetConditions = <DatabaseQueryCondition>[];
+    for (var key in (edgeTargets?.properties.keys.toList() ?? [])) {
       List<int>? target = (await edgeTargets?.items(key))?.compactMap((e) => e.rowId);
       if (target == null || target.isEmpty) {
         target = [(await edgeTargets?.integer(key)) ?? 0];
       }
-      return DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target));
-    })))
-        .compactMap();
+      edgeTargetConditions.add(DatabaseQueryConditionEdgeHasTarget(EdgeHasTarget(key, target)));
+    }
 
     var edgeSources = filterDef?.subdefinition("edgeSources");
-    List<DatabaseQueryCondition> edgeSourceConditions = (await Future.wait<DatabaseQueryCondition?>(
-            (edgeSources?.properties.keys.toList() ?? [])
-                .map<Future<DatabaseQueryCondition?>>((key) async {
+    var edgeSourceConditions = <DatabaseQueryCondition>[];
+    for (var key in (edgeSources?.properties.keys.toList() ?? [])) {
       List<int>? source = (await edgeSources?.items(key))?.compactMap((e) => e.rowId);
       if (source == null || source.isEmpty) {
         source = [(await edgeSources?.integer(key)) ?? 0];
       }
-      return DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source));
-    })))
-        .compactMap();
+      edgeSourceConditions.add(DatabaseQueryConditionEdgeHasSource(EdgeHasSource(key, source)));
+    }
 
     var queryConfig = inheritQuery?.clone() ?? DatabaseQueryConfig();
     var itemTypes =
@@ -591,20 +587,21 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     var properties = filterDef?.subdefinition("properties");
-    List<DatabaseQueryCondition> propertyConditions = (await Future.wait<DatabaseQueryCondition?>(
-            (properties?.properties.keys.toList() ?? [])
-                .map<Future<DatabaseQueryCondition?>>((key) async {
+    var propertyConditions = <DatabaseQueryCondition>[];
+
+    for (var key in (properties?.properties.keys.toList() ?? [])) {
       dynamic value;
-      var schemaType = databaseController?.schema.expectedPropertyType(itemTypes[0], key) ??
+
+      var schemaType = databaseController.schema.expectedPropertyType(itemTypes[0], key) ??
           SchemaValueType.string;
       if (schemaType == SchemaValueType.bool) {
         value = await properties?.boolean(key);
       } else {
         value = await properties?.string(key) ?? "";
       }
-      return DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value));
-    })))
-        .compactMap();
+
+      propertyConditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+    }
 
     var sortDef = datasourceResolver?.subdefinition("sort");
 

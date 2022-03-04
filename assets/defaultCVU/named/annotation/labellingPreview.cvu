@@ -1,4 +1,4 @@
-.labelingEditorPreview {
+.labellingEditorPreview {
     cols: 4
     defaultRenderer: singleItem
 
@@ -16,7 +16,7 @@
             Text {
                 color: #333333
                 font: 14 body
-                text: "Preview and adjust  the labeling interface."
+                text: "Preview and adjust  the labelling interface."
             }
 
             Button {
@@ -30,7 +30,7 @@
                         viewArguments: {
                             labellingTask: {{.}}
                         }
-                        viewName: "labelingCVUEditor"
+                        viewName: "labellingCVUEditor"
                     }
                 ]
 
@@ -52,7 +52,7 @@
                             viewArguments: {
                                 pageLabel: "~main"
                             }
-                            viewName: "labeling"
+                            viewName: "labelling"
                         }
                     ]
                     styleName: primaryButton
@@ -90,23 +90,23 @@
     }
 }
 
-.labelingAnnotationPreview {
+.labellingAnnotationPreview {
     cols: 6
     defaultRenderer: labelAnnotation
     emptyResultText: "There are no annotations here yet"
     inPreviewMode: true
 }
 
-.labelingPreview {
+.labellingPreview {
     cols: 10
     defaultRenderer: scene
-    name: "labelingPreview"
-    title: "Preview labeling editor"
+    name: "labellingPreview"
+    title: "Preview labelling editor"
 
     [renderer = scene] {
         pages: {
-            labelingAnnEditorPreview: "labelingEditorPreview"
-            labelingAnnotation: "labelingAnnotationPreview"
+            labellingAnnEditorPreview: "labellingEditorPreview"
+            labellingAnnotation: "labellingAnnotationPreview"
         }
         viewArguments: {
             labellingTask: {{.}}
@@ -114,7 +114,7 @@
     }
 }
 
-.labelingCVUEditor {
+.labellingCVUEditor {
     cols: 4
     customDefinition: {{labellingTask.view.definition}}
     defaultRenderer: cvuEditor

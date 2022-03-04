@@ -126,7 +126,7 @@ class CVUController {
         storedDefinitions.add(storedDefinition);
         definitionsByUID[storedDefinition.uid] = definition;
       });
-      await databaseController.databasePool.itemRecordInsertAll(storedDefinitions);
+      await ItemRecord.insertList(storedDefinitions, db: databaseController.databasePool);
 
       List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
           storedDefinitions.map((e) => e.uid).toList(), databaseController));

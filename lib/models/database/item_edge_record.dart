@@ -4,6 +4,7 @@ import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/models/database/database.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/utils/extensions/collection.dart';
 import 'package:moor/moor.dart';
 
 class ItemEdgeRecord {
@@ -79,6 +80,40 @@ class ItemEdgeRecord {
   Future<int> insert(Database db) async {
     await insertSelfItemRecord(db);
     return await db.itemEdgeRecordInsert(this);
+  }
+
+  static Future insertList(List<ItemEdgeRecord> records, {Database? db}) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    var selfItemRecords = <ItemRecord>[];
+    List<String> itemUIds = records
+        .map((itemEdgeRecord) {
+          List<String> currentUIds = [];
+          if (itemEdgeRecord.selfRowID == null) {
+            if (itemEdgeRecord.selfUID == null) {
+              var selfItemRecord = ItemRecord(type: "Edge");
+              selfItemRecords.add(selfItemRecord);
+              itemEdgeRecord.selfUID = selfItemRecord.uid;
+            }
+            currentUIds.add(itemEdgeRecord.selfUID!);
+          }
+          if (itemEdgeRecord.sourceRowID == null) currentUIds.add(itemEdgeRecord.sourceUID!);
+          if (itemEdgeRecord.targetRowID == null) currentUIds.add(itemEdgeRecord.targetUID!);
+          return currentUIds;
+        })
+        .expand((element) => element)
+        .toList();
+
+    await ItemRecord.insertList(selfItemRecords, db: db);
+    var itemRecords = await ItemRecord.fetchWithUIDs(itemUIds);
+    var groupedItemRecords = itemRecords.toMapByKey((itemRecord) => itemRecord.uid);
+
+    records.forEach((itemEdgeRecord) {
+      itemEdgeRecord.selfRowID ??= groupedItemRecords[itemEdgeRecord.selfUID!]!.rowId;
+      itemEdgeRecord.sourceRowID ??= groupedItemRecords[itemEdgeRecord.sourceUID!]!.rowId;
+      itemEdgeRecord.targetRowID ??= groupedItemRecords[itemEdgeRecord.targetUID!]!.rowId;
+    });
+
+    return await db.itemEdgeRecordInsertAll(records);
   }
 
   Future<ItemRecord> selfItem([DatabaseController? db]) async {

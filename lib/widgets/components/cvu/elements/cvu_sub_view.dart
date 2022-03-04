@@ -25,7 +25,6 @@ class CVUSubView extends StatefulWidget {
 }
 
 class _CVUSubViewState extends State<CVUSubView> {
-  late List<ItemRecord>? items;
   late Future _init;
   bool isInited = false;
   Key? key; //used for updating on cvu change from cvuEditor
@@ -33,11 +32,35 @@ class _CVUSubViewState extends State<CVUSubView> {
   CVUDefinitionContent? _viewDefinition;
   String? _id;
 
-  ViewContextController? _viewContext;
+  CVUViewArguments? viewArguments;
+  DatabaseQueryConfig? queryConfig;
+
+  late ValueNotifier<ViewContextController?> viewContextValue;
+
+  ViewContextController? get _viewContext => viewContextValue.value;
+  set _viewContext(ViewContextController? viewContext) {
+    _viewContext?.removeListener(viewContextUpdate);
+    viewContextValue.value = viewContext;
+    _viewContext?.addListener(viewContextUpdate);
+  }
+
+  viewContextUpdate() {
+    if (!mounted) return; //TODO check why this happening
+    setState(() {
+      viewArguments?.argumentItems = _viewContext?.items;
+    });
+  }
+
+  @override
+  dispose() {
+    _viewContext?.removeListener(viewContextUpdate);
+    super.dispose();
+  }
 
   @override
   initState() {
     super.initState();
+    viewContextValue = ValueNotifier(null);
     _init = init();
   }
 
@@ -56,6 +79,8 @@ class _CVUSubViewState extends State<CVUSubView> {
 
     var id = await widget.nodeResolver.propertyResolver.string("id");
     if (id == _id && _viewDefinition == viewDefinition) {
+      _viewContext?.setupQueryObservation();
+      _viewContext = _viewContext;
       return;
     }
     key = Key(Uuid().v4());
@@ -87,17 +112,17 @@ class _CVUSubViewState extends State<CVUSubView> {
         .firstWhereOrNull((element) => element.type == CVUDefinitionType.datasource);
 
     ItemRecord? initialItem = await widget.nodeResolver.propertyResolver.item("initialItem");
-    items = await widget.nodeResolver.propertyResolver.items("query");
+    var items = await widget.nodeResolver.propertyResolver.items("query");
 
     var viewArgs = viewDefinition.properties["viewArguments"];
-    var viewArguments = CVUViewArguments(
+    viewArguments = CVUViewArguments(
         args: viewArgs?.value.properties,
         argumentItem: initialItem,
         argumentItems: items,
         parentArguments: widget.nodeResolver.context.viewArguments);
 
     if (_id != null) {
-      widget.nodeResolver.context.viewArguments?.subViewArguments[id!] = viewArguments;
+      widget.nodeResolver.context.viewArguments?.subViewArguments[id!] = viewArguments!;
     }
 
     var newContext = CVUContext(
@@ -109,7 +134,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         viewDefinition: viewDefinition,
         viewArguments: viewArguments);
 
-    DatabaseQueryConfig queryConfig = await DatabaseQueryConfig.queryConfigWith(
+    queryConfig = await DatabaseQueryConfig.queryConfigWith(
         context: newContext,
         datasource: datasource,
         databaseController: AppController.shared.databaseController);
@@ -121,7 +146,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         viewDefinition: viewDefinition,
         viewArguments: viewArguments,
         focusedItem: initialItem,
-        query: queryConfig);
+        query: queryConfig!);
 
     var holder = ViewContextHolder(config);
     _viewContext = ViewContextController(
@@ -131,21 +156,21 @@ class _CVUSubViewState extends State<CVUSubView> {
         pageController: widget.nodeResolver.pageController);
   }
 
-  Widget get renderer {
-    if (_viewContext != null) {
-      return SceneContentView(
-        key: key,
-        viewContext: _viewContext!,
-        pageController: widget.nodeResolver.pageController,
+  Widget get renderer => ValueListenableBuilder(
+        valueListenable: viewContextValue,
+        builder: (BuildContext context, ViewContextController? value, Widget? child) {
+          if (value != null) {
+            return SceneContentView(
+              key: key,
+              viewContext: value,
+              pageController: widget.nodeResolver.pageController,
+            );
+          } else {
+            print("No renderer selected"); //TODO
+            return Empty();
+          }
+        },
       );
-    } else {
-      return Center(
-          child: Text(
-        "No renderer selected",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

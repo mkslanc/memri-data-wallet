@@ -694,35 +694,39 @@ class CVULookupController {
                 throw Exception("Unknown CVUConstant: ${constant.toString()}");
               }
             } else if (argValue is CVUValueExpression) {
-              CVUExpressionNode expression = argValue.value;
-              var context = CVUContext(
-                  currentItem: viewArgs.argumentItem,
-                  items: viewArgs.argumentItems,
-                  viewArguments: viewArgs.parentArguments);
-              ItemRecord? item =
-                  await resolve<ItemRecord>(expression: expression, context: context, db: db);
-              double? number =
-                  await resolve<double>(expression: expression, context: context, db: db);
-              String? string =
-                  await resolve<String>(expression: expression, context: context, db: db);
+              currentValue = await () async {
+                CVUExpressionNode expression = argValue.value;
 
-              if (item != null) {
-                currentValue = LookupStepItems([item]);
-              } else if (number != null) {
-                currentValue = LookupStepValues([PropertyDatabaseValueDouble(number)]);
-              } else if (string != null) {
-                currentValue = LookupStepValues([PropertyDatabaseValueString(string)]);
-              } else {
-                var items = await resolve<List>(
+                var context = CVUContext(
+                    currentItem: viewArgs.argumentItem,
+                    items: viewArgs.argumentItems,
+                    viewArguments: viewArgs.parentArguments);
+
+                List<ItemRecord> items = await resolve<List>(
                     expression: expression,
                     context: context,
                     db: db,
                     additionalType: ItemRecord) as List<ItemRecord>;
-                if (items.isNotEmpty) {
-                  currentValue = LookupStepItems(items);
-                } else {
-                  return null;
-                }
+
+                if (items.isNotEmpty) return LookupStepItems(items);
+
+                ItemRecord? item =
+                    await resolve<ItemRecord>(expression: expression, context: context, db: db);
+                if (item != null) return LookupStepItems([item]);
+
+                double? number =
+                    await resolve<double>(expression: expression, context: context, db: db);
+                if (number != null) return LookupStepValues([PropertyDatabaseValueDouble(number)]);
+
+                String? string =
+                    await resolve<String>(expression: expression, context: context, db: db);
+                if (string != null) return LookupStepValues([PropertyDatabaseValueString(string)]);
+
+                return null;
+              }();
+
+              if (currentValue == null) {
+                return null;
               }
             } else {
               return null;
@@ -757,17 +761,25 @@ class CVULookupController {
     return currentValue;
   }
 
-  Future<List<ItemRecord>> filter(
-      List<ItemRecord> items, CVUExpressionNode? exp, DatabaseController? db) async {
+  Future<List<ItemRecord>> filter(List<ItemRecord> items, CVUExpressionNode? exp,
+      DatabaseController? db, CVUContext context) async {
     if (exp == null) {
       return items;
     }
 
-    return (await Future.wait(items.map((item) async =>
-            (await resolve<bool>(expression: exp, context: CVUContext(currentItem: item), db: db) ??
-                    false)
-                ? item
-                : null)))
+    return (await Future.wait(items.map((item) async => (await resolve<bool>(
+                    expression: exp,
+                    context: CVUContext(
+                        currentItem: item,
+                        viewArguments: CVUViewArguments(
+                          argumentItem: context.currentItem,
+                          argumentItems: context.items,
+                          args: context.viewArguments?.args,
+                        )),
+                    db: db) ??
+                false)
+            ? item
+            : null)))
         .compactMap();
   }
 
@@ -860,7 +872,7 @@ class CVULookupController {
               .whereType<ItemRecord>()
               .toList();
         }
-        var stepItems = await filter(result, filterExpression, db);
+        var stepItems = await filter(result, filterExpression, db, context);
         cached = LookupStepItems(stepItems);
         context.setCache(nodePath, cached);
         return cached;
@@ -927,7 +939,7 @@ class CVULookupController {
               if (itemRecord != null) result.add(itemRecord);
             });
           }
-          var stepItems = await filter(result, filterExpression, db);
+          var stepItems = await filter(result, filterExpression, db, context);
           cached = LookupStepItems(stepItems);
           context.setCache(nodePath, cached);
           return cached;

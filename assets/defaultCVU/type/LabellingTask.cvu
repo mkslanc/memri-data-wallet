@@ -160,7 +160,7 @@ LabellingTask > singleItem {
                 onPress: [
                     openView
                     {
-                        viewName: "labelingPreview"
+                        viewName: "labellingPreview"
                     }
                 ]
                 styleName: primaryButton
@@ -202,7 +202,7 @@ LabellingTask > list {
             alignment: left
 
             Text {
-                text: {{.name or "Draft: Labeling app"}}
+                text: {{.name or "Draft: Labelling app"}}
                 font: 18 semibold
                 color: primary
                 padding: 0 0 3 0
@@ -212,10 +212,10 @@ LabellingTask > list {
     }
 }
 
-.allLabelingTasks {
-    name: "all-labeling-tasks"
+.allLabellingTasks {
+    name: "all-labelling-tasks"
     title: "Data tasks"
-    emptyResultText: "There are no Labeling tasks"
+    emptyResultText: "There are no Labelling tasks"
     defaultRenderer: singleRenderer
     sortFields: dateModified dateCreated
 

@@ -24,6 +24,9 @@ import 'package:memri/utils/reset_cvu_to_default.dart';
 import 'package:memri/widgets/components/ace_editor/ace_editor.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
+import '../../controllers/database_query.dart';
+import '../../models/view_context.dart';
+
 class CVUEditorRendererView extends StatefulWidget {
   final memri.PageController pageController;
   final ViewContextController viewContext;
@@ -159,7 +162,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
           await addDefinition(nodeDefinition, viewContext, sceneController!);
         }
       });
-    } else {
+    } else if (currentViewContext.focusedItem != null) {
       viewDefinition = currentViewContext.cvuController.definitionFor(
           type: CVUDefinitionType.view,
           selector: currentViewContext.focusedItem!.type,
@@ -187,6 +190,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       }
 
       await addDefinition(viewDefinition, viewContext, sceneController);
+    } else if (subViewDefinition != null) {
+      await collectSubViewDefinitions(subViewDefinition, currentViewContext, sceneController);
     }
 
     var globalDefinition = currentViewContext.cvuController
@@ -203,10 +208,24 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       SceneController sceneController) async {
     definition.parsed.properties.forEach((key, value) {});
 
-    await Future.forEach<CVUUINode>(definition.parsed.children,
-        (node) async => await addSubViewDefinitions(node, viewContext, sceneController));
+    await collectSubViewDefinitions(definition.parsed, currentViewContext, sceneController);
 
     definitions.add(definition);
+  }
+
+  collectSubViewDefinitions(CVUDefinitionContent definition,
+      ViewContextController currentViewContext, SceneController sceneController) async {
+    for (var node in definition.children) {
+      await addSubViewDefinitions(node, viewContext, sceneController);
+    }
+    for (var subDefinition in definition.definitions) {
+      if ((subDefinition.type == CVUDefinitionType.uiNode ||
+              subDefinition.type == CVUDefinitionType.renderer) &&
+          subDefinition.parsed.children.isNotEmpty) {
+        await addSubViewDefinitions(
+            subDefinition.parsed.children.first, viewContext, sceneController);
+      }
+    }
   }
 
   addSubViewDefinitions(CVUUINode node, ViewContextController currentViewContext,
@@ -240,11 +259,19 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
         return null;
       }
 
+      var newViewContext = ViewContextController(
+          config: ViewContextHolder(ViewContext(
+              viewName: viewName,
+              pageLabel: "",
+              rendererName: rendererName,
+              viewDefinition: viewDefinition,
+              query: DatabaseQueryConfig())),
+          pageController: widget.pageController);
+
       await collectDefinitions(
           viewName: viewName,
           renderer: rendererName,
-          currentViewContext: currentViewContext,
-          //TODO maybe should be new viewContext:
+          currentViewContext: newViewContext,
           sceneController: sceneController,
           subViewDefinition: viewDefinition);
     } else {

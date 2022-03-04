@@ -171,6 +171,11 @@
       "value_type": "bool"
     },
     {
+      "item_type": "CategoricalLabel",
+      "property": "labelValue",
+      "value_type": "string"
+    },
+    {
       "item_type": "Country",
       "property": "latitude",
       "value_type": "double"
@@ -1052,11 +1057,6 @@
     },
     {
       "item_type": "PluginRun",
-      "property": "settings",
-      "value_type": "string"
-    },
-    {
-      "item_type": "PluginRun",
       "property": "status",
       "value_type": "string"
     },
@@ -1273,16 +1273,6 @@
       "target_type": "Location"
     },
     {
-      "source_type": "CategoricalLabel",
-      "edge": "annotatedItem",
-      "target_type": "Any"
-    },
-    {
-      "source_type": "CategoricalLabel",
-      "edge": "categoricalLabel",
-      "target_type": "LabelOption"
-    },
-    {
       "source_type": "Country",
       "edge": "flag",
       "target_type": "Photo"
@@ -1355,7 +1345,7 @@
     {
       "source_type": "Dataset",
       "edge": "entry",
-      "target_type": "Any"
+      "target_type": "DatasetEntry"
     },
     {
       "source_type": "Dataset",
@@ -1366,6 +1356,16 @@
       "source_type": "Dataset",
       "edge": "labellingTask",
       "target_type": "LabellingTask"
+    },
+    {
+      "source_type": "DatasetEntry",
+      "edge": "annotation",
+      "target_type": "CategoricalLabel"
+    },
+    {
+      "source_type": "DatasetEntry",
+      "edge": "data",
+      "target_type": "Any"
     },
     {
       "source_type": "DatasetType",
@@ -1461,16 +1461,6 @@
       "source_type": "IndexerRun",
       "edge": "indexer",
       "target_type": "Indexer"
-    },
-    {
-      "source_type": "LabelAnnotation",
-      "edge": "annotatedItem",
-      "target_type": "Any"
-    },
-    {
-      "source_type": "LabellingTask",
-      "edge": "labelAnnotation",
-      "target_type": "Any"
     },
     {
       "source_type": "LabellingTask",
