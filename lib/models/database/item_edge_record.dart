@@ -1,3 +1,4 @@
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
@@ -227,7 +228,7 @@ class ItemEdgeRecord {
         }
       }
 
-      print("ERROR: Could not locate edge for synced edge: $syncedEdge");
+      AppLogger.err("ERROR: Could not locate edge for synced edge: $syncedEdge");
     }
   }
 }

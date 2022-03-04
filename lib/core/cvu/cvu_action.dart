@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
@@ -12,6 +13,7 @@ import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/database_query.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/apis/gitlab_api.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
@@ -28,6 +30,7 @@ import 'package:memri/models/database/item_property_record.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:memri/models/view_context.dart';
 import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -242,6 +245,12 @@ class CVUActionOpenView extends CVUAction {
       viewArguments.args["pageLabel"] = CVUValueConstant(CVUConstantString(pageLabel));
     }
 
+    var cvuEditorPageController =
+        pageController.sceneController.pageControllerByLabel("mainCVUEditor");
+    if (cvuEditorPageController != null && viewName != "cvuEditor") {
+      pageController.sceneController.removePageController(cvuEditorPageController);
+    }
+
     await sceneController.navigateToNewContext(
         clearStack: await resolver.boolean("clearStack") ?? false,
         viewName: viewName ?? await resolver.string("viewName") ?? "customView",
@@ -266,25 +275,47 @@ class CVUActionOpenCVUEditor extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var label = "mainCVUEditor";
     var cvuEditorPageController = pageController.sceneController.pageControllerByLabel(label);
-    if (cvuEditorPageController != null) {
-      pageController.topMostContext?.config.cols = null; //TODO
+
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+    var forceOpen = (await resolver.boolean("forceOpen", false))!;
+
+    if (cvuEditorPageController != null && !forceOpen) {
       pageController.sceneController.removePageController(cvuEditorPageController);
     } else {
-      vars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
-        if (context.rendererName != null)
-          "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
-        if (context.viewName != null)
-          "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
-        "clearStack": CVUValueConstant(CVUConstantBool(true))
-      }));
+      var newVars = Map.of(vars);
+      var viewArguments = <String, CVUValue>{};
+      if (newVars["viewArguments"] != null) {
+        viewArguments =
+            Map.of((newVars["viewArguments"] as CVUValueSubdefinition).value.properties);
+      }
+      newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(
+          properties: viewArguments
+            ..addAll({
+              if (context.rendererName != null)
+                "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
+              if (context.viewName != null)
+                "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
+              "clearStack": CVUValueConstant(CVUConstantBool(true))
+            })));
+
       int pageControllersCount = pageController.sceneController.pageControllers.length;
+      if (forceOpen && cvuEditorPageController != null) {
+        pageController.sceneController.removePageController(cvuEditorPageController);
+      }
+
       cvuEditorPageController = await pageController.sceneController.addPageController(label);
       int cols = (6 / pageControllersCount)
           .round(); //TODO will kinda sorta work for 1-3 page controllers, cols logic is tech debt for now
       pageController.sceneController.pageControllers.forEach(
           (currentPageController) => currentPageController.topMostContext?.config.cols = cols);
-      await CVUActionOpenView(vars: vars, viewName: "cvuEditor", renderer: "cvueditor")
-          .execute(cvuEditorPageController, context);
+
+      await CVUActionOpenView(
+        vars: newVars,
+        viewName: "cvuEditor",
+        renderer: "cvueditor",
+      ).execute(cvuEditorPageController, context);
     }
   }
 }
@@ -303,7 +334,7 @@ class CVUActionOpenLink extends CVUAction {
           context: context, lookup: CVULookupController(), db: db, properties: vars);
       var url = await resolver.string("link");
       if (url != null) {
-        await canLaunch(url) ? await launch(url) : print('Could not launch $url');
+        await canLaunch(url) ? await launch(url) : AppLogger.err('Could not launch $url');
       }
     }
   }
@@ -363,8 +394,8 @@ class CVUActionOpenViewByName extends CVUAction {
 
     var datasource = viewDefinition.definitions
         .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
-    var queryConfig =
-        await DatabaseQueryConfig.queryConfigWith(context: newContext, datasource: datasource);
+    var queryConfig = await DatabaseQueryConfig.queryConfigWith(
+        context: newContext, datasource: datasource, databaseController: db);
 
     if (itemType != null) {
       queryConfig.itemTypes = [itemType!];
@@ -411,7 +442,7 @@ class CVUActionNavigateBack extends CVUAction {
     if (pageLabel != null) {
       var sceneController = pageController.sceneController;
       while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
-        print(pageLabel);
+        AppLogger.info(pageLabel);
         sceneController = sceneController.parentSceneController!;
         pageLabel = pageLabel.substring(1);
       }
@@ -467,7 +498,7 @@ class CVUActionAddItem extends CVUAction {
         try {
           await item.save(db.databasePool);
         } catch (error) {
-          print("ERROR Adding item: " + error.toString());
+          AppLogger.err("ERROR Adding item: " + error.toString());
         }
 
         var itemRowId = item.rowId;
@@ -605,7 +636,7 @@ class CVUActionOpenPlugin extends CVUAction {
     var pluginNameValue = vars["pluginName"];
 
     if (pluginValue == null && pluginNameValue == null) {
-      print("Plugin data missing");
+      AppLogger.warn("Plugin data missing");
       return;
     }
     String? pluginName;
@@ -616,7 +647,7 @@ class CVUActionOpenPlugin extends CVUAction {
     if (plugin == null) {
       pluginName = await lookup.resolve<String>(value: pluginNameValue, context: context, db: db);
       if (pluginName == null) {
-        print("Plugin data missing");
+        AppLogger.warn("Plugin data missing");
         return;
       }
 
@@ -628,7 +659,7 @@ class CVUActionOpenPlugin extends CVUAction {
     }
 
     if (plugin == null) {
-      print("Plugin data missing");
+      AppLogger.warn("Plugin data missing");
       return;
     }
     if (pluginName == null) {
@@ -689,7 +720,7 @@ class CVUActionPluginRun extends CVUAction {
         containerValue == null ||
         pluginModuleValue == null ||
         pluginNameValue == null) {
-      print("Not all params provided for PluginRun");
+      AppLogger.warn("Not all params provided for PluginRun");
       return;
     }
     var configValue = vars["config"];
@@ -710,7 +741,14 @@ class CVUActionPluginRun extends CVUAction {
     if (configValue != null) {
       config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
     }
-
+    var mockVar = vars["isMock"];
+    if (mockVar != null) {
+      bool isMock =
+          await lookup.resolve<bool>(value: vars["isMock"], context: context, db: db) ?? false;
+      if (isMock) {
+        config = '{"isMock": true}';
+      }
+    }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
@@ -734,7 +772,7 @@ class CVUActionPluginRun extends CVUAction {
       await PluginHandler.run(
           plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
     } catch (error) {
-      print("Error starting plugin: $error");
+      AppLogger.err("Error starting plugin: $error");
     }
   }
 }
@@ -793,7 +831,7 @@ class CVUActionSync extends CVUAction {
 
       pageController.isInEditMode.value = false;
     } catch (error) {
-      print("Error starting sync: $error");
+      AppLogger.err("Error starting sync: $error");
     }
   }
 }
@@ -852,7 +890,7 @@ class CVUActionDelete extends CVUAction {
     }
     subjectItem ??= context.currentItem;
     if (subjectItem == null) {
-      print("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
+      AppLogger.warn("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
       return;
     }
 
@@ -920,7 +958,7 @@ class CVUActionLink extends CVUAction {
         if (currentEdge.name == edgeType) {
           var result = await currentEdge.delete();
           if (result != true) {
-            print(
+            AppLogger.err(
                 "ERROR CVUAction_link: item: ${subjectItems[0]!.type} with id: ${subjectItems[0]!.rowId} edge id: ${currentEdge.selfRowID}");
             return;
           }
@@ -988,7 +1026,7 @@ class CVUActionUnlink extends CVUAction {
 
     var result = await edge.delete();
     if (result != true) {
-      print(
+      AppLogger.err(
           "ERROR CVUAction_Unlink: item: ${subjectItem.type} with id: ${subjectItem.rowId} edge id: ${edge.selfRowID}");
       return;
     }
@@ -1025,7 +1063,7 @@ class CVUActionStar extends CVUAction {
     try {
       await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
     } catch (error) {
-      print(
+      AppLogger.err(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
     }
   }
@@ -1209,7 +1247,7 @@ class CVUActionSetProperty extends CVUAction {
     ItemRecord? subjectItem =
         await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
     if (subjectItem == null) {
-      print("No subject item for property " + subjectVal?.value);
+      AppLogger.warn("No subject item for property " + subjectVal?.value);
       return;
     }
     String? property;
@@ -1421,17 +1459,17 @@ class CVUActionCreateLabellingTask extends CVUAction {
     }
     var dataset = await resolver.item("dataset");
     if (dataset == null) {
-      print("CreateLabellingTask error: dataset not resolved");
+      AppLogger.warn("CreateLabellingTask error: dataset not resolved");
       return;
     }
     var datasetType = await dataset.edgeItem("datasetType", db: db);
     if (datasetType == null) {
-      print("CreateLabellingTask error: dataset type not resolved");
+      AppLogger.warn("CreateLabellingTask error: dataset type not resolved");
       return;
     }
     var query = (await datasetType.propertyValue("queryStr"))?.asString();
     if (query == null) {
-      print("CreateLabellingTask error: couldn't find query from dataset type");
+      AppLogger.warn("CreateLabellingTask error: couldn't find query from dataset type");
       return;
     }
     var decodedQuery = jsonDecode(query);
@@ -1478,7 +1516,7 @@ class CVUActionCreateLabellingTask extends CVUAction {
     cvu += '\n}\n}\n}';
     var cvuID = await CVUController.storeDefinition(cvu, db);
     if (cvuID == null) {
-      print("CreateLabellingTask error: definition haven't saved");
+      AppLogger.warn("CreateLabellingTask error: definition haven't saved");
       return;
     }
     var newVars = Map.of(vars);
@@ -1504,6 +1542,17 @@ class CVUActionParsePluginItem extends CVUAction {
     if (project == null) {
       throw "Labelling project is not exist!";
     }
+
+    var queryStr = await resolver.string("query");
+    if (queryStr == null) {
+      throw "Project couldn't receive query from dataset";
+    }
+    var decodedQuery = jsonDecode(queryStr);
+    if (decodedQuery == null || decodedQuery["type"] == null) {
+      throw "Dataset doesn't have type property";
+    }
+    var filterProperties = Map.of(decodedQuery);
+
     var url = await resolver.string("url");
     if (url == null) {
       throw "Repository URL is not provided!";
@@ -1518,7 +1567,7 @@ class CVUActionParsePluginItem extends CVUAction {
 
     //TODO: for future we need to save branch
     var searchNeedle =
-        url.replaceFirst("https://gitlab.memri.io/", "").replaceFirst(RegExp(r"\-\/tree.*$"), "");
+        url.replaceFirst("https://gitlab.memri.io/", "").replaceFirst(RegExp(r"\/\-\/tree.*$"), "");
     var newUri = Uri.tryParse(
         "https://gitlab.memri.io/api/v4/projects?search=$searchNeedle&search_namespaces=true");
     if (newUri == null || !newUri.hasAbsolutePath) {
@@ -1534,24 +1583,26 @@ class CVUActionParsePluginItem extends CVUAction {
     if (decodedRepo.length == 0 || decodedRepo[0]["id"] == null) {
       throw "Gitlab project id not provided";
     }
-    var projectId = decodedRepo[0]["id"];
-    if (projectId is! int) {
+    var gitProjectId = decodedRepo[0]["id"];
+    if (gitProjectId is! int) {
       throw "Git Project Id has wrong type";
     }
-    var repoUri = Uri.parse(
-        "https://gitlab.memri.io/api/v4/projects/$projectId/repository/files/metadata.json?ref=main");
-    response = await http.get(repoUri, headers: {"content-type": "application/json"});
-    if (response.statusCode != 200) {
-      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
-    }
 
-    var metaJson = Utf8Decoder().convert(response.bodyBytes);
-    var decodedMeta = jsonDecode(metaJson);
-    if (decodedMeta.length == 0 || decodedMeta["content"] == null) {
-      throw "Metadata.json is not available in provided repository link";
-    }
+    List<ItemRecord> featureItems = await resolver.items("features");
 
-    var encodedPlugin = Utf8Decoder().convert(base64Decode(decodedMeta["content"]));
+    var cvuRowId =
+        await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
+    await createPlugin(
+        gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!, cvuRowId: cvuRowId);
+  }
+
+  createPlugin(
+      {required int gitProjectId,
+      required DatabaseController db,
+      required int projectRowId,
+      required cvuRowId}) async {
+    var encodedPlugin = await GitlabApi.getTextFileContentFromGitlab(
+        gitProjectId: gitProjectId, filename: "metadata.json");
     var decodedPlugin = jsonDecode(encodedPlugin);
 
     var pluginItem = ItemRecord(type: "Plugin");
@@ -1569,28 +1620,284 @@ class CVUActionParsePluginItem extends CVUAction {
       }
     });
 
-    var configUri = Uri.parse(
-        "https://gitlab.memri.io/api/v4/projects/$projectId/repository/files/config.json?ref=main");
-    response = await http.get(configUri, headers: {"content-type": "application/json"});
-    if (response.statusCode != 200) {
-      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
-    }
+    var encodedConfig = await GitlabApi.getTextFileContentFromGitlab(
+        gitProjectId: gitProjectId, filename: "config.json");
+    properties.add(ItemPropertyRecord(
+        itemRowID: pluginItem.rowId!,
+        name: "configJson",
+        value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
 
-    var configJson = Utf8Decoder().convert(response.bodyBytes);
-    var decodedConfig = jsonDecode(configJson);
-
-    if (decodedConfig.length > 0 && decodedConfig["content"] != null) {
-      var encodedConfig = Utf8Decoder().convert(base64Decode(decodedConfig["content"]));
-      properties.add(ItemPropertyRecord(
-          itemRowID: pluginItem.rowId!,
-          name: "configJson",
-          value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
-    }
-
-    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(projectId));
+    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(gitProjectId));
     await ItemEdgeRecord(
-            sourceRowID: project.rowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
+            sourceRowID: projectRowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
         .save(db.databasePool);
     await db.databasePool.itemPropertyRecordInsertAll(properties);
+    var viewEdge =
+        ItemEdgeRecord(name: "view", sourceRowID: pluginItem.rowId, targetRowID: cvuRowId);
+    await viewEdge.save(db.databasePool);
+  }
+
+  //TODO: this part is not used now, we will need it on next iterations
+  parsePluginSchema({required int gitProjectId, required DatabaseController db}) async {
+    var encodedSchema = await GitlabApi.getTextFileContentFromGitlab(
+        gitProjectId: gitProjectId, filename: "schema.json");
+    var decodedSchema = jsonDecode(encodedSchema);
+    if (decodedSchema is! List) {
+      throw "Schema is invalid";
+    }
+    List<ItemPropertyRecord> properties = [];
+    for (var el in decodedSchema) {
+      var type = el["type"];
+      if (type != null && type is String) {
+        if (type == "ItemPropertySchema") {
+          var itemType = el["itemType"];
+          var propertyName = el["propertyName"];
+          var propertyValue = ItemRecord.reverseMapSchemaValueType(el["valueType"]);
+          if (itemType is String && propertyName is String && propertyValue is String) {
+            var recordRowId =
+                await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemPropertySchema"));
+            properties.addAll([
+              ItemPropertyRecord(
+                  itemRowID: recordRowId,
+                  name: "itemType",
+                  value: PropertyDatabaseValueString(itemType)),
+              ItemPropertyRecord(
+                  itemRowID: recordRowId,
+                  name: "propertyName",
+                  value: PropertyDatabaseValueString(propertyName)),
+              ItemPropertyRecord(
+                  itemRowID: recordRowId,
+                  name: "valueType",
+                  value: PropertyDatabaseValueString(propertyValue)),
+            ]);
+          }
+        } else {
+          if (type == "ItemEdgeSchema") {
+            var sourceType = el["sourceType"];
+            var edgeName = el["edgeName"];
+            var targetType = el["targetType"];
+            if (sourceType is String && edgeName is String && targetType is String) {
+              var recordRowId =
+                  await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemEdgeSchema"));
+              properties.addAll([
+                ItemPropertyRecord(
+                    itemRowID: recordRowId,
+                    name: "sourceType",
+                    value: PropertyDatabaseValueString(sourceType)),
+                ItemPropertyRecord(
+                    itemRowID: recordRowId,
+                    name: "edgeName",
+                    value: PropertyDatabaseValueString(edgeName)),
+                ItemPropertyRecord(
+                    itemRowID: recordRowId,
+                    name: "targetType",
+                    value: PropertyDatabaseValueString(targetType)),
+              ]);
+            }
+          }
+        }
+      }
+    }
+    await db.databasePool.itemPropertyRecordInsertAll(properties);
+    await db.schema.load(db.databasePool);
+  }
+
+  Future<int> generatePluginCvu(
+      {required Map<dynamic, dynamic> filterProperties,
+      required List<ItemRecord> features,
+      required DatabaseController db}) async {
+    var startItemType = Map.of(filterProperties)["type"];
+    filterProperties.remove('type');
+    var propertiesFilter = "";
+    Map<dynamic, dynamic> properties = {};
+    List<DatabaseQueryConditionPropertyEquals> queryProperties = [];
+
+    if (filterProperties.isNotEmpty) {
+      propertiesFilter += "filter: {\n properties: {\n";
+      filterProperties.forEach((key, value) {
+        propertiesFilter += '$key: "$value"\n';
+        properties.addEntries({MapEntry(key, value)});
+        queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+      });
+      propertiesFilter += '\nisMock: true\n';
+      propertiesFilter += "}}";
+    }
+
+    var cvu = '''.plugin${Uuid().v4()} { 
+        defaultRenderer: singleItem
+        [renderer = singleItem] {
+          scrollable: false
+        }
+        
+        [datasource = pod] {
+            query: Plugin
+        }
+    Plugin > singleItem {    
+    VStack {
+        alignment: topleft
+        padding: 60 30 30 30
+
+        Text {
+            font: "headline2"
+            text: {{.name}}
+        }
+
+        HStack {
+            background: #1AE9500F
+
+            VStack {
+                alignment: left
+                padding: 30 20 45 20
+
+                Text {
+                    font: bodyText1
+                    padding: 0 0 25 0
+                    text: "Customize and preview your app using the CVU renderer on the right."
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/frontend/cvu-intro/"
+                        }
+                    ]
+
+                    Text {
+                        color: #E9500F
+                        font: link
+                        text: "Read our CVU guide"
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/frontend/cvu-ui-elements/"
+                        }
+                    ]
+
+                    Text {
+                        color: #E9500F
+                        font: link
+                        text: "See the full list of available CVU components"
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+            }
+
+            Spacer
+        }
+
+        VStack {
+            alignment: topleft
+            background: #F6F6F6
+            padding: 20
+
+            Text {
+                color: #999999
+                font: smallCaps
+                text: "USED DEFINED ATTRIBUTES:"
+            }
+            
+            FlowStack {
+                list: {{.~labellingPlugin.dataset.feature[]}}
+                spacing: 4
+
+                Wrap {
+                    background: #fff
+
+                    Text {
+                        color: #999999
+                        font: tabList
+                        padding: 12 10 12 10
+                        text: "{.propertyName}"
+                    }
+                }
+            }
+
+            Text {
+                color: #999999
+                font: smallCaps
+                padding: 30 0 0 0
+                text: "EXAMPLE ITEMS:"
+            }
+
+            SubView {
+                height: 200
+                view: {
+                    defaultRenderer: list
+                    editMode: false
+
+                    [datasource = pod] {
+                        query: $startItemType
+                        $propertiesFilter
+                    }
+
+                    [renderer = list] {
+                        edgeInset: 0
+                        hideSeparators: true
+                        spacing: 0
+                    }
+
+                    $startItemType > list {
+                        VStack {
+                            alignment: left
+
+                            RichText {
+                                font: bodyText1
+                                spans: [''';
+
+    for (var feature in features) {
+      var propertyName = (await feature.propertyValue("propertyName", db))?.value;
+      if (propertyName != null) {
+        cvu += '\n {\n text: "{.${propertyName}} " \n}';
+        if (!properties.containsKey(propertyName)) {
+          properties.addEntries({MapEntry(propertyName, null)});
+        }
+      }
+    }
+
+    //TODO: hard-coded part for labels
+    cvu += '\n{ \n text: " - {.label.value OR \'Place for your label\'}" \n }';
+
+    cvu += '\n]\n}\n}\n}\n}\n}\n}\n}\n}\n}';
+    var cvuID = await CVUController.storeDefinition(cvu, db);
+    if (cvuID == null) {
+      throw "CVU couldn't be saved";
+    }
+
+    var databaseQueryConfig =
+        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
+    databaseQueryConfig.dbController = db;
+    var items = await databaseQueryConfig.constructFilteredRequest();
+    if (items.isEmpty) {
+      await MockDataGenerator.generateMockItems(
+          db: db, properties: properties, itemType: startItemType);
+    } else {
+      for (var item in items) {
+        var newItemRecord = await ItemRecord.fromItem(item).copy(db);
+        await newItemRecord.setPropertyValue("isMock", PropertyDatabaseValueBool(true));
+      }
+    }
+    return cvuID;
   }
 }

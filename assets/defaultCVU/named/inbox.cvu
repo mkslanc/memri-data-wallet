@@ -141,7 +141,6 @@
     [renderer = list] {
         onPress: noop
         hideSeparators: true
-        hideSwitcher: true
     }
 
     Plugin > list {

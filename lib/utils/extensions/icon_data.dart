@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_logger.dart';
 
 extension MemriIcon on IconData {
   static IconData getByName(String iconName) {
@@ -96,7 +97,7 @@ extension MemriIcon on IconData {
       case 'refresh':
         return Icons.refresh;
       default:
-        print("Unknown icon $iconName");
+        AppLogger.warn("Unknown icon $iconName");
         return Icons.contact_support_rounded;
     }
   }

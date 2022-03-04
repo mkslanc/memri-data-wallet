@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_logger.dart';
 
 class AceEditorController {
   String? _content;
@@ -11,10 +12,10 @@ class AceEditorController {
   AceEditorController(this.onResultReceived, {this.validate});
 
   updateEditorContent(String? newContent) {
-    print("Error: not implemented now");
+    AppLogger.err("Error: not implemented now");
   }
 
   requestEditorData() {
-    print("Error: not implemented now");
+    AppLogger.err("Error: not implemented now");
   }
 }

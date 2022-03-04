@@ -134,8 +134,10 @@ class _CVUSubViewState extends State<CVUSubView> {
         viewDefinition: viewDefinition,
         viewArguments: viewArguments);
 
-    queryConfig =
-        await DatabaseQueryConfig.queryConfigWith(context: newContext, datasource: datasource);
+    queryConfig = await DatabaseQueryConfig.queryConfigWith(
+        context: newContext,
+        datasource: datasource,
+        databaseController: AppController.shared.databaseController);
 
     var config = ViewContext(
         viewName: viewName,

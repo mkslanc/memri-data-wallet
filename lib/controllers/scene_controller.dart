@@ -82,8 +82,9 @@ class SceneController extends ChangeNotifier {
     return pageController;
   }
 
-  removePageController(pageController) {
+  removePageController(memri.PageController pageController) {
     pageControllers.removeWhere((element) => element == pageController);
+    pageControllers.forEach((element) => element.topMostContext?.config.cols = null);
     pageController.reset();
   }
 
@@ -238,7 +239,8 @@ class SceneController extends ChangeNotifier {
         inheritQuery: inheritDatasource ? pageController.topMostContext?.config.query : null,
         overrideUIDs: overrideRowIDs,
         targetItem: targetItem,
-        dateRange: dateRange);
+        dateRange: dateRange,
+        databaseController: appController.databaseController);
 
     var config = ViewContext(
         viewName: viewName,

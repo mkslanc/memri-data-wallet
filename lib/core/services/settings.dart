@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/models/database/database.dart';
@@ -30,7 +31,7 @@ class Settings {
         }
       }
     } catch (error) {
-      print("Could not fetch setting '$path': $error");
+      AppLogger.err("Could not fetch setting '$path': $error");
     }
 
     return null;
@@ -87,7 +88,7 @@ class Settings {
       await setSetting(searchPaths[0], value);
       _fire(searchPaths[0], value);
     } catch (error) {
-      print(error);
+      AppLogger.err(error);
     }
   }
 

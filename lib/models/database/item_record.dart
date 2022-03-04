@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -225,7 +226,7 @@ class ItemRecord with EquatableMixin {
       if (item == null) return null;
       return ItemRecord.fromItem(item);
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return null;
     }
   }
@@ -237,7 +238,7 @@ class ItemRecord with EquatableMixin {
       if (item == null) return null;
       return ItemRecord.fromItem(item);
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return null;
     }
   }
@@ -252,7 +253,7 @@ class ItemRecord with EquatableMixin {
           .map((item) => ItemRecord.fromItem(item))
           .toList();
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return [];
     }
   }
@@ -263,7 +264,7 @@ class ItemRecord with EquatableMixin {
       List<Item> items = await db.databasePool.itemRecordFetchWithRowIDs(ids);
       return items.map((item) => ItemRecord.fromItem(item)).toList();
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return [];
     }
   }
@@ -316,7 +317,7 @@ class ItemRecord with EquatableMixin {
 
       return edgeRecords;
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return [];
     }
   }
@@ -374,7 +375,7 @@ class ItemRecord with EquatableMixin {
 
       return edgeRecords;
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return [];
     }
   }
@@ -946,7 +947,7 @@ class ItemRecord with EquatableMixin {
               targetRowID: privateKeyItem.rowId)
           .save(db);
     } catch (error) {
-      print("ERROR: setOwnerAndDBKey $error");
+      AppLogger.err("ERROR: setOwnerAndDBKey $error");
       throw Exception("Error deleting existing db keys");
     }
   }
@@ -985,5 +986,17 @@ class ItemRecord with EquatableMixin {
       throw Exception("Keys not found");
     }
     return AuthKeys(ownerKey: ownerKeyValue, dbKey: dbKeyValue);
+  }
+
+  //TODO: copy also edges (would be recursive)
+  Future<ItemRecord> copy(DatabaseController db) async {
+    var newItem = ItemRecord(type: type);
+    await newItem.save();
+    var props = await properties(db);
+    props.forEach((element) {
+      element.itemRowID = newItem.rowId!;
+    });
+    await db.databasePool.itemPropertyRecordInsertAll(props);
+    return newItem;
   }
 }

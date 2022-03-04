@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:html/parser.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
@@ -16,6 +17,7 @@ import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/date_time.dart';
 import 'package:memri/utils/extensions/number.dart';
 import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
@@ -628,6 +630,34 @@ class CVULookupController {
               return null;
             }
             break;
+          case "generaterandom":
+            var exp = nodeType.args.asMap()[0];
+            String? type = await resolve<String>(expression: exp, context: context, db: db);
+            if (type == null) {
+              return null;
+            }
+            //TODO: other types if we will need this
+            switch (type.toLowerCase()) {
+              case "string":
+                currentValue = LookupStepValues([
+                  PropertyDatabaseValueString(
+                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
+                ]);
+                break;
+              case "int":
+                currentValue = LookupStepValues([
+                  PropertyDatabaseValueInt(
+                      MockDataGenerator.generateMockData(valueType: SchemaValueType.int))
+                ]);
+                break;
+              default:
+                currentValue = LookupStepValues([
+                  PropertyDatabaseValueString(
+                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
+                ]);
+                break;
+            }
+            break;
           default:
             return null;
         }
@@ -1126,7 +1156,7 @@ class CVULookupController {
       return await resolve<double>(expression: expression.lhs, context: context, db: db) ??
           await resolve<double>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
-      print("CVU Expression error: Should not use ! operator on non-boolean value");
+      AppLogger.err("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
       return (await resolve<double>(expression: expression.lhs, context: context, db: db) ?? 0) +
@@ -1168,7 +1198,7 @@ class CVULookupController {
       return await resolve<int>(expression: expression.lhs, context: context, db: db) ??
           await resolve<int>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
-      print("CVU Expression error: Should not use ! operator on non-boolean value");
+      AppLogger.err("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
       return (await resolve<int>(expression: expression.lhs, context: context, db: db) ?? 0) +
@@ -1212,13 +1242,13 @@ class CVULookupController {
           ??
           await resolve<String>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
-      print("CVU Expression error: Should not use ! operator on non-boolean value");
+      AppLogger.err("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
       return (await resolve<String>(expression: expression.lhs, context: context, db: db) ?? "") +
           (await resolve<String>(expression: expression.rhs, context: context, db: db) ?? "");
     } else if (expression is CVUExpressionNodeSubtraction) {
-      print("CVU Expression error: Should not use - operator on string value");
+      AppLogger.err("CVU Expression error: Should not use - operator on string value");
       return null;
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asString();
@@ -1254,10 +1284,10 @@ class CVULookupController {
       bool? res = await resolve<bool>(expression: expression.expression, context: context, db: db);
       return res == null ? res : !res;
     } else if (expression is CVUExpressionNodeAddition) {
-      print("CVU Expression error: Should not use + operator on bool value");
+      AppLogger.err("CVU Expression error: Should not use + operator on bool value");
       return null;
     } else if (expression is CVUExpressionNodeSubtraction) {
-      print("CVU Expression error: Should not use - operator on bool value");
+      AppLogger.err("CVU Expression error: Should not use - operator on bool value");
       return null;
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asBool();

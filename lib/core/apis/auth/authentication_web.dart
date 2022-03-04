@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/apis/auth/auth_key.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:pointycastle/export.dart';
@@ -9,19 +10,9 @@ import 'package:uuid/uuid.dart';
 class Authentication {
   static String rootKeyTag = "memriPrivateKey";
   static bool isOwnerAuthenticated = false;
-
   static String? lastRootPublicKey;
 
-  static authenticateOwner() async {
-    if (await storageDoesNotExist) {
-      throw Exception("Couldn't read value from storage");
-    }
-    isOwnerAuthenticated = true;
-  }
-
-  static Future<bool> get storageDoesNotExist async {
-    return false;
-  }
+  static bool get storageDoesNotExist => false;
 
   static SecureRandom getSecureRandom() {
     var secureRandom = FortunaRandom();
@@ -45,8 +36,8 @@ class Authentication {
     var publicKey = keyPair.publicKey as ECPublicKey;
     var privateKeyStr = privateKey.d!.toRadixString(16);
     var publicKeyStr = publicKey.Q!.x!.toBigInteger()!.toRadixString(16);
-    print(publicKeyStr);
-    print(dbKey);
+    AppLogger.info(publicKeyStr);
+    AppLogger.info(dbKey);
     return GeneratedKeys(privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
   }
 
@@ -57,20 +48,12 @@ class Authentication {
     return keys;
   }
 
-  static Future<void> createRootKey() async {
-    isOwnerAuthenticated = true;
-  }
-
-  static Future<void> deleteRootKey() async {
-    return;
-  }
+  static void createRootKey() => isOwnerAuthenticated = true;
 
   static setOwnerAndDBKey(
       {required String privateKey, required String publicKey, required String dbKey}) async {
     await ItemRecord.setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
   }
 
-  static Future<AuthKeys> getOwnerAndDBKey() async {
-    return await ItemRecord.getOwnerAndDBKey();
-  }
+  static Future<AuthKeys> getOwnerAndDBKey() async => await ItemRecord.getOwnerAndDBKey();
 }

@@ -2,7 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:memri/controllers/syncing/sync_controller.dart';
+import 'package:memri/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_mobile.dart';
 import 'package:memri/models/database/database.dart';
 import 'package:moor/ffi.dart';

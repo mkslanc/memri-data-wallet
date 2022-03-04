@@ -4,6 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/constants/app_logger.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
@@ -39,7 +41,7 @@ class CVUController {
         definitions = await CVUController.parseCVU();
       }
     } catch (error) {
-      print(error);
+      AppLogger.err(error);
       definitions = [];
     }
   }
@@ -61,7 +63,7 @@ class CVUController {
         await updateDefinition(revertingDefinition, defaultDefinition.parsed);
       });
     } catch (error) {
-      print(error);
+      AppLogger.err(error);
       definitions = [];
     }
   }
@@ -106,7 +108,7 @@ class CVUController {
     var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
         .where((item) => item.type == "CVUStoredDefinition");
     if (validStoredDefinitions.length != 1) {
-      print("Error! Could not find valid stored definition for: ${definition.queryStr}");
+      AppLogger.err("Error! Could not find valid stored definition for: ${definition.queryStr}");
       return;
     }
     var storedDefinition = validStoredDefinitions.first;
@@ -167,6 +169,7 @@ class CVUController {
     var parsedDefinitions = parseCVUString(string);
     if (parsedDefinitions.isNotEmpty) {
       var definition = parsedDefinitions[0];
+      AppController.shared.cvuController.definitions.add(definition);
       var definitionId;
       await databaseController.databasePool.transaction(() async {
         List<ItemPropertyRecord> properties = [];

@@ -382,6 +382,11 @@
     },
     {
       "item_type": "EmailMessage",
+      "property": "isMock",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "EmailMessage",
       "property": "content",
       "value_type": "string"
     },
@@ -699,6 +704,11 @@
       "item_type": "Message",
       "property": "content",
       "value_type": "string"
+    },
+    {
+      "item_type": "Message",
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "Message",
@@ -1067,6 +1077,11 @@
     },
     {
       "item_type": "Post",
+      "property": "isMock",
+      "value_type": "bool"
+    },
+    {
+      "item_type": "Post",
       "property": "postDate",
       "value_type": "datetime"
     },
@@ -1107,7 +1122,7 @@
     },
     {
       "item_type": "Relationship",
-      "property": "value",
+      "property": "proximityValue",
       "value_type": "int"
     },
     {

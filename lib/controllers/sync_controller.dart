@@ -1,18 +1,22 @@
 //  Created by T Brennan on 1/12/20.
 
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:memri/constants/app_logger.dart';
+import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
-import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/core/services/database/shared.dart';
 import 'package:memri/models/database/database.dart';
 import 'package:memri/models/database/item_edge_record.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/models/sync_config.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:moor/moor.dart';
 
@@ -30,16 +34,6 @@ enum SyncControllerState {
   failed
 }
 
-runSyncWebWorker({required Schema schema, required PodConnectionDetails connection}) {
-  var dbController = DatabaseController();
-  dbController.schema = schema;
-  dbController.databasePool = Database.connect(connectToWorker());
-  final syncController = SyncController(dbController);
-
-  Stream.periodic(const Duration(milliseconds: 3000))
-      .listen((_) => syncController.sync(connectionConfig: connection));
-}
-
 class SyncController {
   bool syncing = false;
   String? lastError;
@@ -49,6 +43,7 @@ class SyncController {
   PodConnectionDetails? currentConnection;
   static String? documentsDirectory;
   static String? lastRootKey;
+  StreamSubscription? runSyncStream;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
@@ -133,6 +128,24 @@ class SyncController {
     }
   }
 
+  Future<void> runSync(SyncConfig config) async {
+    var dbController = DatabaseController();
+    dbController.schema = config.schema;
+    if (kIsWeb) {
+      dbController.databasePool = Database.connect(connectToWorker());
+    } else {
+      if (config is IsolateSyncConfig) {
+        SyncController.documentsDirectory = config.documentsDirectory;
+        SyncController.lastRootKey = config.rootKey;
+        dbController.driftIsolate = config.isolate;
+        dbController.databasePool = Database.connect(await config.isolate.connect());
+      }
+    }
+    final syncController = SyncController(dbController);
+    runSyncStream = Stream.periodic(const Duration(seconds: AppSettings.syncControllerIntervalSecs))
+        .listen((_) => syncController.sync(connectionConfig: config.connection));
+  }
+
   sync({PodConnectionDetails? connectionConfig, Function(String?)? completion}) async {
     currentConnection = connectionConfig ?? await AppController.shared.podConnectionConfig;
     if (currentConnection == null) {
@@ -150,7 +163,7 @@ class SyncController {
           await setState(SyncControllerState.failed);
           throw Exception("Pod doesn't respond");
         } catch (e) {
-          print(e);
+          AppLogger.err(e);
           return false;
         }
       },
@@ -194,7 +207,7 @@ class SyncController {
     var sha256 = fileItemRecordToDownload["sha256"];
     var fileName = fileItemRecordToDownload["fileName"];
 
-    print("Downloading File: $fileName");
+    AppLogger.info("Downloading File: $fileName");
 
     await downloadFile(sha256, fileName, (error) async {
       if (error != null) {
@@ -506,7 +519,7 @@ class SyncController {
     var networkCall = await request.execute(connectionConfig);
     var error;
     if (networkCall.statusCode != 200) {
-      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
     await completion(error);
@@ -524,7 +537,7 @@ class SyncController {
     var networkCall = await request.execute(currentConnection!);
     var error;
     if (networkCall.statusCode != 200) {
-      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
     if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
@@ -551,7 +564,7 @@ class SyncController {
           await completion(Utf8Decoder().convert(networkCall.bodyBytes), null);
         return;
       }
-      print("ERROR: ${networkCall.statusCode} $error on file $fileURL");
+      AppLogger.err("ERROR: ${networkCall.statusCode} $error on file $fileURL");
     }
     if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
   }
@@ -570,7 +583,7 @@ class SyncController {
 
     var error;
     if (networkCall.statusCode != 200) {
-      print("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       error = networkCall.reasonPhrase;
     }
     if (completion != null) await completion(error);

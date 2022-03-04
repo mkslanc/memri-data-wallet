@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HtmlViewUIKit extends StatefulWidget {
@@ -57,7 +58,7 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
       await _webViewController.runJavascript(jsContent);
       await _webViewController.runJavascript(getContentLoaderString());
     } catch (e) {
-      print(e);
+      AppLogger.err(e);
       return;
     }
   }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
+import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
@@ -42,6 +43,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   late Future<void> _init;
   late String mode;
+  CVUDefinitionContent? buttons;
 
   List<CVUParsedDefinition> definitions = [];
 
@@ -55,8 +57,12 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   Future<void> init() async {
     mode = await viewContext.viewDefinitionPropertyResolver.string("mode") ?? "inMainPage";
-    var customDefinition =
-        await viewContext.viewDefinitionPropertyResolver.string("customDefinition");
+
+    var customDefinition = await viewContext.viewDefinitionPropertyResolver
+        .resolveString(viewContext.config.viewArguments?.args["customDefinition"]);
+
+    var buttonsArg = viewContext.config.viewArguments?.args["buttons"];
+    buttons = buttonsArg?.getSubdefinition();
 
     if (customDefinition != null) {
       definitions = await CVUController.parseCVU(customDefinition);
@@ -107,9 +113,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   initDefinitions() async {
     definitions = [];
-    var viewName = viewContext.viewDefinitionPropertyResolver
+    var viewName = await viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["viewName"]);
-    var renderer = viewContext.viewDefinitionPropertyResolver
+    var renderer = await viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["renderer"]);
 
     await collectDefinitions(
@@ -287,50 +293,60 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     });
   }
 
+  renderButtons() {
+    if (buttons != null) {
+      return viewContext.render(
+          nodeDefinition: buttons, item: viewContext.focusedItem, items: viewContext.items);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
         color: CVUColor.black,
-        padding: EdgeInsets.all(5),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                      backgroundColor: Color(0xFFFE570F),
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
-                  onPressed: controller.requestEditorData,
-                  child: Text(
-                    "Save view",
-                    style: TextStyle(color: CVUColor.white),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: Color(0xFFFE570F),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                    onPressed: controller.requestEditorData,
+                    child: Text(
+                      "Save view",
+                      style: CVUFont.link.copyWith(color: Color(0xffF5F5F5)),
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: close,
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(color: Color(0xFF989898)),
-                  ),
-                ),
-                TextButton(
-                    onPressed: () => resetCVUToDefault(context, widget.pageController, definitions),
-                    child:
-                        SvgPicture.asset("assets/images/rotate_ccw.svg", color: Color(0xFFFE570F))),
-                TextButton(
+                  SizedBox(width: 10),
+                  if (buttons != null) renderButtons(),
+                  TextButton(
                     onPressed: close,
-                    child:
-                        SvgPicture.asset("assets/images/ico_close.svg", color: Color(0xFF989898))),
-              ],
+                    child: Text(
+                      "Cancel",
+                      style: CVUFont.link.copyWith(color: Color(0xFF989898)),
+                    ),
+                  ),
+                  Spacer(),
+                  TextButton(
+                      onPressed: () =>
+                          resetCVUToDefault(context, widget.pageController, definitions),
+                      child: SvgPicture.asset("assets/images/rotate_ccw.svg",
+                          color: Color(0xFFFE570F))),
+                  TextButton(
+                      onPressed: close,
+                      child: SvgPicture.asset("assets/images/ico_close.svg",
+                          color: Color(0xFF989898))),
+                ],
+              ),
             ),
-            Expanded(
-                child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 30),
-              child: AceEditor(controller),
-            )),
+            Expanded(child: AceEditor(controller)),
           ],
         ),
       ),
@@ -358,9 +374,6 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   close() {
     if (mode == "inMainPage") {
-      //TODO
-      widget.pageController.sceneController.pageControllers.first.topMostContext?.config.cols =
-          null;
       widget.pageController.sceneController.removePageController(widget.pageController);
     } else {
       widget.pageController.navigateBack();
