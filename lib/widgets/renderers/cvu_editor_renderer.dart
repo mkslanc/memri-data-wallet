@@ -259,7 +259,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
         return null;
       }
 
-      var newVewContext = ViewContextController(
+      var newViewContext = ViewContextController(
           config: ViewContextHolder(ViewContext(
               viewName: viewName,
               pageLabel: "",
@@ -271,8 +271,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       await collectDefinitions(
           viewName: viewName,
           renderer: rendererName,
-          currentViewContext: newVewContext,
-          //TODO maybe should be new viewContext:
+          currentViewContext: newViewContext,
           sceneController: sceneController,
           subViewDefinition: viewDefinition);
     } else {
