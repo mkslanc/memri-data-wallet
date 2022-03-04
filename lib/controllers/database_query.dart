@@ -549,10 +549,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       ItemRecord? targetItem,
       DateTimeRange? dateRange,
       DatabaseController? databaseController}) async {
-    var datasourceResolver = datasource?.parsed.propertyResolver(
-        context: context,
-        lookup: CVULookupController(),
-        db: AppController.shared.databaseController);
+    databaseController ??= AppController.shared.databaseController;
+    var datasourceResolver = datasource?.parsed
+        .propertyResolver(context: context, lookup: CVULookupController(), db: databaseController);
     var uidList = overrideUIDs ?? Set.from(await datasourceResolver?.intArray("uids") ?? []);
     var filterDef = datasourceResolver?.subdefinition("filter");
 
@@ -611,8 +610,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     if (sortDef != null) {
       queryConfig.sortEdges = await queryConfig.combineSortEdgesQuery(
-          sortResolver: sortDef,
-          dbController: databaseController ?? AppController.shared.databaseController);
+          sortResolver: sortDef, dbController: databaseController);
     }
 
     var edgeTargetsOperator = datasourceResolver?.properties["edgeTargetsOperator"];

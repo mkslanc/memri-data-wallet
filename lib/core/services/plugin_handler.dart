@@ -30,6 +30,8 @@ class PluginHandler {
               case "done":
               case "daemon":
               case "error":
+                //TODO: do we have better solution?
+                pageController.sceneController.scheduleUIUpdate();
                 stopPlugin(
                     plugin: plugin, runner: runner, pageController: pageController, status: status);
                 break;

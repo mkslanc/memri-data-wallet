@@ -239,7 +239,8 @@ class SceneController extends ChangeNotifier {
         inheritQuery: inheritDatasource ? pageController.topMostContext?.config.query : null,
         overrideUIDs: overrideRowIDs,
         targetItem: targetItem,
-        dateRange: dateRange);
+        dateRange: dateRange,
+        databaseController: appController.databaseController);
 
     var config = ViewContext(
         viewName: viewName,

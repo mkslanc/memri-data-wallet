@@ -395,8 +395,8 @@ class CVUActionOpenViewByName extends CVUAction {
 
     var datasource = viewDefinition.definitions
         .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
-    var queryConfig =
-        await DatabaseQueryConfig.queryConfigWith(context: newContext, datasource: datasource);
+    var queryConfig = await DatabaseQueryConfig.queryConfigWith(
+        context: newContext, datasource: datasource, databaseController: db);
 
     if (itemType != null) {
       queryConfig.itemTypes = [itemType!];
@@ -742,7 +742,14 @@ class CVUActionPluginRun extends CVUAction {
     if (configValue != null) {
       config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
     }
-
+    var mockVar = vars["isMock"];
+    if (mockVar != null) {
+      bool isMock =
+          await lookup.resolve<bool>(value: vars["isMock"], context: context, db: db) ?? false;
+      if (isMock) {
+        config = '{"isMock": true}';
+      }
+    }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
       await pluginRunItem.save();
@@ -1709,6 +1716,7 @@ class CVUActionParsePluginItem extends CVUAction {
         properties.addEntries({MapEntry(key, value)});
         queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
+      propertiesFilter += '\nisMock: true\n';
       propertiesFilter += "}}";
     }
 
@@ -1808,7 +1816,7 @@ class CVUActionParsePluginItem extends CVUAction {
             }
             
             FlowStack {
-                list: {{.dataset.feature[]}}
+                list: {{.~labellingPlugin.dataset.feature[]}}
                 spacing: 4
 
                 Wrap {
@@ -1875,13 +1883,18 @@ class CVUActionParsePluginItem extends CVUAction {
     }
 
     var databaseQueryConfig =
-        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 0, conditions: queryProperties);
+        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
     databaseQueryConfig.dbController = db;
     var items = await databaseQueryConfig.constructFilteredRequest();
-    if (items.isEmpty)
+    if (items.isEmpty) {
       await MockDataGenerator.generateMockItems(
           db: db, properties: properties, itemType: startItemType);
-
+    } else {
+      for (var item in items) {
+        var newItemRecord = await ItemRecord.fromItem(item).copy(db);
+        await newItemRecord.setPropertyValue("isMock", PropertyDatabaseValueBool(true));
+      }
+    }
     return cvuID;
   }
 }
