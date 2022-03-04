@@ -1,4 +1,4 @@
-.labelingAnnotation {
+.labellingAnnotation {
     additional: {
         HStack {
             alignment: left
@@ -37,7 +37,7 @@
     emptyResultText: "There are no annotations here yet"
 }
 
-.labelingSummary {
+.labellingSummary {
     cols: 3
     defaultRenderer: singleItem
 
@@ -59,140 +59,187 @@
             Text {
                 font: headline2
                 padding: 0 0 30 0
-                text: {{.~labellingTask.datasetType.name}}
-            }
-
-            Text {
-                color: #999999
-                font: small_caps
-                text: "TASK"
-            }
-
-            Observer {
-                itemType: "LabelOption"
-
-                VStack {
-                    HStack {
-                        alignment: left
-                        padding: 0
-
-                        Text {
-                            color: #999999
-                            font: ul
-                            text: "Submitted"
-                        }
-
-                        Text {
-                            color: #333333
-                            font: ul
-                            text: "{.labelAnnotation[.isSubmitted = true].count()} annotations"
-                        }
-
-                        VStack {
-                            alignment: top
-
-                            Text {
-                                color: #333333
-                                font: small_caps
-                                text: "{.labelAnnotation[.isSubmitted = true].count().percent(.~labellingTask.entry[].count())}%"
-                            }
-                        }
-                    }
-
-                    HStack {
-                        alignment: left
-
-                        Text {
-                            color: #999999
-                            font: ul
-                            text: "Skipped"
-                        }
-
-                        Text {
-                            color: #333333
-                            font: ul
-                            text: "{.labelAnnotation[.isSubmitted = false].count()} annotations"
-                        }
-
-                        VStack {
-                            alignment: top
-
-                            Text {
-                                color: #333333
-                                font: small_caps
-                                text: "{.labelAnnotation[.isSubmitted = false].count().percent(.~labellingTask.entry[].count())}%"
-                            }
-                        }
-                    }
-                }
-            }
-
-            HStack {
-                alignment: left
-
-                Text {
-                    color: #999999
-                    font: ul
-                    text: "Dataset"
-                }
-
-                Text {
-                    color: #333333
-                    font: ul
-                    text: "{.~labellingTask.entry[].count()} annotations"
-                }
-            }
-
-            Text {
-                color: #999999
-                font: small_caps
-                padding: 20 0 0 0
-                text: "LABELS"
+                text: {{labellingTask.~labellingTask.datasetType.name}}
             }
 
             SubView {
                 view: {
-                    defaultRenderer: list
-                    editMode: false
+                    defaultRenderer: custom
+                    scrollable: false
                     viewArguments: {
+                        datasetEntries: {{items}}
+                        datasetEntriesCount: {{items.count()}}
                         labellingTask: {{labellingTask}}
+                        selectedDataset: {{labellingTask.~labellingTask}}
                     }
 
                     [datasource = pod] {
                         filter: {
                             edgeSources: {
-                                labelOption: {{labellingTask}}
+                                entry: {{selectedDataset}}
                             }
                         }
-                        query: LabelOption
+                        query: DatasetEntry
                     }
 
-                    [renderer = list] {
-                        edgeInset: 0
-                        hideSeparators: true
-                        spacing: 0
-                    }
+                    [renderer = custom] {
+                        VStack {
+                            alignment: topleft
 
-                    LabelOption > list {
-                        Observer {
-                            itemType: "LabelOption"
+                            Text {
+                                color: #999999
+                                font: small_caps
+                                padding: 20 0 0 0
+                                text: "TASK"
+                            }
+
+                            SubView {
+                                height: 20
+                                view: {
+                                    defaultRenderer: custom
+                                    viewArguments: {
+                                        datasetEntries: {{datasetEntries}}
+                                        datasetEntriesCount: {{datasetEntriesCount}}
+                                    }
+
+                                    [datasource = pod] {
+                                        filter: {
+                                            edgeSources: {
+                                                annotation: {{datasetEntries}}
+                                            }
+                                            properties: {
+                                                isSubmitted: true
+                                            }
+                                        }
+                                        query: CategoricalLabel
+                                    }
+
+                                    [renderer = custom] {
+                                        HStack {
+                                            alignment: left
+                                            padding: 0
+
+                                            Text {
+                                                color: #999999
+                                                font: ul
+                                                text: "Submitted"
+                                            }
+
+                                            Text {
+                                                color: #333333
+                                                font: ul
+                                                text: "{items.count()} annotations"
+                                            }
+
+                                            VStack {
+                                                alignment: top
+                                                height: 22
+
+                                                Text {
+                                                    color: #333333
+                                                    font: small_caps
+                                                    text: "{items.count().percent(datasetEntriesCount)}%"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            SubView {
+                                height: 20
+                                view: {
+                                    defaultRenderer: custom
+                                    viewArguments: {
+                                        datasetEntries: {{datasetEntries}}
+                                        datasetEntriesCount: {{datasetEntriesCount}}
+                                    }
+
+                                    [datasource = pod] {
+                                        filter: {
+                                            edgeSources: {
+                                                annotation: {{datasetEntries}}
+                                            }
+                                            properties: {
+                                                isSubmitted: false
+                                            }
+                                        }
+                                        query: CategoricalLabel
+                                    }
+
+                                    [renderer = custom] {
+                                        HStack {
+                                            alignment: left
+                                            padding: 0
+
+                                            Text {
+                                                color: #999999
+                                                font: ul
+                                                text: "Skipped"
+                                            }
+
+                                            Text {
+                                                color: #333333
+                                                font: ul
+                                                text: "{items.count()} annotations"
+                                            }
+
+                                            VStack {
+                                                alignment: top
+                                                height: 22
+
+                                                Text {
+                                                    color: #333333
+                                                    font: small_caps
+                                                    text: "{items.count().percent(datasetEntriesCount)}%"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
                             HStack {
                                 alignment: left
 
                                 Text {
-                                    color: #333333
+                                    color: #999999
                                     font: ul
-                                    text: "{.name} {.~categoricalLabel[].count()}"
+                                    text: "Dataset"
                                 }
 
-                                VStack {
-                                    alignment: top
+                                Text {
+                                    color: #333333
+                                    font: ul
+                                    text: "{items.count()} annotations"
+                                }
+                            }
 
-                                    Text {
-                                        color: #333333
-                                        font: small_caps
-                                        text: "{.~categoricalLabel[].count().percent(.~labelOption.~labellingTask.entry[].count())} %"
+                            Text {
+                                color: #999999
+                                font: small_caps
+                                padding: 20 0 0 0
+                                text: "LABELS"
+                            }
+
+                            SubView {
+                                view: {
+                                    defaultRenderer: list
+                                    editMode: false
+                                    viewArguments: {
+                                        datasetEntries: {{datasetEntries}}
+                                        datasetEntriesCount: {{datasetEntriesCount}}
+                                        labellingTask: {{labellingTask}}
+                                    }
+                                    viewName: labelOptionListSummary
+
+                                    [datasource = pod] {
+                                        filter: {
+                                            edgeSources: {
+                                                labelOption: {{labellingTask}}
+                                            }
+                                        }
+                                        query: LabelOption
                                     }
                                 }
                             }
@@ -204,16 +251,16 @@
     }
 }
 
-.labeling {
+.labelling {
     cols: 12
     defaultRenderer: scene
-    name: "labeling"
-    title: "Labeling"
+    name: "labelling"
+    title: "Labelling"
 
     [renderer = scene] {
         pages: {
-            labelingAnnotation: "labelingAnnotation"
-            labelingSummary: "labelingSummary"
+            labellingAnnotation: "labellingAnnotation"
+            labellingSummary: "labellingSummary"
         }
         viewArguments: {
             labellingTask: {{.}}

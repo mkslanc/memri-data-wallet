@@ -27,10 +27,10 @@ LabellingDataType > grid {
 
 }
 
-.allLabelingDataTypes {
-    name: "all-labeling-data-types"
+.allLabellingDataTypes {
+    name: "all-labelling-data-types"
     title: "Data types"
-    emptyResultText: "There are no Labeling data types"
+    emptyResultText: "There are no Labelling data types"
     defaultRenderer: grid
     sortFields: dateModified dateCreated
 
