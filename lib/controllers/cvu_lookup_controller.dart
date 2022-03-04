@@ -731,17 +731,25 @@ class CVULookupController {
     return currentValue;
   }
 
-  Future<List<ItemRecord>> filter(
-      List<ItemRecord> items, CVUExpressionNode? exp, DatabaseController? db) async {
+  Future<List<ItemRecord>> filter(List<ItemRecord> items, CVUExpressionNode? exp,
+      DatabaseController? db, CVUContext context) async {
     if (exp == null) {
       return items;
     }
 
-    return (await Future.wait(items.map((item) async =>
-            (await resolve<bool>(expression: exp, context: CVUContext(currentItem: item), db: db) ??
-                    false)
-                ? item
-                : null)))
+    return (await Future.wait(items.map((item) async => (await resolve<bool>(
+                    expression: exp,
+                    context: CVUContext(
+                        currentItem: item,
+                        viewArguments: CVUViewArguments(
+                          argumentItem: context.currentItem,
+                          argumentItems: context.items,
+                          args: context.viewArguments?.args,
+                        )),
+                    db: db) ??
+                false)
+            ? item
+            : null)))
         .compactMap();
   }
 
@@ -834,7 +842,7 @@ class CVULookupController {
               .whereType<ItemRecord>()
               .toList();
         }
-        var stepItems = await filter(result, filterExpression, db);
+        var stepItems = await filter(result, filterExpression, db, context);
         cached = LookupStepItems(stepItems);
         context.setCache(nodePath, cached);
         return cached;
@@ -901,7 +909,7 @@ class CVULookupController {
               if (itemRecord != null) result.add(itemRecord);
             });
           }
-          var stepItems = await filter(result, filterExpression, db);
+          var stepItems = await filter(result, filterExpression, db, context);
           cached = LookupStepItems(stepItems);
           context.setCache(nodePath, cached);
           return cached;
