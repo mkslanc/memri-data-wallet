@@ -327,6 +327,16 @@ class ItemRecord with EquatableMixin {
     return edgeItemRecords.asMap()[0];
   }
 
+  Future<ItemEdgeRecord> addEdge({required String edgeName, required ItemRecord targetItem}) async {
+    var edgeRecord = ItemEdgeRecord(
+        sourceRowID: rowId!,
+        name: edgeName,
+        targetRowID: targetItem.rowId,
+        targetUID: targetItem.uid);
+    await edgeRecord.save();
+    return edgeRecord;
+  }
+
   Future<List<ItemRecord>> edgeItems(String? name,
       {DatabaseController? db,
       bool? deleted = false,
