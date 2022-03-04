@@ -50,7 +50,7 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                         children: [
                           SvgPicture.asset("assets/images/ico_log_out.svg"),
                           Text(
-                            "Sign out",
+                            "Sign out and reset",
                             style: CVUFont.bodyText1.copyWith(color: Colors.white),
                           )
                         ],
