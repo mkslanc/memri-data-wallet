@@ -30,6 +30,8 @@ Future<void> deleteDb(databaseName) async {
   var store = txn.objectStore(dbName);
   await store.clear();
   await txn.completed;
+
+  /// TODO: it should replace with correct implementation of route navigator
   window.location.reload();
 }
 

@@ -11,10 +11,7 @@ factoryReset(context) {
       actions: <Widget>[
         PointerInterceptor(
           child: TextButton(
-            onPressed: () async {
-              await AppController.shared.resetApp();
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
+            onPressed: () async => await AppController.shared.resetApp(),
             child: const Text('OK'),
           ),
         ),

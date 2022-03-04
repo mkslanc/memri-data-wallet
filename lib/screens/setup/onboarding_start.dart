@@ -3,7 +3,7 @@ import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/ui/setup_model.dart';
+import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_developer.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
 
@@ -16,8 +16,14 @@ class OnboardingStart extends StatefulWidget {
 
 class _OnboardingStartState extends State<OnboardingStart> {
   AppController appController = AppController.shared;
-  SetupScreenModel model = SetupScreenModel();
   final podUrlController = TextEditingController();
+
+  @override
+  void initState() {
+    appController.model.setupAsNewPod = true;
+    appController.model.podURL = AppSettings.defaultPodURL;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,39 +45,29 @@ class _OnboardingStartState extends State<OnboardingStart> {
                             "Hello, you.",
                             style: CVUFont.headline1,
                           ),
-                          SizedBox(
-                            height: 30,
-                          ),
+                          SizedBox(height: 30),
                           Text(
                             "This is a test version of memri pod.",
                             style: CVUFont.bodyText2,
                           ),
-                          SizedBox(
-                            height: 20,
-                          ),
+                          SizedBox(height: 20),
                           Text(
                             "Unexpected errors, expected reactions, unknown turns taken, known karma striking back.",
                             style: CVUFont.bodyText2,
                           ),
-                          SizedBox(
-                            height: 45,
-                          ),
+                          SizedBox(height: 45),
                           Row(
                             children: [
                               TextButton(
-                                onPressed: () async {
-                                  await onAcknowledgedNewPodWarning();
-                                },
+                                onPressed: handleSetup,
                                 style: primaryButtonStyle,
                                 child: Text("Create new account"),
                               ),
-                              SizedBox(
-                                width: 10,
-                              ),
+                              SizedBox(width: 10),
                               TextButton(
                                 onPressed: () async {
                                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                                    return OnboardingLogin(model: model);
+                                    return OnboardingLogin();
                                   }));
                                 },
                                 child: Text(
@@ -80,14 +76,11 @@ class _OnboardingStartState extends State<OnboardingStart> {
                                 ),
                                 style: TextButton.styleFrom(backgroundColor: null),
                               ),
-                              SizedBox(
-                                width: 30,
-                              ),
+                              SizedBox(width: 30),
                               TextButton(
                                 onPressed: () async {
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                                    return OnboardingDeveloper(model: model);
-                                  }));
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => OnboardingDeveloper()));
                                 },
                                 child: Text(
                                   "Switch to developers mode",
@@ -99,11 +92,11 @@ class _OnboardingStartState extends State<OnboardingStart> {
                               ),
                             ],
                           ),
-                          if (model.state == PodSetupState.error)
+                          if (appController.model.state == PodSetupState.error)
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                               child: Text(
-                                "Error: ${model.errorString}",
+                                "Error: ${appController.model.errorString}",
                                 style: TextStyle(color: Colors.red),
                               ),
                             ),
@@ -112,13 +105,11 @@ class _OnboardingStartState extends State<OnboardingStart> {
                     ),
                   ),
                 ),
-                if (model.state == PodSetupState.loading) ...[
+                if (appController.model.state == PodSetupState.loading) ...[
                   SizedBox(
                       width: geom.maxWidth,
                       height: geom.maxHeight,
-                      child: ColoredBox(
-                        color: Color.fromRGBO(0, 0, 0, 0.7),
-                      )),
+                      child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
                   Center(
                     child: Column(
                       children: [
@@ -141,31 +132,8 @@ class _OnboardingStartState extends State<OnboardingStart> {
             ));
   }
 
-  Future<void> onAcknowledgedNewPodWarning() async {
-    await handleSetup(false);
-  }
-
-  void handleCompletion(Exception? error) {
-    if (error != null) {
-      setState(() {
-        model.state = PodSetupState.error;
-        model.errorString = "${error.toString()}";
-      });
-    } else {
-      setState(() => model.state = PodSetupState.idle);
-    }
-  }
-
-  handleSetup(bool localOnly) async {
-    setState(() => model.state = PodSetupState.loading);
-    model.podURL = AppSettings.defaultPodURL;
-    var config = model.getSetupConfig(localOnly);
-
-    if (config == null) {
-      handleCompletion(null);
-      return;
-    }
-    await appController.setupApp(
-        config: config, useDemoData: model.useDemoData, onCompletion: handleCompletion);
+  void handleSetup() {
+    setState(() => appController.model.state = PodSetupState.loading);
+    appController.setupApp();
   }
 }
