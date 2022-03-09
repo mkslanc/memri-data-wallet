@@ -76,25 +76,26 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launch("https://blog.memri.io/"),
+                      onTap: () => launch(
+                          "https://memri.docs.memri.io/docs.memri.io/guides/import_your_data/"),
                       child: Text(
-                        "Tutorials",
+                        "Guides",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launch("http://memri.docs.memri.io/pymemri/"),
+                      onTap: () => launch("https://memri.docs.memri.io/docs.memri.io/"),
                       child: Text(
                         "Documentation",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launch("https://gitlab.memri.io/memri"),
+                      onTap: () => launch("https://gitlab.memri.io/users/sign_in"),
                       child: Text(
                         "Repositories",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () {},
+                      onTap: () => launch("https://discord.com/invite/BcRfajJk4k"),
                       child: Text(
                         "Get support",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
@@ -116,23 +117,11 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                   InkWell(
                       onTap: () => launch("https://memri.io/privacy/"),
                       child: Text(
-                        "Privacy and  Security",
+                        "Privacy Policy",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launch("https://discord.com/invite/BcRfajJk4k"),
-                      child: Text(
-                        "Report a bug",
-                        style: CVUFont.bodyText1.copyWith(color: Colors.white),
-                      )),
-                  InkWell(
-                      onTap: () => launch("https://discord.com/invite/BcRfajJk4k"),
-                      child: Text(
-                        "Request a feature",
-                        style: CVUFont.bodyText1.copyWith(color: Colors.white),
-                      )),
-                  InkWell(
-                      onTap: () => launch("https://discord.com/invite/BcRfajJk4k"),
+                      onTap: () => launch("https://memri.io/contact/"),
                       child: Text(
                         "Contact us",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
