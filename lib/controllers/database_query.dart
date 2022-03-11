@@ -252,7 +252,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     // Property and edges conditions
     List<List<int>> allConditionsItemsRowIds = [];
     List<List<int>> edgeConditionsItemsRowIds = [];
-    await Future.forEach(conditions, (DatabaseQueryCondition condition) async {
+    for (var condition in conditions) {
       var info, query;
       List<Variable<dynamic>> binding = [];
 
@@ -286,7 +286,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
                 .whereType<int>()
                 .toList());
       }
-    });
+    }
+
     if (edgeConditionsItemsRowIds.isNotEmpty) {
       if (edgeTargetsOperator == ConditionOperator.or) {
         var uniqueRowIds = <int>{};
