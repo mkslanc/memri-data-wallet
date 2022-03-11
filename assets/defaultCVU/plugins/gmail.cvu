@@ -1,12 +1,11 @@
 .GmailImporterRun {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect Gmail account"
 
-    [renderer = singleItem]{
-
+    [renderer = singleItem] {
     }
 
     Plugin > singleItem {
@@ -15,242 +14,359 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Authenticate your Gmail account"
                 color: #333333
                 font: headline3
                 padding: 0 0 60 0
+                text: "Authenticate your Gmail account"
             }
 
             Text {
-                text: "Step 1"
                 font: link
                 padding: 0 0
+                text: "Step 1"
             }
 
             Text {
-                text: "Enable two-factor authentication"
                 font: headline1
+                text: "Enable two-factor authentication"
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
-                Text {
-                    text: "Log in to your Google Account."
-                    font: bodyText2
+                RichText {
                     color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "Log in to your "
+                        }
+                        {
+                            color: #E9500F
+                            onPress: [
+                                openLink
+                                {
+                                    link: "https://myaccount.google.com/"
+                                }
+                            ]
+                            text: "Google Account"
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
-                Text {
-                    text: "In the navigation panel, select Security."
-                    font: bodyText2
+                RichText {
                     color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "In the navigation panel, select "
+                        }
+                        {
+                            color: #E9500F
+                            onPress: [
+                                openLink
+                                {
+                                    link: "https://myaccount.google.com/security"
+                                }
+                            ]
+                            text: "Security"
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
-                Text {
-                    text: "Under “Signing in to Google,” select 2-Step Verification and then Get started."
-                    font: bodyText2
+                RichText {
                     color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "Under “Signing in to Google,” select "
+                        }
+                        {
+                            font: 12 bold
+                            text: "2-Step Verification"
+                        }
+                        {
+                            text: " and "
+                        }
+                        {
+                            font: 12 bold
+                            text: "Get started."
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
                 padding: 0 0 25 0
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
                 Text {
-                    text: "Follow the on-screen steps."
-                    font: bodyText2
                     color: #737373
+                    font: bodyText2
+                    text: "Follow the on-screen steps."
                 }
             }
 
             Text {
-                text: "Step 2"
                 font: link
                 padding: 60 0 0
+                text: "Step 2"
             }
 
             Text {
-                text: "Enable IMAP forwarding"
                 font: headline1
+                text: "Enable IMAP forwarding"
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
-                }
-
-                Text {
-                    text: "Go to your Google Account and select Security."
-                    font: bodyText2
-                    color: #737373
-                }
-            }
-
-            HStack {
-                alignment: left
-                Image {
-                    bundleImage: "arrow-right-circle"
                     isVector: true
-                    alignment: center
                     resizable: true
                     sizingMode: fit
-                    color: #989898
-                    font: 20
                 }
 
-                Text {
-                    text: 'Under "Signing in to Google," select App Passwords.  You may need to sign in.'
-                    font: bodyText2
+                RichText {
                     color: #737373
-                }
-            }
-
-            HStack {
-                alignment: left
-                Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
-                    alignment: center
-                    resizable: true
-                    sizingMode: fit
-                    color: #989898
-                    font: 20
-                }
-
-                Text {
-                    text: "For Select App select Mail."
                     font: bodyText2
-                    color: #737373
+                    spans: [
+                        {
+                            text: "Go to your Google Account and select "
+                        }
+                        {
+                            color: #E9500F
+                            onPress: [
+                                openLink
+                                {
+                                    link: "https://myaccount.google.com/security"
+                                }
+                            ]
+                            text: "Security"
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
-                Text {
-                    text: "For Device select Other."
-                    font: bodyText2
+                RichText {
                     color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "Under \"Signing in to Google,\" select "
+                        }
+                        {
+                            color: #E9500F
+                            onPress: [
+                                openLink
+                                {
+                                    link: "https://myaccount.google.com/apppasswords"
+                                }
+                            ]
+                            text: "App Passwords."
+                        }
+                        {
+                            text: " You may need to sign in."
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
-                Text {
-                    text: "For Name type Memri."
-                    font: bodyText2
+                RichText {
                     color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "For Select App select "
+                        }
+                        {
+                            font: 12 bold
+                            text: "Mail."
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
-                Text {
-                    text: "Tap Generate."
-                    font: bodyText2
+                RichText {
                     color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "For Device select "
+                        }
+                        {
+                            font: 12 bold
+                            text: "Other."
+                        }
+                    ]
+                }
+            }
+
+            HStack {
+                alignment: left
+
+                Image {
+                    alignment: center
+                    bundleImage: "arrow-right-circle"
+                    color: #989898
+                    font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
+                }
+
+                RichText {
+                    color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "For Name type "
+                        }
+                        {
+                            font: 12 bold
+                            text: "Memri."
+                        }
+                    ]
+                }
+            }
+
+            HStack {
+                alignment: left
+
+                Image {
+                    alignment: center
+                    bundleImage: "arrow-right-circle"
+                    color: #989898
+                    font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
+                }
+
+                RichText {
+                    color: #737373
+                    font: bodyText2
+                    spans: [
+                        {
+                            text: "Tap "
+                        }
+                        {
+                            font: 12 bold
+                            text: "Generate."
+                        }
+                    ]
                 }
             }
 
             HStack {
                 alignment: left
                 padding: 0 0 25 0
+
                 Image {
-                    bundleImage: "arrow-right-circle"
-                    isVector: true
                     alignment: center
-                    resizable: true
-                    sizingMode: fit
+                    bundleImage: "arrow-right-circle"
                     color: #989898
                     font: 20
+                    isVector: true
+                    resizable: true
+                    sizingMode: fit
                 }
 
                 Text {
-                    text: "Save the generated password for the next step."
-                    font: bodyText2
                     color: #737373
+                    font: bodyText2
+                    text: "Save the generated password for the next step."
                 }
             }
 
@@ -258,40 +374,39 @@
                 alignment: left
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: "pluginRunWait"
+                        }
+                        pluginRun
+                        {
+                            container: {{.containerImage}}
+                            name: {{.name}}
+                            pluginId: {{.id}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                        }
+                    ]
                     styleName: primaryButton
 
                     Text {
                         text: "Oke."
                     }
-
-                    onPress: [
-                        openView {
-                            viewName: "pluginRunWait"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        pluginRun {
-                            name: {{.name}}
-                            container: {{.containerImage}}
-                            pluginModule: {{.pluginModule}}
-                            pluginName: {{.pluginName}}
-                            pluginId: {{.id}}
-                        }
-                        ]
                 }
 
                 Button {
+                    onPress: back
                     padding: 0 0 0 20
 
                     Text {
-                        text: "Cancel"
-                        font: button_label
                         color: #333333
+                        font: button_label
+                        text: "Cancel"
                     }
-
-                    onPress: back
                 }
             }
         }
