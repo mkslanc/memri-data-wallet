@@ -138,6 +138,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         context: newContext,
         datasource: datasource,
         databaseController: AppController.shared.databaseController);
+    queryConfig!.pageSize = 0;
 
     var config = ViewContext(
         viewName: viewName,
