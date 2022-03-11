@@ -91,14 +91,14 @@
 }
 
 .labellingAnnotationPreview {
-    cols: 6
+    cols: 8
     defaultRenderer: labelAnnotation
     emptyResultText: "There are no annotations here yet"
     inPreviewMode: true
 }
 
 .labellingPreview {
-    cols: 10
+    cols: 12
     defaultRenderer: scene
     name: "labellingPreview"
     title: "Preview labelling editor"
@@ -116,7 +116,10 @@
 
 .labellingCVUEditor {
     cols: 4
-    customDefinition: {{labellingTask.view.definition}}
     defaultRenderer: cvuEditor
     mode: customLocation
+    viewArguments: {
+        labellingTask: {{labellingTask}}
+        customDefinition: {{labellingTask.view.definition}}
+    }
 }
