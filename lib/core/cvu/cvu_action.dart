@@ -1510,7 +1510,11 @@ class CVUActionCreateLabellingTask extends CVUAction {
     for (var feature in featureItems) {
       var propertyName = (await feature.propertyValue("propertyName", db))?.value;
       if (propertyName != null) {
-        cvu += '\nText {\n text: "{.${propertyName}}"\n font: headline1 \n}';
+        if (itemType == "EmailMessage" && propertyName == "content") {
+          cvu += '\nHTMLView {\n maxHeight: 400\n content: {{.content}}\n}';
+        } else {
+          cvu += '\nText {\n text: "{.${propertyName}}"\n font: headline1 \n}';
+        }
       }
     }
     cvu += '\n}\n}\n}';
