@@ -40,79 +40,152 @@ MessageChannel {
 }
 
 .messageChannelView {
+    cols: 8
+    defaultRenderer: {{channel.~messageChannel[limit: 3].count() = 2 AND channel.~messageChannel.type != "Message" ? "singleItem" : "list"}}
+    item: {{.~messageChannel}}
     showTopBar: false
-    defaultRenderer: list
-    title: {{channel.~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject or channel.receiver.owner.fullname() or channel.name or channel.topic}}
-    cols: 6
-
-    titleActionButton: openView {
-        item: {{channel}}
-    }
+    title: {{channel.~messageChannel[sort: 'dateSent DESC', limit: 1].first().subject OR channel.receiver.owner.fullname() OR channel.name OR channel.topic}}
 
     [datasource = pod] {
-        query: Message EmailMessage
         filter: {
             edgeTargets: {
                 messageChannel: {{channelUID}}
             }
         }
-        sortProperty: dateSent
+        query: Message EmailMessage
         sortAscending: false
+        sortProperty: dateSent
     }
 
     [renderer = list] {
+        edgeInset: 0
+        hideSeparators: {{channel.~messageChannel.itemtype() = "Message" ? true : false}}
         isReverse: true
-        hideSeparators: true
     }
 
     Message > list {
-        onPress: noop
     }
 
     Message > timeline {
         onPress: noop
     }
+
+    EmailMessage > list {
+        onPress: [
+            openView
+            {
+                renderer: singleItem
+            }
+        ]
+    }
+
+    EmailMessage > singleItem {
+        onPress: noop
+    }
+
+    [renderer = singleItem] {
+        scrollable: false
+    }
+
+    MessageChannel > singleItem {
+        onPress: noop
+        scrollable: false
+
+        VStack {
+            SubView {
+                initialItem: {{.~messageChannel}}
+                view: {
+                    defaultRenderer: singleItem
+
+                    [renderer = singleItem] {
+                        scrollable: false
+                    }
+                }
+            }
+        }
+    }
 }
 
 
 MessageChannel > list {
-  onPress: [
-      openView
-      {
-          clearStack: true
-          viewArguments: {
-              channel: {{.}}
-              channelUID: {{.uid}}
-              pageLabel: "inboxData"
-              readOnly: true
-          }
-          viewName: messageChannelView
-      }
-  ]
+    onPress: [
+        openView
+        {
+            clearStack: true
+            viewArguments: {
+                addPageIfMissing: true
+                channel: {{.}}
+                channelUID: {{.uid}}
+                pageLabel: "inboxData"
+                readOnly: true
+            }
+            viewName: messageChannelView
+        }
+    ]
 
-  VStack {
-      alignment: topleft
+    HStack {
+        alignment: left
+        padding: 10 0 10 0
 
-      HStack {
-          alignment: left
+        VStack {
+            alignment: topleft
 
-          Image {
-              cornerRadius: 50
-              image: {{.~messageChannel.sender.owner.profilePicture OR .photo OR .receiver.profilePicture OR .receiver.owner.profilePicture OR .~messageChannel.sender.profilePicture OR "assets/images/person.png"}}
-              maxHeight: 30
-              maxWidth: 30
-              minHeight: 30
-              minWidth: 30
-              sizingMode: fill
-          }
+            Circle {
+                color: {{.generaterandom("string", "color")}}
+                height: 30
+                show: {{.~messageChannel.itemType() = "EmailMessage"}}
+                width: 30
+            }
 
-          Text {
-              color: #737373
-              font: 12 regular
-              text: {{.receiver.owner.fullName() OR .name OR .~messageChannel.sender.identifier}}
-          }
-      }
-  }
+            Image {
+                cornerRadius: 50
+                image: {{.~messageChannel.sender.owner.profilePicture OR .photo OR .receiver.profilePicture OR .receiver.owner.profilePicture OR .~messageChannel.sender.profilePicture OR "assets/images/person.png"}}
+                maxHeight: 30
+                maxWidth: 30
+                minHeight: 30
+                minWidth: 30
+                show: {{.~messageChannel.itemType() != "EmailMessage"}}
+                sizingMode: fill
+            }
+        }
+
+        VStack {
+            alignment: topleft
+            padding: 0 0 0 15
+
+            Text {
+                color: #333333
+                font: 13 regular
+                text: {{.~messageChannel.sender.displayName OR .~messageChannel.sender.identifier}}
+            }
+
+            Text {
+                color: #999999
+                font: body_tiny
+                show: {{.~messageChannel.sender.displayName}}
+                text: {{.~messageChannel.sender.identifier}}
+            }
+        }
+
+        Spacer
+
+        VStack {
+            padding: 0 19 0 0
+
+            Text {
+                color: #989898
+                font: body_tiny
+                text: "{.~messageChannel.last().dateSent.format('dd MMMM yyyy')}"
+            }
+        }
+
+        Image {
+            color: #DFDEDE
+            font: 24 light
+            padding: 5 0 5 0
+            systemName: "ellipsis"
+        }
+    }
 }
 
 .allMessageChannels {

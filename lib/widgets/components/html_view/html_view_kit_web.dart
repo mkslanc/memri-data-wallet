@@ -7,8 +7,9 @@ import 'package:uuid/uuid.dart';
 class HtmlViewUIKit extends StatefulWidget {
   final String? html;
   final String? src;
+  final bool reload;
 
-  HtmlViewUIKit({this.html, this.src});
+  HtmlViewUIKit({this.html, this.src, required this.reload});
 
   @override
   _HtmlViewUIKitState createState() => _HtmlViewUIKitState();
@@ -25,7 +26,9 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
       if (widget.src != null) {
         iframe.src = widget.src;
       } else if (widget.html != null) {
-        iframe.srcdoc = widget.html! + loadPurifier() + getContentLoaderString();
+        var content = widget.html! + loadPurifier() + getContentLoaderString();
+        if (widget.reload) content += reloadingScript();
+        iframe.srcdoc = content;
       }
 
       return iframe;
@@ -60,10 +63,17 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
         metaWidth.name = "viewport";
         metaWidth.content = "width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no";
         document.getElementsByTagName('head')[0].appendChild(metaWidth);
+        
+    </script>
+       """;
+  }
+
+  String reloadingScript() {
+    return """
+    <script type="application/javascript">
         setTimeout(function() {
           location.reload();
         }, 2000);
-        
     </script>
        """;
   }

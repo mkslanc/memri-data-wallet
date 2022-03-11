@@ -4,8 +4,9 @@ class HtmlViewUIKit extends StatelessWidget {
   final String? html;
   final String? src;
   final Function? callback;
+  final bool reload;
 
-  HtmlViewUIKit({this.html, this.src, this.callback});
+  HtmlViewUIKit({this.html, this.src, this.callback, required this.reload});
 
   @override
   Widget build(BuildContext context) {

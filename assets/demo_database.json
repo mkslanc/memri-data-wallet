@@ -3001,6 +3001,11 @@
         "targetType": "Account",
         "uid": 20000000000,
         "_type": "sender"
+      },
+      {
+        "targetType": "MessageChannel",
+        "uid": 200000000099,
+        "_type": "messageChannel"
       }
     ]
   },

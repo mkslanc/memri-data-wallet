@@ -15,34 +15,6 @@
 }
 
 .inbox-channels {
-    additional: {
-        Button {
-            onPress: noop
-
-            HStack {
-                alignment: left
-                padding: 13 0 7 0
-
-                Image {
-                    bundleImage: "plus"
-                    color: #FE570F
-                    cornerRadius: 50
-                    isVector: true
-                    maxHeight: 30
-                    maxWidth: 30
-                    minHeight: 30
-                    minWidth: 30
-                    sizingMode: fill
-                }
-
-                Text {
-                    color: #FE570F
-                    font: 12 regular
-                    text: "Compose"
-                }
-            }
-        }
-    }
     cols: 4
     defaultRenderer: list
     emptyResult: {
