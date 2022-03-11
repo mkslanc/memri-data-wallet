@@ -48,7 +48,9 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   CVUDefinitionContent? contentDefinition;
 
   ValueNotifier<Set<String>> _selectedLabels = ValueNotifier(Set<String>());
+
   Set<String> get selectedLabels => _selectedLabels.value;
+
   set selectedLabels(Set<String> newSelectedLabels) {
     _selectedLabels.value = newSelectedLabels;
   }
@@ -253,7 +255,6 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                 enableCheckmarkButton: true,
                 enableSkipButton: enableSkipButton,
                 content: currentContent,
-                useScrollView: false,
                 labelType: labelType,
                 additional: additional,
                 isSingleLabel: isSingleLabel,
@@ -293,7 +294,6 @@ class LabelSelectionView extends StatelessWidget {
   final String? topText;
 
   final Widget content;
-  final bool useScrollView;
 
   final Widget? additional;
   final bool isSingleLabel;
@@ -310,7 +310,6 @@ class LabelSelectionView extends StatelessWidget {
       required this.enableSkipButton,
       this.topText,
       required this.content,
-      this.useScrollView = true,
       required this.labelType,
       this.additional,
       required this.isSingleLabel});
@@ -400,64 +399,74 @@ class LabelSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      if (topText != null) ...[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          child: Text(
-            topText!,
-            style: TextStyle(backgroundColor: CVUColor.system("secondarySystemBackground")),
-          ),
-        ),
-        Divider(
-          height: 1,
-        )
-      ],
-      useScrollView
-          ? LayoutBuilder(
-              builder: (context, constraints) => SingleChildScrollView(
+    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+      return Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          direction: Axis.vertical,
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          children: [
+            if (topText != null) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                child: Text(
+                  topText!,
+                  style: TextStyle(backgroundColor: CVUColor.system("secondarySystemBackground")),
+                ),
+              ),
+              Divider(
+                height: 1,
+              )
+            ],
+            SizedBox(
+              height: constraints.maxHeight - 150 - options.length * 30,
+              width: constraints.maxWidth,
+              child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: content,
               ),
-            )
-          : Expanded(child: content),
-      if (labelType == LabelType.CategoricalLabel) labelOptions,
-      Container(
-        height: 100,
-        padding: EdgeInsets.symmetric(horizontal: 60, vertical: 25),
-        child: Opacity(
-          opacity: enabled ? 1 : 0.4,
-          child: Row(
-            children: [
-              TextButton(
-                  child: Icon(Icons.arrow_back, color: Color(0xFFF5F5F5)),
-                  style: TextButton.styleFrom(
-                      padding: EdgeInsets.all(10),
-                      fixedSize: Size(50, 50),
-                      backgroundColor: enableBackButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
-                  onPressed: enableBackButton ? onBackPressed : null),
-              Spacer(),
-              TextButton(
-                child: SvgPicture.asset("assets/images/check.svg", color: Color(0xFFF5F5F5)),
-                style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFF333333),
-                  fixedSize: Size(50, 50),
+            ),
+            if (labelType == LabelType.CategoricalLabel) labelOptions,
+            Container(
+              height: 100,
+              width: constraints.maxWidth,
+              padding: EdgeInsets.symmetric(horizontal: 60, vertical: 25),
+              child: Opacity(
+                opacity: enabled ? 1 : 0.4,
+                child: Row(
+                  children: [
+                    TextButton(
+                        child: Icon(Icons.arrow_back, color: Color(0xFFF5F5F5)),
+                        style: TextButton.styleFrom(
+                            padding: EdgeInsets.all(10),
+                            fixedSize: Size(50, 50),
+                            backgroundColor:
+                                enableBackButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
+                        onPressed: enableBackButton ? onBackPressed : null),
+                    Spacer(),
+                    TextButton(
+                      child: SvgPicture.asset("assets/images/check.svg", color: Color(0xFFF5F5F5)),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Color(0xFF333333),
+                        fixedSize: Size(50, 50),
+                      ),
+                      onPressed: enableCheckmarkButton ? onCheckmarkPressed : null,
+                    ),
+                    if (labelType == LabelType.BinaryLabel) ...binaryOptions,
+                    Spacer(),
+                    TextButton(
+                        child: Icon(Icons.arrow_forward, color: Color(0xFFF5F5F5)),
+                        style: TextButton.styleFrom(
+                            fixedSize: Size(50, 50),
+                            backgroundColor:
+                                enableSkipButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
+                        onPressed: enableSkipButton ? onSkipPressed : null),
+                  ],
                 ),
-                onPressed: enableCheckmarkButton ? onCheckmarkPressed : null,
               ),
-              if (labelType == LabelType.BinaryLabel) ...binaryOptions,
-              Spacer(),
-              TextButton(
-                  child: Icon(Icons.arrow_forward, color: Color(0xFFF5F5F5)),
-                  style: TextButton.styleFrom(
-                      fixedSize: Size(50, 50),
-                      backgroundColor: enableSkipButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
-                  onPressed: enableSkipButton ? onSkipPressed : null),
-            ],
-          ),
-        ),
-      ),
-      if (additional != null) additional!
-    ]);
+            ),
+            if (additional != null) additional!
+          ]);
+    });
   }
 }
