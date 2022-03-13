@@ -11,8 +11,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 class HtmlViewUIKit extends StatefulWidget {
   final String? html;
   final String? src;
+  final bool reload;
 
-  HtmlViewUIKit({this.html, this.src});
+  HtmlViewUIKit({this.html, this.src, required this.reload});
 
   @override
   _HtmlViewUIKitState createState() => _HtmlViewUIKitState();

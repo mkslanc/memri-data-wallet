@@ -18,6 +18,7 @@ class CVUHTMLView extends StatefulWidget {
 class _CVUHTMLViewState extends State<CVUHTMLView> {
   late String? _content;
   late String? src;
+  late bool reload;
 
   late Future _init;
 
@@ -36,6 +37,7 @@ class _CVUHTMLViewState extends State<CVUHTMLView> {
   init() async {
     src = await widget.nodeResolver.propertyResolver.string("src");
     _content = await widget.nodeResolver.propertyResolver.string("content");
+    reload = (await widget.nodeResolver.propertyResolver.boolean("reload", false))!;
   }
 
   @override
@@ -45,7 +47,11 @@ class _CVUHTMLViewState extends State<CVUHTMLView> {
         builder: (BuildContext builder, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (_content != null || src != null) {
-              return HtmlView(html: _content, src: src);
+              return HtmlView(
+                html: _content,
+                src: src,
+                reload: reload,
+              );
             }
           }
           return Empty();

@@ -172,7 +172,8 @@ class DemoData {
           record.rowId = recordRowID;
           await record.setPropertyValue("label", PropertyDatabaseValueString("Friend"),
               db: databaseController);
-          await record.setPropertyValue("value", PropertyDatabaseValueInt(Random().nextInt(10000)),
+          await record.setPropertyValue(
+              "proximityValue", PropertyDatabaseValueInt(Random().nextInt(10000)),
               db: databaseController);
           var edge =
               ItemEdgeRecord(sourceRowID: meRowId, name: "relationship", targetRowID: recordRowID);

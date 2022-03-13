@@ -18,6 +18,8 @@ class MockDataGenerator {
             return faker.lorem.sentences(2).join();
           case "title":
             return faker.lorem.sentence();
+          case "color":
+            return '#' + Random().nextInt(1000000).toRadixString(16).padLeft(6, '0');
           default:
             return faker.food.dish().split(" ")[0] + '-' + faker.sport.name().split(" ")[0];
         }

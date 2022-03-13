@@ -636,27 +636,59 @@ class CVULookupController {
             if (type == null) {
               return null;
             }
+            var propertyExp = nodeType.args.asMap()[1];
+            String? property;
+            if (propertyExp != null) {
+              property = await resolve<String>(expression: propertyExp, context: context, db: db);
+            }
+
             //TODO: other types if we will need this
             switch (type.toLowerCase()) {
               case "string":
                 currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
-                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
+                  PropertyDatabaseValueString(MockDataGenerator.generateMockData(
+                      valueType: SchemaValueType.string, property: property))
                 ]);
                 break;
               case "int":
                 currentValue = LookupStepValues([
-                  PropertyDatabaseValueInt(
-                      MockDataGenerator.generateMockData(valueType: SchemaValueType.int))
+                  PropertyDatabaseValueInt(MockDataGenerator.generateMockData(
+                      valueType: SchemaValueType.int, property: property))
                 ]);
                 break;
               default:
                 currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(
-                      MockDataGenerator.generateMockData(valueType: SchemaValueType.string))
+                  PropertyDatabaseValueString(MockDataGenerator.generateMockData(
+                      valueType: SchemaValueType.string, property: property))
                 ]);
                 break;
             }
+            break;
+          case "format":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var exp = nodeType.args.asMap()[0];
+              String? dateFormat;
+              if (exp != null) {
+                dateFormat = await resolve<String>(expression: exp, context: context, db: db);
+              }
+              var newDate = currentValue.values.first.asDate()?.formatDate(dateFormat: dateFormat);
+              if (newDate == null) {
+                return null;
+              }
+              currentValue = LookupStepValues([PropertyDatabaseValueString(newDate)]);
+            } else {
+              return null;
+            }
+            break;
+          case "itemtype":
+            if (currentValue is! LookupStepItems || currentValue.items.length == 0) {
+              return null;
+            }
+            currentValue =
+                LookupStepValues([PropertyDatabaseValueString(currentValue.items[0].type)]);
             break;
           default:
             return null;

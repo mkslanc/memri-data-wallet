@@ -54,10 +54,15 @@ extension FormattedDate on DateTime {
     // Compare against 36 hours ago
     if (DateTime.now().subtract(Duration(hours: 36)).millisecondsSinceEpoch >
         this.millisecondsSinceEpoch) {
-      var dateFormatter = DateFormat(dateFormat, "en_US");
-      return dateFormatter.format(this);
+      return formatDate(dateFormat: dateFormat);
     } else {
       return timestampString ?? "";
     }
+  }
+
+  String formatDate({String? dateFormat}) {
+    dateFormat ??= "yyyy/MM/dd HH:mm";
+    var dateFormatter = DateFormat(dateFormat, "en_US");
+    return dateFormatter.format(this);
   }
 }
