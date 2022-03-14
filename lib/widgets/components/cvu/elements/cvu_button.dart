@@ -23,10 +23,15 @@ class _CVUButtonState extends State<CVUButton> {
   bool isLink = false;
   ButtonStyle? style;
 
+  late ValueNotifier<bool> _isDisabled;
+
+  set isDisabled(bool isDisabled) => _isDisabled.value = isDisabled;
+
   late Future _init;
 
   @override
   initState() {
+    _isDisabled = ValueNotifier(false);
     super.initState();
     _init = init();
   }
@@ -42,6 +47,7 @@ class _CVUButtonState extends State<CVUButton> {
     if (actions == null) {
       return;
     }
+    isDisabled = true;
     try {
       for (var action in actions) {
         if (action is CVUActionOpenPopup) {
@@ -61,6 +67,7 @@ class _CVUButtonState extends State<CVUButton> {
         throw e;
       }
     }
+    isDisabled = false;
   }
 
   openPopup(Map<String, dynamic> settings) {
@@ -120,18 +127,21 @@ class _CVUButtonState extends State<CVUButton> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          return isLink
-              ? InkWell(
-                  onTap: onPress,
-                  child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
-                )
-              : TextButton(
-                  onPressed: onPress,
-                  child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
-                  style: TextButton.styleFrom(
-                          textStyle: resolvedTextProperties?.textStyle ?? TextStyle())
-                      .merge(style),
-                );
+          return ValueListenableBuilder(
+            valueListenable: _isDisabled,
+            builder: (BuildContext context, bool isDisabled, Widget? child) => isLink
+                ? InkWell(
+                    onTap: isDisabled ? null : onPress,
+                    child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
+                  )
+                : TextButton(
+                    onPressed: isDisabled ? null : onPress,
+                    child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
+                    style: TextButton.styleFrom(
+                            textStyle: resolvedTextProperties?.textStyle ?? TextStyle())
+                        .merge(style),
+                  ),
+          );
         });
   }
 }
