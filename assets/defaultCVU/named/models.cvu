@@ -347,49 +347,59 @@
                             openForce: true
                             viewArguments: {
                                 buttons: {
+                                    Observer {
+                                        item: {{.labellingPlugin.~plugin[].last()}}
+                                        property: "status"
 
-                                    Button {
-                                        background: #4F56FE
-                                        onPress: [
-                                            pluginRun
-                                            {
-                                                isMock: true
-                                                container: {{.labellingPlugin.containerImage}}
-                                                name: {{.labellingPlugin.name}}
-                                                pluginId: {{.labellingPlugin.id}}
-                                                pluginModule: {{.labellingPlugin.pluginModule}}
-                                                pluginName: {{.labellingPlugin.pluginName}}
-                                            }
+                                        Button {
+                                            background: {{.labellingPlugin.~plugin ? "#15B599" : "#4F56FE"}}
+                                            onPress: [
+                                                pluginRun
+                                                {
+                                                    container: {{.labellingPlugin.containerImage}}
+                                                    isMock: true
+                                                    name: {{.labellingPlugin.name}}
+                                                    pluginId: {{.labellingPlugin.id}}
+                                                    pluginModule: {{.labellingPlugin.pluginModule}}
+                                                    pluginName: {{.labellingPlugin.pluginName}}
+                                                }
                                             ]
 
                                             Text {
                                                 color: #F5F5F5
                                                 font: link
-                                                padding: 3
-                                                text: "Run your app"
+                                                padding: 3 13 3 3
+                                                text: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle" ? "Running" : .labellingPlugin.~plugin[].last().status = "done" OR .labellingPlugin.~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
                                             }
+
+                                            Image {
+                                                bundleImage: "loader"
+                                                height: 20
+                                                isVector: true
+                                                show: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle"}}
+                                                width: 20
+                                            }
+                                        }
                                     }
-
-
                                 }
                                 customDefinition: {{projectItem.labellingPlugin.view.definition}}
                                 projectItem: {{.}}
                             }
                         }
-                        ]
-                        styleName: primaryButton
+                    ]
+                    styleName: primaryButton
 
-                        Text {
-                            text: "Add UI to your app"
-                            textalign: bottom
-                        }
+                    Text {
+                        text: "Add UI to your app"
+                        textalign: bottom
+                    }
 
-                        Image {
-                            alignment: center
-                            bundleImage: "ico_arrow"
-                            isVector: true
-                            padding: 0 0 0 15
-                        }
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
                 }
 
                 Button {
