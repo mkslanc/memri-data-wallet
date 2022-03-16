@@ -66,6 +66,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                               SizedBox(width: 10),
                               TextButton(
                                 onPressed: () async {
+                                  appController.mixpanel.timeEvent("Sign up");
                                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                                     return OnboardingLogin();
                                   }));

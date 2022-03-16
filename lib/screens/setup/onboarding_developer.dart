@@ -115,6 +115,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                               children: [
                                 TextButton(
                                   onPressed: () {
+                                    appController.mixpanel.timeEvent("Sign up");
                                     appController.model.setupAsNewPod = true;
                                     handleSetup(false);
                                   },
