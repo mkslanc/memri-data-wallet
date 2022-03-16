@@ -183,8 +183,8 @@
             }
 
             HTMLView {
-                maxHeight: 300
-                maxWidth: 300
+                maxHeight: 350
+                maxWidth: 350
                 src: {{.~account.authUrl}}
                 reload: true
             }
