@@ -38,7 +38,7 @@ Deploy_To_Dev:
     name: dev
   script:
     - aws s3 sync build/web s3://${FlutterAppBucket}/dev --delete
-    - aws cloudfront create-invalidation --distribution-id ${DevDistributionId} --paths "/index.html"
+    - aws cloudfront create-invalidation --distribution-id ${DevDistributionId} --paths "/index.html" "/main.dart.js" "/assets/*"
   only:
     - dev
 
@@ -67,7 +67,7 @@ Deploy_To_QA:
     name: qa
   script:
     - aws s3 sync build/web s3://${FlutterAppBucket}/qa --delete
-    - aws cloudfront create-invalidation --distribution-id ${QADistributionId} --paths "/index.html"
+    - aws cloudfront create-invalidation --distribution-id ${QADistributionId} --paths "/index.html" "/main.dart.js" "/assets/*"
   only:
     - dev
     - master
@@ -97,7 +97,7 @@ Deploy_To_Prod:
     name: prod
   script:
     - aws s3 sync build/web s3://${FlutterAppBucket}/prod --delete
-    - aws cloudfront create-invalidation --distribution-id ${ProdDistributionId} --paths "/index.html"
+    - aws cloudfront create-invalidation --distribution-id ${ProdDistributionId} --paths "/index.html" "/main.dart.js" "/assets/*"
   only:
     - master
     - /release*/
