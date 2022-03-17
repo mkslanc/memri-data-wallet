@@ -37,6 +37,17 @@
     "pluginName": "WhatsappPlugin"
   },
   {
+    "uid": 20004,
+    "_type": "Plugin",
+    "pluginType": "importer",
+    "name": "WhatsApp multi-device",
+    "dataType": "whatsapp",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest",
+    "icon": "message",
+    "pluginModule": "whatsapp.plugin",
+    "pluginName": "WhatsappPlugin"
+  },
+  {
     "uid": 20002,
     "_type": "Plugin",
     "pluginType": "importer",
