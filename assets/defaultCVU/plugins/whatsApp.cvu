@@ -1,12 +1,11 @@
 .WhatsappPluginRun {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect WhatsApp account"
 
     [renderer = singleItem] {
-
     }
 
     Plugin > singleItem {
@@ -15,63 +14,71 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Step 1"
                 font: link
                 padding: 0 5
+                text: "Step 1"
             }
 
             Text {
-                text: "WhatsApp authorisation"
                 font: headline1
                 padding: 0 0 22 0
+                text: "WhatsApp authorisation"
             }
 
             Text {
-                text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
                 font: bodyText2
+                text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
             }
-
 
             HStack {
                 alignment: left
                 padding: 15 0 0 0
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: "pluginRunWait"
+                        }
+                        pluginRun
+                        {
+                            container: {{.containerImage}}
+                            name: {{.name}}
+                            pluginId: {{.id}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                        }
+                        sync
+                    ]
                     styleName: primaryButton
 
                     Text {
                         text: "Connect!"
                     }
-
-                    onPress: [
-                        openView {
-                            viewName: "pluginRunWait"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        pluginRun {
-                            name: {{.name}}
-                            container: {{.containerImage}}
-                            pluginModule: {{.pluginModule}}
-                            pluginName: {{.pluginName}}
-                            pluginId: {{.id}}
-                        }
-                        sync
-                        ]
                 }
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allData"
+                        }
+                    ]
                     padding: 0 0 0 20
 
                     Text {
-                        text: "Cancel"
-                        font: button_label
                         color: #333333
+                        font: button_label
+                        text: "Cancel"
                     }
-
-                    onPress: back
                 }
             }
         }

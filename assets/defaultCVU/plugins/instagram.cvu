@@ -63,7 +63,17 @@
                         color: #333333
                     }
 
-                    onPress: back
+                    onPress: [
+                        openView
+                            {
+                                clearStack: true
+                                inheritDatasource: false
+                                viewArguments: {
+                                    readOnly: true
+                                }
+                                viewName: "allData"
+                            }
+                    ]
                 }
             }
         }

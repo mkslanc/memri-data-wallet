@@ -399,7 +399,17 @@
                 }
 
                 Button {
-                    onPress: back
+                    onPress: [
+                        openView
+                            {
+                                clearStack: true
+                                inheritDatasource: false
+                                viewArguments: {
+                                    readOnly: true
+                                }
+                                viewName: "allData"
+                            }
+                    ]
                     padding: 0 0 0 20
 
                     Text {
