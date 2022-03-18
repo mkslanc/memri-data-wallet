@@ -177,7 +177,7 @@ class _ListRendererViewState extends RendererViewState {
       key: Key(item.uid),
       dense: true,
       minVerticalPadding: 0,
-      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+      visualDensity: VisualDensity(horizontal: -2, vertical: -4),
       contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
           index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
       title: isInEditMode && showDefaultSelections
