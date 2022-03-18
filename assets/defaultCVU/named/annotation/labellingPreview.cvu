@@ -9,36 +9,14 @@
 
             Text {
                 color: #333333
-                font: 20 headline2
+                font: headline2
                 text: "Preview the labelling editor"
             }
 
             Text {
                 color: #333333
-                font: 14 body
-                text: "Preview and adjust  the labelling interface."
-            }
-
-            Button {
-                isLink: true
-                onPress: [
-                    openView
-                    {
-                        view: {
-                            clearSecondary: false
-                        }
-                        viewArguments: {
-                            labellingTask: {{.}}
-                        }
-                        viewName: "labellingCVUEditor"
-                    }
-                ]
-
-                Text {
-                    color: #FE570F
-                    font: 14 body
-                    text: "<>  Open code editor"
-                }
+                font: bodyText1
+                text: "Preview your chosen labels and start labelling, or go back to adjust your labelling set up."
             }
 
             HStack {
@@ -58,7 +36,7 @@
                     styleName: primaryButton
 
                     Text {
-                        text: "Label your data"
+                        text: "Start labelling"
                         textalign: bottom
                     }
 
@@ -82,7 +60,7 @@
                     Text {
                         color: #333333
                         font: button_label
-                        text: "Back to labelling configuration"
+                        text: "Back to labelling set up"
                     }
                 }
             }
