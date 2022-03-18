@@ -1,4 +1,5 @@
 .home {
+    cols: 12
     defaultRenderer: custom
     showBottomBar: false
     showContextualBottomBar: false
@@ -7,60 +8,52 @@
 
     VStack {
         alignment: topleft
+        background: #F6F6F6
         padding: 60 30 0 30
 
         Text {
             color: #333333
             font: headline1
-            padding: 0 0 71 0
-            text: "Import your data and create ML model on that data."
-            width: 671
+            padding: 0 0 10 0
+            text: "One place for your data apps."
         }
 
-        HStack {
+        Text {
+            color: #999999
+            font: bodyText1
+            maxWidth: 567
+            padding: 0 0 10 0
+            text: "Connect new data streams, label your data and start training your model, and customise and deploy new machine learning apps. Get started here!"
+        }
+
+        Wrap {
             alignment: topleft
-            spacing: 30
+            background: #FFFFFF
 
             VStack {
                 alignment: topleft
+                border: #F6F6F6
+                maxWidth: 344
+                minHeight: 395
+                padding: 20
 
-                Text {
-                    font: link
-                    text: "01"
+                Image {
+                    bundleImage: "firstletter"
+                    isVector: true
                 }
 
                 Text {
                     color: #333333
                     font: headline2
+                    padding: 50 0 0 0
                     text: "Connect and collect your data"
                 }
 
                 Text {
+                    color: #999999
                     font: bodyText1
-                    text: "Connect to whatsapp, gmail or instagram or develop an importer yourself."
-                }
-
-                Text {
-                    font: bodyText1
-                    padding: 6 0 20 0
-                    text: "Or upload manually a csv."
-                }
-
-                Button {
-                    isLink: true
-                    onPress: [
-                        openplugin
-                        {
-                            clearStack: true
-                            pluginName: "GmailImporter"
-                        }
-                    ]
-
-                    Text {
-                        color: #FE570F
-                        font: link
-                        text: "Connect Gmail"
-                    }
+                    padding: 0 0 20 0
+                    text: "Connect your WhatsApp or Gmail accounts and import your data into your personal POD."
                 }
 
                 Button {
@@ -72,143 +65,173 @@
                             pluginName: "WhatsappPlugin"
                         }
                     ]
-                    padding: 20 0 0 0
 
                     Text {
                         color: #FE570F
                         font: link
+                        padding: 0 10 0 0
                         text: "Connect Whatsapp"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                    }
+                }
+            }
+
+            VStack {
+                alignment: topleft
+                border: #F6F6F6
+                maxWidth: 344
+                minHeight: 395
+                padding: 20
+
+                Image {
+                    bundleImage: "secondletter"
+                    isVector: true
+                }
+
+                Text {
+                    color: #333333
+                    font: headline2
+                    padding: 50 0 0 0
+                    text: "Build a machine learning app"
+                }
+
+                Text {
+                    color: #999999
+                    font: bodyText1
+                    padding: 0 0 20 0
+                    text: "Choose your datasource, label data, train your ML model and deploy your app."
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        addItem
+                        {
+                            clearStack: true
+                            color: "#FE570F"
+                            template: {
+                                _type: Project
+                            }
+                            title: "Create new project"
+                        }
+                    ]
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        padding: 0 10 0 0
+                        text: "Create a new project"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                    }
+                }
+            }
+
+            VStack {
+                alignment: topleft
+                border: #F6F6F6
+                maxWidth: 344
+                minHeight: 395
+                padding: 20
+
+                Image {
+                    bundleImage: "thirdletter"
+                    isVector: true
+                }
+
+                Text {
+                    color: #333333
+                    font: headline2
+                    padding: 50 0 0 0
+                    text: "Add and edit UI live"
+                }
+
+                Text {
+                    color: #999999
+                    font: bodyText1
+                    padding: 0 0 20 0
+                    text: "Add a user interface to your app - edit, optimise and see changes live."
+                }
+            }
+
+            VStack {
+                alignment: topleft
+                border: #F6F6F6
+                maxWidth: 344
+                minHeight: 395
+                padding: 20
+
+                Image {
+                    bundleImage: "fourthletter"
+                    isVector: true
+                }
+
+                Text {
+                    color: #333333
+                    font: headline2
+                    padding: 50 0 0 0
+                    text: "Learn more"
+                }
+
+                Text {
+                    color: #999999
+                    font: bodyText1
+                    padding: 0 0 20 0
+                    text: "Read the guides and documentation about our POD architecture, plugins, and imorters on our developer site. If you get stuck, our team and the community are ready to help!"
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://memri.docs.memri.io/docs.memri.io/overview/quickStart/"
+                        }
+                    ]
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        padding: 0 10 0 0
+                        text: "Quick start guide"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
                     }
                 }
 
                 Button {
                     isLink: true
                     onPress: [
-                        openplugin
+                        openLink
                         {
-                            clearStack: true
-                            pluginName: "InstagramPlugin"
+                            link: "https://discord.com/invite/BcRfajJk4k"
                         }
                     ]
-                    padding: 20 0 0 0
 
                     Text {
                         color: #FE570F
                         font: link
-                        text: "Connect Instagram"
+                        padding: 0 10 0 0
+                        text: "Get support on Discord"
                     }
-                }
-            }
 
-            VStack {
-                width: 323
-                alignment: topleft
-
-                Text {
-                    font: link
-                    text: "02"
-                }
-
-                Text {
-                    color: #333333
-                    font: headline2
-                    text: "Create a labelled dataset"
-                }
-
-                Text {
-                    font: bodyText1
-                    padding: 0 0 20 0
-                    text: "Tellus felis montes, egestas augue duis vitae nisl viverra. Est fringilla netus consequat vitae viverra elementum justo, enim. Eget ut dolor justo, diam quis pharetra."
-                }
-
-                Button {
-                    isLink: true
-                    onPress: noop
-
-                    Text {
-                        color: #FE570F
-                        font: link
-                        text: "Create a new dataset"
-                    }
-                }
-            }
-
-            VStack {
-                width: 323
-                alignment: topleft
-
-                Text {
-                    font: link
-                    text: "03"
-                }
-
-                Text {
-                    color: #333333
-                    font: headline2
-                    text: "Build a ML model"
-                }
-
-                Text {
-                    font: bodyText1
-                    text: "End result: trained model"
-                }
-
-                Text {
-                    font: bodyText1
-                    padding: 6 0 0 0
-                    text: "Project ends and then may become a plugin"
-                }
-
-                Text {
-                    font: bodyText1
-                    padding: 6 0 20 0
-                    text: "Training is not a part of a plugin"
-                }
-
-                Button {
-                    isLink: true
-                    onPress: noop
-
-                    Text {
-                        color: #FE570F
-                        font: link
-                        text: "Create a new ML model"
-                    }
-                }
-            }
-
-            VStack {
-                width: 323
-                alignment: topleft
-
-                Text {
-                    font: link
-                    text: "04"
-                }
-
-                Text {
-                    color: #333333
-                    font: headline2
-                    text: "Plug in and publish"
-                }
-
-                Text {
-                    font: bodyText1
-                    text: "Tellus felis montes, egestas augue duis vitae nisl viverra. Est fringilla netus consequat vitae viverra elementum justo, enim. Eget ut dolor justo, diam quis pharetra."
-                }
-
-                Button {
-                    isLink: true
-                    onPress: openView {
-                         viewName: "apps-and-plugins"
-                         inheritDatasource: false
-                         clearStack: true
-                     }
-
-                    Text {
-                        color: #FE570F
-                        font: link
-                        text: "See available apps"
+                    Image {
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
                     }
                 }
             }
