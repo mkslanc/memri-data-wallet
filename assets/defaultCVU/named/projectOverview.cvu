@@ -16,14 +16,14 @@
 
             Text {
                 color: #333333
-                font: headline2
+                font: headline1
                 padding: 0 0 10 0
-                text: "Your dataset has been labeled!"
+                text: "Your labelling summary"
             }
 
             Text {
                 font: "bodyText1"
-                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
+                text: "This is the summary of your labelled dataset. You can label more data or you can continue to the next step and use the labelled dataset to create a new machine learning model."
             }
 
             SubView {
@@ -235,7 +235,7 @@
                     styleName: primaryButton
 
                     Text {
-                        text: "Create your ML model"
+                        text: "Create your app"
                         textalign: bottom
                     }
 
@@ -254,7 +254,7 @@
                     Text {
                         color: #333333
                         font: button_label
-                        text: "Back to labelling"
+                        text: "Label more data"
                     }
                 }
             }
