@@ -588,20 +588,23 @@ class CVUActionAddItem extends CVUAction {
 
       var openNewView = await resolver.boolean("openNewView", true);
       if (openNewView!) {
-        var renderer = "generalEditor";
-        var viewDefinition =
-            AppController.shared.cvuController.viewDefinitionForItemRecord(itemRecord: item);
-        if (viewDefinition == null) {
-          return;
-        }
-        var defaultRenderer = viewDefinition.properties["defaultRenderer"];
-        if (defaultRenderer is CVUValueConstant) {
-          var defaultRendererValue = defaultRenderer.value;
-          if (defaultRendererValue is CVUConstantArgument) {
-            renderer = defaultRendererValue.value;
+        var renderer;
+        var viewName = await resolver.string("viewName");
+        if (viewName == null) {
+          renderer = "generalEditor";
+          var viewDefinition =
+              AppController.shared.cvuController.viewDefinitionForItemRecord(itemRecord: item);
+          if (viewDefinition == null) {
+            return;
+          }
+          var defaultRenderer = viewDefinition.properties["defaultRenderer"];
+          if (defaultRenderer is CVUValueConstant) {
+            var defaultRendererValue = defaultRenderer.value;
+            if (defaultRendererValue is CVUConstantArgument) {
+              renderer = defaultRendererValue.value;
+            }
           }
         }
-
         var newVars = Map.of(vars);
         if (newVars["viewArguments"] != null) {
           (newVars["viewArguments"] as CVUValueSubdefinition).value.properties.update(
@@ -613,7 +616,7 @@ class CVUActionAddItem extends CVUAction {
           }));
         }
 
-        await CVUActionOpenView(vars: newVars, renderer: renderer)
+        await CVUActionOpenView(viewName: viewName, vars: newVars, renderer: renderer)
             .execute(pageController, context.replacingItem(item));
       }
 
