@@ -15,9 +15,9 @@ Dataset > singleItem {
 
         Text {
             color: #333333
-            font: headline2
+            font: headline1
             padding: 0 0 30 0
-            text: "Set up your data"
+            text: "Set up your dataset"
         }
 
         Text {
@@ -48,7 +48,7 @@ Dataset > singleItem {
                         }
                     }
                     groupBy: {
-                        properties: ["propertyName"]
+                        properties: "propertyName"
                     }
                     query: ItemPropertySchema
                     sortAscending: true
@@ -110,8 +110,8 @@ Dataset > singleItem {
                             ~labellingTask: {{.}}
                         }
                         viewArguments: {
-                            task: {{.}}
                             readOnly: false
+                            task: {{.}}
                         }
                     }
                 ]

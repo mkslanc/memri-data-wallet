@@ -1,7 +1,7 @@
 Project {
     cols: 9
     defaultRenderer: singleItem
-    title: "Create new project"
+    title: "New project"
 
     [renderer = singleItem] {
         scrollable: true
@@ -20,13 +20,28 @@ Project > singleItem {
             text: "Project name"
         }
 
-        Textfield {
+        VStack {
+            alignment: topleft
             background: #F0F0F0
-            border: #000 1
-            hint: "Your project name"
-            maxWidth: 571
-            rows: 1
-            value: {{.name}}
+            maxWidth: 346
+            padding: 10
+
+            Text {
+                color: #333333
+                font: small_caps
+                padding: 0 0 0 10
+                text: "YOUR PROJECT NAME"
+            }
+
+            Textfield {
+                background: #F0F0F0
+                border: #000 1
+                hint: "project 1"
+                isCollapsed: true
+                maxWidth: 346
+                rows: 1
+                value: {{.name}}
+            }
         }
 
         Text {
@@ -40,7 +55,7 @@ Project > singleItem {
             color: #333333
             font: bodyText1
             padding: 0 0 20 0
-            text: "Select the data source that will be used in your app. If you want the app to make predictions about your conversations, you can select: Messages."
+            text: "Select the data source for your new app. You may only select one."
         }
 
         Text {
@@ -112,8 +127,14 @@ Project > singleItem {
             Button {
                 onPress: [
                     delete
+                    openView
                     {
-                        close: true
+                        clearStack: true
+                        inheritDatasource: false
+                        viewArguments: {
+                            readOnly: true
+                        }
+                        viewName: "allProjects"
                     }
                 ]
                 padding: 0 0 0 15
@@ -205,13 +226,14 @@ Project > list {
     actionButton: [
         addItem
         {
+            color: "#FE570F"
             template: {
                 _type: Project
             }
             title: "Create new project"
-            color: "#FE570F"
         }
-        ]
+    ]
+    cols: 12
     defaultRenderer: list
     emptyResult: {
         HStack {

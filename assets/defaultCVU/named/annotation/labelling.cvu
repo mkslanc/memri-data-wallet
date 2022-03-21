@@ -226,6 +226,7 @@
                             item: {{labellingTask.~labellingTask.~dataset}}
                             viewArguments: {
                                 pageLabel: "~main"
+                                readOnly: true
                                 selectedProject: {{.}}
                             }
                             viewName: "project-overview"

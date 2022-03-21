@@ -1,6 +1,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
@@ -82,7 +83,7 @@ class _TopBarViewState extends State<TopBarView> {
                       viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                       pageController: widget.pageController,
                     )),
-                if (showEditCode) ...[
+                if (showEditCode && AppController.shared.isDevelopersMode) ...[
                   ActionButton(
                     action: CVUActionOpenCVUEditor(
                         vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),

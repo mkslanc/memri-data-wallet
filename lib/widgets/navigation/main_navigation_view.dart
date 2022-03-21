@@ -27,6 +27,13 @@ class _MainNavigationViewState extends State<MainNavigationView> {
         /*SvgPicture.asset("assets/images/ico_search.svg"),*/ //TODO: uncomment this after search implemented
         Spacer(),
         NavigationItemView(
+          item: Item(name: 'Workspace', targetViewName: "home"),
+          sceneController: widget.sceneController,
+        ),
+        SizedBox(
+          width: 30,
+        ),
+        NavigationItemView(
           item: Item(name: 'Data', targetViewName: "allData"),
           sceneController: widget.sceneController,
         ),
