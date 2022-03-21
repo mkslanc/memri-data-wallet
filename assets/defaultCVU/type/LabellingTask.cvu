@@ -6,186 +6,203 @@ LabellingTask {
     title: "Configure labelling editor"
 
     [renderer = singleItem] {
-        scrollable: false
+        scrollable: true
     }
 }
+.labelling-task {
+    cols: 9
+    defaultRenderer: singleItem
+    title: "Set up your data"
 
-LabellingTask > singleItem {
-    VStack {
-        alignment: topleft
-        padding: 60 0 0 0
+    [renderer = singleItem] {
+        scrollable: false
+    }
 
-        Text {
-            color: #333333
-            font: headline2
-            padding: 0 0 10 0
-            text: "Configure labelling editor"
-        }
+    LabellingTask > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 0 0 0
 
-        Text {
-            font: bodyText1
-            padding: 0 0 20 0
-            text: "Choose the type of  text classification you want to use."
-        }
+            Text {
+                color: #333333
+                font: headline2
+                padding: 0 0 10 0
+                text: "Configure labelling editor"
+            }
 
-        SubView {
-            height: 60
-            id: taskType
-            maxWidth: 550
-            view: {
-                defaultRenderer: custom
-                editMode: true
-                viewArguments: {
-                    task: {{task}}
-                }
+            Text {
+                font: bodyText1
+                padding: 0 0 20 0
+                text: "Choose the type of  text classification you want to use."
+            }
 
-                [datasource = pod] {
-                    query: TextClassification
-                    sortAscending: true
-                    sortProperty: dateModified
-                }
+            SubView {
+                height: 60
+                id: taskType
+                maxWidth: 550
+                view: {
+                    defaultRenderer: custom
+                    editMode: true
+                    viewArguments: {
+                        task: {{task}}
+                    }
 
-                [renderer = custom] {
-                    Dropdown {
-                        edgeName: "taskType"
-                        item: {{task}}
-                        list: {{items}}
-                        maxWidth: 550
-                        onChange: [
-                            link
-                            {
-                                distinct: true
-                                edgeType: "taskType"
-                                subject: {{task}}
+                    [datasource = pod] {
+                        query: TextClassification
+                        sortAscending: true
+                        sortProperty: dateModified
+                    }
+
+                    [renderer = custom] {
+                        Dropdown {
+                            edgeName: "taskType"
+                            item: {{task}}
+                            list: {{items}}
+                            maxWidth: 550
+                            onChange: [
+                                link
+                                {
+                                    distinct: true
+                                    edgeType: "taskType"
+                                    subject: {{task}}
+                                }
+                            ]
+
+                            Text {
+                                color: #FE570F
+                                font: bodyText1
+                                lineLimit: 1
+                                text: {{.name}}
                             }
-                        ]
-
-                        Text {
-                            color: #FE570F
-                            font: bodyText1
-                            lineLimit: 1
-                            text: {{.name}}
                         }
                     }
                 }
             }
-        }
 
-        Text {
-            font: bodyText1
-            padding: 60 0 20 0
-            text: "Define the labels you want to use in your app:"
-        }
+            Text {
+                font: bodyText1
+                padding: 60 0 20 0
+                text: "Define the labels you want to use in your app:"
+            }
 
-        FlowStack {
-            list: {{.labelOption[]}}
-            spacing: 15
+            FlowStack {
+                list: {{.labelOption[]}}
+                spacing: 15
 
-            Wrap {
-                background: #F5F5F5
-                cornerRadius: 20
+                Wrap {
+                    background: #F5F5F5
+                    cornerRadius: 20
 
-                Text {
-                    color: #333333
-                    font: bodyText1
-                    padding: 5 9 5 10
-                    text: "{.name}"
+                    Text {
+                        color: #333333
+                        font: bodyText1
+                        padding: 5 9 5 10
+                        text: "{.name}"
+                    }
+
+                    Button {
+                        isLink: true
+                        onPress: [
+                            unlink
+                            {
+                                edgeType: "labelOption"
+                                subject: {{.~labelOption}}
+                            }
+                        ]
+                        padding: 0 11 0 0
+
+                        Text {
+                            text: "x"
+                            textAlign: center
+                        }
+                    }
+                }
+            }
+
+            HStack {
+                alignment: center
+                background: #F0F0F0
+
+                Textfield {
+                    background: #F0F0F0
+                    border: #333 1
+                    hint: "e.g. positive"
+                    minHeight: 15
+                    rows: 1
+                    value: {{.currentLabelOption}}
+                    width: 150
                 }
 
                 Button {
-                    isLink: true
                     onPress: [
-                        unlink
+                        addItem
                         {
-                            edgeType: "labelOption"
-                            subject: {{.~labelOption}}
+                            openNewView: false
+                            template: {
+                                _type: "LabelOption"
+                                name: "{.currentLabelOption}"
+                                ~labelOption: {{.}}
+                            }
+                        }
+                        setProperty
+                        {
+                            property: "currentLabelOption"
+                            subject: {{.}}
+                            value: ""
                         }
                     ]
-                    padding: 0 11 0 0
+                    styleName: primaryButton
 
                     Text {
-                        text: "x"
+                        text: "Add new label"
                         textAlign: center
                     }
                 }
             }
-        }
 
-        HStack {
-            alignment: center
-            background: #F0F0F0
+            HStack {
+                alignment: left
+                padding: 50 0 0 0
 
-            Textfield {
-                background: #F0F0F0
-                border: #333 1
-                hint: "e.g. positive"
-                minHeight: 15
-                rows: 1
-                value: {{.currentLabelOption}}
-                width: 150
-            }
-
-            Button {
-                onPress: [
-                    addItem
-                    {
-                        openNewView: false
-                        template: {
-                            _type: "LabelOption"
-                            name: "{.currentLabelOption}"
-                            ~labelOption: {{.}}
+                Button {
+                    onPress: [
+                        openView
+                        {
+                            viewArguments: {
+                                pageLabel: "~main"
+                            }
+                            viewName: "labellingPreview"
                         }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Preview editor"
+                        textalign: bottom
                     }
-                    setProperty
-                    {
-                        property: "currentLabelOption"
-                        subject: {{.}}
-                        value: ""
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
                     }
-                ]
-                styleName: primaryButton
-
-                Text {
-                    text: "Add new label"
-                    textAlign: center
-                }
-            }
-        }
-
-        HStack {
-            alignment: left
-            padding: 50 0 0 0
-
-            Button {
-                onPress: [
-                    openView
-                    {
-                        viewName: "labellingPreview"
-                    }
-                ]
-                styleName: primaryButton
-
-                Text {
-                    text: "Preview editor"
-                    textalign: bottom
                 }
 
-                Image {
-                    alignment: center
-                    bundleImage: "ico_arrow"
-                    isVector: true
+                Button {
+                    onPress: [
+                        back
+                        {
+                            pageLabel: "~main"
+                        }
+                    ]
                     padding: 0 0 0 15
-                }
-            }
 
-            Button {
-                onPress: back
-                padding: 0 0 0 15
-
-                Text {
-                    color: #333333
-                    font: button_label
-                    text: "Back to data setup"
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Back to data setup"
+                    }
                 }
             }
         }
@@ -225,4 +242,20 @@ LabellingTask > list {
         sortAscending: true
     }
 
+}
+
+.labelling-task-overview {
+    cols: 12
+    defaultRenderer: scene
+    title: "Configure labelling editor"
+
+    [renderer = scene] {
+        pages: {
+            labellingTask: "labelling-task"
+            projectSummary: "project-summary"
+        }
+        viewArguments: {
+            selectedDataset: {{.~labellingTask.last()}}
+        }
+    }
 }
