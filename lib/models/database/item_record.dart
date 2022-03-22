@@ -804,9 +804,10 @@ class ItemRecord with EquatableMixin {
 
   static Future<ItemRecord?> lastSyncedItem([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
-    var items = (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC"));
-    if (items.length > 0) {
-      return ItemRecord.fromItem(items[0]);
+    var items =
+        (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC", limit: 1));
+    if (items.isNotEmpty) {
+      return ItemRecord.fromItem(items.first);
     }
     return null;
   }

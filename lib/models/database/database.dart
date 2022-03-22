@@ -97,7 +97,7 @@ class Database extends _$Database {
       bool distinct = true}) async {
     if (query == "") {
       return await customSelect(
-          "SELECT ${distinct ? "DISTINCT" : ""} * from items ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${limit != 0 ? "LIMIT $limit" : ""}",
+          "SELECT ${distinct ? "DISTINCT" : ""} * from items ${groupBy != null ? "GROUP BY $groupBy" : ""} ${orderBy != null ? "ORDER BY $orderBy" : ""} ${limit != 0 ? "LIMIT $limit" : ""} ${offset != 0 ? "OFFSET $offset" : ""}",
           variables: binding,
           readsFrom: {items}).map((row) => Item.fromData(row.data, this)).get();
     }
