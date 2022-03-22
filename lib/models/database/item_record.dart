@@ -991,13 +991,19 @@ class ItemRecord with EquatableMixin {
   }
 
   //TODO: copy also edges (would be recursive)
-  Future<ItemRecord> copy(DatabaseController db) async {
+  Future<ItemRecord> copy(DatabaseController db,
+      {Map<String, PropertyDatabaseValue>? withProperties}) async {
     var newItem = ItemRecord(type: type);
     await newItem.save();
     var props = await properties(db);
     props.forEach((element) {
       element.itemRowID = newItem.rowId!;
     });
+    if (withProperties != null) {
+      withProperties.forEach((propName, propValue) {
+        props.add(ItemPropertyRecord(name: propName, value: propValue, itemRowID: newItem.rowId!));
+      });
+    }
     await db.databasePool.itemPropertyRecordInsertAll(props);
     return newItem;
   }
