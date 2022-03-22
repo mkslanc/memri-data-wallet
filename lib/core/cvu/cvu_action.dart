@@ -1901,8 +1901,8 @@ class CVUActionParsePluginItem extends CVUAction {
           db: db, properties: properties, itemType: startItemType);
     } else {
       for (var item in items) {
-        var newItemRecord = await ItemRecord.fromItem(item).copy(db);
-        await newItemRecord.setPropertyValue("isMock", PropertyDatabaseValueBool(true));
+        await ItemRecord.fromItem(item)
+            .copy(db, withProperties: {"isMock": PropertyDatabaseValueBool(true)});
       }
     }
     return cvuID;

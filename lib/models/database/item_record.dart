@@ -28,7 +28,7 @@ enum SyncState {
   failed,
 }
 
-enum FileState { skip, needsUpload, needsDownload, noChanges }
+enum FileState { skip, needsUpload, needsDownload, noChanges, failedDownload }
 
 extension SyncStateExtension on SyncState {
   static SyncState rawValue(String value) =>
@@ -804,9 +804,10 @@ class ItemRecord with EquatableMixin {
 
   static Future<ItemRecord?> lastSyncedItem([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
-    var items = (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC"));
-    if (items.length > 0) {
-      return ItemRecord.fromItem(items[0]);
+    var items =
+        (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC", limit: 1));
+    if (items.isNotEmpty) {
+      return ItemRecord.fromItem(items.first);
     }
     return null;
   }
@@ -873,7 +874,8 @@ class ItemRecord with EquatableMixin {
     return {"item": item, "sha256": sha256, "fileName": fileName};
   }
 
-  static didDownloadFileForItem(ItemRecord item, [DatabaseController? db]) async {
+  static didDownloadFileForItem(ItemRecord item,
+      {DatabaseController? db, bool failedDownloading = false}) async {
     var rowId = item.rowId;
     if (rowId == null) return;
     var fetchedItem = await ItemRecord.fetchWithRowID(rowId, db);
@@ -881,7 +883,7 @@ class ItemRecord with EquatableMixin {
       return;
     }
 
-    fetchedItem.fileState = FileState.noChanges;
+    fetchedItem.fileState = failedDownloading ? FileState.failedDownload : FileState.noChanges;
     await fetchedItem.save(db?.databasePool);
   }
 
@@ -989,13 +991,19 @@ class ItemRecord with EquatableMixin {
   }
 
   //TODO: copy also edges (would be recursive)
-  Future<ItemRecord> copy(DatabaseController db) async {
+  Future<ItemRecord> copy(DatabaseController db,
+      {Map<String, PropertyDatabaseValue>? withProperties}) async {
     var newItem = ItemRecord(type: type);
     await newItem.save();
     var props = await properties(db);
     props.forEach((element) {
       element.itemRowID = newItem.rowId!;
     });
+    if (withProperties != null) {
+      withProperties.forEach((propName, propValue) {
+        props.add(ItemPropertyRecord(name: propName, value: propValue, itemRowID: newItem.rowId!));
+      });
+    }
     await db.databasePool.itemPropertyRecordInsertAll(props);
     return newItem;
   }
