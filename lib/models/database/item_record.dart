@@ -28,7 +28,7 @@ enum SyncState {
   failed,
 }
 
-enum FileState { skip, needsUpload, needsDownload, noChanges }
+enum FileState { skip, needsUpload, needsDownload, noChanges, failedDownload }
 
 extension SyncStateExtension on SyncState {
   static SyncState rawValue(String value) =>
@@ -873,7 +873,8 @@ class ItemRecord with EquatableMixin {
     return {"item": item, "sha256": sha256, "fileName": fileName};
   }
 
-  static didDownloadFileForItem(ItemRecord item, [DatabaseController? db]) async {
+  static didDownloadFileForItem(ItemRecord item,
+      {DatabaseController? db, bool failedDownloading = false}) async {
     var rowId = item.rowId;
     if (rowId == null) return;
     var fetchedItem = await ItemRecord.fetchWithRowID(rowId, db);
@@ -881,7 +882,7 @@ class ItemRecord with EquatableMixin {
       return;
     }
 
-    fetchedItem.fileState = FileState.noChanges;
+    fetchedItem.fileState = failedDownloading ? FileState.failedDownload : FileState.noChanges;
     await fetchedItem.save(db?.databasePool);
   }
 
