@@ -1,4 +1,15 @@
 Project {
+    cols: 12
+    defaultRenderer: singleItem
+    title: "New project"
+
+    [renderer = singleItem] {
+        background: #F6F6F6
+        scrollable: true
+    }
+}
+
+.add-project {
     cols: 9
     defaultRenderer: singleItem
     title: "New project"
@@ -6,143 +17,655 @@ Project {
     [renderer = singleItem] {
         scrollable: true
     }
+
+    Project > singleItem {
+        VStack {
+            alignment: topleft
+            padding: 60 0 0 0
+
+            Text {
+                color: #333333
+                font: headline2
+                padding: 0 0 30 0
+                text: "Project name"
+            }
+
+            VStack {
+                alignment: topleft
+                background: #F0F0F0
+                maxWidth: 346
+                padding: 10
+
+                Text {
+                    color: #333333
+                    font: small_caps
+                    padding: 0 0 0 10
+                    text: "YOUR PROJECT NAME"
+                }
+
+                Textfield {
+                    background: #F0F0F0
+                    border: #000 1
+                    hint: "project 1"
+                    isCollapsed: true
+                    maxWidth: 346
+                    rows: 1
+                    value: {{.name}}
+                }
+            }
+
+            Text {
+                color: #333333
+                font: headline2
+                padding: 80 0 10 0
+                text: "Select dataset source"
+            }
+
+            Text {
+                color: #333333
+                font: bodyText1
+                padding: 0 0 20 0
+                text: "Select the data source for your new app. You may only select one."
+            }
+
+            Text {
+                background: #F5F5F5
+                color: #333333
+                font: tablist
+                padding: 10
+                text: "Datasources"
+            }
+
+            SubView {
+                id: datasetGrid
+                view: {
+                    defaultRenderer: grid
+                    editMode: true
+                    singleChoice: true
+                    viewName: datasetsGrid
+
+                    [datasource = pod] {
+                        query: DatasetType
+                    }
+
+                    [renderer = grid] {
+                        layout: "flow"
+                        onPress: noop
+                        spacing: 30
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+                padding: 30 0 0 0
+
+                Button {
+                    onPress: [
+                        addItem
+                        {
+                            initialItem: {{.dataset}}
+                            openNewView: true
+                            template: {
+                                _type: "Dataset"
+                                datasetType: {{subView("datasetGrid").selectedItems().first()}}
+                                name: {{generateRandom("string")}}
+                                queryStr: {{subView("datasetGrid").selectedItems().first().queryStr}}
+                                ~dataset: {{.}}
+                            }
+                            viewArguments: {
+                                readOnly: false
+                                selectedDataset: {{subView("datasetGrid").selectedItems().first()}}
+                            }
+                            viewName: "project-variables"
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Set up your data"
+                    }
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    onPress: [
+                        delete
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allProjects"
+                        }
+                    ]
+                    padding: 0 0 0 15
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Cancel"
+                    }
+                }
+            }
+        }
+    }
 }
 
 Project > singleItem {
+    background: #F6F6F6
+
     VStack {
         alignment: topleft
-        padding: 60 0 0 0
+        padding: 60 0 30 0
+        spacing: 20
+
+        VStack {
+            alignment: topleft
+            background: white
+            padding: 30 20 30 20
+            spacing: 0
+
+            HStack {
+                alignment: topleft
+                padding: 0 0 22 0
+
+                Text {
+                    color: #333333
+                    font: headline1
+                    text: {{.name}}
+                }
+            }
+
+            Text {
+                color: #999999
+                font: small_caps
+                text: "DATA SOURCE"
+            }
+
+            Text {
+                font: ul
+                padding: 5 0 20 0
+                text: {{.dataset.datasetType.plugin.name}}
+            }
+
+            HStack {
+                align: topleft
+                padding: 42 0 0 0
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openView
+                        {
+                            viewName: "create-new-model"
+                        }
+                    ]
+                    padding: 0 48 0 0
+                    show: {{.dataset AND !.labellingPlugin}}
+
+                    Image {
+                        bundleImage: "plus"
+                        color: #E9500F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: tab_list
+                        padding: 0 0 0 5
+                        text: "Create new model"
+                    }
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openView
+                        {
+                            viewArguments: {
+                                readOnly: false
+                            }
+                            viewName: "add-project"
+                        }
+                    ]
+                    show: {{!.dataset}}
+
+                    Image {
+                        bundleImage: "ico_dataset_new"
+                        color: #E9500F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: tab_list
+                        padding: 0 0 0 5
+                        text: "Add new dataset"
+                    }
+                }
+
+                Spacer
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        delete
+                        {
+                            close: true
+                            subject: {{.}}
+                        }
+                    ]
+
+                    Image {
+                        bundleImage: "ico_delete"
+                        color: #E9500F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: tab_list
+                        padding: 0 0 0 5
+                        text: "Delete project"
+                    }
+                }
+            }
+        }
 
         Text {
-            color: #333333
-            font: headline2
-            padding: 0 0 30 0
-            text: "Project name"
+            color: #999999
+            font: small_caps
+            show: {{.dataset}}
+            text: "DATASETS"
         }
 
         VStack {
             alignment: topleft
-            background: #F0F0F0
-            maxWidth: 346
-            padding: 10
+            background: white
+            padding: 20
+            show: {{.dataset}}
 
-            Text {
-                color: #333333
-                font: small_caps
-                padding: 0 0 0 10
-                text: "YOUR PROJECT NAME"
-            }
+            HStack {
+                alignment: topleft
 
-            Textfield {
-                background: #F0F0F0
-                border: #000 1
-                hint: "project 1"
-                isCollapsed: true
-                maxWidth: 346
-                rows: 1
-                value: {{.name}}
-            }
-        }
+                VStack {
+                    alignment: topleft
 
-        Text {
-            color: #333333
-            font: headline2
-            padding: 80 0 10 0
-            text: "Select dataset source"
-        }
-
-        Text {
-            color: #333333
-            font: bodyText1
-            padding: 0 0 20 0
-            text: "Select the data source for your new app. You may only select one."
-        }
-
-        Text {
-            background: #F5F5F5
-            color: #333333
-            font: tablist
-            padding: 10
-            text: "Datasources"
-        }
-
-        SubView {
-            id: datasetGrid
-            view: {
-                defaultRenderer: grid
-                editMode: true
-                singleChoice: true
-                viewName: datasetsGrid
-
-                [datasource = pod] {
-                    query: DatasetType
-                }
-
-                [renderer = grid] {
-                    layout: "flow"
-                    onPress: noop
-                    spacing: 30
-                }
-            }
-        }
-
-        HStack {
-            alignment: left
-            padding: 30 0 0 0
-
-            Button {
-                onPress: [
-                    addItem
-                    {
-                        initialItem: {{.dataset}}
-                        openNewView: true
-                        template: {
-                            _type: "Dataset"
-                            datasetType: {{subView("datasetGrid").selectedItems().first()}}
-                            name: {{generateRandom("string")}}
-                            queryStr: {{subView("datasetGrid").selectedItems().first().queryStr}}
-                            ~dataset: {{.}}
-                        }
-                        viewArguments: {
-                            readOnly: false
-                            selectedDataset: {{subView("datasetGrid").selectedItems().first()}}
-                        }
-                        viewName: "project-variables"
+                    Text {
+                        color: #333333
+                        font: headline2
+                        text: {{.dataset.name}}
                     }
-                ]
-                styleName: primaryButton
 
-                Text {
-                    text: "Set up your data"
+                    Text {
+                        color: #999999
+                        font: ul
+                        text: {{.name}}
+                    }
                 }
 
-                Image {
-                    alignment: center
-                    bundleImage: "ico_arrow"
-                    isVector: true
-                    padding: 0 0 0 15
+                Spacer
+
+                VStack {
+                    alignment: topleft
+                    maxWidth: 100
+                    spacing: 5
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        text: "DATA TYPE"
+                    }
+
+                    Text {
+                        color: #333333
+                        font: ul
+                        text: "Text"
+                    }
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        padding: 50 0 0 0
+                        text: "LABELLING PROGRESS"
+                    }
+
+                    SubView {
+                        height: 22
+                        view: {
+                            defaultRenderer: custom
+                            viewArguments: {
+                                datasetEntries: {{selectedProject.dataset.entry[]}}
+                                datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
+                            }
+
+                            [datasource = pod] {
+                                filter: {
+                                    edgeSources: {
+                                        annotation: {{datasetEntries}}
+                                    }
+                                }
+                                query: CategoricalLabel
+                            }
+
+                            [renderer = custom] {
+                                Text {
+                                    color: #333333
+                                    font: small_caps
+                                    text: "{items.count().percent(datasetEntriesCount)}%"
+                                }
+                            }
+                        }
+                        width: 100
+                    }
+                }
+
+                Spacer
+
+                VStack {
+                    alignment: topleft
+                    spacing: 5
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        text: "FEATURE VARIABLES"
+                    }
+
+                    FlowStack {
+                        list: {{.dataset.feature[]}}
+                        spacing: 6
+
+                        HStack {
+                            alignment: left
+
+                            Text {
+                                color: #333333
+                                font: ul
+                                text: "{.propertyName}"
+                            }
+                        }
+                    }
+
+                    VStack {
+                        SubView {
+                            view: {
+                                defaultRenderer: custom
+                                scrollable: false
+                                viewArguments: {
+                                    datasetEntries: {{selectedProject.dataset.entry}}
+                                    datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
+                                    labellingTask: {{selectedProject.dataset.labellingTask}}
+                                    readOnly: true
+                                    selectedDataset: {{selectedProject.dataset}}
+                                }
+
+                                [datasource = pod] {
+                                    filter: {
+                                        edgeSources: {
+                                            entry: {{selectedDataset}}
+                                        }
+                                    }
+                                    query: DatasetEntry
+                                }
+
+                                [renderer = custom] {
+                                    HStack {
+                                        alignment: topleft
+
+                                        VStack {
+                                            alignment: topleft
+
+                                            Text {
+                                                color: #999999
+                                                font: small_caps
+                                                padding: 20 0 0 0
+                                                text: "TASK"
+                                            }
+
+                                            SubView {
+                                                height: 22
+                                                view: {
+                                                    defaultRenderer: custom
+                                                    viewArguments: {
+                                                        datasetEntries: {{datasetEntries}}
+                                                        datasetEntriesCount: {{datasetEntriesCount}}
+                                                    }
+
+                                                    [datasource = pod] {
+                                                        filter: {
+                                                            edgeSources: {
+                                                                annotation: {{datasetEntries}}
+                                                            }
+                                                            properties: {
+                                                                isSubmitted: true
+                                                            }
+                                                        }
+                                                        query: CategoricalLabel
+                                                    }
+
+                                                    [renderer = custom] {
+                                                        HStack {
+                                                            alignment: left
+                                                            padding: 0
+
+                                                            Text {
+                                                                color: #999999
+                                                                font: ul
+                                                                text: "Submitted"
+                                                            }
+
+                                                            Text {
+                                                                color: #333333
+                                                                font: ul
+                                                                text: "{items.count()}"
+                                                            }
+
+                                                            VStack {
+                                                                alignment: top
+                                                                height: 22
+
+                                                                Text {
+                                                                    color: #333333
+                                                                    font: small_caps
+                                                                    text: "{items.count().percent(datasetEntriesCount)}%"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            SubView {
+                                                height: 22
+                                                view: {
+                                                    defaultRenderer: custom
+                                                    viewArguments: {
+                                                        datasetEntries: {{datasetEntries}}
+                                                        datasetEntriesCount: {{datasetEntriesCount}}
+                                                    }
+
+                                                    [datasource = pod] {
+                                                        filter: {
+                                                            edgeSources: {
+                                                                annotation: {{datasetEntries}}
+                                                            }
+                                                            properties: {
+                                                                isSubmitted: false
+                                                            }
+                                                        }
+                                                        query: CategoricalLabel
+                                                    }
+
+                                                    [renderer = custom] {
+                                                        HStack {
+                                                            alignment: left
+                                                            padding: 0
+
+                                                            Text {
+                                                                color: #999999
+                                                                font: ul
+                                                                text: "Skipped"
+                                                            }
+
+                                                            Text {
+                                                                color: #333333
+                                                                font: ul
+                                                                text: "{items.count()}"
+                                                            }
+
+                                                            VStack {
+                                                                alignment: top
+                                                                height: 22
+
+                                                                Text {
+                                                                    color: #333333
+                                                                    font: small_caps
+                                                                    text: "{items.count().percent(datasetEntriesCount)}%"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            HStack {
+                                                alignment: left
+
+                                                Text {
+                                                    color: #999999
+                                                    font: ul
+                                                    text: "Dataset"
+                                                }
+
+                                                Text {
+                                                    color: #333333
+                                                    font: ul
+                                                    text: "{items.count()}"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer
+
+                VStack {
+                    alignment: topleft
+                    spacing: 5
+
+                    Text {
+                        color: #999999
+                        font: small_caps
+                        text: "TEXT CLASSIFICATION"
+                    }
+
+                    Text {
+                        color: #333333
+                        font: ul
+                        text: {{.dataset.labellingTask.taskType.name}}
+                    }
+
+                    VStack {
+                        alignment: topleft
+                        maxWidth: 200
+
+                        Text {
+                            color: #999999
+                            font: small_caps
+                            padding: 50 0 0 0
+                            text: "LABELS"
+                        }
+
+                        SubView {
+                            view: {
+                                defaultRenderer: list
+                                editMode: false
+                                viewArguments: {
+                                    datasetEntries: {{selectedProject.dataset.entry}}
+                                    datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
+                                    labellingTask: {{selectedProject.dataset.labellingTask}}
+                                    readOnly: true
+                                }
+                                viewName: labelOptionListSummary
+
+                                [datasource = pod] {
+                                    filter: {
+                                        edgeSources: {
+                                            labelOption: {{labellingTask}}
+                                        }
+                                    }
+                                    query: LabelOption
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            Button {
-                onPress: [
-                    delete
-                    openView
-                    {
-                        clearStack: true
-                        inheritDatasource: false
-                        viewArguments: {
-                            readOnly: true
-                        }
-                        viewName: "allProjects"
-                    }
-                ]
-                padding: 0 0 0 15
+            HStack {
+                align: topleft
 
-                Text {
-                    color: #333333
-                    font: button_label
-                    text: "Cancel"
+                Button {
+                    isLink: true
+                    onPress: [
+                        openView
+                        {
+                            item: {{.dataset.labellingTask}}
+                            viewName: "labelling"
+                        }
+                    ]
+
+                    Image {
+                        bundleImage: "plus"
+                        color: #E9500F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: tab_list
+                        padding: 0 0 0 5
+                        text: "Resume labelling"
+                    }
+                }
+
+                Spacer
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        delete
+                        {
+                            subject: {{.dataset}}
+                        }
+                    ]
+
+                    Image {
+                        bundleImage: "ico_delete"
+                        color: #E9500F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: tab_list
+                        padding: 0 10 0 0
+                        text: "Delete dataset"
+                    }
                 }
             }
         }
@@ -151,14 +674,14 @@ Project > singleItem {
 
 Project > list {
     onPress: [
-            openView
-            {
-                viewArguments: {
-                    selectedProject: {{.}}
-                }
-                viewName: "project-overview"
+        openView
+        {
+            renderer: "singleItem"
+            viewArguments: {
+                selectedProject: {{.}}
             }
-        ]
+        }
+    ]
 
     HStack {
         alignment: topleft
@@ -231,6 +754,7 @@ Project > list {
                 _type: Project
             }
             title: "Create new project"
+            viewName: "add-project"
         }
     ]
     cols: 12
@@ -248,7 +772,7 @@ Project > list {
 
     [datasource = pod] {
         query: Project
-        sortAscending: true
+        sortAscending: false
         sortProperty: dateModified
     }
 

@@ -64,7 +64,7 @@ class _SingleItemRendererViewState extends RendererViewState {
                   );
                 }
                 if (backgroundColor != null) {
-                  ColoredBox(
+                  group = ColoredBox(
                     color: backgroundColor!,
                     child: group,
                   );
