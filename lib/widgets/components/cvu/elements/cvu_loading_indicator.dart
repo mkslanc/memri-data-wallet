@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
-import '../cvu_ui_node_resolver.dart';
-
-/// A CVU element for displaying a toggle
-/// - Set the `value` property to an expression representing the boolean item property to be toggled
+/// A CVU element for displaying a loading indicator
 class CVULoadingIndicator extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
 
@@ -60,13 +58,10 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator> with TickerPr
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init,
-      builder: (context, _) => RotationTransition(
+      builder: (_, __) => RotationTransition(
         turns: rotateAnimation,
-        child: SizedBox(
-          height: size,
-          width: size,
-          child: SvgPicture.asset("assets/images/loader.svg", color: color ?? Color(0xFFFE570F)),
-        ),
+        child: SvgPicture.asset("assets/images/loader.svg",
+            color: color ?? Color(0xFFFE570F), width: size, height: size),
       ),
     );
   }
