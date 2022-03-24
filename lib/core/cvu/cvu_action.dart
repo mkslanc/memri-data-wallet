@@ -1627,8 +1627,8 @@ class CVUActionParsePluginItem extends CVUAction {
       }
     });
 
-    var encodedConfig = await GitlabApi.getTextFileContentFromGitlab(
-        gitProjectId: gitProjectId, filename: "config.json");
+    var encodedConfig = await GitlabApi.downloadSingleArtifact(
+        gitProjectId: gitProjectId, filename: "config.json", jobName: "create_config");
     properties.add(ItemPropertyRecord(
         itemRowID: pluginItem.rowId!,
         name: "configJson",
