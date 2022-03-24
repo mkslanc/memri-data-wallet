@@ -1,11 +1,11 @@
 Project {
     cols: 12
     defaultRenderer: singleItem
-    title: "New project"
+    title: "{selectedProject.name} Overview"
 
     [renderer = singleItem] {
         background: #F6F6F6
-        scrollable: true
+        scrollable: false
     }
 }
 
