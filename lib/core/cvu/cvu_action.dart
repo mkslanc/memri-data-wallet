@@ -909,6 +909,7 @@ class CVUActionDelete extends CVUAction {
         pageController.navigateBack();
       }
     }
+    pageController.scheduleUIUpdate();
   }
 }
 
