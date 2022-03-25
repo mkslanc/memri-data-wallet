@@ -310,6 +310,7 @@ Plugin > grid {
                     openView
                     {
                         clearStack: true
+                        clearPageControllers: true
                         item: {{.}}
                         viewName: {{.view.name}}
                         viewArguments: {

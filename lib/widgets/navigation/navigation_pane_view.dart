@@ -77,7 +77,10 @@ class NavigationItemView extends StatelessWidget {
           ? () {
               sceneController.exitEditMode();
               sceneController.navigateToNewContext(
-                  clearStack: true, animated: false, viewName: item.targetViewName, clearPageControllers: true);
+                  clearStack: true,
+                  animated: false,
+                  viewName: item.targetViewName,
+                  clearPageControllers: true);
               sceneController.navigationIsVisible.value = false;
             }
           : item.callback,

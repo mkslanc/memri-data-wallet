@@ -182,7 +182,7 @@ class SceneController extends ChangeNotifier {
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
       CVUViewArguments? viewArguments,
-        bool clearPageControllers = false,
+      bool clearPageControllers = false,
       memri.PageController? pageController}) async {
     CVUDefinitionContent viewDefinition = defaultDefinition ??
         appController.cvuController

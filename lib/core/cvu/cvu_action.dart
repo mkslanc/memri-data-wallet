@@ -1589,8 +1589,7 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Git Project Id has wrong type";
     }
 
-    await createPlugin(
-        gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
+    await createPlugin(gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
   }
 
   createPlugin(
@@ -1694,8 +1693,6 @@ class CVUActionParsePluginItem extends CVUAction {
     await db.databasePool.itemPropertyRecordInsertAll(properties);
     await db.schema.load(db.databasePool);
   }
-
-
 }
 
 class CVUActionGeneratePluginCvu extends CVUAction {
@@ -1734,8 +1731,8 @@ class CVUActionGeneratePluginCvu extends CVUAction {
 
   Future<int> generatePluginCvu(
       {required Map<dynamic, dynamic> filterProperties,
-        required List<ItemRecord> features,
-        required DatabaseController db}) async {
+      required List<ItemRecord> features,
+      required DatabaseController db}) async {
     var startItemType = Map.of(filterProperties)["type"];
     filterProperties.remove('type');
     var propertiesFilter = "";
@@ -1917,7 +1914,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
     }
 
     var databaseQueryConfig =
-    DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
+        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
     databaseQueryConfig.dbController = db;
     var items = await databaseQueryConfig.constructFilteredRequest();
     if (items.isEmpty) {
