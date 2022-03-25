@@ -157,6 +157,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionCreateLabellingTask(vars: vars);
     case "parseplugin":
       return ({Map? vars}) => CVUActionParsePluginItem(vars: vars);
+    case "generateplugincvu":
+      return ({Map? vars}) => CVUActionGeneratePluginCvu(vars: vars);
     default:
       return null;
   }
@@ -1550,16 +1552,6 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Labelling project is not exist!";
     }
 
-    var queryStr = await resolver.string("query");
-    if (queryStr == null) {
-      throw "Project couldn't receive query from dataset";
-    }
-    var decodedQuery = jsonDecode(queryStr);
-    if (decodedQuery == null || decodedQuery["type"] == null) {
-      throw "Dataset doesn't have type property";
-    }
-    var filterProperties = Map.of(decodedQuery);
-
     var url = await resolver.string("url");
     if (url == null) {
       throw "Repository URL is not provided!";
@@ -1595,19 +1587,14 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Git Project Id has wrong type";
     }
 
-    List<ItemRecord> featureItems = await resolver.items("features");
-
-    var cvuRowId =
-        await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
     await createPlugin(
-        gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!, cvuRowId: cvuRowId);
+        gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
   }
 
   createPlugin(
       {required int gitProjectId,
       required DatabaseController db,
-      required int projectRowId,
-      required cvuRowId}) async {
+      required int projectRowId}) async {
     var encodedPlugin = await GitlabApi.getTextFileContentFromGitlab(
         gitProjectId: gitProjectId, filename: "metadata.json");
     var decodedPlugin = jsonDecode(encodedPlugin);
@@ -1639,9 +1626,6 @@ class CVUActionParsePluginItem extends CVUAction {
             sourceRowID: projectRowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
         .save(db.databasePool);
     await db.databasePool.itemPropertyRecordInsertAll(properties);
-    var viewEdge =
-        ItemEdgeRecord(name: "view", sourceRowID: pluginItem.rowId, targetRowID: cvuRowId);
-    await viewEdge.save(db.databasePool);
   }
 
   //TODO: this part is not used now, we will need it on next iterations
@@ -1709,10 +1693,47 @@ class CVUActionParsePluginItem extends CVUAction {
     await db.schema.load(db.databasePool);
   }
 
+
+}
+
+class CVUActionGeneratePluginCvu extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionGeneratePluginCvu({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var plugin = await resolver.item("plugin");
+    if (plugin == null) {
+      throw "Couldn't find plugin item in database";
+    }
+    var queryStr = await resolver.string("query");
+    if (queryStr == null) {
+      throw "Project couldn't receive query from dataset";
+    }
+
+    var decodedQuery = jsonDecode(queryStr);
+    if (decodedQuery == null || decodedQuery["type"] == null) {
+      throw "Dataset doesn't have type property";
+    }
+    var filterProperties = Map.of(decodedQuery);
+
+    List<ItemRecord> featureItems = await resolver.items("features");
+
+    var cvuRowId =
+        await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
+
+    var viewEdge = ItemEdgeRecord(name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
+    await viewEdge.save(db.databasePool);
+  }
+
   Future<int> generatePluginCvu(
       {required Map<dynamic, dynamic> filterProperties,
-      required List<ItemRecord> features,
-      required DatabaseController db}) async {
+        required List<ItemRecord> features,
+        required DatabaseController db}) async {
     var startItemType = Map.of(filterProperties)["type"];
     filterProperties.remove('type');
     var propertiesFilter = "";
@@ -1893,7 +1914,7 @@ class CVUActionParsePluginItem extends CVUAction {
     }
 
     var databaseQueryConfig =
-        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
+    DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
     databaseQueryConfig.dbController = db;
     var items = await databaseQueryConfig.constructFilteredRequest();
     if (items.isEmpty) {
