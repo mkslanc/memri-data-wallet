@@ -1,10 +1,15 @@
 .apps-and-plugins {
+    cols: 6
+    defaultRenderer: list
+    emptyResultText: "There are no Plugins"
+    name: "apps-and-plugins"
     startingElement: {
         Button {
             isLink: true
             onPress: [
                 openView
                 {
+                    clearPageControllers: true
                     inheritDatasource: false
                     viewArguments: {
                     }
@@ -48,10 +53,6 @@
             }
         }
     }
-    cols: 6
-    defaultRenderer: list
-    emptyResultText: "There are no Plugins"
-    name: "apps-and-plugins"
     title: "All apps"
 
     [datasource = pod] {

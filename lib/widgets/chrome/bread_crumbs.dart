@@ -70,7 +70,12 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
                     .mapIndexed((index, title) {
                       var isLast = index == titleList.length - 1;
                       return TextButton(
-                        onPressed: () => isLast ? null : pageController.navigateTo(index),
+                        onPressed: () {
+                          if (!isLast) {
+                            pageController.sceneController.removePageControllers();
+                            pageController.navigateTo(index);
+                          }
+                        },
                         child: Text(
                           title,
                           style: isLast

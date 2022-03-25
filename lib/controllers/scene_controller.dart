@@ -88,7 +88,7 @@ class SceneController extends ChangeNotifier {
     pageController.reset();
   }
 
-  reset() async {
+  reset() {
     navigationIsVisible.value = false;
     pageControllers.forEach((pageController) => pageController.reset());
     pageControllers = [];
@@ -182,12 +182,15 @@ class SceneController extends ChangeNotifier {
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
       CVUViewArguments? viewArguments,
+        bool clearPageControllers = false,
       memri.PageController? pageController}) async {
     CVUDefinitionContent viewDefinition = defaultDefinition ??
         appController.cvuController
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
-
+    if (clearPageControllers) {
+      removePageControllers();
+    }
     var viewArgs = viewDefinition.properties["viewArguments"];
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = targetItem;
@@ -296,6 +299,12 @@ class SceneController extends ChangeNotifier {
   scheduleUIUpdate() {
     pageControllers.forEach((pageController) {
       pageController.scheduleUIUpdate();
+    });
+  }
+
+  removePageControllers() {
+    pageControllers.skip(1).toList().forEach((element) {
+      removePageController(element);
     });
   }
 }

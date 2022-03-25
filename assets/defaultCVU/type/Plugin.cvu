@@ -101,6 +101,10 @@ Plugin > list {
                         openView
                         {
                             inheritDatasource: false
+                            viewArguments: {
+                                addPageIfMissing: true
+                                pageLabel: "mainApp"
+                            }
                             viewName: {{.view.name OR "empty-app"}}
                         }
                     ]
@@ -116,6 +120,7 @@ Plugin > list {
                     onPress: [
                         openView
                         {
+                            clearPageControllers: true
                             inheritDatasource: false
                             viewName: {{.view.name OR "empty-app"}}
                         }
@@ -144,7 +149,7 @@ Plugin > list {
                             clearStack: true
                             viewArguments: {
                                 addPageIfMissing: true
-                                pageLabel: "mainSecond"
+                                pageLabel: "mainApp"
                             }
                             viewName: "pluginConfig"
                         }
@@ -272,6 +277,7 @@ Plugin > grid {
     defaultRenderer: singleItem
     emptyResultText: "There are no Plugins"
     title: "Apps and Plugins"
+    cols: 6
 
     [renderer = singleItem] {
         edgeInset: 60 30 0 30
@@ -306,6 +312,9 @@ Plugin > grid {
                         clearStack: true
                         item: {{.}}
                         viewName: {{.view.name}}
+                        viewArguments: {
+                            pageLabel: "~main"
+                        }
                     }
                     opencvueditor
                     {

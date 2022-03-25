@@ -264,6 +264,7 @@ class CVUActionOpenView extends CVUAction {
         dateRange: dateRange,
         customDefinition: customDefinition,
         viewArguments: viewArguments,
+        clearPageControllers: await resolver.boolean("clearPageControllers") ?? false,
         pageController: pageController);
   }
 }
@@ -1754,6 +1755,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
 
     var cvu = '''.plugin${Uuid().v4()} { 
         defaultRenderer: singleItem
+        cols: 6
         [renderer = singleItem] {
           scrollable: false
         }
