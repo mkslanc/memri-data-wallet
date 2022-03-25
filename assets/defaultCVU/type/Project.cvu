@@ -222,7 +222,7 @@ Project > singleItem {
                         color: #FE570F
                         font: tab_list
                         padding: 0 0 0 5
-                        text: "Create new model"
+                        text: "Build an app"
                     }
                 }
 
