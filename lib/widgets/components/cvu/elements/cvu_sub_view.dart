@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_query.dart';
 import 'package:memri/controllers/view_context_controller.dart';
@@ -167,7 +168,7 @@ class _CVUSubViewState extends State<CVUSubView> {
               pageController: widget.nodeResolver.pageController,
             );
           } else {
-            print("No renderer selected"); //TODO
+            AppLogger.err("No renderer selected"); //TODO
             return Empty();
           }
         },

@@ -545,14 +545,17 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   static Future<DatabaseQueryConfig> queryConfigWith(
       {required CVUContext context,
       CVUParsedDefinition? datasource,
+      CVUDefinitionContent? datasourceContent,
       DatabaseQueryConfig? inheritQuery,
       Set<int>? overrideUIDs,
       ItemRecord? targetItem,
       DateTimeRange? dateRange,
       DatabaseController? databaseController}) async {
     databaseController ??= AppController.shared.databaseController;
-    var datasourceResolver = datasource?.parsed
-        .propertyResolver(context: context, lookup: CVULookupController(), db: databaseController);
+
+    datasourceContent ??= datasource?.parsed;
+    var datasourceResolver = datasourceContent?.propertyResolver(
+        context: context, lookup: CVULookupController(), db: databaseController);
     var uidList = overrideUIDs ?? Set.from(await datasourceResolver?.intArray("uids") ?? []);
     var filterDef = datasourceResolver?.subdefinition("filter");
 
@@ -577,6 +580,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     var queryConfig = inheritQuery?.clone() ?? DatabaseQueryConfig();
+    queryConfig.dbController = databaseController;
     var itemTypes =
         await datasourceResolver?.stringArray("query") ?? [targetItem?.type].compactMap();
     if (itemTypes.isNotEmpty) {

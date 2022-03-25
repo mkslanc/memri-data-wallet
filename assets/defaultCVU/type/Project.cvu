@@ -686,7 +686,7 @@ Project > list {
                     Text {
                         color: "#989898"
                         font: "body_tiny"
-                        text: {{.dataset.datasetType.plugin.name}}
+                        text: {{.dataset.datasetType.datasetPlugin.name}}
                     }
                 }
 
@@ -975,7 +975,7 @@ Project > list {
         Text {
             font: ul
             padding: 0 0 20 0
-            text: {{selectedDataset.datasetType.plugin.name}}
+            text: {{selectedDataset.datasetType.datasetPlugin.name}}
         }
 
         Text {

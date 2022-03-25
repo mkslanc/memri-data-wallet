@@ -1,0 +1,75 @@
+.createNewImporter {
+    defaultRenderer: custom
+    scrollable: false
+    title: "Create new importer"
+
+    VStack {
+        alignment: topleft
+        maxWidth: 910
+        padding: 35 60
+        spacing: 27
+
+        Text {
+            color: #333333
+            font: headline2
+            text: "Creating importers"
+        }
+
+        RichText {
+            color: #333333
+            font: bodyText1
+            spans: [
+                {
+                    text: "To learn more about how to create an importer plugin, visit "
+                }
+                {
+                    color: #E9500F
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/plugins/readme/"
+                        }
+                    ]
+                    text: "Plugin documentation page"
+                }
+                {
+                    text: ". Please contact "
+                }
+                {
+                    color: #E9500F
+                    onPress: [
+                        openLink
+                        {
+                            link: "https://discordapp.com/users/847014497649557574/"
+                        }
+                    ]
+                    text: "Eelco van der Wel on Discord"
+                }
+                {
+                    text: " directly for any support you may need."
+                }
+            ]
+        }
+
+        Button {
+            isLink: true
+            onPress: back
+            padding: 50 0 0 0
+            styleName: primaryButton
+
+            Image {
+                alignment: left
+                bundleImage: "ico_arrow_left"
+                color: #FE570F
+                isVector: true
+                padding: 0 10 0 0
+            }
+
+            Text {
+                color: #FE570F
+                font: link
+                text: "Back"
+            }
+        }
+    }
+}

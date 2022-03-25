@@ -1,5 +1,5 @@
 .apps-and-plugins {
-    additional: {
+    startingElement: {
         Button {
             isLink: true
             onPress: [
