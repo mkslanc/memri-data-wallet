@@ -256,7 +256,6 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                 enableSkipButton: enableSkipButton,
                 content: currentContent,
                 labelType: labelType,
-                additional: additional,
                 isSingleLabel: isSingleLabel,
               )
             : Empty();
@@ -295,7 +294,6 @@ class LabelSelectionView extends StatelessWidget {
 
   final Widget content;
 
-  final Widget? additional;
   final bool isSingleLabel;
 
   LabelSelectionView(
@@ -311,7 +309,6 @@ class LabelSelectionView extends StatelessWidget {
       this.topText,
       required this.content,
       required this.labelType,
-      this.additional,
       required this.isSingleLabel});
 
   Widget get labelOptions => Container(
@@ -465,7 +462,6 @@ class LabelSelectionView extends StatelessWidget {
                 ),
               ),
             ),
-            if (additional != null) additional!
           ]);
     });
   }

@@ -25,6 +25,9 @@ import 'package:memri/widgets/components/cvu/cvu_element_view.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 
+import '../models/cvu/cvu_value.dart';
+import '../models/cvu/cvu_view_arguments.dart';
+
 class CVUController {
   late List<CVUParsedDefinition> definitions;
   final DatabaseController databaseController;
@@ -416,8 +419,17 @@ class CVUController {
       required bool blankIfNoDefinition,
       required memri.PageController pageController,
       Key? key}) {
+    nodeDefinition ??= nodeDefinitionFor(cvuContext);
     CVUUINode? node = nodeFor(cvuContext, nodeDefinition);
+
     if (node != null) {
+      var viewArgs = nodeDefinition!.properties["viewArguments"];
+      if (viewArgs is CVUValueSubdefinition) {
+        cvuContext.viewArguments ??= CVUViewArguments();
+        cvuContext.viewArguments!.argumentItem = cvuContext.currentItem;
+        cvuContext.viewArguments!.args.addAll(viewArgs.value.properties);
+      }
+
       return CVUElementView(
         nodeResolver: CVUUINodeResolver(
             context: cvuContext,

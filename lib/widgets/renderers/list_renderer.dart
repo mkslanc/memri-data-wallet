@@ -9,7 +9,6 @@ import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
-import 'package:uuid/uuid.dart';
 
 /// The list renderer
 /// This presents the data in a list (aka tableView)
@@ -36,6 +35,12 @@ class _ListRendererViewState extends RendererViewState {
     super.initState();
     _init = init();
     viewContext.addListener(updateState);
+  }
+
+  @override
+  void didUpdateWidget(covariant Renderer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
   }
 
   @override
@@ -72,40 +77,56 @@ class _ListRendererViewState extends RendererViewState {
             if (!viewContext.isLoaded) {
               return Empty();
             }
+            List<Widget> elements = [];
             if (viewContext.hasItems) {
-              selectedIndices = selectedIndicesBinding.get();
               var lastIndex = viewContext.items.length - 1;
-              var elements = List<Widget>.from(viewContext.items
+              elements = List<Widget>.from(viewContext.items
                   .mapIndexed((index, item) =>
                       [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
                   .expand((element) => element));
+            }
 
-              if (additional != null) {
-                elements.insert(0, _buildSeparator());
-                elements.insertAll(0, [
-                  ListTile(
-                    key: Key(Uuid().v4()),
-                    dense: true,
-                    minVerticalPadding: 0,
-                    visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                    contentPadding:
-                        EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
-                    title: additional!,
-                  )
-                ]);
-              }
-              return RefreshIndicator(
-                onRefresh: () async =>
-                    setState(() => pageController.topMostContext?.setupQueryObservation()),
-                child: ListView.custom(
-                  reverse: isReverse,
-                  shrinkWrap: true,
-                  padding: EdgeInsets.fromLTRB(0,
-                      pageController.showTopBar ? insets.top : insets.top + 80, 0, insets.bottom),
-                  childrenDelegate: SliverChildListDelegate(elements),
+            if (startingElement != null) {
+              elements.insertAll(0, [
+                ListTile(
+                  dense: true,
+                  minVerticalPadding: 0,
+                  visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                  contentPadding: EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                  title: startingElement!,
                 ),
-                //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
-                /*child: ListView.separated(
+                _buildSeparator()
+              ]);
+            }
+            if (trailingElement != null) {
+              elements.addAll([
+                _buildSeparator(),
+                ListTile(
+                  dense: true,
+                  minVerticalPadding: 0,
+                  visualDensity: VisualDensity(horizontal: -2, vertical: -2),
+                  contentPadding: EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                  title: trailingElement!,
+                )
+              ]);
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async =>
+                  setState(() => pageController.topMostContext?.setupQueryObservation()),
+              child: elements.isNotEmpty
+                  ? ListView.custom(
+                      reverse: isReverse,
+                      shrinkWrap: true,
+                      padding: EdgeInsets.fromLTRB(
+                          0,
+                          pageController.showTopBar ? insets.top : insets.top + 80,
+                          0,
+                          insets.bottom),
+                      childrenDelegate: SliverChildListDelegate(elements),
+
+                      //TODO with large data ListView.custom will lag, should open ListView.separated and delete ListView.custom as soon as this issue is solved: https://github.com/flutter/flutter/issues/21023
+                      /*child: ListView.separated(
                       shrinkWrap: true,
                       // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
@@ -115,36 +136,8 @@ class _ListRendererViewState extends RendererViewState {
                       },
                       separatorBuilder: (context, index) => _buildSeparator(),
                       itemCount: viewContext.items.length)*/
-              );
-            } else {
-              List<Widget> elements = [];
-              if (additional != null) {
-                elements.insertAll(0, [
-                  _buildSeparator(),
-                  ListTile(
-                    key: Key(Uuid().v4()),
-                    dense: true,
-                    minVerticalPadding: 0,
-                    visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                    contentPadding:
-                        EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
-                    title: additional!,
-                  )
-                ]);
-              }
-              return Column(
-                children: [
-                  if (elements.isNotEmpty)
-                    ListView.custom(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.fromLTRB(
-                          0,
-                          pageController.showTopBar ? insets.top : insets.top + 80,
-                          0,
-                          insets.bottom),
-                      childrenDelegate: SliverChildListDelegate(elements),
-                    ),
-                  emptyResult ??
+                    )
+                  : emptyResult ??
                       Padding(
                         padding: EdgeInsets.all(30),
                         child: Center(
@@ -158,9 +151,7 @@ class _ListRendererViewState extends RendererViewState {
                           ),
                         ),
                       ),
-                ],
-              );
-            }
+            );
           } else {
             return Empty();
           }
@@ -178,8 +169,11 @@ class _ListRendererViewState extends RendererViewState {
       dense: true,
       minVerticalPadding: 0,
       visualDensity: VisualDensity(horizontal: -2, vertical: -4),
-      contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2, insets.right,
-          index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
+      contentPadding: EdgeInsets.fromLTRB(
+          insets.left,
+          index == 0 && startingElement == null ? 0 : spacing.y / 2,
+          insets.right,
+          index == viewContext.items.length - 1 && trailingElement == null ? 0 : spacing.y / 2),
       title: isInEditMode && showDefaultSelections
           ? Row(
               children: [
