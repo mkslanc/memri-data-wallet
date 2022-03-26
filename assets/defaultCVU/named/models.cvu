@@ -267,9 +267,7 @@
                     onPress: [
                         parsePlugin
                         {
-                            features: {{.dataset.feature[]}}
                             project: {{.}}
-                            query: {{.dataset.datasetType.queryStr}}
                             url: {{.gitlabUrl}}
                         }
                         openView
@@ -336,6 +334,12 @@
 
                 Button {
                     onPress: [
+                        generatePluginCvu
+                        {
+                            features: {{.dataset.feature[]}}
+                            plugin: {{.labellingPlugin}}
+                            query: {{.dataset.datasetType.queryStr}}
+                        }
                         openView
                         {
                             clearStack: true
@@ -373,8 +377,8 @@
                                             }
 
                                             LoadingIndicator {
-                                                size: 20
                                                 show: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle"}}
+                                                size: 20
                                             }
                                         }
                                     }
