@@ -39,7 +39,7 @@ DatasetType > grid {
         border: "#F0F0F0"
         height: 96
         padding: 10
-        show: {{.datasetPlugin.~plugin[].last().status = "daemon" OR .datasetPlugin.~plugin[].last().status = "ready"}}
+
         spacing: 5
         width: 205
 
