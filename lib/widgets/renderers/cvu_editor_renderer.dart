@@ -305,7 +305,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
-        color: CVUColor.black,
+        color: Color(0xff242424),
         child: Column(
           children: [
             Padding(
@@ -336,12 +336,18 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                   TextButton(
                       onPressed: () =>
                           resetCVUToDefault(context, widget.pageController, definitions),
-                      child: SvgPicture.asset("assets/images/rotate_ccw.svg",
-                          color: Color(0xFFFE570F))),
-                  TextButton(
-                      onPressed: close,
-                      child: SvgPicture.asset("assets/images/ico_close.svg",
-                          color: Color(0xFF989898))),
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 10,
+                        children: [
+                          SvgPicture.asset("assets/images/rotate_ccw.svg",
+                              color: Color(0xFFFE570F)),
+                          Text("Reset to default",
+                              style: CVUFont.tabList.copyWith(color: Color(0xffE9500F))),
+                        ],
+                      )),
                 ],
               ),
             ),
