@@ -363,7 +363,7 @@ Plugin > grid {
                                     }
                                 }
                             }
-                            customDefinition: {{.view.definition}}
+                            customDefinition: {{projectItem.labellingPlugin.view.definition}}
                             projectItem: {{.~labellingPlugin}}
                         }
                     }
