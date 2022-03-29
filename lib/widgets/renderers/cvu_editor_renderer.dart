@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
@@ -25,6 +24,7 @@ import 'package:memri/widgets/components/ace_editor/ace_editor.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 import '../../controllers/database_query.dart';
+import '../../core/cvu/cvu_action.dart';
 import '../../models/view_context.dart';
 
 class CVUEditorRendererView extends StatefulWidget {
@@ -44,6 +44,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   late Future<void> _init;
   late String mode;
   CVUDefinitionContent? buttons;
+  CVUAction? overrideResetAction;
 
   List<CVUParsedDefinition> definitions = [];
 
@@ -63,9 +64,12 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
     var buttonsArg = viewContext.config.viewArguments?.args["buttons"];
     buttons = buttonsArg?.getSubdefinition();
+    overrideResetAction = viewContext.viewDefinitionPropertyResolver.action(
+        "overrideResetAction", viewContext.config.viewArguments?.args["overrideResetAction"]);
 
     if (customDefinition != null) {
-      definitions = await CVUController.parseCVU(customDefinition);
+      definitions = (await CVUController.parseCVU(customDefinition)).compactMap(
+          (definition) => viewContext.cvuController.definitionByQuery(definition.queryStr));
     } else {
       await initDefinitions();
     }
@@ -334,8 +338,14 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                   ),
                   Spacer(),
                   TextButton(
-                      onPressed: () =>
-                          resetCVUToDefault(context, widget.pageController, definitions),
+                      onPressed: () => resetCVUToDefault(
+                          context,
+                          widget.pageController,
+                          CVUContext(
+                              currentItem: widget.viewContext.focusedItem,
+                              items: widget.viewContext.items),
+                          definitions: definitions,
+                          action: overrideResetAction),
                       child: Wrap(
                         alignment: WrapAlignment.center,
                         runAlignment: WrapAlignment.center,
@@ -360,19 +370,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   saveCVU() async {
     if (definitions.isNotEmpty) {
-      var parsed = CVUController.parseCVUString(controller.content);
-      await Future.forEach<CVUParsedDefinition>(parsed, (node) async {
-        var definition = viewContext.cvuController.definitionFor(
-            type: node.type,
-            selector: node.selector,
-            rendererName: node.renderer,
-            viewName: node.name,
-            specifiedDefinitions: definitions);
-        if (definition != null) {
-          await widget.pageController.appController.cvuController
-              .updateDefinition(definition, node.parsed);
-        }
-      });
+      await widget.pageController.appController.cvuController.updateDefinition(controller.content);
     }
     widget.pageController.sceneController.scheduleUIUpdate();
   }
