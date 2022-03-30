@@ -129,6 +129,15 @@ Plugin > list {
                             openForce: true
                             viewArguments: {
                                 customDefinition: {{pluginItem.view.definition}}
+                                overrideResetAction: [
+                                    generatePluginCvu
+                                    {
+                                        features: {{.~labellingPlugin.dataset.feature[]}}
+                                        forceUpdate: true
+                                        plugin: {{.}}
+                                        query: {{.~labellingPlugin.dataset.datasetType.queryStr}}
+                                    }
+                                ]
                                 pluginItem: {{.}}
                             }
                         }
@@ -354,7 +363,7 @@ Plugin > grid {
                                     }
                                 }
                             }
-                            customDefinition: {{.view.definition}}
+                            customDefinition: {{projectItem.labellingPlugin.view.definition}}
                             projectItem: {{.~labellingPlugin}}
                         }
                     }

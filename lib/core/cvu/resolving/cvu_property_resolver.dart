@@ -346,8 +346,8 @@ class CVUPropertyResolver {
     return null;
   }
 
-  CVUAction? action(String key) {
-    var val = value(key);
+  CVUAction? action(String key, [CVUValue? optional]) {
+    var val = value(key) ?? optional;
     if (val == null) {
       return null;
     }
