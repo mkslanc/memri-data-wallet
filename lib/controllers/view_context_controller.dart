@@ -136,14 +136,15 @@ class ViewContextController extends ChangeNotifier {
 
   _updateCachedValues() {
     var viewName = config.viewName;
-    var newDef = viewName != null ? cvuController.viewDefinitionFor(viewName: viewName) : null;
+    // var newDef = viewName != null ? cvuController.viewDefinitionFor(viewName: viewName) : null;//TODO this part is full of unused legacy we keep stumbling on
 
-    if (newDef == null) {
+    if (viewName == null) {
       var item = config.focusedItem;
-      newDef = item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
-    }
-    if (newDef != null) {
-      config.viewDefinition = newDef;
+      var newDef =
+          item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
+      if (newDef != null) {
+        config.viewDefinition = newDef;
+      }
     }
 
     rendererDefinition =
@@ -257,7 +258,14 @@ class ViewContextController extends ChangeNotifier {
   bool get hasItems => items.isNotEmpty;
 
   // MARK: Selection State
-  List<int> selectedItems = <int>[];
+  List<int> _selectedItems = <int>[];
+
+  get selectedItems => _selectedItems;
+  set selectedItems(selectedItems) {
+    _selectedItems = selectedItems;
+    config.viewArguments?.args["selectedItems"] =
+        CVUValueArray(_selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
+  }
 
   Binding<Set<int>> get selectedIndicesBinding {
     return Binding(
@@ -267,8 +275,6 @@ class ViewContextController extends ChangeNotifier {
             .toList()), (Set<int> newValue) {
       selectedItems =
           Set.of(newValue.toList().compactMap((index) => items.asMap()[index]?.rowId)).toList();
-      config.viewArguments?.args["selectedItems"] =
-          CVUValueArray(selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
     });
   }
 
