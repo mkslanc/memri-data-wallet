@@ -64,7 +64,7 @@ DatasetType > grid {
                 color: {{.datasetPlugin.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
                 font: body_tiny
                 padding: 0 10 0 0
-                show: {{.datasetPlugin.~plugin[].last().status = "ready" OR .datasetPlugin.~plugin[].last().status = "error" OR .datasetPlugin.~plugin[].last().progress = 1}}
+                show: {{.datasetPlugin.~plugin[].last().status = "done" OR .datasetPlugin.~plugin[].last().status = "error" OR .datasetPlugin.~plugin[].last().progress = 1}}
                 text: "{.datasetPlugin.~plugin[].last().status = 'error' ? 'Error' : 'Running'}"
             }
 
