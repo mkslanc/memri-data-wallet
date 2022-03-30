@@ -454,7 +454,6 @@ class CVUActionNavigateBack extends CVUAction {
     if (pageLabel != null) {
       var sceneController = pageController.sceneController;
       while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
-        AppLogger.info(pageLabel);
         sceneController = sceneController.parentSceneController!;
         pageLabel = pageLabel.substring(1);
       }
@@ -1019,8 +1018,6 @@ class CVUActionLink extends CVUAction {
               targetRowID: isReverse ? itemRowId : currentItem.rowId)
           .save(db.databasePool);
     }
-
-    pageController.scheduleUIUpdate();
   }
 }
 
@@ -1559,6 +1556,8 @@ class CVUActionCreateLabellingTask extends CVUAction {
       return;
     }
     var newVars = Map.of(vars);
+    newVars["template"] =
+        CVUValueSubdefinition((vars["template"] as CVUValueSubdefinition).value.clone());
     (newVars["template"] as CVUValueSubdefinition)
         .value
         .properties
