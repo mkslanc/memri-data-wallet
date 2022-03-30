@@ -16,7 +16,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   late bool isInEditMode;
   bool singleChoice = false;
   late Binding<Set<int>> selectedIndicesBinding;
-  late Set<int> selectedIndices;
+  Set<int> selectedIndices = Set<int>();
   bool scrollable = true;
   bool isBlocked = false;
   ValueNotifier? blockedFromStorage;
@@ -62,6 +62,9 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   Future<void> initEditMode() async {
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", pageController.isInEditMode.value))!;
+
+    var selectedItems = await viewContext.rendererDefinitionPropertyResolver.items("selectedItems");
+    viewContext.selectedItems = selectedItems.map((item) => item.rowId!).toList();
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
