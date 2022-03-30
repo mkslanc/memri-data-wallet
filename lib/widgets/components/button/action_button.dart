@@ -52,7 +52,7 @@ class _ActionButtonState extends State<ActionButton> {
         return TextButton(
             child: Text(
               title,
-              style: CVUFont.link.copyWith(color: color),
+              style: CVUFont.tabList.copyWith(color: color),
             ),
             onPressed: () async {
               await widget.action.execute(widget.pageController, widget.viewContext);

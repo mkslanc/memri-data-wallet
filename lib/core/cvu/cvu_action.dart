@@ -737,7 +737,7 @@ class CVUActionPluginRun extends CVUAction {
         await lookup.resolve<String>(value: containerValue, context: context, db: db);
     if (container == null) return;
 
-    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!))!;
+    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!, db))!;
 
     String? pluginModule =
         await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
@@ -1722,17 +1722,28 @@ class CVUActionGeneratePluginCvu extends CVUAction {
 
     List<ItemRecord> featureItems = await resolver.items("features");
 
-    var cvuRowId =
-        await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
+    var forceUpdate = (await resolver.boolean("forceUpdate", false))!;
 
-    var viewEdge = ItemEdgeRecord(name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
-    await viewEdge.save(db.databasePool);
+    var cvuRowId = await generatePluginCvu(
+        filterProperties: filterProperties,
+        features: featureItems,
+        db: db,
+        forceUpdate: forceUpdate,
+        cvuController: pageController.topMostContext!.cvuController,
+        pluginUID: plugin.uid);
+    if (!forceUpdate) {
+      var viewEdge = ItemEdgeRecord(name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
+      await viewEdge.save(db.databasePool);
+    }
   }
 
-  Future<int> generatePluginCvu(
+  Future<int?> generatePluginCvu(
       {required Map<dynamic, dynamic> filterProperties,
       required List<ItemRecord> features,
-      required DatabaseController db}) async {
+      required DatabaseController db,
+      required bool forceUpdate,
+      required CVUController cvuController,
+      required String pluginUID}) async {
     var startItemType = Map.of(filterProperties)["type"];
     filterProperties.remove('type');
     var propertiesFilter = "";
@@ -1750,7 +1761,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       propertiesFilter += "}}";
     }
 
-    var cvu = '''.plugin${Uuid().v4()} { 
+    var cvu = '''.plugin$pluginUID { 
         defaultRenderer: singleItem
         cols: 6
         [renderer = singleItem] {
@@ -1908,24 +1919,30 @@ class CVUActionGeneratePluginCvu extends CVUAction {
     cvu += '\n{ \n text: " - {.label.value OR \'Place for your label\'}" \n }';
 
     cvu += '\n]\n}\n}\n}\n}\n}\n}\n}\n}\n}';
-    var cvuID = await CVUController.storeDefinition(cvu, db);
-    if (cvuID == null) {
-      throw "CVU couldn't be saved";
-    }
 
-    var databaseQueryConfig =
-        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
-    databaseQueryConfig.dbController = db;
-    var items = await databaseQueryConfig.constructFilteredRequest();
-    if (items.isEmpty) {
-      await MockDataGenerator.generateMockItems(
-          db: db, properties: properties, itemType: startItemType);
+    if (forceUpdate) {
+      await cvuController.updateDefinition(cvu);
     } else {
-      for (var item in items) {
-        await ItemRecord.fromItem(item)
-            .copy(db, withProperties: {"isMock": PropertyDatabaseValueBool(true)});
+      var cvuID = await CVUController.storeDefinition(cvu, db);
+      if (cvuID == null) {
+        throw "CVU couldn't be saved";
       }
+
+      var databaseQueryConfig = DatabaseQueryConfig(
+          itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
+      databaseQueryConfig.dbController = db;
+      var items = await databaseQueryConfig.constructFilteredRequest();
+      if (items.isEmpty) {
+        await MockDataGenerator.generateMockItems(
+            db: db, properties: properties, itemType: startItemType);
+      } else {
+        for (var item in items) {
+          await ItemRecord.fromItem(item)
+              .copy(db, withProperties: {"isMock": PropertyDatabaseValueBool(true)});
+        }
+      }
+      return cvuID;
     }
-    return cvuID;
+    return null;
   }
 }
