@@ -325,6 +325,7 @@ class CVUPropertyResolver {
             if (def is CVUValueSubdefinition) {
               var keys = def.value.properties.keys;
               for (var key in keys) {
+                //TODO priorities seem to be broken, properties should be checked first
                 var value = context.viewArguments?.args[key] ??
                     context.viewArguments?.parentArguments?.args[key] ??
                     def.value.properties[key];

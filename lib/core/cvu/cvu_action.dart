@@ -236,21 +236,36 @@ class CVUActionOpenView extends CVUAction {
         context: context, lookup: CVULookupController(), db: db, properties: vars);
 
     var sceneController = pageController.sceneController; //TODO
-    var pageLabelVal = viewArguments.args["pageLabel"]?.value;
-    String pageLabel;
-    if (pageLabelVal != null) {
-      pageLabel = (pageLabelVal as CVUConstantString).value;
-      while (pageLabel.startsWith("~") && sceneController.parentSceneController != null) {
-        sceneController = sceneController.parentSceneController!;
-        pageLabel = pageLabel.substring(1);
+    memri.PageController? navigatePageController = pageController;
+
+    if (viewArguments.args["pageLabel"] != null) {
+      var lookup = CVULookupController();
+      var pageLabel = await lookup.resolve<String>(
+          value: viewArguments.args["pageLabel"], db: db, context: context);
+      if (pageLabel != null) {
+        while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
+          sceneController = sceneController.parentSceneController!;
+          pageLabel = pageLabel.substring(1);
+        }
+
+        navigatePageController = sceneController.pageControllerByLabel(pageLabel);
+
+        if (navigatePageController == null &&
+            pageLabel.isNotEmpty &&
+            viewArguments.args["addPageIfMissing"] != null) {
+          var addPageIfMissing = await lookup.resolve<bool>(
+                  value: viewArguments.args["addPageIfMissing"], db: db, context: context) ??
+              false;
+          if (addPageIfMissing) {
+            navigatePageController = await sceneController.addPageController(pageLabel);
+          }
+        }
       }
-      viewArguments.args["pageLabel"] = CVUValueConstant(CVUConstantString(pageLabel));
     }
 
-    var cvuEditorPageController =
-        pageController.sceneController.pageControllerByLabel("mainCVUEditor");
+    var cvuEditorPageController = sceneController.pageControllerByLabel("mainCVUEditor");
     if (cvuEditorPageController != null && viewName != "cvuEditor") {
-      pageController.sceneController.removePageController(cvuEditorPageController);
+      sceneController.removePageController(cvuEditorPageController);
     }
 
     await sceneController.navigateToNewContext(
@@ -265,7 +280,7 @@ class CVUActionOpenView extends CVUAction {
         customDefinition: customDefinition,
         viewArguments: viewArguments,
         clearPageControllers: await resolver.boolean("clearPageControllers") ?? false,
-        pageController: pageController);
+        pageController: navigatePageController);
   }
 }
 
