@@ -971,9 +971,21 @@ class CVUActionLink extends CVUAction {
     if (subjectItems.isEmpty) return;
 
     String? edgeType = await resolver.string("edgeType");
-    bool? unique = await resolver.boolean("distinct", false);
-    if (currentItem == null || edgeType == null || unique == null) {
+    if (currentItem == null || edgeType == null) {
       return;
+    }
+
+    bool unique = (await resolver.boolean("distinct", false))!;
+    bool removePrevious = (await resolver.boolean("removePrevious", false))!;
+
+    var subjectRowIDs = subjectItems.compactMap((target) => target?.rowId);
+    if (subjectRowIDs.isEmpty) return;
+
+    var isReverse = false;
+    var cleanKey = edgeType;
+    if (edgeType.startsWith("~")) {
+      isReverse = true;
+      cleanKey = edgeType.substring(1);
     }
 
     if (unique) {
@@ -988,20 +1000,19 @@ class CVUActionLink extends CVUAction {
           }
         }
       }
+    } else if (removePrevious) {
+      var existingEdges =
+          isReverse ? await currentItem.edges(cleanKey) : await currentItem.reverseEdges(cleanKey);
+      await Future.forEach<ItemEdgeRecord>(
+          existingEdges,
+          (edge) async => subjectRowIDs.contains(isReverse ? edge.targetRowID : edge.sourceRowID)
+              ? subjectRowIDs.remove(isReverse ? edge.targetRowID! : edge.sourceRowID!)
+              : await edge.delete(db));
+
+      if (subjectRowIDs.isEmpty) return;
     }
 
-    var isReverse = false;
-    var cleanKey = edgeType;
-    if (edgeType.startsWith("~")) {
-      isReverse = true;
-      cleanKey = edgeType.substring(1);
-    }
-
-    for (var item in subjectItems) {
-      var itemRowId = item?.rowId;
-      if (itemRowId == null) {
-        return;
-      }
+    for (var itemRowId in subjectRowIDs) {
       await ItemEdgeRecord(
               sourceRowID: isReverse ? currentItem.rowId : itemRowId,
               name: cleanKey,
