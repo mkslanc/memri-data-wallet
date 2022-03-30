@@ -117,13 +117,16 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   initDefinitions() async {
     definitions = [];
-    var viewName = await viewContext.viewDefinitionPropertyResolver
-        .resolveString(viewContext.config.viewArguments?.args["viewName"]);
-    var renderer = await viewContext.viewDefinitionPropertyResolver
-        .resolveString(viewContext.config.viewArguments?.args["renderer"]);
+    var sceneController = widget.pageController.sceneController;
+    for (var pageController in sceneController.pageControllers) {
+      if (pageController == widget.pageController) {
+        continue;
+      }
 
-    await collectDefinitions(
-        viewName: viewName, renderer: renderer, currentViewContext: viewContext);
+      var viewContext = pageController.topMostContext!;
+
+      await collectDefinitions(currentViewContext: viewContext, sceneController: sceneController);
+    }
   }
 
   initCVU() {
@@ -136,11 +139,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   collectDefinitions(
       {String? viewName,
       String? renderer,
-      ViewContextController? currentViewContext,
-      SceneController? sceneController,
+      required ViewContextController currentViewContext,
+      required SceneController sceneController,
       CVUDefinitionContent? subViewDefinition}) async {
-    currentViewContext ??= viewContext;
-    sceneController ??= widget.pageController.sceneController;
     viewName ??= currentViewContext.config.viewName;
     renderer ??= currentViewContext.config.rendererName;
 
@@ -159,11 +160,11 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       var itemTypes = await datasourceResolver?.stringArray("query");
 
       await Future.forEach<String>(itemTypes ?? <String>[], (itemType) async {
-        var nodeDefinition = currentViewContext!.cvuController.definitionFor(
+        var nodeDefinition = currentViewContext.cvuController.definitionFor(
             type: CVUDefinitionType.uiNode, selector: itemType, rendererName: renderer);
 
         if (nodeDefinition != null) {
-          await addDefinition(nodeDefinition, viewContext, sceneController!);
+          await addDefinition(nodeDefinition, viewContext, sceneController);
         }
       });
     } else if (currentViewContext.focusedItem != null) {
@@ -289,9 +290,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
         (subSceneController) async {
       await Future.forEach<memri.PageController>(subSceneController.pageControllers,
           (pageController) async {
-        var subViewContext = pageController.topMostContext;
         await collectDefinitions(
-            currentViewContext: subViewContext, sceneController: subSceneController);
+            currentViewContext: pageController.topMostContext!,
+            sceneController: subSceneController);
       });
     });
   }

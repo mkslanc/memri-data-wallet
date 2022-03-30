@@ -295,13 +295,7 @@ class CVUActionOpenCVUEditor extends CVUAction {
       }
       newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(
           properties: viewArguments
-            ..addAll({
-              if (context.rendererName != null)
-                "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
-              if (context.viewName != null)
-                "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
-              "clearStack": CVUValueConstant(CVUConstantBool(true))
-            })));
+            ..addAll({"clearStack": CVUValueConstant(CVUConstantBool(true))})));
 
       int pageControllersCount = pageController.sceneController.pageControllers.length;
       if (forceOpen && cvuEditorPageController != null) {
