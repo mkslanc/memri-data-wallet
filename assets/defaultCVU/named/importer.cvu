@@ -33,17 +33,17 @@
                     text: "Plugin documentation page"
                 }
                 {
-                    text: ". Please contact "
+                    text: ". Please use our "
                 }
                 {
                     color: #E9500F
                     onPress: [
                         openLink
                         {
-                            link: "https://discordapp.com/users/847014497649557574/"
+                            link: "https://discord.com/channels/799216875480678430/819828708368973874"
                         }
                     ]
-                    text: "Eelco van der Wel on Discord"
+                    text: "Plugin channel on Discord"
                 }
                 {
                     text: " directly for any support you may need."
