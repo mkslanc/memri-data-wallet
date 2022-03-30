@@ -504,98 +504,106 @@ class CVUActionAddItem extends CVUAction {
     var type = await template.string("_type");
 
     if (type != null) {
+      var isNew = false;
       var item = await resolver.item("initialItem");
       if (item == null) {
+        isNew = true;
         item = ItemRecord(type: type);
         try {
           await item.save(db.databasePool);
         } catch (error) {
           AppLogger.err("ERROR Adding item: " + error.toString());
         }
+      }
 
-        var itemRowId = item.rowId;
-        if (itemRowId == null) {
-          return;
+      var itemRowId = item.rowId;
+      if (itemRowId == null) {
+        return;
+      }
+
+      /// Take all the properties defined in the template definition (in CVU) and map them against the schema. Resolve the CVU based on the type expected by the schema.
+
+      for (var key in template.properties.keys.toList()) {
+        var isReverse = false;
+        var cleanKey = key;
+        if (key.startsWith("~")) {
+          isReverse = true;
+          cleanKey = key.substring(1);
+          var source = await template.item(key);
+          if (source == null) {
+            continue;
+          }
+          type = source.type;
         }
-
-        /// Take all the properties defined in the template definition (in CVU) and map them against the schema. Resolve the CVU based on the type expected by the schema.
-        await Future.wait(
-            template.properties.keys.toList().map<Future<ItemPropertyRecord?>>((key) async {
-          var isReverse = false;
-          var cleanKey = key;
-          if (key.startsWith("~")) {
-            isReverse = true;
-            cleanKey = key.substring(1);
-            var source = await template.item(key);
-            if (source == null) {
-              return;
-            }
-            type = source.type;
-          }
-          ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
-          if (valueType == null) {
-            return;
-          }
-          if (valueType is ResolvedTypeProperty) {
-            var propertyType = valueType.value;
-            var propertyDatabaseValue = await () async {
-              switch (propertyType) {
-                case SchemaValueType.string:
-                  var stringValue = await template.string(key);
-                  if (stringValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueString(stringValue);
-                case SchemaValueType.bool:
-                  var boolValue = await template.boolean(key);
-                  if (boolValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueBool(boolValue);
-                case SchemaValueType.int:
-                  var intValue = await template.integer(key);
-                  if (intValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueInt(intValue);
-                case SchemaValueType.double:
-                  var doubleValue = await template.number(key);
-                  if (doubleValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueDouble(doubleValue);
-                case SchemaValueType.datetime:
-                  var datetimeValue = await template.dateTime(key);
-                  if (datetimeValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueDatetime(datetimeValue);
-                default:
+        ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
+        if (valueType == null) {
+          continue;
+        }
+        if (valueType is ResolvedTypeProperty) {
+          var propertyType = valueType.value;
+          var propertyDatabaseValue = await () async {
+            switch (propertyType) {
+              case SchemaValueType.string:
+                var stringValue = await template.string(key);
+                if (stringValue == null) {
                   return null;
-              }
-            }();
-            if (propertyDatabaseValue != null) {
-              await ItemPropertyRecord(
-                      itemRowID: itemRowId, name: key, value: propertyDatabaseValue)
-                  .save(db.databasePool, isNew: true);
+                }
+                return PropertyDatabaseValueString(stringValue);
+              case SchemaValueType.bool:
+                var boolValue = await template.boolean(key);
+                if (boolValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueBool(boolValue);
+              case SchemaValueType.int:
+                var intValue = await template.integer(key);
+                if (intValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueInt(intValue);
+              case SchemaValueType.double:
+                var doubleValue = await template.number(key);
+                if (doubleValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueDouble(doubleValue);
+              case SchemaValueType.datetime:
+                var datetimeValue = await template.dateTime(key);
+                if (datetimeValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueDatetime(datetimeValue);
+              default:
+                return null;
             }
-          } else if (valueType is ResolvedTypeEdge) {
-            var targets = await template.items(isReverse ? key : cleanKey);
-            if (targets.isEmpty) return;
-            for (var i = 0; i < targets.length; i++) {
-              var targetRowId = targets[i].rowId;
-              if (targetRowId == null) {
-                return;
-              }
-              await ItemEdgeRecord(
-                      sourceRowID: isReverse ? targetRowId : itemRowId,
-                      name: cleanKey,
-                      targetRowID: isReverse ? itemRowId : targetRowId)
-                  .save();
-            }
+          }();
+          if (propertyDatabaseValue != null) {
+            await ItemPropertyRecord(itemRowID: itemRowId, name: key, value: propertyDatabaseValue)
+                .save(db.databasePool, isNew: isNew ? true : null);
           }
-          return null;
-        }));
+        } else if (valueType is ResolvedTypeEdge) {
+          var targets = await template.items(isReverse ? key : cleanKey);
+          var targetRowIDs = targets.compactMap((target) => target.rowId);
+          if (targetRowIDs.isEmpty) continue;
+
+          if (!isNew) {
+            var existingEdges =
+                isReverse ? await item.reverseEdges(cleanKey) : await item.edges(cleanKey);
+            await Future.forEach<ItemEdgeRecord>(
+                existingEdges,
+                (edge) async =>
+                    targetRowIDs.contains(isReverse ? edge.sourceRowID : edge.targetRowID)
+                        ? targetRowIDs.remove(isReverse ? edge.sourceRowID! : edge.targetRowID!)
+                        : await edge.delete(db));
+          }
+          for (var targetRowId in targetRowIDs) {
+            await ItemEdgeRecord(
+                    sourceRowID: isReverse ? targetRowId : itemRowId,
+                    name: cleanKey,
+                    targetRowID: isReverse ? itemRowId : targetRowId)
+                .save();
+          }
+        }
       }
 
       var openNewView = await resolver.boolean("openNewView", true);
