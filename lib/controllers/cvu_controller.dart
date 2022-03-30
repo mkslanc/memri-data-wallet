@@ -60,7 +60,7 @@ class CVUController {
             rendererName: definition.renderer,
             viewName: definition.name,
             specifiedDefinitions: defaultDefinitions);
-        if (defaultDefinition != null) {
+        if (defaultDefinition != null && defaultDefinition.parsed != definition.parsed) {
           await updateDefinition(defaultDefinition.toCVUString(0, "    ", true));
         }
       }
