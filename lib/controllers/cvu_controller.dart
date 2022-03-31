@@ -132,7 +132,7 @@ class CVUController {
       await ItemRecord.insertList(storedDefinitions, db: databaseController.databasePool);
 
       List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
-          storedDefinitions.map((e) => e.uid).toList(), databaseController));
+          storedDefinitions.map((e) => e.uid).toList(), databaseController.databasePool));
       newItemList.forEach((item) {
         properties.add(ItemPropertyRecord(
             itemRowID: item.rowId!,
@@ -206,7 +206,7 @@ class CVUController {
             itemRowID: definitionId,
             name: "queryStr",
             value: PropertyDatabaseValueString(definition.queryStr)));
-        await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+        await ItemPropertyRecord.insertList(properties, db: databaseController.databasePool);
       });
       return definitionId;
     }
@@ -217,7 +217,8 @@ class CVUController {
     if (storedDefinitions.isNotEmpty) {
       return;
     }
-    storedDefinitions = await ItemRecord.fetchWithType("CVUStoredDefinition", databaseController);
+    storedDefinitions =
+        await ItemRecord.fetchWithType("CVUStoredDefinition", databaseController.databasePool);
     if (storedDefinitions.isEmpty) {
       return;
     }

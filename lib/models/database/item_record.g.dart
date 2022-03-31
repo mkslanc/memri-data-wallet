@@ -48,4 +48,5 @@ const _$FileStateEnumMap = {
   FileState.needsUpload: 'needsUpload',
   FileState.needsDownload: 'needsDownload',
   FileState.noChanges: 'noChanges',
+  FileState.failedDownload: 'failedDownload',
 };
