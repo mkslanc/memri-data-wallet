@@ -19,6 +19,10 @@ Project {
     }
 
     Project > singleItem {
+        viewArguments: {
+            project: {{.}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 0 0 0
@@ -82,6 +86,9 @@ Project {
                     defaultRenderer: grid
                     editMode: true
                     singleChoice: true
+                    viewArguments: {
+                        project: {{project}}
+                    }
                     viewName: datasetsGrid
 
                     [datasource = pod] {
@@ -91,6 +98,7 @@ Project {
                     [renderer = grid] {
                         layout: "flow"
                         onPress: noop
+                        selectedItems: {{project.dataset.datasetType[]}}
                         spacing: 30
                     }
                 }
@@ -785,6 +793,10 @@ Project > list {
     }
 
     Dataset > singleItem {
+        viewArguments: {
+            dataset: {{.}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 30 30 30
@@ -831,6 +843,7 @@ Project > list {
                     defaultRenderer: grid
                     editMode: true
                     viewArguments: {
+                        dataset: {{dataset}}
                         selectedDataset: {{selectedDataset}}
                     }
 
@@ -851,6 +864,7 @@ Project > list {
                     [renderer = grid] {
                         edgeInset: 0
                         layout: flow
+                        selectedItems: {{dataset.feature[]}}
                         showDefaultSelections: false
                         spacing: 5
                     }
@@ -888,6 +902,7 @@ Project > list {
                     onPress: [
                         link
                         {
+                            removePrevious: true
                             edgeType: "~feature"
                             subject: {{subView("featureVariables").selectedItems()}}
                         }

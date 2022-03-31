@@ -90,6 +90,13 @@ class _CVUSubViewState extends State<CVUSubView> {
       widget.nodeResolver.context.viewArguments?.subViewArguments.remove(_id!);
     }
 
+    if (id != null &&
+        widget.nodeResolver.context.viewArguments != null &&
+        widget.nodeResolver.context.viewArguments!.args.containsKey(id)) {
+      viewDefinition = viewDefinition.merge(
+          (widget.nodeResolver.context.viewArguments!.args[id] as CVUValueSubdefinition).value);
+    }
+
     _viewDefinition = viewDefinition;
     _id = id;
 

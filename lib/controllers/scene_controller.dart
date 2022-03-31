@@ -197,22 +197,8 @@ class SceneController extends ChangeNotifier {
     if (viewArgs is CVUValueSubdefinition) {
       viewArguments.args = viewArgs.value.properties;
     }
-    var pageLabelVal = viewArguments.args["pageLabel"]?.value;
-    String? pageLabel;
-    if (pageLabelVal != null) {
-      pageLabel = (pageLabelVal as CVUConstantString).value;
-      pageController = pageControllerByLabel(pageLabel);
-    }
-
-    if (pageController == null && pageLabel != null) {
-      var addPageIfMissingVal = viewArguments.args["addPageIfMissing"]?.value;
-      if (addPageIfMissingVal != null && (addPageIfMissingVal as CVUConstantBool).value) {
-        pageController = await addPageController(pageLabel);
-      }
-    }
 
     pageController ??= pageControllers.first;
-    pageLabel = pageController.label;
 
     viewArguments.args["readOnly"] ??= viewDefinition.properties["readOnly"] ??
         CVUValueConstant(CVUConstantBool(!pageController.isInEditMode.value));
