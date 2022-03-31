@@ -63,14 +63,15 @@ class _TopBarViewState extends State<TopBarView> {
   @override
   Widget build(BuildContext context) {
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
-
+    var editorOpened =
+        widget.pageController.sceneController.pageControllerByLabel("mainCVUEditor") != null;
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
         height: 40,
         color: backgroundColor,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+          padding: const EdgeInsets.fromLTRB(30, 0, 14, 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -83,10 +84,12 @@ class _TopBarViewState extends State<TopBarView> {
                       viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                       pageController: widget.pageController,
                     )),
-                if (showEditCode && AppController.shared.isDevelopersMode) ...[
+                if (showEditCode && (AppController.shared.isDevelopersMode || editorOpened)) ...[
                   ActionButton(
-                    action: CVUActionOpenCVUEditor(
-                        vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),
+                    action: CVUActionOpenCVUEditor(vars: {
+                      "title": CVUValueConstant(
+                          CVUConstantString(editorOpened ? "Close editor   X" : "Code  >_"))
+                    }),
                     viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                     pageController: widget.pageController,
                   )

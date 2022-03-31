@@ -43,7 +43,7 @@ class SceneController extends ChangeNotifier {
 
         if (pages.length > 1) {
           navStackList.forEach((key, value) {
-            if (value.state.isNotEmpty) value.state.last.config.cols ??= 5;
+            if (value.state.isNotEmpty) value.state.last.config.cols ??= 6;
           }); //TODO cols part logic is not clear, so just dirty hack for now
         }
       }
@@ -197,22 +197,8 @@ class SceneController extends ChangeNotifier {
     if (viewArgs is CVUValueSubdefinition) {
       viewArguments.args = viewArgs.value.properties;
     }
-    var pageLabelVal = viewArguments.args["pageLabel"]?.value;
-    String? pageLabel;
-    if (pageLabelVal != null) {
-      pageLabel = (pageLabelVal as CVUConstantString).value;
-      pageController = pageControllerByLabel(pageLabel);
-    }
-
-    if (pageController == null && pageLabel != null) {
-      var addPageIfMissingVal = viewArguments.args["addPageIfMissing"]?.value;
-      if (addPageIfMissingVal != null && (addPageIfMissingVal as CVUConstantBool).value) {
-        pageController = await addPageController(pageLabel);
-      }
-    }
 
     pageController ??= pageControllers.first;
-    pageLabel = pageController.label;
 
     viewArguments.args["readOnly"] ??= viewDefinition.properties["readOnly"] ??
         CVUValueConstant(CVUConstantBool(!pageController.isInEditMode.value));

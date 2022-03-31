@@ -245,11 +245,16 @@
                         delete {
                             subject: {{.~account}}
                         }
-                        openView {
-                            viewName: "apps-and-plugins"
+                        openView
+                        {
                             clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allData"
                         }
-                        ]
+                    ]
                 }
             }
         }
