@@ -126,7 +126,7 @@
                             font: body_tiny
                             padding: 0 5
                             show: {{.~plugin}}
-                            text: {{.datasourceItems("featureVariables").count() + " feature variables"}}
+                            text: {{datasourceItems("featureVariables").count() + " feature variables"}}
                         }
 
                         Observer {
