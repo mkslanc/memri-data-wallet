@@ -311,7 +311,7 @@ class CVULookupController {
           case "items":
             var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
             if (byType != null) {
-              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db);
+              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db.databasePool);
               if (items.isEmpty) {
                 return null;
               }
