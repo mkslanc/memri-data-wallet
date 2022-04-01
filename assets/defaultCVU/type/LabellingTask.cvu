@@ -102,13 +102,7 @@ LabellingTask {
 
                     Button {
                         isLink: true
-                        onPress: [
-                            unlink
-                            {
-                                edgeType: "labelOption"
-                                subject: {{.~labelOption}}
-                            }
-                        ]
+                        onPress: delete
                         padding: 0 11 0 0
 
                         Text {
