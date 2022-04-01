@@ -145,11 +145,11 @@ class DemoData {
             dateCreated: item.dateCreated,
             dateModified: item.dateModified);
         var tempUID = item.tempUID;
-        records.add(record);
 
         if (record.type == "File") {
           record.fileState = FileState.needsUpload;
         }
+        records.add(record);
 
         if (tempUID != null) {
           tempIDLookup[tempUID] = record.uid;
@@ -169,10 +169,10 @@ class DemoData {
             continue;
           }
 
-          var sourceRowID = sourceIDLookup[item.uid];
+          var sourceUID = sourceIDLookup[item.uid];
 
           var record =
-              ItemEdgeRecord(sourceUID: sourceRowID, name: edge.name, targetUID: targetActualID);
+              ItemEdgeRecord(sourceUID: sourceUID, name: edge.name, targetUID: targetActualID);
           edges.add(record);
         }
       }
