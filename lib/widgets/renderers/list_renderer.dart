@@ -29,6 +29,7 @@ class _ListRendererViewState extends RendererViewState {
   bool isDismissible = false;
 
   late Future _init;
+  bool isInited = false;
 
   @override
   initState() {
@@ -73,7 +74,8 @@ class _ListRendererViewState extends RendererViewState {
     return FutureBuilder(
         future: _init,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          if (isInited) {
             if (!viewContext.isLoaded) {
               return Empty();
             }
