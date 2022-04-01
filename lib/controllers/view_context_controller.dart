@@ -29,6 +29,7 @@ class ViewContextController extends ChangeNotifier {
   var configObservation;
   var queryObservation;
 
+  CVUDefinitionContent? viewDefinition;
   CVUDefinitionContent rendererDefinition;
 
   ViewContext get config => configHolder.config;
@@ -44,6 +45,10 @@ class ViewContextController extends ChangeNotifier {
     this.cvuController = cvuController ?? AppController.shared.cvuController;
     this.lookupController = CVULookupController();
     this.configHolder = config;
+
+    if (this.config.viewName != null && this.config.viewName != "customView") {
+      viewDefinition = config.config.viewDefinition;
+    }
 
     _updateCachedValues();
 
@@ -136,15 +141,18 @@ class ViewContextController extends ChangeNotifier {
 
   _updateCachedValues() {
     var viewName = config.viewName;
-    // var newDef = viewName != null ? cvuController.viewDefinitionFor(viewName: viewName) : null;//TODO this part is full of unused legacy we keep stumbling on
+    viewDefinition ??= viewName != null
+        ? cvuController.viewDefinitionFor(viewName: viewName)
+        : null; //TODO this part is full of unused legacy we keep stumbling on
 
-    if (viewName == null) {
+    if (viewDefinition == null) {
       var item = config.focusedItem;
-      var newDef =
+      viewDefinition =
           item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
-      if (newDef != null) {
-        config.viewDefinition = newDef;
-      }
+    }
+
+    if (viewDefinition != null) {
+      config.viewDefinition = viewDefinition!;
     }
 
     rendererDefinition =
@@ -337,6 +345,8 @@ class ViewContextController extends ChangeNotifier {
     }
     items = await Future.wait<ItemRecord>(items.compactMap<Future<ItemRecord>>(
         (el) async => (await ItemRecord.fetchWithRowID(el.rowId!))!));
+
+    viewDefinition = null;
 
     _updateCachedValues();
     notifyListeners();
