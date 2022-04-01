@@ -28,14 +28,9 @@ class CVUViewArguments with EquatableMixin {
   @JsonKey(ignore: true)
   Map<String, CVUViewArguments> subViewArguments = {};
 
-  //used to deserialize from json for parentArguments //TODO maybe there's better way
-  @JsonKey(ignore: true)
-  List<CVUViewArguments> childrenArguments = [];
-
   CVUViewArguments(
       {Map<String, CVUValue>? args, this.argumentItem, this.parentArguments, this.argumentItems}) {
     this.args = args ?? {};
-    this.parentArguments?.childrenArguments.add(this);
   }
 
   factory CVUViewArguments.fromJson(Map<String, dynamic> json) => _$CVUViewArgumentsFromJson(json);
