@@ -90,7 +90,7 @@ class Database extends _$Database {
   Future<List<Item>> itemRecordsCustomSelect(String query, List<Variable<dynamic>> binding,
       {String join = "",
       List<TableInfo>? joinTables,
-      int limit = 0,
+      int limit = 50000, //TODO: putting limit, not to crash wasm
       int offset = 0,
       String? orderBy,
       String? groupBy,
@@ -333,19 +333,19 @@ class Database extends _$Database {
         return ItemPropertyRecordTableData(
             table: integers,
             companion: IntegersCompanion(
-                item: Value(record.itemRowID), name: Value(record.name), value: Value(value)));
+                item: Value(record.itemRowID!), name: Value(record.name), value: Value(value)));
       case ItemRecordPropertyTable.reals:
         return ItemPropertyRecordTableData(
             table: reals,
             companion: RealsCompanion(
-                item: Value(record.itemRowID),
+                item: Value(record.itemRowID!),
                 name: Value(record.name),
                 value: Value(record.$value.value)));
       case ItemRecordPropertyTable.strings:
         return ItemPropertyRecordTableData(
             table: strings,
             companion: StringsCompanion(
-                item: Value(record.itemRowID),
+                item: Value(record.itemRowID!),
                 name: Value(record.name),
                 value: Value(record.$value.value)));
     }

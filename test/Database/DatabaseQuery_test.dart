@@ -25,14 +25,10 @@ void main() {
   });
 
   test('testQueryWithConditions', () {
-    var queryDef = DatabaseQueryConfig(
-        itemTypes: [],
-        pageSize: 1000,
-        currentPage: 0,
-        conditions: [
-          DatabaseQueryConditionPropertyEquals(PropertyEquals("title", "A demo note")),
-          DatabaseQueryConditionPropertyEquals(PropertyEquals("starred", true))
-        ]);
+    var queryDef = DatabaseQueryConfig(pageSize: 1000, currentPage: 0, conditions: [
+      DatabaseQueryConditionPropertyEquals(PropertyEquals("title", "A demo note")),
+      DatabaseQueryConditionPropertyEquals(PropertyEquals("starred", true))
+    ]);
     var result = queryDef.executeRequest(databaseController);
     result.listen(expectAsync1((List<ItemRecord> records) {
       expect(records.length, 1);

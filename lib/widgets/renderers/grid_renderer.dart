@@ -29,6 +29,7 @@ class GridRendererViewState extends RendererViewState {
   late Point spacing;
 
   late Future _init;
+  bool isInited = false;
   late String layout;
 
   @override
@@ -88,93 +89,96 @@ class GridRendererViewState extends RendererViewState {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init,
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-          ? ValueListenableBuilder(
-              valueListenable: viewContext.itemsValueNotifier,
-              builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                if (!viewContext.isLoaded) {
-                  return Empty();
-                }
-                List<Widget> elements = [];
+      builder: (context, snapshot) {
+        isInited = isInited || snapshot.connectionState == ConnectionState.done;
+        return isInited
+            ? ValueListenableBuilder(
+                valueListenable: viewContext.itemsValueNotifier,
+                builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                  if (!viewContext.isLoaded) {
+                    return Empty();
+                  }
+                  List<Widget> elements = [];
 
-                if (viewContext.hasItems) {
-                  elements = viewContext.items.mapIndexed((index, item) {
-                    var isSelected = selectedIndices.contains(index);
-                    return GestureDetector(
-                      onTap: selectionMode(index),
-                      child: Stack(
-                        alignment: Alignment.topLeft,
-                        children: [
-                          MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: viewContext.render(
-                                  item: item,
-                                  viewArguments: CVUViewArguments(args: {
-                                    "isSelected": CVUValueConstant(CVUConstantBool(isSelected))
-                                  }))),
-                          if (isSelected && showDefaultSelections)
-                            Container(
-                              height: 30,
-                              width: 30,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Circle(
-                                      color: Colors.blue,
-                                      border: Border.all(color: Colors.white, width: 2)),
-                                  Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 15,
-                                  )
-                                ],
-                              ),
-                            )
-                        ],
-                      ),
-                    );
-                  }).toList();
-                }
-                if (startingElement != null) {
-                  elements.insert(
-                      0,
-                      GestureDetector(
-                        child: startingElement!,
-                      ));
-                }
-                if (trailingElement != null) {
-                  elements.add(GestureDetector(child: trailingElement!));
-                }
+                  if (viewContext.hasItems) {
+                    elements = viewContext.items.mapIndexed((index, item) {
+                      var isSelected = selectedIndices.contains(index);
+                      return GestureDetector(
+                        onTap: selectionMode(index),
+                        child: Stack(
+                          alignment: Alignment.topLeft,
+                          children: [
+                            MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: viewContext.render(
+                                    item: item,
+                                    viewArguments: CVUViewArguments(args: {
+                                      "isSelected": CVUValueConstant(CVUConstantBool(isSelected))
+                                    }))),
+                            if (isSelected && showDefaultSelections)
+                              Container(
+                                height: 30,
+                                width: 30,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Circle(
+                                        color: Colors.blue,
+                                        border: Border.all(color: Colors.white, width: 2)),
+                                    Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 15,
+                                    )
+                                  ],
+                                ),
+                              )
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  }
+                  if (startingElement != null) {
+                    elements.insert(
+                        0,
+                        GestureDetector(
+                          child: startingElement!,
+                        ));
+                  }
+                  if (trailingElement != null) {
+                    elements.add(GestureDetector(child: trailingElement!));
+                  }
 
-                return RefreshIndicator(
-                  onRefresh: () async =>
-                      setState(() => pageController.topMostContext?.setupQueryObservation()),
-                  child: elements.isNotEmpty
-                      ? layout == "flow"
-                          ? GridRendererFlowView(elements: elements, spacing: spacing)
-                          : GridRendererSimpleView(
-                              elements: elements,
-                              spacing: spacing,
-                              insets: insets,
-                              scrollDirection: scrollDirection,
-                            )
-                      : emptyResult ??
-                          Padding(
-                            padding: EdgeInsets.all(30),
-                            child: Center(
-                              child: Text(
-                                "No items",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Color.fromRGBO(0, 0, 0, 0.7),
-                                    backgroundColor: backgroundColor),
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        setState(() => pageController.topMostContext?.setupQueryObservation()),
+                    child: elements.isNotEmpty
+                        ? layout == "flow"
+                            ? GridRendererFlowView(elements: elements, spacing: spacing)
+                            : GridRendererSimpleView(
+                                elements: elements,
+                                spacing: spacing,
+                                insets: insets,
+                                scrollDirection: scrollDirection,
+                              )
+                        : emptyResult ??
+                            Padding(
+                              padding: EdgeInsets.all(30),
+                              child: Center(
+                                child: Text(
+                                  "No items",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                      color: Color.fromRGBO(0, 0, 0, 0.7),
+                                      backgroundColor: backgroundColor),
+                                ),
                               ),
                             ),
-                          ),
-                );
-              })
-          : Empty(),
+                  );
+                })
+            : Empty();
+      },
     );
   }
 }

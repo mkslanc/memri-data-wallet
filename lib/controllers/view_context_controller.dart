@@ -29,6 +29,7 @@ class ViewContextController extends ChangeNotifier {
   var configObservation;
   var queryObservation;
 
+  CVUDefinitionContent? viewDefinition;
   CVUDefinitionContent rendererDefinition;
 
   ViewContext get config => configHolder.config;
@@ -44,6 +45,10 @@ class ViewContextController extends ChangeNotifier {
     this.cvuController = cvuController ?? AppController.shared.cvuController;
     this.lookupController = CVULookupController();
     this.configHolder = config;
+
+    if (this.config.viewName != null && this.config.viewName != "customView") {
+      viewDefinition = config.config.viewDefinition;
+    }
 
     _updateCachedValues();
 
@@ -136,14 +141,18 @@ class ViewContextController extends ChangeNotifier {
 
   _updateCachedValues() {
     var viewName = config.viewName;
-    var newDef = viewName != null ? cvuController.viewDefinitionFor(viewName: viewName) : null;
+    viewDefinition ??= viewName != null
+        ? cvuController.viewDefinitionFor(viewName: viewName)
+        : null; //TODO this part is full of unused legacy we keep stumbling on
 
-    if (newDef == null) {
+    if (viewDefinition == null) {
       var item = config.focusedItem;
-      newDef = item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
+      viewDefinition =
+          item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
     }
-    if (newDef != null) {
-      config.viewDefinition = newDef;
+
+    if (viewDefinition != null) {
+      config.viewDefinition = viewDefinition!;
     }
 
     rendererDefinition =
@@ -257,7 +266,14 @@ class ViewContextController extends ChangeNotifier {
   bool get hasItems => items.isNotEmpty;
 
   // MARK: Selection State
-  List<int> selectedItems = <int>[];
+  List<int> _selectedItems = <int>[];
+
+  get selectedItems => _selectedItems;
+  set selectedItems(selectedItems) {
+    _selectedItems = selectedItems;
+    config.viewArguments?.args["selectedItems"] =
+        CVUValueArray(_selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
+  }
 
   Binding<Set<int>> get selectedIndicesBinding {
     return Binding(
@@ -267,8 +283,6 @@ class ViewContextController extends ChangeNotifier {
             .toList()), (Set<int> newValue) {
       selectedItems =
           Set.of(newValue.toList().compactMap((index) => items.asMap()[index]?.rowId)).toList();
-      config.viewArguments?.args["selectedItems"] =
-          CVUValueArray(selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
     });
   }
 
@@ -331,6 +345,8 @@ class ViewContextController extends ChangeNotifier {
     }
     items = await Future.wait<ItemRecord>(items.compactMap<Future<ItemRecord>>(
         (el) async => (await ItemRecord.fetchWithRowID(el.rowId!))!));
+
+    viewDefinition = null;
 
     _updateCachedValues();
     notifyListeners();

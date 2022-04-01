@@ -73,21 +73,19 @@ class NavigationItemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: item.targetViewName != null
-          ? () {
-              sceneController.exitEditMode();
-              sceneController.navigateToNewContext(
-                  clearStack: true,
-                  animated: false,
-                  viewName: item.targetViewName,
-                  clearPageControllers: true);
-              sceneController.navigationIsVisible.value = false;
-            }
-          : item.callback,
-      child: Text(
-        item.name,
-        style: CVUFont.bodyText1,
-      ),
+      onPressed: () {
+        if (item.callback != null) item.callback!();
+        if (item.targetViewName != null) {
+          sceneController.exitEditMode();
+          sceneController.navigateToNewContext(
+              clearStack: true,
+              animated: false,
+              viewName: item.targetViewName,
+              clearPageControllers: true);
+          sceneController.navigationIsVisible.value = false;
+        }
+      },
+      child: Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),
     );
   }
 }

@@ -311,7 +311,7 @@ class CVULookupController {
           case "items":
             var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
             if (byType != null) {
-              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db);
+              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db.databasePool);
               if (items.isEmpty) {
                 return null;
               }
@@ -462,7 +462,7 @@ class CVULookupController {
             }
             currentValue = LookupStepValues([
               PropertyDatabaseValueString(
-                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double).format(1))
+                  (((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100) as double).format(1))
             ]);
 
             break;

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
@@ -25,6 +24,7 @@ import 'package:memri/widgets/components/ace_editor/ace_editor.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 import '../../controllers/database_query.dart';
+import '../../core/cvu/cvu_action.dart';
 import '../../models/view_context.dart';
 
 class CVUEditorRendererView extends StatefulWidget {
@@ -44,6 +44,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   late Future<void> _init;
   late String mode;
   CVUDefinitionContent? buttons;
+  CVUAction? overrideResetAction;
 
   List<CVUParsedDefinition> definitions = [];
 
@@ -63,9 +64,12 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
     var buttonsArg = viewContext.config.viewArguments?.args["buttons"];
     buttons = buttonsArg?.getSubdefinition();
+    overrideResetAction = viewContext.viewDefinitionPropertyResolver.action(
+        "overrideResetAction", viewContext.config.viewArguments?.args["overrideResetAction"]);
 
     if (customDefinition != null) {
-      definitions = await CVUController.parseCVU(customDefinition);
+      definitions = (await CVUController.parseCVU(customDefinition)).compactMap(
+          (definition) => viewContext.cvuController.definitionByQuery(definition.queryStr));
     } else {
       await initDefinitions();
     }
@@ -113,13 +117,16 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   initDefinitions() async {
     definitions = [];
-    var viewName = await viewContext.viewDefinitionPropertyResolver
-        .resolveString(viewContext.config.viewArguments?.args["viewName"]);
-    var renderer = await viewContext.viewDefinitionPropertyResolver
-        .resolveString(viewContext.config.viewArguments?.args["renderer"]);
+    var sceneController = widget.pageController.sceneController;
+    for (var pageController in sceneController.pageControllers) {
+      if (pageController == widget.pageController) {
+        continue;
+      }
 
-    await collectDefinitions(
-        viewName: viewName, renderer: renderer, currentViewContext: viewContext);
+      var viewContext = pageController.topMostContext!;
+
+      await collectDefinitions(currentViewContext: viewContext, sceneController: sceneController);
+    }
   }
 
   initCVU() {
@@ -132,11 +139,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   collectDefinitions(
       {String? viewName,
       String? renderer,
-      ViewContextController? currentViewContext,
-      SceneController? sceneController,
+      required ViewContextController currentViewContext,
+      required SceneController sceneController,
       CVUDefinitionContent? subViewDefinition}) async {
-    currentViewContext ??= viewContext;
-    sceneController ??= widget.pageController.sceneController;
     viewName ??= currentViewContext.config.viewName;
     renderer ??= currentViewContext.config.rendererName;
 
@@ -155,11 +160,11 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       var itemTypes = await datasourceResolver?.stringArray("query");
 
       await Future.forEach<String>(itemTypes ?? <String>[], (itemType) async {
-        var nodeDefinition = currentViewContext!.cvuController.definitionFor(
+        var nodeDefinition = currentViewContext.cvuController.definitionFor(
             type: CVUDefinitionType.uiNode, selector: itemType, rendererName: renderer);
 
         if (nodeDefinition != null) {
-          await addDefinition(nodeDefinition, viewContext, sceneController!);
+          await addDefinition(nodeDefinition, viewContext, sceneController);
         }
       });
     } else if (currentViewContext.focusedItem != null) {
@@ -285,9 +290,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
         (subSceneController) async {
       await Future.forEach<memri.PageController>(subSceneController.pageControllers,
           (pageController) async {
-        var subViewContext = pageController.topMostContext;
         await collectDefinitions(
-            currentViewContext: subViewContext, sceneController: subSceneController);
+            currentViewContext: pageController.topMostContext!,
+            sceneController: subSceneController);
       });
     });
   }
@@ -305,7 +310,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
-        color: CVUColor.black,
+        color: Color(0xff242424),
         child: Column(
           children: [
             Padding(
@@ -334,14 +339,26 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                   ),
                   Spacer(),
                   TextButton(
-                      onPressed: () =>
-                          resetCVUToDefault(context, widget.pageController, definitions),
-                      child: SvgPicture.asset("assets/images/rotate_ccw.svg",
-                          color: Color(0xFFFE570F))),
-                  TextButton(
-                      onPressed: close,
-                      child: SvgPicture.asset("assets/images/ico_close.svg",
-                          color: Color(0xFF989898))),
+                      onPressed: () => resetCVUToDefault(
+                          context,
+                          widget.pageController,
+                          CVUContext(
+                              currentItem: widget.viewContext.focusedItem,
+                              items: widget.viewContext.items),
+                          definitions: definitions,
+                          action: overrideResetAction),
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 10,
+                        children: [
+                          SvgPicture.asset("assets/images/rotate_ccw.svg",
+                              color: Color(0xFFFE570F)),
+                          Text("Reset to default",
+                              style: CVUFont.tabList.copyWith(color: Color(0xffE9500F))),
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -354,19 +371,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   saveCVU() async {
     if (definitions.isNotEmpty) {
-      var parsed = CVUController.parseCVUString(controller.content);
-      await Future.forEach<CVUParsedDefinition>(parsed, (node) async {
-        var definition = viewContext.cvuController.definitionFor(
-            type: node.type,
-            selector: node.selector,
-            rendererName: node.renderer,
-            viewName: node.name,
-            specifiedDefinitions: definitions);
-        if (definition != null) {
-          await widget.pageController.appController.cvuController
-              .updateDefinition(definition, node.parsed);
-        }
-      });
+      await widget.pageController.appController.cvuController.updateDefinition(controller.content);
     }
     widget.pageController.sceneController.scheduleUIUpdate();
   }

@@ -25,6 +25,12 @@ class _SingleItemRendererViewState extends RendererViewState {
   }
 
   @override
+  void didUpdateWidget(covariant Renderer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
+  }
+
+  @override
   dispose() {
     super.dispose();
     pageController.removeListener(updateState);

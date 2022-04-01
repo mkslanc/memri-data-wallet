@@ -236,21 +236,36 @@ class CVUActionOpenView extends CVUAction {
         context: context, lookup: CVULookupController(), db: db, properties: vars);
 
     var sceneController = pageController.sceneController; //TODO
-    var pageLabelVal = viewArguments.args["pageLabel"]?.value;
-    String pageLabel;
-    if (pageLabelVal != null) {
-      pageLabel = (pageLabelVal as CVUConstantString).value;
-      while (pageLabel.startsWith("~") && sceneController.parentSceneController != null) {
-        sceneController = sceneController.parentSceneController!;
-        pageLabel = pageLabel.substring(1);
+    memri.PageController? navigatePageController = pageController;
+
+    if (viewArguments.args["pageLabel"] != null) {
+      var lookup = CVULookupController();
+      var pageLabel = await lookup.resolve<String>(
+          value: viewArguments.args["pageLabel"], db: db, context: context);
+      if (pageLabel != null) {
+        while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
+          sceneController = sceneController.parentSceneController!;
+          pageLabel = pageLabel.substring(1);
+        }
+
+        navigatePageController = sceneController.pageControllerByLabel(pageLabel);
+
+        if (navigatePageController == null &&
+            pageLabel.isNotEmpty &&
+            viewArguments.args["addPageIfMissing"] != null) {
+          var addPageIfMissing = await lookup.resolve<bool>(
+                  value: viewArguments.args["addPageIfMissing"], db: db, context: context) ??
+              false;
+          if (addPageIfMissing) {
+            navigatePageController = await sceneController.addPageController(pageLabel);
+          }
+        }
       }
-      viewArguments.args["pageLabel"] = CVUValueConstant(CVUConstantString(pageLabel));
     }
 
-    var cvuEditorPageController =
-        pageController.sceneController.pageControllerByLabel("mainCVUEditor");
+    var cvuEditorPageController = sceneController.pageControllerByLabel("mainCVUEditor");
     if (cvuEditorPageController != null && viewName != "cvuEditor") {
-      pageController.sceneController.removePageController(cvuEditorPageController);
+      sceneController.removePageController(cvuEditorPageController);
     }
 
     await sceneController.navigateToNewContext(
@@ -265,7 +280,7 @@ class CVUActionOpenView extends CVUAction {
         customDefinition: customDefinition,
         viewArguments: viewArguments,
         clearPageControllers: await resolver.boolean("clearPageControllers") ?? false,
-        pageController: pageController);
+        pageController: navigatePageController);
   }
 }
 
@@ -295,13 +310,7 @@ class CVUActionOpenCVUEditor extends CVUAction {
       }
       newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(
           properties: viewArguments
-            ..addAll({
-              if (context.rendererName != null)
-                "renderer": CVUValueConstant(CVUConstantString(context.rendererName!)),
-              if (context.viewName != null)
-                "viewName": CVUValueConstant(CVUConstantString(context.viewName!)),
-              "clearStack": CVUValueConstant(CVUConstantBool(true))
-            })));
+            ..addAll({"clearStack": CVUValueConstant(CVUConstantBool(true))})));
 
       int pageControllersCount = pageController.sceneController.pageControllers.length;
       if (forceOpen && cvuEditorPageController != null) {
@@ -445,7 +454,6 @@ class CVUActionNavigateBack extends CVUAction {
     if (pageLabel != null) {
       var sceneController = pageController.sceneController;
       while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
-        AppLogger.info(pageLabel);
         sceneController = sceneController.parentSceneController!;
         pageLabel = pageLabel.substring(1);
       }
@@ -495,98 +503,106 @@ class CVUActionAddItem extends CVUAction {
     var type = await template.string("_type");
 
     if (type != null) {
+      var isNew = false;
       var item = await resolver.item("initialItem");
       if (item == null) {
+        isNew = true;
         item = ItemRecord(type: type);
         try {
           await item.save(db.databasePool);
         } catch (error) {
           AppLogger.err("ERROR Adding item: " + error.toString());
         }
+      }
 
-        var itemRowId = item.rowId;
-        if (itemRowId == null) {
-          return;
+      var itemRowId = item.rowId;
+      if (itemRowId == null) {
+        return;
+      }
+
+      /// Take all the properties defined in the template definition (in CVU) and map them against the schema. Resolve the CVU based on the type expected by the schema.
+
+      for (var key in template.properties.keys.toList()) {
+        var isReverse = false;
+        var cleanKey = key;
+        if (key.startsWith("~")) {
+          isReverse = true;
+          cleanKey = key.substring(1);
+          var source = await template.item(key);
+          if (source == null) {
+            continue;
+          }
+          type = source.type;
         }
-
-        /// Take all the properties defined in the template definition (in CVU) and map them against the schema. Resolve the CVU based on the type expected by the schema.
-        await Future.wait(
-            template.properties.keys.toList().map<Future<ItemPropertyRecord?>>((key) async {
-          var isReverse = false;
-          var cleanKey = key;
-          if (key.startsWith("~")) {
-            isReverse = true;
-            cleanKey = key.substring(1);
-            var source = await template.item(key);
-            if (source == null) {
-              return;
-            }
-            type = source.type;
-          }
-          ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
-          if (valueType == null) {
-            return;
-          }
-          if (valueType is ResolvedTypeProperty) {
-            var propertyType = valueType.value;
-            var propertyDatabaseValue = await () async {
-              switch (propertyType) {
-                case SchemaValueType.string:
-                  var stringValue = await template.string(key);
-                  if (stringValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueString(stringValue);
-                case SchemaValueType.bool:
-                  var boolValue = await template.boolean(key);
-                  if (boolValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueBool(boolValue);
-                case SchemaValueType.int:
-                  var intValue = await template.integer(key);
-                  if (intValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueInt(intValue);
-                case SchemaValueType.double:
-                  var doubleValue = await template.number(key);
-                  if (doubleValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueDouble(doubleValue);
-                case SchemaValueType.datetime:
-                  var datetimeValue = await template.dateTime(key);
-                  if (datetimeValue == null) {
-                    return null;
-                  }
-                  return PropertyDatabaseValueDatetime(datetimeValue);
-                default:
+        ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
+        if (valueType == null) {
+          continue;
+        }
+        if (valueType is ResolvedTypeProperty) {
+          var propertyType = valueType.value;
+          var propertyDatabaseValue = await () async {
+            switch (propertyType) {
+              case SchemaValueType.string:
+                var stringValue = await template.string(key);
+                if (stringValue == null) {
                   return null;
-              }
-            }();
-            if (propertyDatabaseValue != null) {
-              await ItemPropertyRecord(
-                      itemRowID: itemRowId, name: key, value: propertyDatabaseValue)
-                  .save(db.databasePool, isNew: true);
+                }
+                return PropertyDatabaseValueString(stringValue);
+              case SchemaValueType.bool:
+                var boolValue = await template.boolean(key);
+                if (boolValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueBool(boolValue);
+              case SchemaValueType.int:
+                var intValue = await template.integer(key);
+                if (intValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueInt(intValue);
+              case SchemaValueType.double:
+                var doubleValue = await template.number(key);
+                if (doubleValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueDouble(doubleValue);
+              case SchemaValueType.datetime:
+                var datetimeValue = await template.dateTime(key);
+                if (datetimeValue == null) {
+                  return null;
+                }
+                return PropertyDatabaseValueDatetime(datetimeValue);
+              default:
+                return null;
             }
-          } else if (valueType is ResolvedTypeEdge) {
-            var targets = await template.items(isReverse ? key : cleanKey);
-            if (targets.isEmpty) return;
-            for (var i = 0; i < targets.length; i++) {
-              var targetRowId = targets[i].rowId;
-              if (targetRowId == null) {
-                return;
-              }
-              await ItemEdgeRecord(
-                      sourceRowID: isReverse ? targetRowId : itemRowId,
-                      name: cleanKey,
-                      targetRowID: isReverse ? itemRowId : targetRowId)
-                  .save();
-            }
+          }();
+          if (propertyDatabaseValue != null) {
+            await ItemPropertyRecord(itemRowID: itemRowId, name: key, value: propertyDatabaseValue)
+                .save(db.databasePool, isNew: isNew ? true : null);
           }
-          return null;
-        }));
+        } else if (valueType is ResolvedTypeEdge) {
+          var targets = await template.items(isReverse ? key : cleanKey);
+          var targetRowIDs = targets.compactMap((target) => target.rowId);
+          if (targetRowIDs.isEmpty) continue;
+
+          if (!isNew) {
+            var existingEdges =
+                isReverse ? await item.reverseEdges(cleanKey) : await item.edges(cleanKey);
+            await Future.forEach<ItemEdgeRecord>(
+                existingEdges,
+                (edge) async =>
+                    targetRowIDs.contains(isReverse ? edge.sourceRowID : edge.targetRowID)
+                        ? targetRowIDs.remove(isReverse ? edge.sourceRowID! : edge.targetRowID!)
+                        : await edge.delete(db));
+          }
+          for (var targetRowId in targetRowIDs) {
+            await ItemEdgeRecord(
+                    sourceRowID: isReverse ? targetRowId : itemRowId,
+                    name: cleanKey,
+                    targetRowID: isReverse ? itemRowId : targetRowId)
+                .save();
+          }
+        }
       }
 
       var openNewView = await resolver.boolean("openNewView", true);
@@ -671,7 +687,6 @@ class CVUActionOpenPlugin extends CVUAction {
     if (pluginName == null) {
       pluginName = (await plugin.property("pluginName", db))!.$value.value;
     }
-    var pluginType = (await plugin.property("pluginType", db))!.$value.value;
 
     List<ItemRecord> pluginRunList =
         await plugin.reverseEdgeItems("plugin", db: db, sourceItemType: "PluginRun");
@@ -695,7 +710,8 @@ class CVUActionOpenPlugin extends CVUAction {
           viewName = "pluginRunWait";
           break;
         case "done":
-          viewName = pluginType == "importer" ? "${pluginName}Run" : "${pluginName}-done"; //TODO
+        case "daemon":
+          viewName = "pluginShortInfo";
           break;
         default:
           viewName = "${pluginName}Run";
@@ -737,7 +753,7 @@ class CVUActionPluginRun extends CVUAction {
         await lookup.resolve<String>(value: containerValue, context: context, db: db);
     if (container == null) return;
 
-    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!))!;
+    ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!, db))!;
 
     String? pluginModule =
         await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
@@ -954,9 +970,21 @@ class CVUActionLink extends CVUAction {
     if (subjectItems.isEmpty) return;
 
     String? edgeType = await resolver.string("edgeType");
-    bool? unique = await resolver.boolean("distinct", false);
-    if (currentItem == null || edgeType == null || unique == null) {
+    if (currentItem == null || edgeType == null) {
       return;
+    }
+
+    bool unique = (await resolver.boolean("distinct", false))!;
+    bool removePrevious = (await resolver.boolean("removePrevious", false))!;
+
+    var subjectRowIDs = subjectItems.compactMap((target) => target?.rowId);
+    if (subjectRowIDs.isEmpty) return;
+
+    var isReverse = false;
+    var cleanKey = edgeType;
+    if (edgeType.startsWith("~")) {
+      isReverse = true;
+      cleanKey = edgeType.substring(1);
     }
 
     if (unique) {
@@ -971,28 +999,25 @@ class CVUActionLink extends CVUAction {
           }
         }
       }
+    } else if (removePrevious) {
+      var existingEdges =
+          isReverse ? await currentItem.edges(cleanKey) : await currentItem.reverseEdges(cleanKey);
+      await Future.forEach<ItemEdgeRecord>(
+          existingEdges,
+          (edge) async => subjectRowIDs.contains(isReverse ? edge.targetRowID : edge.sourceRowID)
+              ? subjectRowIDs.remove(isReverse ? edge.targetRowID! : edge.sourceRowID!)
+              : await edge.delete(db));
+
+      if (subjectRowIDs.isEmpty) return;
     }
 
-    var isReverse = false;
-    var cleanKey = edgeType;
-    if (edgeType.startsWith("~")) {
-      isReverse = true;
-      cleanKey = edgeType.substring(1);
-    }
-
-    for (var item in subjectItems) {
-      var itemRowId = item?.rowId;
-      if (itemRowId == null) {
-        return;
-      }
+    for (var itemRowId in subjectRowIDs) {
       await ItemEdgeRecord(
               sourceRowID: isReverse ? currentItem.rowId : itemRowId,
               name: cleanKey,
               targetRowID: isReverse ? itemRowId : currentItem.rowId)
           .save(db.databasePool);
     }
-
-    pageController.scheduleUIUpdate();
   }
 }
 
@@ -1531,6 +1556,8 @@ class CVUActionCreateLabellingTask extends CVUAction {
       return;
     }
     var newVars = Map.of(vars);
+    newVars["template"] =
+        CVUValueSubdefinition((vars["template"] as CVUValueSubdefinition).value.clone());
     (newVars["template"] as CVUValueSubdefinition)
         .value
         .properties
@@ -1722,17 +1749,28 @@ class CVUActionGeneratePluginCvu extends CVUAction {
 
     List<ItemRecord> featureItems = await resolver.items("features");
 
-    var cvuRowId =
-        await generatePluginCvu(filterProperties: filterProperties, features: featureItems, db: db);
+    var forceUpdate = (await resolver.boolean("forceUpdate", false))!;
 
-    var viewEdge = ItemEdgeRecord(name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
-    await viewEdge.save(db.databasePool);
+    var cvuRowId = await generatePluginCvu(
+        filterProperties: filterProperties,
+        features: featureItems,
+        db: db,
+        forceUpdate: forceUpdate,
+        cvuController: pageController.topMostContext!.cvuController,
+        pluginUID: plugin.uid);
+    if (!forceUpdate) {
+      var viewEdge = ItemEdgeRecord(name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
+      await viewEdge.save(db.databasePool);
+    }
   }
 
-  Future<int> generatePluginCvu(
+  Future<int?> generatePluginCvu(
       {required Map<dynamic, dynamic> filterProperties,
       required List<ItemRecord> features,
-      required DatabaseController db}) async {
+      required DatabaseController db,
+      required bool forceUpdate,
+      required CVUController cvuController,
+      required String pluginUID}) async {
     var startItemType = Map.of(filterProperties)["type"];
     filterProperties.remove('type');
     var propertiesFilter = "";
@@ -1750,7 +1788,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       propertiesFilter += "}}";
     }
 
-    var cvu = '''.plugin${Uuid().v4()} { 
+    var cvu = '''.plugin$pluginUID { 
         defaultRenderer: singleItem
         cols: 6
         [renderer = singleItem] {
@@ -1908,24 +1946,30 @@ class CVUActionGeneratePluginCvu extends CVUAction {
     cvu += '\n{ \n text: " - {.label.value OR \'Place for your label\'}" \n }';
 
     cvu += '\n]\n}\n}\n}\n}\n}\n}\n}\n}\n}';
-    var cvuID = await CVUController.storeDefinition(cvu, db);
-    if (cvuID == null) {
-      throw "CVU couldn't be saved";
-    }
 
-    var databaseQueryConfig =
-        DatabaseQueryConfig(itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
-    databaseQueryConfig.dbController = db;
-    var items = await databaseQueryConfig.constructFilteredRequest();
-    if (items.isEmpty) {
-      await MockDataGenerator.generateMockItems(
-          db: db, properties: properties, itemType: startItemType);
+    if (forceUpdate) {
+      await cvuController.updateDefinition(cvu);
     } else {
-      for (var item in items) {
-        await ItemRecord.fromItem(item)
-            .copy(db, withProperties: {"isMock": PropertyDatabaseValueBool(true)});
+      var cvuID = await CVUController.storeDefinition(cvu, db);
+      if (cvuID == null) {
+        throw "CVU couldn't be saved";
       }
+
+      var databaseQueryConfig = DatabaseQueryConfig(
+          itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
+      databaseQueryConfig.dbController = db;
+      var items = await databaseQueryConfig.constructFilteredRequest();
+      if (items.isEmpty) {
+        await MockDataGenerator.generateMockItems(
+            db: db, properties: properties, itemType: startItemType);
+      } else {
+        for (var item in items) {
+          await ItemRecord.fromItem(item)
+              .copy(db, withProperties: {"isMock": PropertyDatabaseValueBool(true)});
+        }
+      }
+      return cvuID;
     }
-    return cvuID;
+    return null;
   }
 }

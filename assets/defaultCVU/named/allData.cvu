@@ -1,5 +1,5 @@
-
 .allData {
+    cols: 8
     defaultRenderer: custom
     scrollable: false
     title: "All Data"
@@ -56,6 +56,10 @@
                         openPlugin
                         {
                             plugin: {{.}}
+                            viewArguments: {
+                                addPageIfMissing: true
+                                pageLabel: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "daemon" ? "mainPlugin" : ""}}
+                            }
                         }
                     ]
                     spacing: 30
@@ -122,7 +126,7 @@
                             font: body_tiny
                             padding: 0 5
                             show: {{.~plugin}}
-                            text: {{.datasourceItems("featureVariables").count() + " feature variables"}}
+                            text: {{datasourceItems("featureVariables").count() + " feature variables"}}
                         }
 
                         Observer {
@@ -141,7 +145,7 @@
                                 color: {{.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
                                 font: body_tiny
                                 padding: 0 10 0 0
-                                show: {{.~plugin[].last().status = "ready" OR .~plugin[].last().status = "error" OR .~plugin[].last().progress = 1}}
+                                show: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "error" OR .~plugin[].last().progress = 1}}
                                 text: "{.~plugin[].last().status = 'error' ? 'Error' : 'Running'}"
                             }
 
@@ -153,6 +157,131 @@
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+.pluginShortInfo {
+    cols: 4
+    defaultRenderer: singleItem
+    emptyResultText: "There are no Plugins"
+    title: "Apps and Plugins"
+
+    [renderer = singleItem] {
+        scrollable: false
+    }
+
+    Plugin > singleItem {
+        viewArguments: {
+            selectedPlugin: {{.}}
+        }
+
+        VStack {
+            alignment: topleft
+            padding: 60 30 60 30
+
+            Text {
+                color: #999999
+                font: body_tiny_bold
+                padding: 10 0 40 0
+                text: "SELECTED"
+            }
+
+            HStack {
+                alignment: bottomleft
+                padding: 0 10
+
+                Text {
+                    color: #FE570F
+                    font: headline2
+                    text: {{.name}}
+                }
+
+                Spacer
+
+                VStack {
+                    alignment: topright
+                    spacing: 0
+
+                    Text {
+                        color: #999999
+                        font: body_tiny_bold
+                        padding: 0
+                        text: "STATUS"
+                    }
+
+                    Observer {
+                        item: {{.~plugin[].last()}}
+                        property: "progress"
+
+                        Text {
+                            color: #000000
+                            font: bodyText1
+                            text: {{.~plugin[].last().status = "done" OR .~plugin[].last().progress = 1 ? "Running" : "Downloading"}}
+                        }
+                    }
+                }
+            }
+
+            HStack {
+                alignment: bottomright
+
+                VStack {
+                    alignment: topright
+                    spacing: 0
+
+                    Text {
+                        color: #999999
+                        font: body_tiny_bold
+                        text: "IN THE POD"
+                    }
+
+                    Observer {
+                        item: {{.~plugin[].last()}}
+                        property: "progress"
+
+                        Text {
+                            color: #000000
+                            font: bodyText1
+                            text: "{.~plugin[].last().progress.percent()} %"
+                        }
+                    }
+                }
+            }
+
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        clearPageControllers: true
+                        clearStack: true
+                        template: {
+                            _type: Project
+                        }
+                        viewArguments: {
+                            datasetGrid: {
+                                viewArguments: {
+                                    selectedPlugin: {{selectedPlugin}}
+                                }
+
+                                [renderer = grid] {
+                                    selectedItems: {{project.dataset ? project.dataset.datasetType[] : selectedPlugin.~datasetPlugin[]}}
+                                }
+                            }
+                            pageLabel: "main"
+                            readOnly: false
+                            selectedPlugin: {{selectedPlugin}}
+                        }
+                        viewName: "add-project"
+                    }
+                ]
+                padding: 40 0 0 0
+                styleName: primaryButton
+
+                Text {
+                    text: "Create a project"
                 }
             }
         }

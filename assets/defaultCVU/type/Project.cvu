@@ -19,6 +19,10 @@ Project {
     }
 
     Project > singleItem {
+        viewArguments: {
+            project: {{.}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 0 0 0
@@ -82,6 +86,9 @@ Project {
                     defaultRenderer: grid
                     editMode: true
                     singleChoice: true
+                    viewArguments: {
+                        project: {{project}}
+                    }
                     viewName: datasetsGrid
 
                     [datasource = pod] {
@@ -91,6 +98,7 @@ Project {
                     [renderer = grid] {
                         layout: "flow"
                         onPress: noop
+                        selectedItems: {{project.dataset.datasetType[]}}
                         spacing: 30
                     }
                 }
@@ -160,8 +168,52 @@ Project {
     }
 }
 
+
 Project > singleItem {
     background: #F6F6F6
+    viewArguments: {
+        datasources: {
+            annotations: {
+                filter: {
+                    edgeSources: {
+                        annotation: {{datasourceItems("datasetEntries")}}
+                    }
+                }
+                query: CategoricalLabel
+            }
+            datasetEntries: {
+                filter: {
+                    edgeSources: {
+                        entry: {{selectedProject.dataset}}
+                    }
+                }
+                query: DatasetEntry
+            }
+            skipped: {
+                filter: {
+                    edgeSources: {
+                        annotation: {{datasourceItems("datasetEntries")}}
+                    }
+                    properties: {
+                        isSubmitted: false
+                    }
+                }
+                query: CategoricalLabel
+            }
+            submitted: {
+                filter: {
+                    edgeSources: {
+                        annotation: {{datasourceItems("datasetEntries")}}
+                    }
+                    properties: {
+                        isSubmitted: true
+                    }
+                }
+                query: CategoricalLabel
+            }
+        }
+        selectedProject: {{.}}
+    }
 
     VStack {
         alignment: topleft
@@ -339,33 +391,10 @@ Project > singleItem {
                         text: "LABELLING PROGRESS"
                     }
 
-                    SubView {
-                        height: 22
-                        view: {
-                            defaultRenderer: custom
-                            viewArguments: {
-                                datasetEntries: {{selectedProject.dataset.entry[]}}
-                                datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
-                            }
-
-                            [datasource = pod] {
-                                filter: {
-                                    edgeSources: {
-                                        annotation: {{datasetEntries}}
-                                    }
-                                }
-                                query: CategoricalLabel
-                            }
-
-                            [renderer = custom] {
-                                Text {
-                                    color: #333333
-                                    font: small_caps
-                                    text: "{items.count().percent(datasetEntriesCount)}%"
-                                }
-                            }
-                        }
-                        width: 100
+                    Text {
+                        color: #333333
+                        font: small_caps
+                        text: {{datasourceItems("annotations").count().percent(datasourceItems("datasetEntries").count()) + "%"}}
                     }
                 }
 
@@ -410,108 +439,58 @@ Project > singleItem {
                                     text: "TASK"
                                 }
 
-                                SubView {
-                                    height: 22
-                                    view: {
-                                        defaultRenderer: custom
-                                        viewArguments: {
-                                            datasetEntries: {{selectedProject.dataset.entry[]}}
-                                            datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
-                                        }
+                                HStack {
+                                    alignment: left
+                                    padding: 0
 
-                                        [datasource = pod] {
-                                            filter: {
-                                                edgeSources: {
-                                                    annotation: {{datasetEntries}}
-                                                }
-                                                properties: {
-                                                    isSubmitted: true
-                                                }
-                                            }
-                                            query: CategoricalLabel
-                                        }
+                                    Text {
+                                        color: #999999
+                                        font: ul
+                                        text: "Submitted"
+                                    }
 
-                                        [renderer = custom] {
-                                            HStack {
-                                                alignment: left
-                                                padding: 0
+                                    Text {
+                                        color: #333333
+                                        font: ul
+                                        text: {{datasourceItems("submitted").count()}}
+                                    }
 
-                                                Text {
-                                                    color: #999999
-                                                    font: ul
-                                                    text: "Submitted"
-                                                }
+                                    VStack {
+                                        alignment: top
+                                        height: 22
 
-                                                Text {
-                                                    color: #333333
-                                                    font: ul
-                                                    text: "{items.count()}"
-                                                }
-
-                                                VStack {
-                                                    alignment: top
-                                                    height: 22
-
-                                                    Text {
-                                                        color: #333333
-                                                        font: small_caps
-                                                        text: "{items.count().percent(datasetEntriesCount)}%"
-                                                    }
-                                                }
-                                            }
+                                        Text {
+                                            color: #333333
+                                            font: small_caps
+                                            text: {{datasourceItems("submitted").count().percent(datasourceItems("datasetEntries").count()) + "%"}}
                                         }
                                     }
                                 }
 
-                                SubView {
-                                    height: 22
-                                    view: {
-                                        defaultRenderer: custom
-                                        viewArguments: {
-                                            datasetEntries: {{selectedProject.dataset.entry}}
-                                            datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
-                                        }
+                                HStack {
+                                    alignment: left
+                                    padding: 0
 
-                                        [datasource = pod] {
-                                            filter: {
-                                                edgeSources: {
-                                                    annotation: {{datasetEntries}}
-                                                }
-                                                properties: {
-                                                    isSubmitted: false
-                                                }
-                                            }
-                                            query: CategoricalLabel
-                                        }
+                                    Text {
+                                        color: #999999
+                                        font: ul
+                                        text: "Skipped"
+                                    }
 
-                                        [renderer = custom] {
-                                            HStack {
-                                                alignment: left
-                                                padding: 0
+                                    Text {
+                                        color: #333333
+                                        font: ul
+                                        text: {{datasourceItems("skipped").count()}}
+                                    }
 
-                                                Text {
-                                                    color: #999999
-                                                    font: ul
-                                                    text: "Skipped"
-                                                }
+                                    VStack {
+                                        alignment: top
+                                        height: 22
 
-                                                Text {
-                                                    color: #333333
-                                                    font: ul
-                                                    text: "{items.count()}"
-                                                }
-
-                                                VStack {
-                                                    alignment: top
-                                                    height: 22
-
-                                                    Text {
-                                                        color: #333333
-                                                        font: small_caps
-                                                        text: "{items.count().percent(datasetEntriesCount)}%"
-                                                    }
-                                                }
-                                            }
+                                        Text {
+                                            color: #333333
+                                            font: small_caps
+                                            text: {{datasourceItems("skipped").count().percent(datasourceItems("datasetEntries").count()) + "%"}}
                                         }
                                     }
                                 }
@@ -528,7 +507,7 @@ Project > singleItem {
                                     Text {
                                         color: #333333
                                         font: ul
-                                        text: "{selectedProject.dataset.entry[].count()}"
+                                        text: {{datasourceItems("datasetEntries").count()}}
                                     }
                                 }
                             }
@@ -570,20 +549,72 @@ Project > singleItem {
                                 defaultRenderer: list
                                 editMode: false
                                 viewArguments: {
-                                    datasetEntries: {{selectedProject.dataset.entry}}
-                                    datasetEntriesCount: {{selectedProject.dataset.entry[].count()}}
-                                    labellingTask: {{selectedProject.dataset.labellingTask}}
-                                    readOnly: true
+                                    datasetEntries: {{datasourceItems("datasetEntries")}}
+                                    selectedProject: {{selectedProject}}
+                                    submitted: {{datasourceItems("submitted")}}
                                 }
-                                viewName: labelOptionListSummary
 
                                 [datasource = pod] {
                                     filter: {
                                         edgeSources: {
-                                            labelOption: {{labellingTask}}
+                                            labelOption: {{selectedProject.dataset.labellingTask}}
                                         }
                                     }
                                     query: LabelOption
+                                }
+
+                                [renderer = list] {
+                                    edgeInset: 0
+                                    hideSeparators: true
+                                    readOnly: true
+                                    spacing: 0
+                                }
+
+                                LabelOption > list {
+                                    viewArguments: {
+                                        datasources: {
+                                            categoricalLabels: {
+                                                filter: {
+                                                    edgeSources: {
+                                                        annotation: {{datasetEntries}}
+                                                    }
+                                                    properties: {
+                                                        labelValue: {{.name}}
+                                                    }
+                                                }
+                                                query: CategoricalLabel
+                                            }
+                                        }
+                                    }
+
+                                    HStack {
+                                        alignment: left
+
+                                        Text {
+                                            color: #333333
+                                            font: ul
+                                            padding: 0 0 0 0
+                                            text: "{.name}"
+                                        }
+
+                                        Text {
+                                            color: #333333
+                                            font: ul
+                                            padding: 0 0 0 0
+                                            text: {{datasourceItems("categoricalLabels").count()}}
+                                        }
+
+                                        VStack {
+                                            alignment: top
+                                            height: 22
+
+                                            Text {
+                                                color: #333333
+                                                font: small_caps
+                                                text: {{datasourceItems("categoricalLabels").count().percent(submitted.count()) + "%"}}
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1043,6 +1074,10 @@ Project > list {
     }
 
     Dataset > singleItem {
+        viewArguments: {
+            dataset: {{.}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 30 30 30
@@ -1089,6 +1124,7 @@ Project > list {
                     defaultRenderer: grid
                     editMode: true
                     viewArguments: {
+                        dataset: {{dataset}}
                         selectedDataset: {{selectedDataset}}
                     }
 
@@ -1109,6 +1145,7 @@ Project > list {
                     [renderer = grid] {
                         edgeInset: 0
                         layout: flow
+                        selectedItems: {{dataset.feature[]}}
                         showDefaultSelections: false
                         spacing: 5
                     }
@@ -1146,6 +1183,7 @@ Project > list {
                     onPress: [
                         link
                         {
+                            removePrevious: true
                             edgeType: "~feature"
                             subject: {{subView("featureVariables").selectedItems()}}
                         }
