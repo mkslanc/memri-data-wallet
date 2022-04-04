@@ -5,6 +5,7 @@
     showContextualBottomBar: false
     showSearchBar: false
     showTopBar: false
+    title: "Getting started"
 
     VStack {
         alignment: topleft

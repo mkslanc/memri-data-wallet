@@ -9,6 +9,9 @@ import 'package:memri/utils/extensions/icon_data.dart';
 import 'package:memri/widgets/browser_view.dart';
 import 'package:memri/widgets/empty.dart';
 
+import '../../../models/cvu/cvu_parsed_definition.dart';
+import '../../../models/cvu/cvu_value.dart';
+
 class ActionButton extends StatefulWidget {
   final CVUAction action;
   final CVUContext viewContext;
@@ -23,8 +26,9 @@ class ActionButton extends StatefulWidget {
 class _ActionButtonState extends State<ActionButton> {
   late Future<void> _init;
 
-  String title = "";
+  String? title = "";
   Color color = Color(0xff333333);
+  CVUDefinitionContent? actionButton;
 
   @override
   initState() {
@@ -39,7 +43,10 @@ class _ActionButtonState extends State<ActionButton> {
   }
 
   init() async {
-    title = await widget.action.getString("title", widget.viewContext) ?? "";
+    title = await widget.action.getString("title", widget.viewContext);
+    if (title == null && widget.action.vars["title"] is CVUValueSubdefinition) {
+      actionButton = (widget.action.vars["title"] as CVUValueSubdefinition).value;
+    }
     var colorString = await widget.action.getString("color", widget.viewContext) ?? "black";
     color = CVUColor(color: colorString).value;
   }
@@ -49,15 +56,29 @@ class _ActionButtonState extends State<ActionButton> {
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) {
-        return TextButton(
-            child: Text(
-              title,
-              style: CVUFont.tabList.copyWith(color: color),
-            ),
-            onPressed: () async {
-              await widget.action.execute(widget.pageController, widget.viewContext);
-              _init = init();
-            });
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+          child: TextButton(
+              child: title != null
+                  ? Text(
+                      title!,
+                      style: CVUFont.tabList.copyWith(color: color),
+                    )
+                  : IntrinsicWidth(
+                      child: (widget.pageController.topMostContext
+                              ?.render(nodeDefinition: actionButton) ??
+                          Empty()),
+                    ),
+              style: TextButton.styleFrom(
+                  textStyle: CVUFont.buttonLabel,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: EdgeInsets.all(title == null ? 5 : 10)),
+              onPressed: () async {
+                await widget.action.execute(widget.pageController, widget.viewContext);
+                _init = init();
+              }),
+        );
       },
     );
   }

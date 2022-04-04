@@ -78,12 +78,12 @@ class _TopBarViewState extends State<TopBarView> {
               if (viewContext != null) ...[
                 SimpleFilterPanel(viewContext: viewContext!),
                 BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
-                Spacer(),
                 ...actions.map((action) => ActionButton(
                       action: action,
                       viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                       pageController: widget.pageController,
                     )),
+                Spacer(),
                 if (showEditCode && (AppController.shared.isDevelopersMode || editorOpened)) ...[
                   ActionButton(
                     action: CVUActionOpenCVUEditor(vars: {

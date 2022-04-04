@@ -684,6 +684,7 @@ Project > list {
         {
             renderer: "singleItem"
             viewArguments: {
+                pageLabel: "~main"
                 selectedProject: {{.}}
             }
         }
@@ -751,30 +752,243 @@ Project > list {
     }
 }
 
-.allProjects {
-    actionButton: [
-        addItem
-        {
-            color: "#FE570F"
-            template: {
-                _type: Project
-            }
-            title: "Create new project"
-            viewName: "add-project"
-        }
-    ]
-    cols: 12
+.projectList {
+    cols: 9
     defaultRenderer: list
     emptyResult: {
-        HStack {
+        VStack {
+            alignment: topleft
+            background: #FFFFFF
+            padding: 90 30 0 30
+
             Text {
-                text: "There are no projects right now"
+                font: headline1
+                padding: 0 0 0 0
+                text: "Start building your first data app"
+            }
+
+            Text {
+                font: body
+                padding: 20 0 0 0
+                text: "Memri allows to build, deploy and share ML apps on personal data."
+            }
+
+            Text {
+                font: body
+                padding: 5 0 0 0
+                text: "Before you can create an app, you'll first need to add some data!"
+            }
+
+            Wrap {
+                alignment: topleft
+                padding: 54 0 0 0
+                spacing: 45
+
+                VStack {
+                    alignment: topleft
+                    width: 100
+                    height: 120
+
+                    Text {
+                        color: #E9500F
+                        font: "body_tiny"
+                        text: "01"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow_long"
+                        color: #E9500F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #E9500F
+                        font: body
+                        text: "Collect your data"
+                    }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 100
+                    height: 120
+
+                    Text {
+                        color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
+                        font: "body_tiny"
+                        text: "02"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow_long"
+                        color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
+                        isVector: true
+                    }
+
+                    Text {
+                        color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
+                        font: body
+                        text: "Create new project"
+                    }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 100
+                    height: 120
+
+                    Text {
+                        color: #999999
+                        font: "body_tiny"
+                        text: "03"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow_long"
+                        color: #999999
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #999999
+                        font: body
+                        text: "Label your data"
+                    }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 100
+                    height: 120
+
+                    Text {
+                        color: #999999
+                        font: "body_tiny"
+                        text: "04"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow_long"
+                        color: #999999
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #999999
+                        font: body
+                        text: "Train and deploy an ML model"
+                    }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 100
+                    height: 120
+
+                    Text {
+                        color: #999999
+                        font: "body_tiny"
+                        text: "05"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow_long"
+                        color: #999999
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #999999
+                        font: body
+                        text: "Add a UI"
+                    }
+                }
+
+                VStack {
+                    alignment: topleft
+                    width: 100
+                    height: 120
+
+                    Text {
+                        color: #999999
+                        font: "body_tiny"
+                        text: "06"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow_long"
+                        color: #999999
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #999999
+                        font: body
+                        text: "Deploy and share your app"
+                    }
+                }
+            }
+
+            Button {
+                onPress: [
+                    openView
+                    {
+                        clearStack: true
+                        viewArguments: {
+                            pageLabel: "~main"
+                        }
+                        viewName: "allData"
+                    }
+                ]
+                padding: 30 0 0 0
+                show: {{datasourceItems("importers").count() = 0}}
+                styleName: primaryButton
+
+                Text {
+                    text: "Connect data"
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        color: "#FE570F"
+                        template: {
+                            _type: Project
+                        }
+                        viewArguments: {
+                            pageLabel: "~main"
+                            readOnly: false
+                        }
+                        viewName: "add-project"
+                    }
+                ]
+                padding: 30 0 0 0
+                show: {{datasourceItems("importers").count() > 0}}
+                styleName: primaryButton
+
+                Text {
+                    text: "Create new project"
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_plus"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
             }
         }
     }
-    name: "all-projects"
     sortFields: dateModified dateCreated
-    title: "All projects"
 
     [datasource = pod] {
         query: Project
@@ -787,6 +1001,138 @@ Project > list {
         spacing: 0 20
     }
 }
+
+.projectSupport {
+    cols: 3
+    defaultRenderer: custom
+    title: "Support"
+    background: #F6F6F6
+
+    VStack {
+        alignment: topleft
+        background: #FFFFFF
+        padding: 20
+
+        Image {
+            bundleImage: "fourthletter"
+            isVector: true
+        }
+
+        Text {
+            color: #333333
+            font: headline2
+            padding: 50 0 0 0
+            text: "Support"
+        }
+
+        Text {
+            color: #999999
+            font: bodyText1
+            padding: 0 0 20 0
+            text: "Need some help or have questions about setting up a project? Browse our step-by-step guides and documentation or chat with us."
+        }
+
+        Button {
+            isLink: true
+            onPress: [
+                openLink
+                {
+                    link: "https://memri.docs.memri.io/docs.memri.io/overview/quickStart/"
+                }
+            ]
+
+            Text {
+                color: #FE570F
+                font: link
+                padding: 0 10 0 0
+                text: "Getting started"
+            }
+
+            Image {
+                bundleImage: "ico_arrow"
+                color: #E9500F
+                isVector: true
+            }
+        }
+
+        Button {
+            isLink: true
+            onPress: [
+                openLink
+                {
+                    link: "https://discord.com/invite/BcRfajJk4k"
+                }
+            ]
+
+            Text {
+                color: #FE570F
+                font: link
+                padding: 0 10 0 0
+                text: "Chat with us on Discord"
+            }
+
+            Image {
+                bundleImage: "ico_arrow"
+                color: #E9500F
+                isVector: true
+            }
+        }
+    }
+}
+
+.allProjects {
+    cols: 12
+    defaultRenderer: scene
+    title: "All projects"
+    background: #F6F6F6
+    edgeInset: 30 0
+
+    actionButton: [
+        addItem
+        {
+            template: {
+                _type: Project
+            }
+            title: {
+                HStack {
+                    alignment: center
+                    spacing: 0
+
+                    Image {
+                        bundleImage: "ico_plus"
+                        color: #FE570F
+                        isVector: true
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: tab_list
+                        text: "Create new project"
+                    }
+                }
+            }
+            viewName: "add-project"
+        }
+    ]
+
+    [renderer = scene] {
+        pages: {
+            projectList: "projectList"
+            projectSupport: "projectSupport"
+        }
+
+        viewArguments: {
+            datasources: {
+                importers: {
+                    count: 1
+                    query: PluginRun
+                }
+            }
+        }
+    }
+}
+
+
 
 .project-variables {
     cols: 12
