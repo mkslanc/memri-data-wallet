@@ -57,6 +57,10 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
           "Untitled";
     }));
 
+    showBreadCrumbs = await pageController.topMostContext?.viewDefinitionPropertyResolver
+            .boolean("showBreadCrumbs") ??
+        true;
+
     return titleList;
   }
 
