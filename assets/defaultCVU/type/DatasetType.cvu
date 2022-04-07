@@ -20,56 +20,62 @@ DatasetType > list {
 
 DatasetType > grid {
     onPress: noop
+    viewArguments: {
+        datasources: {
+            featureVariables: {
+                filter: {
+                    properties: {
+                        itemType: {{.queryStr.fromJson("type")}}
+                    }
+                }
+                query: ItemPropertySchema
+            }
+        }
+    }
 
     VStack {
         alignment: leftspacebetween
-        background: {{.plugin.~plugin[].last() ? "#F5F5F5" : "#FFFFFF"}}
+        background: #F5F5F5
         border: "#F0F0F0"
         height: 96
         padding: 10
+
         spacing: 5
         width: 205
 
         Text {
-            color: {{.plugin.~plugin[].last() ? "#333333" : "#999999"}}
+            color: #333333
             font: headline3
-            text: {{.plugin.name}}
+            text: {{.datasetPlugin.name}}
         }
 
         Text {
             color: #989898
             font: body_tiny
-            padding: 5 0 0 0
-            text: {{.plugin.~plugin[].last() ? " feature variables" : " "}}
-        }
-
-        Text {
-            color: #989898
-            font: body_tiny
-            text: {{.plugin.~plugin[].last() ? " MB" : " "}}
+            padding: 0 5
+            text: {{.datasourceItems("featureVariables").count() + " feature variables"}}
         }
 
         Observer {
-            item: {{.plugin.~plugin[].last()}}
+            item: {{.datasetPlugin.~plugin[].last()}}
             property: "progress"
 
             Text {
+                color: {{.datasetPlugin.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
+                font: body_tiny
                 padding: 0 10 0 0
-                color: {{.plugin.~plugin[].last() ? .plugin.~plugin[].last().status = "error" ? "#FE570F" : "#15B599" : "#FE570F"}}
-                font: {{.plugin.~plugin[].last() ? "body_tiny" : "body_tiny_bold"}}
-                show: {{.plugin.~plugin[].last().status != "ready" AND .plugin.~plugin[].last().progress != 1}}
-                text: "{.plugin.~plugin[].last() ? .plugin.~plugin[].last().status = 'error' ? 'Error' : 'Active' : 'Connect'}"
+                show: {{.datasetPlugin.~plugin[].last().status = "done" OR .datasetPlugin.~plugin[].last().status = "error" OR .datasetPlugin.~plugin[].last().progress = 1}}
+                text: "{.datasetPlugin.~plugin[].last().status = 'error' ? 'Error' : 'Running'}"
             }
 
             Text {
                 color: #4F56FE
                 font: body_tiny
-                show: {{.plugin.~plugin[].last().status = "daemon" OR .plugin.~plugin[].last().status = "cvuPresented"}}
-                text: "Downloading data {.plugin.~plugin[].last().progress.percent()} %"
+                show: {{.datasetPlugin.~plugin[].last().status = "daemon" OR .datasetPlugin.~plugin[].last().status = "cvuPresented"}}
+                text: "Downloading data {.datasetPlugin.~plugin[].last().progress.percent()} %"
             }
         }
     }
-
 }
 
 

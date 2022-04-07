@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_query.dart';
 import 'package:memri/controllers/view_context_controller.dart';
@@ -89,6 +90,13 @@ class _CVUSubViewState extends State<CVUSubView> {
       widget.nodeResolver.context.viewArguments?.subViewArguments.remove(_id!);
     }
 
+    if (id != null &&
+        widget.nodeResolver.context.viewArguments != null &&
+        widget.nodeResolver.context.viewArguments!.args.containsKey(id)) {
+      viewDefinition = viewDefinition.merge(
+          (widget.nodeResolver.context.viewArguments!.args[id] as CVUValueSubdefinition).value);
+    }
+
     _viewDefinition = viewDefinition;
     _id = id;
 
@@ -167,7 +175,7 @@ class _CVUSubViewState extends State<CVUSubView> {
               pageController: widget.nodeResolver.pageController,
             );
           } else {
-            print("No renderer selected"); //TODO
+            AppLogger.err("No renderer selected"); //TODO
             return Empty();
           }
         },

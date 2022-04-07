@@ -211,12 +211,11 @@ class SyncController {
 
     await downloadFile(sha256, fileName, (error) async {
       if (error != null) {
-        lastError = error;
-        await setState(SyncControllerState.failed);
-        return;
+        AppLogger.err("Failed downloading file: $fileName, error: $error");
       }
 
-      await ItemRecord.didDownloadFileForItem(item, databaseController);
+      await ItemRecord.didDownloadFileForItem(item,
+          db: databaseController, failedDownloading: error != null);
       await downloadFiles();
     });
   }

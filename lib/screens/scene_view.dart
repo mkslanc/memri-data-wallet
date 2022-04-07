@@ -87,13 +87,16 @@ class _SceneViewState extends State<SceneView> {
                   children: [
                     if (widget.showMainNavigation) ...[
                       Container(
-                        color: Color(0xffF4F4F4),
+                        color: Color(0xffF6F6F6),
                         height: 150,
                         padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                         child: Column(
                           children: [
                             SizedBox(
-                                child: MainNavigationView(sceneController: widget.sceneController))
+                                child: MainNavigationView(
+                                    sceneController: widget.sceneController,
+                                    currentViewName: widget.sceneController.pageControllers.first
+                                        .navigationStack.state.first.config.viewName))
                           ],
                         ),
                       ),

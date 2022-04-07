@@ -25,6 +25,9 @@ import 'package:memri/widgets/components/cvu/cvu_element_view.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 
+import '../models/cvu/cvu_value.dart';
+import '../models/cvu/cvu_view_arguments.dart';
+
 class CVUController {
   late List<CVUParsedDefinition> definitions;
   final DatabaseController databaseController;
@@ -50,18 +53,17 @@ class CVUController {
     try {
       revertingDefinitions ??= definitions;
       var defaultDefinitions = await CVUController.parseCVU();
-      await Future.forEach<CVUParsedDefinition>(revertingDefinitions, (revertingDefinition) async {
+      for (var definition in revertingDefinitions) {
         var defaultDefinition = definitionFor(
-            type: revertingDefinition.type,
-            selector: revertingDefinition.selector,
-            rendererName: revertingDefinition.renderer,
-            viewName: revertingDefinition.name,
+            type: definition.type,
+            selector: definition.selector,
+            rendererName: definition.renderer,
+            viewName: definition.name,
             specifiedDefinitions: defaultDefinitions);
-        if (defaultDefinition == null || defaultDefinition.parsed == revertingDefinition.parsed) {
-          return;
+        if (defaultDefinition != null && defaultDefinition.parsed != definition.parsed) {
+          await updateDefinition(defaultDefinition.toCVUString(0, "    ", true));
         }
-        await updateDefinition(revertingDefinition, defaultDefinition.parsed);
-      });
+      }
     } catch (error) {
       AppLogger.err(error);
       definitions = [];
@@ -99,21 +101,24 @@ class CVUController {
     return cvus.join("\n").replaceAll("\r", "");
   }
 
-  Future updateDefinition(CVUParsedDefinition definition, CVUDefinitionContent content) async {
-    definition.parsed = content;
-    var storedDefinitionItems = await databaseController.databasePool
-        .itemPropertyRecordsSelect("queryStr", value: definition.queryStr);
-    var storedDefinitionIds =
-        storedDefinitionItems.compactMap<int>((item) => item is StringDb ? item.item : null);
-    var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
-        .where((item) => item.type == "CVUStoredDefinition");
-    if (validStoredDefinitions.length != 1) {
-      AppLogger.err("Error! Could not find valid stored definition for: ${definition.queryStr}");
-      return;
+  Future updateDefinition(String content) async {
+    var parsed = CVUController.parseCVUString(content);
+    for (var definition in parsed) {
+      var storedDefinitionItems = await databaseController.databasePool
+          .itemPropertyRecordsSelect("queryStr", value: definition.queryStr);
+      var storedDefinitionIds =
+          storedDefinitionItems.compactMap<int>((item) => item is StringDb ? item.item : null);
+      var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
+          .where((item) => item.type == "CVUStoredDefinition");
+      if (validStoredDefinitions.length != 1) {
+        AppLogger.err("Error! Could not find valid stored definition for: ${definition.queryStr}");
+        return;
+      }
+      var storedDefinition = validStoredDefinitions.first;
+      await storedDefinition.setPropertyValue(
+          "definition", PropertyDatabaseValueString(definition.toCVUString(0, "    ", true)));
+      replaceDefinitionByQuery(definition.queryStr, definition);
     }
-    var storedDefinition = validStoredDefinitions.first;
-    await storedDefinition.setPropertyValue(
-        "definition", PropertyDatabaseValueString(definition.toCVUString(0, "    ", true)));
   }
 
   storeDefinitions() async {
@@ -129,7 +134,7 @@ class CVUController {
       await ItemRecord.insertList(storedDefinitions, db: databaseController.databasePool);
 
       List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
-          storedDefinitions.map((e) => e.uid).toList(), databaseController));
+          storedDefinitions.map((e) => e.uid).toList(), databaseController.databasePool));
       newItemList.forEach((item) {
         properties.add(ItemPropertyRecord(
             itemRowID: item.rowId!,
@@ -203,7 +208,7 @@ class CVUController {
             itemRowID: definitionId,
             name: "queryStr",
             value: PropertyDatabaseValueString(definition.queryStr)));
-        await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+        await ItemPropertyRecord.insertList(properties, db: databaseController.databasePool);
       });
       return definitionId;
     }
@@ -214,7 +219,8 @@ class CVUController {
     if (storedDefinitions.isNotEmpty) {
       return;
     }
-    storedDefinitions = await ItemRecord.fetchWithType("CVUStoredDefinition", databaseController);
+    storedDefinitions =
+        await ItemRecord.fetchWithType("CVUStoredDefinition", databaseController.databasePool);
     if (storedDefinitions.isEmpty) {
       return;
     }
@@ -238,6 +244,17 @@ class CVUController {
               CVUDefinitionType.other,
           parsed: definition.parsed);
     })));
+  }
+
+  CVUParsedDefinition? definitionByQuery(String queryStr) =>
+      definitions.firstWhereOrNull((element) => element.queryStr == queryStr);
+
+  replaceDefinitionByQuery(String queryStr, CVUParsedDefinition newDefinition) {
+    var definition = definitionByQuery(queryStr);
+    if (definition != null) {
+      var index = definitions.indexOf(definition);
+      definitions.replaceRange(index, index + 1, [newDefinition]);
+    }
   }
 
   CVUParsedDefinition? definitionFor(
@@ -416,8 +433,17 @@ class CVUController {
       required bool blankIfNoDefinition,
       required memri.PageController pageController,
       Key? key}) {
+    nodeDefinition ??= nodeDefinitionFor(cvuContext);
     CVUUINode? node = nodeFor(cvuContext, nodeDefinition);
+
     if (node != null) {
+      var viewArgs = nodeDefinition!.properties["viewArguments"];
+      if (viewArgs is CVUValueSubdefinition) {
+        cvuContext.viewArguments ??= CVUViewArguments();
+        cvuContext.viewArguments!.argumentItem = cvuContext.currentItem;
+        cvuContext.viewArguments!.args.addAll(viewArgs.value.properties);
+      }
+
       return CVUElementView(
         nodeResolver: CVUUINodeResolver(
             context: cvuContext,

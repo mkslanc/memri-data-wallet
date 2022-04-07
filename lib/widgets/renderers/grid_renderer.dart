@@ -1,9 +1,18 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
+import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/grid_renderer_flow.dart';
 import 'package:memri/widgets/renderers/grid_renderer_simple.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
+
+import '../../models/cvu/cvu_value.dart';
+import '../../models/cvu/cvu_value_constant.dart';
+import '../../models/cvu/cvu_view_arguments.dart';
+import '../../models/database/item_record.dart';
+import '../components/shapes/circle.dart';
 
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
@@ -17,8 +26,10 @@ class GridRendererView extends Renderer {
 
 class GridRendererViewState extends RendererViewState {
   late EdgeInsets insets;
+  late Point spacing;
 
   late Future _init;
+  bool isInited = false;
   late String layout;
 
   @override
@@ -28,6 +39,12 @@ class GridRendererViewState extends RendererViewState {
 
     pageController.isInEditMode.addListener(updateState);
     viewContext.addListener(updateState);
+  }
+
+  @override
+  void didUpdateWidget(covariant Renderer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init = init();
   }
 
   dispose() {
@@ -52,6 +69,18 @@ class GridRendererViewState extends RendererViewState {
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.fromLTRB(5, pageController.showTopBar ? 5 : 80, 5, 5);
 
+    var _scrollDirection =
+        await widget.viewContext.rendererDefinitionPropertyResolver.string("scrollDirection");
+    scrollDirection = () {
+      switch (_scrollDirection) {
+        case "horizontal":
+          return Axis.horizontal;
+        default:
+          return Axis.vertical;
+      }
+    }();
+
+    spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
     backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
   }
@@ -60,11 +89,103 @@ class GridRendererViewState extends RendererViewState {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init,
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-          ? layout == "flow"
-              ? GridRendererFlowView(pageController: pageController, viewContext: viewContext)
-              : GridRendererSimpleView(pageController: pageController, viewContext: viewContext)
-          : Empty(),
+      builder: (context, snapshot) {
+        isInited = isInited || snapshot.connectionState == ConnectionState.done;
+        return isInited
+            ? ValueListenableBuilder(
+                valueListenable: viewContext.itemsValueNotifier,
+                builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                  if (!viewContext.isLoaded) {
+                    return Empty();
+                  }
+                  List<Widget> elements = [];
+
+                  if (viewContext.hasItems) {
+                    elements = viewContext.items.mapIndexed((index, item) {
+                      var isSelected = selectedIndices.contains(index);
+                      return GestureDetector(
+                        onTap: selectionMode(index),
+                        child: Stack(
+                          alignment: Alignment.topLeft,
+                          children: [
+                            MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: viewContext.render(
+                                    item: item,
+                                    viewArguments: CVUViewArguments(args: {
+                                      "isSelected": CVUValueConstant(CVUConstantBool(isSelected))
+                                    }))),
+                            if (isSelected && showDefaultSelections)
+                              Container(
+                                height: 30,
+                                width: 30,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Circle(
+                                        color: Colors.blue,
+                                        border: Border.all(color: Colors.white, width: 2)),
+                                    Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 15,
+                                    )
+                                  ],
+                                ),
+                              )
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  }
+                  if (startingElement != null) {
+                    elements.insert(
+                        0,
+                        GestureDetector(
+                          child: startingElement!,
+                        ));
+                  }
+                  if (trailingElement != null) {
+                    elements.add(GestureDetector(child: trailingElement!));
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        setState(() => pageController.topMostContext?.setupQueryObservation()),
+                    child: elements.isNotEmpty
+                        ? layout == "flow"
+                            ? GridRendererFlowView(elements: elements, spacing: spacing)
+                            : GridRendererSimpleView(
+                                elements: elements,
+                                spacing: spacing,
+                                insets: insets,
+                                scrollDirection: scrollDirection,
+                              )
+                        : emptyResult ??
+                            Padding(
+                              padding: EdgeInsets.all(30),
+                              child: Center(
+                                child: Text(
+                                  "No items",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                      color: Color.fromRGBO(0, 0, 0, 0.7),
+                                      backgroundColor: backgroundColor),
+                                ),
+                              ),
+                            ),
+                  );
+                })
+            : Empty();
+      },
     );
   }
+}
+
+abstract class GridRenderer extends StatelessWidget {
+  late final Point spacing;
+  late final List<Widget> elements;
+
+  GridRenderer({required this.spacing, required this.elements});
 }

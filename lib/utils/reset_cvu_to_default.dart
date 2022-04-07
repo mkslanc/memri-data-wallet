@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
+import 'package:memri/core/cvu/cvu_action.dart';
+import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/models/cvu/cvu_parsed_definition.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
-resetCVUToDefault(BuildContext context, memri.PageController pageController,
-    [List<CVUParsedDefinition>? definitions]) {
+resetCVUToDefault(BuildContext context, memri.PageController pageController, CVUContext cvuContext,
+    {List<CVUParsedDefinition>? definitions, CVUAction? action}) {
   showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
@@ -15,7 +17,11 @@ resetCVUToDefault(BuildContext context, memri.PageController pageController,
         PointerInterceptor(
           child: TextButton(
             onPressed: () async {
-              await AppController.shared.cvuController.resetToDefault(definitions);
+              if (action != null) {
+                await action.execute(pageController, cvuContext);
+              } else {
+                await AppController.shared.cvuController.resetToDefault(definitions);
+              }
               Navigator.pop(context);
               pageController.sceneController.scheduleUIUpdate();
             },

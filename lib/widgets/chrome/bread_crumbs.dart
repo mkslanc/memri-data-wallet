@@ -21,6 +21,7 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
   late List<ViewContextHolder> navigationStack;
   late final memri.PageController pageController;
   var titleList = <String>[];
+  bool showBreadCrumbs = true;
   late Future<List<String>> _titleList;
 
   @override
@@ -45,14 +46,22 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
       return [];
     }
     navigationStack = pageController.navigationStack.state;
-    return await Future.wait(navigationStack.map((ViewContextHolder viewContextHolder) async {
+    var titleList =
+        await Future.wait(navigationStack.map((ViewContextHolder viewContextHolder) async {
       var viewContextController = pageController.makeContext(viewContextHolder);
+
       return (await viewContextController.viewDefinitionPropertyResolver.string("title") ??
               (viewContextController.focusedItem != null
                   ? await viewContextController.itemPropertyResolver?.string("title")
                   : null)) ??
           "Untitled";
     }));
+
+    showBreadCrumbs = await pageController.topMostContext?.viewDefinitionPropertyResolver
+            .boolean("showBreadCrumbs") ??
+        true;
+
+    return titleList;
   }
 
   @override
@@ -63,17 +72,22 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
         if (snapshot.connectionState == ConnectionState.done) {
           titleList = snapshot.data!;
         }
-        return titleList.length > 1
+        return showBreadCrumbs
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: titleList
                     .mapIndexed((index, title) {
                       var isLast = index == titleList.length - 1;
                       return TextButton(
-                        onPressed: () => isLast ? null : pageController.navigateTo(index),
+                        onPressed: () {
+                          if (!isLast) {
+                            pageController.sceneController.removePageControllers();
+                            pageController.navigateTo(index);
+                          }
+                        },
                         child: Text(
                           title,
-                          style: isLast
+                          style: isLast && index > 0
                               ? CVUFont.tabList.copyWith(color: Color(0xFF999999))
                               : CVUFont.tabList,
                         ),

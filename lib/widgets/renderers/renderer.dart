@@ -16,11 +16,14 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   late bool isInEditMode;
   bool singleChoice = false;
   late Binding<Set<int>> selectedIndicesBinding;
-  late Set<int> selectedIndices;
+  Set<int> selectedIndices = Set<int>();
   bool scrollable = true;
   bool isBlocked = false;
   ValueNotifier? blockedFromStorage;
   bool showDefaultSelections = true;
+
+  late Widget? startingElement;
+  late Widget? trailingElement;
 
   @override
   initState() {
@@ -45,6 +48,8 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     showDefaultSelections =
         await viewContext.rendererDefinitionPropertyResolver.boolean("showDefaultSelections") ??
             true;
+    startingElement = getAdditionalElement("startingElement");
+    trailingElement = getAdditionalElement("trailingElement");
     await initEditMode();
   }
 
@@ -58,6 +63,9 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", pageController.isInEditMode.value))!;
 
+    var selectedItems = await viewContext.rendererDefinitionPropertyResolver.items("selectedItems");
+    viewContext.selectedItems = selectedItems.map((item) => item.rowId!).toList();
+
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
   }
@@ -67,25 +75,21 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     setState(() {});
   }
 
-  Widget? get additional {
-    var additionalDef = viewContext.cvuController
-        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
-        ?.properties["additional"];
+  Widget? getAdditionalElement(String elementName) {
+    var def = viewContext.viewDefinitionPropertyResolver.properties[elementName] ??
+        viewContext.rendererDefinitionPropertyResolver.properties[elementName];
 
-    var additionalSubdef = additionalDef?.getSubdefinition();
-    if (additionalSubdef != null) {
+    var subDef = def?.getSubdefinition();
+    if (subDef != null) {
       return viewContext.render(
-          nodeDefinition: additionalSubdef,
-          item: viewContext.focusedItem,
-          items: viewContext.items);
+          nodeDefinition: subDef, item: viewContext.focusedItem, items: viewContext.items);
     }
     return null;
   }
 
   Widget? get emptyResult {
-    var emptyResultDef = viewContext.cvuController
-        .viewDefinitionFor(viewName: viewContext.config.viewName ?? viewContext.config.rendererName)
-        ?.properties["emptyResult"];
+    var emptyResultDef = viewContext.viewDefinitionPropertyResolver.properties["emptyResult"] ??
+        viewContext.rendererDefinitionPropertyResolver.properties["emptyResult"];
 
     var emptyResultSubdef = emptyResultDef?.getSubdefinition();
     if (emptyResultSubdef != null) {

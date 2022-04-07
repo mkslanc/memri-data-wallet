@@ -3320,6 +3320,71 @@
     "definition": ".demo-plugin {\n    title: \"TEST CVU\"\n    defaultRenderer: custom\n    showContextualBottomBar: false\n    showBottomBar: false\n    showDefaultLayout: false\n\n    [renderer = custom] {\n        HStack {\n                Text {\n                    text: \"Demo View Rendered from CVUStoredDefinition\"\n                    font: 16 semibold\n                    color: #000\n                    padding: 5 8 5 8\n                }\n            }\n    }\n}\n"
   },
   {
+    "uid": 20002,
+    "_type": "Plugin",
+    "pluginType": "importer",
+    "name": "Gmail plugin",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/gmail:dev-latest",
+    "pluginModule": "gmail_importer.plugin",
+    "pluginName": "GmailImporter",
+    "icon": "mail"
+  },
+  {
+    "uid": 20003,
+    "_type": "Plugin",
+    "pluginType": "importer",
+    "name": "Instagram",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/instagram:dev-latest",
+    "pluginModule": "instagram.plugin",
+    "pluginName": "InstagramPlugin",
+    "icon": "mail"
+  },
+  {
+    "_type": "Plugin",
+    "pluginType": "app",
+    "name": "Sentiment Plugin",
+    "containerImage": "gitlab.memri.io:5050/eelcovdw/sentiment_plugin:dev-latest",
+    "pluginModule": "sentiment_plugin.plugin",
+    "pluginName": "ClassifierPlugin",
+    "pluginDescription": "A transformer based sentiment analyis plugin",
+    "configJson": "[{\"name\":\"item_type\",\"display\":\"Item Type\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":null,\"optional\":true},{\"name\":\"item_service\",\"display\":\"Item Service\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":null,\"optional\":true},{\"name\":\"model_name\",\"display\":\"Model Name\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":\"cardiffnlp/twitter-xlm-roberta-base-sentiment\",\"optional\":true},{\"name\":\"model_version\",\"display\":\"Model Version\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":\"0.1\",\"optional\":true}]"
+  },
+  {
+    "_type": "Plugin",
+    "pluginType": "app",
+    "name": "Account linker",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/account-linker:dev-latest",
+    "pluginModule": "account_linker.plugin",
+    "pluginName": "AccountLinkerPlugin",
+    "pluginDescription": "Account linker allows linking accounts from multiple services. You can use these connections to browse through your data in new ways and give your data additional context."
+  },
+  {
+    "uid": 10001,
+    "_type": "DatasetType",
+    "name": "Gmail messages",
+    "queryStr": "{\"type\":\"EmailMessage\", \"service\": \"gmail\"}",
+    "allEdges": [
+      {
+        "_type": "datasetPlugin",
+        "targetType": "Plugin",
+        "uid": 20002
+      }
+    ]
+  },
+  {
+    "uid": 10002,
+    "_type": "DatasetType",
+    "name": "Instagram posts",
+    "queryStr": "{\"type\":\"Post\", \"service\": \"instagram\"}",
+    "allEdges": [
+      {
+        "_type": "datasetPlugin",
+        "targetType": "Plugin",
+        "uid": 20003
+      }
+    ]
+  },
+  {
     "_type": "Wallet",
     "uid": 22001124924993,
     "name": "Ethereum",

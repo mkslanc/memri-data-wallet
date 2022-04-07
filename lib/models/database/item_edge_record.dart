@@ -104,7 +104,7 @@ class ItemEdgeRecord {
         .toList();
 
     await ItemRecord.insertList(selfItemRecords, db: db);
-    var itemRecords = await ItemRecord.fetchWithUIDs(itemUIds);
+    var itemRecords = await ItemRecord.fetchWithUIDs(itemUIds, db);
     var groupedItemRecords = itemRecords.toMapByKey((itemRecord) => itemRecord.uid);
 
     records.forEach((itemEdgeRecord) {
@@ -113,7 +113,10 @@ class ItemEdgeRecord {
       itemEdgeRecord.targetRowID ??= groupedItemRecords[itemEdgeRecord.targetUID!]!.rowId;
     });
 
-    return await db.itemEdgeRecordInsertAll(records);
+    var partItems = records.partition(5000);
+    for (var part in partItems) {
+      await db.itemEdgeRecordInsertAll(part);
+    }
   }
 
   Future<ItemRecord> selfItem([DatabaseController? db]) async {
@@ -132,20 +135,23 @@ class ItemEdgeRecord {
   static Future<List<ItemRecord>> selfItems(List<ItemEdgeRecord> edges,
       [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
-    var items = await ItemRecord.fetchWithRowIDs(edges.map((edge) => edge.selfRowID!).toList(), db);
+    var items = await ItemRecord.fetchWithRowIDs(
+        edges.map((edge) => edge.selfRowID!).toList(), db.databasePool);
     return items;
   }
 
   static Future<List<ItemRecord>> owningItems(List<ItemEdgeRecord> edges,
       [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
-    return (await ItemRecord.fetchWithRowIDs(edges.map((edge) => edge.sourceRowID!).toList(), db));
+    return (await ItemRecord.fetchWithRowIDs(
+        edges.map((edge) => edge.sourceRowID!).toList(), db.databasePool));
   }
 
   static Future<List<ItemRecord>> targetItems(List<ItemEdgeRecord> edges,
       [DatabaseController? db]) async {
     db ??= AppController.shared.databaseController;
-    return (await ItemRecord.fetchWithRowIDs(edges.map((edge) => edge.targetRowID!).toList(), db));
+    return (await ItemRecord.fetchWithRowIDs(
+        edges.map((edge) => edge.targetRowID!).toList(), db.databasePool));
   }
 
   save([Database? db]) async {

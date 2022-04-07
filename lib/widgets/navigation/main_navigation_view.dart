@@ -4,52 +4,49 @@ import 'package:memri/controllers/scene_controller.dart';
 
 import 'navigation_pane_view.dart';
 
-class MainNavigationView extends StatefulWidget {
+class MainNavigationView extends StatelessWidget {
   final SceneController sceneController;
+  final String? currentViewName;
 
-  MainNavigationView({required this.sceneController});
+  MainNavigationView({required this.sceneController, this.currentViewName});
 
-  @override
-  _MainNavigationViewState createState() => _MainNavigationViewState();
-}
-
-class _MainNavigationViewState extends State<MainNavigationView> {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         TextButton(
-            onPressed: () => widget.sceneController.navigationIsVisible.value = true,
+            onPressed: () => sceneController.navigationIsVisible.value = true,
             child: SvgPicture.asset("assets/images/ico_hamburger.svg")),
         SizedBox(
           width: 34,
         ),
-        /*SvgPicture.asset("assets/images/ico_search.svg"),*/ //TODO: uncomment this after search implemented
+        /*SvgPicture.asset("assets/images/ico_search.svg"),*/
+        //TODO: uncomment this after search implemented
         Spacer(),
-        NavigationItemView(
-          item: Item(name: 'Data', targetViewName: "allData"),
-          sceneController: widget.sceneController,
-        ),
-        SizedBox(
-          width: 30,
-        ),
-        NavigationItemView(
-          item: Item(name: 'Projects', targetViewName: "allProjects"),
-          sceneController: widget.sceneController,
-        ),
-        SizedBox(
-          width: 30,
-        ),
-        NavigationItemView(
-          item: Item(name: 'Apps', targetViewName: "apps-and-plugins"),
-          sceneController: widget.sceneController,
-        ),
+        _buildNavigationItemView('Workspace', 'home'),
+        SizedBox(width: 30),
+        _buildNavigationItemView('Data', 'allData'),
+        SizedBox(width: 30),
+        _buildNavigationItemView('Projects', 'allProjects'),
+        SizedBox(width: 30),
+        _buildNavigationItemView('Apps', 'apps-and-plugins'),
         Spacer(),
         InkWell(
-            onTap: () => widget.sceneController
-                .navigateToNewContext(clearStack: true, animated: false, viewName: "home"),
+            onTap: () => sceneController.navigateToNewContext(
+                clearStack: true, animated: false, viewName: "home"),
             child: SvgPicture.asset("assets/images/logo.svg"))
       ],
+    );
+  }
+
+  Widget _buildNavigationItemView(String name, String viewName) {
+    return NavigationItemView(
+      item: Item(
+        name: name,
+        targetViewName: viewName,
+      ),
+      textColor: currentViewName == viewName ? Color(0xffFE570F) : Colors.black,
+      sceneController: sceneController,
     );
   }
 }

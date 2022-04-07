@@ -14,6 +14,7 @@ import 'package:memri/widgets/components/cvu/elements/cvu_for_each.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_grid.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_html_view.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_image.dart';
+import 'package:memri/widgets/components/cvu/elements/cvu_loading_indicator.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_map.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_memri_button.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_message_composer.dart';
@@ -120,6 +121,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUDropdown(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.RichText:
         return CVURichText(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.LoadingIndicator:
+        return CVULoadingIndicator(nodeResolver: widget.nodeResolver);
       default:
         return Text("${widget.nodeResolver.node.type} not implemented yet.");
     }

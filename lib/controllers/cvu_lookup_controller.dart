@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:html/parser.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/controllers/database_query.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
@@ -308,13 +309,9 @@ class CVULookupController {
             currentValue = LookupStepItems([item]);
             break;
           case "items":
-            var exp = nodeType.args.asMap()[0];
-            if (exp == null) {
-              return null;
-            }
             var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
             if (byType != null) {
-              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db);
+              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db.databasePool);
               if (items.isEmpty) {
                 return null;
               }
@@ -322,6 +319,31 @@ class CVULookupController {
             } else {
               return null;
             }
+            break;
+          case "datasourceitems":
+            var exp = nodeType.args.asMap()[0];
+            String? key = await resolve<String>(expression: exp, context: context, db: db);
+            if (key == null) {
+              return null;
+            }
+
+            var datasources = context.viewArguments?.args["datasources"];
+            if (datasources is! CVUValueSubdefinition) {
+              return null;
+            }
+
+            var datasourceDefinition = datasources.value.properties[key];
+            if (datasourceDefinition is! CVUValueSubdefinition) {
+              return null;
+            }
+
+            var queryConfig = await DatabaseQueryConfig.queryConfigWith(
+                context: context,
+                datasourceContent: datasourceDefinition.value,
+                databaseController: db);
+
+            var items = await queryConfig.constructFilteredRequest();
+            currentValue = LookupStepItems(items.map((item) => ItemRecord.fromItem(item)).toList());
             break;
           case "joined":
             if (currentValue == null || currentValue is! LookupStepValues) {
@@ -440,7 +462,7 @@ class CVULookupController {
             }
             currentValue = LookupStepValues([
               PropertyDatabaseValueString(
-                  ((currentValue.values.asMap()[0]?.value / arg * 100 ?? 0) as double).format(1))
+                  (((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100) as double).format(1))
             ]);
 
             break;

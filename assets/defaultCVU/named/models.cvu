@@ -267,9 +267,7 @@
                     onPress: [
                         parsePlugin
                         {
-                            features: {{.dataset.feature[]}}
                             project: {{.}}
-                            query: {{.dataset.datasetType.queryStr}}
                             url: {{.gitlabUrl}}
                         }
                         openView
@@ -336,6 +334,12 @@
 
                 Button {
                     onPress: [
+                        generatePluginCvu
+                        {
+                            features: {{.dataset.feature[]}}
+                            plugin: {{.labellingPlugin}}
+                            query: {{.dataset.datasetType.queryStr}}
+                        }
                         openView
                         {
                             clearStack: true
@@ -372,12 +376,9 @@
                                                 text: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle" ? "Running" : .labellingPlugin.~plugin[].last().status = "done" OR .labellingPlugin.~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
                                             }
 
-                                            Image {
-                                                bundleImage: "loader"
-                                                height: 20
-                                                isVector: true
+                                            LoadingIndicator {
                                                 show: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle"}}
-                                                width: 20
+                                                size: 20
                                             }
                                         }
                                     }

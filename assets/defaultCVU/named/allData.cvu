@@ -1,4 +1,5 @@
 .allData {
+    cols: 8
     defaultRenderer: custom
     scrollable: false
     title: "All Data"
@@ -14,19 +15,24 @@
             Text {
                 color: #333333
                 font: headline2
-                text: "Datastreams"
+                text: "Data streams"
             }
 
             Spacer
 
             Button {
                 isLink: true
-                onPress: noop
+                onPress: [
+                    openLink
+                    {
+                        link: "https://memri.docs.memri.io/pod-explorer/"
+                    }
+                ]
 
                 Text {
                     color: #FE570F
                     font: link
-                    text: "Create new importer"
+                    text: "Open data explorer"
                 }
             }
         }
@@ -34,7 +40,6 @@
         SubView {
             view: {
                 defaultRenderer: grid
-                viewName: pluginsGrid
 
                 [datasource = pod] {
                     filter: {
@@ -51,15 +56,59 @@
                         openPlugin
                         {
                             plugin: {{.}}
+                            viewArguments: {
+                                addPageIfMissing: true
+                                pageLabel: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "daemon" ? "mainPlugin" : ""}}
+                            }
                         }
                     ]
                     spacing: 30
+                    trailingElement: {
+                        Button {
+                            isLink: true
+                            onPress: [
+                                openView
+                                {
+                                    viewName: "createNewImporter"
+                                }
+                            ]
+
+                            VStack {
+                                alignment: leftspacebetween
+                                background: "#FFFFFF"
+                                border: "#F0F0F0"
+                                height: 96
+                                padding: 10
+                                spacing: 5
+                                width: 205
+
+                                Text {
+                                    color: "#333333"
+                                    font: headline3
+                                    text: "Create new importer"
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Plugin > grid {
+                    viewArguments: {
+                        datasources: {
+                            featureVariables: {
+                                filter: {
+                                    properties: {
+                                        itemType: {{.~datasetPlugin.queryStr.fromJson("type")}}
+                                    }
+                                }
+                                query: ItemPropertySchema
+                            }
+                        }
+                    }
+
                     VStack {
                         alignment: leftspacebetween
-                        background: {{.~plugin[].last() ? "#F5F5F5" : "#FFFFFF"}}
+                        background: {{.~plugin ? "#F5F5F5" : "#FFFFFF"}}
                         border: "#F0F0F0"
                         height: 96
                         padding: 10
@@ -67,7 +116,7 @@
                         width: 205
 
                         Text {
-                            color: {{.~plugin[].last() ? "#333333" : "#999999"}}
+                            color: {{.~plugin ? "#333333" : "#999999"}}
                             font: headline3
                             text: {{.name}}
                         }
@@ -75,14 +124,9 @@
                         Text {
                             color: #989898
                             font: body_tiny
-                            padding: 5 0 0 0
-                            text: {{.~plugin[].last() ? " feature variables" : " "}}
-                        }
-
-                        Text {
-                            color: #989898
-                            font: body_tiny
-                            text: {{.~plugin[].last() ? " MB" : " "}}
+                            padding: 0 5
+                            show: {{.~plugin}}
+                            text: {{datasourceItems("featureVariables").count() + " feature variables"}}
                         }
 
                         Observer {
@@ -90,11 +134,19 @@
                             property: "progress"
 
                             Text {
-                                color: {{.~plugin[].last() ? .~plugin[].last().status = "error" ? "#FE570F" : "#15B599" : "#FE570F"}}
-                                font: {{.~plugin[].last() ? "body_tiny" : "body_tiny_bold"}}
+                                color: #FE570F
+                                font: "body_tiny_bold"
                                 padding: 0 10 0 0
-                                show: {{.~plugin[].last().status != "ready" AND .~plugin[].last().progress != 1}}
-                                text: "{.~plugin[].last() ? .~plugin[].last().status = 'error' ? 'Error' : 'Active' : 'Connect'}"
+                                show: {{!.~plugin}}
+                                text: "Connect"
+                            }
+
+                            Text {
+                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
+                                font: body_tiny
+                                padding: 0 10 0 0
+                                show: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "error" OR .~plugin[].last().progress = 1}}
+                                text: "{.~plugin[].last().status = 'error' ? 'Error' : 'Running'}"
                             }
 
                             Text {
@@ -108,50 +160,128 @@
                 }
             }
         }
+    }
+}
 
-        HStack {
-            alignment: bottomleft
-            padding: 60 0 30 0
+.pluginShortInfo {
+    cols: 4
+    defaultRenderer: singleItem
+    emptyResultText: "There are no Plugins"
+    title: "Apps and Plugins"
+
+    [renderer = singleItem] {
+        scrollable: false
+    }
+
+    Plugin > singleItem {
+        viewArguments: {
+            selectedPlugin: {{.}}
+        }
+
+        VStack {
+            alignment: topleft
+            padding: 60 30 60 30
 
             Text {
-                color: #333333
-                font: headline2
-                text: "Uploaded data"
+                color: #999999
+                font: body_tiny_bold
+                padding: 10 0 40 0
+                text: "SELECTED"
             }
 
-            Spacer
-
-            Button {
-                isLink: true
-                onPress: [
-                    openView
-                    {
-                        clearStack: true
-                        inheritDatasource: false
-                        viewName: "upload"
-                    }
-                ]
+            HStack {
+                alignment: bottomleft
+                padding: 0 10
 
                 Text {
                     color: #FE570F
-                    font: link
-                    text: "Upload new data"
+                    font: headline2
+                    text: {{.name}}
+                }
+
+                Spacer
+
+                VStack {
+                    alignment: topright
+                    spacing: 0
+
+                    Text {
+                        color: #999999
+                        font: body_tiny_bold
+                        padding: 0
+                        text: "STATUS"
+                    }
+
+                    Observer {
+                        item: {{.~plugin[].last()}}
+                        property: "progress"
+
+                        Text {
+                            color: #000000
+                            font: bodyText1
+                            text: {{.~plugin[].last().status = "done" OR .~plugin[].last().progress = 1 ? "Running" : "Downloading"}}
+                        }
+                    }
                 }
             }
-        }
 
-        SubView {
-            view: {
-                defaultRenderer: list
-                viewName: assetsNew
+            HStack {
+                alignment: bottomright
 
-                [datasource = pod] {
-                    query: File Note
+                VStack {
+                    alignment: topright
+                    spacing: 0
+
+                    Text {
+                        color: #999999
+                        font: body_tiny_bold
+                        text: "IN THE POD"
+                    }
+
+                    Observer {
+                        item: {{.~plugin[].last()}}
+                        property: "progress"
+
+                        Text {
+                            color: #000000
+                            font: bodyText1
+                            text: "{.~plugin[].last().progress.percent()} %"
+                        }
+                    }
                 }
+            }
 
-                [renderer = list] {
-                    edgeInset: 0
-                    onPress: noop
+            Button {
+                onPress: [
+                    addItem
+                    {
+                        clearPageControllers: true
+                        clearStack: true
+                        template: {
+                            _type: Project
+                        }
+                        viewArguments: {
+                            datasetGrid: {
+                                viewArguments: {
+                                    selectedPlugin: {{selectedPlugin}}
+                                }
+
+                                [renderer = grid] {
+                                    selectedItems: {{project.dataset ? project.dataset.datasetType[] : selectedPlugin.~datasetPlugin[]}}
+                                }
+                            }
+                            pageLabel: "main"
+                            readOnly: false
+                            selectedPlugin: {{selectedPlugin}}
+                        }
+                        viewName: "add-project"
+                    }
+                ]
+                padding: 40 0 0 0
+                styleName: primaryButton
+
+                Text {
+                    text: "Create a project"
                 }
             }
         }

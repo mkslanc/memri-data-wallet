@@ -82,13 +82,6 @@ Plugin > list {
                     font: headline2
                     text: "{.name}"
                 }
-
-                Spacer
-
-                Text {
-                    color: {{.~plugin[].last().status = "error" ? #FE570F : #333333}}
-                    text: "{.~plugin[].last().status = 'done' ? 'active' : .~plugin[].last().status = 'error' ? 'error' : 'inactive'}"
-                }
             }
 
             Text {
@@ -108,13 +101,17 @@ Plugin > list {
                         openView
                         {
                             inheritDatasource: false
-                            viewName: {{.view.name}}
+                            viewArguments: {
+                                addPageIfMissing: true
+                                pageLabel: "mainApp"
+                            }
+                            viewName: {{.view.name OR "empty-app"}}
                         }
                     ]
 
                     Text {
                         color: #FE570F
-                        font: 14 btn_label
+                        font: btn_label
                         text: "Open app"
                     }
                 }
@@ -123,22 +120,33 @@ Plugin > list {
                     onPress: [
                         openView
                         {
+                            clearPageControllers: true
                             inheritDatasource: false
-                            viewName: {{.view.name}}
+                            viewName: {{.view.name OR "empty-app"}}
                         }
                         opencvueditor
                         {
                             openForce: true
                             viewArguments: {
                                 customDefinition: {{pluginItem.view.definition}}
+                                overrideResetAction: [
+                                    generatePluginCvu
+                                    {
+                                        features: {{.~labellingPlugin.dataset.feature[]}}
+                                        forceUpdate: true
+                                        plugin: {{.}}
+                                        query: {{.~labellingPlugin.dataset.datasetType.queryStr}}
+                                    }
+                                ]
                                 pluginItem: {{.}}
                             }
                         }
                     ]
+                    show: {{.view.name}}
 
                     Text {
                         color: #333333
-                        font: 14 btn_label
+                        font: btn_label
                         text: "Configure UI"
                     }
                 }
@@ -150,7 +158,7 @@ Plugin > list {
                             clearStack: true
                             viewArguments: {
                                 addPageIfMissing: true
-                                pageLabel: "mainSecond"
+                                pageLabel: "mainApp"
                             }
                             viewName: "pluginConfig"
                         }
@@ -159,41 +167,49 @@ Plugin > list {
 
                     Text {
                         color: #333333
-                        font: 14 btn_label
+                        font: btn_label
                         text: "Settings"
                     }
                 }
 
                 Spacer
 
-                Button {
-                    onPress: [
-                        openPlugin
-                        {
-                            plugin: {{.}}
+                Observer {
+                    item: {{.labellingPlugin.~plugin[].last()}}
+                    property: "status"
+
+                    Button {
+                        onPress: [
+                            pluginRun
+                            {
+                                container: {{.containerImage}}
+                                isMock: true
+                                name: {{.name}}
+                                pluginId: {{.id}}
+                                pluginModule: {{.pluginModule}}
+                                pluginName: {{.pluginName}}
+                            }
+                        ]
+
+                        Text {
+                            color: #333333
+                            font: btn_label
+                            padding: 0 5 0 0
+                            text: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle" ? "Running" : .~plugin[].last().status = "done" OR .~plugin[].last().status = "error" ? "Re-run" : "Run"}}
                         }
-                    ]
 
-                    Text {
-                        color: #333333
-                        font: 14 btn_label
-                        text: {{.pluginType.last ? "Re-run" : "Run"}}
+                        LoadingIndicator {
+                            show: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle"}}
+                            size: 20
+                        }
                     }
                 }
 
                 Button {
                     Text {
                         color: #333333
-                        font: 14 btn_label
+                        font: btn_label
                         text: "Abort"
-                    }
-                }
-
-                Button {
-                    Text {
-                        color: #333333
-                        font: 14 btn_label
-                        text: "Log"
                     }
                 }
             }
@@ -263,5 +279,110 @@ Plugin > grid {
     }
 
     [renderer = list] {
+    }
+}
+
+.empty-app {
+    defaultRenderer: singleItem
+    emptyResultText: "There are no Plugins"
+    title: "Apps and Plugins"
+    cols: 6
+
+    [renderer = singleItem] {
+        edgeInset: 60 30 0 30
+    }
+
+    Plugin > singleItem {
+        VStack {
+            alignment: topleft
+
+            Text {
+                color: #333333
+                font: headline2
+                text: {{.name}}
+            }
+
+            Text {
+                color: #999999
+                font: bodyText1
+                text: "To start using your app, please add a UI first."
+            }
+
+            Button {
+                onPress: [
+                    generatePluginCvu
+                    {
+                        features: {{.~labellingPlugin.dataset.feature[]}}
+                        plugin: {{.}}
+                        query: {{.~labellingPlugin.dataset.datasetType.queryStr}}
+                    }
+                    openView
+                    {
+                        clearStack: true
+                        clearPageControllers: true
+                        item: {{.}}
+                        viewName: {{.view.name}}
+                        viewArguments: {
+                            pageLabel: "~main"
+                        }
+                    }
+                    opencvueditor
+                    {
+                        openForce: true
+                        viewArguments: {
+                            buttons: {
+                                Observer {
+                                    item: {{.~plugin[].last()}}
+                                    property: "status"
+
+                                    Button {
+                                        background: {{.~plugin ? "#15B599" : "#4F56FE"}}
+                                        onPress: [
+                                            pluginRun
+                                            {
+                                                container: {{.containerImage}}
+                                                isMock: true
+                                                name: {{.name}}
+                                                pluginId: {{.id}}
+                                                pluginModule: {{.pluginModule}}
+                                                pluginName: {{.pluginName}}
+                                            }
+                                        ]
+
+                                        Text {
+                                            color: #F5F5F5
+                                            font: link
+                                            padding: 3 13 3 3
+                                            text: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle" ? "Running" : .~plugin[].last().status = "done" OR .~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
+                                        }
+
+                                        LoadingIndicator {
+                                            show: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle"}}
+                                            size: 20
+                                        }
+                                    }
+                                }
+                            }
+                            customDefinition: {{projectItem.labellingPlugin.view.definition}}
+                            projectItem: {{.~labellingPlugin}}
+                        }
+                    }
+                ]
+                padding: 30 0 0 0
+                styleName: primaryButton
+
+                Text {
+                    text: "Add UI to your app"
+                    textalign: bottom
+                }
+
+                Image {
+                    alignment: center
+                    bundleImage: "ico_arrow"
+                    isVector: true
+                    padding: 0 0 0 15
+                }
+            }
+        }
     }
 }

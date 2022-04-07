@@ -382,11 +382,6 @@
     },
     {
       "item_type": "EmailMessage",
-      "property": "isMock",
-      "value_type": "bool"
-    },
-    {
-      "item_type": "EmailMessage",
       "property": "content",
       "value_type": "string"
     },
@@ -409,6 +404,11 @@
       "item_type": "EmailMessage",
       "property": "externalId",
       "value_type": "string"
+    },
+    {
+      "item_type": "EmailMessage",
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "EmailMessage",
@@ -707,11 +707,6 @@
     },
     {
       "item_type": "Message",
-      "property": "isMock",
-      "value_type": "bool"
-    },
-    {
-      "item_type": "Message",
       "property": "datePublished",
       "value_type": "datetime"
     },
@@ -729,6 +724,11 @@
       "item_type": "Message",
       "property": "externalId",
       "value_type": "string"
+    },
+    {
+      "item_type": "Message",
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "Message",
@@ -1072,13 +1072,13 @@
     },
     {
       "item_type": "Post",
-      "property": "message",
-      "value_type": "string"
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "Post",
-      "property": "isMock",
-      "value_type": "bool"
+      "property": "message",
+      "value_type": "string"
     },
     {
       "item_type": "Post",
@@ -1369,7 +1369,7 @@
     },
     {
       "source_type": "DatasetType",
-      "edge": "plugin",
+      "edge": "datasetPlugin",
       "target_type": "Plugin"
     },
     {

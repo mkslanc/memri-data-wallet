@@ -74,6 +74,7 @@
     ]
     name: "inbox"
     showEditCode: false
+    showBreadCrumbs: false
     showTopBar: true
     title: "Inbox"
     topBarColor: "#FFFFFF"
