@@ -63,6 +63,6 @@ class MockDataGenerator {
           value: PropertyDatabaseValue.create(true, SchemaValueType.bool)));
     }
 
-    await db.databasePool.itemPropertyRecordInsertAll(itemProperties);
+    await ItemPropertyRecord.insertList(itemProperties);
   }
 }
