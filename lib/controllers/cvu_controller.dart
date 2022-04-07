@@ -175,30 +175,27 @@ class CVUController {
     if (parsedDefinitions.isNotEmpty) {
       var definition = parsedDefinitions[0];
       AppController.shared.cvuController.definitions.add(definition);
-      var definitionId;
-      await databaseController.databasePool.transaction(() async {
-        List<ItemPropertyRecord> properties = [];
-        var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
-        definitionId = await storedDefinition.save(databaseController.databasePool);
-        properties.add(ItemPropertyRecord(
-            name: "domain", value: PropertyDatabaseValueString(definition.domain.inString)));
-        properties.add(ItemPropertyRecord(
-            name: "name", value: PropertyDatabaseValueString(definition.name ?? "")));
-        properties.add(ItemPropertyRecord(
-            name: "renderer", value: PropertyDatabaseValueString(definition.renderer ?? "")));
-        properties.add(ItemPropertyRecord(
-            name: "selector", value: PropertyDatabaseValueString(definition.selector ?? "")));
-        properties.add(ItemPropertyRecord(
-            name: "definitionType", value: PropertyDatabaseValueString(definition.type.inString)));
-        properties.add(ItemPropertyRecord(
-            name: "definition",
-            value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
-        properties.add(ItemPropertyRecord(
-            name: "queryStr", value: PropertyDatabaseValueString(definition.queryStr)));
+      List<ItemPropertyRecord> properties = [];
+      var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
+      await storedDefinition.save(databaseController.databasePool);
+      properties.add(ItemPropertyRecord(
+          name: "domain", value: PropertyDatabaseValueString(definition.domain.inString)));
+      properties.add(ItemPropertyRecord(
+          name: "name", value: PropertyDatabaseValueString(definition.name ?? "")));
+      properties.add(ItemPropertyRecord(
+          name: "renderer", value: PropertyDatabaseValueString(definition.renderer ?? "")));
+      properties.add(ItemPropertyRecord(
+          name: "selector", value: PropertyDatabaseValueString(definition.selector ?? "")));
+      properties.add(ItemPropertyRecord(
+          name: "definitionType", value: PropertyDatabaseValueString(definition.type.inString)));
+      properties.add(ItemPropertyRecord(
+          name: "definition",
+          value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
+      properties.add(ItemPropertyRecord(
+          name: "queryStr", value: PropertyDatabaseValueString(definition.queryStr)));
 
-        await storedDefinition.setPropertyValueList(properties, db: databaseController);
-      });
-      return definitionId;
+      await storedDefinition.setPropertyValueList(properties, db: databaseController);
+      return storedDefinition.rowId;
     }
     return null;
   }
