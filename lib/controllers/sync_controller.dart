@@ -156,7 +156,6 @@ class SyncController {
     if (syncing) {
       return;
     }
-    print("Syncing in process");
 
     if (!await podIsExist(currentConnection!).timeout(
       Duration(seconds: 3),
@@ -335,7 +334,6 @@ class SyncController {
 
   downloadItems() async {
     if (lastDateServerModifiedTimestamp == null) {
-      print("Start getting lastDateServerModifiedTimestamp ${DateTime.now()}");
       await searchAction(
           dateServerModifiedTimestamp: 0,
           limit: 1,
@@ -354,18 +352,13 @@ class SyncController {
             }
             lastDateServerModifiedTimestamp =
                 responseObjects.isNotEmpty ? responseObjects.first["dateServerModified"] + 1 : 0;
-            print("End getting lastDateServerModifiedTimestamp ${DateTime.now()}");
           });
     }
     var limit = 5000;
-    print("Start getting lastItem ${DateTime.now()}");
     var lastItem = await ItemRecord.lastSyncedItem(databaseController.databasePool);
     var dateServerModifiedTimestamp = lastItem != null && lastItem.dateServerModified != null
         ? lastItem.dateServerModified!.millisecondsSinceEpoch + 1
         : DateTime.fromMillisecondsSinceEpoch(0).millisecondsSinceEpoch;
-    print("End getting lastItem ${DateTime.now()}");
-
-    print("downloading: $dateServerModifiedTimestamp");
 
     await searchAction(
         dateServerModifiedTimestamp: dateServerModifiedTimestamp,

@@ -524,6 +524,7 @@ class CVUActionAddItem extends CVUAction {
 
       for (var key in template.properties.keys.toList()) {
         var isReverse = false;
+        ResolvedType? valueType = null;
         var cleanKey = key;
         if (key.startsWith("~")) {
           isReverse = true;
@@ -532,9 +533,10 @@ class CVUActionAddItem extends CVUAction {
           if (source == null) {
             continue;
           }
-          type = source.type;
+          valueType = db.schema.expectedType(source.type, cleanKey);
+        } else {
+          valueType = db.schema.expectedType(type, cleanKey);
         }
-        ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
         if (valueType == null) {
           continue;
         }
