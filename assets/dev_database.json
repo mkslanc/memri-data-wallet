@@ -1122,6 +1122,11 @@
         "_type": "datasetPlugin",
         "targetType": "Plugin",
         "uid": 20001
+      },
+      {
+        "_type": "datasetPlugin",
+        "targetType": "Plugin",
+        "uid": 20004
       }
     ]
   },
