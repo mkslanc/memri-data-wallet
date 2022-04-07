@@ -773,23 +773,23 @@ class CVUActionPluginRun extends CVUAction {
     }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
-      await pluginRunItem.save();
-      await pluginRunItem.setPropertyValue(
-          "targetItemId",
-          PropertyDatabaseValueString(
-              pluginRunItem.uid)); //TODO plugin makers request, need to change this later
-      await pluginRunItem.setPropertyValue(
-          "pluginModule", PropertyDatabaseValueString(pluginModule));
-      await pluginRunItem.setPropertyValue("pluginName", PropertyDatabaseValueString(pluginName));
-      await pluginRunItem.setPropertyValue(
-          "containerImage", PropertyDatabaseValueString(container));
-      await pluginRunItem.setPropertyValue("status", PropertyDatabaseValueString("idle"));
+      var propertyRecords = [
+        ItemPropertyRecord(
+            name: "targetItemId", value: PropertyDatabaseValueString(pluginRunItem.uid)),
+        ItemPropertyRecord(name: "pluginModule", value: PropertyDatabaseValueString(pluginModule)),
+        ItemPropertyRecord(name: "pluginName", value: PropertyDatabaseValueString(pluginName)),
+        ItemPropertyRecord(name: "containerImage", value: PropertyDatabaseValueString(container)),
+        ItemPropertyRecord(name: "status", value: PropertyDatabaseValueString("idle")),
+      ];
+
       if (config != null) {
-        await pluginRunItem.setPropertyValue("config", PropertyDatabaseValueString(config));
+        propertyRecords
+            .add(ItemPropertyRecord(name: "config", value: PropertyDatabaseValueString(config)));
       }
-      var edge = ItemEdgeRecord(
-          sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
-      await edge.save();
+
+      await pluginRunItem.save();
+      await pluginRunItem.addEdge(edgeName: "plugin", targetItem: plugin);
+      await pluginRunItem.setPropertyValueList(propertyRecords, db: db);
 
       await PluginHandler.run(
           plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
