@@ -20,6 +20,24 @@ import 'package:memri/models/sync_config.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:moor/moor.dart';
 
+Future<void> runSync(SyncConfig config) async {
+  var dbController = DatabaseController();
+  dbController.schema = config.schema;
+  if (kIsWeb) {
+    dbController.databasePool = Database.connect(connectToWorker());
+  } else {
+    if (config is IsolateSyncConfig) {
+      SyncController.documentsDirectory = config.documentsDirectory;
+      SyncController.lastRootKey = config.rootKey;
+      dbController.driftIsolate = config.isolate;
+      dbController.databasePool = Database.connect(await config.isolate.connect());
+    }
+  }
+  final syncController = SyncController(dbController);
+  Stream.periodic(const Duration(seconds: AppSettings.syncControllerIntervalSecs))
+      .listen((_) => syncController.sync(connectionConfig: config.connection));
+}
+
 enum SyncControllerState {
   idle,
   started,
@@ -52,6 +70,7 @@ class SyncController {
     switch (value) {
       case SyncControllerState.started:
         syncing = true;
+        lastDateServerModifiedTimestamp = null;
         try {
           await downloadItems();
         } catch (e) {
@@ -128,24 +147,6 @@ class SyncController {
     }
   }
 
-  Future<void> runSync(SyncConfig config) async {
-    var dbController = DatabaseController();
-    dbController.schema = config.schema;
-    if (kIsWeb) {
-      dbController.databasePool = Database.connect(connectToWorker());
-    } else {
-      if (config is IsolateSyncConfig) {
-        SyncController.documentsDirectory = config.documentsDirectory;
-        SyncController.lastRootKey = config.rootKey;
-        dbController.driftIsolate = config.isolate;
-        dbController.databasePool = Database.connect(await config.isolate.connect());
-      }
-    }
-    final syncController = SyncController(dbController);
-    runSyncStream = Stream.periodic(const Duration(seconds: AppSettings.syncControllerIntervalSecs))
-        .listen((_) => syncController.sync(connectionConfig: config.connection));
-  }
-
   sync({PodConnectionDetails? connectionConfig, Function(String?)? completion}) async {
     currentConnection = connectionConfig ?? await AppController.shared.podConnectionConfig;
     if (currentConnection == null) {
@@ -155,6 +156,7 @@ class SyncController {
     if (syncing) {
       return;
     }
+    print("Syncing in process");
 
     if (!await podIsExist(currentConnection!).timeout(
       Duration(seconds: 3),
@@ -329,14 +331,45 @@ class SyncController {
         }));
   }
 
+  int? lastDateServerModifiedTimestamp;
+
   downloadItems() async {
+    if (lastDateServerModifiedTimestamp == null) {
+      print("Start getting lastDateServerModifiedTimestamp ${DateTime.now()}");
+      await searchAction(
+          dateServerModifiedTimestamp: 0,
+          limit: 1,
+          order: "Desc",
+          completion: (data, error) async {
+            if (error != null || data == null) {
+              lastError = error;
+              await setState(SyncControllerState.failed);
+              return;
+            }
+            var responseObjects = jsonDecode(data);
+            if (responseObjects is! List) {
+              lastError = error;
+              await setState(SyncControllerState.failed);
+              return;
+            }
+            lastDateServerModifiedTimestamp =
+                responseObjects.isNotEmpty ? responseObjects.first["dateServerModified"] + 1 : 0;
+            print("End getting lastDateServerModifiedTimestamp ${DateTime.now()}");
+          });
+    }
+    var limit = 5000;
+    print("Start getting lastItem ${DateTime.now()}");
     var lastItem = await ItemRecord.lastSyncedItem(databaseController.databasePool);
     var dateServerModifiedTimestamp = lastItem != null && lastItem.dateServerModified != null
         ? lastItem.dateServerModified!.millisecondsSinceEpoch + 1
         : DateTime.fromMillisecondsSinceEpoch(0).millisecondsSinceEpoch;
+    print("End getting lastItem ${DateTime.now()}");
+
+    print("downloading: $dateServerModifiedTimestamp");
 
     await searchAction(
         dateServerModifiedTimestamp: dateServerModifiedTimestamp,
+        limit: limit,
         completion: (data, error) async {
           if (error != null || data == null) {
             lastError = error;
@@ -355,7 +388,11 @@ class SyncController {
                 dbController: databaseController,
                 documentsDirectory: documentsDirectory);
 
-          await setState(SyncControllerState.downloadedItems);
+          if (responseObjects.length >= limit) {
+            await downloadItems();
+          } else {
+            await setState(SyncControllerState.downloadedItems);
+          }
         });
   }
 
@@ -392,18 +429,8 @@ class SyncController {
   Future<PodPayloadBulkAction> makeSyncUploadData([int maxItems = 100]) async {
     var createItems = await ItemRecord.syncItemsWithState(
         state: SyncState.create, maxItems: maxItems, dbController: databaseController);
-    var updatedItems = await ItemRecord.syncItemsWithState(
+    var updateItems = await ItemRecord.syncItemsWithState(
         state: SyncState.update, maxItems: maxItems, dbController: databaseController);
-
-    var updateItems = <Map<String, dynamic>>[];
-
-    updatedItems.forEach((itemRecord) {
-      if (itemRecord["dateServerModified"] != null) {
-        updateItems.add(itemRecord);
-      } else {
-        createItems.add(itemRecord);
-      }
-    });
 
     var bulkAction = PodPayloadBulkAction(
         createItems: createItems, updateItems: updateItems, deleteItems: [], createEdges: []);
@@ -438,10 +465,10 @@ class SyncController {
           edgeRowIDs.add(itemRecord.rowId!);
         }
 
-        if (itemRecord.dateServerModified != null) {
-          syncPayload.updateItems.add(item);
-        } else {
+        if (itemRecord.syncState == SyncState.create) {
           syncPayload.createItems.add(item);
+        } else {
+          syncPayload.updateItems.add(item);
         }
       });
     }
@@ -526,12 +553,22 @@ class SyncController {
 
   searchAction(
       {required int dateServerModifiedTimestamp,
-      required Function(String?, String?)? completion}) async {
+      required Function(String?, String?)? completion,
+      required int limit,
+      order = "Asc"}) async {
     if (currentConnection == null) {
       throw Exception("No pod connection config");
     }
-    var request = PodStandardRequest.searchAction(
-        {"dateServerModified>=": dateServerModifiedTimestamp, "[[edges]]": {}});
+    var payload = {
+      "dateServerModified>=": dateServerModifiedTimestamp,
+      "[[edges]]": {},
+      "_limit": limit,
+      "_sortOrder": order
+    };
+    if ((lastDateServerModifiedTimestamp ?? 0) > 0) {
+      payload.addAll({"dateServerModified<": lastDateServerModifiedTimestamp});
+    }
+    var request = PodStandardRequest.searchAction(payload);
 
     var networkCall = await request.execute(currentConnection!);
     var error;

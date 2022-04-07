@@ -211,7 +211,13 @@ class ItemRecord with EquatableMixin {
     }
 
     if (syncState != SyncState.skip) {
-      syncState = state;
+      if (syncState == SyncState.create) {
+        var item = await ItemRecord.fetchWithUID(uid, db);
+        syncState = item!.syncState;
+      }
+      if (syncState != SyncState.create) {
+        syncState = state;
+      }
     }
 
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
@@ -562,7 +568,9 @@ class ItemRecord with EquatableMixin {
       var itemList = (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool))
           .toMapByKey((item) => item.uid);
       var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
-        if (dict is! Map<String, dynamic> || dict["id"] == null) return null;
+        if (dict is! Map<String, dynamic> ||
+            dict["id"] == null ||
+            itemList[dict["id"]]?.syncState == SyncState.update) return null;
         dict["rowId"] = itemList[dict["id"]]?.rowId;
         return dict;
       });
@@ -585,6 +593,7 @@ class ItemRecord with EquatableMixin {
           (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool));
       for (var i = 0; i < newItemList.length; i++) {
         var newItem = newItemList[i];
+        if (newItem.syncState == SyncState.update) continue;
         var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
         if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
           schemaProperties.add({"item": newItem, "properties": dict});
@@ -796,12 +805,11 @@ class ItemRecord with EquatableMixin {
 
     var allItems = createItemIDs;
     allItems.addAll(updateItemIDs);
-    var now = DateTime.now();
     for (var itemId in allItems) {
       var item = await fetchWithUID(itemId, dbController);
       if (item != null) {
         item.syncState = SyncState.noChanges;
-        item.dateServerModified = now;
+
         await item.save(dbController.databasePool);
       }
     }
