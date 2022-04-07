@@ -1616,13 +1616,13 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Git Project Id has wrong type";
     }
 
-    await createPlugin(gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
+    await createPlugin(gitProjectId: gitProjectId, db: db, project: project);
   }
 
   createPlugin(
       {required int gitProjectId,
       required DatabaseController db,
-      required int projectRowId}) async {
+      required ItemRecord project}) async {
     var encodedPlugin = await GitlabApi.getTextFileContentFromGitlab(
         gitProjectId: gitProjectId, filename: "metadata.json");
     var decodedPlugin = jsonDecode(encodedPlugin);
@@ -1635,25 +1635,20 @@ class CVUActionParsePluginItem extends CVUAction {
       if (value != null) {
         if (key == "description")
           key = "pluginDescription"; //TODO: change this after param in pyMemri will be changed
-        properties.add(ItemPropertyRecord(
-            itemRowID: pluginItem.rowId!,
-            name: key,
-            value: PropertyDatabaseValue.create(value, SchemaValueType.string)));
+        properties.add(ItemPropertyRecord(name: key, value: PropertyDatabaseValueString(value)));
       }
     });
 
     var encodedConfig = await GitlabApi.downloadSingleArtifact(
         gitProjectId: gitProjectId, filename: "config.json", jobName: "create_config");
-    properties.add(ItemPropertyRecord(
-        itemRowID: pluginItem.rowId!,
-        name: "configJson",
-        value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
+    properties.add(
+        ItemPropertyRecord(name: "configJson", value: PropertyDatabaseValueString(encodedConfig)));
 
-    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(gitProjectId));
-    await ItemEdgeRecord(
-            sourceRowID: projectRowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
-        .save(db.databasePool);
-    await db.databasePool.itemPropertyRecordInsertAll(properties);
+    properties.add(
+        ItemPropertyRecord(name: "gitProjectId", value: PropertyDatabaseValueInt(gitProjectId)));
+
+    await project.addEdge(edgeName: "labellingPlugin", targetItem: pluginItem);
+    await pluginItem.setPropertyValueList(properties, db: db);
   }
 
   //TODO: this part is not used now, we will need it on next iterations
