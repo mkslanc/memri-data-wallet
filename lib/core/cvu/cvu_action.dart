@@ -1661,6 +1661,7 @@ class CVUActionParsePluginItem extends CVUAction {
     }
     List<ItemPropertyRecord> properties = [];
     for (var el in decodedSchema) {
+      properties = [];
       var type = el["type"];
       if (type != null && type is String) {
         if (type == "ItemPropertySchema") {
@@ -1668,22 +1669,17 @@ class CVUActionParsePluginItem extends CVUAction {
           var propertyName = el["propertyName"];
           var propertyValue = ItemRecord.reverseMapSchemaValueType(el["valueType"]);
           if (itemType is String && propertyName is String && propertyValue is String) {
-            var recordRowId =
-                await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemPropertySchema"));
+            var record = ItemRecord(type: "ItemPropertySchema");
+            await record.save(db.databasePool);
             properties.addAll([
+              ItemPropertyRecord(name: "itemType", value: PropertyDatabaseValueString(itemType)),
               ItemPropertyRecord(
-                  itemRowID: recordRowId,
-                  name: "itemType",
-                  value: PropertyDatabaseValueString(itemType)),
+                  name: "propertyName", value: PropertyDatabaseValueString(propertyName)),
               ItemPropertyRecord(
-                  itemRowID: recordRowId,
-                  name: "propertyName",
-                  value: PropertyDatabaseValueString(propertyName)),
-              ItemPropertyRecord(
-                  itemRowID: recordRowId,
-                  name: "valueType",
-                  value: PropertyDatabaseValueString(propertyValue)),
+                  name: "valueType", value: PropertyDatabaseValueString(propertyValue)),
             ]);
+
+            await record.setPropertyValueList(properties);
           }
         } else {
           if (type == "ItemEdgeSchema") {
@@ -1691,28 +1687,22 @@ class CVUActionParsePluginItem extends CVUAction {
             var edgeName = el["edgeName"];
             var targetType = el["targetType"];
             if (sourceType is String && edgeName is String && targetType is String) {
-              var recordRowId =
-                  await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemEdgeSchema"));
+              var record = ItemRecord(type: "ItemEdgeSchema");
+              await record.save(db.databasePool);
               properties.addAll([
                 ItemPropertyRecord(
-                    itemRowID: recordRowId,
-                    name: "sourceType",
-                    value: PropertyDatabaseValueString(sourceType)),
+                    name: "sourceType", value: PropertyDatabaseValueString(sourceType)),
+                ItemPropertyRecord(name: "edgeName", value: PropertyDatabaseValueString(edgeName)),
                 ItemPropertyRecord(
-                    itemRowID: recordRowId,
-                    name: "edgeName",
-                    value: PropertyDatabaseValueString(edgeName)),
-                ItemPropertyRecord(
-                    itemRowID: recordRowId,
-                    name: "targetType",
-                    value: PropertyDatabaseValueString(targetType)),
+                    name: "targetType", value: PropertyDatabaseValueString(targetType)),
               ]);
+
+              await record.setPropertyValueList(properties);
             }
           }
         }
       }
     }
-    await db.databasePool.itemPropertyRecordInsertAll(properties);
     await db.schema.load(db.databasePool);
   }
 }
