@@ -477,7 +477,17 @@ class CVUActionCopyToClipboard extends CVUAction {
         context: context, lookup: CVULookupController(), db: db, properties: vars);
     var value = await resolver.string("value");
     if (value != null) {
-      Clipboard.setData(ClipboardData(text: value));
+      if (value.toLowerCase().contains('key')) {
+        if (value.contains('ownerKey')) {
+          Clipboard.setData(
+              ClipboardData(text: (await AppController.shared.podConnectionConfig)!.ownerKey));
+        } else if (value.contains('databaseKey')) {
+          Clipboard.setData(
+              ClipboardData(text: (await AppController.shared.podConnectionConfig)!.databaseKey));
+        }
+      } else {
+        Clipboard.setData(ClipboardData(text: value));
+      }
     }
   }
 }
