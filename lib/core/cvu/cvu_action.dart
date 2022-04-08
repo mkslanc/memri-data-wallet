@@ -524,6 +524,7 @@ class CVUActionAddItem extends CVUAction {
 
       for (var key in template.properties.keys.toList()) {
         var isReverse = false;
+        ResolvedType? valueType = null;
         var cleanKey = key;
         if (key.startsWith("~")) {
           isReverse = true;
@@ -532,9 +533,10 @@ class CVUActionAddItem extends CVUAction {
           if (source == null) {
             continue;
           }
-          type = source.type;
+          valueType = db.schema.expectedType(source.type, cleanKey);
+        } else {
+          valueType = db.schema.expectedType(type, cleanKey);
         }
-        ResolvedType? valueType = db.schema.expectedType(type!, cleanKey);
         if (valueType == null) {
           continue;
         }
@@ -773,23 +775,23 @@ class CVUActionPluginRun extends CVUAction {
     }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
-      await pluginRunItem.save();
-      await pluginRunItem.setPropertyValue(
-          "targetItemId",
-          PropertyDatabaseValueString(
-              pluginRunItem.uid)); //TODO plugin makers request, need to change this later
-      await pluginRunItem.setPropertyValue(
-          "pluginModule", PropertyDatabaseValueString(pluginModule));
-      await pluginRunItem.setPropertyValue("pluginName", PropertyDatabaseValueString(pluginName));
-      await pluginRunItem.setPropertyValue(
-          "containerImage", PropertyDatabaseValueString(container));
-      await pluginRunItem.setPropertyValue("status", PropertyDatabaseValueString("idle"));
+      var propertyRecords = [
+        ItemPropertyRecord(
+            name: "targetItemId", value: PropertyDatabaseValueString(pluginRunItem.uid)),
+        ItemPropertyRecord(name: "pluginModule", value: PropertyDatabaseValueString(pluginModule)),
+        ItemPropertyRecord(name: "pluginName", value: PropertyDatabaseValueString(pluginName)),
+        ItemPropertyRecord(name: "containerImage", value: PropertyDatabaseValueString(container)),
+        ItemPropertyRecord(name: "status", value: PropertyDatabaseValueString("idle")),
+      ];
+
       if (config != null) {
-        await pluginRunItem.setPropertyValue("config", PropertyDatabaseValueString(config));
+        propertyRecords
+            .add(ItemPropertyRecord(name: "config", value: PropertyDatabaseValueString(config)));
       }
-      var edge = ItemEdgeRecord(
-          sourceRowID: pluginRunItem.rowId, name: "plugin", targetRowID: plugin.rowId);
-      await edge.save();
+
+      await pluginRunItem.save();
+      await pluginRunItem.addEdge(edgeName: "plugin", targetItem: plugin);
+      await pluginRunItem.setPropertyValueList(propertyRecords, db: db);
 
       await PluginHandler.run(
           plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
@@ -1616,13 +1618,13 @@ class CVUActionParsePluginItem extends CVUAction {
       throw "Git Project Id has wrong type";
     }
 
-    await createPlugin(gitProjectId: gitProjectId, db: db, projectRowId: project.rowId!);
+    await createPlugin(gitProjectId: gitProjectId, db: db, project: project);
   }
 
   createPlugin(
       {required int gitProjectId,
       required DatabaseController db,
-      required int projectRowId}) async {
+      required ItemRecord project}) async {
     var encodedPlugin = await GitlabApi.getTextFileContentFromGitlab(
         gitProjectId: gitProjectId, filename: "metadata.json");
     var decodedPlugin = jsonDecode(encodedPlugin);
@@ -1635,25 +1637,20 @@ class CVUActionParsePluginItem extends CVUAction {
       if (value != null) {
         if (key == "description")
           key = "pluginDescription"; //TODO: change this after param in pyMemri will be changed
-        properties.add(ItemPropertyRecord(
-            itemRowID: pluginItem.rowId!,
-            name: key,
-            value: PropertyDatabaseValue.create(value, SchemaValueType.string)));
+        properties.add(ItemPropertyRecord(name: key, value: PropertyDatabaseValueString(value)));
       }
     });
 
     var encodedConfig = await GitlabApi.downloadSingleArtifact(
         gitProjectId: gitProjectId, filename: "config.json", jobName: "create_config");
-    properties.add(ItemPropertyRecord(
-        itemRowID: pluginItem.rowId!,
-        name: "configJson",
-        value: PropertyDatabaseValue.create(encodedConfig, SchemaValueType.string)));
+    properties.add(
+        ItemPropertyRecord(name: "configJson", value: PropertyDatabaseValueString(encodedConfig)));
 
-    await pluginItem.setPropertyValue("gitProjectId", PropertyDatabaseValueInt(gitProjectId));
-    await ItemEdgeRecord(
-            sourceRowID: projectRowId, name: "labellingPlugin", targetRowID: pluginItem.rowId)
-        .save(db.databasePool);
-    await db.databasePool.itemPropertyRecordInsertAll(properties);
+    properties.add(
+        ItemPropertyRecord(name: "gitProjectId", value: PropertyDatabaseValueInt(gitProjectId)));
+
+    await project.addEdge(edgeName: "labellingPlugin", targetItem: pluginItem);
+    await pluginItem.setPropertyValueList(properties, db: db);
   }
 
   //TODO: this part is not used now, we will need it on next iterations
@@ -1666,6 +1663,7 @@ class CVUActionParsePluginItem extends CVUAction {
     }
     List<ItemPropertyRecord> properties = [];
     for (var el in decodedSchema) {
+      properties = [];
       var type = el["type"];
       if (type != null && type is String) {
         if (type == "ItemPropertySchema") {
@@ -1673,22 +1671,17 @@ class CVUActionParsePluginItem extends CVUAction {
           var propertyName = el["propertyName"];
           var propertyValue = ItemRecord.reverseMapSchemaValueType(el["valueType"]);
           if (itemType is String && propertyName is String && propertyValue is String) {
-            var recordRowId =
-                await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemPropertySchema"));
+            var record = ItemRecord(type: "ItemPropertySchema");
+            await record.save(db.databasePool);
             properties.addAll([
+              ItemPropertyRecord(name: "itemType", value: PropertyDatabaseValueString(itemType)),
               ItemPropertyRecord(
-                  itemRowID: recordRowId,
-                  name: "itemType",
-                  value: PropertyDatabaseValueString(itemType)),
+                  name: "propertyName", value: PropertyDatabaseValueString(propertyName)),
               ItemPropertyRecord(
-                  itemRowID: recordRowId,
-                  name: "propertyName",
-                  value: PropertyDatabaseValueString(propertyName)),
-              ItemPropertyRecord(
-                  itemRowID: recordRowId,
-                  name: "valueType",
-                  value: PropertyDatabaseValueString(propertyValue)),
+                  name: "valueType", value: PropertyDatabaseValueString(propertyValue)),
             ]);
+
+            await record.setPropertyValueList(properties);
           }
         } else {
           if (type == "ItemEdgeSchema") {
@@ -1696,28 +1689,22 @@ class CVUActionParsePluginItem extends CVUAction {
             var edgeName = el["edgeName"];
             var targetType = el["targetType"];
             if (sourceType is String && edgeName is String && targetType is String) {
-              var recordRowId =
-                  await db.databasePool.itemRecordInsert(ItemRecord(type: "ItemEdgeSchema"));
+              var record = ItemRecord(type: "ItemEdgeSchema");
+              await record.save(db.databasePool);
               properties.addAll([
                 ItemPropertyRecord(
-                    itemRowID: recordRowId,
-                    name: "sourceType",
-                    value: PropertyDatabaseValueString(sourceType)),
+                    name: "sourceType", value: PropertyDatabaseValueString(sourceType)),
+                ItemPropertyRecord(name: "edgeName", value: PropertyDatabaseValueString(edgeName)),
                 ItemPropertyRecord(
-                    itemRowID: recordRowId,
-                    name: "edgeName",
-                    value: PropertyDatabaseValueString(edgeName)),
-                ItemPropertyRecord(
-                    itemRowID: recordRowId,
-                    name: "targetType",
-                    value: PropertyDatabaseValueString(targetType)),
+                    name: "targetType", value: PropertyDatabaseValueString(targetType)),
               ]);
+
+              await record.setPropertyValueList(properties);
             }
           }
         }
       }
     }
-    await db.databasePool.itemPropertyRecordInsertAll(properties);
     await db.schema.load(db.databasePool);
   }
 }

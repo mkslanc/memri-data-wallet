@@ -41,8 +41,6 @@ class PluginHandler {
             return;
           }
         });
-
-    await AppController.shared.syncController.sync();
   }
 
   static stopPlugin(

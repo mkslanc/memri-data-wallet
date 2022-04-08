@@ -166,7 +166,7 @@ class CVUController {
             name: "queryStr",
             value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.queryStr)));
       });
-      await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+      await ItemPropertyRecord.insertList(properties, db: databaseController.databasePool);
     });
   }
 
@@ -175,42 +175,27 @@ class CVUController {
     if (parsedDefinitions.isNotEmpty) {
       var definition = parsedDefinitions[0];
       AppController.shared.cvuController.definitions.add(definition);
-      var definitionId;
-      await databaseController.databasePool.transaction(() async {
-        List<ItemPropertyRecord> properties = [];
-        var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
-        definitionId = await storedDefinition.save(databaseController.databasePool);
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "domain",
-            value: PropertyDatabaseValueString(definition.domain.inString)));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "name",
-            value: PropertyDatabaseValueString(definition.name ?? "")));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "renderer",
-            value: PropertyDatabaseValueString(definition.renderer ?? "")));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "selector",
-            value: PropertyDatabaseValueString(definition.selector ?? "")));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "definitionType",
-            value: PropertyDatabaseValueString(definition.type.inString)));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "definition",
-            value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "queryStr",
-            value: PropertyDatabaseValueString(definition.queryStr)));
-        await ItemPropertyRecord.insertList(properties, db: databaseController.databasePool);
-      });
-      return definitionId;
+      List<ItemPropertyRecord> properties = [];
+      var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
+      await storedDefinition.save(databaseController.databasePool);
+      properties.add(ItemPropertyRecord(
+          name: "domain", value: PropertyDatabaseValueString(definition.domain.inString)));
+      properties.add(ItemPropertyRecord(
+          name: "name", value: PropertyDatabaseValueString(definition.name ?? "")));
+      properties.add(ItemPropertyRecord(
+          name: "renderer", value: PropertyDatabaseValueString(definition.renderer ?? "")));
+      properties.add(ItemPropertyRecord(
+          name: "selector", value: PropertyDatabaseValueString(definition.selector ?? "")));
+      properties.add(ItemPropertyRecord(
+          name: "definitionType", value: PropertyDatabaseValueString(definition.type.inString)));
+      properties.add(ItemPropertyRecord(
+          name: "definition",
+          value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
+      properties.add(ItemPropertyRecord(
+          name: "queryStr", value: PropertyDatabaseValueString(definition.queryStr)));
+
+      await storedDefinition.setPropertyValueList(properties, db: databaseController);
+      return storedDefinition.rowId;
     }
     return null;
   }

@@ -106,7 +106,7 @@ class AppController {
       if (!kIsWeb) {
         documentsDirectory = (await getApplicationDocumentsDirectory()).path;
         syncIsolate = await Isolate.spawn(
-            syncController.runSync,
+            runSync,
             IsolateSyncConfig(
                 port: receivePort.sendPort,
                 connection: connection,
@@ -115,8 +115,7 @@ class AppController {
                 rootKey: Authentication.lastRootPublicKey,
                 isolate: databaseController.driftIsolate!));
       } else {
-        syncController
-            .runSync(SyncConfig(connection: connection, schema: databaseController.schema));
+        runSync(SyncConfig(connection: connection, schema: databaseController.schema));
       }
     }
 

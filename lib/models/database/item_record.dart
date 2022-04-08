@@ -210,8 +210,28 @@ class ItemRecord with EquatableMixin {
       await itemPropertyRecord.delete(db.databasePool);
     }
 
+    await saveChanges(state, db);
+  }
+
+  setPropertyValueList(List<ItemPropertyRecord> records,
+      {SyncState state = SyncState.update, DatabaseController? db}) async {
+    db ??= AppController.shared.databaseController;
+    records.forEach((record) => record.itemRowID = rowId);
+
+    await ItemPropertyRecord.insertList(records, db: db.databasePool);
+
+    await saveChanges(state, db);
+  }
+
+  saveChanges(SyncState state, DatabaseController db) async {
     if (syncState != SyncState.skip) {
-      syncState = state;
+      if (syncState == SyncState.create) {
+        var item = await ItemRecord.fetchWithUID(uid, db);
+        syncState = item!.syncState;
+      }
+      if (syncState != SyncState.create) {
+        syncState = state;
+      }
     }
 
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
@@ -556,73 +576,68 @@ class ItemRecord with EquatableMixin {
     var properties = <Map<String, dynamic>>[];
     var schemaProperties = <Map<String, dynamic>>[];
 
-    await dbController.databasePool.transaction(() async {
-      List<ItemRecord> itemRecords = [];
-      List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
-      var itemList = (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool))
-          .toMapByKey((item) => item.uid);
-      var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
-        if (dict is! Map<String, dynamic> || dict["id"] == null) return null;
-        dict["rowId"] = itemList[dict["id"]]?.rowId;
-        return dict;
-      });
-      await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
-        // If the item has file and it does not exist on disk, mark the file to be downloaded
-        if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
-          String? fileName = dict["sha256"];
-          if (fileName != null &&
-              !(await FileStorageController.fileExists(
-                  (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
-            dict["fileState"] = FileState.needsDownload;
-          }
-        }
-
-        itemRecords.add(ItemRecord.fromSyncDict(dict));
-      });
-
-      await ItemRecord.insertList(itemRecords, db: dbController.databasePool);
-      List<ItemRecord> newItemList =
-          (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool));
-      for (var i = 0; i < newItemList.length; i++) {
-        var newItem = newItemList[i];
-        var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
-        if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
-          schemaProperties.add({"item": newItem, "properties": dict});
-        } else {
-          properties.add({"item": newItem, "properties": dict});
-        }
-
-        var itemEdges = dict["[[edges]]"];
-        if (itemEdges is List && itemEdges.isNotEmpty) {
-          edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
-            return edge is Map<String, dynamic>
-                ? (edge..addAll({"source": newItem, "dict": dict}))
-                : null;
-          }));
+    List<ItemRecord> itemRecords = [];
+    List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
+    var itemList = (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool))
+        .toMapByKey((item) => item.uid);
+    var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
+      if (dict is! Map<String, dynamic> ||
+          dict["id"] == null ||
+          itemList[dict["id"]]?.syncState == SyncState.update) return null;
+      dict["rowId"] = itemList[dict["id"]]?.rowId;
+      return dict;
+    });
+    await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+      // If the item has file and it does not exist on disk, mark the file to be downloaded
+      if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
+        String? fileName = dict["sha256"];
+        if (fileName != null &&
+            !(await FileStorageController.fileExists(
+                (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
+          dict["fileState"] = FileState.needsDownload;
         }
       }
+
+      itemRecords.add(ItemRecord.fromSyncDict(dict));
     });
+
+    await ItemRecord.insertList(itemRecords, db: dbController.databasePool);
+
+    List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
+        itemRecords.map((item) => item.uid).toList(), dbController.databasePool));
+    for (var i = 0; i < newItemList.length; i++) {
+      var newItem = newItemList[i];
+      var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
+      if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
+        schemaProperties.add({"item": newItem, "properties": dict});
+      } else {
+        properties.add({"item": newItem, "properties": dict});
+      }
+
+      var itemEdges = dict["[[edges]]"];
+      if (itemEdges is List && itemEdges.isNotEmpty) {
+        edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
+          return edge is Map<String, dynamic>
+              ? (edge..addAll({"source": newItem, "dict": dict}))
+              : null;
+        }));
+      }
+    }
 
     if (schemaProperties.isNotEmpty) {
       var schemaItemProperties =
           propertiesFromSyncItemDict(dictList: schemaProperties, dbController: dbController);
-      await dbController.databasePool.transaction(() async {
-        await dbController.databasePool.itemPropertyRecordInsertAll(schemaItemProperties);
-        await dbController.schema.load(dbController.databasePool);
-      });
+      await ItemPropertyRecord.insertList(schemaItemProperties, db: dbController.databasePool);
+      await dbController.schema.load(dbController.databasePool);
     }
 
     var edgesRecords =
         await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
-    await dbController.databasePool.transaction(() async {
-      await dbController.databasePool.itemEdgeRecordInsertAll(edgesRecords);
-    });
+    await ItemEdgeRecord.insertList(edgesRecords, db: dbController.databasePool);
 
     var itemProperties =
         propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
-    await dbController.databasePool.transaction(() async {
-      await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
-    });
+    await ItemPropertyRecord.insertList(itemProperties, db: dbController.databasePool);
     return null;
   }
 
@@ -796,12 +811,11 @@ class ItemRecord with EquatableMixin {
 
     var allItems = createItemIDs;
     allItems.addAll(updateItemIDs);
-    var now = DateTime.now();
     for (var itemId in allItems) {
       var item = await fetchWithUID(itemId, dbController);
       if (item != null) {
         item.syncState = SyncState.noChanges;
-        item.dateServerModified = now;
+
         await item.save(dbController.databasePool);
       }
     }
@@ -1004,12 +1018,10 @@ class ItemRecord with EquatableMixin {
     props.forEach((element) {
       element.itemRowID = newItem.rowId!;
     });
-    if (withProperties != null) {
-      withProperties.forEach((propName, propValue) {
-        props.add(ItemPropertyRecord(name: propName, value: propValue, itemRowID: newItem.rowId!));
-      });
-    }
-    await db.databasePool.itemPropertyRecordInsertAll(props);
+    withProperties?.forEach((propName, propValue) {
+      props.add(ItemPropertyRecord(name: propName, value: propValue));
+    });
+    await newItem.setPropertyValueList(props);
     return newItem;
   }
 }

@@ -1284,7 +1284,6 @@ Project > list {
                             template: {
                                 _type: "LabellingTask"
                                 taskType: {{items(type: "TextClassification").first()}}
-                                view: {{item(888)}}
                                 ~labellingTask: {{.}}
                             }
                             viewArguments: {
