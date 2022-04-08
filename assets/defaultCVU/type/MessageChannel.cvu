@@ -178,13 +178,6 @@ MessageChannel > list {
                 text: "{.~messageChannel.last().dateSent.format('dd MMMM yyyy')}"
             }
         }
-
-        Image {
-            color: #DFDEDE
-            font: 24 light
-            padding: 5 0 5 0
-            systemName: "ellipsis"
-        }
     }
 }
 
