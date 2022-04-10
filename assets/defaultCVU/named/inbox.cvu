@@ -62,16 +62,6 @@
             }
         }
     }
-    filterButtons: [
-        openView
-        {
-            clearStack: true
-            color: "#FE570F"
-            inheritDatasource: false
-            title: "all"
-            viewName: "inbox-channels"
-        }
-    ]
     name: "inbox"
     showEditCode: false
     showBreadCrumbs: false
