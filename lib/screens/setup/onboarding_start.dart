@@ -61,7 +61,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                               TextButton(
                                 onPressed: handleSetup,
                                 style: primaryButtonStyle,
-                                child: Text("Create new account"),
+                                child: Text("Create an account"),
                               ),
                               SizedBox(width: 10),
                               TextButton(
@@ -71,25 +71,26 @@ class _OnboardingStartState extends State<OnboardingStart> {
                                   }));
                                 },
                                 child: Text(
-                                  "Log into your pod",
+                                  "Log in",
                                   style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
                                 ),
                                 style: TextButton.styleFrom(backgroundColor: null),
                               ),
                               SizedBox(width: 30),
-                              TextButton(
-                                onPressed: () async {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => OnboardingDeveloper()));
-                                },
-                                child: Text(
-                                  "Switch to developers mode",
-                                  style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+                              if (AppSettings.showDeveloperButton)
+                                TextButton(
+                                  onPressed: () async {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                        builder: (context) => OnboardingDeveloper()));
+                                  },
+                                  child: Text(
+                                    "Switch to developers mode",
+                                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: null,
+                                  ),
                                 ),
-                                style: TextButton.styleFrom(
-                                  backgroundColor: null,
-                                ),
-                              ),
                             ],
                           ),
                           if (appController.model.state == PodSetupState.error)
