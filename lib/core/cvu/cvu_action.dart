@@ -35,6 +35,8 @@ import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../models/plugin_config_json.dart';
+
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
 
@@ -764,14 +766,6 @@ class CVUActionPluginRun extends CVUAction {
     String? config;
     if (configValue != null) {
       config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
-    }
-    var mockVar = vars["isMock"];
-    if (mockVar != null) {
-      bool isMock =
-          await lookup.resolve<bool>(value: vars["isMock"], context: context, db: db) ?? false;
-      if (isMock) {
-        config = '{"isMock": true}';
-      }
     }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
@@ -1645,7 +1639,16 @@ class CVUActionParsePluginItem extends CVUAction {
         gitProjectId: gitProjectId, filename: "config.json", jobName: "create_config");
     properties.add(
         ItemPropertyRecord(name: "configJson", value: PropertyDatabaseValueString(encodedConfig)));
-
+    var configJsonList =
+        (jsonDecode(encodedConfig) as List).map((json) => PluginConfigJson.fromJson(json)).toList();
+    Map<String, dynamic> configData = {};
+    for (var configItem in configJsonList) {
+      if (configItem.defaultData != null && configItem.defaultData != "") {
+        configData.addEntries([MapEntry(configItem.name, configItem.defaultData)]);
+      }
+    }
+    properties.add(ItemPropertyRecord(
+        name: "config", value: PropertyDatabaseValueString(jsonEncode(configData))));
     properties.add(
         ItemPropertyRecord(name: "gitProjectId", value: PropertyDatabaseValueInt(gitProjectId)));
 
@@ -1771,7 +1774,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         properties.addEntries({MapEntry(key, value)});
         queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
-      propertiesFilter += '\nisMock: true\n';
+      propertiesFilter += '\nisMock: {{isMock OR true}}\n';
       propertiesFilter += "}}";
     }
 
@@ -1785,7 +1788,10 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         [datasource = pod] {
             query: Plugin
         }
-    Plugin > singleItem {    
+    Plugin > singleItem {
+    viewArguments: {
+      currentPlugin: {{.}}
+    }    
     VStack {
         alignment: topleft
         padding: 60 30 30 30
@@ -1899,6 +1905,10 @@ class CVUActionGeneratePluginCvu extends CVUAction {
                 view: {
                     defaultRenderer: list
                     editMode: false
+                    viewArguments: {
+                        currentPlugin: {{currentPlugin}}
+                        isMock: {{currentPlugin.config.fromJson("isMock")}}
+                    }
 
                     [datasource = pod] {
                         query: $startItemType
@@ -1941,7 +1951,6 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       if (cvuID == null) {
         throw "CVU couldn't be saved";
       }
-
       var databaseQueryConfig = DatabaseQueryConfig(
           itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
       databaseQueryConfig.dbController = db;

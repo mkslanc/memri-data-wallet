@@ -183,7 +183,6 @@ Plugin > list {
                             pluginRun
                             {
                                 container: {{.containerImage}}
-                                isMock: true
                                 name: {{.name}}
                                 pluginId: {{.id}}
                                 pluginModule: {{.pluginModule}}
@@ -341,7 +340,6 @@ Plugin > grid {
                                             pluginRun
                                             {
                                                 container: {{.containerImage}}
-                                                isMock: true
                                                 name: {{.name}}
                                                 pluginId: {{.id}}
                                                 pluginModule: {{.pluginModule}}
