@@ -243,7 +243,7 @@
                 onPress: [
                     openLink
                     {
-                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model/#install-the-plugin-in-your-frontend"
+                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model"
                     }
                 ]
                 padding: 20 0 0 0
