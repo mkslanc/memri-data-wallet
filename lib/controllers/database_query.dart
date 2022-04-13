@@ -271,6 +271,27 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
             "INNER JOIN edges edge$i ON items.row_id = edge$i.target AND edge$i.name = ? AND edge$i.source IN (${info.source.join(", ")})";
         joinTables.add(dbController.databasePool.edges);
         allBindings.add(Variable(info.edgeName));
+      } else if (condition is DatabaseQueryConditionPropertyIn) {
+        info = condition.value;
+        var itemType = itemTypes.firstWhereOrNull(
+            (element) => dbController.schema.expectedPropertyType(element, info.name) != null);
+        if (itemType == null) {
+          continue;
+        }
+        SchemaValueType schemaValueType =
+            dbController.schema.expectedPropertyType(itemType, info.name)!;
+
+        ItemRecordPropertyTable itemRecordPropertyTable =
+            PropertyDatabaseValue.toDBTableName(schemaValueType);
+        TableInfo table =
+            dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+        String tableName = table.aliasedName;
+
+        join +=
+            "INNER JOIN $tableName property$i ON items.row_id = property$i.item AND property$i.name = ? AND property$i.value IN (${List.filled(info.value.length, "?").join(',')})";
+        joinTables.add(table);
+        allBindings
+            .addAll([Variable.withString(info.name), ...info.value.map((el) => Variable(el))]);
       }
       i++;
     }
@@ -555,16 +576,19 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     for (var key in (properties?.properties.keys.toList() ?? [])) {
       dynamic value;
-
-      var schemaType = databaseController.schema.expectedPropertyType(itemTypes[0], key) ??
-          SchemaValueType.string;
-      if (schemaType == SchemaValueType.bool) {
-        value = await properties?.boolean(key);
+      if (properties?.properties[key] is CVUValueArray) {
+        value = await properties?.stringArray(key);
+        propertyConditions.add(DatabaseQueryConditionPropertyIn(PropertyIn(key, value)));
       } else {
-        value = await properties?.string(key) ?? "";
+        var schemaType = databaseController.schema.expectedPropertyType(itemTypes[0], key) ??
+            SchemaValueType.string;
+        if (schemaType == SchemaValueType.bool) {
+          value = await properties?.boolean(key);
+        } else {
+          value = await properties?.string(key) ?? "";
+        }
+        propertyConditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       }
-
-      propertyConditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
     }
 
     var sortDef = datasourceResolver?.subdefinition("sort");
@@ -689,6 +713,20 @@ class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
     ..addAll({"type": "DatabaseQueryConditionPropertyEquals"});
 }
 
+// A property of this item that could be in range of values
+@JsonSerializable()
+class DatabaseQueryConditionPropertyIn extends DatabaseQueryCondition {
+  PropertyIn value;
+
+  DatabaseQueryConditionPropertyIn(this.value);
+
+  factory DatabaseQueryConditionPropertyIn.fromJson(Map<String, dynamic> json) =>
+      _$DatabaseQueryConditionPropertyInFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DatabaseQueryConditionPropertyInToJson(this)
+    ..addAll({"type": "DatabaseQueryConditionPropertyIn"});
+}
+
 // This item has an edge pointing to 'x' item
 @JsonSerializable()
 class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
@@ -726,6 +764,18 @@ class PropertyEquals {
   factory PropertyEquals.fromJson(Map<String, dynamic> json) => _$PropertyEqualsFromJson(json);
 
   Map<String, dynamic> toJson() => _$PropertyEqualsToJson(this);
+}
+
+@JsonSerializable()
+class PropertyIn {
+  String name;
+  List<String> value;
+
+  PropertyIn(this.name, this.value);
+
+  factory PropertyIn.fromJson(Map<String, dynamic> json) => _$PropertyInFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PropertyInToJson(this);
 }
 
 @JsonSerializable()

@@ -99,6 +99,7 @@
                                 filter: {
                                     properties: {
                                         itemType: {{.~datasetPlugin.queryStr.fromJson("type")}}
+                                        propertyName: "content" "dateSent"
                                     }
                                 }
                                 query: ItemPropertySchema
