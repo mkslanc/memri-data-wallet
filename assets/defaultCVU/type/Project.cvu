@@ -10,7 +10,7 @@ Project {
 }
 
 .add-project {
-    cols: 9
+    cols: 12
     defaultRenderer: singleItem
     title: "New project"
 
