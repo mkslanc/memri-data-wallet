@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
 import 'package:memri/utils/extensions/collection.dart';
@@ -64,6 +65,7 @@ class _CVUButtonState extends State<CVUButton> {
       if (e is String) {
         openErrorPopup(e);
       } else {
+        isDisabled = false;
         throw e;
       }
     }
@@ -99,18 +101,14 @@ class _CVUButtonState extends State<CVUButton> {
   }
 
   openErrorPopup(String text) {
-    return showDialog<String>(
-        context: context,
-        builder: (BuildContext context) =>
-            AlertDialog(title: Text("Error"), content: Text(text), actions: [
-              PointerInterceptor(
-                  child: TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-                child: Text("Ok"),
-              ))
-            ]));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          text,
+          style: CVUFont.bodyBold.copyWith(color: Color(0xFFE9500F)),
+        ),
+        backgroundColor: Color(0x33E9500F),
+        elevation: 0));
+    return;
   }
 
   init() async {
