@@ -110,6 +110,15 @@ Project {
 
                 Button {
                     onPress: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    expression: {{subView("datasetGrid").selectedItems().first() = 1}}
+                                    error: "Please select a datasource ."
+                                }
+                            ]
+                        }
                         addItem
                         {
                             initialItem: {{.dataset}}
