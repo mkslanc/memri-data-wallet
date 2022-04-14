@@ -98,13 +98,11 @@ class _PluginConfigRendererViewState extends RendererViewState {
         () {
           switch (configJson.dataType.toLowerCase()) {
             case "bool":
-              var currentValue = configData[configJson.name] ?? configJson.defaultData ?? false;
+              var currentValue = configData[configJson.name] ?? false;
               return Switch(
                   value: currentValue,
                   onChanged: (newValue) {
-                    currentValue = newValue;
-                    setConfigValue(configJson.name, newValue);
-                    setState(() {});
+                    setState(() => setConfigValue(configJson.name, newValue));
                   });
             //TODO all types
             default:

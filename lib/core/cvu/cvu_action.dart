@@ -1647,6 +1647,7 @@ class CVUActionParsePluginItem extends CVUAction {
         configData.addEntries([MapEntry(configItem.name, configItem.defaultData)]);
       }
     }
+    configData["isMock"] ??= true;
     properties.add(ItemPropertyRecord(
         name: "config", value: PropertyDatabaseValueString(jsonEncode(configData))));
     properties.add(
@@ -1774,7 +1775,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         properties.addEntries({MapEntry(key, value)});
         queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
-      propertiesFilter += '\nisMock: {{isMock OR true}}\n';
+      propertiesFilter += '\nisMock: {{isMock}}\n';
       propertiesFilter += "}}";
     }
 
