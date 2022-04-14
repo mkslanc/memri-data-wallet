@@ -693,6 +693,8 @@ abstract class DatabaseQueryCondition {
         return DatabaseQueryConditionEdgeHasTarget.fromJson(json);
       case "DatabaseQueryConditionEdgeHasSource":
         return DatabaseQueryConditionEdgeHasSource.fromJson(json);
+      case "DatabaseQueryConditionPropertyIn":
+        return DatabaseQueryConditionPropertyIn.fromJson(json);
       default:
         throw Exception("Unknown DatabaseQueryCondition: ${json["type"]}");
     }
