@@ -1220,6 +1220,7 @@ Project > list {
                         filter: {
                             properties: {
                                 itemType: {{selectedDataset.queryStr.fromjson("type")}}
+                                propertyName: "content" "dateSent"
                             }
                         }
                         groupBy: {
@@ -1271,8 +1272,8 @@ Project > list {
                     onPress: [
                         link
                         {
-                            removePrevious: true
                             edgeType: "~feature"
+                            removePrevious: true
                             subject: {{subView("featureVariables").selectedItems()}}
                         }
                         createLabellingTask

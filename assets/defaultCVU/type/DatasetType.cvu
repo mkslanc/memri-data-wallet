@@ -26,6 +26,7 @@ DatasetType > grid {
                 filter: {
                     properties: {
                         itemType: {{.queryStr.fromJson("type")}}
+                        propertyName: "content" "dateSent"
                     }
                 }
                 query: ItemPropertySchema
