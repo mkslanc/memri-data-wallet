@@ -102,12 +102,14 @@ class _CVUButtonState extends State<CVUButton> {
 
   openErrorPopup(String text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          text,
-          style: CVUFont.bodyBold.copyWith(color: Color(0xFFE9500F)),
-        ),
-        backgroundColor: Color(0x33E9500F),
-        elevation: 0));
+      content: Text(
+        text,
+        style: CVUFont.bodyBold.copyWith(color: Color(0xFFE9500F)),
+      ),
+      backgroundColor: Color(0x33E9500F),
+      elevation: 0,
+      duration: Duration(seconds: 2),
+    ));
     return;
   }
 
