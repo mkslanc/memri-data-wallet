@@ -176,6 +176,21 @@
       "value_type": "string"
     },
     {
+      "item_type": "CategoricalPrediction",
+      "property": "probs",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CategoricalPrediction",
+      "property": "source",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CategoricalPrediction",
+      "property": "value",
+      "value_type": "string"
+    },
+    {
       "item_type": "Country",
       "property": "latitude",
       "value_type": "double"
@@ -786,6 +801,16 @@
       "value_type": "string"
     },
     {
+      "item_type": "Model",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Model",
+      "property": "version",
+      "value_type": "string"
+    },
+    {
       "item_type": "NavigationItem",
       "property": "icon",
       "value_type": "string"
@@ -1032,6 +1057,11 @@
     },
     {
       "item_type": "PluginRun",
+      "property": "containerId",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
       "property": "containerImage",
       "value_type": "string"
     },
@@ -1271,6 +1301,11 @@
       "source_type": "Address",
       "edge": "location",
       "target_type": "Location"
+    },
+    {
+      "source_type": "CategoricalPrediction",
+      "edge": "model",
+      "target_type": "Model"
     },
     {
       "source_type": "Country",

@@ -352,24 +352,25 @@
                         }
                         opencvueditor
                         {
+                            item: {{.labellingPlugin}}
                             openForce: true
                             viewArguments: {
                                 buttons: {
                                     Observer {
-                                        item: {{.labellingPlugin.~plugin[].last()}}
+                                        item: {{.~plugin[].last()}}
                                         property: "status"
 
                                         Button {
-                                            background: {{.labellingPlugin.~plugin ? "#15B599" : "#4F56FE"}}
+                                            background: {{.~plugin ? "#15B599" : "#4F56FE"}}
                                             onPress: [
                                                 pluginRun
                                                 {
-                                                    container: {{.labellingPlugin.containerImage}}
+                                                    container: {{.containerImage}}
                                                     isMock: true
-                                                    name: {{.labellingPlugin.name}}
-                                                    pluginId: {{.labellingPlugin.id}}
-                                                    pluginModule: {{.labellingPlugin.pluginModule}}
-                                                    pluginName: {{.labellingPlugin.pluginName}}
+                                                    name: {{.name}}
+                                                    pluginId: {{.id}}
+                                                    pluginModule: {{.pluginModule}}
+                                                    pluginName: {{.pluginName}}
                                                 }
                                             ]
 
@@ -377,11 +378,11 @@
                                                 color: #F5F5F5
                                                 font: link
                                                 padding: 3 13 3 3
-                                                text: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle" ? "Running" : .labellingPlugin.~plugin[].last().status = "done" OR .labellingPlugin.~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
+                                                text: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle" ? "Running" : .~plugin[].last().status = "done" OR .~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
                                             }
 
                                             LoadingIndicator {
-                                                show: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle"}}
+                                                show: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle"}}
                                                 size: 20
                                             }
                                         }
