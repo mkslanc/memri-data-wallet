@@ -160,6 +160,15 @@ LabellingTask {
 
                 Button {
                     onPress: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    error: "Please add labels."
+                                    expression: {{.labelOption.count() > 0}}
+                                }
+                            ]
+                        }
                         openView
                         {
                             viewArguments: {

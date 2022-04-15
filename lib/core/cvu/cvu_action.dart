@@ -151,6 +151,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionRequestStoragePermission(vars: vars);
     case "openpopup":
       return ({Map? vars}) => CVUActionOpenPopup(vars: vars);
+    case "validate":
+      return ({Map? vars}) => CVUActionValidate(vars: vars);
     case "wait":
       return ({Map? vars}) => CVUActionWait(vars: vars);
     case "block":
@@ -1427,6 +1429,30 @@ class CVUActionOpenPopup extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {}
+}
+
+class CVUActionValidate extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionValidate({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+
+    var rules = resolver.subdefinitionArray("rules");
+
+    for (var rule in rules) {
+      var exp = (await rule.boolean("expression", false, true))!;
+      if (!exp) {
+        var error =
+            await rule.string("error") ?? "Error on ${rule.properties["expression"].toString()}";
+        throw error;
+      }
+    }
+  }
 }
 
 class CVUActionWait extends CVUAction {
