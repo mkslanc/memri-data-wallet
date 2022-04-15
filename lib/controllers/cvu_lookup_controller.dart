@@ -643,6 +643,9 @@ class CVULookupController {
                   if (obj == null || obj[property] == null) {
                     return value;
                   }
+                  if (obj[property] is bool) {
+                    return PropertyDatabaseValueBool(obj[property]);
+                  }
                   return PropertyDatabaseValueString(obj[property]);
                 }
               }).toList();

@@ -10,7 +10,7 @@ Project {
 }
 
 .add-project {
-    cols: 9
+    cols: 12
     defaultRenderer: singleItem
     title: "New project"
 
@@ -110,6 +110,15 @@ Project {
 
                 Button {
                     onPress: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    error: "Please select a datasource ."
+                                    expression: {{subView("datasetGrid").selectedItems().count() = 1}}
+                                }
+                            ]
+                        }
                         addItem
                         {
                             initialItem: {{.dataset}}
@@ -1220,6 +1229,7 @@ Project > list {
                         filter: {
                             properties: {
                                 itemType: {{selectedDataset.queryStr.fromjson("type")}}
+                                propertyName: "content" "dateSent"
                             }
                         }
                         groupBy: {
@@ -1269,10 +1279,19 @@ Project > list {
 
                 Button {
                     onPress: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    error: "Please select feature variables."
+                                    expression: {{subView("featureVariables").selectedItems().count() > 0}}
+                                }
+                            ]
+                        }
                         link
                         {
-                            removePrevious: true
                             edgeType: "~feature"
+                            removePrevious: true
                             subject: {{subView("featureVariables").selectedItems()}}
                         }
                         createLabellingTask

@@ -1,4 +1,5 @@
 .create-new-model {
+    cols: 12
     defaultRenderer: singleItem
     scrollable: true
     title: "Create a new model"
@@ -366,7 +367,6 @@
                                                 pluginRun
                                                 {
                                                     container: {{.containerImage}}
-                                                    isMock: true
                                                     name: {{.name}}
                                                     pluginId: {{.id}}
                                                     pluginModule: {{.pluginModule}}

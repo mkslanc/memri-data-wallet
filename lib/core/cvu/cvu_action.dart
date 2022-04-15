@@ -35,6 +35,8 @@ import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../models/plugin_config_json.dart';
+
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
 
@@ -149,6 +151,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionRequestStoragePermission(vars: vars);
     case "openpopup":
       return ({Map? vars}) => CVUActionOpenPopup(vars: vars);
+    case "validate":
+      return ({Map? vars}) => CVUActionValidate(vars: vars);
     case "wait":
       return ({Map? vars}) => CVUActionWait(vars: vars);
     case "block":
@@ -774,14 +778,6 @@ class CVUActionPluginRun extends CVUAction {
     String? config;
     if (configValue != null) {
       config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
-    }
-    var mockVar = vars["isMock"];
-    if (mockVar != null) {
-      bool isMock =
-          await lookup.resolve<bool>(value: vars["isMock"], context: context, db: db) ?? false;
-      if (isMock) {
-        config = '{"isMock": true}';
-      }
     }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
@@ -1435,6 +1431,30 @@ class CVUActionOpenPopup extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {}
 }
 
+class CVUActionValidate extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionValidate({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(memri.PageController pageController, CVUContext context) async {
+    var db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+
+    var rules = resolver.subdefinitionArray("rules");
+
+    for (var rule in rules) {
+      var exp = (await rule.boolean("expression", false, true))!;
+      if (!exp) {
+        var error =
+            await rule.string("error") ?? "Error on ${rule.properties["expression"].toString()}";
+        throw error;
+      }
+    }
+  }
+}
+
 class CVUActionWait extends CVUAction {
   Map<String, CVUValue> vars;
 
@@ -1655,7 +1675,17 @@ class CVUActionParsePluginItem extends CVUAction {
         gitProjectId: gitProjectId, filename: "config.json", jobName: "create_config");
     properties.add(
         ItemPropertyRecord(name: "configJson", value: PropertyDatabaseValueString(encodedConfig)));
-
+    var configJsonList =
+        (jsonDecode(encodedConfig) as List).map((json) => PluginConfigJson.fromJson(json)).toList();
+    Map<String, dynamic> configData = {};
+    for (var configItem in configJsonList) {
+      if (configItem.defaultData != null && configItem.defaultData != "") {
+        configData.addEntries([MapEntry(configItem.name, configItem.defaultData)]);
+      }
+    }
+    configData["isMock"] ??= true;
+    properties.add(ItemPropertyRecord(
+        name: "config", value: PropertyDatabaseValueString(jsonEncode(configData))));
     properties.add(
         ItemPropertyRecord(name: "gitProjectId", value: PropertyDatabaseValueInt(gitProjectId)));
 
@@ -1781,7 +1811,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         properties.addEntries({MapEntry(key, value)});
         queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
-      propertiesFilter += '\nisMock: true\n';
+      propertiesFilter += '\nisMock: {{isMock}}\n';
       propertiesFilter += "}}";
     }
 
@@ -1795,7 +1825,10 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         [datasource = pod] {
             query: Plugin
         }
-    Plugin > singleItem {    
+    Plugin > singleItem {
+    viewArguments: {
+      currentPlugin: {{.}}
+    }    
     VStack {
         alignment: topleft
         padding: 60 30 30 30
@@ -1909,6 +1942,10 @@ class CVUActionGeneratePluginCvu extends CVUAction {
                 view: {
                     defaultRenderer: list
                     editMode: false
+                    viewArguments: {
+                        currentPlugin: {{currentPlugin}}
+                        isMock: {{currentPlugin.config.fromJson("isMock")}}
+                    }
 
                     [datasource = pod] {
                         query: $startItemType
@@ -1951,7 +1988,6 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       if (cvuID == null) {
         throw "CVU couldn't be saved";
       }
-
       var databaseQueryConfig = DatabaseQueryConfig(
           itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
       databaseQueryConfig.dbController = db;

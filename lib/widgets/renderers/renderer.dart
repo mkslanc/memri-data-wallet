@@ -63,11 +63,17 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", pageController.isInEditMode.value))!;
 
-    var selectedItems = await viewContext.rendererDefinitionPropertyResolver.items("selectedItems");
-    viewContext.selectedItems = selectedItems.map((item) => item.rowId!).toList();
+    if (viewContext.rendererDefinitionPropertyResolver.properties.containsKey("selectedItems")) {
+      var selectedItems =
+          await viewContext.rendererDefinitionPropertyResolver.items("selectedItems");
+      viewContext.selectedItems = selectedItems.map((item) => item.rowId!).toList();
+    }
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
+
+    if (mounted)
+      setState(() {}); //TODO figure out why future is completed done before getting this point
   }
 
   updateIsInEditMode() async {

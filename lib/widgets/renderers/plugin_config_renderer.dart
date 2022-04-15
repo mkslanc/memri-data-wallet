@@ -13,6 +13,8 @@ import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 import 'package:memri/widgets/space.dart';
 
+import '../../models/plugin_config_json.dart';
+
 /// The plugin config renderer
 /// specific renderer to change plugin config
 /// may be deleted after implemented via cvu
@@ -24,24 +26,11 @@ class PluginConfigRendererView extends Renderer {
   _PluginConfigRendererViewState createState() => _PluginConfigRendererViewState();
 }
 
-class ConfigJson {
-  String name;
-  String display;
-  String type;
-  String dataType;
-  dynamic defaultData;
-
-  ConfigJson(this.name, this.display, this.type, this.dataType, this.defaultData);
-
-  factory ConfigJson.fromJson(Map<String, dynamic> json) => ConfigJson(
-      json["name"], json["display"], json["type"], json["data_type"], json["default"] ?? "");
-}
-
 class _PluginConfigRendererViewState extends RendererViewState {
   late Future _init;
   late EdgeInsets insets;
   late ItemRecord plugin;
-  late List<ConfigJson> configJsonList;
+  late List<PluginConfigJson> configJsonList;
   late Map<String, dynamic> configData;
 
   @override
@@ -57,7 +46,7 @@ class _PluginConfigRendererViewState extends RendererViewState {
     var configString = (await plugin.property("configJson"))!.$value.value;
     var configDataString = (await plugin.property("config"))?.$value.value;
     configJsonList =
-        (jsonDecode(configString) as List).map((json) => ConfigJson.fromJson(json)).toList();
+        (jsonDecode(configString) as List).map((json) => PluginConfigJson.fromJson(json)).toList();
     configData = configDataString != null
         ? jsonDecode(configDataString) as Map<String, dynamic>
         : <String, dynamic>{};
@@ -98,7 +87,7 @@ class _PluginConfigRendererViewState extends RendererViewState {
             Axis.vertical),
       );
 
-  Widget getConfigWidget(ConfigJson configJson) {
+  Widget getConfigWidget(PluginConfigJson configJson) {
     configData[configJson.name] ??= configJson.defaultData;
 
     return ConstrainedBox(
@@ -107,7 +96,14 @@ class _PluginConfigRendererViewState extends RendererViewState {
         Text(configJson.display + ": "),
         Spacer(),
         () {
-          switch (configJson.type) {
+          switch (configJson.dataType.toLowerCase()) {
+            case "bool":
+              var currentValue = configData[configJson.name] ?? false;
+              return Switch(
+                  value: currentValue,
+                  onChanged: (newValue) {
+                    setState(() => setConfigValue(configJson.name, newValue));
+                  });
             //TODO all types
             default:
               return ConstrainedBox(
