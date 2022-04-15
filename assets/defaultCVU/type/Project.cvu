@@ -114,8 +114,8 @@ Project {
                         {
                             rules: [
                                 {
-                                    expression: {{subView("datasetGrid").selectedItems().first() = 1}}
                                     error: "Please select a datasource ."
+                                    expression: {{subView("datasetGrid").selectedItems().count() = 1}}
                                 }
                             ]
                         }
@@ -1278,6 +1278,15 @@ Project > list {
 
                 Button {
                     onPress: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    error: "Please select feature variables."
+                                    expression: {{subView("featureVariables").selectedItems().count() > 0}}
+                                }
+                            ]
+                        }
                         link
                         {
                             removePrevious: true
