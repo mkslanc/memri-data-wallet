@@ -148,6 +148,7 @@ class CVURichText extends StatefulWidget {
 class _CVURichTextState extends State<CVURichText> {
   late TextProperties resolvedTextProperties;
   late Future _init;
+  bool _isInited = false;
   List<TextSpan> textBlocks = [];
 
   @override
@@ -270,7 +271,8 @@ class _CVURichTextState extends State<CVURichText> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          _isInited = _isInited || snapshot.connectionState == ConnectionState.done;
+          if (_isInited) {
             return RichText(
               text: TextSpan(style: resolvedTextProperties.textStyle, children: textBlocks),
               overflow: resolvedTextProperties.lineLimit == 1
