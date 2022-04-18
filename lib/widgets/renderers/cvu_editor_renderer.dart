@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -24,6 +26,8 @@ import 'package:memri/widgets/components/ace_editor/ace_editor.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 import '../../controllers/database_query.dart';
+import '../../core/apis/pod/pod_connection_details.dart';
+import '../../core/apis/pod/pod_requests.dart';
 import '../../core/cvu/cvu_action.dart';
 import '../../models/view_context.dart';
 
@@ -45,6 +49,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   late String mode;
   CVUDefinitionContent? buttons;
   CVUAction? overrideResetAction;
+  bool logMode = false;
+  bool allowLogMode = false;
+  StreamSubscription? logsStream;
 
   List<CVUParsedDefinition> definitions = [];
 
@@ -56,8 +63,18 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     _init = init();
   }
 
+  @override
+  dispose() {
+    super.dispose();
+    logsStream?.cancel();
+    logsStream = null;
+  }
+
   Future<void> init() async {
     mode = await viewContext.viewDefinitionPropertyResolver.string("mode") ?? "inMainPage";
+    if (viewContext.focusedItem?.type == "Plugin") {
+      allowLogMode = true;
+    }
 
     var customDefinition = await viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["customDefinition"]);
@@ -73,8 +90,46 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     } else {
       await initDefinitions();
     }
+    if (!logMode) initCVU();
+  }
 
-    initCVU();
+  getLogs(PodConnectionDetails connection, String id) async {
+    if (id == "") {
+      controller.updateEditorContent("Please, start plugin before trying to access logs");
+    } else {
+      var request = PodStandardRequest.getLogsForPluginRun(id);
+      var networkCall = await request.execute(connection);
+      if (networkCall.statusCode != 200) {
+        controller.updateEditorContent(
+            networkCall.statusCode.toString() + ' ' + networkCall.reasonPhrase!);
+      } else {
+        var logs = Utf8Decoder().convert(networkCall.bodyBytes);
+        var decodedLogs = jsonDecode(logs);
+        controller.updateEditorContent(decodedLogs["logs"]);
+      }
+    }
+  }
+
+  setLogMode() async {
+    var currentConnection = await widget.pageController.appController.podConnectionConfig;
+    var pluginRuns = (await viewContext.focusedItem!.reverseEdgeItems("plugin"));
+    controller.updateEditorContent("Loading...");
+    setState(() {
+      logMode = true;
+
+      if (logsStream == null)
+        logsStream = Stream.periodic(const Duration(seconds: 3)).listen(
+            (_) => getLogs(currentConnection!, pluginRuns.isNotEmpty ? pluginRuns.last.uid : ""));
+    });
+  }
+
+  setCVUMode() {
+    setState(() {
+      logMode = false;
+      logsStream?.cancel();
+      logsStream = null;
+      initCVU();
+    });
   }
 
   didUpdateWidget(oldWidget) {
@@ -310,57 +365,95 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
-        color: Color(0xff242424),
+        color: Color(0xff333333),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  TextButton(
-                    style: TextButton.styleFrom(
-                        backgroundColor: Color(0xFFFE570F),
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
-                    onPressed: controller.requestEditorData,
-                    child: Text(
-                      "Save view",
-                      style: CVUFont.link.copyWith(color: Color(0xffF5F5F5)),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (!logMode)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Color(0xFFFE570F),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                            onPressed: controller.requestEditorData,
+                            child: Text(
+                              "Save view",
+                              style: CVUFont.link.copyWith(color: Color(0xffF5F5F5)),
+                            ),
+                          ),
+                        if (logMode)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Color(0xFF333333),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                            onPressed: setCVUMode,
+                            child: Text(
+                              "Configure UI",
+                              style: CVUFont.link.copyWith(color: Color(0xffE9500F)),
+                            ),
+                          ),
+                        SizedBox(width: 10),
+                        if (!logMode)
+                          TextButton(
+                            onPressed: close,
+                            child: Text(
+                              "Cancel",
+                              style: CVUFont.link.copyWith(color: Color(0xFF989898)),
+                            ),
+                          ),
+                        Spacer(),
+                        if (!logMode)
+                          TextButton(
+                              onPressed: () => resetCVUToDefault(
+                                  context,
+                                  widget.pageController,
+                                  CVUContext(
+                                      currentItem: widget.viewContext.focusedItem,
+                                      items: widget.viewContext.items),
+                                  definitions: definitions,
+                                  action: overrideResetAction),
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                runAlignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 10,
+                                children: [
+                                  SvgPicture.asset("assets/images/rotate_ccw.svg",
+                                      color: Color(0xFFFE570F)),
+                                  Text("Reset to default",
+                                      style: CVUFont.tabList.copyWith(color: Color(0xffE9500F))),
+                                ],
+                              )),
+                      ],
                     ),
                   ),
-                  SizedBox(width: 10),
-                  if (buttons != null) renderButtons(),
-                  TextButton(
-                    onPressed: close,
-                    child: Text(
-                      "Cancel",
-                      style: CVUFont.link.copyWith(color: Color(0xFF989898)),
-                    ),
-                  ),
-                  Spacer(),
-                  TextButton(
-                      onPressed: () => resetCVUToDefault(
-                          context,
-                          widget.pageController,
-                          CVUContext(
-                              currentItem: widget.viewContext.focusedItem,
-                              items: widget.viewContext.items),
-                          definitions: definitions,
-                          action: overrideResetAction),
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        runAlignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 10,
-                        children: [
-                          SvgPicture.asset("assets/images/rotate_ccw.svg",
-                              color: Color(0xFFFE570F)),
-                          Text("Reset to default",
-                              style: CVUFont.tabList.copyWith(color: Color(0xffE9500F))),
-                        ],
-                      )),
-                ],
-              ),
+                ),
+                if (buttons != null || allowLogMode)
+                  Container(
+                      constraints: BoxConstraints(minHeight: 60),
+                      padding: EdgeInsets.all(10),
+                      color: Color(0xff202020),
+                      child: Wrap(spacing: 10, children: [
+                        if (allowLogMode)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Color(0xff202020),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                            onPressed: () async => await setLogMode(),
+                            child: Text(
+                              "Log",
+                              style: CVUFont.link.copyWith(color: Color(0xff7B81FF)),
+                            ),
+                          ),
+                        if (buttons != null) renderButtons(),
+                      ]))
+              ],
             ),
             Expanded(child: AceEditor(controller)),
           ],
