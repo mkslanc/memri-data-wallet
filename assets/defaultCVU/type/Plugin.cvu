@@ -131,7 +131,7 @@ Plugin > list {
                                 buttons: {
                                     Observer {
                                         item: {{.~plugin[].last()}}
-                                        property: "status1"
+                                        property: "status"
 
                                         Button {
                                             background: {{.~plugin ? "#15B599" : "#4F56FE"}}
