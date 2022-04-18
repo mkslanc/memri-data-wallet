@@ -370,8 +370,9 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -410,7 +411,6 @@
                                 viewName: "allData"
                             }
                     ]
-                    padding: 0 0 0 20
 
                     Text {
                         color: #333333
@@ -585,8 +585,9 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
+                spacing: 15
 
                 Button {
                     styleName: primaryButton
@@ -614,8 +615,6 @@
                 }
 
                 Button {
-                    padding: 0 0 0 20
-
                     Text {
                         text: "Cancel"
                         font: button_label
@@ -699,9 +698,10 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -746,7 +746,6 @@
                         }
                         back
                     ]
-                    padding: 0 0 0 20
 
                     Text {
                         color: #333333

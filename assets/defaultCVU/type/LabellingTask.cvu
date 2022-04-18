@@ -154,9 +154,10 @@ LabellingTask {
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 50 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -199,7 +200,6 @@ LabellingTask {
                             pageLabel: "~main"
                         }
                     ]
-                    padding: 0 0 0 15
 
                     Text {
                         color: #333333
