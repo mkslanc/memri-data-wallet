@@ -49,6 +49,23 @@ class _CVUButtonState extends State<CVUButton> {
       return;
     }
     isDisabled = true;
+
+    var isBlocked = widget.nodeResolver.pageController.appController.storage["isBlocked"];
+    if (isBlocked is ValueNotifier && isBlocked.value == true) {
+      executeActionsWhenUnblocked() async {
+        if (isBlocked.value == false) {
+          isBlocked.removeListener(executeActionsWhenUnblocked);
+          await executeActions(actions);
+        }
+      }
+
+      isBlocked.addListener(executeActionsWhenUnblocked);
+    } else {
+      await executeActions(actions);
+    }
+  }
+
+  executeActions(actions) async {
     try {
       for (var action in actions) {
         if (action is CVUActionOpenPopup) {
