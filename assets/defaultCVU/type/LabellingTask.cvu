@@ -129,6 +129,15 @@ LabellingTask {
 
                 Button {
                     onPress: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    error: "Please fill the label name."
+                                    expression: {{.currentLabelOption}}
+                                }
+                            ]
+                        }
                         addItem
                         {
                             openNewView: false

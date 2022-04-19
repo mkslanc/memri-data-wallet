@@ -41,8 +41,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   }
 
   Future<void> init() async {
-    blockedFromStorage =
-        pageController.appController.databaseController.storage[pageController.label]?["isBlocked"];
+    blockedFromStorage = pageController.appController.storage[pageController.label]?["isBlocked"];
     isBlocked = blockedFromStorage?.value ?? false;
     blockedFromStorage?.addListener(updateBlockedState);
     showDefaultSelections =

@@ -72,7 +72,7 @@
                         color: #999999
                         font: small_caps
                         padding: 20 0 0 0
-                        text: "TASK"
+                        text: "ITEMS"
                     }
 
                     Wrap {
@@ -89,7 +89,7 @@
                             color: #333333
                             font: ul
                             padding: 0 10 0 10
-                            text: {{datasourceItems("submitted").count() + " annotations"}}
+                            text: {{datasourceItems("submitted").count()}}
                         }
 
                         VStack {
@@ -118,7 +118,7 @@
                             color: #333333
                             font: ul
                             padding: 0 10 0 10
-                            text: {{datasourceItems("skipped").count() + " annotations"}}
+                            text: {{datasourceItems("skipped").count()}}
                         }
 
                         VStack {
@@ -146,7 +146,7 @@
                             color: #333333
                             font: ul
                             padding: 0 0 0 10
-                            text: {{datasourceItems("datasetEntries").count() + " annotations"}}
+                            text: {{datasourceItems("datasetEntries").count()}}
                         }
                     }
 

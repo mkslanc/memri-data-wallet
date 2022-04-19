@@ -50,6 +50,9 @@ class AppController {
 
   set state(newValue) => _state.value = newValue;
 
+  //TODO: hope this is temporary solution
+  Map<String, dynamic> storage = {};
+
   AppController() {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
@@ -179,7 +182,7 @@ class AppController {
     state = config is SetupConfigNewPod ? AppState.keySaving : AppState.authenticated;
     model.state = PodSetupState.idle;
 
-    await importData(config);
+    await importData(config).then((value) => SceneController.sceneController.scheduleUIUpdate());
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
