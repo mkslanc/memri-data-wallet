@@ -445,7 +445,7 @@ Project > singleItem {
                                     color: #999999
                                     font: small_caps
                                     padding: 20 0 0 0
-                                    text: "TASK"
+                                    text: "ITEMS"
                                 }
 
                                 HStack {
