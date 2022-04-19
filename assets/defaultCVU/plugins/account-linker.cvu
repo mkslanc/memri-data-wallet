@@ -25,10 +25,12 @@
                 font: bodyText2
             }
 
-            HStack {
+            Wrap {
                 show: {{!.~plugin}}
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
+
                 Button {
                     background: #333333
 
@@ -55,8 +57,6 @@
                 }
 
                 Button {
-                    padding: 0 0 0 20
-
                     Text {
                         text: "Cancel"
                         font: button_label

@@ -87,9 +87,10 @@ Dataset > singleItem {
             }
         }
 
-        HStack {
+        Wrap {
             alignment: left
             padding: 30 0 0 0
+            spacing: 15
 
             Button {
                 onPress: [
@@ -132,7 +133,6 @@ Dataset > singleItem {
 
             Button {
                 onPress: back
-                padding: 0 0 0 15
 
                 Text {
                     color: #333333
