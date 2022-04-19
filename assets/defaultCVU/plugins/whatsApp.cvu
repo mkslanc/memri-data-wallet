@@ -208,6 +208,10 @@
                     }
 
                     onPress: [
+                        block {
+                            pageLabel: "inboxChannels"
+                            seconds: 15
+                        }
                         openView {
                             viewName: "pluginRunWait"
                             clearStack: true
@@ -224,10 +228,6 @@
                             viewArguments {
 
                             }
-                        }
-                        block {
-                            pageLabel: "inboxChannels"
-                            seconds: 15
                         }
                         ]
                 }

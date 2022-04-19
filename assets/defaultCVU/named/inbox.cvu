@@ -80,6 +80,13 @@
             targetType: "Message"
         }
     }
+
+    [renderer = list] {
+        backgroundSelected: #F5F5F5
+        edgeInset: 0 17 0 43
+        selectFirst: true
+        spacing: 0
+    }
 }
 
 

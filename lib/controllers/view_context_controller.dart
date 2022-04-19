@@ -44,6 +44,7 @@ class ViewContextController extends ChangeNotifier {
     this.databaseController = databaseController ?? AppController.shared.databaseController;
     this.cvuController = cvuController ?? AppController.shared.cvuController;
     this.lookupController = CVULookupController();
+    config.config.viewArguments ?? CVUViewArguments();
     this.configHolder = config;
 
     if (this.config.viewName != null && this.config.viewName != "customView") {
@@ -273,9 +274,15 @@ class ViewContextController extends ChangeNotifier {
     _selectedItems = selectedItems;
     config.viewArguments?.args["selectedItems"] =
         CVUValueArray(_selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
+    pageController.navigationStack.save();
   }
 
   Binding<Set<int>> get selectedIndicesBinding {
+    _selectedItems = (config.viewArguments?.args["selectedItems"] is CVUValueArray)
+        ? (config.viewArguments?.args["selectedItems"] as CVUValueArray)
+            .value
+            .compactMap((CVUValue e) => (e as CVUValueItem).value)
+        : [];
     return Binding(
         () => Set.of(selectedItems
             .map((rowId) => items.indexWhere((item) => item.rowId == rowId))

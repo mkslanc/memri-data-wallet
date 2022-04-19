@@ -27,6 +27,8 @@ class _ListRendererViewState extends RendererViewState {
   late bool separatorsEnabled;
   late bool isReverse;
   bool isDismissible = false;
+  bool selectFirst = false;
+  late Color? backgroundSelected;
 
   late Future _init;
   bool isInited = false;
@@ -67,6 +69,10 @@ class _ListRendererViewState extends RendererViewState {
     isReverse = (await viewContext.rendererDefinitionPropertyResolver.boolean("isReverse", false))!;
     singleChoice =
         await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
+    backgroundSelected =
+        await viewContext.rendererDefinitionPropertyResolver.color("backgroundSelected");
+    selectFirst =
+        (await viewContext.rendererDefinitionPropertyResolver.boolean("selectFirst", false))!;
   }
 
   @override
@@ -161,16 +167,21 @@ class _ListRendererViewState extends RendererViewState {
   }
 
   Widget _buildItem(ItemRecord item, int index) {
+    var callback = isBlocked ? null : selectionMode(index);
+    if (callback != null && index == 0 && selectedIndices.isEmpty && selectFirst) {
+      callback();
+    }
+    var isSelected = selectedIndices.contains(index);
     var titleWidget = isBlocked ? blockedSkeleton : viewContext.render(item: item);
     var title = ColoredBox(key: Key(item.uid), color: backgroundColor, child: titleWidget);
-    var callback = isBlocked ? null : selectionMode(index);
-    var isSelected = selectedIndices.contains(index);
 
     Widget tile = ListTile(
       key: Key(item.uid),
       dense: true,
       minVerticalPadding: 0,
       visualDensity: VisualDensity(horizontal: -2, vertical: -4),
+      selected: isSelected,
+      selectedTileColor: backgroundSelected,
       contentPadding: EdgeInsets.fromLTRB(
           insets.left,
           index == 0 && startingElement == null ? 0 : spacing.y / 2,

@@ -104,7 +104,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     return null;
   }
 
-  selectionMode(index) {
+  selectionMode(int index) {
     if (isInEditMode) {
       return () {
         setState(() {
@@ -130,6 +130,16 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
           if (presses != null) {
             presses.forEach((press) async =>
                 await press.execute(pageController, viewContext.getCVUContext(item: item)));
+
+            var update = selectedIndices.isNotEmpty;
+            selectedIndices.clear();
+            selectedIndices.add(index);
+
+            selectedIndicesBinding.set(selectedIndices);
+
+            if (update) {
+              setState(() {});
+            }
           }
         }
       };
