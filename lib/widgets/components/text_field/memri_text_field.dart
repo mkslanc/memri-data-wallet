@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/utils/binding.dart';
 
 class MemriTextField<T> extends StatefulWidget {
@@ -62,10 +63,37 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
     }
   }
 
+  bool pending = false;
+  bool usePending = false;
+
+  updateFutureValue() {
+    widget.futureBinding!.set(_value!).then((value) async {
+      if (usePending) {
+        usePending = false;
+        await updateFutureValue();
+      } else {
+        pending = false;
+        (AppController.shared.storage["isBlocked"] as ValueNotifier?)?.value = false;
+      }
+    }).catchError((error) {
+      pending = false;
+      usePending = false;
+      (AppController.shared.storage["isBlocked"] as ValueNotifier?)?.value = false;
+    });
+  }
+
   set value(newValue) {
     _value = newValue;
     if (widget.futureBinding != null) {
-      widget.futureBinding!.set(newValue);
+      if (pending) {
+        usePending = true;
+        return;
+      }
+      pending = true;
+
+      AppController.shared.storage["isBlocked"] ??= ValueNotifier(true);
+      (AppController.shared.storage["isBlocked"] as ValueNotifier).value = true;
+      updateFutureValue();
     } else {
       widget.binding!.set(newValue);
     }
