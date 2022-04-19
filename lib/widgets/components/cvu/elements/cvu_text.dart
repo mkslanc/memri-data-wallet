@@ -150,6 +150,7 @@ class _CVURichTextState extends State<CVURichText> {
   late Future _init;
   bool _isInited = false;
   List<TextSpan> textBlocks = [];
+  bool _isDisabled = false;
 
   @override
   initState() {
@@ -200,6 +201,8 @@ class _CVURichTextState extends State<CVURichText> {
 
   //TODO: separate those methods for buttons and text spans
   onPress(List<CVUAction> actions) async {
+    if (_isDisabled) return;
+    _isDisabled = true;
     try {
       for (var action in actions) {
         if (action is CVUActionOpenPopup) {
@@ -216,9 +219,11 @@ class _CVURichTextState extends State<CVURichText> {
       if (e is String) {
         openErrorPopup(e);
       } else {
+        _isDisabled = false;
         throw e;
       }
     }
+    _isDisabled = false;
   }
 
   openPopup(Map<String, dynamic> settings) {
