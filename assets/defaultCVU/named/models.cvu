@@ -323,14 +323,119 @@
                 color: #333333
                 font: headline1
                 padding: 0 0 10 0
-                text: "Your app has been successfully deployed."
+                text: "Your data app is deployed into the pod!"
             }
 
-            Text {
+            RichText {
                 color: #333333
                 font: bodyText1
-                padding: 0 0 30 0
-                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
+                spans: [
+                    {
+                        text: "You can now "
+                    }
+                    {
+                        color: #E9500F
+                        font: 14 bold
+                        onPress: [
+                            openView
+                            {
+                                clearStack: true
+                                viewName: "apps-and-plugins"
+                            }
+                        ]
+                        text: "open and run your app"
+                    }
+                    {
+                        text: ", "
+                    }
+                    {
+                        color: #E9500F
+                        font: 14 bold
+                        onPress: [
+                            generatePluginCvu
+                            {
+                                features: {{.dataset.feature[]}}
+                                plugin: {{.labellingPlugin}}
+                                query: {{.dataset.datasetType.queryStr}}
+                            }
+                            openView
+                            {
+                                clearStack: true
+                                item: {{.labellingPlugin}}
+                                viewName: {{.labellingPlugin.view.name}}
+                            }
+                            opencvueditor
+                            {
+                                openForce: true
+                                viewArguments: {
+                                    buttons: {
+                                        Observer {
+                                            item: {{.labellingPlugin.~plugin[].last()}}
+                                            property: "status"
+
+                                            Button {
+                                                background: {{.labellingPlugin.~plugin ? "#15B599" : "#4F56FE"}}
+                                                onPress: [
+                                                    pluginRun
+                                                    {
+                                                        container: {{.labellingPlugin.containerImage}}
+                                                        name: {{.labellingPlugin.name}}
+                                                        pluginId: {{.labellingPlugin.id}}
+                                                        pluginModule: {{.labellingPlugin.pluginModule}}
+                                                        pluginName: {{.labellingPlugin.pluginName}}
+                                                    }
+                                                ]
+
+                                                Text {
+                                                    color: #F5F5F5
+                                                    font: link
+                                                    padding: 3 13 3 3
+                                                    text: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle" ? "Running" : .labellingPlugin.~plugin[].last().status = "done" OR .labellingPlugin.~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
+                                                }
+
+                                                LoadingIndicator {
+                                                    show: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle"}}
+                                                    size: 20
+                                                }
+                                            }
+                                        }
+                                    }
+                                    customDefinition: {{projectItem.labellingPlugin.view.definition}}
+                                    projectItem: {{.}}
+                                }
+                            }
+                        ]
+                        text: "configure the UI"
+                    }
+                    {
+                        text: ", or "
+                    }
+                    {
+                        color: #E9500F
+                        font: 14 bold
+                        onPress: [
+                            openView
+                            {
+                                clearStack: true
+                                viewName: "apps-and-plugins"
+                            }
+                            openView
+                            {
+                                clearStack: true
+                                item: {{.labellingPlugin}}
+                                viewArguments: {
+                                    addPageIfMissing: true
+                                    pageLabel: "mainApp"
+                                }
+                                viewName: "pluginConfig"
+                            }
+                        ]
+                        text: "edit the app settings"
+                    }
+                    {
+                        text: "."
+                    }
+                ]
             }
 
             HStack {
@@ -415,7 +520,7 @@
                     Text {
                         color: #333333
                         font: button_label
-                        text: "Back to ML modelling"
+                        text: "Back"
                     }
                 }
             }
