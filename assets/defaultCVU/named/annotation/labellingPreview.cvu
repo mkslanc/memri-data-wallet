@@ -19,9 +19,10 @@
                 text: "Preview your chosen labels and start labelling, or go back to adjust your labelling set up."
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 50 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -55,7 +56,6 @@
                             pageLabel: "~main"
                         }
                     ]
-                    padding: 0 0 0 15
 
                     Text {
                         color: #333333

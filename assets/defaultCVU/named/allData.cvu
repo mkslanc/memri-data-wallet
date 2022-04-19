@@ -109,15 +109,15 @@
 
                     VStack {
                         alignment: leftspacebetween
-                        background: {{.~plugin ? "#F5F5F5" : "#FFFFFF"}}
-                        border: "#F0F0F0"
+                        background: {{.~plugin ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
+                        border: {{.~plugin ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
                         height: 96
                         padding: 10
                         spacing: 5
                         width: 205
 
                         Text {
-                            color: {{.~plugin ? "#333333" : "#999999"}}
+                            color: {{.~plugin ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
                             font: headline3
                             text: {{.name}}
                         }
@@ -143,7 +143,7 @@
                             }
 
                             Text {
-                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
+                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
                                 font: body_tiny
                                 padding: 0 10 0 0
                                 show: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "error" OR .~plugin[].last().progress = 1}}

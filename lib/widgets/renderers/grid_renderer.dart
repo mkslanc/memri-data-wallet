@@ -115,7 +115,7 @@ class GridRendererViewState extends RendererViewState {
                                     viewArguments: CVUViewArguments(args: {
                                       "isSelected": CVUValueConstant(CVUConstantBool(isSelected))
                                     }))),
-                            if (isSelected && showDefaultSelections)
+                            if (isSelected && isInEditMode && showDefaultSelections)
                               Container(
                                 height: 30,
                                 width: 30,

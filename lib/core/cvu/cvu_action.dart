@@ -1499,7 +1499,7 @@ class CVUActionBlock extends CVUAction {
     var seconds = vars["seconds"];
 
     if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
-      await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {
+      Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {
         if (appController.storage.containsKey(pageLabel)) {
           (appController.storage[pageLabel]["isBlocked"] as ValueNotifier).value = false;
         }

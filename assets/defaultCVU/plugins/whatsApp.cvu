@@ -30,9 +30,10 @@
                 text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -72,7 +73,6 @@
                             viewName: "allData"
                         }
                     ]
-                    padding: 0 0 0 20
 
                     Text {
                         color: #333333
@@ -196,9 +196,10 @@
                 reload: true
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
 
                 Button {
                     styleName: primaryButton
@@ -208,6 +209,10 @@
                     }
 
                     onPress: [
+                        block {
+                            pageLabel: "inboxChannels"
+                            seconds: 15
+                        }
                         openView {
                             viewName: "pluginRunWait"
                             clearStack: true
@@ -225,16 +230,10 @@
 
                             }
                         }
-                        block {
-                            pageLabel: "inboxChannels"
-                            seconds: 15
-                        }
                         ]
                 }
 
                 Button {
-                    padding: 0 0 0 20
-
                     Text {
                         text: "Cancel"
                         font: button_label

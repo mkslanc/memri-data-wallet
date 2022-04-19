@@ -104,9 +104,10 @@ Project {
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 30 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -164,7 +165,6 @@ Project {
                             viewName: "allProjects"
                         }
                     ]
-                    padding: 0 0 0 15
 
                     Text {
                         color: #333333
@@ -1273,9 +1273,10 @@ Project > list {
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 30 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -1335,7 +1336,6 @@ Project > list {
                             pageLabel: "~main"
                         }
                     ]
-                    padding: 0 0 0 15
 
                     Text {
                         color: #333333
