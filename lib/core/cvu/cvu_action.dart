@@ -1478,7 +1478,8 @@ class CVUActionBlock extends CVUAction {
   @override
   execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
-    var db = pageController.appController.databaseController;
+    var appController = pageController.appController;
+    var db = appController.databaseController;
     var pageLabelProp = vars["pageLabel"];
     if (pageLabelProp == null) return null;
 
@@ -1487,10 +1488,10 @@ class CVUActionBlock extends CVUAction {
     if (pageLabel == null) {
       return;
     }
-    if (db.storage.containsKey(pageLabel)) {
-      db.storage[pageLabel]["isBlocked"] = ValueNotifier(true);
+    if (appController.storage.containsKey(pageLabel)) {
+      appController.storage[pageLabel]["isBlocked"] = ValueNotifier(true);
     } else {
-      db.storage.addEntries([
+      appController.storage.addEntries([
         MapEntry(pageLabel, {"isBlocked": ValueNotifier(true)})
       ]);
     }
@@ -1499,8 +1500,8 @@ class CVUActionBlock extends CVUAction {
 
     if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
       await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {
-        if (db.storage.containsKey(pageLabel)) {
-          (db.storage[pageLabel]["isBlocked"] as ValueNotifier).value = false;
+        if (appController.storage.containsKey(pageLabel)) {
+          (appController.storage[pageLabel]["isBlocked"] as ValueNotifier).value = false;
         }
       });
     }

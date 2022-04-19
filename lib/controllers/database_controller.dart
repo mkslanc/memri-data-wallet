@@ -98,7 +98,4 @@ class DatabaseController {
     await DemoData.importDemoData(
         databaseController: this, throwIfAgainstSchema: throwIfAgainstSchema);
   }
-
-  //TODO: hope this is temporary solution
-  Map<String, dynamic> storage = {};
 }

@@ -50,6 +50,9 @@ class AppController {
 
   set state(newValue) => _state.value = newValue;
 
+  //TODO: hope this is temporary solution
+  Map<String, dynamic> storage = {};
+
   AppController() {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
