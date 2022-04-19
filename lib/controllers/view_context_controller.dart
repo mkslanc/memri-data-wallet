@@ -274,7 +274,7 @@ class ViewContextController extends ChangeNotifier {
     _selectedItems = selectedItems;
     config.viewArguments?.args["selectedItems"] =
         CVUValueArray(_selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
-    pageController.navigationStack = pageController.navigationStack;
+    pageController.navigationStack.save();
   }
 
   Binding<Set<int>> get selectedIndicesBinding {
