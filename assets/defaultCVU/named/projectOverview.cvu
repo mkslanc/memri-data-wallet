@@ -85,7 +85,7 @@
                         Text {
                             color: #333333
                             font: ul
-                            text: {{datasourceItems("submitted").count() + " annotations"}}
+                            text: {{datasourceItems("submitted").count()}}
                         }
 
                         VStack {
@@ -113,7 +113,7 @@
                         Text {
                             color: #333333
                             font: ul
-                            text: {{datasourceItems("skipped").count() + " annotations"}}
+                            text: {{datasourceItems("skipped").count()}}
                         }
 
                         VStack {
@@ -140,7 +140,7 @@
                         Text {
                             color: #333333
                             font: ul
-                            text: {{datasourceItems("datasetEntries").count() + " annotations"}}
+                            text: {{datasourceItems("datasetEntries").count()}}
                         }
                     }
                 }
