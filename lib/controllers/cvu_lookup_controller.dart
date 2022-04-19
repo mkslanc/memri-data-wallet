@@ -461,8 +461,10 @@ class CVULookupController {
               arg = 1;
             }
             currentValue = LookupStepValues([
-              PropertyDatabaseValueString(
-                  (((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100) as double).format(1))
+              PropertyDatabaseValueString(((arg == 0
+                      ? 0
+                      : ((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100)) as double)
+                  .format(1))
             ]);
 
             break;

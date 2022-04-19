@@ -1582,7 +1582,7 @@ class CVUActionCreateLabellingTask extends CVUAction {
       }
     }
     cvu += '\n}\n}\n}';
-    var cvuID = await CVUController.storeDefinition(cvu, db);
+    var cvuID = await CVUController.storeDefinition(db, cvuString: cvu);
     if (cvuID == null) {
       AppLogger.warn("CreateLabellingTask error: definition haven't saved");
       return;
@@ -1982,9 +1982,9 @@ class CVUActionGeneratePluginCvu extends CVUAction {
     cvu += '\n]\n}\n}\n}\n}\n}\n}\n}\n}\n}';
 
     if (forceUpdate) {
-      await cvuController.updateDefinition(cvu);
+      await cvuController.updateDefinition(content: cvu);
     } else {
-      var cvuID = await CVUController.storeDefinition(cvu, db);
+      var cvuID = await CVUController.storeDefinition(db, cvuString: cvu);
       if (cvuID == null) {
         throw "CVU couldn't be saved";
       }

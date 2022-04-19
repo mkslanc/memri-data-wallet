@@ -410,10 +410,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                         Spacer(),
                         if (!logMode)
                           TextButton(
-                              onPressed: () => resetCVUToDefault(
-                                  context,
-                                  widget.pageController,
-                                  CVUContext(
+                              onPressed: () => resetCVUToDefault(context, widget.pageController,
+                                  cvuContext: CVUContext(
                                       currentItem: widget.viewContext.focusedItem,
                                       items: widget.viewContext.items),
                                   definitions: definitions,
@@ -464,7 +462,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   saveCVU() async {
     if (definitions.isNotEmpty) {
-      await widget.pageController.appController.cvuController.updateDefinition(controller.content);
+      await widget.pageController.appController.cvuController
+          .updateDefinition(content: controller.content);
     }
     widget.pageController.sceneController.scheduleUIUpdate();
   }

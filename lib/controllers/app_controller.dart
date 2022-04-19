@@ -95,6 +95,9 @@ class AppController {
     state = _isNewPodSetup ? AppState.keySaving : AppState.authenticated;
 
     await syncStream();
+    if (!isDevelopersMode) {
+      await cvuController.resetToDefault();
+    }
   }
 
   Future<void> syncStream() async {

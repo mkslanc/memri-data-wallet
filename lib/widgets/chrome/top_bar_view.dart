@@ -11,6 +11,8 @@ import 'package:memri/widgets/chrome/bread_crumbs.dart';
 import 'package:memri/widgets/components/button/action_button.dart';
 import 'package:memri/widgets/filter_panel/simple_filter_panel.dart';
 
+import '../../utils/reset_cvu_to_default.dart';
+
 /// This view provides the 'navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
   final memri.PageController pageController;
@@ -85,6 +87,18 @@ class _TopBarViewState extends State<TopBarView> {
                     )),
                 Spacer(),
                 if (showEditCode && (AppController.shared.isDevelopersMode || editorOpened)) ...[
+                  if (AppController.shared.isDevelopersMode)
+                    TextButton(
+                        onPressed: () => resetCVUToDefault(context, widget.pageController),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          runAlignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          children: [
+                            Text("Reset cvu to default"),
+                          ],
+                        )),
                   ActionButton(
                     action: CVUActionOpenCVUEditor(vars: {
                       "title": CVUValueConstant(
