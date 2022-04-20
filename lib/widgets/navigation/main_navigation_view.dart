@@ -25,7 +25,12 @@ class MainNavigationView extends StatelessWidget {
         Spacer(),
         _buildNavigationItemView('Workspace', 'home'),
         SizedBox(width: 30),
-        _buildNavigationItemView('Data', 'allData'),
+        _buildNavigationItemView('Data', 'allData', alternativeViewName: [
+          'AccountLinkerPlugin',
+          'WhatsappPlugin',
+          'InstagramPlugin',
+          'pluginRunWait'
+        ]),
         SizedBox(width: 30),
         _buildNavigationItemView('Projects', 'allProjects'),
         SizedBox(width: 30),
@@ -39,13 +44,20 @@ class MainNavigationView extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigationItemView(String name, String viewName) {
+  Widget _buildNavigationItemView(String name, String viewName,
+      {List<String>? alternativeViewName}) {
+    bool isCurrentViewSelected = currentViewName == viewName;
+    if (!isCurrentViewSelected) {
+      for (int i = 0; i < (alternativeViewName ?? []).length; i++) {
+        if (currentViewName != null && currentViewName!.contains(alternativeViewName![i])) {
+          isCurrentViewSelected = true;
+          break;
+        }
+      }
+    }
     return NavigationItemView(
-      item: Item(
-        name: name,
-        targetViewName: viewName,
-      ),
-      textColor: currentViewName == viewName ? Color(0xffFE570F) : Colors.black,
+      item: Item(name: name, targetViewName: viewName),
+      textColor: isCurrentViewSelected ? Color(0xffFE570F) : Colors.black,
       sceneController: sceneController,
     );
   }
