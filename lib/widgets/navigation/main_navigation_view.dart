@@ -25,7 +25,7 @@ class MainNavigationView extends StatelessWidget {
         Spacer(),
         _buildNavigationItemView('Workspace', 'home'),
         SizedBox(width: 30),
-        _buildNavigationItemView('Data', 'allData', alternativeViewName: [
+        _buildNavigationItemView('Data', 'allData', alternativeViewNames: [
           'AccountLinkerPlugin',
           'WhatsappPlugin',
           'InstagramPlugin',
@@ -45,11 +45,11 @@ class MainNavigationView extends StatelessWidget {
   }
 
   Widget _buildNavigationItemView(String name, String viewName,
-      {List<String>? alternativeViewName}) {
+      {List<String>? alternativeViewNames}) {
     bool isCurrentViewSelected = currentViewName == viewName;
     if (!isCurrentViewSelected) {
-      for (int i = 0; i < (alternativeViewName ?? []).length; i++) {
-        if (currentViewName != null && currentViewName!.contains(alternativeViewName![i])) {
+      for (int i = 0; i < (alternativeViewNames ?? []).length; i++) {
+        if (currentViewName != null && currentViewName!.contains(alternativeViewNames![i])) {
           isCurrentViewSelected = true;
           break;
         }
