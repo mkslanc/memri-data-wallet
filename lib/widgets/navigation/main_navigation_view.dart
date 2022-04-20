@@ -25,12 +25,8 @@ class MainNavigationView extends StatelessWidget {
         Spacer(),
         _buildNavigationItemView('Workspace', 'home'),
         SizedBox(width: 30),
-        _buildNavigationItemView('Data', 'allData', alternativeViewNames: [
-          'AccountLinkerPlugin',
-          'WhatsappPlugin',
-          'InstagramPlugin',
-          'pluginRunWait'
-        ]),
+        _buildNavigationItemView('Data', 'allData',
+            alternativeViewNames: ['AccountLinkerPlugin', 'WhatsappPlugin', 'pluginRunWait']),
         SizedBox(width: 30),
         _buildNavigationItemView('Projects', 'allProjects'),
         SizedBox(width: 30),
