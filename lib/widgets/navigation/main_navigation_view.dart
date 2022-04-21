@@ -26,11 +26,11 @@ class MainNavigationView extends StatelessWidget {
         _buildNavigationItemView('Workspace', 'home'),
         SizedBox(width: 30),
         _buildNavigationItemView('Data', 'allData',
-            alternativeViewNames: ['AccountLinkerPlugin', 'WhatsappPlugin', 'pluginRunWait']),
+            alternativeViewNames: ['WhatsappPlugin', 'pluginRunWait']),
         SizedBox(width: 30),
-        _buildNavigationItemView('Projects', 'allProjects'),
+        _buildNavigationItemView('Projects', 'allProjects', alternativeViewNames: ['add-project']),
         SizedBox(width: 30),
-        _buildNavigationItemView('Apps', 'apps-and-plugins'),
+        _buildNavigationItemView('Apps', 'apps-and-plugins', alternativeViewNames: ['dataPlugin']),
         Spacer(),
         InkWell(
             onTap: () => sceneController.navigateToNewContext(
