@@ -54,16 +54,16 @@
                     color: #999999
                     font: bodyText1
                     padding: 0 0 20 0
-                    text: "Connect your WhatsApp or Gmail accounts and import your data into your personal POD."
+                    text: "Connect your WhatsApp accounts and import your data into your personal POD."
                 }
 
                 Button {
                     isLink: true
                     onPress: [
-                        openplugin
+                        openView
                         {
                             clearStack: true
-                            pluginName: "WhatsappPlugin"
+                            viewName: "allData"
                         }
                     ]
 
@@ -71,7 +71,7 @@
                         color: #FE570F
                         font: link
                         padding: 0 10 0 0
-                        text: "Connect Whatsapp"
+                        text: "Connect WhatsApp"
                     }
 
                     Image {
