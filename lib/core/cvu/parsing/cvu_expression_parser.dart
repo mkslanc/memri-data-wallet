@@ -70,9 +70,9 @@ class CVUExpressionParser {
     throw CVUExpressionParseErrorsUnexpectedToken(lastToken!);
   }
 
-  CVUExpressionNode parseExpression([bool? inParens]) {
+  CVUExpressionNode parseExpression() {
     var node = parsePrimary();
-    return parseBinaryOp(node: node, inParens: inParens ?? false);
+    return parseBinaryOp(node: node);
   }
 
   CVUExpressionNode parsePrimary([bool skipOperator = false]) {
@@ -151,8 +151,7 @@ class CVUExpressionParser {
     var op = token.value;
     if (op == ExprOperator.Minus) {
       var exp = parseIntExpressionComponent();
-      return CVUExpressionNodeSubtraction(
-          CVUExpressionNodeConstant(CVUConstantNumber(0)), exp, false);
+      return CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0)), exp);
     } else if (op == ExprOperator.Plus) {
       var exp = parseIntExpressionComponent();
       return exp;
@@ -186,7 +185,7 @@ class CVUExpressionParser {
       throw CVUExpressionParseErrorsExpectedCharacter("(");
     }
 
-    var exp = parseExpression(true);
+    var exp = parseExpression();
     token = popCurrentToken();
     if (token is! ExprTokenParensClose) {
       throw CVUExpressionParseErrorsExpectedCharacter(")");
@@ -320,8 +319,7 @@ class CVUExpressionParser {
     return op.precedence;
   }
 
-  CVUExpressionNode parseBinaryOp(
-      {CVUExpressionNode? node, int exprPrecedence = 0, bool inParens = false}) {
+  CVUExpressionNode parseBinaryOp({CVUExpressionNode? node, int exprPrecedence = 0}) {
     var lhs = node!;
     while (true) {
       var tokenPrecedence = getCurrentTokenPrecedence();
@@ -394,7 +392,7 @@ class CVUExpressionParser {
           lhs = CVUExpressionNodeLessThanOrEqual(lhs, rhs);
           break;
         case ExprOperator.ConditionAND:
-          lhs = CVUExpressionNodeAnd(lhs, rhs, inParens);
+          lhs = CVUExpressionNodeAnd(lhs, rhs);
           break;
         default:
           throw CVUExpressionParseErrorsUndefinedOperator(op.rawValue);
