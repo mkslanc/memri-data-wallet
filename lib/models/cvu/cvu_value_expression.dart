@@ -10,7 +10,9 @@ import 'package:memri/models/cvu/cvu_value_lookup_node.dart';
 part 'cvu_value_expression.g.dart';
 
 /// A CVU Expression node. Nodes are nestable and the chain ends in either a CVU constant or a lookup node.
-abstract class CVUExpressionNode extends Equatable {
+abstract class CVUExpressionNode with EquatableMixin {
+  bool inParens = false;
+
   String get description {
     return "$this";
   }
@@ -41,17 +43,17 @@ abstract class CVUExpressionNode extends Equatable {
     } else if (expressionNode is CVUExpressionNodeConditional) {
       return '${expressionNode.condition.toCVUString()} ? ${expressionNode.trueExp.toCVUString()} : ${expressionNode.falseExp.toCVUString()}';
     } else if (expressionNode is CVUExpressionNodeOr) {
-      return '${expressionNode.lhs.toCVUString()} OR ${expressionNode.rhs.toCVUString()}';
+      return '${expressionNode.inParens ? '(' : ''}${expressionNode.lhs.toCVUString()} OR ${expressionNode.rhs.toCVUString()}${expressionNode.inParens ? ')' : ''}';
     } else if (expressionNode is CVUExpressionNodeNegation) {
       return '!${expressionNode.expression.toCVUString()}';
     } else if (expressionNode is CVUExpressionNodeAddition) {
-      return '${expressionNode.lhs.toCVUString()} + ${expressionNode.rhs.toCVUString()}';
+      return '${expressionNode.inParens ? '(' : ''}${expressionNode.lhs.toCVUString()} + ${expressionNode.rhs.toCVUString()}${expressionNode.inParens ? ')' : ''}';
     } else if (expressionNode is CVUExpressionNodeSubtraction) {
-      return '${expressionNode.lhs.toCVUString()} - ${expressionNode.rhs.toCVUString()}';
+      return '${expressionNode.inParens ? '(' : ''}${expressionNode.lhs.toCVUString()} - ${expressionNode.rhs.toCVUString()}${expressionNode.inParens ? ')' : ''}';
     } else if (expressionNode is CVUExpressionNodeMultiplication) {
-      return '${expressionNode.lhs.toCVUString()} * ${expressionNode.rhs.toCVUString()}';
+      return '${expressionNode.inParens ? '(' : ''}${expressionNode.lhs.toCVUString()} * ${expressionNode.rhs.toCVUString()}${expressionNode.inParens ? ')' : ''}';
     } else if (expressionNode is CVUExpressionNodeDivision) {
-      return '${expressionNode.lhs.toCVUString()} / ${expressionNode.rhs.toCVUString()}';
+      return '${expressionNode.inParens ? '(' : ''}${expressionNode.lhs.toCVUString()} / ${expressionNode.rhs.toCVUString()}${expressionNode.inParens ? ')' : ''}';
     } else if (expressionNode is CVUExpressionNodeConstant) {
       return expressionNode.value.toCVUString();
     } else if (expressionNode is CVUExpressionNodeLessThan) {
@@ -67,7 +69,7 @@ abstract class CVUExpressionNode extends Equatable {
     } else if (expressionNode is CVUExpressionNodeAreNotEqual) {
       return '${expressionNode.lhs.toCVUString()} != ${expressionNode.rhs.toCVUString()}';
     } else if (expressionNode is CVUExpressionNodeAnd) {
-      return '${expressionNode.lhs.toCVUString()} AND ${expressionNode.rhs.toCVUString()}';
+      return '${expressionNode.inParens ? '(' : ''}${expressionNode.lhs.toCVUString()} AND ${expressionNode.rhs.toCVUString()}${expressionNode.inParens ? ')' : ''}';
     } else if (expressionNode is CVUExpressionNodeNamed) {
       return '${expressionNode.key}: ${expressionNode.value.toCVUString()}';
     } else {
@@ -179,7 +181,9 @@ class CVUExpressionNodeOr extends CVUExpressionNode {
   final CVUExpressionNode lhs;
   final CVUExpressionNode rhs;
 
-  CVUExpressionNodeOr(this.lhs, this.rhs);
+  CVUExpressionNodeOr(this.lhs, this.rhs, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeOr.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeOrFromJson(json);
@@ -188,14 +192,16 @@ class CVUExpressionNodeOr extends CVUExpressionNode {
       _$CVUExpressionNodeOrToJson(this)..addAll({"type": "CVUExpressionNodeOr"});
 
   @override
-  List<Object?> get props => [lhs, rhs];
+  List<Object?> get props => [lhs, rhs, inParens];
 }
 
 @JsonSerializable()
 class CVUExpressionNodeNegation extends CVUExpressionNode {
   final CVUExpressionNode expression;
 
-  CVUExpressionNodeNegation(this.expression);
+  CVUExpressionNodeNegation(this.expression, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeNegation.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeNegationFromJson(json);
@@ -212,7 +218,9 @@ class CVUExpressionNodeAddition extends CVUExpressionNode {
   final CVUExpressionNode lhs;
   final CVUExpressionNode rhs;
 
-  CVUExpressionNodeAddition(this.lhs, this.rhs);
+  CVUExpressionNodeAddition(this.lhs, this.rhs, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeAddition.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeAdditionFromJson(json);
@@ -221,7 +229,7 @@ class CVUExpressionNodeAddition extends CVUExpressionNode {
       _$CVUExpressionNodeAdditionToJson(this)..addAll({"type": "CVUExpressionNodeAddition"});
 
   @override
-  List<Object?> get props => [lhs, rhs];
+  List<Object?> get props => [lhs, rhs, inParens];
 }
 
 @JsonSerializable()
@@ -229,7 +237,9 @@ class CVUExpressionNodeSubtraction extends CVUExpressionNode {
   final CVUExpressionNode lhs;
   final CVUExpressionNode rhs;
 
-  CVUExpressionNodeSubtraction(this.lhs, this.rhs);
+  CVUExpressionNodeSubtraction(this.lhs, this.rhs, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeSubtraction.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeSubtractionFromJson(json);
@@ -238,7 +248,7 @@ class CVUExpressionNodeSubtraction extends CVUExpressionNode {
       _$CVUExpressionNodeSubtractionToJson(this)..addAll({"type": "CVUExpressionNodeSubtraction"});
 
   @override
-  List<Object?> get props => [lhs, rhs];
+  List<Object?> get props => [lhs, rhs, inParens];
 }
 
 @JsonSerializable()
@@ -246,7 +256,9 @@ class CVUExpressionNodeMultiplication extends CVUExpressionNode {
   final CVUExpressionNode lhs;
   final CVUExpressionNode rhs;
 
-  CVUExpressionNodeMultiplication(this.lhs, this.rhs);
+  CVUExpressionNodeMultiplication(this.lhs, this.rhs, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeMultiplication.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeMultiplicationFromJson(json);
@@ -255,7 +267,7 @@ class CVUExpressionNodeMultiplication extends CVUExpressionNode {
     ..addAll({"type": "CVUExpressionNodeMultiplication"});
 
   @override
-  List<Object?> get props => [lhs, rhs];
+  List<Object?> get props => [lhs, rhs, inParens];
 }
 
 @JsonSerializable()
@@ -263,7 +275,9 @@ class CVUExpressionNodeDivision extends CVUExpressionNode {
   final CVUExpressionNode lhs;
   final CVUExpressionNode rhs;
 
-  CVUExpressionNodeDivision(this.lhs, this.rhs);
+  CVUExpressionNodeDivision(this.lhs, this.rhs, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeDivision.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeDivisionFromJson(json);
@@ -272,7 +286,7 @@ class CVUExpressionNodeDivision extends CVUExpressionNode {
       _$CVUExpressionNodeDivisionToJson(this)..addAll({"type": "CVUExpressionNodeDivision"});
 
   @override
-  List<Object?> get props => [lhs, rhs];
+  List<Object?> get props => [lhs, rhs, inParens];
 }
 
 @JsonSerializable()
@@ -398,7 +412,9 @@ class CVUExpressionNodeAnd extends CVUExpressionNode {
   final CVUExpressionNode lhs;
   final CVUExpressionNode rhs;
 
-  CVUExpressionNodeAnd(this.lhs, this.rhs);
+  CVUExpressionNodeAnd(this.lhs, this.rhs, [bool inParens = false]) {
+    this.inParens = inParens;
+  }
 
   factory CVUExpressionNodeAnd.fromJson(Map<String, dynamic> json) =>
       _$CVUExpressionNodeAndFromJson(json);
@@ -407,7 +423,7 @@ class CVUExpressionNodeAnd extends CVUExpressionNode {
       _$CVUExpressionNodeAndToJson(this)..addAll({"type": "CVUExpressionNodeAnd"});
 
   @override
-  List<Object?> get props => [lhs, rhs];
+  List<Object?> get props => [lhs, rhs, inParens];
 }
 
 @JsonSerializable()

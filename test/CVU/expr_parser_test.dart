@@ -26,7 +26,8 @@ void main() {
                         CVUExpressionNodeConstant(CVUConstantNumber(10)),
                         CVUExpressionNodeConstant(CVUConstantNumber(4)))),
                 CVUExpressionNodeDivision(CVUExpressionNodeConstant(CVUConstantNumber(3)),
-                    CVUExpressionNodeConstant(CVUConstantNumber(10)))),
+                    CVUExpressionNodeConstant(CVUConstantNumber(10))),
+                true),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
@@ -191,7 +192,7 @@ void main() {
                 CVUExpressionNodeSubtraction(
                     CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                     CVUExpressionNodeAddition(CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
-                        CVUExpressionNodeConstant(CVUConstantNumber(10.0))))),
+                        CVUExpressionNodeConstant(CVUConstantNumber(10.0)), true))),
             CVUExpressionNodeConstant(CVUConstantString("5")))));
   });
 
@@ -394,7 +395,8 @@ void main() {
                     CVUExpressionNodeLookup(
                         [CVULookupNode(name: "test", isArray: false, type: CVULookupTypeLookup())]),
                     CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
-                        CVUExpressionNodeConstant(CVUConstantNumber(5.63537))))),
+                        CVUExpressionNodeConstant(CVUConstantNumber(5.63537))),
+                    true)),
                 CVUExpressionNodeDivision(CVUExpressionNodeConstant(CVUConstantNumber(4.0)),
                     CVUExpressionNodeConstant(CVUConstantNumber(3.0)))),
             CVUExpressionNodeLookup([
@@ -422,14 +424,16 @@ void main() {
                         CVUExpressionNodeConstant(CVUConstantNumber(4.0)),
                         CVUExpressionNodeMultiplication(
                             CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
-                            CVUExpressionNodeConstant(CVUConstantNumber(10.0)))),
+                            CVUExpressionNodeConstant(CVUConstantNumber(10.0))),
+                        true),
                     CVUExpressionNodeLookup([
                       CVULookupNode(
                           name: "test",
                           isArray: true,
                           type: CVULookupTypeLookup(
                               [CVUExpressionNodeConstant(CVUConstantNumber(10.0))]))
-                    ])),
+                    ]),
+                    true),
                 CVUExpressionNodeAddition(
                     CVUExpressionNodeConstant(CVUConstantString("asdads\'asdad")),
                     CVUExpressionNodeConstant(CVUConstantString("")))))));

@@ -201,6 +201,13 @@ void main() {
     expect(parseToCVUString(snippet), snippet);
   });
 
+  test('testExpressionWithParensProperty', () {
+    var snippet = """Person {
+    title: {{.firstName AND (.lastName = 'Smith' OR .lastName = 'Smith')}}
+}""";
+    expect(parseToCVUString(snippet), snippet);
+  });
+
   test('testStringProperty', () {
     var snippet = """Person { title: "hello" }""";
     expect(parseToCVUString(snippet), """Person {

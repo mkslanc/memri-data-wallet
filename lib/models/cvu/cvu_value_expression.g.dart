@@ -11,20 +11,22 @@ CVUExpressionNodeLookup _$CVUExpressionNodeLookupFromJson(Map<String, dynamic> j
       (json['nodes'] as List<dynamic>)
           .map((e) => CVULookupNode.fromJson(e as Map<String, dynamic>))
           .toList(),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeLookupToJson(CVUExpressionNodeLookup instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'nodes': instance.nodes,
     };
 
 CVUExpressionNodeStringMode _$CVUExpressionNodeStringModeFromJson(Map<String, dynamic> json) =>
     CVUExpressionNodeStringMode(
       (json['nodes'] as List<dynamic>).map((e) => CVUExpressionNode.fromJson(e)).toList(),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeStringModeToJson(CVUExpressionNodeStringMode instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'nodes': instance.nodes,
     };
 
@@ -33,10 +35,11 @@ CVUExpressionNodeConditional _$CVUExpressionNodeConditionalFromJson(Map<String, 
       CVUExpressionNode.fromJson(json['condition']),
       CVUExpressionNode.fromJson(json['trueExp']),
       CVUExpressionNode.fromJson(json['falseExp']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeConditionalToJson(CVUExpressionNodeConditional instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'condition': instance.condition,
       'trueExp': instance.trueExp,
       'falseExp': instance.falseExp,
@@ -45,9 +48,11 @@ Map<String, dynamic> _$CVUExpressionNodeConditionalToJson(CVUExpressionNodeCondi
 CVUExpressionNodeOr _$CVUExpressionNodeOrFromJson(Map<String, dynamic> json) => CVUExpressionNodeOr(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeOrToJson(CVUExpressionNodeOr instance) => <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -55,10 +60,12 @@ Map<String, dynamic> _$CVUExpressionNodeOrToJson(CVUExpressionNodeOr instance) =
 CVUExpressionNodeNegation _$CVUExpressionNodeNegationFromJson(Map<String, dynamic> json) =>
     CVUExpressionNodeNegation(
       CVUExpressionNode.fromJson(json['expression']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeNegationToJson(CVUExpressionNodeNegation instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'expression': instance.expression,
     };
 
@@ -66,10 +73,12 @@ CVUExpressionNodeAddition _$CVUExpressionNodeAdditionFromJson(Map<String, dynami
     CVUExpressionNodeAddition(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeAdditionToJson(CVUExpressionNodeAddition instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -78,10 +87,12 @@ CVUExpressionNodeSubtraction _$CVUExpressionNodeSubtractionFromJson(Map<String, 
     CVUExpressionNodeSubtraction(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeSubtractionToJson(CVUExpressionNodeSubtraction instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -91,11 +102,13 @@ CVUExpressionNodeMultiplication _$CVUExpressionNodeMultiplicationFromJson(
     CVUExpressionNodeMultiplication(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeMultiplicationToJson(
         CVUExpressionNodeMultiplication instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -104,10 +117,12 @@ CVUExpressionNodeDivision _$CVUExpressionNodeDivisionFromJson(Map<String, dynami
     CVUExpressionNodeDivision(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeDivisionToJson(CVUExpressionNodeDivision instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -115,10 +130,11 @@ Map<String, dynamic> _$CVUExpressionNodeDivisionToJson(CVUExpressionNodeDivision
 CVUExpressionNodeConstant _$CVUExpressionNodeConstantFromJson(Map<String, dynamic> json) =>
     CVUExpressionNodeConstant(
       CVUConstant.fromJson(json['value']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeConstantToJson(CVUExpressionNodeConstant instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'value': instance.value,
     };
 
@@ -126,10 +142,11 @@ CVUExpressionNodeLessThan _$CVUExpressionNodeLessThanFromJson(Map<String, dynami
     CVUExpressionNodeLessThan(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeLessThanToJson(CVUExpressionNodeLessThan instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -138,10 +155,11 @@ CVUExpressionNodeGreaterThan _$CVUExpressionNodeGreaterThanFromJson(Map<String, 
     CVUExpressionNodeGreaterThan(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeGreaterThanToJson(CVUExpressionNodeGreaterThan instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -151,11 +169,12 @@ CVUExpressionNodeLessThanOrEqual _$CVUExpressionNodeLessThanOrEqualFromJson(
     CVUExpressionNodeLessThanOrEqual(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeLessThanOrEqualToJson(
         CVUExpressionNodeLessThanOrEqual instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -165,11 +184,12 @@ CVUExpressionNodeGreaterThanOrEqual _$CVUExpressionNodeGreaterThanOrEqualFromJso
     CVUExpressionNodeGreaterThanOrEqual(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeGreaterThanOrEqualToJson(
         CVUExpressionNodeGreaterThanOrEqual instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -178,10 +198,11 @@ CVUExpressionNodeAreEqual _$CVUExpressionNodeAreEqualFromJson(Map<String, dynami
     CVUExpressionNodeAreEqual(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeAreEqualToJson(CVUExpressionNodeAreEqual instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -190,10 +211,11 @@ CVUExpressionNodeAreNotEqual _$CVUExpressionNodeAreNotEqualFromJson(Map<String, 
     CVUExpressionNodeAreNotEqual(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeAreNotEqualToJson(CVUExpressionNodeAreNotEqual instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -202,10 +224,12 @@ CVUExpressionNodeAnd _$CVUExpressionNodeAndFromJson(Map<String, dynamic> json) =
     CVUExpressionNodeAnd(
       CVUExpressionNode.fromJson(json['lhs']),
       CVUExpressionNode.fromJson(json['rhs']),
+      json['inParens'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CVUExpressionNodeAndToJson(CVUExpressionNodeAnd instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'lhs': instance.lhs,
       'rhs': instance.rhs,
     };
@@ -214,10 +238,11 @@ CVUExpressionNodeNamed _$CVUExpressionNodeNamedFromJson(Map<String, dynamic> jso
     CVUExpressionNodeNamed(
       json['key'] as String,
       CVUExpressionNode.fromJson(json['value']),
-    );
+    )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeNamedToJson(CVUExpressionNodeNamed instance) =>
     <String, dynamic>{
+      'inParens': instance.inParens,
       'key': instance.key,
       'value': instance.value,
     };

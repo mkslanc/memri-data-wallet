@@ -105,19 +105,21 @@
                                 query: ItemPropertySchema
                             }
                         }
+                        lastPluginRun: {{.~plugin[].last()}}
+                        pluginRunStatus: {{.~plugin[].last().status}}
                     }
 
                     VStack {
                         alignment: leftspacebetween
-                        background: {{.~plugin ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
-                        border: {{.~plugin ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
+                        background: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
+                        border: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
                         height: 96
                         padding: 10
                         spacing: 5
                         width: 205
 
                         Text {
-                            color: {{.~plugin ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
+                            color: {{lastPluginRun ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
                             font: headline3
                             text: {{.name}}
                         }
@@ -126,35 +128,35 @@
                             color: #989898
                             font: body_tiny
                             padding: 0 5
-                            show: {{.~plugin}}
+                            show: {{lastPluginRun}}
                             text: {{datasourceItems("featureVariables").count() + " feature variables"}}
                         }
 
                         Observer {
-                            item: {{.~plugin[].last()}}
+                            item: {{lastPluginRun}}
                             property: "progress"
 
                             Text {
                                 color: #FE570F
                                 font: "body_tiny_bold"
                                 padding: 0 10 0 0
-                                show: {{!.~plugin}}
+                                show: {{!lastPluginRun}}
                                 text: "Connect"
                             }
 
                             Text {
-                                color: {{.~plugin[].last().status = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
+                                color: {{pluginRunStatus = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
                                 font: body_tiny
                                 padding: 0 10 0 0
-                                show: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "error" OR .~plugin[].last().progress = 1}}
-                                text: "{.~plugin[].last().status = 'error' ? 'Error' : 'Running'}"
+                                show: {{pluginRunStatus = "done" OR pluginRunStatus = "error" OR lastPluginRun.progress > 0.96}}
+                                text: "{pluginRunStatus = 'error' ? 'Error' : 'Running'}"
                             }
 
                             Text {
                                 color: #4F56FE
                                 font: body_tiny
-                                show: {{.~plugin[].last().status = "daemon" OR .~plugin[].last().status = "cvuPresented"}}
-                                text: "Downloading data {.~plugin[].last().progress.percent()} %"
+                                show: {{pluginRunStatus = "daemon" AND lastPluginRun.progress < 0.96}}
+                                text: "Downloading data {lastPluginRun.progress.percent()} %"
                             }
                         }
                     }
