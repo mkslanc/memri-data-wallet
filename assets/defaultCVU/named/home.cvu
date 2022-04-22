@@ -60,10 +60,10 @@
                 Button {
                     isLink: true
                     onPress: [
-                        openplugin
+                        openView
                         {
                             clearStack: true
-                            pluginName: "WhatsappPlugin"
+                            viewName: "allData"
                         }
                     ]
 
