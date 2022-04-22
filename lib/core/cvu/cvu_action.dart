@@ -1816,7 +1816,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       propertiesFilter += "}}";
     }
 
-    var cvu = '''.plugin$pluginUID { 
+    var cvu = '''.dataPlugin$pluginUID { 
         defaultRenderer: singleItem
         cols: 6
         [renderer = singleItem] {

@@ -63,10 +63,11 @@
 
             HStack {
                 alignment: topleft
+                cols: 12
 
                 VStack {
                     alignment: topleft
-                    width: 220
+                    cols: 6
 
                     Text {
                         color: #999999
@@ -191,8 +192,8 @@
 
                 VStack {
                     alignment: topleft
+                    cols: 6
                     padding: 0 0 0 20
-                    width: 400
 
                     Text {
                         color: #999999
@@ -244,31 +245,34 @@
                                     }
                                 }
 
-                                HStack {
+                                VStack {
                                     alignment: left
 
-                                    Text {
-                                        color: #333333
-                                        font: ul
-                                        padding: 0 0 0 0
-                                        text: "{.name}"
-                                    }
-
-                                    Text {
-                                        color: #333333
-                                        font: ul
-                                        padding: 0 0 0 0
-                                        text: {{datasourceItems("categoricalLabels").count()}}
-                                    }
-
-                                    VStack {
-                                        alignment: top
-                                        height: 22
+                                    Wrap {
+                                        alignment: left
 
                                         Text {
                                             color: #333333
-                                            font: small_caps
-                                            text: {{datasourceItems("categoricalLabels").count().percent(submitted.count()) + "%"}}
+                                            font: ul
+                                            text: "{.name}"
+                                        }
+
+                                        Text {
+                                            color: #333333
+                                            font: ul
+                                            padding: 0 0 0 10
+                                            text: {{datasourceItems("categoricalLabels").count()}}
+                                        }
+
+                                        VStack {
+                                            alignment: top
+                                            height: 22
+
+                                            Text {
+                                                color: #333333
+                                                font: small_caps
+                                                text: {{datasourceItems("categoricalLabels").count().percent(submitted.count()) + "%"}}
+                                            }
                                         }
                                     }
                                 }

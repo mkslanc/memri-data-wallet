@@ -25,11 +25,12 @@ class MainNavigationView extends StatelessWidget {
         Spacer(),
         _buildNavigationItemView('Workspace', 'home'),
         SizedBox(width: 30),
-        _buildNavigationItemView('Data', 'allData'),
+        _buildNavigationItemView('Data', 'allData',
+            alternativeViewNames: ['WhatsappPlugin', 'pluginRunWait']),
         SizedBox(width: 30),
-        _buildNavigationItemView('Projects', 'allProjects'),
+        _buildNavigationItemView('Projects', 'allProjects', alternativeViewNames: ['add-project']),
         SizedBox(width: 30),
-        _buildNavigationItemView('Apps', 'apps-and-plugins'),
+        _buildNavigationItemView('Apps', 'apps-and-plugins', alternativeViewNames: ['dataPlugin']),
         Spacer(),
         InkWell(
             onTap: () => sceneController.navigateToNewContext(
@@ -39,13 +40,20 @@ class MainNavigationView extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigationItemView(String name, String viewName) {
+  Widget _buildNavigationItemView(String name, String viewName,
+      {List<String>? alternativeViewNames}) {
+    bool isCurrentViewSelected = currentViewName == viewName;
+    if (!isCurrentViewSelected) {
+      for (int i = 0; i < (alternativeViewNames ?? []).length; i++) {
+        if (currentViewName != null && currentViewName!.contains(alternativeViewNames![i])) {
+          isCurrentViewSelected = true;
+          break;
+        }
+      }
+    }
     return NavigationItemView(
-      item: Item(
-        name: name,
-        targetViewName: viewName,
-      ),
-      textColor: currentViewName == viewName ? Color(0xffFE570F) : Colors.black,
+      item: Item(name: name, targetViewName: viewName),
+      textColor: isCurrentViewSelected ? Color(0xffFE570F) : Colors.black,
       sceneController: sceneController,
     );
   }
