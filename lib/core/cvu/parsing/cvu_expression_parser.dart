@@ -70,9 +70,9 @@ class CVUExpressionParser {
     throw CVUExpressionParseErrorsUnexpectedToken(lastToken!);
   }
 
-  CVUExpressionNode parseExpression() {
+  CVUExpressionNode parseExpression([bool? inParens]) {
     var node = parsePrimary();
-    return parseBinaryOp(node: node);
+    return parseBinaryOp(node: node, inParens: inParens ?? false);
   }
 
   CVUExpressionNode parsePrimary([bool skipOperator = false]) {
@@ -151,7 +151,8 @@ class CVUExpressionParser {
     var op = token.value;
     if (op == ExprOperator.Minus) {
       var exp = parseIntExpressionComponent();
-      return CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0)), exp);
+      return CVUExpressionNodeSubtraction(
+          CVUExpressionNodeConstant(CVUConstantNumber(0)), exp, false);
     } else if (op == ExprOperator.Plus) {
       var exp = parseIntExpressionComponent();
       return exp;
@@ -185,12 +186,12 @@ class CVUExpressionParser {
       throw CVUExpressionParseErrorsExpectedCharacter("(");
     }
 
-    var exp = parseExpression();
+    var exp = parseExpression(true);
     token = popCurrentToken();
     if (token is! ExprTokenParensClose) {
       throw CVUExpressionParseErrorsExpectedCharacter(")");
     }
-
+    exp.inParens = true;
     return exp;
   }
 
@@ -319,7 +320,8 @@ class CVUExpressionParser {
     return op.precedence;
   }
 
-  CVUExpressionNode parseBinaryOp({CVUExpressionNode? node, int exprPrecedence = 0}) {
+  CVUExpressionNode parseBinaryOp(
+      {CVUExpressionNode? node, int exprPrecedence = 0, bool inParens = false}) {
     var lhs = node!;
     while (true) {
       var tokenPrecedence = getCurrentTokenPrecedence();
@@ -392,7 +394,7 @@ class CVUExpressionParser {
           lhs = CVUExpressionNodeLessThanOrEqual(lhs, rhs);
           break;
         case ExprOperator.ConditionAND:
-          lhs = CVUExpressionNodeAnd(lhs, rhs);
+          lhs = CVUExpressionNodeAnd(lhs, rhs, inParens);
           break;
         default:
           throw CVUExpressionParseErrorsUndefinedOperator(op.rawValue);
