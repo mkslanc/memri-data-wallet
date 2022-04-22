@@ -32,6 +32,8 @@ DatasetType > grid {
                 query: ItemPropertySchema
             }
         }
+        lastPluginRun: {{.datasetPlugin.~plugin[].last()}}
+        pluginRunStatus: {{.datasetPlugin.~plugin[].last().status}}
     }
 
     VStack {
@@ -40,7 +42,6 @@ DatasetType > grid {
         border: "#F0F0F0"
         height: 96
         padding: 10
-
         spacing: 5
         width: 205
 
@@ -58,22 +59,30 @@ DatasetType > grid {
         }
 
         Observer {
-            item: {{.datasetPlugin.~plugin[].last()}}
+            item: {{lastPluginRun}}
             property: "progress"
 
             Text {
-                color: {{.datasetPlugin.~plugin[].last().status = "error" ? "#FE570F" : "#15B599"}}
+                color: #FE570F
+                font: "body_tiny_bold"
+                padding: 0 10 0 0
+                show: {{!lastPluginRun}}
+                text: "Connect"
+            }
+
+            Text {
+                color: {{pluginRunStatus = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
                 font: body_tiny
                 padding: 0 10 0 0
-                show: {{.datasetPlugin.~plugin[].last().status = "done" OR .datasetPlugin.~plugin[].last().status = "error" OR .datasetPlugin.~plugin[].last().progress = 1}}
-                text: "{.datasetPlugin.~plugin[].last().status = 'error' ? 'Error' : 'Running'}"
+                show: {{pluginRunStatus = "done" OR pluginRunStatus = "error" OR lastPluginRun.progress > 0.96}}
+                text: "{pluginRunStatus = 'error' ? 'Error' : 'Running'}"
             }
 
             Text {
                 color: #4F56FE
                 font: body_tiny
-                show: {{.datasetPlugin.~plugin[].last().status = "daemon" OR .datasetPlugin.~plugin[].last().status = "cvuPresented"}}
-                text: "Downloading data {.datasetPlugin.~plugin[].last().progress.percent()} %"
+                show: {{pluginRunStatus = "daemon" AND lastPluginRun.progress < 0.96}}
+                text: "Downloading data {lastPluginRun.progress.percent()} %"
             }
         }
     }
