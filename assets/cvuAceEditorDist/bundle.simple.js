@@ -28032,8 +28032,8 @@ var CvuHighlightRules = function () {
         "topBarColor|additional|edgeSource|emptyResult|pages|datasource|renderer|src|seconds|container|pluginModule|pluginName|pluginId|" +
         "count|actions|items|secure|plugin|targetItemId|showDefaultSelections|layout|speed|size|spans|forceUpdate|features|addPageIfMissing|trailingElement|" +
         "datasources|isCollapsed|error|expression|initialItem|groupBy|selectedItems|removePrevious|dataset|edgeName|onChange|inPreviewMode|" +
-        "project|url|buttons|overrideResetAction|customDefinition|startingElement|clearPageControllers";
-    ")(?=\\b\\s*:)";
+        "project|url|buttons|overrideResetAction|customDefinition|startingElement|clearPageControllers" +
+        ")(?=\\b\\s*:)";
     var parensMap = {
         "}": "{",
         "]": "["
