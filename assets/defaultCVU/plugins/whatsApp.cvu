@@ -317,7 +317,7 @@
                     Text {
                         color: #4F56FE
                         font: headline1
-                        text: "{.~account.progress.percent()}%"
+                        text: "{.~account.progress.percent() OR '0'}%"
                     }
                 }
             }
