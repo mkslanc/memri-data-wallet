@@ -53,11 +53,6 @@ class NavigationStack extends Equatable {
     await db.navigationStateDelete(this);
   }
 
-  deleteAll([Database? db]) async {
-    db ??= AppController.shared.databaseController.databasePool;
-    await db.navigationStateClear();
-  }
-
   NavigationStateCompanion toCompanion() {
     return NavigationStateCompanion(
       sessionID: Value(sessionID),
