@@ -453,6 +453,10 @@ class Database extends _$Database {
   Future<int> navigationStateDelete(NavigationStack record) async {
     return await (delete(navigationState)..where((t) => t.sessionID.equals(record.sessionID))).go();
   }
+
+  Future navigationStateClear() async {
+    return await delete(navigationState).go();
+  }
 }
 
 class ItemPropertyRecordTableData {
