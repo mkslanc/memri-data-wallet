@@ -26,7 +26,7 @@ unit_test:
 build_web:
   stage: build
   script:
-    - flutter build web --release
+    - flutter build web --profile
   artifacts:
     paths:
       - build/web
