@@ -27,7 +27,7 @@ class _TopBarViewState extends State<TopBarView> {
   ViewContextController? viewContext;
   late Future<void> _init;
 
-  Color? backgroundColor = Color(0xffF4F4F4);
+  Color? backgroundColor = Color(0xffF6F6F6);
   bool showEditCode = false;
 
   @override
@@ -57,7 +57,7 @@ class _TopBarViewState extends State<TopBarView> {
     viewContext = widget.pageController.topMostContext;
 
     backgroundColor =
-        await viewContext?.viewDefinitionPropertyResolver.color("topBarColor") ?? Color(0xffF4F4F4);
+        await viewContext?.viewDefinitionPropertyResolver.color("topBarColor") ?? Color(0xffF6F6F6);
     showEditCode =
         await viewContext?.viewDefinitionPropertyResolver.boolean("showEditCode") ?? true;
   }

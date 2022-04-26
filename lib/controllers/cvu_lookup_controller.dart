@@ -589,7 +589,42 @@ class CVULookupController {
               return null;
             }
             break;
-
+          case "touppercase":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var upperCased = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  return PropertyDatabaseValueString(string.toUpperCase());
+                }
+              }).toList();
+              currentValue = LookupStepValues(upperCased);
+            } else {
+              return null;
+            }
+            break;
+          case "tolowercase":
+            if (currentValue == null) {
+              return null;
+            }
+            if (currentValue is LookupStepValues) {
+              var lowerCased = currentValue.values.map((value) {
+                var string = value.asString();
+                if (string == null) {
+                  return value;
+                } else {
+                  return PropertyDatabaseValueString(string.toLowerCase());
+                }
+              }).toList();
+              currentValue = LookupStepValues(lowerCased);
+            } else {
+              return null;
+            }
+            break;
           case "subview":
             var exp = nodeType.args.asMap()[0];
             String? id = await resolve<String>(expression: exp, context: context, db: db);
