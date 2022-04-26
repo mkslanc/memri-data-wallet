@@ -135,45 +135,6 @@ void main() {
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
-  test('testLookup', () {
-    var snippet = ".bar and bar.foo(10) and bar[foo = 10] or shouldNeverGetHere";
-    var result = parse(snippet: snippet);
-    expect(
-        result,
-        equals(CVUExpressionNodeAnd(
-            CVUExpressionNodeAnd(
-                CVUExpressionNodeLookup([
-                  CVULookupNode.defaultLookup,
-                  CVULookupNode(name: "bar", isArray: false, type: CVULookupTypeLookup())
-                ]),
-                CVUExpressionNodeLookup([
-                  CVULookupNode(name: "bar", isArray: false, type: CVULookupTypeLookup()),
-                  CVULookupNode(
-                      name: "foo",
-                      isArray: false,
-                      type: CVULookupTypeFunction(
-                          [CVUExpressionNodeConstant(CVUConstantNumber(10.0))]))
-                ])),
-            CVUExpressionNodeOr(
-                CVUExpressionNodeLookup([
-                  CVULookupNode(
-                      name: "bar",
-                      isArray: true,
-                      type: CVULookupTypeLookup([
-                        CVUExpressionNodeAreEqual(
-                            CVUExpressionNodeLookup([
-                              CVULookupNode(
-                                  name: "foo", isArray: false, type: CVULookupTypeLookup())
-                            ]),
-                            CVUExpressionNodeConstant(CVUConstantNumber(10.0)))
-                      ]))
-                ]),
-                CVUExpressionNodeLookup([
-                  CVULookupNode(
-                      name: "shouldNeverGetHere", isArray: false, type: CVULookupTypeLookup())
-                ])))));
-  });
-
   test('testDotLookup', () {
     var snippet = ".";
     var result = parse(snippet: snippet);

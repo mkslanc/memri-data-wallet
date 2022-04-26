@@ -154,9 +154,9 @@ extension ExprOperatorExtension on ExprOperator {
         return 5;
       case ExprOperator.ConditionElse:
         return 10;
-      case ExprOperator.ConditionAND:
-        return 20;
       case ExprOperator.ConditionOR:
+        return 20;
+      case ExprOperator.ConditionAND:
         return 30;
       case ExprOperator.ConditionEquals:
         return 35;

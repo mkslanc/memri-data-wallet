@@ -25,6 +25,7 @@ class SceneView extends StatefulWidget {
 class _SceneViewState extends State<SceneView> {
   Map<int, int> viewCols = {};
   Map<int, bool> showTopBar = {};
+  Map<int, Color> backgroundColor = {};
   int pagesCount = 0;
 
   init() {
@@ -44,6 +45,8 @@ class _SceneViewState extends State<SceneView> {
 
       showTopBar[index] =
           viewContext?.viewDefinitionPropertyResolver.syncBoolean("showTopBar") ?? false;
+      backgroundColor[index] =
+          viewContext?.viewDefinitionPropertyResolver.syncColor("background") ?? Colors.white;
     });
   }
 
@@ -104,17 +107,17 @@ class _SceneViewState extends State<SceneView> {
                         TopBarView(pageController: widget.sceneController.pageControllers.first)
                     ],
                     ColoredBox(
-                      color: Colors.white,
+                      color: backgroundColor.length > 0 ? backgroundColor[0]! : Colors.white,
                       child: IntrinsicHeight(
                         child: Row(
                             children: widget.sceneController.pageControllers
                                 .mapIndexed((index, pageController) => [
                                       VerticalDivider(
                                         width: 1,
-                                        color: Color(0xffE5E5E5),
+                                        color: Color(0xffF6F6F6),
                                       ),
                                       ColoredBox(
-                                        color: Colors.white,
+                                        color: backgroundColor[index]!,
                                         child: SizedBox(
                                           width: max(
                                               (constraints.maxWidth / 12 * viewCols[index]! -
@@ -130,7 +133,8 @@ class _SceneViewState extends State<SceneView> {
                                                 ),
                                               Expanded(
                                                 child: NavigationHolder(
-                                                    pageController.navigationController),
+                                                    pageController.navigationController
+                                                      ..background = backgroundColor[index]!),
                                               ),
                                             ],
                                           ),
