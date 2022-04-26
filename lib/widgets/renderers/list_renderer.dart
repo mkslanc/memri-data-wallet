@@ -169,7 +169,7 @@ class _ListRendererViewState extends RendererViewState {
   Widget _buildItem(ItemRecord item, int index) {
     var callback = isBlocked ? null : selectionMode(index);
     if (callback != null && index == 0 && selectedIndices.isEmpty && selectFirst) {
-      callback();
+      WidgetsBinding.instance?.addPostFrameCallback((_) => callback());
     }
     var isSelected = selectedIndices.contains(index);
     var titleWidget = isBlocked ? blockedSkeleton : viewContext.render(item: item);
