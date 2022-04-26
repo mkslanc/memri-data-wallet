@@ -31,8 +31,15 @@ class SceneController extends ChangeNotifier {
   init([List<Map<String, dynamic>>? pages]) async {
     try {
       var navStackList = <String, NavigationStack>{};
+      var savedNavStackList = [];
       if (pages == null) {
-        var savedNavStackList = await NavigationStack.fetchAll(appController.databaseController);
+        try {
+          savedNavStackList = await NavigationStack.fetchAll(appController.databaseController);
+        } catch (e) {
+          //cleaning navigationState, if there are stale state
+          await appController.databaseController.databasePool.navigationStateClear();
+        }
+
         pages = savedNavStackList.compactMap((navStack) {
           if (navStack.pageLabel.startsWith("main")) {
             navStackList[navStack.pageLabel] = navStack;
