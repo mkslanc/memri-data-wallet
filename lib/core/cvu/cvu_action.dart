@@ -722,6 +722,7 @@ class CVUActionOpenPlugin extends CVUAction {
           viewName = "${pluginName}-userActionNeeded";
           break;
         case "idle":
+        case "started":
         case "ready":
           viewName = "pluginRunWait";
           break;
