@@ -207,9 +207,9 @@
                             defaultRenderer: list
                             editMode: false
                             viewArguments: {
-                                datasetEntries: {{selectedProject.dataset.datasourceItems("datasetEntries")}}
+                                datasetEntries: {{datasourceItems("datasetEntries")}}
                                 selectedProject: {{selectedProject}}
-                                submitted: {{selectedProject.dataset.datasourceItems("submitted")}}
+                                submitted: {{datasourceItems("submitted")}}
                             }
 
                             [datasource = pod] {
