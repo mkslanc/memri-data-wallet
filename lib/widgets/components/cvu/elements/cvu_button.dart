@@ -66,6 +66,7 @@ class _CVUButtonState extends State<CVUButton> {
   }
 
   executeActions(actions) async {
+    widget.nodeResolver.context.clearCache();
     try {
       for (var action in actions) {
         if (action is CVUActionOpenPopup) {

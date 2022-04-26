@@ -103,22 +103,24 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     return null;
   }
 
+  selectIndice(int index, bool isSingleChoice) {
+    setState(() {
+      if (!isSingleChoice) {
+        if (!selectedIndices.remove(index)) {
+          selectedIndices.add(index);
+        }
+      } else {
+        selectedIndices.clear();
+        selectedIndices.add(index);
+      }
+
+      selectedIndicesBinding.set(selectedIndices);
+    });
+  }
+
   selectionMode(int index) {
     if (isInEditMode) {
-      return () {
-        setState(() {
-          if (!singleChoice) {
-            if (!selectedIndices.remove(index)) {
-              selectedIndices.add(index);
-            }
-          } else {
-            selectedIndices.clear();
-            selectedIndices.add(index);
-          }
-
-          selectedIndicesBinding.set(selectedIndices);
-        });
-      };
+      return () => selectIndice(index, singleChoice);
     } else {
       return () {
         var item = viewContext.items.asMap()[index];
@@ -130,15 +132,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
             presses.forEach((press) async =>
                 await press.execute(pageController, viewContext.getCVUContext(item: item)));
 
-            var update = selectedIndices.isNotEmpty;
-            selectedIndices.clear();
-            selectedIndices.add(index);
-
-            selectedIndicesBinding.set(selectedIndices);
-
-            if (update) {
-              setState(() {});
-            }
+            selectIndice(index, true);
           }
         }
       };

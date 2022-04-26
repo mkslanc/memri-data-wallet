@@ -223,7 +223,7 @@ class ItemRecord with EquatableMixin {
     await saveChanges(state, db);
   }
 
-  saveChanges(SyncState state, DatabaseController db) async {
+  Future<int> saveChanges(SyncState state, DatabaseController db) async {
     if (syncState != SyncState.skip) {
       if (syncState == SyncState.create) {
         var item = await ItemRecord.fetchWithUID(uid, db);
@@ -235,7 +235,7 @@ class ItemRecord with EquatableMixin {
     }
 
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
-    await save(db.databasePool);
+    return await save(db.databasePool);
     //await addChangeLog(name, value, db); //TODO
   }
 
@@ -309,14 +309,13 @@ class ItemRecord with EquatableMixin {
 
   Future<int> delete(DatabaseController db) async {
     deleted = true;
-    syncState = SyncState.update;
     var targetEdges = await edges(null, db: db, deleted: null);
     var sourceEdges = await reverseEdges(null, db: db, deleted: null);
     List<ItemEdgeRecord> relatedEdges = targetEdges + sourceEdges;
 
     await Future.forEach(relatedEdges, (ItemEdgeRecord edge) async => await edge.delete(db));
 
-    return await save(db.databasePool);
+    return await saveChanges(SyncState.update, db);
   }
 
   Future<List<ItemEdgeRecord>> edges(String? name,

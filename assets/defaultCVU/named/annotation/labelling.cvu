@@ -18,7 +18,7 @@
                 datasetEntries: {
                     filter: {
                         edgeSources: {
-                            entry: {{.~labellingTask}}
+                            entry: {{labellingTask.~labellingTask}}
                         }
                     }
                     query: DatasetEntry
@@ -46,6 +46,7 @@
                     query: CategoricalLabel
                 }
             }
+            labellingTask: {{.}}
         }
 
         VStack {
@@ -155,9 +156,9 @@
                     defaultRenderer: list
                     editMode: false
                     viewArguments: {
-                        datasetEntries: {{labellingTask.~labellingTask.datasourceItems("datasetEntries")}}
+                        datasetEntries: {{datasourceItems("datasetEntries")}}
                         labellingTask: {{labellingTask}}
-                        submitted: {{labellingTask.~labellingTask.datasourceItems("submitted")}}
+                        submitted: {{datasourceItems("submitted")}}
                     }
 
                     [datasource = pod] {

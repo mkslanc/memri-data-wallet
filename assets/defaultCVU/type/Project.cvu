@@ -99,6 +99,7 @@ Project {
                         layout: "flow"
                         onPress: noop
                         selectedItems: {{project.dataset.datasetType[]}}
+                        showDefaultSelections: false
                         spacing: 30
                     }
                 }

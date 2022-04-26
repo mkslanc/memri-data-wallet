@@ -18,8 +18,9 @@ class CVUContext {
 
   Map<String, dynamic> cache = {}; //TODO: review and improve, extreme mvp optimisation
   dynamic getCache(String key) => cache[key];
-
+  bool hasCache(String key) => cache.containsKey(key);
   setCache(String key, dynamic value) => cache[key] = value;
+  clearCache() => cache = {};
 
   int get currentIndex {
     if (currentItem == null) {

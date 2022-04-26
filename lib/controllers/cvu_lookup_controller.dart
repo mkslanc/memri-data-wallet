@@ -281,577 +281,605 @@ class CVULookupController {
   Future<LookupStep?> _resolveLookupStep(
       List<CVULookupNode> nodes, CVUContext context, DatabaseController db) async {
     LookupStep? currentValue;
+    var nodePath = "";
     for (CVULookupNode node in nodes) {
-      var nodeType = node.type;
+      if (node.type is CVULookupTypeDefault || nodePath.isNotEmpty && nodePath != ".") {
+        nodePath += ".";
+      }
+      nodePath += node.toCVUString();
+      if (context.hasCache(nodePath)) {
+        currentValue = context.getCache(nodePath);
+      } else {
+        var nodeType = node.type;
 
-      if (nodeType is CVULookupTypeDefault) {
-        ItemRecord? currentItem = context.currentItem;
-        if (currentItem == null) {
+        if (nodeType is CVULookupTypeDefault) {
+          ItemRecord? currentItem = context.currentItem;
+          if (currentItem == null) {
+            currentValue = null;
+          } else {
+            currentValue = LookupStepItems([currentItem]);
+          }
+        } else if (nodeType is CVULookupTypeFunction) {
+          currentValue = await _resolveLookupFunction(node, currentValue, context, db);
+        } else if (nodeType is CVULookupTypeLookup) {
+          currentValue = await _resolveLookup(node, currentValue, context, db);
+        } else {
+          throw Exception("Unknown CVULookupType ${nodeType.toString()}");
+        }
+
+        context.setCache(nodePath, currentValue);
+      }
+
+      if (currentValue is LookupStepContext) {
+        context = currentValue.context;
+        currentValue = null;
+      }
+    }
+
+    return currentValue;
+  }
+
+  Future<LookupStep?> _resolveLookup(CVULookupNode node, LookupStep? currentValue,
+      CVUContext context, DatabaseController db) async {
+    var nodeType = node.type as CVULookupTypeLookup;
+
+    if (currentValue is LookupStepItems) {
+      currentValue = await itemLookup(
+          node: node,
+          items: currentValue.items,
+          subexpressions: nodeType.subexpressions,
+          context: context,
+          db: db);
+    } else if (currentValue == null) {
+      // Check if there is a matching view argument
+      CVUViewArguments? viewArgs = context.viewArguments;
+      CVUValue? argValue = viewArgs?.args[node.name];
+      if (viewArgs != null && argValue != null) {
+        if (argValue is CVUValueConstant) {
+          CVUConstant constant = argValue.value;
+          if (constant is CVUConstantArgument) {
+            currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
+          } else if (constant is CVUConstantNumber) {
+            currentValue = LookupStepValues([PropertyDatabaseValueDouble(constant.value)]);
+          } else if (constant is CVUConstantInt) {
+            currentValue = LookupStepValues([PropertyDatabaseValueInt(constant.value)]);
+          } else if (constant is CVUConstantString) {
+            currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
+          } else if (constant is CVUConstantBool) {
+            currentValue = LookupStepValues([PropertyDatabaseValueBool(constant.value)]);
+          } else if (constant is CVUConstantColorHex) {
+            currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
+          } else if (constant is CVUConstantNil) {
+            currentValue = null;
+          } else {
+            throw Exception("Unknown CVUConstant: ${constant.toString()}");
+          }
+        } else if (argValue is CVUValueExpression) {
+          currentValue = await () async {
+            CVUExpressionNode expression = argValue.value;
+
+            var context = CVUContext(
+                currentItem: viewArgs.argumentItem,
+                items: viewArgs.argumentItems,
+                viewArguments: viewArgs.parentArguments);
+
+            List<ItemRecord> items = await resolve<List>(
+                expression: expression,
+                context: context,
+                db: db,
+                additionalType: ItemRecord) as List<ItemRecord>;
+
+            if (items.isNotEmpty) return LookupStepItems(items);
+
+            ItemRecord? item =
+                await resolve<ItemRecord>(expression: expression, context: context, db: db);
+            if (item != null) return LookupStepItems([item]);
+
+            double? number =
+                await resolve<double>(expression: expression, context: context, db: db);
+            if (number != null) return LookupStepValues([PropertyDatabaseValueDouble(number)]);
+
+            String? string =
+                await resolve<String>(expression: expression, context: context, db: db);
+            if (string != null) return LookupStepValues([PropertyDatabaseValueString(string)]);
+
+            return null;
+          }();
+        } else {
+          currentValue = null;
+        }
+      } else if (node.name == "me") {
+        var me = await ItemRecord.me();
+        if (me != null) {
+          currentValue = LookupStepItems([me]);
+        }
+      } else if (node.name == "uid") {
+        var item = context.currentItem;
+        if (item != null && item.rowId != null) {
+          currentValue = LookupStepValues([PropertyDatabaseValueInt(item.rowId!)]);
+        }
+      } else if (node.name == "items") {
+        List<ItemRecord>? items = context.items;
+        if (items == null) {
           return null;
         }
-        currentValue = LookupStepItems([currentItem]);
-      } else if (nodeType is CVULookupTypeFunction) {
-        List<CVUExpressionNode> args = nodeType.args;
-        switch (node.name.toLowerCase()) {
-          case "item":
-            var exp = nodeType.args.asMap()[0];
-            if (exp == null) {
-              return null;
-            }
-            int? itemRowId = await resolve<int>(expression: exp, context: context, db: db);
-            if (itemRowId == null) {
-              return null;
-            }
-            ItemRecord? item = await ItemRecord.fetchWithRowID(itemRowId, db);
-            if (item == null) {
-              return null;
-            }
-            currentValue = LookupStepItems([item]);
-            break;
-          case "items":
-            var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
-            if (byType != null) {
-              List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db.databasePool);
-              if (items.isEmpty) {
-                return null;
-              }
-              currentValue = LookupStepItems(items);
-            } else {
-              return null;
-            }
-            break;
-          case "datasourceitems":
-            var exp = nodeType.args.asMap()[0];
-            String? key = await resolve<String>(expression: exp, context: context, db: db);
-            if (key == null) {
-              return null;
-            }
+        currentValue = LookupStepItems(items);
+      } else if (node.name == "currentIndex") {
+        currentValue = LookupStepValues([PropertyDatabaseValueInt(context.currentIndex + 1)]);
+      }
+    } else {
+      currentValue = null;
+    }
 
-            var datasources = context.viewArguments?.args["datasources"];
-            if (datasources is! CVUValueSubdefinition) {
-              return null;
-            }
+    return currentValue;
+  }
 
-            var datasourceDefinition = datasources.value.properties[key];
-            if (datasourceDefinition is! CVUValueSubdefinition) {
-              return null;
-            }
-
-            var queryConfig = await DatabaseQueryConfig.queryConfigWith(
-                context: context,
-                datasourceContent: datasourceDefinition.value,
-                databaseController: db);
-
-            var items = await queryConfig.constructFilteredRequest();
-            currentValue = LookupStepItems(items.map((item) => ItemRecord.fromItem(item)).toList());
-            break;
-          case "joined":
-            if (currentValue == null || currentValue is! LookupStepValues) {
-              return null;
-            }
-            var exp = args.asMap()[0];
-            if (exp == null) {
-              return null;
-            }
-            String? separator;
-            separator = await resolve<String>(expression: exp, context: context, db: db);
-
-            if (separator != null && separator.isNotEmpty) {
-              String joined = currentValue.values
-                  .map((element) => element.asString())
-                  .where((element) => element != null && element.isNotEmpty)
-                  .join(separator);
-              currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
-            } else {
-              String joined = currentValue.values
-                  .map((element) => element.asString())
-                  .where((element) => element != null && element.isNotEmpty)
-                  .join(", "); //TODO @anijanyan String.localizedString(strings);
-              currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
-            }
-            break;
-          case "joinwithcomma":
-            String joined = (await Future.wait(args.map((element) async =>
-                    (await resolve<String>(expression: element, context: context, db: db)))))
-                .where((element) => element != null && element.isNotEmpty)
-                .join(", ");
-            currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
-            break;
-          case "joinnatural":
-            List<String> strings = (await Future.wait(args.map((element) async =>
-                    (await resolve<String>(expression: element, context: context, db: db))
-                        .toString())))
-                .where((element) => element.isNotEmpty)
-                .toList();
-            var joined = strings.join(", "); //TODO @anijanyan String.localizedString(strings);
-            currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
-            break;
-          case "plainstring":
-            if (currentValue == null || currentValue is! LookupStepValues) {
-              return null;
-            }
-            List<PropertyDatabaseValue> stripped = currentValue.values
-                .map((PropertyDatabaseValue value) {
-                  String? htmlstring = value.asString();
-                  if (htmlstring == null || htmlstring.isEmpty) {
-                    return null;
-                  }
-                  var strippedText = parse(parse(htmlstring).body!.text).documentElement!.text;
-                  return PropertyDatabaseValueString(strippedText);
-                })
-                .whereType<PropertyDatabaseValue>()
-                .toList();
-
-            currentValue = LookupStepValues(stripped);
-            break;
-          case "first":
-            if (currentValue == null) {
-              return null;
-            }
-
-            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
-              currentValue = LookupStepValues([currentValue.values.first]);
-            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
-              currentValue = LookupStepItems([currentValue.items.first]);
-            } else {
-              return null;
-            }
-            break;
-          case "last":
-            if (currentValue == null) {
-              return null;
-            }
-
-            if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
-              currentValue = LookupStepValues([currentValue.values.last]);
-            } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
-              currentValue = LookupStepItems([currentValue.items.last]);
-            } else {
-              return null;
-            }
-            break;
-          case "count":
-            if (currentValue == null) {
-              return null;
-            }
-
-            if (currentValue is LookupStepValues) {
-              currentValue =
-                  LookupStepValues([PropertyDatabaseValueInt(currentValue.values.length)]);
-            } else if (currentValue is LookupStepItems) {
-              currentValue =
-                  LookupStepValues([PropertyDatabaseValueInt(currentValue.items.length)]);
-            } else {
-              return null;
-            }
-            break;
-          case "percent":
-            if (currentValue == null || currentValue is! LookupStepValues) {
-              return null;
-            }
-
-            var exp = nodeType.args.asMap()[0];
-            double? arg;
-            if (exp != null) {
-              arg = await resolve<double>(expression: exp, context: context, db: db);
-              if (arg == null) {
-                return null;
-              }
-            } else {
-              arg = 1;
-            }
-            currentValue = LookupStepValues([
-              PropertyDatabaseValueString(((arg == 0
-                      ? 0
-                      : ((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100)) as double)
-                  .format(1))
-            ]);
-
-            break;
-          case "fullname":
-            if (currentValue is LookupStepItems) {
-              if (currentValue.items.isEmpty) {
-                return null;
-              }
-              ItemRecord first = currentValue.items[0];
-              if (first.type == "Person") {
-                String name = [
-                  await resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
-                  await resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
-                ].map((element) => (element?.asString() ?? "")).join(" ");
-                currentValue = LookupStepValues([PropertyDatabaseValueString(name)]);
-              } else {
-                return null;
-              }
-            } else {
-              return null;
-            }
-            break;
-          case "initials":
-            if (currentValue is LookupStepValues) {
-              String initials = currentValue.values
-                  .map((element) => element.asString()?[0])
-                  .where((element) => element != null && element.isNotEmpty)
-                  .join()
-                  .toUpperCase();
-              currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
-            } else if (currentValue is LookupStepItems) {
-              if (currentValue.items.isEmpty) {
-                return null;
-              }
-              ItemRecord first = currentValue.items[0];
-              if (first.type == "Person") {
-                String initials = [
-                  await resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
-                  await resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
-                ]
-                    .map((element) => element?.asString()?[0])
-                    .where((element) => element != null && element.isNotEmpty)
-                    .join()
-                    .toUpperCase();
-                currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
-              } else {
-                return null;
-              }
-            } else {
-              return null;
-            }
-            break;
-          case "describechangelog":
-            if (currentValue is LookupStepItems) {
-              if (currentValue.items.isEmpty) {
-                return null;
-              }
-              ItemRecord first = currentValue.items[0];
-              if (first.type == "Person") {
-                var dateCreated = first.dateCreated.formatted();
-                var timeSinceCreated = first.dateCreated.timeDelta;
-                return LookupStepValues([
-                  PropertyDatabaseValueString(
-                      "You created this ${first.type} $dateCreated over the past $timeSinceCreated")
-                ]);
-              } else {
-                return null;
-              }
-            }
-            return null;
-          case "camelcasetowords":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var camelCased = currentValue.values.map((value) {
-                var string = value.asString();
-                if (string == null) {
-                  return value;
-                } else {
-                  return PropertyDatabaseValueString(string.camelCaseToWords());
-                }
-              }).toList();
-              currentValue = LookupStepValues(camelCased);
-            } else {
-              return null;
-            }
-            break;
-          case "titlecase":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var titleCased = currentValue.values.map((value) {
-                var string = value.asString();
-                if (string == null) {
-                  return value;
-                } else {
-                  return PropertyDatabaseValueString(string.titleCase());
-                }
-              }).toList();
-              currentValue = LookupStepValues(titleCased);
-            } else {
-              return null;
-            }
-            break;
-          case "firstuppercased":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var titleCased = currentValue.values.map((value) {
-                var string = value.asString();
-                if (string == null) {
-                  return value;
-                } else {
-                  return PropertyDatabaseValueString(string.capitalizingFirst());
-                }
-              }).toList();
-              currentValue = LookupStepValues(titleCased);
-            } else {
-              return null;
-            }
-            break;
-          case "touppercase":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var upperCased = currentValue.values.map((value) {
-                var string = value.asString();
-                if (string == null) {
-                  return value;
-                } else {
-                  return PropertyDatabaseValueString(string.toUpperCase());
-                }
-              }).toList();
-              currentValue = LookupStepValues(upperCased);
-            } else {
-              return null;
-            }
-            break;
-          case "tolowercase":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var lowerCased = currentValue.values.map((value) {
-                var string = value.asString();
-                if (string == null) {
-                  return value;
-                } else {
-                  return PropertyDatabaseValueString(string.toLowerCase());
-                }
-              }).toList();
-              currentValue = LookupStepValues(lowerCased);
-            } else {
-              return null;
-            }
-            break;
-          case "subview":
-            var exp = nodeType.args.asMap()[0];
-            String? id = await resolve<String>(expression: exp, context: context, db: db);
-            if (id == null) {
-              return null;
-            }
-            var subViewArgs = context.viewArguments?.subViewArguments[id];
-            if (subViewArgs == null) {
-              return null;
-            }
-            context = CVUContext(
-                currentItem: context.currentItem, items: context.items, viewArguments: subViewArgs);
-            break;
-          case "selecteditems":
-            var viewArgs = context.viewArguments;
-            if (viewArgs == null) {
-              return null;
-            }
-            if (viewArgs.args["selectedItems"] == null) {
-              return null;
-            }
-            List<ItemRecord> items = await resolve<List>(
-                value: viewArgs.args["selectedItems"],
-                db: db,
-                context: context,
-                additionalType: ItemRecord) as List<ItemRecord>;
-            if (items.isEmpty) {
-              return null;
-            }
-            currentValue = LookupStepItems(items);
-            break;
-          case "fromjson":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var exp = nodeType.args.asMap()[0];
-              if (exp == null) {
-                return null;
-              }
-
-              String? property = await resolve<String>(expression: exp, context: context, db: db);
-              if (property == null) {
-                return null;
-              }
-
-              var values = currentValue.values.map((value) {
-                var string = value.asString();
-                if (string == null) {
-                  return value;
-                } else {
-                  var obj = jsonDecode(string);
-                  if (obj == null || obj[property] == null) {
-                    return value;
-                  }
-                  if (obj[property] is bool) {
-                    return PropertyDatabaseValueBool(obj[property]);
-                  }
-                  return PropertyDatabaseValueString(obj[property]);
-                }
-              }).toList();
-
-              currentValue = LookupStepValues(values);
-            } else {
-              return null;
-            }
-            break;
-          case "generaterandom":
-            var exp = nodeType.args.asMap()[0];
-            String? type = await resolve<String>(expression: exp, context: context, db: db);
-            if (type == null) {
-              return null;
-            }
-            var propertyExp = nodeType.args.asMap()[1];
-            String? property;
-            if (propertyExp != null) {
-              property = await resolve<String>(expression: propertyExp, context: context, db: db);
-            }
-
-            //TODO: other types if we will need this
-            switch (type.toLowerCase()) {
-              case "string":
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(MockDataGenerator.generateMockData(
-                      valueType: SchemaValueType.string, property: property))
-                ]);
-                break;
-              case "int":
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueInt(MockDataGenerator.generateMockData(
-                      valueType: SchemaValueType.int, property: property))
-                ]);
-                break;
-              default:
-                currentValue = LookupStepValues([
-                  PropertyDatabaseValueString(MockDataGenerator.generateMockData(
-                      valueType: SchemaValueType.string, property: property))
-                ]);
-                break;
-            }
-            break;
-          case "format":
-            if (currentValue == null) {
-              return null;
-            }
-            if (currentValue is LookupStepValues) {
-              var exp = nodeType.args.asMap()[0];
-              String? dateFormat;
-              if (exp != null) {
-                dateFormat = await resolve<String>(expression: exp, context: context, db: db);
-              }
-              var newDate = currentValue.values.first.asDate()?.formatDate(dateFormat: dateFormat);
-              if (newDate == null) {
-                return null;
-              }
-              currentValue = LookupStepValues([PropertyDatabaseValueString(newDate)]);
-            } else {
-              return null;
-            }
-            break;
-          case "itemtype":
-            if (currentValue is! LookupStepItems || currentValue.items.length == 0) {
-              return null;
-            }
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueString(currentValue.items[0].type)]);
-            break;
-          default:
-            return null;
+  Future<LookupStep?> _resolveLookupFunction(CVULookupNode node, LookupStep? currentValue,
+      CVUContext context, DatabaseController db) async {
+    var nodeType = node.type as CVULookupTypeFunction;
+    List<CVUExpressionNode> args = nodeType.args;
+    switch (node.name.toLowerCase()) {
+      case "item":
+        var exp = nodeType.args.asMap()[0];
+        if (exp == null) {
+          return null;
         }
-      } else if (nodeType is CVULookupTypeLookup) {
+        int? itemRowId = await resolve<int>(expression: exp, context: context, db: db);
+        if (itemRowId == null) {
+          return null;
+        }
+        ItemRecord? item = await ItemRecord.fetchWithRowID(itemRowId, db);
+        if (item == null) {
+          return null;
+        }
+        currentValue = LookupStepItems([item]);
+        break;
+      case "items":
+        var byType = await _resolveNamedExpression<String>(nodeType.args, "type", db, context);
+        if (byType != null) {
+          List<ItemRecord> items = await ItemRecord.fetchWithType(byType, db.databasePool);
+          if (items.isEmpty) {
+            return null;
+          }
+          currentValue = LookupStepItems(items);
+        } else {
+          return null;
+        }
+        break;
+      case "datasourceitems":
+        var exp = nodeType.args.asMap()[0];
+        String? key = await resolve<String>(expression: exp, context: context, db: db);
+        if (key == null) {
+          return null;
+        }
+
+        var datasources = context.viewArguments?.args["datasources"];
+        if (datasources is! CVUValueSubdefinition) {
+          return null;
+        }
+
+        var datasourceDefinition = datasources.value.properties[key];
+        if (datasourceDefinition is! CVUValueSubdefinition) {
+          return null;
+        }
+
+        var queryConfig = await DatabaseQueryConfig.queryConfigWith(
+            context: context,
+            datasourceContent: datasourceDefinition.value,
+            databaseController: db);
+
+        var items = await queryConfig.constructFilteredRequest();
+
+        currentValue = LookupStepItems(items.map((item) => ItemRecord.fromItem(item)).toList());
+        break;
+      case "joined":
+        if (currentValue == null || currentValue is! LookupStepValues) {
+          return null;
+        }
+        var exp = args.asMap()[0];
+        if (exp == null) {
+          return null;
+        }
+        String? separator;
+        separator = await resolve<String>(expression: exp, context: context, db: db);
+
+        if (separator != null && separator.isNotEmpty) {
+          String joined = currentValue.values
+              .map((element) => element.asString())
+              .where((element) => element != null && element.isNotEmpty)
+              .join(separator);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
+        } else {
+          String joined = currentValue.values
+              .map((element) => element.asString())
+              .where((element) => element != null && element.isNotEmpty)
+              .join(", "); //TODO @anijanyan String.localizedString(strings);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
+        }
+        break;
+      case "joinwithcomma":
+        String joined = (await Future.wait(args.map((element) async =>
+                (await resolve<String>(expression: element, context: context, db: db)))))
+            .where((element) => element != null && element.isNotEmpty)
+            .join(", ");
+        currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
+        break;
+      case "joinnatural":
+        List<String> strings = (await Future.wait(args.map((element) async =>
+                (await resolve<String>(expression: element, context: context, db: db)).toString())))
+            .where((element) => element.isNotEmpty)
+            .toList();
+        var joined = strings.join(", "); //TODO @anijanyan String.localizedString(strings);
+        currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
+        break;
+      case "plainstring":
+        if (currentValue == null || currentValue is! LookupStepValues) {
+          return null;
+        }
+        List<PropertyDatabaseValue> stripped = currentValue.values
+            .map((PropertyDatabaseValue value) {
+              String? htmlstring = value.asString();
+              if (htmlstring == null || htmlstring.isEmpty) {
+                return null;
+              }
+              var strippedText = parse(parse(htmlstring).body!.text).documentElement!.text;
+              return PropertyDatabaseValueString(strippedText);
+            })
+            .whereType<PropertyDatabaseValue>()
+            .toList();
+
+        currentValue = LookupStepValues(stripped);
+        break;
+      case "first":
+        if (currentValue == null) {
+          return null;
+        }
+
+        if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
+          currentValue = LookupStepValues([currentValue.values.first]);
+        } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
+          currentValue = LookupStepItems([currentValue.items.first]);
+        } else {
+          return null;
+        }
+        break;
+      case "last":
+        if (currentValue == null) {
+          return null;
+        }
+
+        if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
+          currentValue = LookupStepValues([currentValue.values.last]);
+        } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
+          currentValue = LookupStepItems([currentValue.items.last]);
+        } else {
+          return null;
+        }
+        break;
+      case "count":
+        if (currentValue == null) {
+          return null;
+        }
+
+        if (currentValue is LookupStepValues) {
+          currentValue = LookupStepValues([PropertyDatabaseValueInt(currentValue.values.length)]);
+        } else if (currentValue is LookupStepItems) {
+          currentValue = LookupStepValues([PropertyDatabaseValueInt(currentValue.items.length)]);
+        } else {
+          return null;
+        }
+        break;
+      case "percent":
+        if (currentValue == null || currentValue is! LookupStepValues) {
+          return null;
+        }
+
+        var exp = nodeType.args.asMap()[0];
+        double? arg;
+        if (exp != null) {
+          arg = await resolve<double>(expression: exp, context: context, db: db);
+          if (arg == null) {
+            return null;
+          }
+        } else {
+          arg = 1;
+        }
+        currentValue = LookupStepValues([
+          PropertyDatabaseValueString(((arg == 0
+                  ? 0
+                  : ((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100)) as double)
+              .format(1))
+        ]);
+
+        break;
+      case "fullname":
         if (currentValue is LookupStepItems) {
-          currentValue = await itemLookup(
-              node: node,
-              items: currentValue.items,
-              subexpressions: nodeType.subexpressions,
-              context: context,
-              db: db);
-        } else if (currentValue == null) {
-          // Check if there is a matching view argument
-          CVUViewArguments? viewArgs = context.viewArguments;
-          CVUValue? argValue = viewArgs?.args[node.name];
-          if (viewArgs != null && argValue != null) {
-            if (argValue is CVUValueConstant) {
-              CVUConstant constant = argValue.value;
-              if (constant is CVUConstantArgument) {
-                currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
-              } else if (constant is CVUConstantNumber) {
-                currentValue = LookupStepValues([PropertyDatabaseValueDouble(constant.value)]);
-              } else if (constant is CVUConstantInt) {
-                currentValue = LookupStepValues([PropertyDatabaseValueInt(constant.value)]);
-              } else if (constant is CVUConstantString) {
-                currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
-              } else if (constant is CVUConstantBool) {
-                currentValue = LookupStepValues([PropertyDatabaseValueBool(constant.value)]);
-              } else if (constant is CVUConstantColorHex) {
-                currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
-              } else if (constant is CVUConstantNil) {
-                currentValue = null;
-              } else {
-                throw Exception("Unknown CVUConstant: ${constant.toString()}");
-              }
-            } else if (argValue is CVUValueExpression) {
-              currentValue = await () async {
-                CVUExpressionNode expression = argValue.value;
-
-                var context = CVUContext(
-                    currentItem: viewArgs.argumentItem,
-                    items: viewArgs.argumentItems,
-                    viewArguments: viewArgs.parentArguments);
-
-                List<ItemRecord> items = await resolve<List>(
-                    expression: expression,
-                    context: context,
-                    db: db,
-                    additionalType: ItemRecord) as List<ItemRecord>;
-
-                if (items.isNotEmpty) return LookupStepItems(items);
-
-                ItemRecord? item =
-                    await resolve<ItemRecord>(expression: expression, context: context, db: db);
-                if (item != null) return LookupStepItems([item]);
-
-                double? number =
-                    await resolve<double>(expression: expression, context: context, db: db);
-                if (number != null) return LookupStepValues([PropertyDatabaseValueDouble(number)]);
-
-                String? string =
-                    await resolve<String>(expression: expression, context: context, db: db);
-                if (string != null) return LookupStepValues([PropertyDatabaseValueString(string)]);
-
-                return null;
-              }();
-
-              if (currentValue == null) {
-                return null;
-              }
-            } else {
-              return null;
-            }
-          } else if (node.name == "me") {
-            var me = await ItemRecord.me();
-            if (me != null) {
-              currentValue = LookupStepItems([me]);
-            }
-          } else if (node.name == "uid") {
-            var item = context.currentItem;
-            if (item != null && item.rowId != null) {
-              currentValue = LookupStepValues([PropertyDatabaseValueInt(item.rowId!)]);
-            }
-          } else if (node.name == "items") {
-            List<ItemRecord>? items = context.items;
-            if (items == null) {
-              return null;
-            }
-            currentValue = LookupStepItems(items);
-          } else if (node.name == "currentIndex") {
-            currentValue = LookupStepValues([PropertyDatabaseValueInt(context.currentIndex + 1)]);
+          if (currentValue.items.isEmpty) {
+            return null;
+          }
+          ItemRecord first = currentValue.items[0];
+          if (first.type == "Person") {
+            String name = [
+              await resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
+              await resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
+            ].map((element) => (element?.asString() ?? "")).join(" ");
+            currentValue = LookupStepValues([PropertyDatabaseValueString(name)]);
+          } else {
+            return null;
           }
         } else {
           return null;
         }
-      } else {
-        throw Exception("Unknown CVULookupType ${nodeType.toString()}");
-      }
-    }
+        break;
+      case "initials":
+        if (currentValue is LookupStepValues) {
+          String initials = currentValue.values
+              .map((element) => element.asString()?[0])
+              .where((element) => element != null && element.isNotEmpty)
+              .join()
+              .toUpperCase();
+          currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
+        } else if (currentValue is LookupStepItems) {
+          if (currentValue.items.isEmpty) {
+            return null;
+          }
+          ItemRecord first = currentValue.items[0];
+          if (first.type == "Person") {
+            String initials = [
+              await resolve<PropertyDatabaseValue>(property: "firstName", item: first, db: db),
+              await resolve<PropertyDatabaseValue>(property: "lastName", item: first, db: db)
+            ]
+                .map((element) => element?.asString()?[0])
+                .where((element) => element != null && element.isNotEmpty)
+                .join()
+                .toUpperCase();
+            currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+        break;
+      case "describechangelog":
+        if (currentValue is LookupStepItems) {
+          if (currentValue.items.isEmpty) {
+            return null;
+          }
+          ItemRecord first = currentValue.items[0];
+          if (first.type == "Person") {
+            var dateCreated = first.dateCreated.formatted();
+            var timeSinceCreated = first.dateCreated.timeDelta;
+            return LookupStepValues([
+              PropertyDatabaseValueString(
+                  "You created this ${first.type} $dateCreated over the past $timeSinceCreated")
+            ]);
+          } else {
+            return null;
+          }
+        }
+        return null;
+      case "camelcasetowords":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var camelCased = currentValue.values.map((value) {
+            var string = value.asString();
+            if (string == null) {
+              return value;
+            } else {
+              return PropertyDatabaseValueString(string.camelCaseToWords());
+            }
+          }).toList();
+          currentValue = LookupStepValues(camelCased);
+        } else {
+          return null;
+        }
+        break;
+      case "titlecase":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var titleCased = currentValue.values.map((value) {
+            var string = value.asString();
+            if (string == null) {
+              return value;
+            } else {
+              return PropertyDatabaseValueString(string.titleCase());
+            }
+          }).toList();
+          currentValue = LookupStepValues(titleCased);
+        } else {
+          return null;
+        }
+        break;
+      case "firstuppercased":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var titleCased = currentValue.values.map((value) {
+            var string = value.asString();
+            if (string == null) {
+              return value;
+            } else {
+              return PropertyDatabaseValueString(string.capitalizingFirst());
+            }
+          }).toList();
+          currentValue = LookupStepValues(titleCased);
+        } else {
+          return null;
+        }
+        break;
+      case "touppercase":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var upperCased = currentValue.values.map((value) {
+            var string = value.asString();
+            if (string == null) {
+              return value;
+            } else {
+              return PropertyDatabaseValueString(string.toUpperCase());
+            }
+          }).toList();
+          currentValue = LookupStepValues(upperCased);
+        } else {
+          return null;
+        }
+        break;
+      case "tolowercase":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var lowerCased = currentValue.values.map((value) {
+            var string = value.asString();
+            if (string == null) {
+              return value;
+            } else {
+              return PropertyDatabaseValueString(string.toLowerCase());
+            }
+          }).toList();
+          currentValue = LookupStepValues(lowerCased);
+        } else {
+          return null;
+        }
+        break;
+      case "subview":
+        var exp = nodeType.args.asMap()[0];
+        String? id = await resolve<String>(expression: exp, context: context, db: db);
+        if (id == null) {
+          return null;
+        }
+        var subViewArgs = context.viewArguments?.subViewArguments[id];
+        if (subViewArgs == null) {
+          return null;
+        }
+        currentValue = LookupStepContext(CVUContext(
+            currentItem: context.currentItem,
+            items: context.items ?? [],
+            viewArguments: subViewArgs));
+        break;
+      case "selecteditems":
+        var viewArgs = context.viewArguments;
+        if (viewArgs == null) {
+          return null;
+        }
+        if (viewArgs.args["selectedItems"] == null) {
+          return null;
+        }
+        List<ItemRecord> items = await resolve<List>(
+            value: viewArgs.args["selectedItems"],
+            db: db,
+            context: context,
+            additionalType: ItemRecord) as List<ItemRecord>;
+        if (items.isEmpty) {
+          return null;
+        }
+        currentValue = LookupStepItems(items);
+        break;
+      case "fromjson":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var exp = nodeType.args.asMap()[0];
+          if (exp == null) {
+            return null;
+          }
 
+          String? property = await resolve<String>(expression: exp, context: context, db: db);
+          if (property == null) {
+            return null;
+          }
+
+          var values = currentValue.values.map((value) {
+            var string = value.asString();
+            if (string == null) {
+              return value;
+            } else {
+              var obj = jsonDecode(string);
+              if (obj == null || obj[property] == null) {
+                return value;
+              }
+              if (obj[property] is bool) {
+                return PropertyDatabaseValueBool(obj[property]);
+              }
+              return PropertyDatabaseValueString(obj[property]);
+            }
+          }).toList();
+
+          currentValue = LookupStepValues(values);
+        } else {
+          return null;
+        }
+        break;
+      case "generaterandom":
+        var exp = nodeType.args.asMap()[0];
+        String? type = await resolve<String>(expression: exp, context: context, db: db);
+        if (type == null) {
+          return null;
+        }
+        var propertyExp = nodeType.args.asMap()[1];
+        String? property;
+        if (propertyExp != null) {
+          property = await resolve<String>(expression: propertyExp, context: context, db: db);
+        }
+
+        //TODO: other types if we will need this
+        switch (type.toLowerCase()) {
+          case "string":
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueString(MockDataGenerator.generateMockData(
+                  valueType: SchemaValueType.string, property: property))
+            ]);
+            break;
+          case "int":
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueInt(MockDataGenerator.generateMockData(
+                  valueType: SchemaValueType.int, property: property))
+            ]);
+            break;
+          default:
+            currentValue = LookupStepValues([
+              PropertyDatabaseValueString(MockDataGenerator.generateMockData(
+                  valueType: SchemaValueType.string, property: property))
+            ]);
+            break;
+        }
+        break;
+      case "format":
+        if (currentValue == null) {
+          return null;
+        }
+        if (currentValue is LookupStepValues) {
+          var exp = nodeType.args.asMap()[0];
+          String? dateFormat;
+          if (exp != null) {
+            dateFormat = await resolve<String>(expression: exp, context: context, db: db);
+          }
+          var newDate = currentValue.values.first.asDate()?.formatDate(dateFormat: dateFormat);
+          if (newDate == null) {
+            return null;
+          }
+          currentValue = LookupStepValues([PropertyDatabaseValueString(newDate)]);
+        } else {
+          return null;
+        }
+        break;
+      case "itemtype":
+        if (currentValue is! LookupStepItems || currentValue.items.length == 0) {
+          return null;
+        }
+        currentValue = LookupStepValues([PropertyDatabaseValueString(currentValue.items[0].type)]);
+        break;
+      default:
+        return null;
+    }
     return currentValue;
   }
 
@@ -927,11 +955,6 @@ class CVULookupController {
     if (items.isEmpty) {
       return null;
     }
-    var nodePath = node.toCVUString();
-    var cached = context.getCache(nodePath);
-    if (cached != null) {
-      return cached;
-    }
 
     String trimmedName = node.name.replaceAll(RegExp(r"(^~)|(~$)"), "");
     CVUExpressionNode? filterExpression;
@@ -967,9 +990,7 @@ class CVULookupController {
               .toList();
         }
         var stepItems = await filter(result, filterExpression, db, context);
-        cached = LookupStepItems(stepItems);
-        context.setCache(nodePath, cached);
-        return cached;
+        return LookupStepItems(stepItems);
       default:
 
         /// CHECK IF WE'RE EXPECTING EDGES OR PROPERTIES
@@ -1034,9 +1055,7 @@ class CVULookupController {
             });
           }
           var stepItems = await filter(result, filterExpression, db, context);
-          cached = LookupStepItems(stepItems);
-          context.setCache(nodePath, cached);
-          return cached;
+          return LookupStepItems(stepItems);
         } else {
           return null;
         }
@@ -1528,6 +1547,12 @@ class LookupStepValues extends LookupStep {
   final List<PropertyDatabaseValue> values;
 
   LookupStepValues(this.values);
+}
+
+class LookupStepContext extends LookupStep {
+  final CVUContext context;
+
+  LookupStepContext(this.context);
 }
 
 abstract class LookupStep {}

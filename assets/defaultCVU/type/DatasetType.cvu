@@ -38,15 +38,15 @@ DatasetType > grid {
 
     VStack {
         alignment: leftspacebetween
-        background: #F5F5F5
-        border: "#F0F0F0"
+        background: {{isSelected ? "#1AE9500F" : "#F5F5F5"}}
+        border: {{isSelected ? "#80E9500F" : "#F0F0F0"}}
         height: 96
         padding: 10
         spacing: 5
         width: 205
 
         Text {
-            color: #333333
+            color: {{isSelected ? "#E9500F" : "#333333"}}
             font: headline3
             text: {{.datasetPlugin.name}}
         }
@@ -55,7 +55,7 @@ DatasetType > grid {
             color: #989898
             font: body_tiny
             padding: 0 5
-            text: {{.datasourceItems("featureVariables").count() + " feature variables"}}
+            text: {{datasourceItems("featureVariables").count() + " feature variables"}}
         }
 
         Observer {
