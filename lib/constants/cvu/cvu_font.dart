@@ -79,6 +79,8 @@ class CVUFont {
         size: smallCaps.fontSize!,
         weight: smallCaps.fontWeight,
         letterSpacing: smallCaps.letterSpacing),
+    "small_caps_bold": CVUFont(
+        size: smallCaps.fontSize!, weight: FontWeight.w700, letterSpacing: smallCaps.letterSpacing),
     "tab_list": CVUFont(
       size: tabList.fontSize!,
       weight: tabList.fontWeight,

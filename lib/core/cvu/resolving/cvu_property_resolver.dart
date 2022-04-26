@@ -192,6 +192,27 @@ class CVUPropertyResolver {
     return defaultValue;
   }
 
+  Color? syncColor([String key = "color"]) {
+    var val = this.value(key);
+    if (val == null) {
+      return null;
+    }
+    var string = "white";
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantString) {
+        string = val.value.value;
+      }
+      if (val.value is CVUConstantColorHex) {
+        string = '#' + val.value.value;
+      }
+    }
+    var predefined = CVUColor.predefined[string];
+    if (predefined != null) {
+      return predefined;
+    }
+    return CVUColor(color: string).value;
+  }
+
   Future<DateTime?> dateTime(String key) async {
     var val = value(key);
     if (val == null) {

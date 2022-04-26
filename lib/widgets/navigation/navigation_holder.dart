@@ -21,6 +21,7 @@ class NavigationHolder extends StatelessWidget {
 class MemriUINavigationController extends StatelessWidget {
   //TODO must_be_immutable
   Widget? childWidget;
+  Color background = Colors.white;
 
   setViewControllers(Widget widget) {
     if (_context == null) {
@@ -32,7 +33,7 @@ class MemriUINavigationController extends StatelessWidget {
         _context = context;
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.white,
+          backgroundColor: background,
           body: widget,
         );
       },
@@ -48,7 +49,7 @@ class MemriUINavigationController extends StatelessWidget {
     return childWidget != null
         ? Scaffold(
             resizeToAvoidBottomInset: false,
-            backgroundColor: Colors.white,
+            backgroundColor: background,
             body: childWidget,
           )
         : Empty();

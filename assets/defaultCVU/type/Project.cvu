@@ -698,9 +698,45 @@ Project > list {
             }
         }
     ]
+    viewArguments: {
+        datasources: {
+            datasetEntries: {
+                filter: {
+                    edgeSources: {
+                        entry: {{.dataset}}
+                    }
+                }
+                query: DatasetEntry
+            }
+            skipped: {
+                filter: {
+                    edgeSources: {
+                        annotation: {{datasourceItems("datasetEntries")}}
+                    }
+                    properties: {
+                        isSubmitted: false
+                    }
+                }
+                query: CategoricalLabel
+            }
+            submitted: {
+                filter: {
+                    edgeSources: {
+                        annotation: {{datasourceItems("datasetEntries")}}
+                    }
+                    properties: {
+                        isSubmitted: true
+                    }
+                }
+                query: CategoricalLabel
+            }
+        }
+    }
 
     HStack {
         alignment: topleft
+        background: #FFFFFF
+        padding: 30 30 10 30
 
         VStack {
             alignment: topleft
@@ -708,7 +744,7 @@ Project > list {
             Text {
                 color: #333333
                 font: headline2
-                padding: 0 0 10 0
+                padding: 0 0 30 0
                 text: {{.name OR "Draft: Project"}}
             }
 
@@ -717,34 +753,105 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 200
+                    minWidth: 200
 
                     Text {
-                        font: "body_tiny_bold"
-                        text: {{.dataset.datasetType.name OR "No Dataset"}}
+                        color: #999999
+                        font: "small_caps_bold"
+                        text: "DATA SOURCE"
                     }
 
                     Text {
-                        color: "#989898"
-                        font: "body_tiny"
+                        color: "#000000"
+                        font: "ul"
                         text: {{.dataset.datasetType.datasetPlugin.name}}
                     }
                 }
 
+                Spacer
+
                 VStack {
                     alignment: topleft
-                    width: 200
 
                     Text {
-                        font: "body_tiny_bold"
-                        padding: 0 0 10 0
-                        text: {{.dataset.labellingTask.taskType.name OR ""}}
+                        color: #999999
+                        font: "small_caps_bold"
+                        text: {{.dataset.labellingTask.taskType.name.toUpperCase() OR ""}}
                     }
 
-                    Text {
-                        color: "#989898"
-                        font: "body_tiny"
-                        text: "{.dataset.feature[].count() OR '0'} variables"
+                    Wrap {
+                        alignment: left
+                        padding: 0
+
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Submitted"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            padding: 0 10 0 10
+                            text: {{datasourceItems("submitted").count()}}
+                        }
+
+                        VStack {
+                            alignment: top
+                            height: 22
+
+                            Text {
+                                color: #333333
+                                font: small_caps
+                                text: {{datasourceItems("submitted").count().percent(datasourceItems("datasetEntries").count()) + "%"}}
+                            }
+                        }
+                    }
+
+                    Wrap {
+                        alignment: left
+                        padding: 0
+
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Skipped"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            padding: 0 10 0 10
+                            text: {{datasourceItems("skipped").count()}}
+                        }
+
+                        VStack {
+                            alignment: top
+                            height: 22
+
+                            Text {
+                                color: #333333
+                                font: small_caps
+                                text: {{datasourceItems("skipped").count().percent(datasourceItems("datasetEntries").count()) + "%"}}
+                            }
+                        }
+                    }
+
+                    Wrap {
+                        alignment: left
+
+                        Text {
+                            color: #999999
+                            font: ul
+                            text: "Dataset"
+                        }
+
+                        Text {
+                            color: #333333
+                            font: ul
+                            padding: 0 0 0 10
+                            text: {{datasourceItems("datasetEntries").count()}}
+                        }
                     }
                 }
             }
@@ -753,15 +860,15 @@ Project > list {
         Spacer
 
         Image {
-            color: #DFDEDE
-            font: 24 light
-            padding: 5 0 5 0
-            systemName: "ellipsis"
+            bundleImage: "ico_arrow_top_right"
+            color: #E9500F
+            isVector: true
         }
     }
 }
 
 .projectList {
+    background: #F6F6F6
     cols: 9
     defaultRenderer: list
     emptyResult: {
@@ -795,8 +902,8 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 100
                     height: 120
+                    width: 100
 
                     Text {
                         color: #E9500F
@@ -819,8 +926,8 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 100
                     height: 120
+                    width: 100
 
                     Text {
                         color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
@@ -843,8 +950,8 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 100
                     height: 120
+                    width: 100
 
                     Text {
                         color: #999999
@@ -867,8 +974,8 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 100
                     height: 120
+                    width: 100
 
                     Text {
                         color: #999999
@@ -891,8 +998,8 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 100
                     height: 120
+                    width: 100
 
                     Text {
                         color: #999999
@@ -915,8 +1022,8 @@ Project > list {
 
                 VStack {
                     alignment: topleft
-                    width: 100
                     height: 120
+                    width: 100
 
                     Text {
                         color: #999999
@@ -1006,96 +1113,95 @@ Project > list {
     }
 
     [renderer = list] {
-        edgeInset: 30 30 10 30
-        spacing: 0 20
+        edgeInset: 0
+        hideSeparators: true
+        spacing: 0 1
     }
 }
 
 .projectSupport {
+    background: #F6F6F6
     cols: 3
     defaultRenderer: custom
     title: "Support"
-    background: #F6F6F6
 
     VStack {
         alignment: topleft
-        background: #FFFFFF
-        padding: 20
 
-        Image {
-            bundleImage: "fourthletter"
-            isVector: true
-        }
-
-        Text {
-            color: #333333
-            font: headline2
-            padding: 50 0 0 0
-            text: "Support"
-        }
-
-        Text {
-            color: #999999
-            font: bodyText1
-            padding: 0 0 20 0
-            text: "Need some help or have questions about setting up a project? Browse our step-by-step guides and documentation or chat with us."
-        }
-
-        Button {
-            isLink: true
-            onPress: [
-                openLink
-                {
-                    link: "https://memri.docs.memri.io/docs.memri.io/overview/quickStart/"
-                }
-            ]
-
-            Text {
-                color: #FE570F
-                font: link
-                padding: 0 10 0 0
-                text: "Getting started"
-            }
+        VStack {
+            alignment: topleft
+            background: #FFFFFF
+            padding: 20
 
             Image {
-                bundleImage: "ico_arrow"
-                color: #E9500F
+                bundleImage: "fourthletter"
                 isVector: true
             }
-        }
-
-        Button {
-            isLink: true
-            onPress: [
-                openLink
-                {
-                    link: "https://discord.com/invite/BcRfajJk4k"
-                }
-            ]
 
             Text {
-                color: #FE570F
-                font: link
-                padding: 0 10 0 0
-                text: "Chat with us on Discord"
+                color: #333333
+                font: headline2
+                padding: 50 0 0 0
+                text: "Support"
             }
 
-            Image {
-                bundleImage: "ico_arrow"
-                color: #E9500F
-                isVector: true
+            Text {
+                color: #999999
+                font: bodyText1
+                padding: 0 0 20 0
+                text: "Need some help or have questions about setting up a project? Browse our step-by-step guides and documentation or chat with us."
+            }
+
+            Button {
+                isLink: true
+                onPress: [
+                    openLink
+                    {
+                        link: "https://memri.docs.memri.io/docs.memri.io/overview/quickStart/"
+                    }
+                ]
+
+                Text {
+                    color: #FE570F
+                    font: link
+                    padding: 0 10 0 0
+                    text: "Getting started"
+                }
+
+                Image {
+                    bundleImage: "ico_arrow"
+                    color: #E9500F
+                    isVector: true
+                }
+            }
+
+            Button {
+                isLink: true
+                onPress: [
+                    openLink
+                    {
+                        link: "https://discord.com/invite/BcRfajJk4k"
+                    }
+                ]
+
+                Text {
+                    color: #FE570F
+                    font: link
+                    padding: 0 10 0 0
+                    text: "Chat with us on Discord"
+                }
+
+                Image {
+                    bundleImage: "ico_arrow"
+                    color: #E9500F
+                    isVector: true
+                }
             }
         }
     }
 }
 
 .allProjects {
-    cols: 12
-    defaultRenderer: scene
-    title: "All projects"
-    background: #F6F6F6
-    edgeInset: 30 0
-
     actionButton: [
         addItem
         {
@@ -1123,13 +1229,17 @@ Project > list {
             viewName: "add-project"
         }
     ]
+    background: #F6F6F6
+    cols: 12
+    defaultRenderer: scene
+    edgeInset: 10 30 30 30
+    title: "All projects"
 
     [renderer = scene] {
         pages: {
             projectList: "projectList"
             projectSupport: "projectSupport"
         }
-
         viewArguments: {
             datasources: {
                 importers: {
