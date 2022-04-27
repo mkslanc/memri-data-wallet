@@ -1,5 +1,6 @@
 //  Created by T Brennan on 30/1/21.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ class ViewContextController extends ChangeNotifier {
   final memri.PageController pageController;
 
   var configObservation;
-  var queryObservation;
+  StreamSubscription? queryObservation;
 
   CVUDefinitionContent? viewDefinition;
   CVUDefinitionContent rendererDefinition;
