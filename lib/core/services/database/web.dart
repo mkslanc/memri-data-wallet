@@ -32,6 +32,12 @@ Future<void> deleteDb(databaseName) async {
   await txn.completed;
 
   /// TODO: it should replace with correct implementation of route navigator
+
+  var cacheKeys = await window.caches?.keys();
+  for (var key in cacheKeys) {
+    await window.caches?.delete(key);
+  }
+
   window.location.reload();
 }
 
