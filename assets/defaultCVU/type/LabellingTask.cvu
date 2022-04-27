@@ -184,13 +184,13 @@ LabellingTask {
                             viewArguments: {
                                 pageLabel: "~main"
                             }
-                            viewName: "labellingPreview"
+                            viewName: "labelling"
                         }
                     ]
                     styleName: primaryButton
 
                     Text {
-                        text: "Preview editor"
+                        text: "Start labelling"
                         textalign: bottom
                     }
 
