@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
@@ -53,6 +54,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   Set<String> get selectedLabels => _selectedLabels.value;
 
+  final FocusNode _focusNode = FocusNode();
+
   set selectedLabels(Set<String> newSelectedLabels) {
     _selectedLabels.value = newSelectedLabels;
   }
@@ -64,6 +67,12 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     super.initState();
     labellingTask = widget.viewContext.focusedItem!;
     _init = init();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   didUpdateWidget(oldWidget) {
@@ -267,8 +276,11 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     return FutureBuilder(
       future: _init,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return snapshot.connectionState == ConnectionState.done
-            ? LabelSelectionView(
+        if (snapshot.connectionState == ConnectionState.done) {
+          FocusScope.of(context).requestFocus(_focusNode);
+          return KeyboardListener(
+            focusNode: _focusNode,
+            child: LabelSelectionView(
                 options: labelOptions,
                 selected: _selectedLabels,
                 enabled: currentEntry != null && !isLoading,
@@ -281,8 +293,51 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                 content: currentContent,
                 labelType: labelType,
                 isSingleLabel: isSingleLabel,
-                isLoading: isLoading)
-            : Empty();
+                isLoading: isLoading),
+            onKeyEvent: (KeyEvent event) {
+              if (isLoading) return;
+              var pressedKey = int.tryParse(event.character ?? "");
+              if (pressedKey is int) {
+                var index = pressedKey - 1;
+                if (index < 0) {
+                  selectedLabels = Set();
+                } else if (labelOptions.length > index) {
+                  selectedLabels = [labelOptions[index].id].toSet();
+                }
+              } else if (event is KeyUpEvent) {
+                if (event.logicalKey == LogicalKeyboardKey.arrowDown ||
+                    event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                  var index = -1;
+                  if (selectedLabels.isNotEmpty) {
+                    var selectedLabelOption = selectedLabels.toList().first;
+                    index = labelOptions
+                        .indexWhere((labelOption) => labelOption.id == selectedLabelOption);
+                  }
+                  if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                    index++;
+                  } else {
+                    index--;
+                  }
+                  if (index < 0) {
+                    index = labelOptions.length - 1;
+                  } else if (index >= labelOptions.length) {
+                    index = 0;
+                  }
+
+                  selectedLabels = [labelOptions[index].id].toSet();
+                } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                  inPreviewMode ? moveToNextItem() : skipCurrentItem();
+                } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                  moveToPreviousItem();
+                } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+                  if (!inPreviewMode) applyCurrentItem();
+                }
+              }
+            },
+          );
+        } else {
+          return Empty();
+        }
       },
     );
   }
@@ -352,7 +407,7 @@ class LabelSelectionView extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 5,
                 children: options
-                    .map<Widget>((option) => TextButton(
+                    .mapIndexed<Widget>((index, option) => TextButton(
                           style: TextButton.styleFrom(
                               visualDensity: VisualDensity.compact, padding: EdgeInsets.all(0)),
                           onPressed: isLoading
@@ -375,6 +430,7 @@ class LabelSelectionView extends StatelessWidget {
                                     : Color(0xffF5F5F5),
                                 borderRadius: BorderRadius.circular(20)),
                             child: Wrap(
+                              spacing: 5,
                               children: [
                                 if (option.icon != null) option.icon!,
                                 Text(
@@ -383,6 +439,11 @@ class LabelSelectionView extends StatelessWidget {
                                       color: selectedList.contains(option.id)
                                           ? Color(0xffFE570F)
                                           : Color(0xff333333)),
+                                ),
+                                Text(
+                                  (index + 1).toString(),
+                                  style: CVUFont.smallCaps.copyWith(
+                                      fontWeight: FontWeight.w700, color: Color(0xff999999)),
                                 )
                               ],
                             ),
