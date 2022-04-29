@@ -1,0 +1,251 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:memri/constants/app_images.dart';
+import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/models/pod_setup.dart';
+import 'package:memri/widgets/dots_indicator.dart';
+import 'package:memri/widgets/responsive.dart';
+
+class AccountScaffold extends StatefulWidget {
+  const AccountScaffold({Key? key, required this.child}) : super(key: key);
+
+  final Widget child;
+
+  @override
+  State<AccountScaffold> createState() => _AccountScaffoldState();
+}
+
+class _AccountScaffoldState extends State<AccountScaffold> {
+  AppController appController = AppController.shared;
+  final _controller = PageController();
+  final List<Widget> _slides = <Widget>[];
+
+  @override
+  void initState() {
+    _slides.addAll([_slide1, _slide2, _slide3]);
+    Timer.periodic(const Duration(seconds: 3), (_) {
+      if (_controller.page == _slides.length - 1) {
+        _controller.animateToPage(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease,
+        );
+      } else {
+        _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          AppImages.memriBackground(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+          ),
+          Positioned(
+            left: 24,
+            top: 24,
+            child: AppImages.memriLogo(
+              color: Colors.white,
+              height: ResponsiveWidget.isSmallScreen(context) ? 36 : 52,
+            ),
+          ),
+          Stack(
+            children: [
+              Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: ResponsiveWidget(
+                  largeScreen: _buildDesktopBody(),
+                  mediumScreen: _buildMobileBody(),
+                  smallScreen: _buildMobileBody(),
+                ),
+              ),
+              if (appController.model.state == PodSetupState.loading) ...[
+                Stack(
+                  children: [
+                    Positioned(
+                        top: 0,
+                        bottom: 0,
+                        right: 0,
+                        left: 0,
+                        child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
+                    Center(
+                      child: Column(
+                        children: [
+                          Spacer(),
+                          SizedBox(
+                            child: CircularProgressIndicator(),
+                            width: 60,
+                            height: 60,
+                          ),
+                          Text(
+                            "Setup in progress...",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Spacer()
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopBody() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 107),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 120),
+                child: widget.child),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              color: Color(0xffE9500F),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 50,
+                    bottom: 60,
+                    right: 50,
+                    child: _buildSlider(),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileBody() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 80, bottom: 40),
+      child: Column(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 50),
+                child: widget.child),
+          ),
+          Expanded(
+            flex: 3,
+            child: Container(
+              color: Color(0xffE9500F),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                child: _buildSlider(),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSlider() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 170,
+          child: PageView(
+            physics: AlwaysScrollableScrollPhysics(),
+            controller: _controller,
+            children: _slides,
+          ),
+        ),
+        SizedBox(height: 40),
+        DotsIndicator(
+          controller: _controller,
+          itemCount: _slides.length,
+          dotSize: 5,
+          dotSpacing: 28,
+          onPageSelected: (int page) {
+            _controller.animateToPage(
+              page,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.ease,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget get _slide1 => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Create data apps with your own data",
+            style: CVUFont.headline1.copyWith(color: Colors.white),
+          ),
+          SizedBox(height: 30),
+          Text(
+            "Mauris mi enim metus risus, vel. Non amet vitae nunc odio sed. Nisl a morbi ullamcorper nulla dolor sed eu. Facilisis habitant ut consectetur leo auctor ornare.",
+            style: CVUFont.bodyText1.copyWith(color: Colors.white),
+          ),
+        ],
+      );
+
+  Widget get _slide2 => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Easy deployment into apps you can use",
+            style: CVUFont.headline1.copyWith(color: Colors.white),
+          ),
+          SizedBox(height: 30),
+          Text(
+            "Mauris mi enim metus risus, vel. Non amet vitae nunc odio sed. Nisl a morbi ullamcorper nulla dolor sed eu. Facilisis habitant ut consectetur leo auctor ornare.",
+            style: CVUFont.bodyText1.copyWith(color: Colors.white),
+          ),
+        ],
+      );
+
+  Widget get _slide3 => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Share your apps in an instant",
+            style: CVUFont.headline1.copyWith(color: Colors.white),
+          ),
+          SizedBox(height: 30),
+          Text(
+            "Mauris mi enim metus risus, vel. Non amet vitae nunc odio sed. Nisl a morbi ullamcorper nulla dolor sed eu. Facilisis habitant ut consectetur leo auctor ornare.",
+            style: CVUFont.bodyText1.copyWith(color: Colors.white),
+          ),
+        ],
+      );
+}
