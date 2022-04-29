@@ -169,6 +169,8 @@
                             }
                         }
                         query: LabelOption
+                        sortAscending: true
+                        sortProperty: dateModified
                     }
 
                     [renderer = list] {
