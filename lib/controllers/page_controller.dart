@@ -54,6 +54,7 @@ class PageController extends ChangeNotifier {
   }
 
   reset() {
+    topMostContext?.queryObservation?.cancel();
     isPageActive = false;
     closeStack = [];
     navigationStack = null;

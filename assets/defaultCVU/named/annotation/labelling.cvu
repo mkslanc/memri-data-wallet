@@ -52,6 +52,7 @@
         VStack {
             alignment: topleft
             padding: 60 0 30 0
+            spacing: 2
 
             Text {
                 color: #999999
@@ -228,9 +229,10 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
-                padding: 10 0 0 0
+                padding: 30 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -257,6 +259,21 @@
                         bundleImage: "ico_arrow"
                         isVector: true
                         padding: 0 0 0 15
+                    }
+                }
+
+                Button {
+                    onPress: [
+                        back
+                        {
+                            pageLabel: "~main"
+                        }
+                    ]
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Back to labelling set up"
                     }
                 }
             }

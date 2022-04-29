@@ -22,9 +22,9 @@
         Text {
             color: #999999
             font: bodyText1
-            maxWidth: 567
+            maxWidth: 691
             padding: 0 0 10 0
-            text: "Connect new data streams, label your data and start training your model, and customise and deploy new machine learning apps. Get started here!"
+            text: "Connect and label your data, train ML models, and build, customise and deploy new machine learning apps. Get started here!"
         }
 
         Wrap {
@@ -54,7 +54,7 @@
                     color: #999999
                     font: bodyText1
                     padding: 0 0 20 0
-                    text: "Connect your WhatsApp accounts and import your data into your personal POD."
+                    text: "Connect your WhatsApp accounts and import your data into the POD."
                 }
 
                 Button {
@@ -72,6 +72,29 @@
                         font: link
                         padding: 0 10 0 0
                         text: "Connect WhatsApp"
+                    }
+
+                    Image {
+                        bundleImage: "ico_arrow"
+                        color: #E9500F
+                        isVector: true
+                    }
+                }
+
+                Button {
+                    isLink: true
+                    onPress: [
+                        openView
+                        {
+                            viewName: "createNewImporter"
+                        }
+                    ]
+
+                    Text {
+                        color: #FE570F
+                        font: link
+                        padding: 0 10 0 0
+                        text: "Upload data"
                     }
 
                     Image {
@@ -187,7 +210,7 @@
                     color: #999999
                     font: bodyText1
                     padding: 0 0 20 0
-                    text: "Read the guides and documentation about our POD architecture, plugins, and imorters on our developer site. If you get stuck, our team and the community are ready to help!"
+                    text: "Read the guides and documentation about our POD architecture, plugins, and importers on our developer site. If you get stuck, our team and the community are ready to help!"
                 }
 
                 Button {

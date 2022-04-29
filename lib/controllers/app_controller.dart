@@ -260,8 +260,6 @@ class AppController {
   }
 
   resetApp() async {
-    Authentication.createRootKey();
-
     await SceneController.sceneController.reset();
     if (!_isInDemoMode) {
       await syncStreamSub?.cancel();
@@ -269,17 +267,15 @@ class AppController {
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
-    await FileStorageController.deleteFileStorage();
-    await databaseController.delete();
-    state = AppState.setup;
-
     if (syncController.runSyncStream != null) {
       await syncController.runSyncStream!.cancel();
     }
-
     pubSubController.reset();
     cvuController.reset();
-
+    await FileStorageController.deleteFileStorage();
+    await databaseController.delete();
+    Authentication.createRootKey();
+    state = AppState.setup;
     await init();
     await SceneController.sceneController.init();
 

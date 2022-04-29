@@ -98,8 +98,13 @@ class _SceneViewState extends State<SceneView> {
                             SizedBox(
                                 child: MainNavigationView(
                                     sceneController: widget.sceneController,
-                                    currentViewName: widget.sceneController.pageControllers.first
-                                        .navigationStack.state.first.config.viewName))
+                                    currentViewName: widget.sceneController.pageControllers
+                                        .asMap()[0]
+                                        ?.navigationStack
+                                        .state
+                                        .first
+                                        .config
+                                        .viewName))
                           ],
                         ),
                       ),
