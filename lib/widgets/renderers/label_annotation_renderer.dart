@@ -328,7 +328,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                 } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
                   inPreviewMode ? moveToNextItem() : skipCurrentItem();
                 } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-                  if (currentIndex > 0) moveToPreviousItem();
+                  moveToPreviousItem();
                 } else if (event.logicalKey == LogicalKeyboardKey.enter) {
                   if (!inPreviewMode) applyCurrentItem();
                 }
