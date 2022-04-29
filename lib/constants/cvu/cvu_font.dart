@@ -13,12 +13,13 @@ class CVUFont {
   double? letterSpacing;
 
   CVUFont(
-      {name = "Karla",
-      this.size = 15,
+      {String? name,
+      double? size,
       this.weight = FontWeight.normal,
       this.italic = false,
       this.letterSpacing})
-      : this.name = name;
+      : this.name = name ?? "Karla",
+        this.size = size ?? 15;
 
   Map<String, dynamic> get font {
     return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};
