@@ -91,7 +91,7 @@ class _CVUButtonState extends State<CVUButton> {
   }
 
   openPopup(Map<String, dynamic> settings) {
-    List<CVUAction>? actions = settings['actions'];
+    List<Map<String, dynamic>>? actions = settings['actions'];
     return showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -99,16 +99,18 @@ class _CVUButtonState extends State<CVUButton> {
           content: Text(settings['text']),
           actions: actions?.compactMap(
             (action) {
-              var title = action.vars["title"]?.value?.value;
+              var title = action["title"]?.value?.value;
               if (title != null) {
                 return PointerInterceptor(
                     child: TextButton(
                   onPressed: () async {
-                    await action.execute(
-                        widget.nodeResolver.pageController, widget.nodeResolver.context);
-                    Navigator.pop(context, action.vars["title"]!.value.value);
+                    for (var cvuAction in action["actions"]) {
+                      await cvuAction.execute(
+                          widget.nodeResolver.pageController, widget.nodeResolver.context);
+                    }
+                    Navigator.pop(context);
                   },
-                  child: Text(action.vars["title"]!.value.value),
+                  child: Text(title),
                 ));
               } else {
                 return null;
