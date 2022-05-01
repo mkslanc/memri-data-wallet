@@ -234,6 +234,8 @@ class ItemRecord with EquatableMixin {
       }
     }
 
+    dateModified = DateTime.now();
+
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
     return await save(db.databasePool);
     //await addChangeLog(name, value, db); //TODO
@@ -725,6 +727,7 @@ class ItemRecord with EquatableMixin {
       }
       return {
         "id": uid,
+        "dateModified": dateModified.millisecondsSinceEpoch,
         "type": "ItemPropertySchema",
         "itemType": itemType,
         "propertyName": ItemRecord.mapSchemaPropertyName(propertyName),
@@ -746,6 +749,7 @@ class ItemRecord with EquatableMixin {
 
       return {
         "id": uid,
+        "dateModified": dateModified.millisecondsSinceEpoch,
         "type": "ItemEdgeSchema",
         "sourceType": sourceType,
         "edgeName": ItemRecord.mapSchemaPropertyName(edgeName),
@@ -797,26 +801,26 @@ class ItemRecord with EquatableMixin {
 
   static didSyncItems(PodPayloadBulkAction syncItems, String? error,
       [DatabaseController? dbController]) async {
+    await Future.delayed(Duration(seconds: 10));
     if (error != null) {
       throw Exception("Sync Failed");
     }
     dbController ??= AppController.shared.databaseController;
+    var allItems = syncItems.createItems;
+    allItems.addAll(syncItems.updateItems);
+    List<String> allItemIDs = allItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
+    var items = await fetchWithUIDs(allItemIDs, dbController.databasePool);
 
-    List<String> createItemIDs =
-        syncItems.createItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
-
-    List<String> updateItemIDs =
-        syncItems.updateItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
-
-    var allItems = createItemIDs;
-    allItems.addAll(updateItemIDs);
-    for (var itemId in allItems) {
-      var item = await fetchWithUID(itemId, dbController);
-      if (item != null) {
+    for (var item in items) {
+      if (item.dateModified.millisecondsSinceEpoch <=
+          allItems.firstWhere((element) => element["id"] == item.uid)["dateModified"]) {
         item.syncState = SyncState.noChanges;
-
-        await item.save(dbController.databasePool);
+      } else if (item.syncState == SyncState.create) {
+        item.syncState = SyncState.update;
+      } else {
+        continue;
       }
+      await item.save(dbController.databasePool);
     }
   }
 
