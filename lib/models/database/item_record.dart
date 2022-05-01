@@ -801,7 +801,6 @@ class ItemRecord with EquatableMixin {
 
   static didSyncItems(PodPayloadBulkAction syncItems, String? error,
       [DatabaseController? dbController]) async {
-    await Future.delayed(Duration(seconds: 10));
     if (error != null) {
       throw Exception("Sync Failed");
     }
