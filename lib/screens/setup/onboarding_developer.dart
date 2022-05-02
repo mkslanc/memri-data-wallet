@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
@@ -5,6 +6,8 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
+import 'package:memri/utils/responsive_helper.dart';
+import 'package:memri/widgets/account_scaffold.dart';
 
 class OnboardingDeveloper extends StatefulWidget {
   OnboardingDeveloper();
@@ -38,175 +41,173 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints geom) => Material(
-              child: Stack(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.fromLTRB(0, 22, 0, 0),
-                    child: Container(
-                      width: geom.maxWidth / 2,
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(30, 56, 30, 30),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Hello, dev.",
-                              style: CVUFont.headline1,
-                            ),
-                            SizedBox(height: 30),
-                            Text(
-                              "This is a test version of memri pod.",
-                              style: CVUFont.bodyText2,
-                            ),
-                            SizedBox(height: 20),
-                            Text(
-                              "Unexpected errors, expected reactions, unknown turns taken, known karma striking back.",
-                              style: CVUFont.bodyText2,
-                            ),
-                            SizedBox(height: 20),
-                            SizedBox(
-                              width: 428,
-                              child: ColoredBox(
-                                color: Color(0xffF0F0F0),
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Pod URL".toUpperCase(),
-                                          style:
-                                              CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
-                                      SizedBox(height: 3),
-                                      TextFormField(
-                                        controller: podUrlController,
-                                        decoration: InputDecoration.collapsed(
-                                          border: InputBorder.none,
-                                          hintText: AppSettings.defaultPodURL,
-                                        ),
-                                        style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Switch(
-                                    inactiveThumbColor: Colors.white,
-                                    inactiveTrackColor: Color(0xffDFDEDE),
-                                    activeTrackColor: Color(0xff333333),
-                                    activeColor: Colors.white,
-                                    value: appController.model.useDemoData,
-                                    onChanged: (value) =>
-                                        setState(() => appController.model.useDemoData = value)),
-                                Text(
-                                  "Use demo database",
-                                  style: TextStyle(color: Color(0xff989898)),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 45),
-                            Row(
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    appController.model.setupAsNewPod = true;
-                                    handleSetup(false);
-                                  },
-                                  style: primaryButtonStyle,
-                                  child: Text("Create new account"),
-                                ),
-                                SizedBox(width: 10),
-                                TextButton(
-                                  onPressed: () async {
-                                    Navigator.of(context)
-                                        .pushReplacement(MaterialPageRoute(builder: (context) {
-                                      return OnboardingLogin(isDevelopersMode: true);
-                                    }));
-                                  },
-                                  child: Text(
-                                    "Log into your pod",
-                                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
-                                  ),
-                                  style: TextButton.styleFrom(backgroundColor: null),
-                                ),
-                                SizedBox(width: 30),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(
-                                    "Switch back regular mode",
-                                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-                                  ),
-                                  style: TextButton.styleFrom(backgroundColor: null),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 15),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
-                              child: Text("OR"),
-                            ),
-                            SizedBox(height: 15),
-                            Row(
-                              children: [
-                                TextButton(
-                                  onPressed: () => handleSetup(true),
-                                  child: Text(
-                                    "Try without POD",
-                                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-                                  ),
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: null, minimumSize: Size(77, 36)),
-                                ),
-                                SizedBox(width: 10),
-                              ],
-                            ),
-                            if (appController.model.state == PodSetupState.error)
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                child: Text(
-                                  "Error: ${appController.model.errorString}",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                          ],
-                        ),
+    return AccountScaffold(
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 112),
+              Text(
+                "Hello, dev.",
+                style: CVUFont.headline1,
+              ),
+              SizedBox(height: 62),
+              Text(
+                "This is a test version of memri pod.",
+                style: CVUFont.bodyText1,
+              ),
+              SizedBox(height: 15),
+              Text(
+                "Unexpected errors, expected reactions, unknown turns taken, known karma striking back.",
+                style: CVUFont.bodyText1,
+              ),
+              SizedBox(height: 20),
+              Container(
+                width: 428,
+                height: 46,
+                color: Color(0xffF0F0F0),
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("pod address".toUpperCase(),
+                        style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
+                    SizedBox(height: 5),
+                    TextFormField(
+                      controller: podUrlController,
+                      decoration: InputDecoration.collapsed(
+                        border: InputBorder.none,
+                        hintText: AppSettings.defaultPodURL,
                       ),
-                    ),
-                  ),
-                  if (appController.model.state == PodSetupState.loading) ...[
-                    SizedBox(
-                        width: geom.maxWidth,
-                        height: geom.maxHeight,
-                        child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
-                    Center(
-                      child: Column(
-                        children: [
-                          Spacer(),
-                          SizedBox(
-                            child: CircularProgressIndicator(),
-                            width: 60,
-                            height: 60,
-                          ),
-                          Text(
-                            "Setup in progress...",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          Spacer()
-                        ],
-                      ),
+                      style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
                     ),
                   ],
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  CupertinoSwitch(
+                      thumbColor: Colors.white,
+                      trackColor: Color(0xffDFDEDE),
+                      activeColor: Color(0xff333333),
+                      value: appController.model.useDemoData,
+                      onChanged: (value) =>
+                          setState(() => appController.model.useDemoData = value)),
+                  SizedBox(width: 10),
+                  Text(
+                    "Use demo database",
+                    style: TextStyle(color: Color(0xff989898)),
+                  ),
                 ],
               ),
-            ));
+              SizedBox(height: 45),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 25,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      appController.model.setupAsNewPod = true;
+                      handleSetup(false);
+                    },
+                    style: primaryButtonStyle,
+                    child: Text("Create new account"),
+                  ),
+                  SizedBox(width: 30),
+                  Wrap(
+                    children: [
+                      InkWell(
+                        onTap: () async => Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) => OnboardingLogin(isDevelopersMode: true))),
+                        child: Text(
+                          "Log into your Pod",
+                          style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
+                        ),
+                      ),
+                      SizedBox(width: 30),
+                      Text("OR"),
+                      SizedBox(width: 30),
+                      InkWell(
+                        onTap: () => handleSetup(true),
+                        child: Text(
+                          "Try without Pod",
+                          style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              if (appController.model.state == PodSetupState.error)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: Text(
+                    "Error: ${appController.model.errorString}",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              if (!ResponsiveHelper(context).isLargeScreen)
+                Padding(
+                  padding: EdgeInsets.only(top: 90, bottom: 60),
+                  child: _buildSwitchModeButton(),
+                ),
+            ],
+          ),
+          if (appController.model.state == PodSetupState.loading) ...[
+            SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
+            Center(
+              child: Column(
+                children: [
+                  Spacer(),
+                  SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
+                  ),
+                  Text(
+                    "Setup in progress...",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Spacer()
+                ],
+              ),
+            ),
+          ],
+          if (ResponsiveHelper(context).isLargeScreen)
+            Positioned(
+              bottom: 61,
+              child: _buildSwitchModeButton(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchModeButton() {
+    return InkWell(
+      onTap: () => Navigator.of(context).pop(),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "Switch to ",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+            ),
+            TextSpan(
+              text: "standard mode",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void handleSetup(bool localOnly) {

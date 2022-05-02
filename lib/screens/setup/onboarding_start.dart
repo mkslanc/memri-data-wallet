@@ -41,12 +41,12 @@ class _OnboardingStartState extends State<OnboardingStart> {
                 "Hello, you.",
                 style: CVUFont.headline1,
               ),
-              SizedBox(height: 52),
+              SizedBox(height: 62),
               Text(
                 "Welcome to Memri!",
                 style: CVUFont.bodyText1,
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 15),
               Text(
                 "Please create a new POD account or log into your existing account.",
                 style: CVUFont.bodyText1,
@@ -59,7 +59,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                     style: primaryButtonStyle,
                     child: Text("Create account"),
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 30),
                   TextButton(
                     onPressed: () => Navigator.of(context)
                         .push(MaterialPageRoute(builder: (context) => OnboardingLogin())),
@@ -96,16 +96,22 @@ class _OnboardingStartState extends State<OnboardingStart> {
 
   Widget _buildDeveloperButton() {
     return AppSettings.showDeveloperButton
-        ? TextButton(
-            onPressed: () => Navigator.of(context)
+        ? InkWell(
+            onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => OnboardingDeveloper())),
-            child: Text(
-              "Switch to developers mode",
-              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: null,
-              padding: EdgeInsets.all(0),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Switch to ",
+                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+                  ),
+                  TextSpan(
+                    text: "developers mode",
+                    style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+                  ),
+                ],
+              ),
             ),
           )
         : Empty();

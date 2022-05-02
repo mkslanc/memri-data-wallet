@@ -7,6 +7,7 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountScaffold extends StatefulWidget {
   const AccountScaffold({Key? key, required this.child}) : super(key: key);
@@ -19,13 +20,15 @@ class AccountScaffold extends StatefulWidget {
 
 class _AccountScaffoldState extends State<AccountScaffold> {
   AppController appController = AppController.shared;
-  final _controller = PageController();
+  late PageController _controller;
   final List<Widget> _slides = <Widget>[];
+ late Timer _periodicTimer;
 
   @override
   void initState() {
+    _controller = PageController();
     _slides.addAll([_slide1, _slide2, _slide3]);
-    Timer.periodic(const Duration(seconds: 3), (_) {
+    _periodicTimer=   Timer.periodic(const Duration(seconds: 3), (_) {
       if (_controller.page == _slides.length - 1) {
         _controller.animateToPage(
           0,
@@ -42,6 +45,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
   @override
   void dispose() {
     _controller.dispose();
+    _periodicTimer.cancel();
     super.dispose();
   }
 
@@ -62,9 +66,28 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           Positioned(
             left: 24,
             top: 24,
-            child: AppImages.memriLogo(
-              color: Colors.white,
-              height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
+            child: Row(
+              children: [
+                AppImages.memriLogo(
+                  color: Colors.white,
+                  height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
+                ),
+                SizedBox(width: 16),
+                Container(
+                  height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
+                  alignment: Alignment.bottomCenter,
+                  child: Text('memri', style: CVUFont.headline2.copyWith(color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            right: 57,
+            bottom: ResponsiveHelper(context).isLargeScreen ? 34 : 12,
+            child: InkWell(
+              onTap: () => launch('https://www.memri.io/memri-privacy-preserving-license'),
+              child: Text('License',
+                  style: CVUFont.headline4.copyWith(color: Colors.white, fontSize: 17)),
             ),
           ),
           Stack(
@@ -134,7 +157,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
                     left: 50,
                     bottom: 60,
                     right: 50,
-                    child: _buildSlider(),
+                    child: _buildSlider(PageController()),
                   ),
                 ],
               ),
@@ -160,7 +183,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
               color: Color(0xffE9500F),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                child: _buildSlider(),
+                child: _buildSlider(PageController()),
               ),
             )
           ],
@@ -169,7 +192,8 @@ class _AccountScaffoldState extends State<AccountScaffold> {
     );
   }
 
-  Widget _buildSlider() {
+  Widget _buildSlider(PageController controller) {
+    _controller = controller;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -179,18 +203,18 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           height: ResponsiveHelper(context).isLargeScreen ? 220 : 180,
           child: PageView(
             physics: AlwaysScrollableScrollPhysics(),
-            controller: _controller,
+            controller: controller,
             children: _slides,
           ),
         ),
         SizedBox(height: 40),
         DotsIndicator(
-          controller: _controller,
+          controller: controller,
           itemCount: _slides.length,
           dotSize: 5,
           dotSpacing: 28,
           onPageSelected: (int page) {
-            _controller.animateToPage(
+            controller.animateToPage(
               page,
               duration: const Duration(milliseconds: 300),
               curve: Curves.ease,
