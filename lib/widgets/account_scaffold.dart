@@ -18,15 +18,40 @@ class AccountScaffold extends StatefulWidget {
   State<AccountScaffold> createState() => _AccountScaffoldState();
 }
 
-class _AccountScaffoldState extends State<AccountScaffold> {
+class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProviderStateMixin {
   AppController appController = AppController.shared;
-  late PageController _controller;
   final List<Widget> _slides = <Widget>[];
- late Timer _periodicTimer;
+  late PageController _controller;
+  late Timer _periodicTimer;
+  late AnimationController _animationController;
+  late Animation<Color?> animation;
+
+  final colors = TweenSequence([
+    TweenSequenceItem(
+      weight: 1.0,
+      tween: ColorTween(begin: Color(0xffE9500F), end: Color(0xff4F56FE)),
+    ),
+    TweenSequenceItem(
+      weight: 1.0,
+      tween: ColorTween(begin: Color(0xff4F56FE), end: Color(0xff15B599)),
+    ),
+    TweenSequenceItem(
+      weight: 1.0,
+      tween: ColorTween(begin: Color(0xff15B599), end: Color(0xffE9500F)),
+    ),
+  ]);
 
   @override
   void initState() {
     _controller = PageController();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this
+    );
+    animation = colors.animate(_animationController)..addListener(() {
+      setState(() {});
+    });
+
     _slides.addAll([_slide1, _slide2, _slide3]);
     _periodicTimer=   Timer.periodic(const Duration(seconds: 3), (_) {
       if (_controller.page == _slides.length - 1) {
@@ -136,6 +161,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
   }
 
   Widget _buildDesktopBody() {
+    _controller = PageController();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 107),
       child: Row(
@@ -150,14 +176,14 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           Expanded(
             flex: 1,
             child: Container(
-              color: Color(0xffE9500F),
+              color: animation.value,
               child: Stack(
                 children: [
                   Positioned(
                     left: 50,
                     bottom: 60,
                     right: 50,
-                    child: _buildSlider(PageController()),
+                    child: _buildSlider(),
                   ),
                 ],
               ),
@@ -169,6 +195,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
   }
 
   Widget _buildMobileBody() {
+    _controller = PageController();
     return Padding(
       padding: const EdgeInsets.only(top: 80, bottom: 40),
       child: SingleChildScrollView(
@@ -180,10 +207,10 @@ class _AccountScaffoldState extends State<AccountScaffold> {
                 padding: EdgeInsets.symmetric(horizontal: 50),
                 child: widget.child),
             Container(
-              color: Color(0xffE9500F),
+              color: animation.value,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                child: _buildSlider(PageController()),
+                child: _buildSlider(),
               ),
             )
           ],
@@ -192,8 +219,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
     );
   }
 
-  Widget _buildSlider(PageController controller) {
-    _controller = controller;
+  Widget _buildSlider() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -203,18 +229,21 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           height: ResponsiveHelper(context).isLargeScreen ? 220 : 180,
           child: PageView(
             physics: AlwaysScrollableScrollPhysics(),
-            controller: controller,
+            controller: _controller,
             children: _slides,
+            onPageChanged: (index){
+              _animationController.animateTo(index / _slides.length);
+            },
           ),
         ),
         SizedBox(height: 40),
         DotsIndicator(
-          controller: controller,
+          controller: _controller,
           itemCount: _slides.length,
           dotSize: 5,
           dotSpacing: 28,
           onPageSelected: (int page) {
-            controller.animateToPage(
+            _controller.animateToPage(
               page,
               duration: const Duration(milliseconds: 300),
               curve: Curves.ease,
