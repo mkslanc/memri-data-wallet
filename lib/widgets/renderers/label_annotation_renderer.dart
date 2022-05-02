@@ -214,7 +214,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
             .compactMap(
                 (labelOption) => selectedLabels.contains(labelOption.id) ? labelOption.text : null)
             .join(",");
-        currentAnnotation!.setPropertyValue("labelValue", PropertyDatabaseValueString(labelValue));
+        await currentAnnotation!
+            .setPropertyValue("labelValue", PropertyDatabaseValueString(labelValue));
         break;
       default:
         break;
