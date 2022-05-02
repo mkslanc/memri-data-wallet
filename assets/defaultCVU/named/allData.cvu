@@ -51,6 +51,7 @@
                 }
 
                 [renderer = grid] {
+                    showDefaultSelections: false
                     layout: "flow"
                     onPress: [
                         openPlugin
