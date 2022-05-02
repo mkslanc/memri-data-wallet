@@ -125,6 +125,33 @@ LabellingTask {
                     rows: 1
                     value: {{.currentLabelOption}}
                     width: 150
+                    autoFocus: true
+                    onSubmit: [
+                        validate
+                        {
+                            rules: [
+                                {
+                                    error: "Please fill the label name."
+                                    expression: {{.currentLabelOption}}
+                                }
+                            ]
+                        }
+                        addItem
+                        {
+                            openNewView: false
+                            template: {
+                                _type: "LabelOption"
+                                name: "{.currentLabelOption}"
+                                ~labelOption: {{.}}
+                            }
+                        }
+                        setProperty
+                        {
+                            property: "currentLabelOption"
+                            subject: {{.}}
+                            value: ""
+                        }
+                    ]
                 }
 
                 Button {
