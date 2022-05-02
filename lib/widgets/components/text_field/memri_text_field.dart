@@ -13,6 +13,9 @@ class MemriTextField<T> extends StatefulWidget {
   final bool secureMode;
   final bool isMultiline;
   final bool isCollapsed;
+  final bool autoFocus;
+  final Future Function()? onSubmit;
+  final ValueNotifier<bool> isDisabled;
 
   MemriTextField.sync(
       {required this.binding,
@@ -22,8 +25,12 @@ class MemriTextField<T> extends StatefulWidget {
       this.secureMode = false,
       this.isEditing = true,
       this.isMultiline = false,
-      this.isCollapsed = false})
-      : futureBinding = null;
+      this.isCollapsed = false,
+      this.autoFocus = false,
+      this.onSubmit,
+      isDisabled})
+      : futureBinding = null,
+        this.isDisabled = isDisabled ?? ValueNotifier(false);
 
   MemriTextField.async(
       {required this.futureBinding,
@@ -33,8 +40,12 @@ class MemriTextField<T> extends StatefulWidget {
       this.secureMode = false,
       this.isEditing = true,
       this.isMultiline = false,
-      this.isCollapsed = false})
-      : binding = null;
+      this.isCollapsed = false,
+      this.autoFocus = false,
+      this.onSubmit,
+      isDisabled})
+      : binding = null,
+        this.isDisabled = isDisabled ?? ValueNotifier(false);
 
   @override
   _MemriTextFieldState<T> createState() => _MemriTextFieldState<T>();
@@ -46,6 +57,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   TextEditingController get controller => TextEditingController(text: _value?.toString());
 
   late Future<T> _futureValue;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   initState() {
@@ -61,6 +73,12 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
     if (widget.futureBinding != null) {
       _futureValue = widget.futureBinding!.get();
     }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   bool pending = false;
@@ -131,21 +149,34 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   }
 
   stringTextForm() {
-    return TextFormField(
-      obscureText: widget.secureMode,
-      readOnly: !widget.isEditing,
-      style: widget.style,
-      decoration: InputDecoration(
-          isCollapsed: widget.isCollapsed,
-          contentPadding: EdgeInsets.symmetric(horizontal: 10),
-          border: InputBorder.none,
-          hintText: widget.hint,
-          hintStyle: widget.hintStyle),
-      controller: controller,
-      maxLines: widget.isMultiline ? null : 1,
-      onChanged: (String newValue) async {
-        value = newValue;
-      },
+    return ValueListenableBuilder<bool>(
+      valueListenable: widget.isDisabled,
+      builder: (BuildContext context, disabledValue, Widget? child) => TextFormField(
+          focusNode: _focusNode,
+          obscureText: widget.secureMode,
+          readOnly: !widget.isEditing || disabledValue,
+          style: widget.style,
+          autofocus: widget.autoFocus,
+          decoration: InputDecoration(
+              isCollapsed: widget.isCollapsed,
+              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              border: InputBorder.none,
+              hintText: widget.hint,
+              hintStyle: widget.hintStyle),
+          controller: controller,
+          maxLines: widget.isMultiline ? null : 1,
+          onChanged: (String newValue) async {
+            value = newValue;
+          },
+          onFieldSubmitted: (lastValue) async {
+            if (widget.onSubmit != null) {
+              await widget.onSubmit!();
+              if (widget.autoFocus)
+                Future.delayed(Duration(milliseconds: 500)).then((value) {
+                  FocusScope.of(context).requestFocus(_focusNode);
+                });
+            }
+          }),
     );
   }
 
