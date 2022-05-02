@@ -6,7 +6,9 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_developer.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
+import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/account_scaffold.dart';
+import 'package:memri/widgets/empty.dart';
 
 class OnboardingStart extends StatefulWidget {
   const OnboardingStart() : super();
@@ -75,27 +77,38 @@ class _OnboardingStartState extends State<OnboardingStart> {
                   "Error: ${appController.model.errorString}",
                   style: TextStyle(color: Colors.red),
                 ),
+              if (!ResponsiveHelper(context).isLargeScreen)
+                Padding(
+                  padding: EdgeInsets.only(top: 90, bottom: 60),
+                  child: _buildDeveloperButton(),
+                ),
             ],
           ),
-          if (AppSettings.showDeveloperButton)
+          if (ResponsiveHelper(context).isLargeScreen)
             Positioned(
               bottom: 61,
-              child: TextButton(
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => OnboardingDeveloper())),
-                child: Text(
-                  "Switch to developers mode",
-                  style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-                ),
-                style: TextButton.styleFrom(
-                  backgroundColor: null,
-                  padding: EdgeInsets.all(0),
-                ),
-              ),
+              child: _buildDeveloperButton(),
             ),
         ],
       ),
     );
+  }
+
+  Widget _buildDeveloperButton() {
+    return AppSettings.showDeveloperButton
+        ? TextButton(
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => OnboardingDeveloper())),
+            child: Text(
+              "Switch to developers mode",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: null,
+              padding: EdgeInsets.all(0),
+            ),
+          )
+        : Empty();
   }
 
   void handleSetup() {

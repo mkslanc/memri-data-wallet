@@ -5,8 +5,8 @@ import 'package:memri/constants/app_images.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
-import 'package:memri/widgets/responsive.dart';
 
 class AccountScaffold extends StatefulWidget {
   const AccountScaffold({Key? key, required this.child}) : super(key: key);
@@ -50,6 +50,11 @@ class _AccountScaffoldState extends State<AccountScaffold> {
     return Scaffold(
       body: Stack(
         children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            color: Colors.black,
+          ),
           AppImages.memriBackground(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -59,7 +64,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
             top: 24,
             child: AppImages.memriLogo(
               color: Colors.white,
-              height: ResponsiveWidget.isSmallScreen(context) ? 36 : 52,
+              height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
             ),
           ),
           Stack(
@@ -67,11 +72,9 @@ class _AccountScaffoldState extends State<AccountScaffold> {
               Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.symmetric(horizontal: 30),
-                child: ResponsiveWidget(
-                  largeScreen: _buildDesktopBody(),
-                  mediumScreen: _buildMobileBody(),
-                  smallScreen: _buildMobileBody(),
-                ),
+                child: ResponsiveHelper(context).isLargeScreen
+                    ? _buildDesktopBody()
+                    : _buildMobileBody(),
               ),
               if (appController.model.state == PodSetupState.loading) ...[
                 Stack(
@@ -145,27 +148,23 @@ class _AccountScaffoldState extends State<AccountScaffold> {
   Widget _buildMobileBody() {
     return Padding(
       padding: const EdgeInsets.only(top: 80, bottom: 40),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Container(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
                 width: MediaQuery.of(context).size.width,
                 color: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 50),
                 child: widget.child),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
+            Container(
               color: Color(0xffE9500F),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 child: _buildSlider(),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -174,9 +173,10 @@ class _AccountScaffoldState extends State<AccountScaffold> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: 170,
+          height: ResponsiveHelper(context).isLargeScreen ? 220 : 180,
           child: PageView(
             physics: AlwaysScrollableScrollPhysics(),
             controller: _controller,
@@ -211,7 +211,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           ),
           SizedBox(height: 30),
           Text(
-            "Mauris mi enim metus risus, vel. Non amet vitae nunc odio sed. Nisl a morbi ullamcorper nulla dolor sed eu. Facilisis habitant ut consectetur leo auctor ornare.",
+            "Import your data from services like WhatsApp, Gmail, Instagram and Twitter into your private Memri POD. Process and use your data to build machine learning apps all in one platform.",
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],
@@ -227,7 +227,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           ),
           SizedBox(height: 30),
           Text(
-            "Mauris mi enim metus risus, vel. Non amet vitae nunc odio sed. Nisl a morbi ullamcorper nulla dolor sed eu. Facilisis habitant ut consectetur leo auctor ornare.",
+            "Add and edit a custom interface to your app and see changes live. Select from ready building blocks such as VStacks, HStacks, Text and buttons inside the embedded Ace editor without leaving the platform.",
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],
@@ -243,7 +243,7 @@ class _AccountScaffoldState extends State<AccountScaffold> {
           ),
           SizedBox(height: 30),
           Text(
-            "Mauris mi enim metus risus, vel. Non amet vitae nunc odio sed. Nisl a morbi ullamcorper nulla dolor sed eu. Facilisis habitant ut consectetur leo auctor ornare.",
+            "Push your code to your repo in the dev or prod branch using our plugin template, and you’re done.",
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],
