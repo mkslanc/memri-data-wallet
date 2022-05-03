@@ -108,7 +108,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                   children: [
                     SizedBox(height: 10),
                     Text(
-                      "your owner key".toUpperCase(),
+                      "your login key".toUpperCase(),
                       style: CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
                     ),
                     SizedBox(height: 5),
@@ -120,7 +120,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                     Divider(height: 1),
                     SizedBox(height: 10),
                     Text(
-                      "your database key".toUpperCase(),
+                      "your password key".toUpperCase(),
                       style: CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
                     ),
                     SizedBox(height: 5),
@@ -134,7 +134,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
               TextButton(
                 onPressed: () async {
                   Clipboard.setData(
-                      ClipboardData(text: "Owner Key: ${ownerKey}\nDatabase Key: ${dbKey}"));
+                      ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
                   setState(() {
                     isCopied = true;
                   });
@@ -144,7 +144,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Copy keys",
+                      "Copy keys to clipboard",
                       style: CVUFont.buttonLabel.copyWith(color: Colors.white),
                     ),
                     SizedBox(width: 10),
@@ -158,7 +158,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                   children: [
                     SizedBox(height: 20),
                     Text(
-                      "You will be asked to use your keys in the model training process.",
+                      "You need your login and password keys in the creating app process.",
                       style: CVUFont.bodyText1,
                     ),
                     SizedBox(height: 20),

@@ -72,7 +72,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("your owner key".toUpperCase(),
+                    Text("your login key".toUpperCase(),
                         style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
                     SizedBox(height: 5),
                     TextFormField(
@@ -95,7 +95,7 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("your database key".toUpperCase(),
+                    Text("your password key".toUpperCase(),
                         style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
                     SizedBox(height: 5),
                     TextFormField(
