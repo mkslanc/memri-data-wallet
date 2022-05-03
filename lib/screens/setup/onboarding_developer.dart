@@ -191,7 +191,12 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
 
   Widget _buildSwitchModeButton() {
     return InkWell(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () {
+        appController.isDevelopersMode = false;
+        appController.model.setupAsNewPod = true;
+        appController.model.podURL = AppSettings.defaultPodURL;
+        Navigator.of(context).pop();
+      },
       child: RichText(
         text: TextSpan(
           children: [
