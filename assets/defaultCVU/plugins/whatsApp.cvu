@@ -234,26 +234,44 @@
                 }
 
                 Button {
-                    Text {
-                        text: "Cancel"
-                        font: button_label
-                        color: #333333
-                    }
-
                     onPress: [
-                        delete {
-                            subject: {{.~account}}
-                        }
-                        openView
+                        openpopup
                         {
-                            clearStack: true
-                            inheritDatasource: false
-                            viewArguments: {
-                                readOnly: true
-                            }
-                            viewName: "allData"
+                            actions: [
+                                {
+                                    onPress: [
+                                        delete
+                                        {
+                                            subject: {{.~account}}
+                                        }
+                                        openView
+                                        {
+                                            clearStack: true
+                                            inheritDatasource: false
+                                            viewArguments: [
+                                                {
+                                                    readOnly: true
+                                                }
+                                            ]
+                                            viewName: "allData"
+                                        }
+                                    ]
+                                    title: "Proceed"
+                                }
+                                {
+                                    title: "Cancel"
+                                }
+                            ]
+                            text: "Are you sure you want to stop current plugin run?"
+                            title: "Confirmation"
                         }
                     ]
+
+                    Text {
+                        color: #333333
+                        font: button_label
+                        text: "Cancel"
+                    }
                 }
             }
         }

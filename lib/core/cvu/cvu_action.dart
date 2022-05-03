@@ -1424,8 +1424,15 @@ class CVUActionOpenPopup extends CVUAction {
     if (title == null || text == null) return null;
     var resolver =
         CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: this.vars);
-    var resolvedActions = resolver.actions("actions");
-    return {"title": title, "text": text, "actions": resolvedActions};
+    var actions = resolver.subdefinitionArray("actions");
+    var popupActions = actions
+        .map((action) => <String, dynamic>{
+              "title": action.properties["title"],
+              "actions": action.actions("onPress") ?? []
+            })
+        .toList();
+
+    return {"title": title, "text": text, "actions": popupActions};
   }
 
   @override

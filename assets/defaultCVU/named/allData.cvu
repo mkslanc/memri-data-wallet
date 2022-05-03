@@ -110,32 +110,32 @@
                         pluginRunStatus: {{.~plugin[].last().status}}
                     }
 
-                    VStack {
-                        alignment: leftspacebetween
-                        background: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
-                        border: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
-                        height: 96
-                        padding: 10
-                        spacing: 5
-                        width: 205
+                    Observer {
+                        item: {{lastPluginRun}}
+                        property: "progress"
 
-                        Text {
-                            color: {{lastPluginRun ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
-                            font: headline3
-                            text: {{.name}}
-                        }
+                        VStack {
+                            alignment: leftspacebetween
+                            background: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
+                            border: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
+                            height: 96
+                            padding: 10
+                            spacing: 5
+                            width: 205
 
-                        Text {
-                            color: #989898
-                            font: body_tiny
-                            padding: 0 5
-                            show: {{lastPluginRun}}
-                            text: {{datasourceItems("featureVariables").count() + " feature variables"}}
-                        }
+                            Text {
+                                color: {{lastPluginRun ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
+                                font: headline3
+                                text: {{.name}}
+                            }
 
-                        Observer {
-                            item: {{lastPluginRun}}
-                            property: "progress"
+                            Text {
+                                color: #989898
+                                font: body_tiny
+                                padding: 0 5
+                                show: {{lastPluginRun}}
+                                text: {{datasourceItems("featureVariables").count() + " feature variables"}}
+                            }
 
                             Text {
                                 color: #FE570F
@@ -149,8 +149,8 @@
                                 color: {{pluginRunStatus = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
                                 font: body_tiny
                                 padding: 0 10 0 0
-                                show: {{pluginRunStatus = "done" OR pluginRunStatus = "error" OR lastPluginRun.progress > 0.96}}
-                                text: "{pluginRunStatus = 'error' ? 'Error' : 'Running'}"
+                                show: {{pluginRunStatus = "done" OR pluginRunStatus = "error" OR lastPluginRun.progress > 0.96 OR pluginRunStatus = "cvuPresented"}}
+                                text: "{pluginRunStatus = 'cvuPresented' ? 'Pending' : pluginRunStatus = 'error' ? 'Error' : 'Running'}"
                             }
 
                             Text {

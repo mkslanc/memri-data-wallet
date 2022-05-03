@@ -6,6 +6,9 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_developer.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
+import 'package:memri/utils/responsive_helper.dart';
+import 'package:memri/widgets/account_scaffold.dart';
+import 'package:memri/widgets/empty.dart';
 
 class OnboardingStart extends StatefulWidget {
   const OnboardingStart() : super();
@@ -27,110 +30,91 @@ class _OnboardingStartState extends State<OnboardingStart> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints geom) => Stack(
-              children: [
-                Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.fromLTRB(0, 22, 0, 0),
-                  child: Container(
-                    width: geom.maxWidth / 2,
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 56, 30, 30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Hello, you.",
-                            style: CVUFont.headline1,
-                          ),
-                          SizedBox(height: 30),
-                          Text(
-                            "This is a test version of memri pod.",
-                            style: CVUFont.bodyText2,
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            "Unexpected errors, expected reactions, unknown turns taken, known karma striking back.",
-                            style: CVUFont.bodyText2,
-                          ),
-                          SizedBox(height: 45),
-                          Row(
-                            children: [
-                              TextButton(
-                                onPressed: handleSetup,
-                                style: primaryButtonStyle,
-                                child: Text("Create an account"),
-                              ),
-                              SizedBox(width: 10),
-                              TextButton(
-                                onPressed: () async {
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                                    return OnboardingLogin();
-                                  }));
-                                },
-                                child: Text(
-                                  "Log in",
-                                  style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
-                                ),
-                                style: TextButton.styleFrom(backgroundColor: null),
-                              ),
-                              SizedBox(width: 30),
-                              if (AppSettings.showDeveloperButton)
-                                TextButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).push(MaterialPageRoute(
-                                        builder: (context) => OnboardingDeveloper()));
-                                  },
-                                  child: Text(
-                                    "Switch to developers mode",
-                                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-                                  ),
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: null,
-                                  ),
-                                ),
-                            ],
-                          ),
-                          if (appController.model.state == PodSetupState.error)
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: Text(
-                                "Error: ${appController.model.errorString}",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
+    return AccountScaffold(
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 112),
+              Text(
+                "Hi there!",
+                style: CVUFont.headline1,
+              ),
+              SizedBox(height: 62),
+              Text(
+                "Welcome to Memri!",
+                style: CVUFont.bodyText1,
+              ),
+              SizedBox(height: 15),
+              Text(
+                "Please create a new POD account or log into your existing account.",
+                style: CVUFont.bodyText1,
+              ),
+              SizedBox(height: 45),
+              Wrap(
+                children: [
+                  TextButton(
+                    onPressed: handleSetup,
+                    style: primaryButtonStyle,
+                    child: Text("Create account"),
                   ),
-                ),
-                if (appController.model.state == PodSetupState.loading) ...[
-                  SizedBox(
-                      width: geom.maxWidth,
-                      height: geom.maxHeight,
-                      child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
-                  Center(
-                    child: Column(
-                      children: [
-                        Spacer(),
-                        SizedBox(
-                          child: CircularProgressIndicator(),
-                          width: 60,
-                          height: 60,
-                        ),
-                        Text(
-                          "Setup in progress...",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        Spacer()
-                      ],
+                  SizedBox(width: 30),
+                  TextButton(
+                    onPressed: () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) => OnboardingLogin())),
+                    child: Text(
+                      "Log in",
+                      style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
                     ),
+                    style: TextButton.styleFrom(backgroundColor: null),
                   ),
                 ],
-              ],
-            ));
+              ),
+              SizedBox(height: 30),
+              if (appController.model.state == PodSetupState.error)
+                Text(
+                  "Error: ${appController.model.errorString}",
+                  style: TextStyle(color: Colors.red),
+                ),
+              if (!ResponsiveHelper(context).isLargeScreen)
+                Padding(
+                  padding: EdgeInsets.only(top: 60, bottom: 40),
+                  child: _buildDeveloperButton(),
+                ),
+            ],
+          ),
+          if (ResponsiveHelper(context).isLargeScreen)
+            Positioned(
+              bottom: 61,
+              child: _buildDeveloperButton(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeveloperButton() {
+    return AppSettings.showDeveloperButton
+        ? InkWell(
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => OnboardingDeveloper())),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Switch to ",
+                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+                  ),
+                  TextSpan(
+                    text: "developers mode",
+                    style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+                  ),
+                ],
+              ),
+            ),
+          )
+        : Empty();
   }
 
   void handleSetup() {
