@@ -38,7 +38,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
             children: [
               SizedBox(height: 112),
               Text(
-                "Hello, you.",
+                "Hi there!",
                 style: CVUFont.headline1,
               ),
               SizedBox(height: 62),
@@ -79,7 +79,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
                 ),
               if (!ResponsiveHelper(context).isLargeScreen)
                 Padding(
-                  padding: EdgeInsets.only(top: 90, bottom: 60),
+                  padding: EdgeInsets.only(top: 60, bottom: 40),
                   child: _buildDeveloperButton(),
                 ),
             ],

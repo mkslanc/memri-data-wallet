@@ -110,23 +110,10 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                 ),
               ),
               SizedBox(height: 40),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: handleSetup,
-                    style: primaryButtonStyle,
-                    child: Text("Log in"),
-                  ),
-                  SizedBox(width: 30),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                      "Cancel",
-                      style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
-                    ),
-                    style: TextButton.styleFrom(backgroundColor: null),
-                  ),
-                ],
+              TextButton(
+                onPressed: handleSetup,
+                style: primaryButtonStyle,
+                child: Text("Log in"),
               ),
               if (appController.model.state == PodSetupState.error)
                 Padding(
@@ -136,9 +123,18 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
-              if (!ResponsiveHelper(context).isLargeScreen) SizedBox(height: 60),
+              if (!ResponsiveHelper(context).isLargeScreen)
+                Padding(
+                  padding: EdgeInsets.only(top: 60, bottom: 40),
+                  child: _buildNewAccountButton(),
+                ),
             ],
           ),
+          if (ResponsiveHelper(context).isLargeScreen)
+            Positioned(
+              bottom: 61,
+              child: _buildNewAccountButton(),
+            ),
           if (appController.model.state == PodSetupState.loading) ...[
             SizedBox(
                 width: MediaQuery.of(context).size.width,
@@ -163,6 +159,26 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildNewAccountButton() {
+    return InkWell(
+      onTap: () => Navigator.of(context).pop(),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "Don’t have an account yet? ",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+            ),
+            TextSpan(
+              text: "Create a new one!",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -49,7 +49,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
             children: [
               SizedBox(height: 112),
               Text(
-                "Hello, dev.",
+                "Hello, dev!",
                 style: CVUFont.headline1,
               ),
               SizedBox(height: 62),
@@ -119,9 +119,8 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                   Wrap(
                     children: [
                       InkWell(
-                        onTap: () async => Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) => OnboardingLogin(isDevelopersMode: true))),
+                        onTap: () async => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => OnboardingLogin(isDevelopersMode: true))),
                         child: Text(
                           "Log into your Pod",
                           style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
@@ -152,7 +151,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                 ),
               if (!ResponsiveHelper(context).isLargeScreen)
                 Padding(
-                  padding: EdgeInsets.only(top: 90, bottom: 60),
+                  padding: EdgeInsets.only(top: 60, bottom: 40),
                   child: _buildSwitchModeButton(),
                 ),
             ],

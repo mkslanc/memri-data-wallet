@@ -7,12 +7,14 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
+import 'package:memri/widgets/empty.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AccountScaffold extends StatefulWidget {
-  const AccountScaffold({Key? key, required this.child}) : super(key: key);
+  const AccountScaffold({Key? key, required this.child, this.showSlider = true}) : super(key: key);
 
   final Widget child;
+  final bool showSlider;
 
   @override
   State<AccountScaffold> createState() => _AccountScaffoldState();
@@ -21,7 +23,7 @@ class AccountScaffold extends StatefulWidget {
 class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProviderStateMixin {
   AppController appController = AppController.shared;
   final List<Widget> _slides = <Widget>[];
-  late PageController _controller;
+  PageController _controller = PageController();
   late Timer _periodicTimer;
   late AnimationController _animationController;
   late Animation<Color?> animation;
@@ -43,27 +45,27 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
 
   @override
   void initState() {
-    _controller = PageController();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this
-    );
-    animation = colors.animate(_animationController)..addListener(() {
-      setState(() {});
-    });
+    if (widget.showSlider) {
+      _animationController =
+          AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
+      animation = colors.animate(_animationController)
+        ..addListener(() {
+          setState(() {});
+        });
 
-    _slides.addAll([_slide1, _slide2, _slide3]);
-    _periodicTimer=   Timer.periodic(const Duration(seconds: 3), (_) {
-      if (_controller.page == _slides.length - 1) {
-        _controller.animateToPage(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.ease,
-        );
-      } else {
-        _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
-      }
-    });
+      _slides.addAll([_slide1, _slide2, _slide3]);
+      _periodicTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+        if (_controller.page == _slides.length - 1) {
+          _controller.animateToPage(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+          );
+        } else {
+          _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+        }
+      });
+    }
     super.initState();
   }
 
@@ -176,7 +178,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
           Expanded(
             flex: 1,
             child: Container(
-              color: animation.value,
+              color: widget.showSlider ? animation.value : Colors.white,
               child: Stack(
                 children: [
                   Positioned(
@@ -207,11 +209,10 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
                 padding: EdgeInsets.symmetric(horizontal: 50),
                 child: widget.child),
             Container(
-              color: animation.value,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                child: _buildSlider(),
-              ),
+              color: widget.showSlider ? animation.value : Colors.white,
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              child: _buildSlider(),
             )
           ],
         ),
@@ -220,6 +221,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   }
 
   Widget _buildSlider() {
+    if (!widget.showSlider) return Empty();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +233,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
             physics: AlwaysScrollableScrollPhysics(),
             controller: _controller,
             children: _slides,
-            onPageChanged: (index){
+            onPageChanged: (index) {
               _animationController.animateTo(index / _slides.length);
             },
           ),
