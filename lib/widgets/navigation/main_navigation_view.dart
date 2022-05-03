@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:memri/constants/app_images.dart';
 import 'package:memri/controllers/scene_controller.dart';
 
 import 'navigation_pane_view.dart';
@@ -35,7 +36,7 @@ class MainNavigationView extends StatelessWidget {
         InkWell(
             onTap: () => sceneController.navigateToNewContext(
                 clearStack: true, animated: false, viewName: "home"),
-            child: SvgPicture.asset("assets/images/logo.svg"))
+            child: AppImages.memriLogo())
       ],
     );
   }
