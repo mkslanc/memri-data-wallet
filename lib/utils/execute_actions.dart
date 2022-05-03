@@ -10,7 +10,7 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
     {ValueNotifier<bool>? isDisabled, List<CVUAction>? actions, String? actionsKey}) async {
   //TODO clear up this part, if it's not thrown away on refactor
   openPopup(Map<String, dynamic> settings) {
-    List<CVUAction>? actions = settings['actions'];
+    List<Map<String, dynamic>>? actions = settings['actions'];
     return showDialog<String>(
       context: state.context,
       builder: (BuildContext context) => AlertDialog(
@@ -18,15 +18,17 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
           content: Text(settings['text']),
           actions: actions?.compactMap(
             (action) {
-              var title = action.vars["title"]?.value?.value;
+              var title = action["title"]?.value?.value;
               if (title != null) {
                 return PointerInterceptor(
                     child: TextButton(
                   onPressed: () async {
-                    await action.execute(nodeResolver.pageController, nodeResolver.context);
-                    Navigator.pop(context, action.vars["title"]!.value.value);
+                    for (var cvuAction in action["actions"]) {
+                      await cvuAction.execute(nodeResolver.pageController, nodeResolver.context);
+                    }
+                    Navigator.pop(context);
                   },
-                  child: Text(action.vars["title"]!.value.value),
+                  child: Text(title),
                 ));
               } else {
                 return null;
