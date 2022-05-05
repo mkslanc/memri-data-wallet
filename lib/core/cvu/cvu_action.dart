@@ -655,7 +655,7 @@ class CVUActionAddItem extends CVUAction {
             .execute(pageController, context.replacingItem(item));
       }
 
-      pageController.scheduleUIUpdate();
+      await pageController.scheduleUIUpdate();
     }
   }
 }
@@ -1072,7 +1072,7 @@ class CVUActionUnlink extends CVUAction {
       return;
     }
 
-    pageController.scheduleUIUpdate();
+    await pageController.scheduleUIUpdate();
   }
 }
 
@@ -1312,7 +1312,7 @@ class CVUActionSetProperty extends CVUAction {
 
     pageController.topMostContext
         ?.setupQueryObservation(); //TODO this is workaround: should delete as soon as db streams are implemented correctly
-    pageController.scheduleUIUpdate();
+    await pageController.scheduleUIUpdate();
   }
 }
 
@@ -1550,32 +1550,37 @@ class CVUActionCreateLabellingTask extends CVUAction {
     if (itemType == null) {
       return;
     }
-    var filterQuery = Map.of(decodedQuery);
-    filterQuery.remove('type');
-    List<DatabaseQueryConditionPropertyEquals> properties = [];
-    filterQuery.forEach((key, value) {
-      properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
-    });
 
-    var databaseQueryConfig =
-        DatabaseQueryConfig(itemTypes: [itemType], pageSize: 500, conditions: properties);
-    databaseQueryConfig.dbController = db;
-    var datasetEntries = <ItemRecord>[];
-    var edgesFromFilteredItems = (await databaseQueryConfig.constructFilteredRequest())
-        .map((item) {
-          var datasetEntry = ItemRecord(type: "DatasetEntry");
-          datasetEntries.add(datasetEntry);
+    var datasetEntry = await dataset.edgeItem("entry");
+    if (datasetEntry == null) {
+      var filterQuery = Map.of(decodedQuery);
+      filterQuery.remove('type');
+      List<DatabaseQueryConditionPropertyEquals> properties = [];
+      filterQuery.forEach((key, value) {
+        properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+      });
 
-          return [
-            ItemEdgeRecord(name: "entry", sourceRowID: dataset.rowId, targetUID: datasetEntry.uid),
-            ItemEdgeRecord(name: "data", sourceUID: datasetEntry.uid, targetRowID: item.rowId)
-          ];
-        })
-        .expand((element) => element)
-        .toList();
+      var databaseQueryConfig =
+          DatabaseQueryConfig(itemTypes: [itemType], pageSize: 500, conditions: properties);
+      databaseQueryConfig.dbController = db;
+      var datasetEntries = <ItemRecord>[];
+      var edgesFromFilteredItems = (await databaseQueryConfig.constructFilteredRequest())
+          .map((item) {
+            var datasetEntry = ItemRecord(type: "DatasetEntry");
+            datasetEntries.add(datasetEntry);
 
-    await ItemRecord.insertList(datasetEntries, db: db.databasePool);
-    await ItemEdgeRecord.insertList(edgesFromFilteredItems, db: db.databasePool);
+            return [
+              ItemEdgeRecord(
+                  name: "entry", sourceRowID: dataset.rowId, targetUID: datasetEntry.uid),
+              ItemEdgeRecord(name: "data", sourceUID: datasetEntry.uid, targetRowID: item.rowId)
+            ];
+          })
+          .expand((element) => element)
+          .toList();
+
+      await ItemRecord.insertList(datasetEntries, db: db.databasePool);
+      await ItemEdgeRecord.insertList(edgesFromFilteredItems, db: db.databasePool);
+    }
 
     List<ItemRecord> featureItems = await resolver.items("features");
     var cvu =

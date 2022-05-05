@@ -232,6 +232,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   Future<void> loadExistingAnnotation() async {
     selectedLabels = Set<String>();
+    _existingSelectedLabels = Set<String>();
     var annotation = currentAnnotation;
     if (annotation == null) return;
     switch (labelType) {

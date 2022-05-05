@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'package:memri/utils/execute_actions.dart';
 
 import '../cvu_ui_node_resolver.dart';
 import 'cvu_text_properties_modifier.dart';
@@ -43,102 +40,17 @@ class _CVUButtonState extends State<CVUButton> {
     _init = init();
   }
 
-  onPress() async {
-    var actions = widget.nodeResolver.propertyResolver.actions("onPress");
-    if (actions == null) {
-      return;
-    }
-    isDisabled = true;
-
-    var isBlocked = widget.nodeResolver.pageController.appController.storage["isBlocked"];
-    if (isBlocked is ValueNotifier && isBlocked.value == true) {
-      executeActionsWhenUnblocked() async {
-        if (isBlocked.value == false) {
-          isBlocked.removeListener(executeActionsWhenUnblocked);
-          await executeActions(actions);
-        }
-      }
-
-      isBlocked.addListener(executeActionsWhenUnblocked);
-    } else {
-      await executeActions(actions);
-    }
-  }
-
-  executeActions(actions) async {
-    widget.nodeResolver.context.clearCache();
-    try {
-      for (var action in actions) {
-        if (action is CVUActionOpenPopup) {
-          var settings = await action.setPopupSettings(
-              widget.nodeResolver.pageController, widget.nodeResolver.context);
-          if (settings != null) {
-            openPopup(settings);
-          }
-        } else {
-          await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
-        }
-      }
-    } catch (e) {
-      if (e is String) {
-        openErrorPopup(e);
-      } else {
-        isDisabled = false;
-        throw e;
-      }
-    }
-    isDisabled = false;
-  }
-
-  openPopup(Map<String, dynamic> settings) {
-    List<Map<String, dynamic>>? actions = settings['actions'];
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-          title: Text(settings['title']),
-          content: Text(settings['text']),
-          actions: actions?.compactMap(
-            (action) {
-              var title = action["title"]?.value?.value;
-              if (title != null) {
-                return PointerInterceptor(
-                    child: TextButton(
-                  onPressed: () async {
-                    for (var cvuAction in action["actions"]) {
-                      await cvuAction.execute(
-                          widget.nodeResolver.pageController, widget.nodeResolver.context);
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: Text(title),
-                ));
-              } else {
-                return null;
-              }
-            },
-          ).toList()),
-    );
-  }
-
-  openErrorPopup(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-        text,
-        style: CVUFont.bodyBold.copyWith(color: Color(0xFFE9500F)),
-      ),
-      backgroundColor: Color(0x33E9500F),
-      elevation: 0,
-      duration: Duration(seconds: 2),
-    ));
-    return;
-  }
-
   init() async {
     resolvedTextProperties =
         await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
             .init();
     isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
+  }
+
+  onPress() async {
+    executeActionsOnSubmit(widget.nodeResolver, this,
+        isDisabled: _isDisabled, actionsKey: "onPress");
   }
 
   @override

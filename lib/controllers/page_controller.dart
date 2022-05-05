@@ -134,8 +134,8 @@ class PageController extends ChangeNotifier {
     navigationController.setViewControllers(vc); //TODO this is not right
   }
 
-  void scheduleUIUpdate([bool updateWithAnimation = false]) {
-    topMostContext?.update();
+  Future<void> scheduleUIUpdate([bool updateWithAnimation = false]) async {
+    await topMostContext?.update();
     notifyListeners();
   }
 
