@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/widgets/account_scaffold.dart';
+import 'package:memri/widgets/empty.dart';
+import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
-import '../../widgets/empty.dart';
-
-class OnboardingError extends StatefulWidget {
-  const OnboardingError() : super();
+class AccountErrorScreen extends StatefulWidget {
+  const AccountErrorScreen() : super();
 
   @override
-  State<OnboardingError> createState() => _OnboardingErrorState();
+  State<AccountErrorScreen> createState() => _AccountErrorScreenState();
 }
 
-class _OnboardingErrorState extends State<OnboardingError> {
+class _AccountErrorScreenState extends State<AccountErrorScreen> {
   AppController appController = AppController.shared;
 
   @override

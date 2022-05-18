@@ -39,7 +39,7 @@
                 padding: 20
 
                 Image {
-                    bundleImage: "firstletter"
+                    bundleImage: "sign_first"
                     isVector: true
                 }
 
@@ -113,7 +113,7 @@
                 padding: 20
 
                 Image {
-                    bundleImage: "secondletter"
+                    bundleImage: "sign_second"
                     isVector: true
                 }
 
@@ -168,7 +168,7 @@
                 padding: 20
 
                 Image {
-                    bundleImage: "thirdletter"
+                    bundleImage: "sign_third"
                     isVector: true
                 }
 
@@ -195,7 +195,7 @@
                 padding: 20
 
                 Image {
-                    bundleImage: "fourthletter"
+                    bundleImage: "sign_fourth"
                     isVector: true
                 }
 

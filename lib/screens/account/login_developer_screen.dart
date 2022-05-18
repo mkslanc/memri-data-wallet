@@ -6,19 +6,18 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
-import 'package:memri/screens/setup/onboarding_login.dart';
+import 'package:memri/screens/account/login_screen.dart';
 import 'package:memri/utils/responsive_helper.dart';
-import 'package:memri/widgets/account_scaffold.dart';
-import 'package:memri/widgets/components/error_message.dart';
+import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
-class OnboardingDeveloper extends StatefulWidget {
-  OnboardingDeveloper();
+class LoginDeveloperScreen extends StatefulWidget {
+  LoginDeveloperScreen();
 
   @override
-  State<OnboardingDeveloper> createState() => _OnboardingDeveloperState();
+  State<LoginDeveloperScreen> createState() => _LoginDeveloperScreenState();
 }
 
-class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
+class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
   AppController appController = AppController.shared;
   final podUrlController = TextEditingController();
 
@@ -121,8 +120,8 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                   Wrap(
                     children: [
                       InkWell(
-                        onTap: () async => Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => OnboardingLogin(isDevelopersMode: true))),
+                        onTap: () async => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => LoginScreen(isDevelopersMode: true))),
                         child: Text(
                           "Log into your Pod",
                           style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),

@@ -6,18 +6,16 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
-import 'package:memri/widgets/account_scaffold.dart';
+import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
-import '../../widgets/components/error_message.dart';
-
-class OnboardingKeys extends StatefulWidget {
-  const OnboardingKeys() : super();
+class SaveKeysScreen extends StatefulWidget {
+  const SaveKeysScreen() : super();
 
   @override
-  State<OnboardingKeys> createState() => _OnboardingKeysState();
+  State<SaveKeysScreen> createState() => _SaveKeysScreenState();
 }
 
-class _OnboardingKeysState extends State<OnboardingKeys> {
+class _SaveKeysScreenState extends State<SaveKeysScreen> {
   AppController appController = AppController.shared;
   String ownerKey = '';
   String dbKey = '';

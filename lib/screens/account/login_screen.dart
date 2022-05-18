@@ -5,20 +5,18 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/utils/responsive_helper.dart';
-import 'package:memri/widgets/account_scaffold.dart';
+import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
-import '../../widgets/components/error_message.dart';
-
-class OnboardingLogin extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   final bool isDevelopersMode;
 
-  OnboardingLogin({this.isDevelopersMode = false});
+  LoginScreen({this.isDevelopersMode = false});
 
   @override
-  State<OnboardingLogin> createState() => _OnboardingLoginState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _OnboardingLoginState extends State<OnboardingLogin> {
+class _LoginScreenState extends State<LoginScreen> {
   AppController appController = AppController.shared;
   final podPublicKeyController = TextEditingController();
   final podDatabaseKeyController = TextEditingController();

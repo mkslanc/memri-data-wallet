@@ -110,6 +110,7 @@ class AppController {
   bool _isAuthenticated = false; //TODO @anijanyan
 
   ValueNotifier<AppState> get state => _state;
+  ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
 
   set state(newValue) => _state.value = newValue;
 
@@ -159,6 +160,8 @@ class AppController {
   Future init() async {
     await databaseController.init();
     await cvuController.init();
+    await SceneController.sceneController.init();
+    await MixpanelAnalyticsService().init();
   }
 
   Future<void> updateState() async {
@@ -364,6 +367,7 @@ class AppController {
   resetApp() async {
     try {
       SceneController.sceneController.reset(isFactoryReset: true);
+      navigationIsVisible.value = false;
       if (!_isInDemoMode) {
         hasNetworkConnection = true;
         await _connectivity?.cancel();
