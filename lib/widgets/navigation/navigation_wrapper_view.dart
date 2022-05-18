@@ -1,6 +1,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/navigation/navigation_pane_view.dart';
@@ -36,7 +37,7 @@ class NavigationWrapperView extends StatelessWidget {
               return Stack(
                 children: [
                   GestureDetector(
-                    onTap: () => sceneController.navigationIsVisible.value = false,
+                    onTap: () => AppController.shared.navigationIsVisible.value = false,
                     child: SizedBox(
                       width: geom.maxWidth,
                       height: geom.maxHeight,
@@ -51,7 +52,7 @@ class NavigationWrapperView extends StatelessWidget {
                       color: Color(0xff4F56FE),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
-                        child: NavigationPaneView(sceneController: sceneController),
+                        child: NavigationPaneView(),
                       )),
                 ],
               );
@@ -59,7 +60,7 @@ class NavigationWrapperView extends StatelessWidget {
               return Empty();
             }
           },
-          valueListenable: sceneController.navigationIsVisible,
+          valueListenable: AppController.shared.navigationIsVisible,
         )
       ],
     );

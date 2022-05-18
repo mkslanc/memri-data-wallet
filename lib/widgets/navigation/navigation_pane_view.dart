@@ -1,38 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
-  final SceneController sceneController;
-
-  NavigationPaneView({required this.sceneController});
+  NavigationPaneView();
 
   @override
-  _NavigationPaneViewState createState() => _NavigationPaneViewState(sceneController);
+  _NavigationPaneViewState createState() => _NavigationPaneViewState();
 }
 
 class _NavigationPaneViewState extends State<NavigationPaneView> {
-  SceneController sceneController;
-
-  _NavigationPaneViewState(this.sceneController);
-
   bool showSettings = false;
 
   Widget build(BuildContext context) {
-    sceneController.setupObservations();
+    SceneController.sceneController.setupObservations();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextButton(
-            onPressed: () => widget.sceneController.navigationIsVisible.value = false,
+            onPressed: () => AppController.shared.navigationIsVisible.value = false,
             child: SvgPicture.asset("assets/images/ico_close.svg")),
         SizedBox(
           height: 71,
         ),
-        Expanded(child: AdditionalNavigationView(sceneController: sceneController))
+        Expanded(child: AdditionalNavigationView())
       ],
     );
   }
@@ -82,7 +77,7 @@ class NavigationItemView extends StatelessWidget {
               animated: false,
               viewName: item.targetViewName,
               clearPageControllers: true);
-          sceneController.navigationIsVisible.value = false;
+          AppController.shared.navigationIsVisible.value = false;
         }
       },
       child: Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),
