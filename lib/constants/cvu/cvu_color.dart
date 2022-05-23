@@ -87,19 +87,22 @@ class CVUColor {
   static Map<String, Color> predefined = {
     "memriBlue": blue,
     "blueTxt": blueTxt,
-    "memriBlack": black,
-    "textGrey": textGrey,
-    "memriWhite": white,
+    "memriBlack": brandBlack,
+    "brandTextGrey": brandTextGrey,
+    "memriWhite": brandWhite,
     "greyInactive": greyInactive,
     "textLight": textLight,
+    "brandBlack": brandBlack,
+    "brandOrange": brandOrange,
   };
 
   static const blue = const Color(0xff4abff1);
   static const blueTxt = const Color(0xff17a4e0);
-  static const black = const Color(0xff333333);
-  static const textGrey = const Color(0xff828282);
-  static const white = const Color(0xfff5f5f5);
+  static const brandBlack = const Color(0xff333333);
+  static const brandTextGrey = const Color(0xff999999);
+  static const brandWhite = const Color(0xfff5f5f5);
   static const fff = const Color(0xffffffff);
   static const greyInactive = const Color(0xffd0d0d0);
   static const textLight = const Color(0xffc0c0c0);
+  static const brandOrange = const Color(0xffE9500F);
 }

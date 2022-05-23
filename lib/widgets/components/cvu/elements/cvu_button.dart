@@ -20,6 +20,7 @@ class _CVUButtonState extends State<CVUButton> {
   TextProperties? resolvedTextProperties;
   bool isLink = false;
   ButtonStyle? style;
+  Color? backgroundColor;
 
   late ValueNotifier<bool> _isDisabled;
 
@@ -46,6 +47,7 @@ class _CVUButtonState extends State<CVUButton> {
             .init();
     isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
+    backgroundColor = (await widget.nodeResolver.propertyResolver.backgroundColor) ?? null;
   }
 
   onPress() async {
@@ -55,7 +57,6 @@ class _CVUButtonState extends State<CVUButton> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: buttonStyle
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
@@ -70,7 +71,8 @@ class _CVUButtonState extends State<CVUButton> {
                     onPressed: isDisabled ? null : onPress,
                     child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
                     style: TextButton.styleFrom(
-                            textStyle: resolvedTextProperties?.textStyle ?? TextStyle())
+                            textStyle: resolvedTextProperties?.textStyle ?? TextStyle(),
+                            backgroundColor: backgroundColor)
                         .merge(style),
                   ),
           );
