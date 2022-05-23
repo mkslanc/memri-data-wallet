@@ -11,39 +11,39 @@
 
     Project > singleItem {
         viewArguments: {
-                     datasources: {
-                         datasetEntries: {
-                             filter: {
-                                 edgeSources: {
-                                     entry: {{selectedProject.dataset}}
-                                 }
-                             }
-                             query: DatasetEntry
-                         }
-                         skipped: {
-                             filter: {
-                                 edgeSources: {
-                                     annotation: {{datasourceItems("datasetEntries")}}
-                                 }
-                                 properties: {
-                                     isSubmitted: false
-                                 }
-                             }
-                             query: CategoricalLabel
-                         }
-                         submitted: {
-                             filter: {
-                                 edgeSources: {
-                                     annotation: {{datasourceItems("datasetEntries")}}
-                                 }
-                                 properties: {
-                                     isSubmitted: true
-                                 }
-                             }
-                             query: CategoricalLabel
-                         }
-                     }
-                 }
+            datasources: {
+                datasetEntries: {
+                    filter: {
+                        edgeSources: {
+                            entry: {{selectedProject.dataset}}
+                        }
+                    }
+                    query: DatasetEntry
+                }
+                skipped: {
+                    filter: {
+                        edgeSources: {
+                            annotation: {{datasourceItems("datasetEntries")}}
+                        }
+                        properties: {
+                            isSubmitted: false
+                        }
+                    }
+                    query: CategoricalLabel
+                }
+                submitted: {
+                    filter: {
+                        edgeSources: {
+                            annotation: {{datasourceItems("datasetEntries")}}
+                        }
+                        properties: {
+                            isSubmitted: true
+                        }
+                    }
+                    query: CategoricalLabel
+                }
+            }
+        }
 
         VStack {
             alignment: topleft
@@ -166,7 +166,7 @@
                             styleName: primaryButton
 
                             Text {
-                                text: "Create your app"
+                                text: "Next step"
                                 textalign: bottom
                             }
 
@@ -180,9 +180,9 @@
 
                         Button {
                             onPress: back
+                            styleName: secondaryButton
 
                             Text {
-                                color: #333333
                                 font: button_label
                                 text: "Label more data"
                             }
