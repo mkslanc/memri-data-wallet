@@ -28,20 +28,39 @@ Project {
             padding: 60 0 0 0
 
             Text {
-                color: #333333
-                font: headline2
+                color: brandBlack
+                font: headline1
+                text: "Create a new project"
+            }
+
+            Text {
+                color: brandBlack
+                font: bodyText1
                 padding: 0 0 30 0
-                text: "Project name"
+                text: "Memri allows to build, deploy and share ML apps on personal data in 6 steps."
+            }
+
+            Text {
+                color: brandBlack
+                font: headline3
+                text: "Create your new project name"
+            }
+
+            Text {
+                color: brandBlack
+                font: bodyText1
+                padding: 0 0 20 0
+                text: "Please choose a name for your new project, this will also be the name of your app."
             }
 
             VStack {
                 alignment: topleft
                 background: #F0F0F0
                 maxWidth: 346
-                padding: 10
+                padding: 0 10
 
                 Text {
-                    color: #333333
+                    color: brandTextGrey
                     font: small_caps
                     padding: 0 0 0 10
                     text: "YOUR PROJECT NAME"
@@ -59,25 +78,17 @@ Project {
             }
 
             Text {
-                color: #333333
-                font: headline2
-                padding: 80 0 10 0
+                color: brandBlack
+                font: headline3
+                padding: 55 0 10 0
                 text: "Select dataset source"
             }
 
             Text {
-                color: #333333
+                color: brandBlack
                 font: bodyText1
                 padding: 0 0 20 0
                 text: "Select the data source for your new app. You may only select one."
-            }
-
-            Text {
-                background: #F5F5F5
-                color: #333333
-                font: tablist
-                padding: 10
-                text: "Datasources"
             }
 
             SubView {
@@ -108,7 +119,7 @@ Project {
             Wrap {
                 alignment: left
                 padding: 30 0 0 0
-                spacing: 15
+                spacing: 20
 
                 Button {
                     onPress: [
@@ -166,9 +177,9 @@ Project {
                             viewName: "allProjects"
                         }
                     ]
+                    styleName: secondaryButton
 
                     Text {
-                        color: #333333
                         font: button_label
                         text: "Cancel"
                     }
@@ -1296,41 +1307,32 @@ Project > list {
         VStack {
             alignment: topleft
             padding: 60 30 30 30
+            spacing: 0
+
+            Text {
+                color: #333333
+                font: 12
+                text: "STEP 2"
+            }
 
             Text {
                 color: #333333
                 font: headline1
                 padding: 0 0 30 0
-                text: "Set up your dataset"
-            }
-
-            Text {
-                color: #333333
-                font: headline2
-                padding: 70 0 10 0
                 text: "Select feature variables"
             }
 
             Text {
+                color: #333333
                 font: bodyText1
-                text: "Choose which information from your dataset you want to use in your app. For example, if you want the app use the message body, then choose ‘content’."
+                padding: 55 0 10 0
+                text: "Feature variables represent different information available in your connected datasets. You may choose the most relevant variables based on what kind of predictions you wish your app to make. For example, if you want the app use the message body, choose ‘message text’."
             }
 
-            Button {
-                isLink: true
-                onPress: [
-                    openLink
-                    {
-                        link: "https://memri.docs.memri.io/pod-explorer/"
-                    }
-                ]
-                padding: 35 0 13 0
-
-                Text {
-                    color: #E9500F
-                    font: link
-                    text: "Preview database (opens data explorer)"
-                }
+            Text {
+                font: bodyText1
+                padding: 0 0 20 0
+                text: "Select which information from your dataset you wish to use in your app: "
             }
 
             SubView {
@@ -1435,7 +1437,7 @@ Project > list {
                     styleName: primaryButton
 
                     Text {
-                        text: "Configure labelling editor"
+                        text: "Next"
                         textalign: bottom
                     }
 
@@ -1454,9 +1456,9 @@ Project > list {
                             pageLabel: "~main"
                         }
                     ]
+                    styleName: secondaryButton
 
                     Text {
-                        color: #333333
                         font: button_label
                         text: "Back to project setup"
                     }

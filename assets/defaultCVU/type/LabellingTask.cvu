@@ -118,14 +118,11 @@ LabellingTask {
                 background: #F0F0F0
 
                 Textfield {
+                    autoFocus: true
                     background: #F0F0F0
                     border: #333 1
                     hint: "e.g. positive"
                     minHeight: 15
-                    rows: 1
-                    value: {{.currentLabelOption}}
-                    width: 150
-                    autoFocus: true
                     onSubmit: [
                         validate
                         {
@@ -152,9 +149,13 @@ LabellingTask {
                             value: ""
                         }
                     ]
+                    rows: 1
+                    value: {{.currentLabelOption}}
+                    width: 150
                 }
 
                 Button {
+                    background: #333
                     onPress: [
                         validate
                         {
@@ -217,7 +218,7 @@ LabellingTask {
                     styleName: primaryButton
 
                     Text {
-                        text: "Start labelling"
+                        text: "Next"
                         textalign: bottom
                     }
 
@@ -236,9 +237,9 @@ LabellingTask {
                             pageLabel: "~main"
                         }
                     ]
+                    styleName: secondaryButton
 
                     Text {
-                        color: #333333
                         font: button_label
                         text: "Back to data setup"
                     }
