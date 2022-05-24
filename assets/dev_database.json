@@ -29,7 +29,7 @@
     "uid": 20001,
     "_type": "Plugin",
     "pluginType": "importer",
-    "name": "WhatsApp",
+    "name": "WhatsApp legacy",
     "dataType": "whatsapp",
     "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp:dev-latest",
     "icon": "message",
@@ -40,7 +40,7 @@
     "uid": 20004,
     "_type": "Plugin",
     "pluginType": "importer",
-    "name": "WhatsApp multi-device",
+    "name": "WhatsApp",
     "dataType": "whatsapp",
     "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest",
     "icon": "message",
@@ -1121,12 +1121,12 @@
       {
         "_type": "datasetPlugin",
         "targetType": "Plugin",
-        "uid": 20001
+        "uid": 20004
       },
       {
         "_type": "datasetPlugin",
         "targetType": "Plugin",
-        "uid": 20004
+        "uid": 20001
       }
     ]
   },
