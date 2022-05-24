@@ -241,114 +241,123 @@ Project > singleItem {
         padding: 60 0 30 0
         spacing: 20
 
-        VStack {
-            alignment: topleft
-            background: white
-            padding: 30 20 30 20
-            spacing: 0
+        Button {
+            isLink: true
+            onPress: [
+                openView
+                {
+                    item: {{.dataset.feature[].count() = 0 ? .dataset : .dataset.labellingTask.labelOption.count() = 0 ? .dataset.labellingTask : .labellingPlugin AND .labellingPlugin.view ? .labellingPlugin : .}}
+                    viewName: {{.dataset.feature[].count() = 0 ? "project-variables" : .dataset.labellingTask.labelOption.count() = 0 ? "labelling-task-overview" : !.labellingPlugin ? "create-new-model" : !.labellingPlugin.view ? "app-deployed" : .labellingPlugin.view.name}}
+                }
+            ]
 
-            HStack {
+            VStack {
                 alignment: topleft
-                padding: 0 0 22 0
+                background: white
+                padding: 30 20 30 20
+                spacing: 0
+
+                HStack {
+                    alignment: topleft
+                    padding: 0 0 22 0
+
+                    Text {
+                        color: #333333
+                        font: headline1
+                        text: {{.name}}
+                    }
+                }
 
                 Text {
-                    color: #333333
-                    font: headline1
-                    text: {{.name}}
-                }
-            }
-
-            Text {
-                color: #999999
-                font: small_caps
-                text: "DATA SOURCE"
-            }
-
-            Text {
-                font: ul
-                padding: 5 0 20 0
-                text: {{.dataset.datasetType.plugin.name}}
-            }
-
-            HStack {
-                align: topleft
-                padding: 42 0 0 0
-
-                Button {
-                    isLink: true
-                    onPress: [
-                        openView
-                        {
-                            viewName: "create-new-model"
-                        }
-                    ]
-                    padding: 0 48 0 0
-                    show: {{.dataset AND !.labellingPlugin}}
-
-                    Image {
-                        bundleImage: "plus"
-                        color: #E9500F
-                        isVector: true
-                    }
-
-                    Text {
-                        color: #FE570F
-                        font: tab_list
-                        padding: 0 0 0 5
-                        text: "Build an app"
-                    }
+                    color: #999999
+                    font: small_caps
+                    text: "DATA SOURCE"
                 }
 
-                Button {
-                    isLink: true
-                    onPress: [
-                        openView
-                        {
-                            viewArguments: {
-                                readOnly: false
+                Text {
+                    font: ul
+                    padding: 5 0 20 0
+                    text: {{.dataset.datasetType.plugin.name}}
+                }
+
+                HStack {
+                    align: topleft
+                    padding: 42 0 0 0
+
+                    Button {
+                        onPress: [
+                            openView
+                            {
+                                viewName: "create-new-model"
                             }
-                            viewName: "add-project"
+                        ]
+                        padding: 0 48 0 0
+                        show: {{.dataset AND !.labellingPlugin}}
+
+                        Image {
+                            bundleImage: "plus"
+                            color: #E9500F
+                            isVector: true
                         }
-                    ]
-                    show: {{!.dataset}}
 
-                    Image {
-                        bundleImage: "ico_dataset_new"
-                        color: #E9500F
-                        isVector: true
-                    }
-
-                    Text {
-                        color: #FE570F
-                        font: tab_list
-                        padding: 0 0 0 5
-                        text: "Add new dataset"
-                    }
-                }
-
-                Spacer
-
-                Button {
-                    isLink: true
-                    onPress: [
-                        delete
-                        {
-                            close: true
-                            subject: {{.}}
+                        Text {
+                            color: #FE570F
+                            font: tab_list
+                            padding: 0 0 0 5
+                            text: "Load and train a new ML model"
                         }
-                    ]
-
-                    Image {
-                        bundleImage: "ico_delete"
-                        color: #E9500F
-                        isVector: true
                     }
 
-                    Text {
-                        color: #FE570F
-                        font: tab_list
-                        padding: 0 0 0 5
-                        text: "Delete project"
+                    Button {
+                        isLink: true
+                        onPress: [
+                            openView
+                            {
+                                viewArguments: {
+                                    readOnly: false
+                                }
+                                viewName: "add-project"
+                            }
+                        ]
+                        show: {{!.dataset}}
+
+                        Image {
+                            bundleImage: "ico_dataset_new"
+                            color: #E9500F
+                            isVector: true
+                        }
+
+                        Text {
+                            color: #FE570F
+                            font: tab_list
+                            padding: 0 0 0 5
+                            text: "Add new dataset"
+                        }
+                    }
+
+                    Spacer
+
+                    Button {
+                        onPress: [
+                            delete
+                            {
+                                close: true
+                                subject: {{.}}
+                            }
+                        ]
+
+                        Image {
+                            bundleImage: "ico_delete"
+                            color: #E9500F
+                            isVector: true
+                        }
+
+                        Text {
+                            color: #FE570F
+                            font: tab_list
+                            padding: 0 0 0 5
+                            text: "Delete project"
+                        }
                     }
                 }
             }
