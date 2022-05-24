@@ -37,12 +37,12 @@ DatasetType > grid {
     }
 
     VStack {
-        alignment: leftspacebetween
+        alignment: topleft
         background: {{isSelected ? "#1AE9500F" : "#F5F5F5"}}
         border: {{isSelected ? "#80E9500F" : "#F0F0F0"}}
         height: 96
         padding: 10
-        spacing: 5
+        spacing: 0
         width: 205
 
         Text {
@@ -50,6 +50,8 @@ DatasetType > grid {
             font: headline3
             text: {{.datasetPlugin.name}}
         }
+
+        Spacer
 
         Text {
             color: #989898
@@ -61,14 +63,6 @@ DatasetType > grid {
         Observer {
             item: {{lastPluginRun}}
             property: "progress"
-
-            Text {
-                color: #FE570F
-                font: "body_tiny_bold"
-                padding: 0 10 0 0
-                show: {{!lastPluginRun}}
-                text: "Connect"
-            }
 
             Text {
                 color: {{pluginRunStatus = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}

@@ -8,6 +8,7 @@
         alignment: topleft
         maxWidth: 910
         padding: 60 30 60 30
+        spacing: 30
 
         HStack {
             alignment: bottomleft
@@ -88,6 +89,12 @@
                                     font: headline3
                                     text: "Create new importer"
                                 }
+
+                                Text {
+                                    color: #FE570F
+                                    font: "body_tiny_bold"
+                                    text: "Learn how to create your own importer"
+                                }
                             }
                         }
                     }
@@ -115,12 +122,12 @@
                         property: "progress"
 
                         VStack {
-                            alignment: leftspacebetween
+                            alignment: topleft
                             background: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
                             border: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
                             height: 96
                             padding: 10
-                            spacing: 5
+                            spacing: 0
                             width: 205
 
                             Text {
@@ -129,20 +136,21 @@
                                 text: {{.name}}
                             }
 
+                            Spacer
+
+                            Text {
+                                color: #FE570F
+                                font: "body_tiny_bold"
+                                show: {{!.~plugin}}
+                                text: "Connect"
+                            }
+
                             Text {
                                 color: #989898
                                 font: body_tiny
                                 padding: 0 5
                                 show: {{lastPluginRun}}
                                 text: {{datasourceItems("featureVariables").count() + " feature variables"}}
-                            }
-
-                            Text {
-                                color: #FE570F
-                                font: "body_tiny_bold"
-                                padding: 0 10 0 0
-                                show: {{!lastPluginRun}}
-                                text: "Connect"
                             }
 
                             Text {
