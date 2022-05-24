@@ -56,7 +56,7 @@ class CVUUINodeResolver {
               (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
             widget = Expanded(child: widget);
           }
-          if (child.type == CVUUIElementFamily.Spacer) {
+          if (child.type == CVUUIElementFamily.Spacer && node.type == CVUUIElementFamily.HStack) {
             if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Text ||
                 nodeChildren[index - 1]?.type == CVUUIElementFamily.Text) {
               return MapEntry(index, null);
