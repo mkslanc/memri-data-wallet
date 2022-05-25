@@ -246,8 +246,8 @@ Project > singleItem {
             onPress: [
                 openView
                 {
-                    item: {{.dataset.feature[].count() = 0 ? .dataset : .dataset.labellingTask.labelOption.count() = 0 ? .dataset.labellingTask : .labellingPlugin AND .labellingPlugin.view ? .labellingPlugin : .}}
-                    viewName: {{.dataset.feature[].count() = 0 ? "project-variables" : .dataset.labellingTask.labelOption.count() = 0 ? "labelling-task-overview" : !.labellingPlugin ? "create-new-model" : !.labellingPlugin.view ? "app-deployed" : .labellingPlugin.view.name}}
+                    item: {{!.dataset ? . : .dataset.feature[].count() = 0 ? .dataset : .dataset.labellingTask.labelOption.count() = 0 ? .dataset.labellingTask : .labellingPlugin AND .labellingPlugin.view ? .labellingPlugin : .}}
+                    viewName: {{!.dataset ? "add-project" : .dataset.feature[].count() = 0 ? "project-variables" : .dataset.labellingTask.labelOption.count() = 0 ? "labelling-task-overview" : !.labellingPlugin ? "create-new-model" : !.labellingPlugin.view ? "app-deployed" : .labellingPlugin.view.name}}
                 }
             ]
 
@@ -284,15 +284,8 @@ Project > singleItem {
                     align: topleft
                     padding: 42 0 0 0
 
-                    Button {
-                        onPress: [
-                            openView
-                            {
-                                viewName: "create-new-model"
-                            }
-                        ]
+                    Wrap {
                         padding: 0 48 0 0
-                        show: {{.dataset AND !.labellingPlugin}}
 
                         Image {
                             bundleImage: "plus"
@@ -304,40 +297,14 @@ Project > singleItem {
                             color: #FE570F
                             font: tab_list
                             padding: 0 0 0 5
-                            text: "Load and train a new ML model"
-                        }
-                    }
-
-                    Button {
-                        isLink: true
-                        onPress: [
-                            openView
-                            {
-                                viewArguments: {
-                                    readOnly: false
-                                }
-                                viewName: "add-project"
-                            }
-                        ]
-                        show: {{!.dataset}}
-
-                        Image {
-                            bundleImage: "ico_dataset_new"
-                            color: #E9500F
-                            isVector: true
-                        }
-
-                        Text {
-                            color: #FE570F
-                            font: tab_list
-                            padding: 0 0 0 5
-                            text: "Add new dataset"
+                            text: {{!.dataset ? "Select data source" : .dataset.feature[].count() = 0 ? "Select feature variables" : .dataset.labellingTask.labelOption.count() = 0 ? "Add labels" : !.labellingPlugin ? "Load and train a new ML model" : !.labellingPlugin.view ? "Configure UI" : "Open app"}}
                         }
                     }
 
                     Spacer
 
                     Button {
+                        isLink: true
                         onPress: [
                             delete
                             {
@@ -666,6 +633,7 @@ Project > singleItem {
                             viewName: "labelling"
                         }
                     ]
+                    show: {{.dataset.labellingTask.labelOption.count() != 0}}
 
                     Image {
                         bundleImage: "plus"
