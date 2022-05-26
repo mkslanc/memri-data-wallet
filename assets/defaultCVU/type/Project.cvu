@@ -917,51 +917,86 @@ Project > list {
                     padding: 54 0 0 0
                     spacing: 45
 
-                    VStack {
-                        alignment: topleft
-                        height: 120
-                        width: 100
+                    Button {
+                        id: collectDataButton
+                        isLink: true
+                        onPress: [
+                            openView
+                            {
+                                clearStack: true
+                                viewArguments: {
+                                    pageLabel: "~main"
+                                }
+                                viewName: "allData"
+                            }
+                        ]
 
-                        Text {
-                            color: #E9500F
-                            font: "body_tiny"
-                            text: "01"
-                        }
+                        VStack {
+                            alignment: topleft
+                            height: 120
+                            width: 100
 
-                        Image {
-                            bundleImage: "ico_arrow_long"
-                            color: #E9500F
-                            isVector: true
-                        }
+                            Text {
+                                color: {{isHovered("collectDataButton") ? "brandOrange" : "brandBlack"}}
+                                font: "body_tiny"
+                                text: "01"
+                            }
 
-                        Text {
-                            color: #E9500F
-                            font: body
-                            text: "Collect your data"
+                            Image {
+                                bundleImage: "ico_arrow_long"
+                                color: {{isHovered("collectDataButton") ? "brandOrange" : "brandBlack"}}
+                                isVector: true
+                            }
+
+                            Text {
+                                color: {{isHovered("collectDataButton") ? "brandOrange" : "brandBlack"}}
+                                font: body
+                                text: "Collect your data"
+                            }
                         }
                     }
 
-                    VStack {
-                        alignment: topleft
-                        height: 120
-                        width: 100
+                    Button {
+                        id: createProjectButton
+                        isDisabled: {{datasourceItems("importers").count() = 0}}
+                        isLink: true
+                        onPress: [
+                            addItem
+                            {
+                                color: "#FE570F"
+                                template: {
+                                    _type: Project
+                                }
+                                viewArguments: {
+                                    pageLabel: "~main"
+                                    readOnly: false
+                                }
+                                viewName: "add-project"
+                            }
+                        ]
 
-                        Text {
-                            color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
-                            font: "body_tiny"
-                            text: "02"
-                        }
+                        VStack {
+                            alignment: topleft
+                            height: 120
+                            width: 100
 
-                        Image {
-                            bundleImage: "ico_arrow_long"
-                            color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
-                            isVector: true
-                        }
+                            Text {
+                                color: {{datasourceItems("importers").count() > 0 ? isHovered("createProjectButton") ? "brandOrange" : "brandBlack" : "#999999"}}
+                                font: "body_tiny"
+                                text: "02"
+                            }
 
-                        Text {
-                            color: {{datasourceItems("importers").count() > 0 ? "#E9500F" : "#999999"}}
-                            font: body
-                            text: "Create new project"
+                            Image {
+                                bundleImage: "ico_arrow_long"
+                                color: {{datasourceItems("importers").count() > 0 ? isHovered("createProjectButton") ? "brandOrange" : "brandBlack" : "#999999"}}
+                                isVector: true
+                            }
+
+                            Text {
+                                color: {{datasourceItems("importers").count() > 0 ? isHovered("createProjectButton") ? "brandOrange" : "brandBlack" : "#999999"}}
+                                font: body
+                                text: "Create new project"
+                            }
                         }
                     }
 
