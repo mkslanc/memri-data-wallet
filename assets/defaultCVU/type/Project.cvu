@@ -666,7 +666,7 @@ Project > singleItem {
                             viewName: "labelling"
                         }
                     ]
-                    show: {{.dataset.labellingTask.labelOption.count() != 0}}
+                    show: {{.dataset.labellingTask.labelOption.count() > 0}}
 
                     Image {
                         bundleImage: "plus"
