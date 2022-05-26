@@ -80,7 +80,6 @@ class _CVUButtonState extends State<CVUButton> {
                           onHover: id != null
                               ? (bool isHovered) {
                                   setState(() {
-                                    print(isHovered);
                                     widget.nodeResolver.context.viewArguments ??=
                                         CVUViewArguments();
                                     widget.nodeResolver.context.viewArguments!
