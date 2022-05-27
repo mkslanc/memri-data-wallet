@@ -389,9 +389,21 @@ class Database extends _$Database {
         readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
   }
 
-  Future<List<Edge>> edgeRecordsCustomSelect(String query, List<Variable<dynamic>> binding) async {
-    return await customSelect("SELECT * from edges WHERE $query",
-        variables: binding, readsFrom: {edges}).map((row) => Edge.fromData(row.data, this)).get();
+  Future<List<Edge>> edgeRecordsCustomSelect(String condition, List<Variable<dynamic>> binding,
+      {bool? deleted}) async {
+    var query = "SELECT * from edges ";
+    Set<ResultSetImplementation> readsFrom = {edges};
+    if (deleted != null) {
+      query += " INNER JOIN items ON (edges.self = items.rowId AND items.deleted = ?) ";
+      binding.insert(0, Variable(deleted));
+      readsFrom.add(items);
+    }
+
+    query += " WHERE $condition";
+
+    return await customSelect(query, variables: binding, readsFrom: readsFrom)
+        .map((row) => Edge.fromData(row.data, this))
+        .get();
   }
 
   Future<List<Item>> edgeRecordsItemsCustomSelect(Map<String, dynamic> properties,
