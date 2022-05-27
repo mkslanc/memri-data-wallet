@@ -118,6 +118,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
   }
 
   void handleSetup() {
+    appController.mixpanel.timeEvent("Sign up"); //TODO:
     setState(() => appController.model.state = PodSetupState.loading);
     appController.setupApp();
   }

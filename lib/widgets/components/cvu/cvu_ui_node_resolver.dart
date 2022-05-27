@@ -44,12 +44,7 @@ class CVUUINodeResolver {
     return nodeChildren
         .map((index, child) {
           Widget widget = CVUElementView(
-            nodeResolver: CVUUINodeResolver(
-                context: newContext,
-                lookup: lookup,
-                node: child,
-                db: db,
-                pageController: pageController),
+            nodeResolver: copyForNode(child, newContext),
             additionalParams: additionalParams,
           );
           if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
@@ -100,11 +95,36 @@ class CVUUINodeResolver {
     if (node.children.isNotEmpty) {
       var child = node.children.first;
       return CVUElementView(
-        nodeResolver: CVUUINodeResolver(
-            context: context, lookup: lookup, node: child, db: db, pageController: pageController),
+        nodeResolver: copyForNode(child),
       );
     }
     return null;
+  }
+
+  CVUUINode? firstTextNode([List<CVUUINode>? children]) {
+    children ??= node.children;
+    if (children.isNotEmpty) {
+      for (var childNode in children) {
+        if (childNode.type == CVUUIElementFamily.Text) {
+          return childNode;
+        } else {
+          var foundNode = firstTextNode(childNode.children);
+          if (foundNode != null) {
+            return foundNode;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  CVUUINodeResolver copyForNode(CVUUINode newNode, [CVUContext? newContext]) {
+    return CVUUINodeResolver(
+        context: newContext ?? context,
+        lookup: lookup,
+        node: newNode,
+        db: db,
+        pageController: pageController);
   }
 
   CVUPropertyResolver get propertyResolver {

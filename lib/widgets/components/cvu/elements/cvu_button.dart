@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
 import 'package:memri/models/cvu/cvu_value.dart';
 import 'package:memri/models/cvu/cvu_value_constant.dart';
@@ -60,8 +61,20 @@ class _CVUButtonState extends State<CVUButton> {
   }
 
   onPress() async {
+    await mixpanelEventShoot();
     executeActionsOnSubmit(widget.nodeResolver, this,
         isDisabled: _isDisabled, actionsKey: "onPress");
+  }
+
+  mixpanelEventShoot() async {
+    var textNode = widget.nodeResolver.firstTextNode();
+    var buttonText = "Unknown";
+    if (textNode != null) {
+      var resolver = widget.nodeResolver.copyForNode(textNode);
+      buttonText = await resolver.propertyResolver.string("text") ?? "Unknown";
+    }
+
+    AppController.shared.mixpanel.track(buttonText);
   }
 
   @override

@@ -165,9 +165,8 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                     TextButton(
                       onPressed: () async {
                         appController.mixpanel.identify(ownerKey);
-                        appController.mixpanel.track("Sign up", properties: {
-                          "developersMode": appController.isDevelopersMode
-                        });
+                        appController.mixpanel.track("Sign up",
+                            properties: {"developersMode": appController.isDevelopersMode});
                         appController.state = AppState.authenticated;
                       },
                       style: primaryButtonStyle,
