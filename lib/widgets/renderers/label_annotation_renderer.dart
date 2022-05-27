@@ -105,7 +105,16 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     var edges = (await widget.pageController.appController.databaseController.databasePool
         .edgeRecordsCustomSelect(
             "source IN (${datasetEntryList.map((item) => item.rowId).join(", ")}) AND name = ?",
-            [Variable("annotation")])); //TODO not good calling db from widget
+            [Variable("annotation")],
+            deleted: false)); //TODO not good calling db from widget
+
+    var edgesSourceIds = edges.map((e) => e.source);
+
+    datasetEntryList.sort((a, b) {
+      var aHasLabel = edgesSourceIds.contains(a.rowId) ? 1 : 0;
+      var bHasLabel = edgesSourceIds.contains(b.rowId) ? 1 : 0;
+      return bHasLabel - aHasLabel;
+    });
     currentIndex = edges.length > datasetEntryList.length ? 0 : edges.length;
   }
 
