@@ -20,6 +20,7 @@ class _CVUFlowStackState extends State<CVUFlowStack> {
   Point spacing = Point(0, 0);
 
   late Future _init;
+  Axis direction = Axis.horizontal;
 
   @override
   initState() {
@@ -30,6 +31,16 @@ class _CVUFlowStackState extends State<CVUFlowStack> {
   init() async {
     content = await _content;
     spacing = await widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
+    direction = await _direction;
+  }
+
+  Future<Axis> get _direction async {
+    switch (await widget.nodeResolver.propertyResolver.string("axis")) {
+      case "vertical":
+        return Axis.vertical;
+      default:
+        return Axis.horizontal;
+    }
   }
 
   @override
@@ -48,6 +59,7 @@ class _CVUFlowStackState extends State<CVUFlowStack> {
         future: _init,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           return FlowStack<ItemRecord>(
+              direction: direction,
               data: content,
               spacing: spacing,
               content: (listItem) => widget.nodeResolver.childrenInForEach(usingItem: listItem));

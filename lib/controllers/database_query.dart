@@ -301,6 +301,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     var groupBy;
 
     switch (sortProperty) {
+      case "random":
+        orderBy = " random()";
+        break;
       case "dateCreated":
         orderBy = "dateCreated $sortOrder, dateModified $sortOrder";
         break;

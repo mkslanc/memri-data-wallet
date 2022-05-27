@@ -95,6 +95,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionSchedule(vars: vars);
     case "delete":
       return ({Map? vars}) => CVUActionDelete(vars: vars);
+    case "deleteitems":
+      return ({Map? vars}) => CVUActionDeleteItems(vars: vars);
     case "showsessionswitcher":
       return ({Map? vars}) => CVUActionShowSessionSwitcher(vars: vars);
     case "forward":
@@ -941,6 +943,29 @@ class CVUActionDelete extends CVUAction {
   }
 }
 
+class CVUActionDeleteItems extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionDeleteItems({vars}) : this.vars = vars ?? {};
+
+  @override
+  Future<void> execute(memri.PageController pageController, CVUContext context) async {
+    var lookup = CVULookupController();
+    var db = pageController.appController.databaseController;
+
+    var subjectVal = vars["subjectItems"];
+    if (subjectVal == null) return;
+
+    var subjectItems = await lookup.resolve<List>(
+        value: subjectVal, context: context, db: db, additionalType: ItemRecord);
+    if (subjectItems == null) return;
+
+    for (var subjectItem in subjectItems) {
+      await subjectItem.delete(pageController.appController.databaseController);
+    }
+  }
+}
+
 class CVUActionSelectAll extends CVUAction {
   Map<String, CVUValue> vars;
 
@@ -1560,8 +1585,8 @@ class CVUActionCreateLabellingTask extends CVUAction {
         properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
 
-      var databaseQueryConfig =
-          DatabaseQueryConfig(itemTypes: [itemType], pageSize: 500, conditions: properties);
+      var databaseQueryConfig = DatabaseQueryConfig(
+          itemTypes: [itemType], pageSize: 500, conditions: properties, sortProperty: "random");
       databaseQueryConfig.dbController = db;
       var datasetEntries = <ItemRecord>[];
       var edgesFromFilteredItems = (await databaseQueryConfig.constructFilteredRequest())

@@ -9,6 +9,7 @@ LabellingTask {
         scrollable: true
     }
 }
+
 .labelling-task {
     cols: 9
     defaultRenderer: singleItem
@@ -19,73 +20,94 @@ LabellingTask {
     }
 
     LabellingTask > singleItem {
+        viewArguments: {
+            datasources: {
+                datasetEntries: {
+                    filter: {
+                        edgeSources: {
+                            entry: {{.~labelOption.~labellingTask}}
+                        }
+                    }
+                    query: DatasetEntry
+                }
+                labelAnnotations: {
+                    filter: {
+                        edgeSources: {
+                            annotation: {{datasourceItems("datasetEntries")}}
+                        }
+                        properties: {
+                            labelValue: {{.name}}
+                        }
+                    }
+                    query: CategoricalLabel
+                }
+            }
+        }
+
         VStack {
             alignment: topleft
             padding: 60 0 0 0
 
             Text {
                 color: #333333
-                font: headline2
-                padding: 0 0 10 0
-                text: "Configure labelling editor"
+                font: 12
+                text: "STEP 2"
             }
 
             Text {
-                font: bodyText1
-                padding: 0 0 20 0
-                text: "Choose the type of  text classification you want to use."
+                color: #333333
+                font: headline1
+                padding: 0
+                text: "Add labels you want to use in your app."
             }
 
-            SubView {
-                height: 60
-                id: taskType
-                maxWidth: 550
-                view: {
-                    defaultRenderer: custom
-                    editMode: true
-                    viewArguments: {
-                        task: {{task}}
+            RichText {
+                color: #333333
+                font: bodyText1
+                spans: [
+                    {
+                        text: "Add the labels you want to use on your data and in your app.  "
                     }
-
-                    [datasource = pod] {
-                        query: TextClassification
-                        sortAscending: true
-                        sortProperty: dateModified
+                    {
+                        font: semibold
+                        text: "You may only use one label per data item. "
                     }
-
-                    [renderer = custom] {
-                        Dropdown {
-                            edgeName: "taskType"
-                            item: {{task}}
-                            list: {{items}}
-                            maxWidth: 550
-                            onChange: [
-                                link
-                                {
-                                    distinct: true
-                                    edgeType: "taskType"
-                                    subject: {{task}}
-                                }
-                            ]
-
-                            Text {
-                                color: #FE570F
-                                font: bodyText1
-                                lineLimit: 1
-                                text: {{.name}}
-                            }
-                        }
+                    {
+                        text: "For example, if you are building a sentiment analysis app, add: "
                     }
-                }
+                    {
+                        font: semibold
+                        text: "positive"
+                    }
+                    {
+                        text: ", "
+                    }
+                    {
+                        font: semibold
+                        text: "negative"
+                    }
+                    {
+                        text: " and "
+                    }
+                    {
+                        font: semibold
+                        text: "neutral"
+                    }
+                    {
+                        text: "to label each message."
+                    }
+                ]
             }
 
             Text {
+                color: #333333
                 font: bodyText1
-                padding: 60 0 20 0
-                text: "Define the labels you want to use in your app:"
+                padding: 5 0 10 0
+                text: "Use the index numbers for keyboard shortcuts to help you label at warp speed!"
             }
 
             FlowStack {
+                axis: "vertical"
                 list: {{.labelOption[]}}
                 spacing: 15
 
@@ -102,7 +124,13 @@ LabellingTask {
 
                     Button {
                         isLink: true
-                        onPress: delete
+                        onPress: [
+                            deleteItems
+                            {
+                                subjectItems: {{datasourceItems("labelAnnotations")}}
+                            }
+                            delete
+                        ]
                         padding: 0 11 0 0
 
                         Text {
