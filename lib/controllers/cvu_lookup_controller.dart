@@ -782,6 +782,22 @@ class CVULookupController {
         }
         currentValue = LookupStepItems(items);
         break;
+      case "ishovered":
+        var viewArgs = context.viewArguments;
+        if (viewArgs == null) {
+          return null;
+        }
+        var exp = nodeType.args.asMap()[0];
+        String? id = await resolve<String>(expression: exp, context: context, db: db);
+        if (id == null) {
+          return null;
+        }
+        var isHovered = viewArgs.args["isHovered$id"];
+        if (isHovered is! CVUValueConstant || isHovered.value is! CVUConstantBool) {
+          return null;
+        }
+        currentValue = LookupStepValues([PropertyDatabaseValueBool(isHovered.value.value)]);
+        break;
       case "fromjson":
         if (currentValue == null) {
           return null;
