@@ -31,8 +31,15 @@ class SceneController extends ChangeNotifier {
   init([List<Map<String, dynamic>>? pages]) async {
     try {
       var navStackList = <String, NavigationStack>{};
+      var savedNavStackList = [];
       if (pages == null) {
-        var savedNavStackList = await NavigationStack.fetchAll(appController.databaseController);
+        try {
+          savedNavStackList = await NavigationStack.fetchAll(appController.databaseController);
+        } catch (e) {
+          //cleaning navigationState, if there are stale state
+          await appController.databaseController.databasePool.navigationStateClear();
+        }
+
         pages = savedNavStackList.compactMap((navStack) {
           if (navStack.pageLabel.startsWith("main")) {
             navStackList[navStack.pageLabel] = navStack;
@@ -43,7 +50,7 @@ class SceneController extends ChangeNotifier {
 
         if (pages.length > 1) {
           navStackList.forEach((key, value) {
-            if (value.state.isNotEmpty) value.state.last.config.cols ??= 5;
+            if (value.state.isNotEmpty) value.state.last.config.cols ??= 6;
           }); //TODO cols part logic is not clear, so just dirty hack for now
         }
       }
@@ -88,7 +95,7 @@ class SceneController extends ChangeNotifier {
     pageController.reset();
   }
 
-  reset() async {
+  reset() {
     navigationIsVisible.value = false;
     pageControllers.forEach((pageController) => pageController.reset());
     pageControllers = [];
@@ -182,34 +189,23 @@ class SceneController extends ChangeNotifier {
       DateTimeRange? dateRange,
       CVUDefinitionContent? customDefinition,
       CVUViewArguments? viewArguments,
+      bool clearPageControllers = false,
       memri.PageController? pageController}) async {
     CVUDefinitionContent viewDefinition = defaultDefinition ??
         appController.cvuController
             .viewDefinitionFor(viewName: viewName ?? "", customDefinition: customDefinition) ??
         CVUDefinitionContent();
-
+    if (clearPageControllers) {
+      removePageControllers();
+    }
     var viewArgs = viewDefinition.properties["viewArguments"];
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = targetItem;
     if (viewArgs is CVUValueSubdefinition) {
       viewArguments.args = viewArgs.value.properties;
     }
-    var pageLabelVal = viewArguments.args["pageLabel"]?.value;
-    String? pageLabel;
-    if (pageLabelVal != null) {
-      pageLabel = (pageLabelVal as CVUConstantString).value;
-      pageController = pageControllerByLabel(pageLabel);
-    }
-
-    if (pageController == null && pageLabel != null) {
-      var addPageIfMissingVal = viewArguments.args["addPageIfMissing"]?.value;
-      if (addPageIfMissingVal != null && (addPageIfMissingVal as CVUConstantBool).value) {
-        pageController = await addPageController(pageLabel);
-      }
-    }
 
     pageController ??= pageControllers.first;
-    pageLabel = pageController.label;
 
     viewArguments.args["readOnly"] ??= viewDefinition.properties["readOnly"] ??
         CVUValueConstant(CVUConstantBool(!pageController.isInEditMode.value));
@@ -296,6 +292,12 @@ class SceneController extends ChangeNotifier {
   scheduleUIUpdate() {
     pageControllers.forEach((pageController) {
       pageController.scheduleUIUpdate();
+    });
+  }
+
+  removePageControllers() {
+    pageControllers.skip(1).toList().forEach((element) {
+      removePageController(element);
     });
   }
 }

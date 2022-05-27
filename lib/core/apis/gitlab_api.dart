@@ -19,4 +19,18 @@ class GitlabApi {
     }
     return Utf8Decoder().convert(base64Decode(decodedGitJson["content"]));
   }
+
+  static Future<String> downloadSingleArtifact(
+      {required int gitProjectId,
+      required String filename,
+      required String jobName,
+      String branch = "main"}) async {
+    var repoUri = Uri.parse(
+        "https://gitlab.memri.io/api/v4/projects/$gitProjectId/jobs/artifacts/$branch/raw/$filename?job=$jobName");
+    var response = await http.get(repoUri, headers: {"content-type": "application/json"});
+    if (response.statusCode != 200) {
+      throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
+    }
+    return Utf8Decoder().convert(response.bodyBytes);
+  }
 }

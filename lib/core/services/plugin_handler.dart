@@ -41,8 +41,6 @@ class PluginHandler {
             return;
           }
         });
-
-    await AppController.shared.syncController.sync();
   }
 
   static stopPlugin(
@@ -65,7 +63,6 @@ class PluginHandler {
 
     if (item == null) {
       item = ItemRecord(type: "Account");
-      item.syncState = SyncState.skip; // Don't sync it yet
       await item.save();
       var itemRowId = item.rowId;
       if (itemRowId == null) {
@@ -73,12 +70,10 @@ class PluginHandler {
       }
 
       var edge = ItemEdgeRecord(sourceRowID: runnerRowId, name: "account", targetRowID: itemRowId);
-      edge.syncState = SyncState.skip; // Don't sync it yet
       await edge.save();
 
       var meRowID = (await ItemRecord.me())!.rowId;
       var meEdge = ItemEdgeRecord(sourceRowID: itemRowId, name: "owner", targetRowID: meRowID);
-      meEdge.syncState = SyncState.skip; // Don't sync it yet
       await meEdge.save();
     }
 

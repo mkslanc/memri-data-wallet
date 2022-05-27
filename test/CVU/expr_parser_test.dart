@@ -26,7 +26,8 @@ void main() {
                         CVUExpressionNodeConstant(CVUConstantNumber(10)),
                         CVUExpressionNodeConstant(CVUConstantNumber(4)))),
                 CVUExpressionNodeDivision(CVUExpressionNodeConstant(CVUConstantNumber(3)),
-                    CVUExpressionNodeConstant(CVUConstantNumber(10)))),
+                    CVUExpressionNodeConstant(CVUConstantNumber(10))),
+                true),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
@@ -134,45 +135,6 @@ void main() {
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
-  test('testLookup', () {
-    var snippet = ".bar and bar.foo(10) and bar[foo = 10] or shouldNeverGetHere";
-    var result = parse(snippet: snippet);
-    expect(
-        result,
-        equals(CVUExpressionNodeAnd(
-            CVUExpressionNodeAnd(
-                CVUExpressionNodeLookup([
-                  CVULookupNode.defaultLookup,
-                  CVULookupNode(name: "bar", isArray: false, type: CVULookupTypeLookup())
-                ]),
-                CVUExpressionNodeLookup([
-                  CVULookupNode(name: "bar", isArray: false, type: CVULookupTypeLookup()),
-                  CVULookupNode(
-                      name: "foo",
-                      isArray: false,
-                      type: CVULookupTypeFunction(
-                          [CVUExpressionNodeConstant(CVUConstantNumber(10.0))]))
-                ])),
-            CVUExpressionNodeOr(
-                CVUExpressionNodeLookup([
-                  CVULookupNode(
-                      name: "bar",
-                      isArray: true,
-                      type: CVULookupTypeLookup([
-                        CVUExpressionNodeAreEqual(
-                            CVUExpressionNodeLookup([
-                              CVULookupNode(
-                                  name: "foo", isArray: false, type: CVULookupTypeLookup())
-                            ]),
-                            CVUExpressionNodeConstant(CVUConstantNumber(10.0)))
-                      ]))
-                ]),
-                CVUExpressionNodeLookup([
-                  CVULookupNode(
-                      name: "shouldNeverGetHere", isArray: false, type: CVULookupTypeLookup())
-                ])))));
-  });
-
   test('testDotLookup', () {
     var snippet = ".";
     var result = parse(snippet: snippet);
@@ -191,7 +153,7 @@ void main() {
                 CVUExpressionNodeSubtraction(
                     CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                     CVUExpressionNodeAddition(CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
-                        CVUExpressionNodeConstant(CVUConstantNumber(10.0))))),
+                        CVUExpressionNodeConstant(CVUConstantNumber(10.0)), true))),
             CVUExpressionNodeConstant(CVUConstantString("5")))));
   });
 
@@ -394,7 +356,8 @@ void main() {
                     CVUExpressionNodeLookup(
                         [CVULookupNode(name: "test", isArray: false, type: CVULookupTypeLookup())]),
                     CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
-                        CVUExpressionNodeConstant(CVUConstantNumber(5.63537))))),
+                        CVUExpressionNodeConstant(CVUConstantNumber(5.63537))),
+                    true)),
                 CVUExpressionNodeDivision(CVUExpressionNodeConstant(CVUConstantNumber(4.0)),
                     CVUExpressionNodeConstant(CVUConstantNumber(3.0)))),
             CVUExpressionNodeLookup([
@@ -422,14 +385,16 @@ void main() {
                         CVUExpressionNodeConstant(CVUConstantNumber(4.0)),
                         CVUExpressionNodeMultiplication(
                             CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
-                            CVUExpressionNodeConstant(CVUConstantNumber(10.0)))),
+                            CVUExpressionNodeConstant(CVUConstantNumber(10.0))),
+                        true),
                     CVUExpressionNodeLookup([
                       CVULookupNode(
                           name: "test",
                           isArray: true,
                           type: CVULookupTypeLookup(
                               [CVUExpressionNodeConstant(CVUConstantNumber(10.0))]))
-                    ])),
+                    ]),
+                    true),
                 CVUExpressionNodeAddition(
                     CVUExpressionNodeConstant(CVUConstantString("asdads\'asdad")),
                     CVUExpressionNodeConstant(CVUConstantString("")))))));

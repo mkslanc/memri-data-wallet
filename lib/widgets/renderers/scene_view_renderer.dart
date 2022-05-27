@@ -7,6 +7,8 @@ import 'package:memri/screens/scene_view.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 
+import '../../constants/cvu/cvu_color.dart';
+
 class SceneViewRendererView extends Renderer {
   SceneViewRendererView({required pageController, required viewContext})
       : super(pageController: pageController, viewContext: viewContext);
@@ -20,6 +22,9 @@ class _SceneViewRendererViewState extends RendererViewState {
   late Future<void> _init;
   var pages = <Map<String, dynamic>>[];
 
+  EdgeInsets? insets;
+  Color backgroundColor = CVUColor.system("systemBackground");
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +32,13 @@ class _SceneViewRendererViewState extends RendererViewState {
   }
 
   Future<void> init() async {
+    insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
+        await viewContext.viewDefinitionPropertyResolver.edgeInsets ??
+        EdgeInsets.all(0);
+    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        await viewContext.viewDefinitionPropertyResolver.backgroundColor ??
+        CVUColor.system("systemBackground");
+
     _sceneController = SceneController();
     _sceneController.parentSceneController = pageController.sceneController;
     _sceneController.parentSceneController!.subSceneControllers.add(_sceneController);
@@ -68,9 +80,15 @@ class _SceneViewRendererViewState extends RendererViewState {
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
           ? pages.isEmpty
               ? Empty()
-              : SceneView(
-                  sceneController: _sceneController,
-                  showMainNavigation: false,
+              : ColoredBox(
+                  color: backgroundColor,
+                  child: Padding(
+                    padding: insets ?? const EdgeInsets.all(0),
+                    child: SceneView(
+                      sceneController: _sceneController,
+                      showMainNavigation: false,
+                    ),
+                  ),
                 )
           : Center(
               child: SizedBox(

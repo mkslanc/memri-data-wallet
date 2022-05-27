@@ -8,6 +8,7 @@ import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
 import 'package:memri/models/cvu/cvu_ui_element_family.dart';
 import 'package:memri/models/cvu/cvu_ui_node.dart';
+import 'package:memri/models/cvu/cvu_value.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:memri/widgets/components/cvu/cvu_element_view.dart';
 
@@ -55,28 +56,36 @@ class CVUUINodeResolver {
               (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
             widget = Expanded(child: widget);
           }
-          if (child.type == CVUUIElementFamily.Spacer) {
+          if (child.type == CVUUIElementFamily.Spacer && node.type == CVUUIElementFamily.HStack) {
             if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Text ||
                 nodeChildren[index - 1]?.type == CVUUIElementFamily.Text) {
               return MapEntry(index, null);
             }
           }
-          if (child.type == CVUUIElementFamily.Text && node.type == CVUUIElementFamily.HStack) {
-            if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer ||
-                (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer &&
-                    nodeChildren[index - 2]?.type == CVUUIElementFamily.Text)) {
-              if (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer) {
-                widget = Align(
-                    alignment: nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer
-                        ? Alignment.center
-                        : Alignment.centerRight,
-                    child: widget);
+          if (node.type == CVUUIElementFamily.HStack) {
+            if (child.type == CVUUIElementFamily.Text) {
+              if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer ||
+                  (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer &&
+                      nodeChildren[index - 2]?.type == CVUUIElementFamily.Text)) {
+                if (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer) {
+                  widget = Align(
+                      alignment: nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer
+                          ? Alignment.center
+                          : Alignment.centerRight,
+                      child: widget);
+                }
+                widget = Expanded(child: widget);
+              } else {
+                widget = Flexible(
+                  child: widget,
+                  flex: 5,
+                );
               }
-              widget = Expanded(child: widget);
-            } else {
+            } else if (child.properties.containsKey("cols") &&
+                child.properties["cols"] is CVUValueConstant) {
               widget = Flexible(
                 child: widget,
-                flex: 5,
+                flex: (child.properties["cols"] as CVUValueConstant).value.asInt() ?? 1,
               );
             }
           }

@@ -59,7 +59,9 @@ enum UIElementProperties {
   minHeight,
   maxHeight,
   actionButton,
-  onPress
+  onPress,
+  speed,
+  size
 }
 
 enum CVUErrorType { error, warning }
@@ -154,6 +156,8 @@ class CVUValidator {
       case UIElementProperties.blur:
       case UIElementProperties.opacity:
       case UIElementProperties.zindex:
+      case UIElementProperties.speed:
+      case UIElementProperties.size:
         return value is num;
       case UIElementProperties.actionButton:
       case UIElementProperties.onPress:

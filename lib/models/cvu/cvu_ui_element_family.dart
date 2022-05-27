@@ -37,7 +37,8 @@ enum CVUUIElementFamily {
   Observer,
   Wrap,
   Dropdown,
-  RichText
+  RichText,
+  LoadingIndicator
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {

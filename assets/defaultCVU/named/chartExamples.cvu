@@ -56,10 +56,10 @@
     [renderer = chart] {
         chartType: line
         title: "Demo XY chart"
-        subtitle: "(Height-160)^3 vs Height"
-        
+        subtitle: "(Height-160)^3 vs Height TODO () not working"
+
         xAxis: {{.height}}
-        yAxis: {{(.height-160) * (.height-160) * (.height-160)}}
+        yAxis: {{.height}}
         label: {{.firstName}}
         
         color: blue

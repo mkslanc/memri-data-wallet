@@ -370,8 +370,9 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -399,8 +400,17 @@
                 }
 
                 Button {
-                    onPress: back
-                    padding: 0 0 0 20
+                    onPress: [
+                        openView
+                            {
+                                clearStack: true
+                                inheritDatasource: false
+                                viewArguments: {
+                                    readOnly: true
+                                }
+                                viewName: "allData"
+                            }
+                    ]
 
                     Text {
                         color: #333333
@@ -575,8 +585,9 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
+                spacing: 15
 
                 Button {
                     styleName: primaryButton
@@ -604,8 +615,6 @@
                 }
 
                 Button {
-                    padding: 0 0 0 20
-
                     Text {
                         text: "Cancel"
                         font: button_label
@@ -689,9 +698,10 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
@@ -736,7 +746,6 @@
                         }
                         back
                     ]
-                    padding: 0 0 0 20
 
                     Text {
                         color: #333333
@@ -817,6 +826,10 @@
     }
 
     Account > singleItem {
+        viewArguments: {
+            selectedPlugin: {{.~account.plugin}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 30 0 30
@@ -839,20 +852,61 @@
                 padding: 0 10
             }
 
-            Button {
-                padding: 60 0 0 0
+            Wrap {
+                alignment: left
+                padding: 15 0 0 0
+                spacing: 15
 
-                Text {
-                    text: "<  Back to data page"
-                    font: button_label
-                    color: #FE570F
+                Button {
+                    onPress: [
+                        addItem
+                        {
+                            clearPageControllers: true
+                            clearStack: true
+                            template: {
+                                _type: Project
+                            }
+                            viewArguments: {
+                                datasetGrid: {
+                                    viewArguments: {
+                                        selectedPlugin: {{selectedPlugin}}
+                                    }
+
+                                    [renderer = grid] {
+                                        selectedItems: {{project.dataset ? project.dataset.datasetType[] : selectedPlugin.~datasetPlugin[]}}
+                                    }
+                                }
+                                pageLabel: "main"
+                                readOnly: false
+                                selectedPlugin: {{selectedPlugin}}
+                            }
+                            viewName: "add-project"
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Create a new project"
+                    }
                 }
 
-                onPress: openView {
-                    viewName: "apps-and-plugins"
-                    clearStack: true
-                    viewArguments {
+                Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allData"
+                        }
+                    ]
+                    styleName: secondaryButton
 
+                    Text {
+                        font: button_label
+                        text: "Back to data streams"
                     }
                 }
             }

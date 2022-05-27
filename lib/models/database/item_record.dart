@@ -28,7 +28,7 @@ enum SyncState {
   failed,
 }
 
-enum FileState { skip, needsUpload, needsDownload, noChanges }
+enum FileState { skip, needsUpload, needsDownload, noChanges, failedDownload }
 
 extension SyncStateExtension on SyncState {
   static SyncState rawValue(String value) =>
@@ -210,12 +210,34 @@ class ItemRecord with EquatableMixin {
       await itemPropertyRecord.delete(db.databasePool);
     }
 
+    await saveChanges(state, db);
+  }
+
+  setPropertyValueList(List<ItemPropertyRecord> records,
+      {SyncState state = SyncState.update, DatabaseController? db}) async {
+    db ??= AppController.shared.databaseController;
+    records.forEach((record) => record.itemRowID = rowId);
+
+    await ItemPropertyRecord.insertList(records, db: db.databasePool);
+
+    await saveChanges(state, db);
+  }
+
+  Future<int> saveChanges(SyncState state, DatabaseController db) async {
     if (syncState != SyncState.skip) {
-      syncState = state;
+      if (syncState == SyncState.create) {
+        var item = await ItemRecord.fetchWithUID(uid, db);
+        syncState = item!.syncState;
+      }
+      if (syncState != SyncState.create) {
+        syncState = state;
+      }
     }
 
+    dateModified = DateTime.now();
+
     /// Save the item record including the above changes - do this before editing the property so we know the item definitely exists
-    await save(db.databasePool);
+    return await save(db.databasePool);
     //await addChangeLog(name, value, db); //TODO
   }
 
@@ -243,12 +265,12 @@ class ItemRecord with EquatableMixin {
     }
   }
 
-  static Future<List<ItemRecord>> fetchWithUIDs(List<String> uids, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
+  static Future<List<ItemRecord>> fetchWithUIDs(List<String> uids, [Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
     try {
       var groupedUids = uids.partition(1000);
-      return (await Future.wait(groupedUids
-              .map((uids) async => await db!.databasePool.itemRecordFetchWithUIDs(uids))))
+      return (await Future.wait(
+              groupedUids.map((uids) async => await db!.itemRecordFetchWithUIDs(uids))))
           .expand((element) => element)
           .map((item) => ItemRecord.fromItem(item))
           .toList();
@@ -258,10 +280,10 @@ class ItemRecord with EquatableMixin {
     }
   }
 
-  static Future<List<ItemRecord>> fetchWithRowIDs(List<int> ids, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
+  static Future<List<ItemRecord>> fetchWithRowIDs(List<int> ids, [Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
     try {
-      List<Item> items = await db.databasePool.itemRecordFetchWithRowIDs(ids);
+      List<Item> items = await db.itemRecordFetchWithRowIDs(ids);
       return items.map((item) => ItemRecord.fromItem(item)).toList();
     } catch (e) {
       AppLogger.err(e);
@@ -269,9 +291,9 @@ class ItemRecord with EquatableMixin {
     }
   }
 
-  static Future<List<ItemRecord>> fetchWithType(String type, [DatabaseController? db]) async {
-    db ??= AppController.shared.databaseController;
-    List<Item> item = await db.databasePool.itemRecordsFetchByType(type);
+  static Future<List<ItemRecord>> fetchWithType(String type, [Database? db]) async {
+    db ??= AppController.shared.databaseController.databasePool;
+    List<Item> item = await db.itemRecordsFetchByType(type);
     return item.map((e) => ItemRecord.fromItem(e)).toList();
   }
 
@@ -281,19 +303,21 @@ class ItemRecord with EquatableMixin {
 
   static Future insertList(List<ItemRecord> records, {Database? db}) async {
     db ??= AppController.shared.databaseController.databasePool;
-    return await db.itemRecordInsertAll(records);
+    var partItems = records.partition(5000);
+    for (var part in partItems) {
+      await db.itemRecordInsertAll(part);
+    }
   }
 
   Future<int> delete(DatabaseController db) async {
     deleted = true;
-    syncState = SyncState.update;
     var targetEdges = await edges(null, db: db, deleted: null);
     var sourceEdges = await reverseEdges(null, db: db, deleted: null);
     List<ItemEdgeRecord> relatedEdges = targetEdges + sourceEdges;
 
     await Future.forEach(relatedEdges, (ItemEdgeRecord edge) async => await edge.delete(db));
 
-    return await save(db.databasePool);
+    return await saveChanges(SyncState.update, db);
   }
 
   Future<List<ItemEdgeRecord>> edges(String? name,
@@ -553,72 +577,68 @@ class ItemRecord with EquatableMixin {
     var properties = <Map<String, dynamic>>[];
     var schemaProperties = <Map<String, dynamic>>[];
 
-    await dbController.databasePool.transaction(() async {
-      List<ItemRecord> itemRecords = [];
-      List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
-      var itemList =
-          (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
-      var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
-        if (dict is! Map<String, dynamic> || dict["id"] == null) return null;
-        dict["rowId"] = itemList[dict["id"]]?.rowId;
-        return dict;
-      });
-      await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
-        // If the item has file and it does not exist on disk, mark the file to be downloaded
-        if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
-          String? fileName = dict["sha256"];
-          if (fileName != null &&
-              !(await FileStorageController.fileExists(
-                  (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
-            dict["fileState"] = FileState.needsDownload;
-          }
-        }
-
-        itemRecords.add(ItemRecord.fromSyncDict(dict));
-      });
-
-      await ItemRecord.insertList(itemRecords, db: dbController.databasePool);
-      List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(uidList, dbController));
-      for (var i = 0; i < newItemList.length; i++) {
-        var newItem = newItemList[i];
-        var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
-        if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
-          schemaProperties.add({"item": newItem, "properties": dict});
-        } else {
-          properties.add({"item": newItem, "properties": dict});
-        }
-
-        var itemEdges = dict["[[edges]]"];
-        if (itemEdges is List && itemEdges.isNotEmpty) {
-          edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
-            return edge is Map<String, dynamic>
-                ? (edge..addAll({"source": newItem, "dict": dict}))
-                : null;
-          }));
+    List<ItemRecord> itemRecords = [];
+    List<String> uidList = responseObjects.compactMap((dict) => dict["id"]);
+    var itemList = (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool))
+        .toMapByKey((item) => item.uid);
+    var dictList = responseObjects.compactMap<Map<String, dynamic>>((dict) {
+      if (dict is! Map<String, dynamic> ||
+          dict["id"] == null ||
+          itemList[dict["id"]]?.syncState == SyncState.update) return null;
+      dict["rowId"] = itemList[dict["id"]]?.rowId;
+      return dict;
+    });
+    await Future.forEach<Map<String, dynamic>>(dictList, (dict) async {
+      // If the item has file and it does not exist on disk, mark the file to be downloaded
+      if (dict["type"] == "File" && dict["_item"] == null && dict.containsKey("sha256")) {
+        String? fileName = dict["sha256"];
+        if (fileName != null &&
+            !(await FileStorageController.fileExists(
+                (await FileStorageController.getFileStorageURL()) + "/$fileName"))) {
+          dict["fileState"] = FileState.needsDownload;
         }
       }
+
+      itemRecords.add(ItemRecord.fromSyncDict(dict));
     });
+
+    await ItemRecord.insertList(itemRecords, db: dbController.databasePool);
+
+    List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
+        itemRecords.map((item) => item.uid).toList(), dbController.databasePool));
+    for (var i = 0; i < newItemList.length; i++) {
+      var newItem = newItemList[i];
+      var dict = dictList.firstWhere((element) => element["id"] == newItem.uid);
+      if (newItem.type == "ItemPropertySchema" || newItem.type == "ItemEdgeSchema") {
+        schemaProperties.add({"item": newItem, "properties": dict});
+      } else {
+        properties.add({"item": newItem, "properties": dict});
+      }
+
+      var itemEdges = dict["[[edges]]"];
+      if (itemEdges is List && itemEdges.isNotEmpty) {
+        edges.addAll(itemEdges.compactMap<Map<String, dynamic>>((edge) {
+          return edge is Map<String, dynamic>
+              ? (edge..addAll({"source": newItem, "dict": dict}))
+              : null;
+        }));
+      }
+    }
 
     if (schemaProperties.isNotEmpty) {
       var schemaItemProperties =
           propertiesFromSyncItemDict(dictList: schemaProperties, dbController: dbController);
-      await dbController.databasePool.transaction(() async {
-        await dbController.databasePool.itemPropertyRecordInsertAll(schemaItemProperties);
-        await dbController.schema.load(dbController.databasePool);
-      });
+      await ItemPropertyRecord.insertList(schemaItemProperties, db: dbController.databasePool);
+      await dbController.schema.load(dbController.databasePool);
     }
 
     var edgesRecords =
         await ItemRecord.edgesFromSyncItemDict(edges: edges, dbController: dbController);
-    await dbController.databasePool.transaction(() async {
-      await dbController.databasePool.itemEdgeRecordInsertAll(edgesRecords);
-    });
+    await ItemEdgeRecord.insertList(edgesRecords, db: dbController.databasePool);
 
     var itemProperties =
         propertiesFromSyncItemDict(dictList: properties, dbController: dbController);
-    await dbController.databasePool.transaction(() async {
-      await dbController.databasePool.itemPropertyRecordInsertAll(itemProperties);
-    });
+    await ItemPropertyRecord.insertList(itemProperties, db: dbController.databasePool);
     return null;
   }
 
@@ -630,7 +650,8 @@ class ItemRecord with EquatableMixin {
     });
     var uidList = edgeItems.map((item) => item["id"] as String).toList();
     var groupedEdgeItemRecords =
-        (await ItemRecord.fetchWithUIDs(uidList, dbController)).toMapByKey((item) => item.uid);
+        (await ItemRecord.fetchWithUIDs(uidList, dbController.databasePool))
+            .toMapByKey((item) => item.uid);
     return edges.map((edge) {
       ItemRecord self = groupedEdgeItemRecords[edge["id"]]!;
       ItemRecord target = groupedEdgeItemRecords[edge["_item"]["id"]]!;
@@ -706,6 +727,7 @@ class ItemRecord with EquatableMixin {
       }
       return {
         "id": uid,
+        "dateModified": dateModified.millisecondsSinceEpoch,
         "type": "ItemPropertySchema",
         "itemType": itemType,
         "propertyName": ItemRecord.mapSchemaPropertyName(propertyName),
@@ -727,6 +749,7 @@ class ItemRecord with EquatableMixin {
 
       return {
         "id": uid,
+        "dateModified": dateModified.millisecondsSinceEpoch,
         "type": "ItemEdgeSchema",
         "sourceType": sourceType,
         "edgeName": ItemRecord.mapSchemaPropertyName(edgeName),
@@ -782,37 +805,36 @@ class ItemRecord with EquatableMixin {
       throw Exception("Sync Failed");
     }
     dbController ??= AppController.shared.databaseController;
+    var allItems = syncItems.createItems;
+    allItems.addAll(syncItems.updateItems);
+    List<String> allItemIDs = allItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
+    var items = await fetchWithUIDs(allItemIDs, dbController.databasePool);
 
-    List<String> createItemIDs =
-        syncItems.createItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
-
-    List<String> updateItemIDs =
-        syncItems.updateItems.compactMap((el) => (el["id"] is String) ? el["id"] : null);
-
-    var allItems = createItemIDs;
-    allItems.addAll(updateItemIDs);
-    var now = DateTime.now();
-    for (var itemId in allItems) {
-      var item = await fetchWithUID(itemId, dbController);
-      if (item != null) {
+    for (var item in items) {
+      if (item.dateModified.millisecondsSinceEpoch <=
+          allItems.firstWhere((element) => element["id"] == item.uid)["dateModified"]) {
         item.syncState = SyncState.noChanges;
-        item.dateServerModified = now;
-        await item.save(dbController.databasePool);
+      } else if (item.syncState == SyncState.create) {
+        item.syncState = SyncState.update;
+      } else {
+        continue;
       }
+      await item.save(dbController.databasePool);
     }
   }
 
   static Future<ItemRecord?> lastSyncedItem([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
-    var items = (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC"));
-    if (items.length > 0) {
-      return ItemRecord.fromItem(items[0]);
+    var items =
+        (await db.itemRecordsCustomSelect("", [], orderBy: "dateServerModified DESC", limit: 1));
+    if (items.isNotEmpty) {
+      return ItemRecord.fromItem(items.first);
     }
     return null;
   }
 
   static Future<Map?> fileItemRecordToUpload([DatabaseController? dbController]) async {
-    var itemList = await ItemRecord.fetchWithType("File", dbController);
+    var itemList = await ItemRecord.fetchWithType("File", dbController?.databasePool);
     var item =
         itemList.firstWhereOrNull((itemRecord) => itemRecord.fileState == FileState.needsUpload);
 
@@ -844,7 +866,7 @@ class ItemRecord with EquatableMixin {
   }
 
   static Future<Map?> fileItemRecordToDownload([DatabaseController? db]) async {
-    var itemList = await ItemRecord.fetchWithType("File", db);
+    var itemList = await ItemRecord.fetchWithType("File", db?.databasePool);
     var item =
         itemList.firstWhereOrNull((itemRecord) => itemRecord.fileState == FileState.needsDownload);
 
@@ -873,7 +895,8 @@ class ItemRecord with EquatableMixin {
     return {"item": item, "sha256": sha256, "fileName": fileName};
   }
 
-  static didDownloadFileForItem(ItemRecord item, [DatabaseController? db]) async {
+  static didDownloadFileForItem(ItemRecord item,
+      {DatabaseController? db, bool failedDownloading = false}) async {
     var rowId = item.rowId;
     if (rowId == null) return;
     var fetchedItem = await ItemRecord.fetchWithRowID(rowId, db);
@@ -881,7 +904,7 @@ class ItemRecord with EquatableMixin {
       return;
     }
 
-    fetchedItem.fileState = FileState.noChanges;
+    fetchedItem.fileState = failedDownloading ? FileState.failedDownload : FileState.noChanges;
     await fetchedItem.save(db?.databasePool);
   }
 
@@ -989,14 +1012,18 @@ class ItemRecord with EquatableMixin {
   }
 
   //TODO: copy also edges (would be recursive)
-  Future<ItemRecord> copy(DatabaseController db) async {
+  Future<ItemRecord> copy(DatabaseController db,
+      {Map<String, PropertyDatabaseValue>? withProperties}) async {
     var newItem = ItemRecord(type: type);
     await newItem.save();
     var props = await properties(db);
     props.forEach((element) {
       element.itemRowID = newItem.rowId!;
     });
-    await db.databasePool.itemPropertyRecordInsertAll(props);
+    withProperties?.forEach((propName, propValue) {
+      props.add(ItemPropertyRecord(name: propName, value: propValue));
+    });
+    await newItem.setPropertyValueList(props);
     return newItem;
   }
 }

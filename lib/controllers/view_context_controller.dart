@@ -1,5 +1,6 @@
 //  Created by T Brennan on 30/1/21.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -27,8 +28,9 @@ class ViewContextController extends ChangeNotifier {
   final memri.PageController pageController;
 
   var configObservation;
-  var queryObservation;
+  StreamSubscription? queryObservation;
 
+  CVUDefinitionContent? viewDefinition;
   CVUDefinitionContent rendererDefinition;
 
   ViewContext get config => configHolder.config;
@@ -43,7 +45,12 @@ class ViewContextController extends ChangeNotifier {
     this.databaseController = databaseController ?? AppController.shared.databaseController;
     this.cvuController = cvuController ?? AppController.shared.cvuController;
     this.lookupController = CVULookupController();
+    config.config.viewArguments ?? CVUViewArguments();
     this.configHolder = config;
+
+    if (this.config.viewName != null && this.config.viewName != "customView") {
+      viewDefinition = config.config.viewDefinition;
+    }
 
     _updateCachedValues();
 
@@ -136,14 +143,18 @@ class ViewContextController extends ChangeNotifier {
 
   _updateCachedValues() {
     var viewName = config.viewName;
-    var newDef = viewName != null ? cvuController.viewDefinitionFor(viewName: viewName) : null;
+    viewDefinition ??= viewName != null
+        ? cvuController.viewDefinitionFor(viewName: viewName)
+        : null; //TODO this part is full of unused legacy we keep stumbling on
 
-    if (newDef == null) {
+    if (viewDefinition == null) {
       var item = config.focusedItem;
-      newDef = item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
+      viewDefinition =
+          item != null ? cvuController.viewDefinitionForItemRecord(itemRecord: item) : null;
     }
-    if (newDef != null) {
-      config.viewDefinition = newDef;
+
+    if (viewDefinition != null) {
+      config.viewDefinition = viewDefinition!;
     }
 
     rendererDefinition =
@@ -257,9 +268,22 @@ class ViewContextController extends ChangeNotifier {
   bool get hasItems => items.isNotEmpty;
 
   // MARK: Selection State
-  List<int> selectedItems = <int>[];
+  List<int> _selectedItems = <int>[];
+
+  get selectedItems => _selectedItems;
+  set selectedItems(selectedItems) {
+    _selectedItems = selectedItems;
+    config.viewArguments?.args["selectedItems"] =
+        CVUValueArray(_selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
+    pageController.navigationStack.save();
+  }
 
   Binding<Set<int>> get selectedIndicesBinding {
+    _selectedItems = (config.viewArguments?.args["selectedItems"] is CVUValueArray)
+        ? (config.viewArguments?.args["selectedItems"] as CVUValueArray)
+            .value
+            .compactMap((CVUValue e) => (e as CVUValueItem).value)
+        : [];
     return Binding(
         () => Set.of(selectedItems
             .map((rowId) => items.indexWhere((item) => item.rowId == rowId))
@@ -267,8 +291,6 @@ class ViewContextController extends ChangeNotifier {
             .toList()), (Set<int> newValue) {
       selectedItems =
           Set.of(newValue.toList().compactMap((index) => items.asMap()[index]?.rowId)).toList();
-      config.viewArguments?.args["selectedItems"] =
-          CVUValueArray(selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
     });
   }
 
@@ -331,6 +353,8 @@ class ViewContextController extends ChangeNotifier {
     }
     items = await Future.wait<ItemRecord>(items.compactMap<Future<ItemRecord>>(
         (el) async => (await ItemRecord.fetchWithRowID(el.rowId!))!));
+
+    viewDefinition = null;
 
     _updateCachedValues();
     notifyListeners();

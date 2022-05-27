@@ -4,6 +4,8 @@ import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 
+import '../../constants/cvu/cvu_color.dart';
+
 class CustomRendererView extends Renderer {
   CustomRendererView({required pageController, required viewContext})
       : super(pageController: pageController, viewContext: viewContext);
@@ -14,6 +16,8 @@ class CustomRendererView extends Renderer {
 
 class _CustomRendererViewState extends RendererViewState {
   late Future _init;
+  EdgeInsets? insets;
+  Color? backgroundColor;
 
   CVUDefinitionContent? get nodeDefinition {
     var viewDefinition;
@@ -30,6 +34,12 @@ class _CustomRendererViewState extends RendererViewState {
   }
 
   Future init() async {
+    insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
+        await viewContext.viewDefinitionPropertyResolver.edgeInsets ??
+        EdgeInsets.all(0);
+    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        await viewContext.viewDefinitionPropertyResolver.backgroundColor ??
+        CVUColor.system("systemBackground");
     scrollable = await viewContext.viewDefinitionPropertyResolver.boolean("scrollable") ?? true;
   }
 
@@ -59,20 +69,32 @@ class _CustomRendererViewState extends RendererViewState {
           future: _init,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
+              var group = viewContext.render(
+                  nodeDefinition: nodeDefinition, items: widget.viewContext.items);
+              if (insets != null) {
+                group = Padding(
+                  padding: insets!,
+                  child: group,
+                );
+              }
+              if (backgroundColor != null) {
+                group = ColoredBox(
+                  color: backgroundColor!,
+                  child: group,
+                );
+              }
               if (scrollable) {
                 return CustomScrollView(
                   slivers: [
                     SliverFillRemaining(
                       hasScrollBody: false,
-                      child: viewContext.render(
-                          nodeDefinition: nodeDefinition, items: widget.viewContext.items),
+                      child: group,
                       fillOverscroll: false,
                     ),
                   ],
                 );
               }
-              return viewContext.render(
-                  nodeDefinition: nodeDefinition, items: widget.viewContext.items);
+              return group;
             }
             return Empty();
           });

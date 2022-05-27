@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/database_query.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
+import 'package:memri/models/database/item_property_record.dart';
 import 'package:memri/models/database/item_record.dart';
 
 void main() {
@@ -25,14 +26,10 @@ void main() {
   });
 
   test('testQueryWithConditions', () {
-    var queryDef = DatabaseQueryConfig(
-        itemTypes: [],
-        pageSize: 1000,
-        currentPage: 0,
-        conditions: [
-          DatabaseQueryConditionPropertyEquals(PropertyEquals("title", "A demo note")),
-          DatabaseQueryConditionPropertyEquals(PropertyEquals("starred", true))
-        ]);
+    var queryDef = DatabaseQueryConfig(pageSize: 1000, currentPage: 0, conditions: [
+      DatabaseQueryConditionPropertyEquals(PropertyEquals("title", "A demo note")),
+      DatabaseQueryConditionPropertyEquals(PropertyEquals("starred", true))
+    ]);
     var result = queryDef.executeRequest(databaseController);
     result.listen(expectAsync1((List<ItemRecord> records) {
       expect(records.length, 1);
@@ -79,6 +76,29 @@ void main() {
     await result.setPropertyValue("content", null, db: databaseController);
     var searchResults = await databaseController.search("trailhead");
     expect(searchResults.length, equals(0));
+  });
+
+  test('testItemPropertyRecordInsertAll', () async {
+    var item = ItemRecord(type: "Note");
+    await item.save(databaseController.databasePool);
+
+    List<ItemPropertyRecord> properties = [];
+    properties.add(ItemPropertyRecord(
+        itemRowID: item.rowId!, name: "title", value: PropertyDatabaseValueString("Test1")));
+
+    await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+    var propertiesBefore = await item.properties(databaseController);
+    expect(propertiesBefore.length, 1);
+    expect(propertiesBefore[0].$value.value, "Test1");
+
+    properties = [
+      ItemPropertyRecord(
+          itemRowID: item.rowId!, name: "title", value: PropertyDatabaseValueString("Test2"))
+    ];
+    await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+    var propertiesAfter = await item.properties(databaseController);
+    expect(propertiesAfter.length, 1);
+    expect(propertiesAfter[0].$value.value, "Test2");
   });
 
   tearDown(() async {

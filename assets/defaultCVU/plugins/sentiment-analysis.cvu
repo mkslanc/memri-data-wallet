@@ -30,9 +30,10 @@
                 text: "Even fellow humans have difficulty understanding the emotions of others; people express their opinions in unique ways, so sentiment analysis presents a lot of challenges. It's important to keep in mind that machines cannot analyze sentiments in the same way humans can: they don't understand context unless it's explicitly mentioned, irony and sarcasm are hard to detect, and so on."
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
                 show: {{!.~plugin}}
 
                 Button {
@@ -63,7 +64,6 @@
 
                 Button {
                     onPress: back
-                    padding: 0 0 0 20
 
                     Text {
                         color: #333333

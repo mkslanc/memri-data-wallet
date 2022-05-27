@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_query.dart';
 import 'package:memri/controllers/view_context_controller.dart';
@@ -27,7 +28,6 @@ class CVUSubView extends StatefulWidget {
 class _CVUSubViewState extends State<CVUSubView> {
   late Future _init;
   bool isInited = false;
-  Key? key; //used for updating on cvu change from cvuEditor
 
   CVUDefinitionContent? _viewDefinition;
   String? _id;
@@ -35,32 +35,33 @@ class _CVUSubViewState extends State<CVUSubView> {
   CVUViewArguments? viewArguments;
   DatabaseQueryConfig? queryConfig;
 
-  late ValueNotifier<ViewContextController?> viewContextValue;
+  late ValueNotifier<Key?> key; //used for updating on cvu change from cvuEditor
+  ViewContextController? viewContext;
 
-  ViewContextController? get _viewContext => viewContextValue.value;
-  set _viewContext(ViewContextController? viewContext) {
-    _viewContext?.removeListener(viewContextUpdate);
-    viewContextValue.value = viewContext;
-    _viewContext?.addListener(viewContextUpdate);
+  set _viewContext(ViewContextController? newViewContext) {
+    viewContext?.removeListener(viewContextUpdate);
+    viewContext = newViewContext;
+    viewContext?.addListener(viewContextUpdate);
+    key.value = Key(Uuid().v4());
   }
 
   viewContextUpdate() {
     if (!mounted) return; //TODO check why this happening
     setState(() {
-      viewArguments?.argumentItems = _viewContext?.items;
+      viewArguments?.argumentItems = viewContext?.items;
     });
   }
 
   @override
   dispose() {
-    _viewContext?.removeListener(viewContextUpdate);
+    viewContext?.removeListener(viewContextUpdate);
     super.dispose();
   }
 
   @override
   initState() {
     super.initState();
-    viewContextValue = ValueNotifier(null);
+    key = ValueNotifier(Key(Uuid().v4()));
     _init = init();
   }
 
@@ -79,14 +80,19 @@ class _CVUSubViewState extends State<CVUSubView> {
 
     var id = await widget.nodeResolver.propertyResolver.string("id");
     if (id == _id && _viewDefinition == viewDefinition) {
-      _viewContext?.setupQueryObservation();
-      _viewContext = _viewContext;
+      viewContext?.setupQueryObservation();
       return;
     }
-    key = Key(Uuid().v4());
 
     if (_id != null) {
       widget.nodeResolver.context.viewArguments?.subViewArguments.remove(_id!);
+    }
+
+    if (id != null &&
+        widget.nodeResolver.context.viewArguments != null &&
+        widget.nodeResolver.context.viewArguments!.args.containsKey(id)) {
+      viewDefinition = viewDefinition.merge(
+          (widget.nodeResolver.context.viewArguments!.args[id] as CVUValueSubdefinition).value);
     }
 
     _viewDefinition = viewDefinition;
@@ -158,16 +164,16 @@ class _CVUSubViewState extends State<CVUSubView> {
   }
 
   Widget get renderer => ValueListenableBuilder(
-        valueListenable: viewContextValue,
-        builder: (BuildContext context, ViewContextController? value, Widget? child) {
+        valueListenable: key,
+        builder: (BuildContext context, Key? value, Widget? child) {
           if (value != null) {
             return SceneContentView(
-              key: key,
-              viewContext: value,
+              key: value,
+              viewContext: viewContext!,
               pageController: widget.nodeResolver.pageController,
             );
           } else {
-            print("No renderer selected"); //TODO
+            AppLogger.err("No renderer selected"); //TODO
             return Empty();
           }
         },

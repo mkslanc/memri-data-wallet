@@ -52,6 +52,9 @@ class AppController {
 
   set state(newValue) => _state.value = newValue;
 
+  //TODO: hope this is temporary solution
+  Map<String, dynamic> storage = {};
+
   AppController() {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
@@ -102,6 +105,9 @@ class AppController {
     state = _isNewPodSetup ? AppState.keySaving : AppState.authenticated;
 
     await syncStream();
+    if (!isDevelopersMode) {
+      await cvuController.resetToDefault();
+    }
   }
 
   Future<void> syncStream() async {
@@ -113,7 +119,7 @@ class AppController {
       if (!kIsWeb) {
         documentsDirectory = (await getApplicationDocumentsDirectory()).path;
         syncIsolate = await Isolate.spawn(
-            syncController.runSync,
+            runSync,
             IsolateSyncConfig(
                 port: receivePort.sendPort,
                 connection: connection,
@@ -122,8 +128,7 @@ class AppController {
                 rootKey: Authentication.lastRootPublicKey,
                 isolate: databaseController.driftIsolate!));
       } else {
-        syncController
-            .runSync(SyncConfig(connection: connection, schema: databaseController.schema));
+        runSync(SyncConfig(connection: connection, schema: databaseController.schema));
       }
     }
 
@@ -184,7 +189,7 @@ class AppController {
     state = config is SetupConfigNewPod ? AppState.keySaving : AppState.authenticated;
     model.state = PodSetupState.idle;
 
-    await importData(config);
+    await importData(config).then((value) => SceneController.sceneController.scheduleUIUpdate());
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
@@ -262,8 +267,6 @@ class AppController {
   }
 
   resetApp() async {
-    Authentication.createRootKey();
-
     await SceneController.sceneController.reset();
     if (!_isInDemoMode) {
       await syncStreamSub?.cancel();
@@ -271,17 +274,15 @@ class AppController {
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
-    await FileStorageController.deleteFileStorage();
-    await databaseController.delete();
-    state = AppState.setup;
-
     if (syncController.runSyncStream != null) {
       await syncController.runSyncStream!.cancel();
     }
-
     pubSubController.reset();
     cvuController.reset();
-
+    await FileStorageController.deleteFileStorage();
+    await databaseController.delete();
+    Authentication.createRootKey();
+    state = AppState.setup;
     await init();
     await SceneController.sceneController.init();
 

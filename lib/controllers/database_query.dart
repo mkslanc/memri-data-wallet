@@ -170,13 +170,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   Future<List<Item>> constructFilteredRequest([Set<int>? searchRowIDs]) async {
-    List<dynamic> intersection(List<List<dynamic>> arrays) {
-      if (arrays.length == 0) {
-        return [];
-      }
-      return [...arrays].reduce((a, c) => a.where((i) => c.contains(i)).toList());
-    }
-
     var limit = count ?? pageSize;
     var offset = (count ?? 0) > 0 ? 0 : pageSize * currentPage;
 
@@ -240,81 +233,70 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       queryBindings.add(Variable.withBool(deleted!));
     }
 
-    var itemRecords = await dbController.databasePool
-        .itemRecordsCustomSelect(queryConditions.join(" and "), queryBindings);
-    if (itemRecords.length == 0) {
-      return [];
-    }
-
-    List<int> rowIds = [];
-    itemRecords.forEach((itemRecord) => rowIds.add(itemRecord.rowId));
-
-    // Property and edges conditions
-    List<List<int>> allConditionsItemsRowIds = [];
-    List<List<int>> edgeConditionsItemsRowIds = [];
+    List<Variable<dynamic>> allBindings = [];
+    var join = "";
+    Set<TableInfo> joinTables = {};
+    var i = 0;
+    var info;
     for (var condition in conditions) {
-      var info, query;
-      List<Variable<dynamic>> binding = [];
-
       if (condition is DatabaseQueryConditionPropertyEquals) {
         info = condition.value;
-        query = "name = ? AND value = ? AND item IN (${rowIds.join(", ")})";
-        binding = [Variable.withString(info.name), Variable(info.value)];
-        allConditionsItemsRowIds.add(
-            (await dbController.databasePool.itemPropertyRecordsCustomSelect(query, binding))
-                .map((el) => el.item)
-                .whereType<int>()
-                .toList());
+        var itemType = itemTypes.firstWhereOrNull(
+            (element) => dbController.schema.expectedPropertyType(element, info.name) != null);
+        if (itemType == null) {
+          continue;
+        }
+        SchemaValueType schemaValueType =
+            dbController.schema.expectedPropertyType(itemType, info.name)!;
+
+        ItemRecordPropertyTable itemRecordPropertyTable =
+            PropertyDatabaseValue.toDBTableName(schemaValueType);
+        TableInfo table =
+            dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+        String tableName = table.aliasedName;
+
+        join +=
+            "INNER JOIN $tableName property$i ON items.row_id = property$i.item AND property$i.name = ? AND property$i.value = ?";
+        joinTables.add(table);
+        allBindings.addAll([Variable.withString(info.name), Variable(info.value)]);
       } else if (condition is DatabaseQueryConditionEdgeHasTarget) {
         info = condition.value;
-        query =
-            "name = ? AND target IN (${info.target.join(", ")}) AND source IN (${rowIds.join(", ")})";
-        binding = [Variable(info.edgeName)];
-        edgeConditionsItemsRowIds.add(
-            (await dbController.databasePool.edgeRecordsCustomSelect(query, binding))
-                .map((el) => el.source)
-                .whereType<int>()
-                .toList());
+        join +=
+            "INNER JOIN edges edge$i ON items.row_id = edge$i.source AND edge$i.name = ? AND edge$i.target IN (${info.target.join(", ")})";
+        joinTables.add(dbController.databasePool.edges);
+        allBindings.add(Variable(info.edgeName));
       } else if (condition is DatabaseQueryConditionEdgeHasSource) {
         info = condition.value;
-        query =
-            "name = ? AND source IN (${info.source.join(", ")}) AND target IN (${rowIds.join(", ")})";
-        binding = [Variable(info.edgeName)];
-        edgeConditionsItemsRowIds.add(
-            (await dbController.databasePool.edgeRecordsCustomSelect(query, binding))
-                .map((el) => el.target)
-                .whereType<int>()
-                .toList());
-      }
-    }
-
-    if (edgeConditionsItemsRowIds.isNotEmpty) {
-      if (edgeTargetsOperator == ConditionOperator.or) {
-        var uniqueRowIds = <int>{};
-        uniqueRowIds.addAll(edgeConditionsItemsRowIds.expand((element) => element));
-        allConditionsItemsRowIds.addAll([uniqueRowIds.toList()]);
-      } else {
-        allConditionsItemsRowIds.addAll(edgeConditionsItemsRowIds);
-      }
-    }
-
-    List<int> filteredIds = [];
-    if (conditions.isNotEmpty) {
-      if (allConditionsItemsRowIds.isNotEmpty) {
-        filteredIds = intersection(allConditionsItemsRowIds) as List<int>;
-        if (filteredIds.length == 0) {
-          return [];
-        } else {
-          rowIds = filteredIds;
+        join +=
+            "INNER JOIN edges edge$i ON items.row_id = edge$i.target AND edge$i.name = ? AND edge$i.source IN (${info.source.join(", ")})";
+        joinTables.add(dbController.databasePool.edges);
+        allBindings.add(Variable(info.edgeName));
+      } else if (condition is DatabaseQueryConditionPropertyIn) {
+        info = condition.value;
+        var itemType = itemTypes.firstWhereOrNull(
+            (element) => dbController.schema.expectedPropertyType(element, info.name) != null);
+        if (itemType == null) {
+          continue;
         }
-      } else {
-        return [];
+        SchemaValueType schemaValueType =
+            dbController.schema.expectedPropertyType(itemType, info.name)!;
+
+        ItemRecordPropertyTable itemRecordPropertyTable =
+            PropertyDatabaseValue.toDBTableName(schemaValueType);
+        TableInfo table =
+            dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+        String tableName = table.aliasedName;
+
+        join +=
+            "INNER JOIN $tableName property$i ON items.row_id = property$i.item AND property$i.name = ? AND property$i.value IN (${List.filled(info.value.length, "?").join(',')})";
+        joinTables.add(table);
+        allBindings
+            .addAll([Variable.withString(info.name), ...info.value.map((el) => Variable(el))]);
       }
+      i++;
     }
 
     var orderBy;
-    var join = "";
-    Set<TableInfo> joinTables = {};
     var sortOrder = sortAscending ? "" : "DESC";
     var groupBy;
 
@@ -329,9 +311,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         TableInfo table = dbController.databasePool.integers;
         String tableName = table.aliasedName;
         joinTables.add(table);
-        join =
+        join +=
             "LEFT OUTER JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
-
         orderBy = "$tableName.value $sortOrder";
         break;
       case "":
@@ -362,7 +343,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
               dbController.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
           String tableName = table.aliasedName;
           joinTables.add(table);
-          join =
+          join +=
               "LEFT JOIN $tableName ON items.row_id = $tableName.item AND $tableName.name = '$sortProperty'";
           propertyOrderBy = "$tableName.value $sortOrder, ";
         }
@@ -389,9 +370,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         AppLogger.err("Error: Unknown property ${groupByProperties[0]} for ${itemTypes.first}");
       }
     }
-
-    var finalQuery = "row_id IN (${rowIds.join(", ")})";
-    return await dbController.databasePool.itemRecordsCustomSelect(finalQuery, [],
+    return await dbController.databasePool.itemRecordsCustomSelect(
+        queryConditions.join(" and "), allBindings..addAll(queryBindings),
         join: join,
         joinTables: joinTables.toList(),
         limit: limit,
@@ -545,14 +525,17 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   static Future<DatabaseQueryConfig> queryConfigWith(
       {required CVUContext context,
       CVUParsedDefinition? datasource,
+      CVUDefinitionContent? datasourceContent,
       DatabaseQueryConfig? inheritQuery,
       Set<int>? overrideUIDs,
       ItemRecord? targetItem,
       DateTimeRange? dateRange,
       DatabaseController? databaseController}) async {
     databaseController ??= AppController.shared.databaseController;
-    var datasourceResolver = datasource?.parsed
-        .propertyResolver(context: context, lookup: CVULookupController(), db: databaseController);
+
+    datasourceContent ??= datasource?.parsed;
+    var datasourceResolver = datasourceContent?.propertyResolver(
+        context: context, lookup: CVULookupController(), db: databaseController);
     var uidList = overrideUIDs ?? Set.from(await datasourceResolver?.intArray("uids") ?? []);
     var filterDef = datasourceResolver?.subdefinition("filter");
 
@@ -577,6 +560,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
 
     var queryConfig = inheritQuery?.clone() ?? DatabaseQueryConfig();
+    queryConfig.dbController = databaseController;
     var itemTypes =
         await datasourceResolver?.stringArray("query") ?? [targetItem?.type].compactMap();
     if (itemTypes.isNotEmpty) {
@@ -592,16 +576,19 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     for (var key in (properties?.properties.keys.toList() ?? [])) {
       dynamic value;
-
-      var schemaType = databaseController.schema.expectedPropertyType(itemTypes[0], key) ??
-          SchemaValueType.string;
-      if (schemaType == SchemaValueType.bool) {
-        value = await properties?.boolean(key);
+      if (properties?.properties[key] is CVUValueArray) {
+        value = await properties?.stringArray(key);
+        propertyConditions.add(DatabaseQueryConditionPropertyIn(PropertyIn(key, value)));
       } else {
-        value = await properties?.string(key) ?? "";
+        var schemaType = databaseController.schema.expectedPropertyType(itemTypes[0], key) ??
+            SchemaValueType.string;
+        if (schemaType == SchemaValueType.bool) {
+          value = await properties?.boolean(key);
+        } else {
+          value = await properties?.string(key) ?? "";
+        }
+        propertyConditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       }
-
-      propertyConditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
     }
 
     var sortDef = datasourceResolver?.subdefinition("sort");
@@ -706,6 +693,8 @@ abstract class DatabaseQueryCondition {
         return DatabaseQueryConditionEdgeHasTarget.fromJson(json);
       case "DatabaseQueryConditionEdgeHasSource":
         return DatabaseQueryConditionEdgeHasSource.fromJson(json);
+      case "DatabaseQueryConditionPropertyIn":
+        return DatabaseQueryConditionPropertyIn.fromJson(json);
       default:
         throw Exception("Unknown DatabaseQueryCondition: ${json["type"]}");
     }
@@ -724,6 +713,20 @@ class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
 
   Map<String, dynamic> toJson() => _$DatabaseQueryConditionPropertyEqualsToJson(this)
     ..addAll({"type": "DatabaseQueryConditionPropertyEquals"});
+}
+
+// A property of this item that could be in range of values
+@JsonSerializable()
+class DatabaseQueryConditionPropertyIn extends DatabaseQueryCondition {
+  PropertyIn value;
+
+  DatabaseQueryConditionPropertyIn(this.value);
+
+  factory DatabaseQueryConditionPropertyIn.fromJson(Map<String, dynamic> json) =>
+      _$DatabaseQueryConditionPropertyInFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DatabaseQueryConditionPropertyInToJson(this)
+    ..addAll({"type": "DatabaseQueryConditionPropertyIn"});
 }
 
 // This item has an edge pointing to 'x' item
@@ -763,6 +766,18 @@ class PropertyEquals {
   factory PropertyEquals.fromJson(Map<String, dynamic> json) => _$PropertyEqualsFromJson(json);
 
   Map<String, dynamic> toJson() => _$PropertyEqualsToJson(this);
+}
+
+@JsonSerializable()
+class PropertyIn {
+  String name;
+  List<String> value;
+
+  PropertyIn(this.name, this.value);
+
+  factory PropertyIn.fromJson(Map<String, dynamic> json) => _$PropertyInFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PropertyInToJson(this);
 }
 
 @JsonSerializable()

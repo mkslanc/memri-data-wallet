@@ -1,12 +1,11 @@
 .WhatsappPluginRun {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect WhatsApp account"
 
     [renderer = singleItem] {
-
     }
 
     Plugin > singleItem {
@@ -15,63 +14,71 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Step 1"
                 font: link
                 padding: 0 5
+                text: "Step 1"
             }
 
             Text {
-                text: "WhatsApp authorisation"
                 font: headline1
                 padding: 0 0 22 0
+                text: "WhatsApp authorisation"
             }
 
             Text {
-                text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
                 font: bodyText2
+                text: "To complete the WhatsApp authorisation you will need your phone to scan the QR code"
             }
 
-
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
 
                 Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            viewArguments: {
+                            }
+                            viewName: "pluginRunWait"
+                        }
+                        pluginRun
+                        {
+                            container: {{.containerImage}}
+                            name: {{.name}}
+                            pluginId: {{.id}}
+                            pluginModule: {{.pluginModule}}
+                            pluginName: {{.pluginName}}
+                        }
+                        sync
+                    ]
                     styleName: primaryButton
 
                     Text {
                         text: "Connect!"
                     }
-
-                    onPress: [
-                        openView {
-                            viewName: "pluginRunWait"
-                            clearStack: true
-                            viewArguments {
-
-                            }
-                        }
-                        pluginRun {
-                            name: {{.name}}
-                            container: {{.containerImage}}
-                            pluginModule: {{.pluginModule}}
-                            pluginName: {{.pluginName}}
-                            pluginId: {{.id}}
-                        }
-                        sync
-                        ]
                 }
 
                 Button {
-                    padding: 0 0 0 20
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allData"
+                        }
+                    ]
 
                     Text {
-                        text: "Cancel"
-                        font: button_label
                         color: #333333
+                        font: button_label
+                        text: "Cancel"
                     }
-
-                    onPress: back
                 }
             }
         }
@@ -183,15 +190,16 @@
             }
 
             HTMLView {
-                maxHeight: 300
-                maxWidth: 300
+                height: 350
+                width: 350
                 src: {{.~account.authUrl}}
                 reload: true
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 15 0 0 0
+                spacing: 15
 
                 Button {
                     styleName: primaryButton
@@ -201,6 +209,10 @@
                     }
 
                     onPress: [
+                        block {
+                            pageLabel: "inboxChannels"
+                            seconds: 15
+                        }
                         openView {
                             viewName: "pluginRunWait"
                             clearStack: true
@@ -218,31 +230,48 @@
 
                             }
                         }
-                        block {
-                            pageLabel: "inboxChannels"
-                            seconds: 15
-                        }
                         ]
                 }
 
                 Button {
-                    padding: 0 0 0 20
+                    onPress: [
+                        openpopup
+                        {
+                            actions: [
+                                {
+                                    onPress: [
+                                        delete
+                                        {
+                                            subject: {{.~account}}
+                                        }
+                                        openView
+                                        {
+                                            clearStack: true
+                                            inheritDatasource: false
+                                            viewArguments: [
+                                                {
+                                                    readOnly: true
+                                                }
+                                            ]
+                                            viewName: "allData"
+                                        }
+                                    ]
+                                    title: "Proceed"
+                                }
+                                {
+                                    title: "Cancel"
+                                }
+                            ]
+                            text: "Are you sure you want to stop current plugin run?"
+                            title: "Confirmation"
+                        }
+                    ]
 
                     Text {
-                        text: "Cancel"
-                        font: button_label
                         color: #333333
+                        font: button_label
+                        text: "Cancel"
                     }
-
-                    onPress: [
-                        delete {
-                            subject: {{.~account}}
-                        }
-                        openView {
-                            viewName: "apps-and-plugins"
-                            clearStack: true
-                        }
-                        ]
                 }
             }
         }
@@ -251,43 +280,46 @@
 
 .WhatsappPlugin-done {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect WhatsApp account"
 
-    [renderer = singleItem]{
-
+    [renderer = singleItem] {
     }
 
     Account > singleItem {
+        viewArguments: {
+            selectedPlugin: {{.~account.plugin}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 30 0 30
 
             Text {
-                text: "Success!"
                 font: link
                 padding: 0 5
+                text: "Success!"
             }
 
             Text {
-                text: "WhatsApp connected!"
                 font: headline1
+                text: "WhatsApp connected!"
             }
 
             Text {
-                text: "WhatsApp has been successfully synced to your pod. Your data is being imported."
-                font: bodyText1
                 color: #737373
+                font: bodyText1
                 padding: 10 0 12 0
+                text: "WhatsApp has been successfully synced to your pod. Your data is being imported."
             }
 
             Text {
-                text: "Your data is being imported. This may take a while."
-                font: bodyText1
                 color: #737373
+                font: bodyText1
                 padding: 0 0 60 0
+                text: "Your data is being imported. This may take a while."
             }
 
             HStack {
@@ -295,8 +327,8 @@
                 spacing: 10
 
                 Text {
-                    text: "Uploading data:"
                     font: bodyText1
+                    text: "Uploading data:"
                 }
 
                 Observer {
@@ -306,25 +338,66 @@
                     Text {
                         color: #4F56FE
                         font: headline1
-                        text: "{.~account.progress.percent()}%"
+                        text: "{.~account.progress.percent() OR '0'}%"
                     }
                 }
             }
 
-            Button {
-                padding: 60 0 0 0
+            Wrap {
+                alignment: left
+                padding: 15 0 0 0
+                spacing: 15
 
-                Text {
-                    text: "<  Back to data page"
-                    font: button_label
-                    color: #FE570F
+                Button {
+                    onPress: [
+                        addItem
+                        {
+                            clearPageControllers: true
+                            clearStack: true
+                            template: {
+                                _type: Project
+                            }
+                            viewArguments: {
+                                datasetGrid: {
+                                    viewArguments: {
+                                        selectedPlugin: {{selectedPlugin}}
+                                    }
+
+                                    [renderer = grid] {
+                                        selectedItems: {{project.dataset ? project.dataset.datasetType[] : selectedPlugin.~datasetPlugin[]}}
+                                    }
+                                }
+                                pageLabel: "main"
+                                readOnly: false
+                                selectedPlugin: {{selectedPlugin}}
+                            }
+                            viewName: "add-project"
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Create a new project"
+                    }
                 }
 
-                onPress: openView {
-                    viewName: "allData"
-                    clearStack: true
-                    viewArguments {
+                Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allData"
+                        }
+                    ]
+                    styleName: secondaryButton
 
+                    Text {
+                        font: button_label
+                        text: "Back to data streams"
                     }
                 }
             }

@@ -1,4 +1,5 @@
 .create-new-model {
+    cols: 12
     defaultRenderer: singleItem
     scrollable: true
     title: "Create a new model"
@@ -12,48 +13,13 @@
                 color: #333333
                 font: headline1
                 padding: 0 0 10 0
-                text: "Create a new model"
+                text: "Load a dataset, finetune and train a model"
             }
 
             Text {
                 color: #333333
                 font: bodyText1
-                padding: 0 0 30 0
                 text: "Use our preconfigured template, with setup, testing, and CI ready to go. Add a few lines of code and create your new app."
-            }
-
-            HStack {
-                alignment: left
-                background: #F0F0F0
-                maxWidth: 590
-
-                VStack {
-                    alignment: topleft
-                    padding: 10
-
-                    Text {
-                        color: #333333
-                        font: small_caps
-                        padding: 0 0 0 10
-                        text: "YOUR DATASET NAME"
-                    }
-
-                    Text {
-                        color: #989898
-                        padding: 0 0 0 10
-                        text: {{.dataset.name}}
-                    }
-                }
-
-                Spacer
-
-                Image {
-                    alignment: center
-                    bundleImage: "ico_log_out_rotated"
-                    color: #E9500F
-                    isVector: true
-                    padding: 0 14 0 0
-                }
             }
 
             Button {
@@ -64,12 +30,12 @@
                         link: "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"
                     }
                 ]
-                padding: 35 0 0 0
+                padding: 15 0 35 0
 
                 Text {
                     color: #E9500F
                     font: link
-                    text: "How to create a model guide"
+                    text: "Read the model building guide"
                 }
 
                 Image {
@@ -83,117 +49,156 @@
 
             Text {
                 color: #333333
-                font: headline1
-                padding: 60 0 20 0
-                text: "Convert model into plugin"
-            }
-
-            HStack {
-                alignment: left
-
-                Image {
-                    alignment: center
-                    bundleImage: "arrow-right-circle"
-                    color: #989898
-                    font: 20
-                    isVector: true
-                    resizable: true
-                    sizingMode: fit
-                }
-
-                RichText {
-                    color: #999999
-                    font: bodyText1
-                    spans: [
-                        {
-                            text: "On the "
-                        }
-                        {
-                            color: #E9500F
-                            font: 14 bold
-                            onPress: [
-                                openLink
-                                {
-                                    link: "https://gitlab.memri.io/memri/plugins"
-                                }
-                            ]
-                            text: "Memri Gitlab"
-                        }
-                        {
-                            text: ", create "
-                        }
-                        {
-                            color: #E9500F
-                            font: 14 bold
-                            onPress: [
-                                openLink
-                                {
-                                    link: "https://gitlab.memri.io/projects/new#blank_project"
-                                }
-                            ]
-                            text: "blank public repository"
-                        }
-                        {
-                            text: " for your plugin and clone the repo."
-                        }
-                    ]
-                }
-            }
-
-            HStack {
-                alignment: left
-                padding: 0 0 30 0
-
-                Image {
-                    alignment: center
-                    bundleImage: "arrow-right-circle"
-                    color: #989898
-                    font: 20
-                    isVector: true
-                    resizable: true
-                    sizingMode: fit
-                }
-
-                RichText {
-                    color: #999999
-                    font: bodyText1
-                    spans: [
-                        {
-                            text: "From "
-                        }
-                        {
-                            color: black
-                            font: 14 bold
-                            text: "within the new repo"
-                        }
-                        {
-                            text: " run the pymemri plugin template CLI."
-                        }
-                    ]
-                }
+                font: bodyText1
+                padding: 0 0 10 0
+                text: "Load your dataset and start training your model on Google Collab:"
             }
 
             Button {
-                isLink: true
+                background: #f6f6f6
                 onPress: [
                     openLink
                     {
-                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model/"
+                        link: "https://colab.research.google.com/drive/1WX1VYwoAQ_2yOMzqvrIz77x52vaNmrtW?usp=sharing"
                     }
                 ]
+                width: 200
 
-                Text {
-                    color: #E9500F
-                    font: link
-                    text: "See full documentation"
+                HStack {
+                    alignment: left
+
+                    Image {
+                        bundleImage: "google_colab"
+                        isVector: true
+                        padding: 0 12 0 12
+                    }
+
+                    Text {
+                        color: #E9500F
+                        font: button_label
+                        text: "Open in Colab"
+                    }
+                }
+            }
+
+            Text {
+                color: #333333
+                font: headline2
+                padding: 30 0 10 0
+                text: "References:"
+            }
+
+            HStack {
+                alignment: left
+                maxWidth: 590
+
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        color: #828282
+                        font: small_caps
+                        text: "YOUR DATASET NAME"
+                    }
+
+                    Text {
+                        color: #333333
+                        text: {{.dataset.name}}
+                    }
                 }
 
-                Image {
-                    alignment: center
-                    bundleImage: "ico_arrow"
-                    color: #E9500F
-                    isVector: true
-                    padding: 0 0 0 15
+                Spacer
+
+                Button {
+                    onPress: [
+                        copytoclipboard
+                        {
+                            value: {{.dataset.name}}
+                        }
+                    ]
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_log_out_rotated"
+                        color: #E9500F
+                        isVector: true
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+                maxWidth: 590
+
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        color: #828282
+                        font: small_caps
+                        text: "YOUR LOGIN KEY"
+                    }
+
+                    Text {
+                        color: #333333
+                        text: "**** **** **** **** ***** *****"
+                    }
+                }
+
+                Spacer
+
+                Button {
+                    onPress: [
+                        copytoclipboard
+                        {
+                             value: "ownerKey"
+                        }
+                    ]
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_log_out_rotated"
+                        color: #E9500F
+                        isVector: true
+                    }
+                }
+            }
+
+            HStack {
+                alignment: left
+                maxWidth: 590
+
+                VStack {
+                    alignment: topleft
+
+                    Text {
+                        color: #828282
+                        font: small_caps
+                        text: "YOUR PASSWORD KEY"
+                    }
+
+                    Text {
+                        color: #333333
+                        text: "**** **** **** **** ***** *****"
+                    }
+                }
+
+                Spacer
+
+                Button {
+                    onPress: [
+                        copytoclipboard
+                        {
+                            value: "databaseKey"
+                        }
+                    ]
+
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_log_out_rotated"
+                        color: #E9500F
+                        isVector: true
+                    }
                 }
             }
 
@@ -239,7 +244,7 @@
                 onPress: [
                     openLink
                     {
-                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model/#install-the-plugin-in-your-frontend"
+                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model"
                     }
                 ]
                 padding: 20 0 0 0
@@ -247,7 +252,7 @@
                 Text {
                     color: #E9500F
                     font: link
-                    text: "Configuration set up guide"
+                    text: "Read the plugin deployment guide"
                 }
 
                 Image {
@@ -259,17 +264,16 @@
                 }
             }
 
-            HStack {
+            Wrap {
                 alignment: left
                 padding: 30 0 0 0
+                spacing: 15
 
                 Button {
                     onPress: [
                         parsePlugin
                         {
-                            features: {{.dataset.feature[]}}
                             project: {{.}}
-                            query: {{.dataset.datasetType.queryStr}}
                             url: {{.gitlabUrl}}
                         }
                         openView
@@ -294,7 +298,6 @@
 
                 Button {
                     onPress: back
-                    padding: 0 0 0 15
 
                     Text {
                         color: #333333
@@ -320,14 +323,119 @@
                 color: #333333
                 font: headline1
                 padding: 0 0 10 0
-                text: "Your app has been successfully deployed."
+                text: "Your data app is deployed into the pod!"
             }
 
-            Text {
+            RichText {
                 color: #333333
                 font: bodyText1
-                padding: 0 0 30 0
-                text: "You create a model from a template, with everything around setup, testing, and CI preconfigured. Writing an app for Memri requires just a few lines of code!"
+                spans: [
+                    {
+                        text: "You can now "
+                    }
+                    {
+                        color: #E9500F
+                        font: 14 bold
+                        onPress: [
+                            openView
+                            {
+                                clearStack: true
+                                viewName: "apps-and-plugins"
+                            }
+                        ]
+                        text: "open and run your app"
+                    }
+                    {
+                        text: ", "
+                    }
+                    {
+                        color: #E9500F
+                        font: 14 bold
+                        onPress: [
+                            generatePluginCvu
+                            {
+                                features: {{.dataset.feature[]}}
+                                plugin: {{.labellingPlugin}}
+                                query: {{.dataset.datasetType.queryStr}}
+                            }
+                            openView
+                            {
+                                clearStack: true
+                                item: {{.labellingPlugin}}
+                                viewName: {{.labellingPlugin.view.name}}
+                            }
+                            opencvueditor
+                            {
+                                openForce: true
+                                viewArguments: {
+                                    buttons: {
+                                        Observer {
+                                            item: {{.labellingPlugin.~plugin[].last()}}
+                                            property: "status"
+
+                                            Button {
+                                                background: {{.labellingPlugin.~plugin ? "#15B599" : "#4F56FE"}}
+                                                onPress: [
+                                                    pluginRun
+                                                    {
+                                                        container: {{.labellingPlugin.containerImage}}
+                                                        name: {{.labellingPlugin.name}}
+                                                        pluginId: {{.labellingPlugin.id}}
+                                                        pluginModule: {{.labellingPlugin.pluginModule}}
+                                                        pluginName: {{.labellingPlugin.pluginName}}
+                                                    }
+                                                ]
+
+                                                Text {
+                                                    color: #F5F5F5
+                                                    font: link
+                                                    padding: 3 13 3 3
+                                                    text: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle" ? "Running" : .labellingPlugin.~plugin[].last().status = "done" OR .labellingPlugin.~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
+                                                }
+
+                                                LoadingIndicator {
+                                                    show: {{.labellingPlugin.~plugin[].last().status = "started" OR .labellingPlugin.~plugin[].last().status = "idle"}}
+                                                    size: 20
+                                                }
+                                            }
+                                        }
+                                    }
+                                    customDefinition: {{projectItem.labellingPlugin.view.definition}}
+                                    projectItem: {{.}}
+                                }
+                            }
+                        ]
+                        text: "configure the UI"
+                    }
+                    {
+                        text: ", or "
+                    }
+                    {
+                        color: #E9500F
+                        font: 14 bold
+                        onPress: [
+                            openView
+                            {
+                                clearStack: true
+                                viewName: "apps-and-plugins"
+                            }
+                            openView
+                            {
+                                clearStack: true
+                                item: {{.labellingPlugin}}
+                                viewArguments: {
+                                    addPageIfMissing: true
+                                    pageLabel: "mainApp"
+                                }
+                                viewName: "pluginConfig"
+                            }
+                        ]
+                        text: "edit the app settings"
+                    }
+                    {
+                        text: "."
+                    }
+                ]
             }
 
             HStack {
@@ -336,6 +444,12 @@
 
                 Button {
                     onPress: [
+                        generatePluginCvu
+                        {
+                            features: {{.dataset.feature[]}}
+                            plugin: {{.labellingPlugin}}
+                            query: {{.dataset.datasetType.queryStr}}
+                        }
                         openView
                         {
                             clearStack: true
@@ -344,52 +458,59 @@
                         }
                         opencvueditor
                         {
+                            item: {{.labellingPlugin}}
                             openForce: true
                             viewArguments: {
                                 buttons: {
+                                    Observer {
+                                        item: {{.~plugin[].last()}}
+                                        property: "status"
 
-                                    Button {
-                                        background: #4F56FE
-                                        onPress: [
-                                            pluginRun
-                                            {
-                                                isMock: true
-                                                container: {{.labellingPlugin.containerImage}}
-                                                name: {{.labellingPlugin.name}}
-                                                pluginId: {{.labellingPlugin.id}}
-                                                pluginModule: {{.labellingPlugin.pluginModule}}
-                                                pluginName: {{.labellingPlugin.pluginName}}
-                                            }
+                                        Button {
+                                            background: {{.~plugin ? "#15B599" : "#4F56FE"}}
+                                            onPress: [
+                                                pluginRun
+                                                {
+                                                    container: {{.containerImage}}
+                                                    name: {{.name}}
+                                                    pluginId: {{.id}}
+                                                    pluginModule: {{.pluginModule}}
+                                                    pluginName: {{.pluginName}}
+                                                }
                                             ]
 
                                             Text {
                                                 color: #F5F5F5
                                                 font: link
-                                                padding: 3
-                                                text: "Run your app"
+                                                padding: 3 13 3 3
+                                                text: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle" ? "Running" : .~plugin[].last().status = "done" OR .~plugin[].last().status = "error" ? "Success!" : "Run your app"}}
                                             }
+
+                                            LoadingIndicator {
+                                                show: {{.~plugin[].last().status = "started" OR .~plugin[].last().status = "idle"}}
+                                                size: 20
+                                            }
+                                        }
                                     }
-
-
                                 }
                                 customDefinition: {{projectItem.labellingPlugin.view.definition}}
                                 projectItem: {{.}}
                             }
                         }
-                        ]
-                        styleName: primaryButton
+                    ]
+                    styleName: primaryButton
 
-                        Text {
-                            text: "Add UI to your app"
-                            textalign: bottom
-                        }
+                    Text {
+                        text: "Add UI to your app"
+                        textalign: bottom
+                    }
 
-                        Image {
-                            alignment: center
-                            bundleImage: "ico_arrow"
-                            isVector: true
-                            padding: 0 0 0 15
-                        }
+                    Image {
+                        alignment: center
+                        bundleImage: "ico_arrow"
+                        isVector: true
+                        padding: 0 0 0 15
+                    }
                 }
 
                 Button {
@@ -399,7 +520,7 @@
                     Text {
                         color: #333333
                         font: button_label
-                        text: "Back to ML modelling"
+                        text: "Back"
                     }
                 }
             }

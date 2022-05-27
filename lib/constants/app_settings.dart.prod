@@ -6,6 +6,8 @@ class AppSettings {
   static const String defaultPodURL = "https://uat.pod.memri.io";
   static const String defaultDevPodURL = "http://localhost:3030";
 
+  static const bool showDeveloperButton = false;
+
   /// Database
   static const String defaultDatabase = "prod_database";
   static const int syncControllerIntervalSecs = 3;

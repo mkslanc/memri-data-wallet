@@ -192,6 +192,27 @@ class CVUPropertyResolver {
     return defaultValue;
   }
 
+  Color? syncColor([String key = "color"]) {
+    var val = this.value(key);
+    if (val == null) {
+      return null;
+    }
+    var string = "white";
+    if (val is CVUValueConstant) {
+      if (val.value is CVUConstantString) {
+        string = val.value.value;
+      }
+      if (val.value is CVUConstantColorHex) {
+        string = '#' + val.value.value;
+      }
+    }
+    var predefined = CVUColor.predefined[string];
+    if (predefined != null) {
+      return predefined;
+    }
+    return CVUColor(color: string).value;
+  }
+
   Future<DateTime?> dateTime(String key) async {
     var val = value(key);
     if (val == null) {
@@ -325,6 +346,7 @@ class CVUPropertyResolver {
             if (def is CVUValueSubdefinition) {
               var keys = def.value.properties.keys;
               for (var key in keys) {
+                //TODO priorities seem to be broken, properties should be checked first
                 var value = context.viewArguments?.args[key] ??
                     context.viewArguments?.parentArguments?.args[key] ??
                     def.value.properties[key];
@@ -346,8 +368,8 @@ class CVUPropertyResolver {
     return null;
   }
 
-  CVUAction? action(String key) {
-    var val = value(key);
+  CVUAction? action(String key, [CVUValue? optional]) {
+    var val = value(key) ?? optional;
     if (val == null) {
       return null;
     }

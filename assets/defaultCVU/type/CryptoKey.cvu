@@ -103,9 +103,11 @@ CryptoKey {
                         padding: 0 20 0 0
                     }
                     Button {
-                        onPress: copyToClipboard {
-                            value: {{.keystr}}
-                        }
+                        onPress: [
+                            copytoclipboard {
+                                value: {{.keystr}}
+                            }
+                        ]
 
                         Text { text: "copy" }
                     }

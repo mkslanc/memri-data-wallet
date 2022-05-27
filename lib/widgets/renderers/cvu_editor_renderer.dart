@@ -1,8 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
@@ -25,6 +26,9 @@ import 'package:memri/widgets/components/ace_editor/ace_editor.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 import '../../controllers/database_query.dart';
+import '../../core/apis/pod/pod_connection_details.dart';
+import '../../core/apis/pod/pod_requests.dart';
+import '../../core/cvu/cvu_action.dart';
 import '../../models/view_context.dart';
 
 class CVUEditorRendererView extends StatefulWidget {
@@ -44,6 +48,10 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   late Future<void> _init;
   late String mode;
   CVUDefinitionContent? buttons;
+  CVUAction? overrideResetAction;
+  bool logMode = false;
+  bool allowLogMode = false;
+  StreamSubscription? logsStream;
 
   List<CVUParsedDefinition> definitions = [];
 
@@ -55,22 +63,73 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     _init = init();
   }
 
+  @override
+  dispose() {
+    super.dispose();
+    logsStream?.cancel();
+    logsStream = null;
+  }
+
   Future<void> init() async {
     mode = await viewContext.viewDefinitionPropertyResolver.string("mode") ?? "inMainPage";
+    if (viewContext.focusedItem?.type == "Plugin") {
+      allowLogMode = true;
+    }
 
     var customDefinition = await viewContext.viewDefinitionPropertyResolver
         .resolveString(viewContext.config.viewArguments?.args["customDefinition"]);
 
     var buttonsArg = viewContext.config.viewArguments?.args["buttons"];
     buttons = buttonsArg?.getSubdefinition();
+    overrideResetAction = viewContext.viewDefinitionPropertyResolver.action(
+        "overrideResetAction", viewContext.config.viewArguments?.args["overrideResetAction"]);
 
     if (customDefinition != null) {
-      definitions = await CVUController.parseCVU(customDefinition);
+      definitions = (await CVUController.parseCVU(customDefinition)).compactMap(
+          (definition) => viewContext.cvuController.definitionByQuery(definition.queryStr));
     } else {
       await initDefinitions();
     }
+    if (!logMode) initCVU();
+  }
 
-    initCVU();
+  getLogs(PodConnectionDetails connection, String id) async {
+    if (id == "") {
+      controller.updateEditorContent("Please, start plugin before trying to access logs");
+    } else {
+      var request = PodStandardRequest.getLogsForPluginRun(id);
+      var networkCall = await request.execute(connection);
+      if (networkCall.statusCode != 200) {
+        controller.updateEditorContent(
+            networkCall.statusCode.toString() + ' ' + networkCall.reasonPhrase!);
+      } else {
+        var logs = Utf8Decoder().convert(networkCall.bodyBytes);
+        var decodedLogs = jsonDecode(logs);
+        controller.updateEditorContent(decodedLogs["logs"]);
+      }
+    }
+  }
+
+  setLogMode() async {
+    var currentConnection = await widget.pageController.appController.podConnectionConfig;
+    var pluginRuns = (await viewContext.focusedItem!.reverseEdgeItems("plugin"));
+    controller.updateEditorContent("Loading...");
+    setState(() {
+      logMode = true;
+
+      if (logsStream == null)
+        logsStream = Stream.periodic(const Duration(seconds: 3)).listen(
+            (_) => getLogs(currentConnection!, pluginRuns.isNotEmpty ? pluginRuns.last.uid : ""));
+    });
+  }
+
+  setCVUMode() {
+    setState(() {
+      logMode = false;
+      logsStream?.cancel();
+      logsStream = null;
+      initCVU();
+    });
   }
 
   didUpdateWidget(oldWidget) {
@@ -113,13 +172,16 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   initDefinitions() async {
     definitions = [];
-    var viewName = await viewContext.viewDefinitionPropertyResolver
-        .resolveString(viewContext.config.viewArguments?.args["viewName"]);
-    var renderer = await viewContext.viewDefinitionPropertyResolver
-        .resolveString(viewContext.config.viewArguments?.args["renderer"]);
+    var sceneController = widget.pageController.sceneController;
+    for (var pageController in sceneController.pageControllers) {
+      if (pageController == widget.pageController) {
+        continue;
+      }
 
-    await collectDefinitions(
-        viewName: viewName, renderer: renderer, currentViewContext: viewContext);
+      var viewContext = pageController.topMostContext!;
+
+      await collectDefinitions(currentViewContext: viewContext, sceneController: sceneController);
+    }
   }
 
   initCVU() {
@@ -132,11 +194,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
   collectDefinitions(
       {String? viewName,
       String? renderer,
-      ViewContextController? currentViewContext,
-      SceneController? sceneController,
+      required ViewContextController currentViewContext,
+      required SceneController sceneController,
       CVUDefinitionContent? subViewDefinition}) async {
-    currentViewContext ??= viewContext;
-    sceneController ??= widget.pageController.sceneController;
     viewName ??= currentViewContext.config.viewName;
     renderer ??= currentViewContext.config.rendererName;
 
@@ -155,11 +215,11 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
       var itemTypes = await datasourceResolver?.stringArray("query");
 
       await Future.forEach<String>(itemTypes ?? <String>[], (itemType) async {
-        var nodeDefinition = currentViewContext!.cvuController.definitionFor(
+        var nodeDefinition = currentViewContext.cvuController.definitionFor(
             type: CVUDefinitionType.uiNode, selector: itemType, rendererName: renderer);
 
         if (nodeDefinition != null) {
-          await addDefinition(nodeDefinition, viewContext, sceneController!);
+          await addDefinition(nodeDefinition, viewContext, sceneController);
         }
       });
     } else if (currentViewContext.focusedItem != null) {
@@ -285,9 +345,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
         (subSceneController) async {
       await Future.forEach<memri.PageController>(subSceneController.pageControllers,
           (pageController) async {
-        var subViewContext = pageController.topMostContext;
         await collectDefinitions(
-            currentViewContext: subViewContext, sceneController: subSceneController);
+            currentViewContext: pageController.topMostContext!,
+            sceneController: subSceneController);
       });
     });
   }
@@ -305,45 +365,93 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
-        color: CVUColor.black,
+        color: Color(0xff333333),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  TextButton(
-                    style: TextButton.styleFrom(
-                        backgroundColor: Color(0xFFFE570F),
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
-                    onPressed: controller.requestEditorData,
-                    child: Text(
-                      "Save view",
-                      style: CVUFont.link.copyWith(color: Color(0xffF5F5F5)),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (!logMode)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Color(0xFFFE570F),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                            onPressed: controller.requestEditorData,
+                            child: Text(
+                              "Save view",
+                              style: CVUFont.link.copyWith(color: Color(0xffF5F5F5)),
+                            ),
+                          ),
+                        if (logMode)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Color(0xFF333333),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                            onPressed: setCVUMode,
+                            child: Text(
+                              "Configure UI",
+                              style: CVUFont.link.copyWith(color: Color(0xffE9500F)),
+                            ),
+                          ),
+                        SizedBox(width: 10),
+                        if (!logMode)
+                          TextButton(
+                            onPressed: close,
+                            child: Text(
+                              "Cancel",
+                              style: CVUFont.link.copyWith(color: Color(0xFF989898)),
+                            ),
+                          ),
+                        Spacer(),
+                        if (!logMode)
+                          TextButton(
+                              onPressed: () => resetCVUToDefault(context, widget.pageController,
+                                  cvuContext: CVUContext(
+                                      currentItem: widget.viewContext.focusedItem,
+                                      items: widget.viewContext.items),
+                                  definitions: definitions,
+                                  action: overrideResetAction),
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                runAlignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 10,
+                                children: [
+                                  SvgPicture.asset("assets/images/rotate_ccw.svg",
+                                      color: Color(0xFFFE570F)),
+                                  Text("Reset to default",
+                                      style: CVUFont.tabList.copyWith(color: Color(0xffE9500F))),
+                                ],
+                              )),
+                      ],
                     ),
                   ),
-                  SizedBox(width: 10),
-                  if (buttons != null) renderButtons(),
-                  TextButton(
-                    onPressed: close,
-                    child: Text(
-                      "Cancel",
-                      style: CVUFont.link.copyWith(color: Color(0xFF989898)),
-                    ),
-                  ),
-                  Spacer(),
-                  TextButton(
-                      onPressed: () =>
-                          resetCVUToDefault(context, widget.pageController, definitions),
-                      child: SvgPicture.asset("assets/images/rotate_ccw.svg",
-                          color: Color(0xFFFE570F))),
-                  TextButton(
-                      onPressed: close,
-                      child: SvgPicture.asset("assets/images/ico_close.svg",
-                          color: Color(0xFF989898))),
-                ],
-              ),
+                ),
+                if (buttons != null || allowLogMode)
+                  Container(
+                      constraints: BoxConstraints(minHeight: 60),
+                      padding: EdgeInsets.all(10),
+                      color: Color(0xff202020),
+                      child: Wrap(spacing: 10, children: [
+                        if (allowLogMode)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Color(0xff202020),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13.5)),
+                            onPressed: () async => await setLogMode(),
+                            child: Text(
+                              "Log",
+                              style: CVUFont.link.copyWith(color: Color(0xff7B81FF)),
+                            ),
+                          ),
+                        if (buttons != null) renderButtons(),
+                      ]))
+              ],
             ),
             Expanded(child: AceEditor(controller)),
           ],
@@ -354,19 +462,8 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
 
   saveCVU() async {
     if (definitions.isNotEmpty) {
-      var parsed = CVUController.parseCVUString(controller.content);
-      await Future.forEach<CVUParsedDefinition>(parsed, (node) async {
-        var definition = viewContext.cvuController.definitionFor(
-            type: node.type,
-            selector: node.selector,
-            rendererName: node.renderer,
-            viewName: node.name,
-            specifiedDefinitions: definitions);
-        if (definition != null) {
-          await widget.pageController.appController.cvuController
-              .updateDefinition(definition, node.parsed);
-        }
-      });
+      await widget.pageController.appController.cvuController
+          .updateDefinition(content: controller.content);
     }
     widget.pageController.sceneController.scheduleUIUpdate();
   }

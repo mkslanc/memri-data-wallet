@@ -1,6 +1,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
@@ -9,6 +10,8 @@ import 'package:memri/models/cvu/cvu_value_constant.dart';
 import 'package:memri/widgets/chrome/bread_crumbs.dart';
 import 'package:memri/widgets/components/button/action_button.dart';
 import 'package:memri/widgets/filter_panel/simple_filter_panel.dart';
+
+import '../../utils/reset_cvu_to_default.dart';
 
 /// This view provides the 'navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
@@ -24,7 +27,7 @@ class _TopBarViewState extends State<TopBarView> {
   ViewContextController? viewContext;
   late Future<void> _init;
 
-  Color? backgroundColor = Color(0xffF4F4F4);
+  Color? backgroundColor = Color(0xffF6F6F6);
   bool showEditCode = false;
 
   @override
@@ -54,7 +57,7 @@ class _TopBarViewState extends State<TopBarView> {
     viewContext = widget.pageController.topMostContext;
 
     backgroundColor =
-        await viewContext?.viewDefinitionPropertyResolver.color("topBarColor") ?? Color(0xffF4F4F4);
+        await viewContext?.viewDefinitionPropertyResolver.color("topBarColor") ?? Color(0xffF6F6F6);
     showEditCode =
         await viewContext?.viewDefinitionPropertyResolver.boolean("showEditCode") ?? true;
   }
@@ -62,30 +65,45 @@ class _TopBarViewState extends State<TopBarView> {
   @override
   Widget build(BuildContext context) {
     var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
-
+    var editorOpened =
+        widget.pageController.sceneController.pageControllerByLabel("mainCVUEditor") != null;
     return FutureBuilder(
       future: _init,
       builder: (context, snapshot) => Container(
         height: 40,
         color: backgroundColor,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+          padding: const EdgeInsets.fromLTRB(30, 0, 14, 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (viewContext != null) ...[
                 SimpleFilterPanel(viewContext: viewContext!),
                 BreadCrumbs(viewContext: viewContext!, pageController: widget.pageController),
-                Spacer(),
                 ...actions.map((action) => ActionButton(
                       action: action,
                       viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                       pageController: widget.pageController,
                     )),
-                if (showEditCode) ...[
+                Spacer(),
+                if (showEditCode && (AppController.shared.isDevelopersMode || editorOpened)) ...[
+                  if (AppController.shared.isDevelopersMode)
+                    TextButton(
+                        onPressed: () => resetCVUToDefault(context, widget.pageController),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          runAlignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          children: [
+                            Text("Reset cvu to default"),
+                          ],
+                        )),
                   ActionButton(
-                    action: CVUActionOpenCVUEditor(
-                        vars: {"title": CVUValueConstant(CVUConstantString("Code  >_"))}),
+                    action: CVUActionOpenCVUEditor(vars: {
+                      "title": CVUValueConstant(
+                          CVUConstantString(editorOpened ? "Close editor   X" : "Code  >_"))
+                    }),
                     viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
                     pageController: widget.pageController,
                   )

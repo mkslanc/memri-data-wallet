@@ -176,6 +176,21 @@
       "value_type": "string"
     },
     {
+      "item_type": "CategoricalPrediction",
+      "property": "probs",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CategoricalPrediction",
+      "property": "source",
+      "value_type": "string"
+    },
+    {
+      "item_type": "CategoricalPrediction",
+      "property": "value",
+      "value_type": "string"
+    },
+    {
       "item_type": "Country",
       "property": "latitude",
       "value_type": "double"
@@ -382,11 +397,6 @@
     },
     {
       "item_type": "EmailMessage",
-      "property": "isMock",
-      "value_type": "bool"
-    },
-    {
-      "item_type": "EmailMessage",
       "property": "content",
       "value_type": "string"
     },
@@ -409,6 +419,11 @@
       "item_type": "EmailMessage",
       "property": "externalId",
       "value_type": "string"
+    },
+    {
+      "item_type": "EmailMessage",
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "EmailMessage",
@@ -707,11 +722,6 @@
     },
     {
       "item_type": "Message",
-      "property": "isMock",
-      "value_type": "bool"
-    },
-    {
-      "item_type": "Message",
       "property": "datePublished",
       "value_type": "datetime"
     },
@@ -729,6 +739,11 @@
       "item_type": "Message",
       "property": "externalId",
       "value_type": "string"
+    },
+    {
+      "item_type": "Message",
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "Message",
@@ -783,6 +798,16 @@
     {
       "item_type": "MessageChannel",
       "property": "topic",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Model",
+      "property": "name",
+      "value_type": "string"
+    },
+    {
+      "item_type": "Model",
+      "property": "version",
       "value_type": "string"
     },
     {
@@ -1032,6 +1057,11 @@
     },
     {
       "item_type": "PluginRun",
+      "property": "containerId",
+      "value_type": "string"
+    },
+    {
+      "item_type": "PluginRun",
       "property": "containerImage",
       "value_type": "string"
     },
@@ -1072,13 +1102,13 @@
     },
     {
       "item_type": "Post",
-      "property": "message",
-      "value_type": "string"
+      "property": "isMock",
+      "value_type": "bool"
     },
     {
       "item_type": "Post",
-      "property": "isMock",
-      "value_type": "bool"
+      "property": "message",
+      "value_type": "string"
     },
     {
       "item_type": "Post",
@@ -1273,6 +1303,11 @@
       "target_type": "Location"
     },
     {
+      "source_type": "CategoricalPrediction",
+      "edge": "model",
+      "target_type": "Model"
+    },
+    {
       "source_type": "Country",
       "edge": "flag",
       "target_type": "Photo"
@@ -1369,7 +1404,7 @@
     },
     {
       "source_type": "DatasetType",
-      "edge": "plugin",
+      "edge": "datasetPlugin",
       "target_type": "Plugin"
     },
     {

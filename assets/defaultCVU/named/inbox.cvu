@@ -62,18 +62,9 @@
             }
         }
     }
-    filterButtons: [
-        openView
-        {
-            clearStack: true
-            color: "#FE570F"
-            inheritDatasource: false
-            title: "all"
-            viewName: "inbox-channels"
-        }
-    ]
     name: "inbox"
     showEditCode: false
+    showBreadCrumbs: false
     showTopBar: true
     title: "Inbox"
     topBarColor: "#FFFFFF"
@@ -88,6 +79,13 @@
             }
             targetType: "Message"
         }
+    }
+
+    [renderer = list] {
+        backgroundSelected: #F5F5F5
+        edgeInset: 0 17 0 43
+        selectFirst: true
+        spacing: 0
     }
 }
 

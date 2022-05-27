@@ -190,7 +190,7 @@ class CVUExpressionParser {
     if (token is! ExprTokenParensClose) {
       throw CVUExpressionParseErrorsExpectedCharacter(")");
     }
-
+    exp.inParens = true;
     return exp;
   }
 

@@ -156,7 +156,7 @@ MessageChannel > list {
             Text {
                 color: #333333
                 font: 13 regular
-                text: {{.~messageChannel.sender.displayName OR .~messageChannel.sender.identifier}}
+                text: {{.name OR .~messageChannel.sender.displayName OR .~messageChannel.sender.identifier}}
             }
 
             Text {
@@ -177,13 +177,6 @@ MessageChannel > list {
                 font: body_tiny
                 text: "{.~messageChannel.last().dateSent.format('dd MMMM yyyy')}"
             }
-        }
-
-        Image {
-            color: #DFDEDE
-            font: 24 light
-            padding: 5 0 5 0
-            systemName: "ellipsis"
         }
     }
 }

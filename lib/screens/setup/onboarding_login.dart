@@ -4,6 +4,8 @@ import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/responsive_helper.dart';
+import 'package:memri/widgets/account_scaffold.dart';
 
 class OnboardingLogin extends StatefulWidget {
   final bool isDevelopersMode;
@@ -45,144 +47,140 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints geom) => Material(
-              child: Stack(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.fromLTRB(0, 22, 0, 0),
-                    child: Container(
-                      width: geom.maxWidth / 2,
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(30, 56, 150, 30),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Oh, you’re back! What a surprise!",
-                              style: CVUFont.headline2,
-                            ),
-                            SizedBox(height: 30),
-                            Text(
-                              "To log in please provide these long random numbers no human would ever use that we asked you to save in a safe space when you created the account.",
-                              style: CVUFont.bodyText2,
-                            ),
-                            SizedBox(height: 45),
-                            SizedBox(
-                              width: 428,
-                              child: ColoredBox(
-                                color: Color(0xffF0F0F0),
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("your login key".toUpperCase(),
-                                          style:
-                                              CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
-                                      SizedBox(height: 3),
-                                      TextFormField(
-                                        controller: podPublicKeyController,
-                                        decoration: InputDecoration.collapsed(
-                                          border: InputBorder.none,
-                                          hintText: "",
-                                        ),
-                                        style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            SizedBox(
-                              width: 428,
-                              child: ColoredBox(
-                                color: Color(0xffF0F0F0),
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("your password key".toUpperCase(),
-                                          style:
-                                              CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
-                                      SizedBox(height: 3),
-                                      TextFormField(
-                                        controller: podDatabaseKeyController,
-                                        decoration: InputDecoration.collapsed(
-                                          border: InputBorder.none,
-                                          hintText: "",
-                                        ),
-                                        style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 45),
-                            Row(
-                              children: [
-                                TextButton(
-                                  onPressed: handleSetup,
-                                  style: primaryButtonStyle,
-                                  child: Text("Engage!"),
-                                ),
-                                SizedBox(width: 10),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(
-                                    "Cancel",
-                                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
-                                  ),
-                                  style: TextButton.styleFrom(backgroundColor: null),
-                                ),
-                              ],
-                            ),
-                            if (appController.model.state == PodSetupState.error)
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                child: Text(
-                                  "Error: ${appController.model.errorString}",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                          ],
-                        ),
+    return AccountScaffold(
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 112),
+              Text(
+                "Log in to your pod",
+                style: CVUFont.headline1,
+              ),
+              SizedBox(height: 62),
+              Text(
+                "Use your crypto keys to log in.",
+                style: CVUFont.bodyText1,
+              ),
+              SizedBox(height: 20),
+              Container(
+                width: 632,
+                height: 51,
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                color: Color(0xffF0F0F0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("your login key".toUpperCase(),
+                        style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
+                    SizedBox(height: 5),
+                    TextFormField(
+                      controller: podPublicKeyController,
+                      decoration: InputDecoration.collapsed(
+                        border: InputBorder.none,
+                        hintText: "",
                       ),
-                    ),
-                  ),
-                  if (appController.model.state == PodSetupState.loading) ...[
-                    SizedBox(
-                        width: geom.maxWidth,
-                        height: geom.maxHeight,
-                        child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
-                    Center(
-                      child: Column(
-                        children: [
-                          Spacer(),
-                          SizedBox(
-                            child: CircularProgressIndicator(),
-                            width: 60,
-                            height: 60,
-                          ),
-                          Text(
-                            "Setup in progress...",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          Spacer()
-                        ],
-                      ),
+                      style: TextStyle(color: Color(0xffFE570F), fontSize: 14),
                     ),
                   ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                width: 632,
+                height: 51,
+                color: Color(0xffF0F0F0),
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("your password key".toUpperCase(),
+                        style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
+                    SizedBox(height: 5),
+                    TextFormField(
+                      controller: podDatabaseKeyController,
+                      decoration: InputDecoration.collapsed(
+                        border: InputBorder.none,
+                        hintText: "",
+                      ),
+                      style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 40),
+              TextButton(
+                onPressed: handleSetup,
+                style: primaryButtonStyle,
+                child: Text("Log in"),
+              ),
+              if (appController.model.state == PodSetupState.error)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: Text(
+                    "Error: ${appController.model.errorString}",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              if (!ResponsiveHelper(context).isLargeScreen)
+                Padding(
+                  padding: EdgeInsets.only(top: 60, bottom: 40),
+                  child: _buildNewAccountButton(),
+                ),
+            ],
+          ),
+          if (ResponsiveHelper(context).isLargeScreen)
+            Positioned(
+              bottom: 61,
+              child: _buildNewAccountButton(),
+            ),
+          if (appController.model.state == PodSetupState.loading) ...[
+            SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
+            Center(
+              child: Column(
+                children: [
+                  Spacer(),
+                  SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
+                  ),
+                  Text(
+                    "Setup in progress...",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Spacer()
                 ],
               ),
-            ));
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNewAccountButton() {
+    return InkWell(
+      onTap: () => Navigator.of(context).pop(),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "Don’t have an account yet? ",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+            ),
+            TextSpan(
+              text: "Create a new one!",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void handleSetup() {

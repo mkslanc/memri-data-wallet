@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'package:memri/models/cvu/cvu_value.dart';
+import 'package:memri/models/cvu/cvu_value_constant.dart';
+import 'package:memri/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/utils/execute_actions.dart';
+import 'package:memri/widgets/empty.dart';
 
 import '../cvu_ui_node_resolver.dart';
 import 'cvu_text_properties_modifier.dart';
@@ -22,16 +24,19 @@ class _CVUButtonState extends State<CVUButton> {
   TextProperties? resolvedTextProperties;
   bool isLink = false;
   ButtonStyle? style;
+  Color? backgroundColor;
 
   late ValueNotifier<bool> _isDisabled;
 
   set isDisabled(bool isDisabled) => _isDisabled.value = isDisabled;
 
   late Future _init;
+  bool isInited = false;
+
+  String? id;
 
   @override
   initState() {
-    _isDisabled = ValueNotifier(false);
     super.initState();
     _init = init();
   }
@@ -42,106 +47,57 @@ class _CVUButtonState extends State<CVUButton> {
     _init = init();
   }
 
-  onPress() async {
-    var actions = widget.nodeResolver.propertyResolver.actions("onPress");
-    if (actions == null) {
-      return;
-    }
-    isDisabled = true;
-    try {
-      for (var action in actions) {
-        if (action is CVUActionOpenPopup) {
-          var settings = await action.setPopupSettings(
-              widget.nodeResolver.pageController, widget.nodeResolver.context);
-          if (settings != null) {
-            openPopup(settings);
-          }
-        } else {
-          await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
-        }
-      }
-    } catch (e) {
-      if (e is String) {
-        openErrorPopup(e);
-      } else {
-        throw e;
-      }
-    }
-    isDisabled = false;
-  }
-
-  openPopup(Map<String, dynamic> settings) {
-    List<CVUAction>? actions = settings['actions'];
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-          title: Text(settings['title']),
-          content: Text(settings['text']),
-          actions: actions?.compactMap(
-            (action) {
-              var title = action.vars["title"]?.value?.value;
-              if (title != null) {
-                return PointerInterceptor(
-                    child: TextButton(
-                  onPressed: () async {
-                    await action.execute(
-                        widget.nodeResolver.pageController, widget.nodeResolver.context);
-                    Navigator.pop(context, action.vars["title"]!.value.value);
-                  },
-                  child: Text(action.vars["title"]!.value.value),
-                ));
-              } else {
-                return null;
-              }
-            },
-          ).toList()),
-    );
-  }
-
-  openErrorPopup(String text) {
-    return showDialog<String>(
-        context: context,
-        builder: (BuildContext context) =>
-            AlertDialog(title: Text("Error"), content: Text(text), actions: [
-              PointerInterceptor(
-                  child: TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-                child: Text("Ok"),
-              ))
-            ]));
-  }
-
   init() async {
     resolvedTextProperties =
         await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
             .init();
     isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
     style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
+    backgroundColor = await widget.nodeResolver.propertyResolver.backgroundColor;
+    id = await widget.nodeResolver.propertyResolver.string("id");
+    var isDisabled = (await widget.nodeResolver.propertyResolver.boolean("isDisabled", false))!;
+    _isDisabled = ValueNotifier(isDisabled);
+  }
+
+  onPress() async {
+    executeActionsOnSubmit(widget.nodeResolver, this,
+        isDisabled: _isDisabled, actionsKey: "onPress");
   }
 
   @override
   Widget build(BuildContext context) {
-    //TODO: buttonStyle
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          return ValueListenableBuilder(
-            valueListenable: _isDisabled,
-            builder: (BuildContext context, bool isDisabled, Widget? child) => isLink
-                ? InkWell(
-                    onTap: isDisabled ? null : onPress,
-                    child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
-                  )
-                : TextButton(
-                    onPressed: isDisabled ? null : onPress,
-                    child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
-                    style: TextButton.styleFrom(
-                            textStyle: resolvedTextProperties?.textStyle ?? TextStyle())
-                        .merge(style),
-                  ),
-          );
+          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          return isInited
+              ? ValueListenableBuilder(
+                  valueListenable: _isDisabled,
+                  builder: (BuildContext context, bool isDisabled, Widget? child) => isLink
+                      ? InkWell(
+                          onTap: isDisabled ? null : onPress,
+                          child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
+                          onHover: id != null
+                              ? (bool isHovered) {
+                                  setState(() {
+                                    widget.nodeResolver.context.viewArguments ??=
+                                        CVUViewArguments();
+                                    widget.nodeResolver.context.viewArguments!
+                                            .args["isHovered$id"] =
+                                        CVUValueConstant(CVUConstantBool(isHovered));
+                                  });
+                                }
+                              : null)
+                      : TextButton(
+                          onPressed: isDisabled ? null : onPress,
+                          child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
+                          style: TextButton.styleFrom(
+                                  textStyle: resolvedTextProperties?.textStyle ?? TextStyle(),
+                                  backgroundColor: backgroundColor)
+                              .merge(style),
+                        ),
+                )
+              : Empty();
         });
   }
 }

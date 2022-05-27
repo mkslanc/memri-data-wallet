@@ -23,7 +23,7 @@ class SettingsPane extends StatelessWidget {
                   ),
                   Text("Connected accounts",
                       style: TextStyle(
-                          color: CVUColor.white, fontSize: 18, fontWeight: FontWeight.w600)),
+                          color: CVUColor.brandWhite, fontSize: 18, fontWeight: FontWeight.w600)),
                   Row(
                     children: [
                       Expanded(
@@ -34,14 +34,14 @@ class SettingsPane extends StatelessWidget {
                           Text("WhatsApp",
                               style: CVUFont.buttonLabel.copyWith(color: Colors.white)),
                           Text("Contacts, Messages",
-                              style: CVUFont.bodyText2.copyWith(color: CVUColor.textGrey)),
+                              style: CVUFont.bodyText2.copyWith(color: CVUColor.brandTextGrey)),
                         ],
                       )),
                       TextButton(
                           onPressed: null,
                           style: TextButton.styleFrom(
                               textStyle: TextStyle(color: CVUColor.blueTxt, fontSize: 16),
-                              backgroundColor: CVUColor.white),
+                              backgroundColor: CVUColor.brandWhite),
                           child: Text("Connect")),
                     ],
                   ),
@@ -59,7 +59,7 @@ class SettingsPane extends StatelessWidget {
                   ),
                   Text(
                       "When this setting is on, you consent for memri to report information on app usage (for example, which of the features are most frequently used). Learn more.",
-                      style: CVUFont.bodyText2.copyWith(color: CVUColor.textGrey)),
+                      style: CVUFont.bodyText2.copyWith(color: CVUColor.brandTextGrey)),
                   TextButton(
                       onPressed: () => showDialog<String>(
                             context: context,
@@ -83,30 +83,30 @@ class SettingsPane extends StatelessWidget {
                             ),
                           ),
                       child: Text("Import contacts",
-                          style: TextStyle(color: CVUColor.white, fontSize: 18))),
+                          style: TextStyle(color: CVUColor.brandWhite, fontSize: 18))),
                   TextButton(
                       onPressed: null,
                       child: Text("Privacy and security",
-                          style: TextStyle(color: CVUColor.textGrey, fontSize: 18))),
+                          style: TextStyle(color: CVUColor.brandTextGrey, fontSize: 18))),
                   TextButton(
                       onPressed: null,
                       child: Text("Report a bug",
-                          style: TextStyle(color: CVUColor.textGrey, fontSize: 18))),
+                          style: TextStyle(color: CVUColor.brandTextGrey, fontSize: 18))),
                   TextButton(
                       onPressed: null,
                       child: Text("Request a feature",
-                          style: TextStyle(color: CVUColor.textGrey, fontSize: 18))),
+                          style: TextStyle(color: CVUColor.brandTextGrey, fontSize: 18))),
                   TextButton(
                       onPressed: () => factoryReset(context),
                       child: Text("Factory reset",
-                          style: TextStyle(color: CVUColor.white, fontSize: 18)))
+                          style: TextStyle(color: CVUColor.brandWhite, fontSize: 18)))
                 ],
                 Axis.vertical),
           ),
           Positioned(
               right: 0,
               child: FloatingActionButton(
-                  backgroundColor: CVUColor.white,
+                  backgroundColor: CVUColor.brandWhite,
                   child: Icon(
                     Icons.close,
                     color: CVUColor.blue,

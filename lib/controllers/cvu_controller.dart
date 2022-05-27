@@ -25,6 +25,9 @@ import 'package:memri/widgets/components/cvu/cvu_element_view.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 
+import '../models/cvu/cvu_value.dart';
+import '../models/cvu/cvu_view_arguments.dart';
+
 class CVUController {
   late List<CVUParsedDefinition> definitions;
   final DatabaseController databaseController;
@@ -46,22 +49,23 @@ class CVUController {
     }
   }
 
-  resetToDefault(List<CVUParsedDefinition>? revertingDefinitions) async {
+  resetToDefault([List<CVUParsedDefinition>? revertingDefinitions]) async {
     try {
-      revertingDefinitions ??= definitions;
+      var definitionsToRevert = revertingDefinitions ?? definitions;
       var defaultDefinitions = await CVUController.parseCVU();
-      await Future.forEach<CVUParsedDefinition>(revertingDefinitions, (revertingDefinition) async {
-        var defaultDefinition = definitionFor(
-            type: revertingDefinition.type,
-            selector: revertingDefinition.selector,
-            rendererName: revertingDefinition.renderer,
-            viewName: revertingDefinition.name,
-            specifiedDefinitions: defaultDefinitions);
-        if (defaultDefinition == null || defaultDefinition.parsed == revertingDefinition.parsed) {
-          return;
+      for (var definition in definitionsToRevert) {
+        var defaultDefinition = defaultDefinitions
+            .firstWhereOrNull((element) => element.queryStr == definition.queryStr);
+        if (defaultDefinition != null && defaultDefinition.parsed != definition.parsed) {
+          await updateDefinition(parsed: [defaultDefinition]);
         }
-        await updateDefinition(revertingDefinition, defaultDefinition.parsed);
-      });
+        defaultDefinitions.remove(defaultDefinition);
+      }
+      if (revertingDefinitions == null) {
+        for (var defaultDefinition in defaultDefinitions) {
+          await storeDefinition(databaseController, definition: defaultDefinition);
+        }
+      }
     } catch (error) {
       AppLogger.err(error);
       definitions = [];
@@ -99,21 +103,24 @@ class CVUController {
     return cvus.join("\n").replaceAll("\r", "");
   }
 
-  Future updateDefinition(CVUParsedDefinition definition, CVUDefinitionContent content) async {
-    definition.parsed = content;
-    var storedDefinitionItems = await databaseController.databasePool
-        .itemPropertyRecordsSelect("queryStr", value: definition.queryStr);
-    var storedDefinitionIds =
-        storedDefinitionItems.compactMap<int>((item) => item is StringDb ? item.item : null);
-    var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
-        .where((item) => item.type == "CVUStoredDefinition");
-    if (validStoredDefinitions.length != 1) {
-      AppLogger.err("Error! Could not find valid stored definition for: ${definition.queryStr}");
-      return;
+  Future updateDefinition({String? content, List<CVUParsedDefinition>? parsed}) async {
+    parsed ??= CVUController.parseCVUString(content!);
+    for (var definition in parsed) {
+      var storedDefinitionItems = await databaseController.databasePool
+          .itemPropertyRecordsSelect("queryStr", value: definition.queryStr);
+      var storedDefinitionIds =
+          storedDefinitionItems.compactMap<int>((item) => item is StringDb ? item.item : null);
+      var validStoredDefinitions = (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
+          .where((item) => item.type == "CVUStoredDefinition");
+      if (validStoredDefinitions.length != 1) {
+        AppLogger.err("Error! Could not find valid stored definition for: ${definition.queryStr}");
+        return;
+      }
+      var storedDefinition = validStoredDefinitions.first;
+      await storedDefinition.setPropertyValue(
+          "definition", PropertyDatabaseValueString(definition.toCVUString(0, "    ", true)));
+      replaceDefinitionByQuery(definition.queryStr, definition);
     }
-    var storedDefinition = validStoredDefinitions.first;
-    await storedDefinition.setPropertyValue(
-        "definition", PropertyDatabaseValueString(definition.toCVUString(0, "    ", true)));
   }
 
   storeDefinitions() async {
@@ -129,7 +136,7 @@ class CVUController {
       await ItemRecord.insertList(storedDefinitions, db: databaseController.databasePool);
 
       List<ItemRecord> newItemList = (await ItemRecord.fetchWithUIDs(
-          storedDefinitions.map((e) => e.uid).toList(), databaseController));
+          storedDefinitions.map((e) => e.uid).toList(), databaseController.databasePool));
       newItemList.forEach((item) {
         properties.add(ItemPropertyRecord(
             itemRowID: item.rowId!,
@@ -161,60 +168,46 @@ class CVUController {
             name: "queryStr",
             value: PropertyDatabaseValueString(definitionsByUID[item.uid]!.queryStr)));
       });
-      await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
+      await ItemPropertyRecord.insertList(properties, db: databaseController.databasePool);
     });
   }
 
-  static Future<int?> storeDefinition(String string, DatabaseController databaseController) async {
-    var parsedDefinitions = parseCVUString(string);
-    if (parsedDefinitions.isNotEmpty) {
-      var definition = parsedDefinitions[0];
-      AppController.shared.cvuController.definitions.add(definition);
-      var definitionId;
-      await databaseController.databasePool.transaction(() async {
-        List<ItemPropertyRecord> properties = [];
-        var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
-        definitionId = await storedDefinition.save(databaseController.databasePool);
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "domain",
-            value: PropertyDatabaseValueString(definition.domain.inString)));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "name",
-            value: PropertyDatabaseValueString(definition.name ?? "")));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "renderer",
-            value: PropertyDatabaseValueString(definition.renderer ?? "")));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "selector",
-            value: PropertyDatabaseValueString(definition.selector ?? "")));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "definitionType",
-            value: PropertyDatabaseValueString(definition.type.inString)));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "definition",
-            value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
-        properties.add(ItemPropertyRecord(
-            itemRowID: definitionId,
-            name: "queryStr",
-            value: PropertyDatabaseValueString(definition.queryStr)));
-        await databaseController.databasePool.itemPropertyRecordInsertAll(properties);
-      });
-      return definitionId;
+  static Future<int?> storeDefinition(DatabaseController databaseController,
+      {String? cvuString, CVUParsedDefinition? definition}) async {
+    definition ??= parseCVUString(cvuString!).asMap()[0];
+    if (definition == null) {
+      return null;
     }
-    return null;
+    AppController.shared.cvuController.definitions.add(definition);
+    List<ItemPropertyRecord> properties = [];
+    var storedDefinition = ItemRecord(type: "CVUStoredDefinition");
+    await storedDefinition.save(databaseController.databasePool);
+    properties.add(ItemPropertyRecord(
+        name: "domain", value: PropertyDatabaseValueString(definition.domain.inString)));
+    properties.add(ItemPropertyRecord(
+        name: "name", value: PropertyDatabaseValueString(definition.name ?? "")));
+    properties.add(ItemPropertyRecord(
+        name: "renderer", value: PropertyDatabaseValueString(definition.renderer ?? "")));
+    properties.add(ItemPropertyRecord(
+        name: "selector", value: PropertyDatabaseValueString(definition.selector ?? "")));
+    properties.add(ItemPropertyRecord(
+        name: "definitionType", value: PropertyDatabaseValueString(definition.type.inString)));
+    properties.add(ItemPropertyRecord(
+        name: "definition",
+        value: PropertyDatabaseValueString(definition.toCVUString(0, "    ", true))));
+    properties.add(ItemPropertyRecord(
+        name: "queryStr", value: PropertyDatabaseValueString(definition.queryStr)));
+
+    await storedDefinition.setPropertyValueList(properties, db: databaseController);
+    return storedDefinition.rowId;
   }
 
   loadStoredDefinitions() async {
     if (storedDefinitions.isNotEmpty) {
       return;
     }
-    storedDefinitions = await ItemRecord.fetchWithType("CVUStoredDefinition", databaseController);
+    storedDefinitions =
+        await ItemRecord.fetchWithType("CVUStoredDefinition", databaseController.databasePool);
     if (storedDefinitions.isEmpty) {
       return;
     }
@@ -238,6 +231,17 @@ class CVUController {
               CVUDefinitionType.other,
           parsed: definition.parsed);
     })));
+  }
+
+  CVUParsedDefinition? definitionByQuery(String queryStr) =>
+      definitions.firstWhereOrNull((element) => element.queryStr == queryStr);
+
+  replaceDefinitionByQuery(String queryStr, CVUParsedDefinition newDefinition) {
+    var definition = definitionByQuery(queryStr);
+    if (definition != null) {
+      var index = definitions.indexOf(definition);
+      definitions.replaceRange(index, index + 1, [newDefinition]);
+    }
   }
 
   CVUParsedDefinition? definitionFor(
@@ -416,8 +420,17 @@ class CVUController {
       required bool blankIfNoDefinition,
       required memri.PageController pageController,
       Key? key}) {
+    nodeDefinition ??= nodeDefinitionFor(cvuContext);
     CVUUINode? node = nodeFor(cvuContext, nodeDefinition);
+
     if (node != null) {
+      var viewArgs = nodeDefinition!.properties["viewArguments"];
+      if (viewArgs is CVUValueSubdefinition) {
+        cvuContext.viewArguments ??= CVUViewArguments();
+        cvuContext.viewArguments!.argumentItem = cvuContext.currentItem;
+        cvuContext.viewArguments!.args.addAll(viewArgs.value.properties);
+      }
+
       return CVUElementView(
         nodeResolver: CVUUINodeResolver(
             context: cvuContext,

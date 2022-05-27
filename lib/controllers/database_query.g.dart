@@ -92,6 +92,18 @@ Map<String, dynamic> _$DatabaseQueryConditionPropertyEqualsToJson(
       'value': instance.value,
     };
 
+DatabaseQueryConditionPropertyIn _$DatabaseQueryConditionPropertyInFromJson(
+        Map<String, dynamic> json) =>
+    DatabaseQueryConditionPropertyIn(
+      PropertyIn.fromJson(json['value'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$DatabaseQueryConditionPropertyInToJson(
+        DatabaseQueryConditionPropertyIn instance) =>
+    <String, dynamic>{
+      'value': instance.value,
+    };
+
 DatabaseQueryConditionEdgeHasTarget _$DatabaseQueryConditionEdgeHasTargetFromJson(
         Map<String, dynamic> json) =>
     DatabaseQueryConditionEdgeHasTarget(
@@ -122,6 +134,16 @@ PropertyEquals _$PropertyEqualsFromJson(Map<String, dynamic> json) => PropertyEq
     );
 
 Map<String, dynamic> _$PropertyEqualsToJson(PropertyEquals instance) => <String, dynamic>{
+      'name': instance.name,
+      'value': instance.value,
+    };
+
+PropertyIn _$PropertyInFromJson(Map<String, dynamic> json) => PropertyIn(
+      json['name'] as String,
+      (json['value'] as List<dynamic>).map((e) => e as String).toList(),
+    );
+
+Map<String, dynamic> _$PropertyInToJson(PropertyIn instance) => <String, dynamic>{
       'name': instance.name,
       'value': instance.value,
     };

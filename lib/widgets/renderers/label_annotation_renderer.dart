@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
@@ -10,6 +11,7 @@ import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/enum.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
+import 'package:moor/moor.dart';
 
 import '../../models/database/item_property_record.dart';
 
@@ -31,6 +33,7 @@ class LabelAnnotationRendererView extends Renderer {
 class _LabelAnnotationRendererViewState extends RendererViewState {
   late Future<void> _init;
 
+  bool isLoading = false;
   bool inPreviewMode = false;
 
   late final ItemRecord labellingTask;
@@ -51,6 +54,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   Set<String> get selectedLabels => _selectedLabels.value;
 
+  final FocusNode _focusNode = FocusNode();
+
   set selectedLabels(Set<String> newSelectedLabels) {
     _selectedLabels.value = newSelectedLabels;
   }
@@ -62,6 +67,12 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     super.initState();
     labellingTask = widget.viewContext.focusedItem!;
     _init = init();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   didUpdateWidget(oldWidget) {
@@ -80,9 +91,22 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     await loadDatasetEntry();
   }
 
+  startLoading() => setState(() {
+        isLoading = true;
+      });
+
+  endLoading() => setState(() {
+        isLoading = false;
+      });
+
   Future<void> loadDataset() async {
     var dataset = await labellingTask.reverseEdgeItem("labellingTask");
     datasetEntryList = await dataset!.edgeItems("entry");
+    var edges = (await widget.pageController.appController.databaseController.databasePool
+        .edgeRecordsCustomSelect(
+            "source IN (${datasetEntryList.map((item) => item.rowId).join(", ")}) AND name = ?",
+            [Variable("annotation")])); //TODO not good calling db from widget
+    currentIndex = edges.length > datasetEntryList.length ? 0 : edges.length;
   }
 
   Future<void> loadLabelOptions() async {
@@ -116,8 +140,9 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   void moveToIndex(int index) {
+    startLoading();
     currentIndex = index;
-    loadDatasetEntry().then((value) => setState(() => null));
+    loadDatasetEntry().then((value) => endLoading());
   }
 
   Future<ItemRecord?> getOrCreateCurrentAnnotation() async {
@@ -135,9 +160,13 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   Future<void> skipCurrentItem() async {
+    startLoading();
     var isNew = currentAnnotation == null;
     var labelAnnotation = await getOrCreateCurrentAnnotation();
-    if (labelAnnotation == null) return;
+    if (labelAnnotation == null) {
+      endLoading();
+      return;
+    }
 
     if (isNew) {
       await labelAnnotation.setPropertyValue("isSubmitted", PropertyDatabaseValueBool(false));
@@ -150,9 +179,13 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   Future<void> applyCurrentItem() async {
+    startLoading();
     var isNew = currentAnnotation == null;
     var labelAnnotation = await getOrCreateCurrentAnnotation();
-    if (labelAnnotation == null) return;
+    if (labelAnnotation == null) {
+      endLoading();
+      return;
+    }
 
     await saveSelectedValue();
 
@@ -181,7 +214,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
             .compactMap(
                 (labelOption) => selectedLabels.contains(labelOption.id) ? labelOption.text : null)
             .join(",");
-        currentAnnotation!.setPropertyValue("labelValue", PropertyDatabaseValueString(labelValue));
+        await currentAnnotation!
+            .setPropertyValue("labelValue", PropertyDatabaseValueString(labelValue));
         break;
       default:
         break;
@@ -198,6 +232,7 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   Future<void> loadExistingAnnotation() async {
     selectedLabels = Set<String>();
+    _existingSelectedLabels = Set<String>();
     var annotation = currentAnnotation;
     if (annotation == null) return;
     switch (labelType) {
@@ -243,11 +278,14 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     return FutureBuilder(
       future: _init,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return snapshot.connectionState == ConnectionState.done
-            ? LabelSelectionView(
+        if (snapshot.connectionState == ConnectionState.done) {
+          FocusScope.of(context).requestFocus(_focusNode);
+          return KeyboardListener(
+            focusNode: _focusNode,
+            child: LabelSelectionView(
                 options: labelOptions,
                 selected: _selectedLabels,
-                enabled: currentEntry != null,
+                enabled: currentEntry != null && !isLoading,
                 onBackPressed: moveToPreviousItem,
                 onCheckmarkPressed: inPreviewMode ? null : applyCurrentItem,
                 onSkipPressed: inPreviewMode ? moveToNextItem : skipCurrentItem,
@@ -256,10 +294,52 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                 enableSkipButton: enableSkipButton,
                 content: currentContent,
                 labelType: labelType,
-                additional: additional,
                 isSingleLabel: isSingleLabel,
-              )
-            : Empty();
+                isLoading: isLoading),
+            onKeyEvent: (KeyEvent event) {
+              if (isLoading) return;
+              var pressedKey = int.tryParse(event.character ?? "");
+              if (pressedKey is int) {
+                var index = pressedKey - 1;
+                if (index < 0) {
+                  selectedLabels = Set();
+                } else if (labelOptions.length > index) {
+                  selectedLabels = [labelOptions[index].id].toSet();
+                }
+              } else if (event is KeyUpEvent) {
+                if (event.logicalKey == LogicalKeyboardKey.arrowDown ||
+                    event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                  var index = -1;
+                  if (selectedLabels.isNotEmpty) {
+                    var selectedLabelOption = selectedLabels.toList().first;
+                    index = labelOptions
+                        .indexWhere((labelOption) => labelOption.id == selectedLabelOption);
+                  }
+                  if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                    index++;
+                  } else {
+                    index--;
+                  }
+                  if (index < 0) {
+                    index = labelOptions.length - 1;
+                  } else if (index >= labelOptions.length) {
+                    index = 0;
+                  }
+
+                  selectedLabels = [labelOptions[index].id].toSet();
+                } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                  inPreviewMode ? moveToNextItem() : skipCurrentItem();
+                } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                  if (currentIndex > 0) moveToPreviousItem();
+                } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+                  if (!inPreviewMode) applyCurrentItem();
+                }
+              }
+            },
+          );
+        } else {
+          return Empty();
+        }
       },
     );
   }
@@ -283,9 +363,9 @@ class LabelSelectionView extends StatelessWidget {
   final ValueNotifier<Set<String>> selected;
   final bool enabled;
 
-  final void Function() onBackPressed;
+  final void Function()? onBackPressed;
   final void Function()? onCheckmarkPressed;
-  final void Function() onSkipPressed;
+  final void Function()? onSkipPressed;
 
   final bool enableBackButton;
   final bool enableCheckmarkButton;
@@ -295,8 +375,9 @@ class LabelSelectionView extends StatelessWidget {
 
   final Widget content;
 
-  final Widget? additional;
   final bool isSingleLabel;
+
+  final bool isLoading;
 
   LabelSelectionView(
       {required this.options,
@@ -311,8 +392,8 @@ class LabelSelectionView extends StatelessWidget {
       this.topText,
       required this.content,
       required this.labelType,
-      this.additional,
-      required this.isSingleLabel});
+      required this.isSingleLabel,
+      required this.isLoading});
 
   Widget get labelOptions => Container(
         //height: 150,
@@ -328,19 +409,21 @@ class LabelSelectionView extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 5,
                 children: options
-                    .map<Widget>((option) => TextButton(
+                    .mapIndexed<Widget>((index, option) => TextButton(
                           style: TextButton.styleFrom(
                               visualDensity: VisualDensity.compact, padding: EdgeInsets.all(0)),
-                          onPressed: () {
-                            if (isSingleLabel) {
-                              selectedList = [option.id];
-                            } else {
-                              if (selectedList.remove(option.id) == false) {
-                                selectedList.add(option.id);
-                              }
-                            }
-                            selected.value = selectedList.toSet();
-                          },
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (isSingleLabel) {
+                                    selectedList = [option.id];
+                                  } else {
+                                    if (selectedList.remove(option.id) == false) {
+                                      selectedList.add(option.id);
+                                    }
+                                  }
+                                  selected.value = selectedList.toSet();
+                                },
                           child: Container(
                             padding: EdgeInsets.fromLTRB(10, 5, 19, 5),
                             decoration: BoxDecoration(
@@ -349,6 +432,7 @@ class LabelSelectionView extends StatelessWidget {
                                     : Color(0xffF5F5F5),
                                 borderRadius: BorderRadius.circular(20)),
                             child: Wrap(
+                              spacing: 5,
                               children: [
                                 if (option.icon != null) option.icon!,
                                 Text(
@@ -357,6 +441,11 @@ class LabelSelectionView extends StatelessWidget {
                                       color: selectedList.contains(option.id)
                                           ? Color(0xffFE570F)
                                           : Color(0xff333333)),
+                                ),
+                                Text(
+                                  (index + 1).toString(),
+                                  style: CVUFont.smallCaps.copyWith(
+                                      fontWeight: FontWeight.w700, color: Color(0xff999999)),
                                 )
                               ],
                             ),
@@ -421,10 +510,18 @@ class LabelSelectionView extends StatelessWidget {
             SizedBox(
               height: constraints.maxHeight - 150 - options.length * 30,
               width: constraints.maxWidth,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: content,
-              ),
+              child: isLoading
+                  ? Center(
+                      child: SizedBox(
+                        child: CircularProgressIndicator(color: Color(0xff333333)),
+                        width: 60,
+                        height: 60,
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: content,
+                    ),
             ),
             if (labelType == LabelType.CategoricalLabel) labelOptions,
             Container(
@@ -442,7 +539,7 @@ class LabelSelectionView extends StatelessWidget {
                             fixedSize: Size(50, 50),
                             backgroundColor:
                                 enableBackButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
-                        onPressed: enableBackButton ? onBackPressed : null),
+                        onPressed: enableBackButton && !isLoading ? onBackPressed : null),
                     Spacer(),
                     TextButton(
                       child: SvgPicture.asset("assets/images/check.svg", color: Color(0xFFF5F5F5)),
@@ -450,7 +547,7 @@ class LabelSelectionView extends StatelessWidget {
                         backgroundColor: Color(0xFF333333),
                         fixedSize: Size(50, 50),
                       ),
-                      onPressed: enableCheckmarkButton ? onCheckmarkPressed : null,
+                      onPressed: enableCheckmarkButton && !isLoading ? onCheckmarkPressed : null,
                     ),
                     if (labelType == LabelType.BinaryLabel) ...binaryOptions,
                     Spacer(),
@@ -460,12 +557,11 @@ class LabelSelectionView extends StatelessWidget {
                             fixedSize: Size(50, 50),
                             backgroundColor:
                                 enableSkipButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
-                        onPressed: enableSkipButton ? onSkipPressed : null),
+                        onPressed: enableSkipButton && !isLoading ? onSkipPressed : null),
                   ],
                 ),
               ),
             ),
-            if (additional != null) additional!
           ]);
     });
   }

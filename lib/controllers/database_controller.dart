@@ -44,8 +44,8 @@ class DatabaseController {
   }
 
   Future<void> delete() async {
+    await databasePool.attachedDatabase.close();
     await databasePool.close();
-    databasePool.attachedDatabase.close();
     if (!inMemory || kIsWeb) {
       await deleteDb(databaseName);
     }
@@ -98,7 +98,4 @@ class DatabaseController {
     await DemoData.importDemoData(
         databaseController: this, throwIfAgainstSchema: throwIfAgainstSchema);
   }
-
-  //TODO: hope this is temporary solution
-  Map<String, dynamic> storage = {};
 }

@@ -29,7 +29,7 @@
     "uid": 20001,
     "_type": "Plugin",
     "pluginType": "importer",
-    "name": "WhatsApp",
+    "name": "WhatsApp legacy",
     "dataType": "whatsapp",
     "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp:prod-latest",
     "icon": "message",
@@ -37,43 +37,15 @@
     "pluginName": "WhatsappPlugin"
   },
   {
-    "uid": 20002,
+    "uid": 20004,
     "_type": "Plugin",
     "pluginType": "importer",
-    "name": "Gmail plugin",
-    "containerImage": "gitlab.memri.io:5050/memri/plugins/gmail:prod-latest",
-    "pluginModule": "gmail_importer.plugin",
-    "pluginName": "GmailImporter",
-    "icon": "mail"
-  },
-  {
-    "uid": 20003,
-    "_type": "Plugin",
-    "pluginType": "importer",
-    "name": "Instagram",
-    "containerImage": "gitlab.memri.io:5050/memri/plugins/instagram:prod-latest",
-    "pluginModule": "instagram.plugin",
-    "pluginName": "InstagramPlugin",
-    "icon": "mail"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "app",
-    "name": "Sentiment Plugin",
-    "containerImage": "gitlab.memri.io:5050/eelcovdw/sentiment_plugin:dev-latest",
-    "pluginModule": "sentiment_plugin.plugin",
-    "pluginName": "ClassifierPlugin",
-    "pluginDescription": "A transformer based sentiment analyis plugin",
-    "configJson": "[{\"name\":\"item_type\",\"display\":\"Item Type\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":null,\"optional\":true},{\"name\":\"item_service\",\"display\":\"Item Service\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":null,\"optional\":true},{\"name\":\"model_name\",\"display\":\"Model Name\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":\"cardiffnlp/twitter-xlm-roberta-base-sentiment\",\"optional\":true},{\"name\":\"model_version\",\"display\":\"Model Version\",\"data_type\":\"Text\",\"type\":\"textbox\",\"default\":\"0.1\",\"optional\":true}]"
-  },
-  {
-    "_type": "Plugin",
-    "pluginType": "app",
-    "name": "Account linker",
-    "containerImage": "gitlab.memri.io:5050/memri/plugins/account-linker:prod-latest",
-    "pluginModule": "account_linker.plugin",
-    "pluginName": "AccountLinkerPlugin",
-    "pluginDescription": "Account linker allows linking accounts from multiple services. You can use these connections to browse through your data in new ways and give your data additional context."
+    "name": "WhatsApp",
+    "dataType": "whatsapp",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest",
+    "icon": "message",
+    "pluginModule": "whatsapp.plugin",
+    "pluginName": "WhatsappPlugin"
   },
   {
     "_type": "Setting",
@@ -1147,35 +1119,14 @@
     "queryStr": "{\"type\":\"Message\", \"service\": \"whatsapp\"}",
     "allEdges": [
       {
-        "_type": "plugin",
+        "_type": "datasetPlugin",
         "targetType": "Plugin",
         "uid": 20001
-      }
-    ]
-  },
-  {
-    "uid": 10001,
-    "_type": "DatasetType",
-    "name": "Gmail messages",
-    "queryStr": "{\"type\":\"EmailMessage\", \"service\": \"gmail\"}",
-    "allEdges": [
+      },
       {
-        "_type": "plugin",
+        "_type": "datasetPlugin",
         "targetType": "Plugin",
-        "uid": 20002
-      }
-    ]
-  },
-  {
-    "uid": 10002,
-    "_type": "DatasetType",
-    "name": "Instagram posts",
-    "queryStr": "{\"type\":\"Post\", \"service\": \"instagram\"}",
-    "allEdges": [
-      {
-        "_type": "plugin",
-        "targetType": "Plugin",
-        "uid": 20003
+        "uid": 20004
       }
     ]
   },

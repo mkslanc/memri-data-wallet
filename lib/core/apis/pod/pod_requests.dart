@@ -100,6 +100,10 @@ class PodStandardRequest<Payload> {
     return PodStandardRequest(path: "get_item", payload: payload);
   }
 
+  static PodStandardRequest getLogsForPluginRun(String itemId) {
+    return PodStandardRequest(path: "get_pluginrun_log", payload: itemId);
+  }
+
   static PodStandardRequest bulkAction<Payload>(Payload payload) {
     return PodStandardRequest(path: "bulk", payload: payload);
   }
