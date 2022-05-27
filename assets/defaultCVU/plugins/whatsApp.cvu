@@ -280,43 +280,46 @@
 
 .WhatsappPlugin-done {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
+    showContextualBottomBar: false
+    showSearchBar: false
     title: "Connect WhatsApp account"
 
-    [renderer = singleItem]{
-
+    [renderer = singleItem] {
     }
 
     Account > singleItem {
+        viewArguments: {
+            selectedPlugin: {{.~account.plugin}}
+        }
+
         VStack {
             alignment: topleft
             padding: 60 30 0 30
 
             Text {
-                text: "Success!"
                 font: link
                 padding: 0 5
+                text: "Success!"
             }
 
             Text {
-                text: "WhatsApp connected!"
                 font: headline1
+                text: "WhatsApp connected!"
             }
 
             Text {
-                text: "WhatsApp has been successfully synced to your pod. Your data is being imported."
-                font: bodyText1
                 color: #737373
+                font: bodyText1
                 padding: 10 0 12 0
+                text: "WhatsApp has been successfully synced to your pod. Your data is being imported."
             }
 
             Text {
-                text: "Your data is being imported. This may take a while."
-                font: bodyText1
                 color: #737373
+                font: bodyText1
                 padding: 0 0 60 0
+                text: "Your data is being imported. This may take a while."
             }
 
             HStack {
@@ -324,8 +327,8 @@
                 spacing: 10
 
                 Text {
-                    text: "Uploading data:"
                     font: bodyText1
+                    text: "Uploading data:"
                 }
 
                 Observer {
@@ -340,20 +343,61 @@
                 }
             }
 
-            Button {
-                padding: 60 0 0 0
+            Wrap {
+                alignment: left
+                padding: 15 0 0 0
+                spacing: 15
 
-                Text {
-                    text: "<  Back to data page"
-                    font: button_label
-                    color: #FE570F
+                Button {
+                    onPress: [
+                        addItem
+                        {
+                            clearPageControllers: true
+                            clearStack: true
+                            template: {
+                                _type: Project
+                            }
+                            viewArguments: {
+                                datasetGrid: {
+                                    viewArguments: {
+                                        selectedPlugin: {{selectedPlugin}}
+                                    }
+
+                                    [renderer = grid] {
+                                        selectedItems: {{project.dataset ? project.dataset.datasetType[] : selectedPlugin.~datasetPlugin[]}}
+                                    }
+                                }
+                                pageLabel: "main"
+                                readOnly: false
+                                selectedPlugin: {{selectedPlugin}}
+                            }
+                            viewName: "add-project"
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Create a new project"
+                    }
                 }
 
-                onPress: openView {
-                    viewName: "allData"
-                    clearStack: true
-                    viewArguments {
+                Button {
+                    onPress: [
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: {
+                                readOnly: true
+                            }
+                            viewName: "allData"
+                        }
+                    ]
+                    styleName: secondaryButton
 
+                    Text {
+                        font: button_label
+                        text: "Back to data streams"
                     }
                 }
             }
