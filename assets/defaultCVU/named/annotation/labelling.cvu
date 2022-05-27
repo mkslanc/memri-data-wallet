@@ -270,8 +270,9 @@
                         }
                     ]
 
+                    styleName: secondaryButton
+
                     Text {
-                        color: #333333
                         font: button_label
                         text: "Back to labelling set up"
                     }

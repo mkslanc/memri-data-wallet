@@ -184,7 +184,7 @@
 
                             Text {
                                 font: button_label
-                                text: "Label more data"
+                                text: "Back to labelling"
                             }
                         }
                     }
