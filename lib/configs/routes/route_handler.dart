@@ -8,102 +8,101 @@ import 'package:memri/screens/account/login_screen.dart';
 import 'package:memri/screens/account/save_keys_screen.dart';
 import 'package:memri/screens/not_found_screen.dart';
 import 'package:memri/screens/splash_screen.dart';
+import 'package:memri/screens/workspace/apps/apps_configure_screen.dart';
 import 'package:memri/screens/workspace/apps_screen.dart';
 import 'package:memri/screens/workspace/data_screen.dart';
-import 'package:memri/screens/workspace/inbox_screen.dart';
-import 'package:memri/screens/workspace/plugin/whatsapp/whatsapp_connect_screen.dart';
-import 'package:memri/screens/workspace/plugin/whatsapp/whatsapp_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importers_connect_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importers_create_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importers_downloading_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importers_screen.dart';
+import 'package:memri/screens/workspace/apps/apps_inbox_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_app_create_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_app_deploy_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_app_summary_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_create_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_label_data_screen.dart';
+import 'package:memri/screens/workspace/projects_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_summary_screen.dart';
 import 'package:memri/screens/workspace/workspace_screen.dart';
 
-var notFoundHandler = Handler(handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
+var notFoundHandler =
+    Handler(handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
   AppLogger.err('ROUTE WAS NOT FOUND !!!');
   return NotFoundScreen();
 });
 
 var splashScreenHandler = Handler(handlerFunc: (_, __) => SplashScreen());
 
-var onboardingScreenHandler = Handler(handlerFunc: (_, __) => OnboardingScreen());
+///
+/// Account
+///
+var onboardingScreenHandler =
+    Handler(handlerFunc: (_, __) => OnboardingScreen());
 
 var accountErrorScreenHandler = Handler(handlerFunc: (_, __) => AccountErrorScreen());
 
 var loginScreenHandler = Handler(handlerFunc: (_, __) => LoginScreen());
 
-var loginDeveloperScreenHandler = Handler(handlerFunc: (_, __) => LoginDeveloperScreen());
+var loginDeveloperScreenHandler =
+    Handler(handlerFunc: (_, __) => LoginDeveloperScreen());
 
 var saveKeysScreenHandler = Handler(handlerFunc: (_, __) => SaveKeysScreen());
 
+///
+/// Workspace
+///
 var workspaceScreenHandler = Handler(handlerFunc: (_, __) => WorkspaceScreen());
 
+///
+/// Data
+///
 var dataScreenHandler = Handler(handlerFunc: (_, __) => DataScreen());
 
-var whatsappScreenHandler = Handler(handlerFunc: (_, __) => WhatsappScreen());
+///
+/// Importers
+///
+var importerScreenHandler = Handler(handlerFunc: (_, __) => ImportersScreen());
 
-var whatsappConnectScreenHandler = Handler(handlerFunc: (_, __) => WhatsappConnectScreen());
+var importerCreateScreenHandler =
+    Handler(handlerFunc: (_, __) => ImportersCreateScreen());
 
+var importerConnectScreenHandler =
+    Handler(handlerFunc: (_, __) => ImportersConnectScreen());
+
+var importerDownloadingScreenHandler =
+    Handler(handlerFunc: (_, __) => ImportersDownloadingScreen());
+
+///
+/// Apps
+///
 var appsScreenHandler = Handler(handlerFunc: (_, __) => AppsScreen());
 
-var inboxScreenHandler = Handler(handlerFunc: (_, __) => InboxScreen());
+var appsConfigureScreenHandler =
+    Handler(handlerFunc: (_, __) => AppsConfigureScreen());
 
-// var introScreenHandler = Handler(
-//     handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-//   return IntroScreen();
-// });
+var appsInboxScreenHandler = Handler(
+    handlerFunc: (_, Map<String, List<String>> params) =>
+        AppsInboxScreen(importer: params['importer']?.first ?? ''));
 
-// var homeScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return HomeScreen();
-// });
-//
-// var profileScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return ProfileScreen();
-// });
+///
+/// Projects
+///
+var projectsScreenHandler = Handler(handlerFunc: (_, __) => ProjectsScreen());
 
-// var settingsScreenHandler = Handler(
-//     handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-//   return SettingsScreen();
-// });
+var projectsCreateScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsCreateScreen());
 
-// var storeScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   String placeId = params['placeId']?.first ?? '';
-//   String tableId = params['tableId']?.first ?? '';
-//   String shortId = params['shortId']?.first ?? '';
-//   return StoreScreen(placeId: placeId, tableId: tableId, shortId: shortId);
-// });
-//
-// var storeAdminScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   String placeId = params['placeId']?.first ?? '';
-//   return StoreAdminScreen(placeId: placeId);
-// });
-//
-// var storeCreationScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return CreateStoreScreen();
-// });
-//
-// var storeFindScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return FindStoreScreen();
-// });
-//
-// var faqScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return FAQScreen();
-// });
-//
-// var privacyPolicyScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return PrivacyPolicyScreen();
-// });
-//
-// var termsConditionScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return TermsOfUseScreen();
-// });
-//
-// var aboutUsScreenHandler = Handler(
-//     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-//   return AboutUsScreen();
-// });
+var projectsLabelDataScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsLabelDataScreen());
+
+var projectsSummaryScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsSummaryScreen());
+
+var projectsAppCreateScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsAppCreateScreen());
+
+var projectsAppDeployScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsAppDeployScreen());
+
+var projectsAppSummaryScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsAppSummaryScreen());
