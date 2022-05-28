@@ -5,8 +5,8 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
-class WhatsappScreen extends StatelessWidget {
-  const WhatsappScreen({Key? key}) : super(key: key);
+class ImportersScreen extends StatelessWidget {
+  const ImportersScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class WhatsappScreen extends StatelessWidget {
             SizedBox(height: 60),
             TextButton(
               onPressed: () =>
-                  RouteNavigator.navigateToRoute(context: context, route: Routes.whatsappConnect),
+                  RouteNavigator.navigateToRoute(context: context, route: Routes.importerConnect),
               style: primaryButtonStyle,
               child: Text("Connect!"),
             ),

@@ -50,7 +50,7 @@ class _DataScreenState extends State<DataScreen> {
                   size: 'MB',
                   status: 'ACTIVE',
                   onTap: () =>
-                      RouteNavigator.navigateToRoute(context: context, route: Routes.whatsapp),
+                      RouteNavigator.navigateToRoute(context: context, route: Routes.importer),
                 ),
                 _buildBox(
                   title: 'Gmail Plugin',
