@@ -11,7 +11,8 @@ import 'package:memri/widgets/empty.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AccountScaffold extends StatefulWidget {
-  const AccountScaffold({Key? key, required this.child, this.showSlider = true}) : super(key: key);
+  const AccountScaffold({Key? key, required this.child, this.showSlider = true})
+      : super(key: key);
 
   final Widget child;
   final bool showSlider;
@@ -20,11 +21,12 @@ class AccountScaffold extends StatefulWidget {
   State<AccountScaffold> createState() => _AccountScaffoldState();
 }
 
-class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProviderStateMixin {
+class _AccountScaffoldState extends State<AccountScaffold>
+    with SingleTickerProviderStateMixin {
   AppController appController = AppController.shared;
   final List<Widget> _slides = <Widget>[];
   PageController _controller = PageController();
-  late Timer _periodicTimer;
+  Timer? _periodicTimer;
   late AnimationController _animationController;
   late Animation<Color?> animation;
 
@@ -46,8 +48,8 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   @override
   void initState() {
     if (widget.showSlider) {
-      _animationController =
-          AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
+      _animationController = AnimationController(
+          duration: const Duration(milliseconds: 600), vsync: this);
       animation = colors.animate(_animationController)
         ..addListener(() {
           setState(() {});
@@ -62,7 +64,8 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
             curve: Curves.ease,
           );
         } else {
-          _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+          _controller.nextPage(
+              duration: const Duration(milliseconds: 300), curve: Curves.ease);
         }
       });
     }
@@ -72,7 +75,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   @override
   void dispose() {
     _controller.dispose();
-    _periodicTimer.cancel();
+    if (_periodicTimer != null) _periodicTimer!.cancel();
     super.dispose();
   }
 
@@ -103,7 +106,8 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
                 Container(
                   height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
                   alignment: Alignment.bottomCenter,
-                  child: Text('memri', style: CVUFont.headline2.copyWith(color: Colors.white)),
+                  child: Text('memri',
+                      style: CVUFont.headline2.copyWith(color: Colors.white)),
                 ),
               ],
             ),
@@ -112,9 +116,11 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
             right: 57,
             bottom: ResponsiveHelper(context).isLargeScreen ? 34 : 12,
             child: InkWell(
-              onTap: () => launch('https://www.memri.io/memri-privacy-preserving-license'),
+              onTap: () => launch(
+                  'https://www.memri.io/memri-privacy-preserving-license'),
               child: Text('License',
-                  style: CVUFont.headline4.copyWith(color: Colors.white, fontSize: 17)),
+                  style: CVUFont.headline4
+                      .copyWith(color: Colors.white, fontSize: 17)),
             ),
           ),
           Stack(
@@ -298,7 +304,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
           ),
           SizedBox(height: 30),
           Text(
-            "Push your code to your repo in the dev or prod branch using our plugin template, and you’re done.",
+            "Push your code to your repo in the dev or prod branch using our importers template, and you’re done.",
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],

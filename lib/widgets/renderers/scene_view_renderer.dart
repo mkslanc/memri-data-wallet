@@ -3,7 +3,7 @@ import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/models/cvu/cvu_value.dart';
 import 'package:memri/models/cvu/cvu_value_constant.dart';
 import 'package:memri/models/cvu/cvu_view_arguments.dart';
-import 'package:memri/screens/scene_view.dart';
+import 'package:memri/widgets/scene_view.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 
