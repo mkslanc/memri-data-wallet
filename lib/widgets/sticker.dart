@@ -23,7 +23,7 @@ class Sticker extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveHelper(context).isSmallScreen
         ? AspectRatio(
-            aspectRatio: 4/4.5,
+            aspectRatio: 4 / 4.5,
             child: Container(
               width: MediaQuery.of(context).size.width,
               child: _buildBody(),
@@ -62,24 +62,20 @@ class Sticker extends StatelessWidget {
                     (index) => Column(
                       children: [
                         TextButton(
-                          style: ButtonStyle(
-                              padding:
-                                  MaterialStateProperty.all(EdgeInsets.all(0))),
+                          style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.all(0))),
                           onPressed: buttonsCallback![index],
                           child: Row(
                             children: [
                               Text(
                                 buttonsTitle![index],
-                                style: CVUFont.bodyText1
-                                    .copyWith(color: Color(0xffFE570F)),
+                                style: CVUFont.bodyText1.copyWith(color: Color(0xffFE570F)),
                               ),
                               SizedBox(width: 10),
                               AppIcons.arrowRight(color: Color(0xffFE570F)),
                             ],
                           ),
                         ),
-                        if (index < buttonsTitle!.length - 1)
-                          SizedBox(height: 40),
+                        if (index < buttonsTitle!.length - 1) SizedBox(height: 40),
                       ],
                     ),
                   )),

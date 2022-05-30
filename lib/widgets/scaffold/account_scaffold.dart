@@ -11,8 +11,7 @@ import 'package:memri/widgets/empty.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AccountScaffold extends StatefulWidget {
-  const AccountScaffold({Key? key, required this.child, this.showSlider = true})
-      : super(key: key);
+  const AccountScaffold({Key? key, required this.child, this.showSlider = true}) : super(key: key);
 
   final Widget child;
   final bool showSlider;
@@ -21,8 +20,7 @@ class AccountScaffold extends StatefulWidget {
   State<AccountScaffold> createState() => _AccountScaffoldState();
 }
 
-class _AccountScaffoldState extends State<AccountScaffold>
-    with SingleTickerProviderStateMixin {
+class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProviderStateMixin {
   AppController appController = AppController.shared;
   final List<Widget> _slides = <Widget>[];
   PageController _controller = PageController();
@@ -48,8 +46,8 @@ class _AccountScaffoldState extends State<AccountScaffold>
   @override
   void initState() {
     if (widget.showSlider) {
-      _animationController = AnimationController(
-          duration: const Duration(milliseconds: 600), vsync: this);
+      _animationController =
+          AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
       animation = colors.animate(_animationController)
         ..addListener(() {
           setState(() {});
@@ -64,8 +62,7 @@ class _AccountScaffoldState extends State<AccountScaffold>
             curve: Curves.ease,
           );
         } else {
-          _controller.nextPage(
-              duration: const Duration(milliseconds: 300), curve: Curves.ease);
+          _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
         }
       });
     }
@@ -106,8 +103,7 @@ class _AccountScaffoldState extends State<AccountScaffold>
                 Container(
                   height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
                   alignment: Alignment.bottomCenter,
-                  child: Text('memri',
-                      style: CVUFont.headline2.copyWith(color: Colors.white)),
+                  child: Text('memri', style: CVUFont.headline2.copyWith(color: Colors.white)),
                 ),
               ],
             ),
@@ -116,11 +112,9 @@ class _AccountScaffoldState extends State<AccountScaffold>
             right: 57,
             bottom: ResponsiveHelper(context).isLargeScreen ? 34 : 12,
             child: InkWell(
-              onTap: () => launch(
-                  'https://www.memri.io/memri-privacy-preserving-license'),
+              onTap: () => launch('https://www.memri.io/memri-privacy-preserving-license'),
               child: Text('License',
-                  style: CVUFont.headline4
-                      .copyWith(color: Colors.white, fontSize: 17)),
+                  style: CVUFont.headline4.copyWith(color: Colors.white, fontSize: 17)),
             ),
           ),
           Stack(
