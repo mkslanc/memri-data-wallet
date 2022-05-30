@@ -56,29 +56,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildDeveloperButton() {
-    if(!AppSettings.showDeveloperButton) {
+    if (!AppSettings.showDeveloperButton) {
       return Empty();
     }
     return InkWell(
-            onTap: () async {
-              WidgetsBinding.instance!.addPostFrameCallback(
-                  (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.loginDev));
-            },
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Switch to ",
-                    style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-                  ),
-                  TextSpan(
-                    text: "developers mode",
-                    style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
-                  ),
-                ],
-              ),
+      onTap: () async {
+        WidgetsBinding.instance!.addPostFrameCallback(
+            (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.loginDev));
+      },
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "Switch to ",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
             ),
-          );
+            TextSpan(
+              text: "developers mode",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildBody() {
