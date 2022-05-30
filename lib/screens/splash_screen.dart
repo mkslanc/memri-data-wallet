@@ -14,7 +14,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final AppController appController = AppController.shared;
   Exception? authError;
-  late Future<void> _init;
 
   @override
   void initState() {
