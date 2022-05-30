@@ -15,7 +15,7 @@ flutter_analyze:
   stage: lint
   script:
     - flutter analyze
-    - flutter format -n . --set-exit-if-changed
+    - flutter format -l 100 -n . --set-exit-if-changed
 
 unit_test:
   stage: test

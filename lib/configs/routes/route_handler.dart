@@ -25,8 +25,7 @@ import 'package:memri/screens/workspace/projects_screen.dart';
 import 'package:memri/screens/workspace/projects/projects_summary_screen.dart';
 import 'package:memri/screens/workspace/workspace_screen.dart';
 
-var notFoundHandler =
-    Handler(handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
+var notFoundHandler = Handler(handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
   AppLogger.err('ROUTE WAS NOT FOUND !!!');
   return NotFoundScreen();
 });
@@ -36,15 +35,13 @@ var splashScreenHandler = Handler(handlerFunc: (_, __) => SplashScreen());
 ///
 /// Account
 ///
-var onboardingScreenHandler =
-    Handler(handlerFunc: (_, __) => OnboardingScreen());
+var onboardingScreenHandler = Handler(handlerFunc: (_, __) => OnboardingScreen());
 
 var accountErrorScreenHandler = Handler(handlerFunc: (_, __) => AccountErrorScreen());
 
 var loginScreenHandler = Handler(handlerFunc: (_, __) => LoginScreen());
 
-var loginDeveloperScreenHandler =
-    Handler(handlerFunc: (_, __) => LoginDeveloperScreen());
+var loginDeveloperScreenHandler = Handler(handlerFunc: (_, __) => LoginDeveloperScreen());
 
 var saveKeysScreenHandler = Handler(handlerFunc: (_, __) => SaveKeysScreen());
 
@@ -63,11 +60,9 @@ var dataScreenHandler = Handler(handlerFunc: (_, __) => DataScreen());
 ///
 var importerScreenHandler = Handler(handlerFunc: (_, __) => ImportersScreen());
 
-var importerCreateScreenHandler =
-    Handler(handlerFunc: (_, __) => ImportersCreateScreen());
+var importerCreateScreenHandler = Handler(handlerFunc: (_, __) => ImportersCreateScreen());
 
-var importerConnectScreenHandler =
-    Handler(handlerFunc: (_, __) => ImportersConnectScreen());
+var importerConnectScreenHandler = Handler(handlerFunc: (_, __) => ImportersConnectScreen());
 
 var importerDownloadingScreenHandler =
     Handler(handlerFunc: (_, __) => ImportersDownloadingScreen());
@@ -77,8 +72,7 @@ var importerDownloadingScreenHandler =
 ///
 var appsScreenHandler = Handler(handlerFunc: (_, __) => AppsScreen());
 
-var appsConfigureScreenHandler =
-    Handler(handlerFunc: (_, __) => AppsConfigureScreen());
+var appsConfigureScreenHandler = Handler(handlerFunc: (_, __) => AppsConfigureScreen());
 
 var appsInboxScreenHandler = Handler(
     handlerFunc: (_, Map<String, List<String>> params) =>
@@ -89,20 +83,14 @@ var appsInboxScreenHandler = Handler(
 ///
 var projectsScreenHandler = Handler(handlerFunc: (_, __) => ProjectsScreen());
 
-var projectsCreateScreenHandler =
-    Handler(handlerFunc: (_, __) => ProjectsCreateScreen());
+var projectsCreateScreenHandler = Handler(handlerFunc: (_, __) => ProjectsCreateScreen());
 
-var projectsLabelDataScreenHandler =
-    Handler(handlerFunc: (_, __) => ProjectsLabelDataScreen());
+var projectsLabelDataScreenHandler = Handler(handlerFunc: (_, __) => ProjectsLabelDataScreen());
 
-var projectsSummaryScreenHandler =
-    Handler(handlerFunc: (_, __) => ProjectsSummaryScreen());
+var projectsSummaryScreenHandler = Handler(handlerFunc: (_, __) => ProjectsSummaryScreen());
 
-var projectsAppCreateScreenHandler =
-    Handler(handlerFunc: (_, __) => ProjectsAppCreateScreen());
+var projectsAppCreateScreenHandler = Handler(handlerFunc: (_, __) => ProjectsAppCreateScreen());
 
-var projectsAppDeployScreenHandler =
-    Handler(handlerFunc: (_, __) => ProjectsAppDeployScreen());
+var projectsAppDeployScreenHandler = Handler(handlerFunc: (_, __) => ProjectsAppDeployScreen());
 
-var projectsAppSummaryScreenHandler =
-    Handler(handlerFunc: (_, __) => ProjectsAppSummaryScreen());
+var projectsAppSummaryScreenHandler = Handler(handlerFunc: (_, __) => ProjectsAppSummaryScreen());

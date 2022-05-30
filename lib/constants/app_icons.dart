@@ -6,12 +6,10 @@ class AppIcons {
 
   static const basePath = 'assets/icons';
 
-  static Widget copyToClipboard(
-          {double? width, double? height, Color? color}) =>
+  static Widget copyToClipboard({double? width, double? height, Color? color}) =>
       SvgPicture.asset('$basePath/ico_copy_to_clipboard.svg',
           width: width, height: height, color: color);
 
   static Widget arrowRight({double? width, double? height, Color? color}) =>
-      SvgPicture.asset('$basePath/ico_arrow_right.svg',
-          width: width, height: height, color: color);
+      SvgPicture.asset('$basePath/ico_arrow_right.svg', width: width, height: height, color: color);
 }
