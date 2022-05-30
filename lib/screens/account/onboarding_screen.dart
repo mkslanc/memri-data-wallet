@@ -37,11 +37,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           case AppState.setup:
             return _buildBody();
           case AppState.keySaving:
-            WidgetsBinding.instance.addPostFrameCallback(
+            WidgetsBinding.instance!.addPostFrameCallback(
                 (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.saveKeys));
             return Empty();
           case AppState.authenticated:
-            WidgetsBinding.instance.addPostFrameCallback(
+            WidgetsBinding.instance!.addPostFrameCallback(
                 (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.workspace));
             return Empty();
           case AppState.incompatibleDevice:
@@ -61,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     return InkWell(
             onTap: () async {
-              WidgetsBinding.instance.addPostFrameCallback(
+              WidgetsBinding.instance!.addPostFrameCallback(
                   (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.loginDev));
             },
             child: RichText(
@@ -113,7 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   SizedBox(width: 30),
                   TextButton(
-                    onPressed: () => WidgetsBinding.instance.addPostFrameCallback((_) =>
+                    onPressed: () => WidgetsBinding.instance!.addPostFrameCallback((_) =>
                         RouteNavigator.navigateToRoute(context: context, route: Routes.login)),
                     child: Text(
                       "Log in",
