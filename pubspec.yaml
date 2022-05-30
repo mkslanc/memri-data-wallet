@@ -52,6 +52,7 @@ dependencies:
   pointer_interceptor: 0.9.1
   faker: ^2.0.0
   logger: ^1.1.0
+  fluro: ^2.0.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -146,5 +147,6 @@ flutter:
     - assets/noteEditor/noteEditorDist/
     - assets/noteEditor/noteEditorDist/css/
     - assets/noteEditor/noteEditorDist/js/
+    - assets/icons/
     - assets/images/
     - assets/cvuAceEditorDist/

@@ -47,6 +47,7 @@ class AppController {
   bool _isAuthenticated = false; //TODO @anijanyan
 
   ValueNotifier<AppState> get state => _state;
+  ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
 
   set state(newValue) => _state.value = newValue;
 
@@ -82,6 +83,7 @@ class AppController {
   Future init() async {
     await databaseController.init();
     await cvuController.init();
+    await SceneController.sceneController.init();
   }
 
   Future<void> updateState() async {
@@ -261,6 +263,7 @@ class AppController {
 
   resetApp() async {
     await SceneController.sceneController.reset();
+    navigationIsVisible.value = false;
     if (!_isInDemoMode) {
       await syncStreamSub?.cancel();
       syncStreamSub = null;

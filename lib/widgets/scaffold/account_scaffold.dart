@@ -24,7 +24,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   AppController appController = AppController.shared;
   final List<Widget> _slides = <Widget>[];
   PageController _controller = PageController();
-  late Timer _periodicTimer;
+  Timer? _periodicTimer;
   late AnimationController _animationController;
   late Animation<Color?> animation;
 
@@ -72,7 +72,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   @override
   void dispose() {
     _controller.dispose();
-    _periodicTimer.cancel();
+    if (_periodicTimer != null) _periodicTimer!.cancel();
     super.dispose();
   }
 
@@ -298,7 +298,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
           ),
           SizedBox(height: 30),
           Text(
-            "Push your code to your repo in the dev or prod branch using our plugin template, and you’re done.",
+            "Push your code to your repo in the dev or prod branch using our importers template, and you’re done.",
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],

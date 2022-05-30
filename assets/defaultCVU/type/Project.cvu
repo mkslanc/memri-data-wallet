@@ -1198,7 +1198,7 @@ Project > list {
             padding: 20
 
             Image {
-                bundleImage: "fourthletter"
+                bundleImage: "sign_fourth"
                 isVector: true
             }
 

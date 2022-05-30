@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/utils/factory_reset.dart';
 import 'package:memri/widgets/space.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdditionalNavigationView extends StatefulWidget {
-  final SceneController sceneController;
-
-  AdditionalNavigationView({required this.sceneController});
+  AdditionalNavigationView();
 
   @override
   _AdditionalNavigationViewState createState() => _AdditionalNavigationViewState();
@@ -31,9 +29,9 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                   ),
                   InkWell(
                       onTap: () {
-                        widget.sceneController.navigateToNewContext(
-                            clearStack: true, animated: false, viewName: "allCryptoKeys");
-                        widget.sceneController.navigationIsVisible.value = false;
+                        // widget.sceneController.navigateToNewContext(
+                        //     clearStack: true, animated: false, viewName: "allCryptoKeys");
+                        AppController.shared.navigationIsVisible.value = false;
                       },
                       child: Row(
                         children: [

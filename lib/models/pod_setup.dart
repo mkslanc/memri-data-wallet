@@ -2,7 +2,7 @@
 
 enum PodSetupState { idle, loading, error }
 
-/// A model struct used by the setup screen to hold configuration until the user completes the setup
+/// A model struct used by the account screen to hold configuration until the user completes the account
 class PodSetupModel {
   String? podURL;
   String? podPrivateKey;
