@@ -4,6 +4,7 @@ import 'package:memri/constants/app_icons.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/widgets/account_scaffold.dart';
 
@@ -164,9 +165,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                     SizedBox(height: 20),
                     TextButton(
                       onPressed: () async {
-                        appController.mixpanel.identify(ownerKey);
-                        appController.mixpanel.track("Sign up",
-                            properties: {"developersMode": appController.isDevelopersMode});
+                        MixpanelAnalyticsService().logSignup(ownerKey);
                         appController.state = AppState.authenticated;
                       },
                       style: primaryButtonStyle,

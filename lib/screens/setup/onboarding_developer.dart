@@ -4,6 +4,7 @@ import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
 import 'package:memri/utils/responsive_helper.dart';
@@ -109,7 +110,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      appController.mixpanel.timeEvent("Sign up");
+                      MixpanelAnalyticsService().logSignupTime();
                       appController.model.setupAsNewPod = true;
                       handleSetup(false);
                     },

@@ -15,10 +15,10 @@ import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:memri/models/sync_config.dart';
 import 'package:memri/models/pod_setup.dart';
-import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:memri/utils/extensions/string.dart';
@@ -34,7 +34,6 @@ class AppController {
   late PubSubController pubSubController;
   late PermissionsController permissionController;
   late PodSetupModel model;
-  late Mixpanel mixpanel;
 
   StreamSubscription? syncStreamSub;
   Isolate? syncIsolate;
@@ -84,11 +83,7 @@ class AppController {
   Future init() async {
     await databaseController.init();
     await cvuController.init();
-    await initMixpanel();
-  }
-
-  Future<void> initMixpanel() async {
-    mixpanel = await Mixpanel.init(AppSettings.mixPanelToken, optOutTrackingDefault: false);
+    await MixpanelAnalyticsService().init();
   }
 
   Future<void> updateState() async {

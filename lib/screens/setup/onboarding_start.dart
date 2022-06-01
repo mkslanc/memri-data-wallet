@@ -3,6 +3,7 @@ import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_developer.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
@@ -118,7 +119,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
   }
 
   void handleSetup() {
-    appController.mixpanel.timeEvent("Sign up"); //TODO:
+    MixpanelAnalyticsService().logSignupTime();
     setState(() => appController.model.state = PodSetupState.loading);
     appController.setupApp();
   }
