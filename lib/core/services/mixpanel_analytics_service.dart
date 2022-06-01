@@ -14,9 +14,8 @@ class MixpanelAnalyticsService {
 
   void logSignup(String userId) {
     mixpanel.identify(userId);
-    mixpanel.track(_AnalyticsEvents.signUp, properties: {
-      _AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode
-    });
+    mixpanel.track(_AnalyticsEvents.signUp,
+        properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
   }
 
   void logSignupTime() => mixpanel.timeEvent(_AnalyticsEvents.signUp);
