@@ -165,7 +165,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                     SizedBox(height: 20),
                     TextButton(
                       onPressed: () async {
-                        MixpanelAnalyticsService().logSignup(ownerKey);
+                        MixpanelAnalyticsService().logSignUp(ownerKey);
                         appController.state = AppState.authenticated;
                       },
                       style: primaryButtonStyle,

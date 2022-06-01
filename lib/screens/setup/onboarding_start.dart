@@ -119,7 +119,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
   }
 
   void handleSetup() {
-    MixpanelAnalyticsService().logSignupTime();
+    MixpanelAnalyticsService().logSignUpTime();
     setState(() => appController.model.state = PodSetupState.loading);
     appController.setupApp();
   }

@@ -12,13 +12,20 @@ class MixpanelAnalyticsService {
     );
   }
 
-  void logSignup(String userId) {
+  void logSignUp(String userId) {
     mixpanel.identify(userId);
     mixpanel.track(_AnalyticsEvents.signUp,
         properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
   }
 
-  void logSignupTime() => mixpanel.timeEvent(_AnalyticsEvents.signUp);
+  void logSignUpTime() => mixpanel.timeEvent(_AnalyticsEvents.signUp);
+
+  void logSignIn(String userId) {
+    mixpanel.timeEvent(_AnalyticsEvents.signIn);
+    mixpanel.identify(userId);
+    mixpanel.track(_AnalyticsEvents.signIn,
+        properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
+  }
 
   void logCvuButton(String buttonText) {
     mixpanel.track(_AnalyticsEvents.cvuButton,
@@ -30,6 +37,7 @@ class _AnalyticsEvents {
   _AnalyticsEvents._();
 
   static const signUp = 'sign_up';
+  static const signIn = 'sign_in';
   static const cvuButton = 'cvu_button';
 }
 

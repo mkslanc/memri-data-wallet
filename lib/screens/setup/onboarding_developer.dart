@@ -110,7 +110,6 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      MixpanelAnalyticsService().logSignupTime();
                       appController.model.setupAsNewPod = true;
                       handleSetup(false);
                     },
@@ -217,6 +216,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
   }
 
   void handleSetup(bool localOnly) {
+    MixpanelAnalyticsService().logSignUpTime();
     setState(() => appController.model.state = PodSetupState.loading);
     appController.setupApp(localOnly: localOnly, onPodConnected: () => Navigator.of(context).pop());
   }
