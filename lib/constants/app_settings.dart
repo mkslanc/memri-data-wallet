@@ -17,4 +17,7 @@ class AppSettings {
   static const Level loggerLevel = Level.debug;
   static const bool loggerColorEnabled = true;
   static const bool loggerPrintTime = true;
+
+  /// MixPanel
+  static const String mixPanelToken = "e554038230ce17e129935cff77e31cea";
 }

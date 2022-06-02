@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
@@ -74,6 +75,7 @@ class NavigationItemView extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
+        MixpanelAnalyticsService().logNavigationButton(item.name);
         if (item.callback != null) item.callback!();
         if (item.targetViewName != null) {
           sceneController.exitEditMode();
