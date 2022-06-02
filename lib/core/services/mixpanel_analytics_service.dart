@@ -44,6 +44,11 @@ class MixpanelAnalyticsService {
     mixpanel.track(_AnalyticsEvents.cvuButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
   }
+
+  void logDiscordButton() {
+    mixpanel.timeEvent(_AnalyticsEvents.discord);
+    mixpanel.track(_AnalyticsEvents.discord);
+  }
 }
 
 class _AnalyticsEvents {
@@ -55,6 +60,8 @@ class _AnalyticsEvents {
   static const navigationButton = 'navigation_button';
   static const breadCrumbButton = 'bread_crumb_button';
   static const cvuButton = 'cvu_button';
+
+  static const discord = 'discord';
 }
 
 class _AnalyticsProperties {

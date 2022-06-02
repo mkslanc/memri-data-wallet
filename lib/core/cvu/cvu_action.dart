@@ -20,6 +20,7 @@ import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/plugin_handler.dart';
 import 'package:memri/models/cvu/cvu_parsed_definition.dart';
 import 'package:memri/models/cvu/cvu_value.dart';
@@ -352,6 +353,9 @@ class CVUActionOpenLink extends CVUAction {
           context: context, lookup: CVULookupController(), db: db, properties: vars);
       var url = await resolver.string("link");
       if (url != null) {
+        if (url.toLowerCase().contains('discord.com')) {
+          MixpanelAnalyticsService().logDiscordButton();
+        }
         await canLaunch(url) ? await launch(url) : AppLogger.err('Could not launch $url');
       }
     }
