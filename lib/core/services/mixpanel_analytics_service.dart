@@ -3,10 +3,10 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
 class MixpanelAnalyticsService {
-  late Mixpanel mixpanel;
+  static late Mixpanel mixpanel;
 
   Future<void> init() async {
-    this.mixpanel = await Mixpanel.init(
+    mixpanel = await Mixpanel.init(
       AppSettings.mixPanelToken,
       optOutTrackingDefault: false,
     );
@@ -27,7 +27,20 @@ class MixpanelAnalyticsService {
         properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
   }
 
+  void logNavigationButton(String buttonText){
+    mixpanel.timeEvent(_AnalyticsEvents.navigationButton);
+    mixpanel.track(_AnalyticsEvents.navigationButton,
+        properties: {_AnalyticsProperties.buttonLabel: buttonText});
+  }
+
+  void logBreadCrumbButton(String buttonText){
+    mixpanel.timeEvent(_AnalyticsEvents.breadCrumbButton);
+    mixpanel.track(_AnalyticsEvents.breadCrumbButton,
+        properties: {_AnalyticsProperties.buttonLabel: buttonText});
+  }
+
   void logCvuButton(String buttonText) {
+    mixpanel.timeEvent(_AnalyticsEvents.cvuButton);
     mixpanel.track(_AnalyticsEvents.cvuButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
   }
@@ -38,6 +51,9 @@ class _AnalyticsEvents {
 
   static const signUp = 'sign_up';
   static const signIn = 'sign_in';
+
+  static const navigationButton = 'navigation_button';
+  static const breadCrumbButton = 'bread_crumb_button';
   static const cvuButton = 'cvu_button';
 }
 
