@@ -27,13 +27,13 @@ class MixpanelAnalyticsService {
         properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
   }
 
-  void logNavigationButton(String buttonText){
+  void logNavigationButton(String buttonText) {
     mixpanel.timeEvent(_AnalyticsEvents.navigationButton);
     mixpanel.track(_AnalyticsEvents.navigationButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
   }
 
-  void logBreadCrumbButton(String buttonText){
+  void logBreadCrumbButton(String buttonText) {
     mixpanel.timeEvent(_AnalyticsEvents.breadCrumbButton);
     mixpanel.track(_AnalyticsEvents.breadCrumbButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
