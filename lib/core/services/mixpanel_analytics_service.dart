@@ -49,6 +49,11 @@ class MixpanelAnalyticsService {
     mixpanel.timeEvent(_AnalyticsEvents.discord);
     mixpanel.track(_AnalyticsEvents.discord);
   }
+
+  void logGitlabButton() {
+    mixpanel.timeEvent(_AnalyticsEvents.gitlab);
+    mixpanel.track(_AnalyticsEvents.gitlab);
+  }
 }
 
 class _AnalyticsEvents {
@@ -62,6 +67,7 @@ class _AnalyticsEvents {
   static const cvuButton = 'cvu_button';
 
   static const discord = 'discord';
+  static const gitlab = 'gitlab';
 }
 
 class _AnalyticsProperties {

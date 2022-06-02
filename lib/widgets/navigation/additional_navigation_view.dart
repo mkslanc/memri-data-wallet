@@ -93,7 +93,10 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launch("https://gitlab.memri.io/users/sign_in"),
+                      onTap: () {
+                        MixpanelAnalyticsService().logGitlabButton();
+                        launch("https://gitlab.memri.io/users/sign_in");
+                      },
                       child: Text(
                         "Repositories",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),

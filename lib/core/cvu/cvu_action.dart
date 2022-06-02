@@ -355,6 +355,8 @@ class CVUActionOpenLink extends CVUAction {
       if (url != null) {
         if (url.toLowerCase().contains('discord.com')) {
           MixpanelAnalyticsService().logDiscordButton();
+        } else if (url.toLowerCase().contains('gitlab.memri.io')) {
+          MixpanelAnalyticsService().logGitlabButton();
         }
         await canLaunch(url) ? await launch(url) : AppLogger.err('Could not launch $url');
       }
