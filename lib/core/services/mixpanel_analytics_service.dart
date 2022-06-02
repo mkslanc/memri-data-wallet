@@ -54,6 +54,18 @@ class MixpanelAnalyticsService {
     mixpanel.timeEvent(_AnalyticsEvents.gitlab);
     mixpanel.track(_AnalyticsEvents.gitlab);
   }
+
+  void logImporterSelect(String importerName) {
+    mixpanel.timeEvent(_AnalyticsEvents.importerSelect);
+    mixpanel.track(_AnalyticsEvents.importerSelect,
+        properties: {_AnalyticsProperties.importerName: importerName});
+  }
+
+  void logImporterConnect(String importerName) {
+    mixpanel.timeEvent(_AnalyticsEvents.importerConnect);
+    mixpanel.track(_AnalyticsEvents.importerConnect,
+        properties: {_AnalyticsProperties.importerName: importerName});
+  }
 }
 
 class _AnalyticsEvents {
@@ -68,6 +80,9 @@ class _AnalyticsEvents {
 
   static const discord = 'discord';
   static const gitlab = 'gitlab';
+
+  static const importerSelect = 'importer_select';
+  static const importerConnect = 'importer_connect';
 }
 
 class _AnalyticsProperties {
@@ -75,4 +90,5 @@ class _AnalyticsProperties {
 
   static const buttonLabel = 'button_label';
   static const developersMode = 'developers_mode';
+  static const importerName = 'importer_name';
 }

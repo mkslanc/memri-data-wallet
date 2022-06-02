@@ -744,6 +744,7 @@ class CVUActionOpenPlugin extends CVUAction {
       }
     }
 
+    MixpanelAnalyticsService().logImporterSelect(viewName);
     await CVUActionOpenView(vars: vars, viewName: viewName)
         .execute(pageController, context.replacingItem(account ?? plugin));
   }
@@ -808,6 +809,7 @@ class CVUActionPluginRun extends CVUAction {
       await pluginRunItem.addEdge(edgeName: "plugin", targetItem: plugin);
       await pluginRunItem.setPropertyValueList(propertyRecords, db: db);
 
+      MixpanelAnalyticsService().logImporterConnect(pluginName);
       await PluginHandler.run(
           plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
     } catch (error) {
