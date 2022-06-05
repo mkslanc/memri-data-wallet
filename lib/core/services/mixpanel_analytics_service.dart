@@ -14,62 +14,68 @@ class MixpanelAnalyticsService {
 
   void logSignUp(String userId) {
     mixpanel.identify(userId);
-    mixpanel.track(_AnalyticsEvents.signUp,
+    mixpanel.track(AnalyticsEvents.signUp,
         properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
   }
 
-  void logSignUpTime() => mixpanel.timeEvent(_AnalyticsEvents.signUp);
+  void logSignUpTime() => mixpanel.timeEvent(AnalyticsEvents.signUp);
 
   void logSignIn(String userId) {
-    mixpanel.timeEvent(_AnalyticsEvents.signIn);
+    mixpanel.timeEvent(AnalyticsEvents.signIn);
     mixpanel.identify(userId);
-    mixpanel.track(_AnalyticsEvents.signIn,
+    mixpanel.track(AnalyticsEvents.signIn,
         properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
   }
 
   void logNavigationButton(String buttonText) {
-    mixpanel.timeEvent(_AnalyticsEvents.navigationButton);
-    mixpanel.track(_AnalyticsEvents.navigationButton,
+    mixpanel.timeEvent(AnalyticsEvents.navigationButton);
+    mixpanel.track(AnalyticsEvents.navigationButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
   }
 
   void logBreadCrumbButton(String buttonText) {
-    mixpanel.timeEvent(_AnalyticsEvents.breadCrumbButton);
-    mixpanel.track(_AnalyticsEvents.breadCrumbButton,
+    mixpanel.timeEvent(AnalyticsEvents.breadCrumbButton);
+    mixpanel.track(AnalyticsEvents.breadCrumbButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
   }
 
   void logCvuButton(String buttonText) {
-    mixpanel.timeEvent(_AnalyticsEvents.cvuButton);
-    mixpanel.track(_AnalyticsEvents.cvuButton,
+    mixpanel.timeEvent(AnalyticsEvents.cvuButton);
+    mixpanel.track(AnalyticsEvents.cvuButton,
         properties: {_AnalyticsProperties.buttonLabel: buttonText});
   }
 
   void logDiscordButton() {
-    mixpanel.timeEvent(_AnalyticsEvents.discord);
-    mixpanel.track(_AnalyticsEvents.discord);
+    mixpanel.timeEvent(AnalyticsEvents.discord);
+    mixpanel.track(AnalyticsEvents.discord);
   }
 
   void logGitlabButton() {
-    mixpanel.timeEvent(_AnalyticsEvents.gitlab);
-    mixpanel.track(_AnalyticsEvents.gitlab);
+    mixpanel.timeEvent(AnalyticsEvents.gitlab);
+    mixpanel.track(AnalyticsEvents.gitlab);
   }
 
   void logImporterSelect(String importerName) {
-    mixpanel.timeEvent(_AnalyticsEvents.importerSelect);
-    mixpanel.track(_AnalyticsEvents.importerSelect,
+    mixpanel.timeEvent(AnalyticsEvents.importerSelect);
+    mixpanel.track(AnalyticsEvents.importerSelect,
         properties: {_AnalyticsProperties.importerName: importerName});
   }
 
   void logImporterConnect(String importerName) {
-    mixpanel.timeEvent(_AnalyticsEvents.importerConnect);
-    mixpanel.track(_AnalyticsEvents.importerConnect,
+    mixpanel.timeEvent(AnalyticsEvents.importerConnect);
+    mixpanel.track(AnalyticsEvents.importerConnect,
         properties: {_AnalyticsProperties.importerName: importerName});
+  }
+
+  void logImporterStatus(String importerStatus) {
+    mixpanel.timeEvent(AnalyticsEvents.importerStatus);
+    mixpanel.track(AnalyticsEvents.importerStatus,
+        properties: {_AnalyticsProperties.importerStatus: importerStatus});
   }
 }
 
-class _AnalyticsEvents {
-  _AnalyticsEvents._();
+class AnalyticsEvents {
+  AnalyticsEvents._();
 
   static const signUp = 'sign_up';
   static const signIn = 'sign_in';
@@ -83,6 +89,7 @@ class _AnalyticsEvents {
 
   static const importerSelect = 'importer_select';
   static const importerConnect = 'importer_connect';
+  static const importerStatus = 'importer_status';
 }
 
 class _AnalyticsProperties {
@@ -90,5 +97,7 @@ class _AnalyticsProperties {
 
   static const buttonLabel = 'button_label';
   static const developersMode = 'developers_mode';
+
   static const importerName = 'importer_name';
+  static const importerStatus = 'importer_status';
 }

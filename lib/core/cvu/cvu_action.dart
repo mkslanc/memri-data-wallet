@@ -166,6 +166,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionParsePluginItem(vars: vars);
     case "generateplugincvu":
       return ({Map? vars}) => CVUActionGeneratePluginCvu(vars: vars);
+    case "analytics":
+      return ({Map? vars}) => CVUActionAnalytics(vars: vars);
     default:
       return null;
   }
@@ -2051,5 +2053,27 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       return cvuID;
     }
     return null;
+  }
+}
+
+class CVUActionAnalytics extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  String? name;
+  String? message;
+
+  CVUActionAnalytics({vars, this.name, this.message}) : this.vars = vars ?? {};
+
+  @override
+  Future execute(memri.PageController pageController, CVUContext context) async {
+    DatabaseController db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+
+    var name = this.name ?? await resolver.string("name") ?? "null";
+    var message = this.message ?? await resolver.string("message") ?? "null";
+    if (name == AnalyticsEvents.importerStatus) {
+      MixpanelAnalyticsService().logImporterStatus(message);
+    }
   }
 }
