@@ -2072,11 +2072,10 @@ class CVUActionAnalytics extends CVUAction {
 
     var name = this.name ?? await resolver.string("name") ?? "null";
     List<String?> paramList = this.params ?? await resolver.stringArray("params");
-    print('++++++++++++ $paramList');
     if (name == AnalyticsEvents.importerStatus && paramList.isNotEmpty) {
       MixpanelAnalyticsService().logImporterStatus(paramList.first!);
-    }else if(name == AnalyticsEvents.projectCreate){
-      MixpanelAnalyticsService().logCreateProject(paramList.first!,paramList[1]!);
+    } else if (name == AnalyticsEvents.projectCreate) {
+      MixpanelAnalyticsService().logCreateProject(paramList.first!, paramList[1]!);
     }
   }
 }
