@@ -2060,9 +2060,9 @@ class CVUActionAnalytics extends CVUAction {
   Map<String, CVUValue> vars;
 
   String? name;
-  String? message;
+  List<String?>? params;
 
-  CVUActionAnalytics({vars, this.name, this.message}) : this.vars = vars ?? {};
+  CVUActionAnalytics({vars, this.name, this.params}) : this.vars = vars ?? {};
 
   @override
   Future execute(memri.PageController pageController, CVUContext context) async {
@@ -2071,9 +2071,11 @@ class CVUActionAnalytics extends CVUAction {
         context: context, lookup: CVULookupController(), db: db, properties: vars);
 
     var name = this.name ?? await resolver.string("name") ?? "null";
-    var message = this.message ?? await resolver.string("message") ?? "null";
-    if (name == AnalyticsEvents.importerStatus) {
-      MixpanelAnalyticsService().logImporterStatus(message);
+    List<String?> paramList = this.params ?? await resolver.stringArray("params");
+    if (name == AnalyticsEvents.importerStatus && paramList.isNotEmpty) {
+      MixpanelAnalyticsService().logImporterStatus(paramList.first!);
+    } else if (name == AnalyticsEvents.projectCreate) {
+      MixpanelAnalyticsService().logCreateProject(paramList.first!, paramList[1]!);
     }
   }
 }
