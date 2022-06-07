@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/controllers/app_controller.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../constants/cvu/cvu_font.dart';
@@ -67,6 +68,7 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
       }
     } catch (e) {
       if (e is String) {
+        AppController.shared.showError(e);
         openErrorPopup(e);
       } else {
         isDisabled?.value = false;

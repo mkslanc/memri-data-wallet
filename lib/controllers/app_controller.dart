@@ -50,6 +50,15 @@ class AppController {
 
   set state(newValue) => _state.value = newValue;
 
+  ValueNotifier<bool> shouldShowError = ValueNotifier(false);
+  showError(String error) {
+    shouldShowError.value = true;
+    lastError = error;
+  }
+
+  hideError() => shouldShowError.value = false;
+  String lastError = "";
+
   //TODO: hope this is temporary solution
   Map<String, dynamic> storage = {};
 

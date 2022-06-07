@@ -2,7 +2,6 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import 'dart:math';
-
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/controllers/scene_controller.dart';
@@ -10,6 +9,9 @@ import 'package:memri/widgets/chrome/top_bar_view.dart';
 import 'package:memri/widgets/navigation/main_navigation_view.dart';
 import 'package:memri/widgets/navigation/navigation_holder.dart';
 import 'package:memri/widgets/navigation/navigation_wrapper_view.dart';
+
+import '../widgets/components/memri_notification.dart';
+import '../widgets/empty.dart';
 
 /// This is the view used to display the browser content of each scene
 class SceneView extends StatefulWidget {
@@ -109,53 +111,74 @@ class _SceneViewState extends State<SceneView> {
                         ),
                       ),
                       if (widget.sceneController.pageControllers.isNotEmpty)
-                        TopBarView(pageController: widget.sceneController.pageControllers.first)
+                        TopBarView(pageController: widget.sceneController.pageControllers.first),
                     ],
-                    ColoredBox(
-                      color: backgroundColor.length > 0 ? backgroundColor[0]! : Colors.white,
-                      child: IntrinsicHeight(
-                        child: Row(
-                            children: widget.sceneController.pageControllers
-                                .mapIndexed((index, pageController) => [
-                                      VerticalDivider(
-                                        width: 1,
-                                        color: Color(0xffF6F6F6),
-                                      ),
-                                      ColoredBox(
-                                        color: backgroundColor[index]!,
-                                        child: SizedBox(
-                                          width: max(
-                                              (constraints.maxWidth / 12 * viewCols[index]! -
-                                                  (index > 0 && index == pagesCount - 1 ? 0 : 1)),
-                                              0),
-                                          height: constraints.maxHeight -
-                                              (widget.showMainNavigation ? 190 : 0),
-                                          child: Column(
-                                            children: [
-                                              if (showTopBar[index]!)
-                                                TopBarView(
-                                                  pageController: pageController,
+                    ValueListenableBuilder(
+                        valueListenable: widget.sceneController.appController.shouldShowError,
+                        builder: (BuildContext context, bool value, Widget? child) {
+                          return ColoredBox(
+                            color: backgroundColor.length > 0 ? backgroundColor[0]! : Colors.white,
+                            child: IntrinsicHeight(
+                              child: Column(
+                                children: [
+                                  value && widget.sceneController.parentSceneController == null
+                                      ? MemriNotification(widget.sceneController.appController)
+                                      : Empty(),
+                                  Row(
+                                      children: widget.sceneController.pageControllers
+                                          .mapIndexed((index, pageController) => [
+                                                VerticalDivider(
+                                                  width: 1,
+                                                  color: Color(0xffF6F6F6),
                                                 ),
-                                              Expanded(
-                                                child: NavigationHolder(
-                                                    pageController.navigationController
-                                                      ..background = backgroundColor[index]!),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ])
-                                .expand((element) => element)
-                                .skip(1)
-                                .toList()),
-                      ),
-                    ),
+                                                ColoredBox(
+                                                  color: backgroundColor[index]!,
+                                                  child: SizedBox(
+                                                    width: max(
+                                                        (constraints.maxWidth /
+                                                                12 *
+                                                                viewCols[index]! -
+                                                            (index > 0 && index == pagesCount - 1
+                                                                ? 0
+                                                                : 1)),
+                                                        0),
+                                                    height: countPageHeight(constraints.maxHeight),
+                                                    child: Column(
+                                                      children: [
+                                                        if (showTopBar[index]!)
+                                                          TopBarView(
+                                                            pageController: pageController,
+                                                          ),
+                                                        Expanded(
+                                                          child: NavigationHolder(pageController
+                                                              .navigationController
+                                                            ..background = backgroundColor[index]!),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                              ])
+                                          .expand((element) => element)
+                                          .skip(1)
+                                          .toList()),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
                   ],
                 ));
           }),
         ],
       ),
     );
+  }
+
+  countPageHeight(height) {
+    var pageHeight = height;
+    if (widget.sceneController.appController.shouldShowError.value) pageHeight -= 46;
+    if (widget.showMainNavigation) pageHeight -= 190;
+    return pageHeight;
   }
 }
