@@ -2059,10 +2059,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
 class CVUActionAnalytics extends CVUAction {
   Map<String, CVUValue> vars;
 
-  String? name;
-  List<String?>? params;
-
-  CVUActionAnalytics({vars, this.name, this.params}) : this.vars = vars ?? {};
+  CVUActionAnalytics({vars}) : this.vars = vars ?? {};
 
   @override
   Future execute(memri.PageController pageController, CVUContext context) async {
@@ -2070,12 +2067,29 @@ class CVUActionAnalytics extends CVUAction {
     var resolver = CVUPropertyResolver(
         context: context, lookup: CVULookupController(), db: db, properties: vars);
 
-    var name = this.name ?? await resolver.string("name") ?? "null";
-    List<String?> paramList = this.params ?? await resolver.stringArray("params");
-    if (name == AnalyticsEvents.importerStatus && paramList.isNotEmpty) {
-      MixpanelAnalyticsService().logImporterStatus(paramList.first!);
-    } else if (name == AnalyticsEvents.projectCreate) {
-      MixpanelAnalyticsService().logCreateProject(paramList.first!, paramList[1]!);
+    var name = await resolver.string("name") ?? "null";
+    List<ItemRecord> paramList = await resolver.items("params");
+    if (paramList.isEmpty) {
+      List<String> params = await resolver.stringArray("params");
+      if (params.isNotEmpty) {
+        switch (name) {
+          case AnalyticsEvents.importerStatus:
+            MixpanelAnalyticsService().logImporterStatus(params.first);
+            break;
+          case AnalyticsEvents.projectCreate:
+            MixpanelAnalyticsService().logProjectCreate(params.first, params[1]);
+            break;
+          case AnalyticsEvents.projectDataSelect:
+            MixpanelAnalyticsService().logProjectDataSelect(params.first);
+            break;
+        }
+      }
+    } else {
+      switch (name) {
+        case AnalyticsEvents.projectDataSelect:
+          MixpanelAnalyticsService().logProjectDataSelect(paramList.map((e) => e.uid).toList());
+          break;
+      }
     }
   }
 }
