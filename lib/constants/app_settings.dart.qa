@@ -19,5 +19,5 @@ class AppSettings {
   static const bool loggerPrintTime = true;
 
   /// MixPanel
-  static const String mixPanelToken = "e554038230ce17e129935cff77e31cea";
+  static const String mixPanelToken = "2480710466ca60df2a6dc2905a9fdccc";
 }

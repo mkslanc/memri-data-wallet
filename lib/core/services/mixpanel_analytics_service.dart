@@ -73,7 +73,7 @@ class MixpanelAnalyticsService {
         properties: {_AnalyticsProperties.importerStatus: importerStatus});
   }
 
-  void logCreateProject(String projectName, var projectDataSource) {
+  void logProjectCreate(String projectName, var projectDataSource) {
     mixpanel.timeEvent(AnalyticsEvents.projectCreate);
     mixpanel.track(
       AnalyticsEvents.projectCreate,
@@ -81,6 +81,14 @@ class MixpanelAnalyticsService {
         _AnalyticsProperties.projectName: projectName,
         _AnalyticsProperties.projectDataSource: projectDataSource,
       },
+    );
+  }
+
+  void logProjectDataSelect(var dataSources) {
+    mixpanel.timeEvent(AnalyticsEvents.projectCreate);
+    mixpanel.track(
+      AnalyticsEvents.projectCreate,
+      properties: {_AnalyticsProperties.projectDataSource: dataSources},
     );
   }
 }
@@ -103,6 +111,7 @@ class AnalyticsEvents {
   static const importerStatus = 'importer_status';
 
   static const projectCreate = 'project_create';
+  static const projectDataSelect = 'project_data_select';
 }
 
 class _AnalyticsProperties {

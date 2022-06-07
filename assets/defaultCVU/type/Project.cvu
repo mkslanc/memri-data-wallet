@@ -1464,6 +1464,11 @@ Project > list {
                             removePrevious: true
                             subject: {{subView("featureVariables").selectedItems()}}
                         }
+                        analytics
+                        {
+                            name: "project_data_select"
+                            params: {{subView("featureVariables").selectedItems()}}
+                        }
                         createLabellingTask
                         {
                             dataset: {{.}}
