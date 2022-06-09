@@ -235,6 +235,11 @@ LabellingTask {
                                 }
                             ]
                         }
+                        analytics
+                        {
+                            name: "project_add_labels"
+                            params: {{.labelOption[]}}
+                        }
                         openView
                         {
                             viewArguments: {
