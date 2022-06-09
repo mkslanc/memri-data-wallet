@@ -2089,6 +2089,9 @@ class CVUActionAnalytics extends CVUAction {
         case AnalyticsEvents.projectDataSelect:
           MixpanelAnalyticsService().logProjectDataSelect(paramList.map((e) => e.uid).toList());
           break;
+        case AnalyticsEvents.projectAddLabels:
+          MixpanelAnalyticsService().logProjectAddLabels(paramList.map((e) => e.uid).toList());
+          break;
       }
     }
   }

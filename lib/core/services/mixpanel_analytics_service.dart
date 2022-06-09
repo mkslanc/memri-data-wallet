@@ -91,6 +91,14 @@ class MixpanelAnalyticsService {
       properties: {_AnalyticsProperties.projectDataSource: dataSources},
     );
   }
+
+  void logProjectAddLabels(List<String> labels) {
+    mixpanel.timeEvent(AnalyticsEvents.projectAddLabels);
+    mixpanel.track(
+      AnalyticsEvents.projectAddLabels,
+      properties: {_AnalyticsProperties.projectDataLabels: labels},
+    );
+  }
 }
 
 class AnalyticsEvents {
@@ -112,6 +120,7 @@ class AnalyticsEvents {
 
   static const projectCreate = 'project_create';
   static const projectDataSelect = 'project_data_select';
+  static const projectAddLabels = 'project_add_labels';
 }
 
 class _AnalyticsProperties {
@@ -125,4 +134,5 @@ class _AnalyticsProperties {
 
   static const projectName = 'project_name';
   static const projectDataSource = 'project_date_source';
+  static const projectDataLabels = 'project_date_labels';
 }
