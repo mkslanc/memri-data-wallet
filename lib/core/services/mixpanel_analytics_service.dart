@@ -87,7 +87,7 @@ class MixpanelAnalyticsService {
   void logProjectDataSelect(var dataSources) {
     mixpanel.timeEvent(AnalyticsEvents.projectDataSelect);
     mixpanel.track(
-      AnalyticsEvents.projectCreate,
+      AnalyticsEvents.projectDataSelect,
       properties: {_AnalyticsProperties.projectDataSource: dataSources},
     );
   }
