@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_icons.dart';
 import 'package:memri/constants/app_styles.dart';
+import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
@@ -22,6 +23,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
   String dbKey = '';
   bool isCopied = false;
   bool _isKeysLoading = true;
+  bool _hasAuthError = false;
 
   @override
   void initState() {
@@ -50,7 +52,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
               ),
               SizedBox(height: 15),
               Text(
-                "You will need your keys to log into your account. If you lose your keys, you will not be able to recover them and you will perminently lose access to your account and POD. ",
+                "You will need your keys to log into your account. If you lose your keys, you will not be able to recover them and you will permanently lose access to your account and POD. ",
                 style: CVUFont.bodyText1.copyWith(color: Color(0xff4F56FE)),
               ),
               SizedBox(height: 16),
@@ -102,7 +104,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                     ),
                   ),
                 )
-              else
+              else if (!_hasAuthError)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -131,27 +133,37 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                   ],
                 ),
               SizedBox(height: 15),
-              TextButton(
-                onPressed: () async {
-                  Clipboard.setData(
-                      ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
-                  setState(() {
-                    isCopied = true;
-                  });
-                },
-                style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Copy keys to clipboard",
-                      style: CVUFont.buttonLabel.copyWith(color: Colors.white),
-                    ),
-                    SizedBox(width: 10),
-                    AppIcons.copyToClipboard(color: Colors.white),
-                  ],
+              if (!_hasAuthError)
+                TextButton(
+                  onPressed: () async {
+                    Clipboard.setData(
+                        ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
+                    setState(() {
+                      isCopied = true;
+                    });
+                  },
+                  style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Copy keys to clipboard",
+                        style: CVUFont.buttonLabel.copyWith(color: Colors.white),
+                      ),
+                      SizedBox(width: 10),
+                      AppIcons.copyToClipboard(color: Colors.white),
+                    ],
+                  ),
                 ),
-              ),
+              if (_hasAuthError)
+                Container(
+                  color: Color(0x33E9500F),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                  child: Text(
+                    "Key does not exist or already in use, please, try another one",
+                    style: CVUFont.bodyText1.copyWith(color: CVUColor.brandOrange),
+                  ),
+                ),
               if (isCopied)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,6 +198,11 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
   Future<void> _fetchKeys() async {
     ownerKey = (await appController.podConnectionConfig)!.ownerKey;
     dbKey = (await appController.podConnectionConfig)!.databaseKey;
+    if (AppController.shared.syncController.lastError != null) {
+      setState(() {
+        _hasAuthError = true;
+      });
+    }
 
     if (mounted) {
       setState(() {

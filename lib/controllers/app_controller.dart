@@ -163,7 +163,8 @@ class AppController {
   }
 
   // MARK: Setup
-  Future<void> setupApp({bool localOnly = false, VoidCallback? onPodConnected}) async {
+  Future<void> setupApp(
+      {bool localOnly = false, VoidCallback? onPodConnected, String? predefinedKey}) async {
     var config = getSetupConfig(localOnly);
     if (config == null) {
       model.state = PodSetupState.idle;
@@ -171,7 +172,7 @@ class AppController {
     }
 
     try {
-      await connectToPod(config);
+      await connectToPod(config, predefinedKey: predefinedKey);
     } on Exception catch (error) {
       model.state = PodSetupState.error;
       model.errorString = error.toString();
@@ -200,7 +201,7 @@ class AppController {
     await syncStream();
   }
 
-  Future<void> connectToPod(SetupConfig config) async {
+  Future<void> connectToPod(SetupConfig config, {String? predefinedKey}) async {
     if (config is SetupConfigExistingPod) {
       var uri = Uri.parse(config.config.podURL);
       _podConnectionConfig = PodConnectionDetails(
@@ -211,7 +212,7 @@ class AppController {
           databaseKey: config.config.podDatabaseKey);
     } else if (config is SetupConfigNewPod) {
       var uri = Uri.parse(config.config.podURL);
-      var keys = await Authentication.createOwnerAndDBKey();
+      var keys = await Authentication.createOwnerAndDBKey(predefinedKey);
       _podConnectionConfig = PodConnectionDetails(
           scheme: uri.scheme,
           host: uri.host,
