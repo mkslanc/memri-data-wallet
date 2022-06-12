@@ -32,7 +32,7 @@ import 'package:memri/models/view_context.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/plugin_config_json.dart';
@@ -352,7 +352,9 @@ class CVUActionOpenLink extends CVUAction {
           context: context, lookup: CVULookupController(), db: db, properties: vars);
       var url = await resolver.string("link");
       if (url != null) {
-        await canLaunch(url) ? await launch(url) : AppLogger.err('Could not launch $url');
+        await canLaunchUrlString(url)
+            ? await launchUrlString(url)
+            : AppLogger.err('Could not launch $url');
       }
     }
   }
