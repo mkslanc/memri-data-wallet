@@ -26,7 +26,7 @@
                 onPress: [
                     openLink
                     {
-                        link: "https://memri.docs.memri.io/pod-explorer/"
+                        link: "https://data.memri.io/"
                     }
                 ]
 
