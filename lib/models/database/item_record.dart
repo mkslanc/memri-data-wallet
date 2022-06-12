@@ -917,6 +917,7 @@ class ItemRecord with EquatableMixin {
     }
   }
 
+  //TODO: return private keys
   static setOwnerAndDBKey(
       {required String privateKey,
       required String publicKey,
@@ -938,14 +939,14 @@ class ItemRecord with EquatableMixin {
               name: "Memri Database Key",
               active: true)
           .save(db);
-      var privateKeyItem = await AuthKey(
+      /*var privateKeyItem = await AuthKey(
               ownerId: meRowId,
               type: "ED25519",
               role: "private",
               key: privateKey,
               name: "Memri Owner Key",
               active: true)
-          .save(db);
+          .save(db);*/
       var publicKeyItem = await AuthKey(
               ownerId: meRowId,
               type: "ED25519",
@@ -955,11 +956,11 @@ class ItemRecord with EquatableMixin {
               active: true)
           .save(db);
 
-      await ItemEdgeRecord(sourceRowID: privateKeyItem!.rowId, name: "owner", targetRowID: meRowId)
-          .save(db);
+      /*await ItemEdgeRecord(sourceRowID: privateKeyItem!.rowId, name: "owner", targetRowID: meRowId)
+          .save(db);*/
       await ItemEdgeRecord(sourceRowID: publicKeyItem!.rowId, name: "owner", targetRowID: meRowId)
           .save(db);
-      await ItemEdgeRecord(
+      /*await ItemEdgeRecord(
               sourceRowID: privateKeyItem.rowId,
               name: "publicKey",
               targetRowID: publicKeyItem.rowId)
@@ -968,7 +969,7 @@ class ItemRecord with EquatableMixin {
               sourceRowID: publicKeyItem.rowId,
               name: "privateKey",
               targetRowID: privateKeyItem.rowId)
-          .save(db);
+          .save(db);*/
     } catch (error) {
       AppLogger.err("ERROR: setOwnerAndDBKey $error");
       throw Exception("Error deleting existing db keys");

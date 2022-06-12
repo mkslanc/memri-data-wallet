@@ -539,7 +539,7 @@ class SyncController {
     var error;
     if (networkCall.statusCode != 200) {
       AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
     }
     await completion(error);
   }
@@ -567,7 +567,7 @@ class SyncController {
     var error;
     if (networkCall.statusCode != 200) {
       AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
     }
     if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
   }
@@ -587,7 +587,7 @@ class SyncController {
 
     var error;
     if (networkCall.statusCode != 200) {
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
       if (error == "Conflict") {
         if (completion != null)
           await completion(Utf8Decoder().convert(networkCall.bodyBytes), null);
@@ -613,7 +613,7 @@ class SyncController {
     var error;
     if (networkCall.statusCode != 200) {
       AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
     }
     if (completion != null) await completion(error);
   }

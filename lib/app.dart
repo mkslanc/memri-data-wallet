@@ -12,7 +12,9 @@ import 'package:memri/screens/setup/onboarding_start.dart';
 /// This is the view used in each scene to display the appropriate state
 /// This depends on whether the app has been setup, and if the user is authenticated.
 class App extends StatefulWidget {
-  App();
+  final String? predefinedKey;
+
+  App([this.predefinedKey]);
 
   @override
   _AppState createState() => _AppState();
@@ -37,6 +39,8 @@ class _AppState extends State<App> {
       await AppController.shared.init();
       await SceneController.sceneController.init();
       await AppController.shared.updateState();
+      if (widget.predefinedKey != null)
+        await AppController.shared.setupApp(predefinedKey: widget.predefinedKey);
     } on Exception catch (e) {
       authError = e;
       appController.state = AppState.authentication;
