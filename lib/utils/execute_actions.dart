@@ -68,9 +68,9 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
       }
     } catch (e) {
       if (e is String) {
-        AppController.shared.showError(e);
         openErrorPopup(e);
       } else {
+        nodeResolver.pageController.appController.showError(SystemError.generalError);
         isDisabled?.value = false;
         throw e;
       }

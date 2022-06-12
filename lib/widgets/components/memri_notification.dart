@@ -4,35 +4,42 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 
 import '../../controllers/app_controller.dart';
 
-class MemriNotification extends StatefulWidget {
+class MemriNotification extends StatelessWidget {
   final AppController appController;
 
   MemriNotification(this.appController);
 
   @override
-  _MemriNotificationState createState() => _MemriNotificationState();
-}
-
-class _MemriNotificationState extends State<MemriNotification> with SingleTickerProviderStateMixin {
-  @override
   Widget build(BuildContext context) {
+    var lastError = appController.lastError.value!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Container(
           padding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
           color: Color(0x33E9500F),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.appController.lastError,
+                lastError.errorString,
                 style: TextStyle(
                     fontWeight: FontWeight.w500, fontSize: 14, color: CVUColor.brandOrange),
               ),
               Spacer(),
-              InkWell(
-                onTap: () => widget.appController.hideError(),
-                child: Text("Dismiss", style: CVUFont.link.copyWith(color: CVUColor.brandOrange)),
-              )
+              if (lastError.showDismiss)
+                InkWell(
+                  onTap: () => appController.hideError(lastError),
+                  child: Text("Dismiss", style: CVUFont.link.copyWith(color: CVUColor.brandOrange)),
+                ),
+              if (lastError.showRetry)
+                InkWell(
+                  onTap: () {
+                    appController.hideError(lastError);
+                    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                  },
+                  child:
+                      Text("Try again", style: CVUFont.link.copyWith(color: CVUColor.brandOrange)),
+                )
             ],
           )),
     );
