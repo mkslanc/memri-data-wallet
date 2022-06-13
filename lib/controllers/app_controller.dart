@@ -194,7 +194,6 @@ class AppController {
       }
 
       _connectivity = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-        //TODO ConnectivityResult always returns mobile for web https://github.com/fluttercommunity/plus_plugins/issues?q=is%3Aissue+is%3Aopen+connectivityresult.mobile+
         var connection = result != ConnectivityResult.none;
         if (hasNetworkConnection && !connection) {
           hasNetworkConnection = false;
