@@ -2082,6 +2082,9 @@ class CVUActionAnalytics extends CVUAction {
           case AnalyticsEvents.projectDataSelect:
             MixpanelAnalyticsService().logProjectDataSelect(params.first);
             break;
+          case AnalyticsEvents.projectLabelsOverview:
+            MixpanelAnalyticsService().logProjectLabelsOverview(params[0], params[1], params[2]);
+            break;
         }
       }
     } else {
@@ -2089,8 +2092,11 @@ class CVUActionAnalytics extends CVUAction {
         case AnalyticsEvents.projectDataSelect:
           MixpanelAnalyticsService().logProjectDataSelect(paramList.map((e) => e.uid).toList());
           break;
-        case AnalyticsEvents.projectAddLabels:
+        case AnalyticsEvents.projectLabelsAdd:
           MixpanelAnalyticsService().logProjectAddLabels(paramList.map((e) => e.uid).toList());
+          break;
+        case AnalyticsEvents.projectLabelsSummary:
+          MixpanelAnalyticsService().logProjectLabelsSummary(paramList.map((e) => e.uid).toList());
           break;
       }
     }
