@@ -93,10 +93,30 @@ class MixpanelAnalyticsService {
   }
 
   void logProjectAddLabels(List<String> labels) {
-    mixpanel.timeEvent(AnalyticsEvents.projectAddLabels);
+    mixpanel.timeEvent(AnalyticsEvents.projectLabelsAdd);
     mixpanel.track(
-      AnalyticsEvents.projectAddLabels,
+      AnalyticsEvents.projectLabelsAdd,
       properties: {_AnalyticsProperties.projectDataLabels: labels},
+    );
+  }
+
+  void logProjectLabelsOverview(String submitted, String skipped, String total) {
+    mixpanel.timeEvent(AnalyticsEvents.projectLabelsOverview);
+    mixpanel.track(
+      AnalyticsEvents.projectLabelsOverview,
+      properties: {
+        _AnalyticsProperties.projectLabelsSubmitted: submitted,
+        _AnalyticsProperties.projectLabelsSkipped: skipped,
+        _AnalyticsProperties.projectLabelsTotal: total,
+      },
+    );
+  }
+
+  void logProjectLabelsSummary(List<String> labels) {
+    mixpanel.timeEvent(AnalyticsEvents.projectLabelsSummary);
+    mixpanel.track(
+      AnalyticsEvents.projectLabelsSummary,
+      properties: {_AnalyticsProperties.projectLabelsTotal: labels},
     );
   }
 }
@@ -120,7 +140,9 @@ class AnalyticsEvents {
 
   static const projectCreate = 'project_create';
   static const projectDataSelect = 'project_data_select';
-  static const projectAddLabels = 'project_add_labels';
+  static const projectLabelsAdd = 'project_labels_add';
+  static const projectLabelsOverview = 'project_labels_overview';
+  static const projectLabelsSummary = 'project_labels_summary';
 }
 
 class _AnalyticsProperties {
@@ -135,4 +157,7 @@ class _AnalyticsProperties {
   static const projectName = 'project_name';
   static const projectDataSource = 'project_date_source';
   static const projectDataLabels = 'project_date_labels';
+  static const projectLabelsSubmitted = 'project_labels_submitted';
+  static const projectLabelsSkipped = 'project_labels_skipped';
+  static const projectLabelsTotal = 'project_labels_total';
 }
