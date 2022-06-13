@@ -21,8 +21,63 @@ import 'package:memri/models/pod_setup.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:memri/utils/extensions/string.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 enum AppState { setup, keySaving, authentication, authenticated }
+
+enum SystemError {
+  connectionLost,
+  failedToConnectToPod,
+  podNotResponding,
+  syncFailed,
+  generalError
+}
+
+extension SystemErrorExt on SystemError {
+  int get weight {
+    switch (this) {
+      case SystemError.connectionLost:
+        return 100;
+      case SystemError.generalError:
+        return 1000;
+      default:
+        return 0;
+    }
+  }
+
+  String get errorString {
+    switch (this) {
+      case SystemError.connectionLost:
+        return "No internet connection";
+      case SystemError.failedToConnectToPod:
+        return "Something went wrong: failed to connect to Pod.";
+      case SystemError.podNotResponding:
+        return "Pod doesn't respond.";
+      case SystemError.syncFailed:
+        return "Failed to synchronize with pod.";
+      case SystemError.generalError:
+        return "Sorry! Something went wrong.";
+    }
+  }
+
+  bool get showDismiss {
+    switch (this) {
+      case SystemError.syncFailed:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool get showRetry {
+    switch (this) {
+      case SystemError.generalError:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
 
 class AppController {
   static AppController shared = AppController();
@@ -34,10 +89,10 @@ class AppController {
   late PermissionsController permissionController;
   late PodSetupModel model;
 
-  StreamSubscription? syncStreamSub;
   Isolate? syncIsolate;
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
   PodConnectionDetails? _podConnectionConfig;
+  StreamSubscription<ConnectivityResult>? _connectivity;
 
   bool isDevelopersMode = false;
   bool _isInDemoMode = false;
@@ -49,6 +104,20 @@ class AppController {
   ValueNotifier<AppState> get state => _state;
 
   set state(newValue) => _state.value = newValue;
+
+  bool get shouldShowError => lastError.value != null;
+  showError(SystemError error) {
+    if ((lastError.value?.weight ?? 0) > error.weight) return;
+    lastError.value = error;
+  }
+
+  hideError(SystemError error) {
+    if (lastError.value == error) lastError.value = null;
+  }
+
+  ValueNotifier<SystemError?> lastError = ValueNotifier(null);
+
+  bool hasNetworkConnection = true;
 
   //TODO: hope this is temporary solution
   Map<String, dynamic> storage = {};
@@ -123,6 +192,17 @@ class AppController {
       } else {
         runSync(SyncConfig(connection: connection, schema: databaseController.schema));
       }
+
+      _connectivity = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+        var connection = result != ConnectivityResult.none;
+        if (hasNetworkConnection && !connection) {
+          hasNetworkConnection = false;
+          showError(SystemError.connectionLost);
+        } else if (!hasNetworkConnection && connection) {
+          hideError(SystemError.connectionLost);
+          hasNetworkConnection = true;
+        }
+      });
     }
 
     isDevelopersMode =
@@ -263,8 +343,9 @@ class AppController {
   resetApp() async {
     await SceneController.sceneController.reset();
     if (!_isInDemoMode) {
-      await syncStreamSub?.cancel();
-      syncStreamSub = null;
+      hasNetworkConnection = true;
+      await _connectivity?.cancel();
+      _connectivity = null;
       _podConnectionConfig = null;
       syncIsolate?.kill(priority: Isolate.immediate);
     }
