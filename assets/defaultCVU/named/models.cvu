@@ -25,6 +25,11 @@
             Button {
                 isLink: true
                 onPress: [
+                    analytics
+                    {
+                        name: "project_tutorial_link"
+                        params: ["model building guide", "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"]
+                    }
                     openLink
                     {
                         link: "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"
@@ -57,6 +62,10 @@
             Button {
                 background: #f6f6f6
                 onPress: [
+                    analytics
+                    {
+                        name: "project_google_colab"
+                    }
                     openLink
                     {
                         link: "https://colab.research.google.com/drive/1WX1VYwoAQ_2yOMzqvrIz77x52vaNmrtW?usp=sharing"
@@ -242,6 +251,11 @@
             Button {
                 isLink: true
                 onPress: [
+                    analytics
+                    {
+                        name: "project_tutorial_link"
+                        params: ["project_how_to_link","https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model"]
+                    }
                     openLink
                     {
                         link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model"
@@ -271,6 +285,15 @@
 
                 Button {
                     onPress: [
+                        analytics
+                        {
+                            name: "project_plugin_gitlab_url"
+                            params: {{.gitlabUrl}}
+                        }
+                        analytics
+                        {
+                            name: "project_deploy_app"
+                        }
                         parsePlugin
                         {
                             project: {{.}}

@@ -119,6 +119,35 @@ class MixpanelAnalyticsService {
       properties: {_AnalyticsProperties.projectLabelsTotal: labels},
     );
   }
+
+  void logProjectTrainModel() {
+    mixpanel.timeEvent(AnalyticsEvents.projectTrainModel);
+    mixpanel.track(AnalyticsEvents.projectTrainModel);
+  }
+
+  void logProjectGoogleColab() {
+    mixpanel.timeEvent(AnalyticsEvents.projectGoogleColab);
+    mixpanel.track(AnalyticsEvents.projectGoogleColab);
+  }
+
+  void logProjectPluginGitlabUrl(String url) {
+    mixpanel.timeEvent(AnalyticsEvents.projectPluginGitlabUrl);
+    mixpanel.track(
+      AnalyticsEvents.projectPluginGitlabUrl,
+      properties: {_AnalyticsProperties.projectPluginGitlabUrl: url},
+    );
+  }
+
+  void logProjectTutorialLink(String linkLabel, String linkUrl) {
+    mixpanel.timeEvent(AnalyticsEvents.projectTutorialLink);
+    mixpanel.track(
+      AnalyticsEvents.projectTutorialLink,
+      properties: {
+        _AnalyticsProperties.projectTutorialLinkLabel: linkLabel,
+        _AnalyticsProperties.projectTutorialLinkUrl: linkUrl,
+      },
+    );
+  }
 }
 
 class AnalyticsEvents {
@@ -143,6 +172,11 @@ class AnalyticsEvents {
   static const projectLabelsAdd = 'project_labels_add';
   static const projectLabelsOverview = 'project_labels_overview';
   static const projectLabelsSummary = 'project_labels_summary';
+  static const projectTrainModel = 'project_train_model';
+  static const projectDeployApp = 'project_deploy_app';
+  static const projectGoogleColab = 'project_google_colab';
+  static const projectTutorialLink = 'project_tutorial_link';
+  static const projectPluginGitlabUrl = 'project_plugin_gitlab_url';
 }
 
 class _AnalyticsProperties {
@@ -160,4 +194,7 @@ class _AnalyticsProperties {
   static const projectLabelsSubmitted = 'project_labels_submitted';
   static const projectLabelsSkipped = 'project_labels_skipped';
   static const projectLabelsTotal = 'project_labels_total';
+  static const projectPluginGitlabUrl = 'project_plugin_gitlab_url';
+  static const projectTutorialLinkLabel = 'project_tutorial_link_label';
+  static const projectTutorialLinkUrl = 'project_tutorial_link_url';
 }
