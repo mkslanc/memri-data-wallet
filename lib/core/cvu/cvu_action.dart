@@ -2071,21 +2071,31 @@ class CVUActionAnalytics extends CVUAction {
     List<ItemRecord> paramList = await resolver.items("params");
     if (paramList.isEmpty) {
       List<String> params = await resolver.stringArray("params");
-      if (params.isNotEmpty) {
-        switch (name) {
-          case AnalyticsEvents.importerStatus:
-            MixpanelAnalyticsService().logImporterStatus(params.first);
-            break;
-          case AnalyticsEvents.projectCreate:
-            MixpanelAnalyticsService().logProjectCreate(params.first, params[1]);
-            break;
-          case AnalyticsEvents.projectDataSelect:
-            MixpanelAnalyticsService().logProjectDataSelect(params.first);
-            break;
-          case AnalyticsEvents.projectLabelsOverview:
-            MixpanelAnalyticsService().logProjectLabelsOverview(params[0], params[1], params[2]);
-            break;
-        }
+      switch (name) {
+        case AnalyticsEvents.importerStatus:
+          MixpanelAnalyticsService().logImporterStatus(params.first);
+          break;
+        case AnalyticsEvents.projectCreate:
+          MixpanelAnalyticsService().logProjectCreate(params.first, params[1]);
+          break;
+        case AnalyticsEvents.projectDataSelect:
+          MixpanelAnalyticsService().logProjectDataSelect(params.first);
+          break;
+        case AnalyticsEvents.projectLabelsOverview:
+          MixpanelAnalyticsService().logProjectLabelsOverview(params[0], params[1], params[2]);
+          break;
+        case AnalyticsEvents.projectTrainModel:
+          MixpanelAnalyticsService().logProjectTrainModel();
+          break;
+        case AnalyticsEvents.projectGoogleColab:
+          MixpanelAnalyticsService().logProjectGoogleColab();
+          break;
+        case AnalyticsEvents.projectTutorialLink:
+          MixpanelAnalyticsService().logProjectTutorialLink(params[0], params[1]);
+          break;
+        case AnalyticsEvents.projectPluginGitlabUrl:
+          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params[0]);
+          break;
       }
     } else {
       switch (name) {
