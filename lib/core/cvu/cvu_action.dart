@@ -2072,19 +2072,20 @@ class CVUActionAnalytics extends CVUAction {
     var name = await resolver.string("name") ?? "null";
     List<ItemRecord> paramList = await resolver.items("params");
     if (paramList.isEmpty) {
-      List<String> params = await resolver.stringArray("params");
+      List<String?> params = await resolver.stringArray("params");
       switch (name) {
         case AnalyticsEvents.importerStatus:
-          MixpanelAnalyticsService().logImporterStatus(params.first);
+          MixpanelAnalyticsService().logImporterStatus(params.first ?? '');
           break;
         case AnalyticsEvents.projectCreate:
-          MixpanelAnalyticsService().logProjectCreate(params.first, params[1]);
+          MixpanelAnalyticsService().logProjectCreate(params.first ?? '', params[1] ?? '');
           break;
         case AnalyticsEvents.projectDataSelect:
           MixpanelAnalyticsService().logProjectDataSelect(params.first);
           break;
         case AnalyticsEvents.projectLabelsOverview:
-          MixpanelAnalyticsService().logProjectLabelsOverview(params[0], params[1], params[2]);
+          MixpanelAnalyticsService()
+              .logProjectLabelsOverview(params[0] ?? '', params[1] ?? '', params[2] ?? '');
           break;
         case AnalyticsEvents.projectTrainModel:
           MixpanelAnalyticsService().logProjectTrainModel();
