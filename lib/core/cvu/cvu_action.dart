@@ -2094,10 +2094,10 @@ class CVUActionAnalytics extends CVUAction {
           MixpanelAnalyticsService().logProjectGoogleColab();
           break;
         case AnalyticsEvents.projectTutorialLink:
-          MixpanelAnalyticsService().logProjectTutorialLink(params[0], params[1]);
+          MixpanelAnalyticsService().logProjectTutorialLink(params[0] ?? '', params[1] ?? '');
           break;
         case AnalyticsEvents.projectPluginGitlabUrl:
-          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params[0]);
+          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params[0] ?? '');
           break;
       }
     } else {
