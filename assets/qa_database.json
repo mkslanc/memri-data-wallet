@@ -31,7 +31,7 @@
     "pluginType": "importer",
     "name": "WhatsApp",
     "dataType": "whatsapp",
-    "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest",
+    "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:qa-latest",
     "icon": "message",
     "pluginModule": "whatsapp.plugin",
     "pluginName": "WhatsappPlugin"
