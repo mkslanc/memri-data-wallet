@@ -223,6 +223,10 @@
                         wait {
                             seconds: 6
                         }
+                        analytics {
+                            name: "importer_status",
+                            params: [{{.~account.status = "error" ? "WhatsappPlugin-error" : "WhatsappPlugin-done"}}],
+                        }
                         openView {
                             viewName: {{.~account.status = "error" ? "WhatsappPlugin-error" : "WhatsappPlugin-done"}}
                             clearStack: true

@@ -132,6 +132,10 @@ Project {
                                 }
                             ]
                         }
+                        analytics {
+                            name: "project_create"
+                            params: [{{.name}},{{subView("datasetGrid").selectedItems().first().queryStr}}]
+                        }
                         addItem
                         {
                             initialItem: {{.dataset}}
@@ -1459,6 +1463,11 @@ Project > list {
                             edgeType: "~feature"
                             removePrevious: true
                             subject: {{subView("featureVariables").selectedItems()}}
+                        }
+                        analytics
+                        {
+                            name: "project_data_select"
+                            params: {{subView("featureVariables").selectedItems()}}
                         }
                         createLabellingTask
                         {

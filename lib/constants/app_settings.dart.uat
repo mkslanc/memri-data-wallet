@@ -3,13 +3,13 @@ import 'package:logger/logger.dart';
 class AppSettings {
   AppSettings._();
 
-  static const String defaultPodURL = "https://qa.pod.memri.io";
+  static const String defaultPodURL = "https://uat.pod.memri.io";
   static const String defaultDevPodURL = "http://localhost:3030";
 
   static const bool showDeveloperButton = false;
 
   /// Database
-  static const String defaultDatabase = "qa_database";
+  static const String defaultDatabase = "uat_database";
   static const int syncControllerIntervalSecs = 3;
   static const int checkPodExistenceTimeoutSecs = 3;
 
@@ -19,5 +19,5 @@ class AppSettings {
   static const bool loggerPrintTime = true;
 
   /// MixPanel
-  static const String mixPanelToken = "86aaa1cb53a04208f4279db4da62178e";
+  static const String mixPanelToken = "3d30ff6909542c38e56cb7fe00841bec";
 }

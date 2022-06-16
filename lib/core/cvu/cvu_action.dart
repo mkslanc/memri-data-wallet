@@ -20,6 +20,7 @@ import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/plugin_handler.dart';
 import 'package:memri/models/cvu/cvu_parsed_definition.dart';
 import 'package:memri/models/cvu/cvu_value.dart';
@@ -165,6 +166,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionParsePluginItem(vars: vars);
     case "generateplugincvu":
       return ({Map? vars}) => CVUActionGeneratePluginCvu(vars: vars);
+    case "analytics":
+      return ({Map? vars}) => CVUActionAnalytics(vars: vars);
     default:
       return null;
   }
@@ -352,6 +355,11 @@ class CVUActionOpenLink extends CVUAction {
           context: context, lookup: CVULookupController(), db: db, properties: vars);
       var url = await resolver.string("link");
       if (url != null) {
+        if (url.toLowerCase().contains('discord.com')) {
+          MixpanelAnalyticsService().logDiscordButton();
+        } else if (url.toLowerCase().contains('gitlab.memri.io')) {
+          MixpanelAnalyticsService().logGitlabButton();
+        }
         await canLaunchUrlString(url)
             ? await launchUrlString(url)
             : AppLogger.err('Could not launch $url');
@@ -740,6 +748,7 @@ class CVUActionOpenPlugin extends CVUAction {
       }
     }
 
+    MixpanelAnalyticsService().logImporterSelect(viewName);
     await CVUActionOpenView(vars: vars, viewName: viewName)
         .execute(pageController, context.replacingItem(account ?? plugin));
   }
@@ -804,6 +813,7 @@ class CVUActionPluginRun extends CVUAction {
       await pluginRunItem.addEdge(edgeName: "plugin", targetItem: plugin);
       await pluginRunItem.setPropertyValueList(propertyRecords, db: db);
 
+      MixpanelAnalyticsService().logImporterConnect(pluginName);
       await PluginHandler.run(
           plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
     } catch (error) {
@@ -2045,5 +2055,63 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       return cvuID;
     }
     return null;
+  }
+}
+
+class CVUActionAnalytics extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionAnalytics({vars}) : this.vars = vars ?? {};
+
+  @override
+  Future execute(memri.PageController pageController, CVUContext context) async {
+    DatabaseController db = pageController.appController.databaseController;
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: CVULookupController(), db: db, properties: vars);
+
+    var name = await resolver.string("name") ?? "null";
+    List<ItemRecord> paramList = await resolver.items("params");
+    if (paramList.isEmpty) {
+      List<String?> params = await resolver.stringArray("params");
+      switch (name) {
+        case AnalyticsEvents.importerStatus:
+          MixpanelAnalyticsService().logImporterStatus(params.first ?? '');
+          break;
+        case AnalyticsEvents.projectCreate:
+          MixpanelAnalyticsService().logProjectCreate(params.first ?? '', params[1] ?? '');
+          break;
+        case AnalyticsEvents.projectDataSelect:
+          MixpanelAnalyticsService().logProjectDataSelect(params.first);
+          break;
+        case AnalyticsEvents.projectLabelsOverview:
+          MixpanelAnalyticsService()
+              .logProjectLabelsOverview(params[0] ?? '', params[1] ?? '', params[2] ?? '');
+          break;
+        case AnalyticsEvents.projectTrainModel:
+          MixpanelAnalyticsService().logProjectTrainModel();
+          break;
+        case AnalyticsEvents.projectGoogleColab:
+          MixpanelAnalyticsService().logProjectGoogleColab();
+          break;
+        case AnalyticsEvents.projectTutorialLink:
+          MixpanelAnalyticsService().logProjectTutorialLink(params[0] ?? '', params[1] ?? '');
+          break;
+        case AnalyticsEvents.projectPluginGitlabUrl:
+          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params[0] ?? '');
+          break;
+      }
+    } else {
+      switch (name) {
+        case AnalyticsEvents.projectDataSelect:
+          MixpanelAnalyticsService().logProjectDataSelect(paramList.map((e) => e.uid).toList());
+          break;
+        case AnalyticsEvents.projectLabelsAdd:
+          MixpanelAnalyticsService().logProjectAddLabels(paramList.map((e) => e.uid).toList());
+          break;
+        case AnalyticsEvents.projectLabelsSummary:
+          MixpanelAnalyticsService().logProjectLabelsSummary(paramList.map((e) => e.uid).toList());
+          break;
+      }
+    }
   }
 }
