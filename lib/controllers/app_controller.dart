@@ -23,7 +23,14 @@ import 'package:uuid/uuid.dart';
 import 'package:memri/utils/extensions/string.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-enum AppState { setup, keySaving, authentication, authenticated }
+enum AppState {
+  setup,
+  keySaving,
+  authentication,
+  authenticated,
+  incompatibleDevice,
+  incompatibleBrowser
+}
 
 enum SystemError {
   connectionLost,
