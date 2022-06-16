@@ -127,9 +127,11 @@ class SyncController {
           throw (e);
         }
       case SyncControllerState.downloadedFiles:
+        AppController.shared.hideError(SystemError.syncFailed);
         await finishSync();
         break;
       case SyncControllerState.failed:
+        AppController.shared.showError(SystemError.syncFailed);
         await finishSync();
         break;
       default:
@@ -143,11 +145,13 @@ class SyncController {
       await request.execute(config);
       return true;
     } catch (e) {
+      AppLogger.err(e);
       return false;
     }
   }
 
   sync({PodConnectionDetails? connectionConfig, Function(String?)? completion}) async {
+    if (!AppController.shared.hasNetworkConnection) return;
     currentConnection = connectionConfig ?? await AppController.shared.podConnectionConfig;
     if (currentConnection == null) {
       return;
@@ -162,6 +166,7 @@ class SyncController {
       onTimeout: () async {
         try {
           await setState(SyncControllerState.failed);
+          AppController.shared.showError(SystemError.podNotResponding);
           throw Exception("Pod doesn't respond");
         } catch (e) {
           AppLogger.err(e);
@@ -169,8 +174,11 @@ class SyncController {
         }
       },
     )) {
+      AppController.shared.showError(SystemError.failedToConnectToPod);
       return;
     }
+    AppController.shared.hideError(SystemError.podNotResponding);
+    AppController.shared.hideError(SystemError.failedToConnectToPod);
 
     this.completion = completion;
     await setState(SyncControllerState.started);
@@ -539,7 +547,7 @@ class SyncController {
     var error;
     if (networkCall.statusCode != 200) {
       AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
     }
     await completion(error);
   }
@@ -567,7 +575,7 @@ class SyncController {
     var error;
     if (networkCall.statusCode != 200) {
       AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
     }
     if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
   }
@@ -587,7 +595,7 @@ class SyncController {
 
     var error;
     if (networkCall.statusCode != 200) {
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
       if (error == "Conflict") {
         if (completion != null)
           await completion(Utf8Decoder().convert(networkCall.bodyBytes), null);
@@ -613,7 +621,7 @@ class SyncController {
     var error;
     if (networkCall.statusCode != 200) {
       AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.reasonPhrase;
+      error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
     }
     if (completion != null) await completion(error);
   }

@@ -65,7 +65,7 @@ class Authentication {
     return secureRandom;
   }
 
-  static GeneratedKeys generateAllKeys() {
+  static GeneratedKeys generateAllKeys([String? predefinedKey]) {
     var dbKey = "${Uuid().v4()}${Uuid().v4()}".replaceAll("-", "");
     var rsapars = ECKeyGeneratorParameters(ECCurve_secp256k1());
     var params = ParametersWithRandom(rsapars, getSecureRandom());
@@ -79,7 +79,7 @@ class Authentication {
     return GeneratedKeys(privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
   }
 
-  static Future<GeneratedKeys> createOwnerAndDBKey() async {
+  static Future<GeneratedKeys> createOwnerAndDBKey([String? predefinedKey]) async {
     var keys = generateAllKeys();
     await setOwnerAndDBKey(
         privateKey: keys.privateKey, publicKey: keys.publicKey, dbKey: keys.dbKey);

@@ -8,7 +8,7 @@ import 'package:memri/models/pod_setup.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
 import 'package:memri/widgets/empty.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class AccountScaffold extends StatefulWidget {
   const AccountScaffold({Key? key, required this.child, this.showSlider = true}) : super(key: key);
@@ -112,7 +112,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
             right: 57,
             bottom: ResponsiveHelper(context).isLargeScreen ? 34 : 12,
             child: InkWell(
-              onTap: () => launch('https://www.memri.io/memri-privacy-preserving-license'),
+              onTap: () => launchUrlString('https://www.memri.io/memri-privacy-preserving-license'),
               child: Text('License',
                   style: CVUFont.headline4.copyWith(color: Colors.white, fontSize: 17)),
             ),
