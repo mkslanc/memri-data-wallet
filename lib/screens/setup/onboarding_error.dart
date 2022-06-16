@@ -16,7 +16,6 @@ class _OnboardingErrorState extends State<OnboardingError> {
 
   @override
   Widget build(BuildContext context) {
-    print(appController.state);
     return AccountScaffold(
       showSlider: false,
       child: Column(

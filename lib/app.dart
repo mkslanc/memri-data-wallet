@@ -42,7 +42,7 @@ class _AppState extends State<App> {
     try {
       if (isMobile) {
         appController.state = AppState.incompatibleDevice;
-      } else if (await isUnsupportedBrowser) {
+      } else if (!await isSupportedBrowser) {
         appController.state = AppState.incompatibleBrowser;
       } else {
         await AppController.shared.init();
@@ -69,13 +69,13 @@ class _AppState extends State<App> {
     return MoorWebStorage.supportsIndexedDb();
   }
 
-  Future<bool> get isUnsupportedBrowser async {
+  Future<bool> get isSupportedBrowser async {
     var deviceInfo = DeviceInfoPlugin();
     var webBrowserInfo = await deviceInfo.webBrowserInfo;
-    var supportedBrowser = webBrowserInfo == BrowserName.chrome ||
-        webBrowserInfo == BrowserName.firefox ||
-        webBrowserInfo == BrowserName.edge;
-    return (!await MoorWebStorage.supportsIndexedDb()) && !supportedBrowser;
+    var supportedBrowser = webBrowserInfo.browserName == BrowserName.chrome ||
+        webBrowserInfo.browserName == BrowserName.firefox ||
+        webBrowserInfo.browserName == BrowserName.edge;
+    return await MoorWebStorage.supportsIndexedDb() && supportedBrowser;
   }
 
   @override
