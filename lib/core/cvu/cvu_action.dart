@@ -361,8 +361,8 @@ class CVUActionOpenLink extends CVUAction {
           MixpanelAnalyticsService().logGitlabButton();
         }
         await canLaunchUrlString(url)
-          ? await launchUrlString(url)
-          : AppLogger.err('Could not launch $url');
+            ? await launchUrlString(url)
+            : AppLogger.err('Could not launch $url');
       }
     }
   }

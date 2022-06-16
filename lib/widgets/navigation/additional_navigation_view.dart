@@ -93,27 +93,19 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-<<<<<<< lib/widgets/navigation/additional_navigation_view.dart
                       onTap: () {
                         MixpanelAnalyticsService().logGitlabButton();
-                        launch("https://gitlab.memri.io/users/sign_in");
+                        launchUrlString("https://gitlab.memri.io/users/sign_in");
                       },
-=======
-                      onTap: () => launchUrlString("https://gitlab.memri.io/users/sign_in"),
->>>>>>> lib/widgets/navigation/additional_navigation_view.dart
                       child: Text(
                         "Repositories",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-<<<<<<< lib/widgets/navigation/additional_navigation_view.dart
                       onTap: () {
                         MixpanelAnalyticsService().logDiscordButton();
-                        launch("https://discord.com/invite/BcRfajJk4k");
+                        launchUrlString("https://discord.com/invite/BcRfajJk4k");
                       },
-=======
-                      onTap: () => launchUrlString("https://discord.com/invite/BcRfajJk4k"),
->>>>>>> lib/widgets/navigation/additional_navigation_view.dart
                       child: Text(
                         "Get support",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
