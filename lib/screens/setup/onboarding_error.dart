@@ -46,7 +46,8 @@ class _OnboardingErrorState extends State<OnboardingError> {
                   text: TextSpan(style: CVUFont.headline4, children: [
                 TextSpan(text: "• Chrome\n"),
                 TextSpan(text: "• Firefox (in non private mode)\n"),
-                TextSpan(text: "• Edge")
+                TextSpan(text: "• Edge\n"),
+                TextSpan(text: "• Brave")
               ])),
             )
         ],
