@@ -53,11 +53,14 @@ class PageController extends ChangeNotifier {
     navigationController.setViewControllers(widget);
   }
 
-  reset() {
+  reset({isFactoryReset = false}) {
     topMostContext?.queryObservation?.cancel();
     isPageActive = false;
     closeStack = [];
-    navigationStack = null;
+    isFactoryReset
+        ? _navigationStack = null
+        : navigationStack =
+            null; //fixing async problem of deleting navigationStack after db is fully deleted
     navigationController = MemriUINavigationController(); //TODO: change when navigation fixed
   }
 

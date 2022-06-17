@@ -354,30 +354,31 @@ class AppController {
   }
 
   resetApp() async {
-    await SceneController.sceneController.reset();
-    if (!_isInDemoMode) {
-      hasNetworkConnection = true;
-      await _connectivity?.cancel();
-      _connectivity = null;
-      _podConnectionConfig = null;
-      syncIsolate?.kill(priority: Isolate.immediate);
-    }
-    if (syncController.runSyncStream != null) {
-      await syncController.runSyncStream!.cancel();
-    }
-    pubSubController.reset();
-    cvuController.reset();
-    await FileStorageController.deleteFileStorage();
-    await databaseController.delete();
-    Authentication.createRootKey();
-    state = AppState.setup;
-    await init();
-    await SceneController.sceneController.init();
+    try {
+      SceneController.sceneController.reset(isFactoryReset: true);
+      if (!_isInDemoMode) {
+        hasNetworkConnection = true;
+        await _connectivity?.cancel();
+        _connectivity = null;
+        _podConnectionConfig = null;
+        syncIsolate?.kill(priority: Isolate.immediate);
+      }
+      pubSubController.reset();
+      cvuController.reset();
+      await FileStorageController.deleteFileStorage();
+      await databaseController.delete();
+      Authentication.createRootKey();
+      state = AppState.setup;
+      await init();
+      await SceneController.sceneController.init();
 
-    _isAuthenticated = false;
-    _isNewPodSetup = false;
-    _isInDemoMode = false;
-    isDevelopersMode = false;
+      _isAuthenticated = false;
+      _isNewPodSetup = false;
+      _isInDemoMode = false;
+      isDevelopersMode = false;
+    } catch (e) {
+      AppLogger.err(e);
+    }
   }
 }
 

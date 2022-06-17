@@ -61,7 +61,6 @@ class SyncController {
   PodConnectionDetails? currentConnection;
   static String? documentsDirectory;
   static String? lastRootKey;
-  StreamSubscription? runSyncStream;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
