@@ -54,8 +54,14 @@ class _AppState extends State<App> {
         await AppController.shared.init();
         await SceneController.sceneController.init();
         await AppController.shared.updateState();
-        if (widget.predefinedKey != null)
-          await AppController.shared.setupApp(predefinedKey: widget.predefinedKey);
+        if (widget.predefinedKey != null) {
+          appController.model.state = PodSetupState.loading;
+          appController.state = AppState.keySaving;
+          appController.setupApp(
+              predefinedKey: widget.predefinedKey,
+              onError: () => setState(() {}),
+              onPodConnected: () => setState(() {}));
+        }
       }
     } on Exception catch (e) {
       authError = e;
