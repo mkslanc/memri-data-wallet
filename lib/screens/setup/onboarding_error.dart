@@ -111,7 +111,7 @@ class OnboardingMaintenance extends StatelessWidget {
           height: 113,
         ),
         Text(
-          "We need a few split seconds!",
+          "We need a moment!",
           style: CVUFont.headline1,
         ),
         SizedBox(
