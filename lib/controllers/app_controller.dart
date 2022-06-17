@@ -30,7 +30,8 @@ enum AppState {
   authentication,
   authenticated,
   incompatibleDevice,
-  incompatibleBrowser
+  incompatibleBrowser,
+  maintenance
 }
 
 enum SystemError {
