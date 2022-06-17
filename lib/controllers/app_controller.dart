@@ -209,7 +209,7 @@ class AppController {
         await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
-  SetupConfig? getSetupConfig(bool localOnly) {
+  SetupConfig getSetupConfig(bool localOnly) {
     if (localOnly) {
       return SetupConfigLocal();
     } else if (model.setupAsNewPod) {
@@ -219,9 +219,12 @@ class AppController {
       var privateKey =
           model.podPrivateKey?.nullIfBlank ?? Uuid().v4(); //TODO: kill when we will have end-to-end
       var publicKey = model.podPublicKey?.nullIfBlank;
+      if (publicKey == null) {
+        throw Exception("Login key is required");
+      }
       var databaseKey = model.podDatabaseKey?.nullIfBlank;
-      if (publicKey == null || databaseKey == null) {
-        return null;
+      if (databaseKey == null) {
+        throw Exception("Password key is required");
       }
       var config = ExistingPodConfig(
           model.podURL ?? AppSettings.defaultPodURL, privateKey, publicKey, databaseKey);
@@ -244,18 +247,18 @@ class AppController {
 
   // MARK: Setup
   Future<void> setupApp(
-      {bool localOnly = false, VoidCallback? onPodConnected, String? predefinedKey}) async {
-    var config = getSetupConfig(localOnly);
-    if (config == null) {
-      model.state = PodSetupState.idle;
-      return;
-    }
-
+      {bool localOnly = false,
+      VoidCallback? onPodConnected,
+      VoidCallback? onError,
+      String? predefinedKey}) async {
+    SetupConfig config;
     try {
+      config = getSetupConfig(localOnly);
       await connectToPod(config, predefinedKey: predefinedKey);
     } on Exception catch (error) {
       model.state = PodSetupState.error;
-      model.errorString = error.toString();
+      model.errorString = error.toString().replaceFirst("Exception: ", "");
+      if (onError != null) onError();
       return;
     }
 
@@ -299,14 +302,24 @@ class AppController {
           port: uri.port,
           ownerKey: keys.publicKey,
           databaseKey: keys.dbKey);
+    } else {
+      return;
     }
 
-    if (_podConnectionConfig != null) {
-      if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
-            Duration(seconds: AppSettings.checkPodExistenceTimeoutSecs),
-            onTimeout: () => throw Exception("Pod doesn't respond"),
-          )) {
-        throw Exception("Pod doesn't respond");
+    if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
+          Duration(seconds: AppSettings.checkPodExistenceTimeoutSecs),
+          onTimeout: () => throw Exception("Pod doesn't respond"),
+        )) {
+      throw Exception("Pod doesn't respond");
+    }
+
+    if (config is SetupConfigExistingPod) {
+      if (!await syncController.validateConfigExisted(_podConnectionConfig!)) {
+        throw Exception("The username or password you have entered is invalid. Please try again.");
+      }
+    } else {
+      if (!await syncController.validateConfigCreated(_podConnectionConfig!)) {
+        throw Exception("Key does not exist or already in use, please, try another one");
       }
     }
   }

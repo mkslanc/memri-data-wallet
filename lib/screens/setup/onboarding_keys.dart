@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_icons.dart';
 import 'package:memri/constants/app_styles.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/widgets/account_scaffold.dart';
+
+import '../../widgets/components/error_message.dart';
 
 class OnboardingKeys extends StatefulWidget {
   const OnboardingKeys() : super();
@@ -17,8 +18,6 @@ class OnboardingKeys extends StatefulWidget {
 
 class _OnboardingKeysState extends State<OnboardingKeys> {
   AppController appController = AppController.shared;
-  PodSetupModel model = PodSetupModel();
-  final podUrlController = TextEditingController();
   String ownerKey = '';
   String dbKey = '';
   bool isCopied = false;
@@ -32,6 +31,12 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
   }
 
   @override
+  void didUpdateWidget(widget) {
+    _fetchKeys();
+    super.didUpdateWidget(widget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AccountScaffold(
       showSlider: false,
@@ -40,7 +45,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 112),
+              SizedBox(height: 111),
               Text(
                 "Save your crypto keys",
                 style: CVUFont.headline1,
@@ -155,15 +160,7 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
                     ],
                   ),
                 ),
-              if (_hasAuthError)
-                Container(
-                  color: Color(0x33E9500F),
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                  child: Text(
-                    "Key does not exist or already in use, please, try another one",
-                    style: CVUFont.bodyText1.copyWith(color: CVUColor.brandOrange),
-                  ),
-                ),
+              if (_hasAuthError) ErrorMessage(appController.model.errorString!),
               if (isCopied)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,14 +193,17 @@ class _OnboardingKeysState extends State<OnboardingKeys> {
   }
 
   Future<void> _fetchKeys() async {
-    ownerKey = (await appController.podConnectionConfig)!.ownerKey;
-    dbKey = (await appController.podConnectionConfig)!.databaseKey;
-    if (AppController.shared.syncController.lastError != null) {
+    if (AppController.shared.model.state == PodSetupState.loading) {
+      return;
+    }
+    if (AppController.shared.model.state == PodSetupState.error) {
       setState(() {
         _hasAuthError = true;
       });
+    } else {
+      ownerKey = (await appController.podConnectionConfig)!.ownerKey;
+      dbKey = (await appController.podConnectionConfig)!.databaseKey;
     }
-
     if (mounted) {
       setState(() {
         _isKeysLoading = false;

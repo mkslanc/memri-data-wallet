@@ -8,6 +8,7 @@ import 'package:memri/models/pod_setup.dart';
 import 'package:memri/screens/setup/onboarding_login.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/account_scaffold.dart';
+import 'package:memri/widgets/components/error_message.dart';
 
 class OnboardingDeveloper extends StatefulWidget {
   OnboardingDeveloper();
@@ -119,7 +120,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                   Wrap(
                     children: [
                       InkWell(
-                        onTap: () async => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        onTap: () async => Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => OnboardingLogin(isDevelopersMode: true))),
                         child: Text(
                           "Log into your Pod",
@@ -142,13 +143,7 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
               ),
               SizedBox(height: 30),
               if (appController.model.state == PodSetupState.error)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text(
-                    "Error: ${appController.model.errorString}",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
+                ErrorMessage(appController.model.errorString!),
               if (!ResponsiveHelper(context).isLargeScreen)
                 Padding(
                   padding: EdgeInsets.only(top: 60, bottom: 40),
@@ -156,29 +151,6 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
                 ),
             ],
           ),
-          if (appController.model.state == PodSetupState.loading) ...[
-            SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
-            Center(
-              child: Column(
-                children: [
-                  Spacer(),
-                  SizedBox(
-                    child: CircularProgressIndicator(),
-                    width: 60,
-                    height: 60,
-                  ),
-                  Text(
-                    "Setup in progress...",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Spacer()
-                ],
-              ),
-            ),
-          ],
           if (ResponsiveHelper(context).isLargeScreen)
             Positioned(
               bottom: 61,
@@ -216,6 +188,9 @@ class _OnboardingDeveloperState extends State<OnboardingDeveloper> {
 
   void handleSetup(bool localOnly) {
     setState(() => appController.model.state = PodSetupState.loading);
-    appController.setupApp(localOnly: localOnly, onPodConnected: () => Navigator.of(context).pop());
+    appController.setupApp(
+        localOnly: localOnly,
+        onPodConnected: () => Navigator.of(context).pop(),
+        onError: () => setState(() {}));
   }
 }

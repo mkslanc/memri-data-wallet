@@ -9,6 +9,8 @@ import 'package:memri/screens/scene_view.dart';
 import 'package:memri/screens/setup/onboarding_keys.dart';
 import 'package:memri/screens/setup/onboarding_start.dart';
 
+import 'models/pod_setup.dart';
+
 /// This is the view used in each scene to display the appropriate state
 /// This depends on whether the app has been setup, and if the user is authenticated.
 class App extends StatefulWidget {
@@ -39,8 +41,14 @@ class _AppState extends State<App> {
       await AppController.shared.init();
       await SceneController.sceneController.init();
       await AppController.shared.updateState();
-      if (widget.predefinedKey != null)
-        await AppController.shared.setupApp(predefinedKey: widget.predefinedKey);
+      if (widget.predefinedKey != null) {
+        appController.model.state = PodSetupState.loading;
+        appController.state = AppState.keySaving;
+        appController.setupApp(
+            predefinedKey: widget.predefinedKey,
+            onError: () => setState(() {}),
+            onPodConnected: () => setState(() {}));
+      }
     } on Exception catch (e) {
       authError = e;
       appController.state = AppState.authentication;
