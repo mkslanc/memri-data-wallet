@@ -24,7 +24,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   AppController appController = AppController.shared;
   final List<Widget> _slides = <Widget>[];
   PageController _controller = PageController();
-  late Timer _periodicTimer;
+  Timer? _periodicTimer;
   late AnimationController _animationController;
   late Animation<Color?> animation;
 
@@ -55,6 +55,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
 
       _slides.addAll([_slide1, _slide2, _slide3]);
       _periodicTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+        if (_controller.page == null) return;
         if (_controller.page == _slides.length - 1) {
           _controller.animateToPage(
             0,
@@ -72,7 +73,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
   @override
   void dispose() {
     _controller.dispose();
-    _periodicTimer.cancel();
+    _periodicTimer?.cancel();
     super.dispose();
   }
 
