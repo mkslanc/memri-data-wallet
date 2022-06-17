@@ -7,6 +7,7 @@ class AppSettings {
   static const String defaultDevPodURL = "http://localhost:3030";
 
   static const bool showDeveloperButton = true;
+  static const bool maintenanceInProgress = false;
 
   /// Database
   static const String defaultDatabase = "dev_database";

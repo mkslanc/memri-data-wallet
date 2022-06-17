@@ -13,6 +13,8 @@ import 'package:memri/screens/setup/onboarding_keys.dart';
 import 'package:memri/screens/setup/onboarding_start.dart';
 import 'package:moor/moor_web.dart';
 
+import 'constants/app_settings.dart';
+
 /// This is the view used in each scene to display the appropriate state
 /// This depends on whether the app has been setup, and if the user is authenticated.
 class App extends StatefulWidget {
@@ -40,7 +42,9 @@ class _AppState extends State<App> {
 
   Future<void> init() async {
     try {
-      if (isMobile) {
+      if (AppSettings.maintenanceInProgress) {
+        appController.state = AppState.maintenance;
+      } else if (isMobile) {
         appController.state = AppState.incompatibleDevice;
       } else if (!await isSupportedBrowser) {
         appController.state = AppState.incompatibleBrowser;
@@ -99,6 +103,7 @@ class _AppState extends State<App> {
                     return SceneView(sceneController: SceneController.sceneController);
                   case AppState.incompatibleDevice:
                   case AppState.incompatibleBrowser:
+                  case AppState.maintenance:
                     return OnboardingError();
                 }
               },
