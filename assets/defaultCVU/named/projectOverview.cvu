@@ -158,6 +158,16 @@
 
                         Button {
                             onPress: [
+                                analytics
+                                {
+                                    name: "project_labels_overview"
+                                    params: [{{datasourceItems("submitted").count()}}, {{datasourceItems("skipped").count()}}, {{datasourceItems("datasetEntries").count()}}]
+                                }
+                                analytics
+                                {
+                                    name: "project_labels_summary"
+                                    params: {{datasourceItems("datasetEntries")}}
+                                }
                                 openView
                                 {
                                     viewName: "create-new-model"

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/utils/factory_reset.dart';
 import 'package:memri/widgets/space.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -70,7 +71,10 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                     style: CVUFont.bodyBold.copyWith(color: Colors.white),
                   ),
                   InkWell(
-                      onTap: () => launchUrlString("https://discord.com/invite/BcRfajJk4k"),
+                      onTap: () {
+                        MixpanelAnalyticsService().logDiscordButton();
+                        launchUrlString("https://discord.com/invite/BcRfajJk4k");
+                      },
                       child: Text(
                         "Discord",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
@@ -89,13 +93,19 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launchUrlString("https://gitlab.memri.io/users/sign_in"),
+                      onTap: () {
+                        MixpanelAnalyticsService().logGitlabButton();
+                        launchUrlString("https://gitlab.memri.io/users/sign_in");
+                      },
                       child: Text(
                         "Repositories",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launchUrlString("https://discord.com/invite/BcRfajJk4k"),
+                      onTap: () {
+                        MixpanelAnalyticsService().logDiscordButton();
+                        launchUrlString("https://discord.com/invite/BcRfajJk4k");
+                      },
                       child: Text(
                         "Get support",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),

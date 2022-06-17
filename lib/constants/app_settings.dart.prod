@@ -3,10 +3,11 @@ import 'package:logger/logger.dart';
 class AppSettings {
   AppSettings._();
 
-  static const String defaultPodURL = "https://uat.pod.memri.io";
+  static const String defaultPodURL = "https://prod.pod.memri.io";
   static const String defaultDevPodURL = "http://localhost:3030";
 
   static const bool showDeveloperButton = false;
+  static const bool maintenanceInProgress = false;
 
   /// Database
   static const String defaultDatabase = "prod_database";
@@ -17,4 +18,7 @@ class AppSettings {
   static const Level loggerLevel = Level.error;
   static const bool loggerColorEnabled = false;
   static const bool loggerPrintTime = true;
+
+  /// MixPanel
+  static const String mixPanelToken = "e554038230ce17e129935cff77e31cea";
 }

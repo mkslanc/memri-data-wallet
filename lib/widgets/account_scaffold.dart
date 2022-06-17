@@ -206,6 +206,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
           children: [
             Container(
                 width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height - 150,
                 color: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 50),
                 child: widget.child),

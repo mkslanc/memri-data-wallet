@@ -15,6 +15,7 @@ import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:memri/models/sync_config.dart';
 import 'package:memri/models/pod_setup.dart';
@@ -23,7 +24,15 @@ import 'package:uuid/uuid.dart';
 import 'package:memri/utils/extensions/string.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-enum AppState { setup, keySaving, authentication, authenticated }
+enum AppState {
+  setup,
+  keySaving,
+  authentication,
+  authenticated,
+  incompatibleDevice,
+  incompatibleBrowser,
+  maintenance
+}
 
 enum SystemError {
   connectionLost,
@@ -151,6 +160,7 @@ class AppController {
   Future init() async {
     await databaseController.init();
     await cvuController.init();
+    await MixpanelAnalyticsService().init();
   }
 
   Future<void> updateState() async {

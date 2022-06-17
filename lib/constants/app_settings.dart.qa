@@ -7,9 +7,10 @@ class AppSettings {
   static const String defaultDevPodURL = "http://localhost:3030";
 
   static const bool showDeveloperButton = false;
+  static const bool maintenanceInProgress = false;
 
   /// Database
-  static const String defaultDatabase = "prod_database";
+  static const String defaultDatabase = "qa_database";
   static const int syncControllerIntervalSecs = 3;
   static const int checkPodExistenceTimeoutSecs = 3;
 
@@ -17,4 +18,7 @@ class AppSettings {
   static const Level loggerLevel = Level.error;
   static const bool loggerColorEnabled = false;
   static const bool loggerPrintTime = true;
+
+  /// MixPanel
+  static const String mixPanelToken = "86aaa1cb53a04208f4279db4da62178e";
 }

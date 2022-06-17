@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/view_context.dart';
 import 'package:memri/widgets/empty.dart';
 
@@ -81,6 +82,7 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
                       return TextButton(
                         onPressed: () {
                           if (!isLast) {
+                            MixpanelAnalyticsService().logBreadCrumbButton(title);
                             pageController.sceneController.removePageControllers();
                             pageController.navigateTo(index);
                           }
