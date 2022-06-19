@@ -7,19 +7,31 @@ class Routes {
   static String onboarding = '/hello';
   static String accountError = '/account/error';
   // static String create = '/account/create';
-  static String login = '/account/login';
-  static String loginDev = '/account/login_dev';
+  static String login = '/login';
+  static String loginDev = '/login_dev';
+
   // static String recoveryPhrase = '/account/recovery_phrase';
   static String saveKeys = '/account/save_keys';
+
   // static String verifyKeys = '/account/verify_keys';
   // static String forgotPassword = '/account/forgot_password';
 
   static String workspace = '/workspace';
-  static String data = '/workspace/data';
-  static String whatsapp = '/workspace/data/whatsapp';
-  static String whatsappConnect = '/workspace/data/whatsapp/connect';
 
-  static String projects = '/workspace/projects';
+  static String data = '/data';
+  static String importer = '/data/importers';
+  static String importerCreate = '/data/importers/create';
+  static String importerConnect = '/data/importers/connect';
+  static String importerDownloading = '/data/importers/downloading';
+
+  static String projects = '/projects';
+  static String projectsCreate = '/projects/create';
+  static String projectsSummary = '/projects/summary';
+  static String projectsLabelData = '/projects/label_data';
+  static String projectsAppCreate = '/projects/new_app/create';
+  static String projectsAppDeploy = '/projects/new_app/deploy';
+  static String projectsAppSummary = '/projects/new_app/summary';
+
   static String apps = '/workspace/apps';
   static String inbox = '/workspace/apps/inbox';
 
@@ -27,17 +39,29 @@ class Routes {
     router.notFoundHandler = notFoundHandler;
     router.define(splash, handler: splashScreenHandler);
     router.define(onboarding, handler: onboardingScreenHandler);
-    router.define(error, handler: accountErrorScreenHandler);
     router.define(login, handler: loginScreenHandler);
     router.define(loginDev, handler: loginDeveloperScreenHandler);
     router.define(saveKeys, handler: saveKeysScreenHandler);
+    router.define(accountError, handler: accountErrorScreenHandler);
 
     router.define(workspace, handler: workspaceScreenHandler);
+
     router.define(data, handler: dataScreenHandler);
-    router.define(whatsapp, handler: whatsappScreenHandler);
-    router.define(whatsappConnect, handler: whatsappConnectScreenHandler);
+    router.define(importer, handler: importerScreenHandler);
+    router.define(importerCreate, handler: importerCreateScreenHandler);
+    router.define(importerConnect, handler: importerConnectScreenHandler);
+    router.define(importerDownloading, handler: importerDownloadingScreenHandler);
+
     router.define(apps, handler: appsScreenHandler);
-    router.define(inbox, handler: inboxScreenHandler);
+    router.define(inbox, handler: appsInboxScreenHandler);
+
+    router.define(projects, handler: projectsScreenHandler);
+    router.define(projectsCreate, handler: projectsCreateScreenHandler);
+    router.define(projectsLabelData, handler: projectsLabelDataScreenHandler);
+    router.define(projectsSummary, handler: projectsSummaryScreenHandler);
+    router.define(projectsAppCreate, handler: projectsAppCreateScreenHandler);
+    router.define(projectsAppDeploy, handler: projectsAppDeployScreenHandler);
+    router.define(projectsAppSummary, handler: projectsAppSummaryScreenHandler);
   }
 }
 

@@ -3,29 +3,29 @@ import 'package:logger/logger.dart';
 class AppSettings {
   AppSettings._();
 
-  static const String defaultPodURL = "https://prod.pod.memri.io";
-  static const String defaultDevPodURL = "http://localhost:3030";
+  final String defaultPodURL = "https://prod.pod.memri.io";
+  final String defaultDevPodURL = "http://localhost:3030";
 
-  static const bool showDeveloperButton = false;
-  static const bool maintenanceInProgress = false;
+  final bool showDeveloperButton = false;
+  final bool maintenanceInProgress = false;
 
   /// Database
-  static const String defaultDatabase = "prod_database";
-  static const int syncControllerIntervalSecs = 3;
-  static const int checkPodExistenceTimeoutSecs = 3;
+  final String defaultDatabase = "prod_database";
+  final int syncControllerIntervalSecs = 3;
+  final int checkPodExistenceTimeoutSecs = 3;
 
   /// Logger
-  static const Level loggerLevel = Level.error;
-  static const bool loggerColorEnabled = false;
-  static const bool loggerPrintTime = true;
+  final Level loggerLevel = Level.error;
+  final bool loggerColorEnabled = false;
+  final bool loggerPrintTime = true;
 
   /// MixPanel
-  static const String mixPanelToken = "e554038230ce17e129935cff77e31cea";
+  final String mixPanelToken = "e554038230ce17e129935cff77e31cea";
 
   /// Plugins
-  static const int minimalRequiredData = 1;
+  final int minimalRequiredData = 1;
 
   /// CVU constants
-  static const colabLink =
+  final String colabLink =
       "https://colab.research.google.com/drive/1s6x3R5djQz_HkmOV-C1BqCk56_2O5fHz";
 }

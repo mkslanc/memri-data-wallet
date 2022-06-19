@@ -2,7 +2,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/utils/app_helper.dart';
@@ -28,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> init() async {
     try {
-      if (AppSettings.maintenanceInProgress) {
+      if (app.settings.maintenanceInProgress) {
         appController.state = AppState.maintenance;
       } else if (isMobile) {
         appController.state = AppState.incompatibleDevice;
@@ -56,8 +55,8 @@ class _SplashScreenState extends State<SplashScreen> {
         case AppState.incompatibleDevice:
         case AppState.incompatibleBrowser:
         case AppState.maintenance:
-        route = Routes.accountError;
-        break;
+          route = Routes.accountError;
+          break;
       }
       RouteNavigator.navigateToRoute(context: context, route: route, clearStack: true);
     } on Exception catch (e) {

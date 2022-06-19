@@ -138,25 +138,26 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                 ),
               SizedBox(height: 15),
               if (!_hasAuthError)
-              TextButton(
-                onPressed: () async {
-                  Clipboard.setData(
-                      ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
-                  setState(() {
-                    isCopied = true;
-                  });
-                },
-                style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Copy keys to clipboard",
-                      style: CVUFont.buttonLabel.copyWith(color: Colors.white),
-                    ),
-                    SizedBox(width: 10),
-                    app.icons.copyToClipboard(color: Colors.white),
-                  ],
+                TextButton(
+                  onPressed: () async {
+                    Clipboard.setData(
+                        ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
+                    setState(() {
+                      isCopied = true;
+                    });
+                  },
+                  style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Copy keys to clipboard",
+                        style: CVUFont.buttonLabel.copyWith(color: Colors.white),
+                      ),
+                      SizedBox(width: 10),
+                      app.icons.copyToClipboard(color: Colors.white),
+                    ],
+                  ),
                 ),
               if (_hasAuthError) ErrorMessage(appController.model.errorString!),
               if (isCopied)
