@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/models/database/item_record.dart';
