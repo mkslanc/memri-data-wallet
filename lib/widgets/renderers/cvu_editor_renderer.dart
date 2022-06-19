@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/cvu_lookup_controller.dart';
@@ -18,6 +17,7 @@ import 'package:memri/models/cvu/cvu_ui_element_family.dart';
 import 'package:memri/models/cvu/cvu_ui_node.dart';
 import 'package:memri/models/cvu/cvu_value.dart';
 import 'package:memri/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/enum.dart';
 import 'package:memri/utils/extensions/string.dart';
@@ -422,10 +422,9 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 spacing: 10,
                                 children: [
-                                  SvgPicture.asset("assets/images/rotate_ccw.svg",
-                                      color: Color(0xFFFE570F)),
+                                  app.icons.rotateCCW(color: app.colors.primary),
                                   Text("Reset to default",
-                                      style: CVUFont.tabList.copyWith(color: Color(0xffE9500F))),
+                                      style: CVUFont.tabList.copyWith(color: app.colors.primary)),
                                 ],
                               )),
                       ],

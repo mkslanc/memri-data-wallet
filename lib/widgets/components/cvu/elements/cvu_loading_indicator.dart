@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 /// A CVU element for displaying a loading indicator
@@ -60,8 +60,7 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator> with TickerPr
       future: _init,
       builder: (_, __) => RotationTransition(
         turns: rotateAnimation,
-        child: SvgPicture.asset("assets/images/loader.svg",
-            color: color ?? Color(0xFFFE570F), width: size, height: size),
+        child: app.icons.loader(color: color ?? app.colors.primary, width: size, height: size),
       ),
     );
   }

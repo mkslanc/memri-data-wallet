@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/utils/app_helper.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset("assets/images/logo.svg", height: 100),
+          app.images.logo(height: 100),
           SizedBox(height: 30),
           SizedBox(
             child: LinearProgressIndicator(color: Color(0xffFE570F)),

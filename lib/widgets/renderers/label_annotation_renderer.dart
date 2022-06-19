@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/models/cvu/cvu_parsed_definition.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/enum.dart';
 import 'package:memri/widgets/empty.dart';
@@ -472,7 +472,7 @@ class LabelSelectionView extends StatelessWidget {
           width: 10,
         ),
         TextButton(
-          child: SvgPicture.asset("assets/images/ico_ignore.svg", color: Color(0xFFF5F5F5)),
+          child: app.icons.ignore(color: app.colors.brandWhite),
           style: TextButton.styleFrom(
             backgroundColor: Color(0xFFDFDEDE),
             fixedSize: Size(50, 50),
@@ -483,12 +483,9 @@ class LabelSelectionView extends StatelessWidget {
           width: 10,
         ),
         TextButton(
-          child: SvgPicture.asset(
-            "assets/images/ico_close.svg",
-            color: Color(0xFFF5F5F5),
-          ),
+          child: app.icons.close(color: app.colors.brandWhite),
           style: TextButton.styleFrom(
-            backgroundColor: Color(0xFFFE570F),
+            backgroundColor: app.colors.primary,
             fixedSize: Size(50, 50),
           ),
           onPressed: null,
@@ -551,7 +548,7 @@ class LabelSelectionView extends StatelessWidget {
                         onPressed: enableBackButton && !isLoading ? onBackPressed : null),
                     Spacer(),
                     TextButton(
-                      child: SvgPicture.asset("assets/images/check.svg", color: Color(0xFFF5F5F5)),
+                      child: app.icons.check(color: app.colors.brandWhite),
                       style: TextButton.styleFrom(
                         backgroundColor: Color(0xFF333333),
                         fixedSize: Size(50, 50),

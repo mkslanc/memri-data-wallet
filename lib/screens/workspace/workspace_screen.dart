@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/app_images.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 import 'package:memri/widgets/sticker.dart';
@@ -39,7 +39,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               runSpacing: 4,
               children: [
                 Sticker(
-                  icon: AppImages.memriSignFirst(height: 70),
+                  icon: app.images.signFirst(height: 70),
                   title: "Connect and collect your data",
                   description:
                       "Import data from WhatsApp, Gmail or Instagram, create a custom importer, or upload data directly.",
@@ -47,7 +47,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                   buttonsCallback: [() {}, () {}],
                 ),
                 Sticker(
-                  icon: AppImages.memriSignSecond(height: 70),
+                  icon: app.images.signSecond(height: 70),
                   title: "Build a machine learning app",
                   description:
                       "Select the datasource, label data, and build a ML model with just a few lines of code.",
@@ -55,7 +55,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                   buttonsCallback: [() {}],
                 ),
                 Sticker(
-                  icon: AppImages.memriSignThird(height: 70),
+                  icon: app.images.signThird(height: 70),
                   title: "Add and edit UI live",
                   description:
                       "Add a user interface to your app using standard building blocks such as VStacks, HStacks, Text, and Buttons.",
@@ -63,7 +63,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                   buttonsCallback: [() {}],
                 ),
                 Sticker(
-                  icon: AppImages.memriSignFourth(height: 70),
+                  icon: app.images.signFourth(height: 70),
                   title: "View documentation",
                   description:
                       "Learn everything you need to know about POD architecture, plugins, and imorters on our developer site. If you get stuck, join our community for help!",

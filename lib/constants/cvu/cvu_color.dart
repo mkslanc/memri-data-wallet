@@ -1,4 +1,5 @@
 import 'package:flutter/painting.dart';
+import 'package:memri/utils/app_helper.dart';
 
 class CVUColor {
   late Color value;
@@ -15,58 +16,58 @@ class CVUColor {
     switch (value) {
       case "secondary":
       case "secondaryLabel":
-        return Color(0x993c3c43);
+        return app.colors.greyDarkest;
       case "primary":
       case "label":
       case "black":
-        return Color(0xFF000000);
+        return app.colors.black;
       case "tertiary":
       case "tertiaryLabel":
-        return Color(0x4c3c3c43);
+        return app.colors.tertiary;
       case "secondaryBackground":
       case "tertiarySystemBackground":
       case "secondarySystemGroupedBackground":
       case "background":
       case "systemBackground":
-        return Color(0x00ffffff);
+        return app.colors.white.withOpacity(0);
       case "tertiaryBackground":
       case "white":
-        return Color(0xffffffff);
+        return app.colors.white;
       case "systemFill":
-        return Color(0x5b787880);
+        return app.colors.greyDark;
       case "secondarySystemBackground":
-        return Color(0xfff2f2f7);
+        return app.colors.greyLight;
       case "gray":
-        return Color(0xff636161);
+        return app.colors.grey;
       case "purple":
-        return Color(0xff800080);
+        return app.colors.purple;
       case "MemriUI-purpleBack":
-        return Color(0xff543184);
+        return app.colors.purpleBackground;
       case "MemriUI-purpleBackSecondary":
-        return Color(0xff532a84);
+        return app.colors.brandPurple;
       case "memriBlue":
-        return blue;
+        return app.colors.brandBlue;
       case "blue":
       case "systemBlue":
-        return Color(0xff007aff);
+        return app.colors.blue;
       case "red":
       case "systemRed":
-        return Color(0xffff3b30);
+        return app.colors.red;
       case "orange":
       case "systemOrange":
-        return Color(0xffff9500);
+        return app.colors.orange;
       case "yellow":
       case "systemYellow":
-        return Color(0xffffcc00);
+        return app.colors.yellow;
       case "green":
       case "systemGreen":
-        return Color(0xff34c759);
+        return app.colors.green;
       case "greenBackground":
-        return Color(0xffdbf7c5);
+        return app.colors.greenBackground;
       case "purpleBackground":
-        return Color(0xffefe4fd);
+        return app.colors.purpleBackground;
       default:
-        return Color.fromRGBO(255, 255, 255, 0.0);
+        return app.colors.black;
     }
   }
 
@@ -85,24 +86,14 @@ class CVUColor {
   }
 
   static Map<String, Color> predefined = {
-    "memriBlue": blue,
-    "blueTxt": blueTxt,
-    "memriBlack": brandBlack,
-    "brandTextGrey": brandTextGrey,
-    "memriWhite": brandWhite,
-    "greyInactive": greyInactive,
-    "textLight": textLight,
-    "brandBlack": brandBlack,
-    "brandOrange": brandOrange,
+    "memriBlue": app.colors.brandBlue,
+    "blueTxt": app.colors.brandBlueText,
+    "memriBlack": app.colors.brandBlack,
+    "brandTextGrey": app.colors.brandGreyText,
+    "memriWhite": app.colors.brandWhite,
+    "greyInactive": app.colors.greyInactive,
+    "textLight": app.colors.textLight,
+    "brandBlack": app.colors.brandBlack,
+    "brandOrange": app.colors.brandOrange,
   };
-
-  static const blue = const Color(0xff4abff1);
-  static const blueTxt = const Color(0xff17a4e0);
-  static const brandBlack = const Color(0xff333333);
-  static const brandTextGrey = const Color(0xff999999);
-  static const brandWhite = const Color(0xfff5f5f5);
-  static const fff = const Color(0xffffffff);
-  static const greyInactive = const Color(0xffd0d0d0);
-  static const textLight = const Color(0xffc0c0c0);
-  static const brandOrange = const Color(0xffE9500F);
 }

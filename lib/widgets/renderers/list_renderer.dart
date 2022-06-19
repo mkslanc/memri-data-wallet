@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
@@ -190,10 +190,7 @@ class _ListRendererViewState extends RendererViewState {
       title: isInEditMode && showDefaultSelections
           ? Row(
               children: [
-                SvgPicture.asset(
-                  "assets/images/check.svg",
-                  color: isSelected ? Colors.black : Color(0xffDFDEDE),
-                ),
+                app.icons.check(color: isSelected ? Colors.black : Color(0xffDFDEDE)),
                 SizedBox(
                   width: 18,
                 ),

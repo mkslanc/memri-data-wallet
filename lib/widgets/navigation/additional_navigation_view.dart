@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/factory_reset.dart';
 import 'package:memri/widgets/space.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -35,7 +35,7 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                       },
                       child: Row(
                         children: [
-                          SvgPicture.asset("assets/images/ico_key.svg"),
+                          app.icons.key(),
                           Text(
                             "Your pod keys",
                             style: CVUFont.bodyText1.copyWith(color: Colors.white),
@@ -46,7 +46,7 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                       onTap: () => factoryReset(context),
                       child: Row(
                         children: [
-                          SvgPicture.asset("assets/images/ico_log_out.svg"),
+                          app.icons.logOut(),
                           Text(
                             "Sign out and reset",
                             style: CVUFont.bodyText1.copyWith(color: Colors.white),

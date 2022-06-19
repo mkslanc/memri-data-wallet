@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
     podPublicKeyController.addListener(_setPodPublicKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
     appController.model.setupAsNewPod = false;
-    appController.model.podURL = AppSettings.defaultPodURL;
+    appController.model.podURL = app.settings.defaultPodURL;
     super.initState();
   }
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_pane_view.dart';
 
 enum NavigationItem { workspace, data, projects, apps }
@@ -29,7 +29,7 @@ class NavigationAppBar extends StatelessWidget {
                       children: [
                         TextButton(
                             onPressed: () => AppController.shared.navigationIsVisible.value = true,
-                            child: SvgPicture.asset("assets/images/ico_hamburger.svg")),
+                            child: app.icons.hamburger()),
                         SizedBox(width: 34),
                         /*SvgPicture.asset("assets/images/ico_search.svg"),*/
                         //TODO: uncomment this after search implemented
@@ -85,7 +85,7 @@ class NavigationAppBar extends StatelessWidget {
                         InkWell(
                             onTap: () => RouteNavigator.navigateToRoute(
                                 context: context, route: Routes.workspace, clearStack: true),
-                            child: SvgPicture.asset("assets/images/logo.svg"))
+                            child: app.images.logo())
                       ],
                     ),
                   ),
