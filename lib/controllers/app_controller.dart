@@ -5,7 +5,6 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/cvu_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -18,6 +17,7 @@ import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:memri/models/sync_config.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:memri/utils/extensions/string.dart';
@@ -135,7 +135,7 @@ class AppController {
     if (localOnly) {
       return SetupConfigLocal();
     } else if (model.setupAsNewPod) {
-      var config = NewPodConfig(model.podURL ?? AppSettings.defaultPodURL);
+      var config = NewPodConfig(model.podURL ?? app.settings.defaultPodURL);
       return SetupConfigNewPod(config);
     } else {
       var privateKey =
@@ -146,7 +146,7 @@ class AppController {
         return null;
       }
       var config = ExistingPodConfig(
-          model.podURL ?? AppSettings.defaultPodURL, privateKey, publicKey, databaseKey);
+          model.podURL ?? app.settings.defaultPodURL, privateKey, publicKey, databaseKey);
       return SetupConfigExistingPod(config);
     }
   }
@@ -224,7 +224,7 @@ class AppController {
 
     if (_podConnectionConfig != null) {
       if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
-            Duration(seconds: AppSettings.checkPodExistenceTimeoutSecs),
+            Duration(seconds: app.settings.checkPodExistenceTimeoutSecs),
             onTimeout: () => throw Exception("Pod doesn't respond"),
           )) {
         throw Exception("Pod doesn't respond");
