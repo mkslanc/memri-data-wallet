@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:memri/constants/app_images.dart';
 import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/utils/app_helper.dart';
 
 import 'navigation_pane_view.dart';
 
@@ -17,7 +16,7 @@ class MainNavigationView extends StatelessWidget {
       children: [
         TextButton(
             onPressed: () => sceneController.navigationIsVisible.value = true,
-            child: SvgPicture.asset("assets/images/ico_hamburger.svg")),
+            child: app.icons.hamburger()),
         SizedBox(
           width: 34,
         ),
@@ -36,7 +35,7 @@ class MainNavigationView extends StatelessWidget {
         InkWell(
             onTap: () => sceneController.navigateToNewContext(
                 clearStack: true, animated: false, viewName: "home"),
-            child: AppImages.memriLogo())
+            child: app.images.logo())
       ],
     );
   }

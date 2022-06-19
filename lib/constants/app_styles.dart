@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 
 final ButtonStyle primaryButtonStyle = TextButton.styleFrom(
-    backgroundColor: CVUColor.brandOrange,
-    primary: CVUColor.brandWhite,
+    backgroundColor: app.colors.brandOrange,
+    primary: app.colors.brandWhite,
     textStyle: CVUFont.buttonLabel,
     minimumSize: Size.zero,
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -12,7 +12,7 @@ final ButtonStyle primaryButtonStyle = TextButton.styleFrom(
     onSurface: Colors.white);
 
 final ButtonStyle secondaryButtonStyle = TextButton.styleFrom(
-    primary: CVUColor.brandOrange,
+    primary: app.colors.brandOrange,
     textStyle: CVUFont.buttonLabel,
     minimumSize: Size.zero,
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

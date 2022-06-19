@@ -4,6 +4,7 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
@@ -26,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     podPublicKeyController.addListener(_setPodPublicKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
     appController.model.setupAsNewPod = false;
+    appController.model.podURL = app.settings.defaultPodURL;
     appController.model.state = PodSetupState.idle;
     appController.model.errorString = null;
     super.initState();

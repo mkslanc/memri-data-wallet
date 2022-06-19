@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:memri/constants/app_images.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
 import 'package:memri/widgets/empty.dart';
@@ -87,7 +87,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
             height: MediaQuery.of(context).size.height,
             color: Colors.black,
           ),
-          AppImages.memriBackground(
+          app.images.background(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
           ),
@@ -96,7 +96,7 @@ class _AccountScaffoldState extends State<AccountScaffold> with SingleTickerProv
             top: 24,
             child: Row(
               children: [
-                AppImages.memriLogo(
+                app.images.logo(
                   color: Colors.white,
                   height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_text_properties_modifier.dart';
 import 'package:memri/widgets/empty.dart';
@@ -78,7 +78,7 @@ class _CVUDropdownState extends State<CVUDropdown> {
                       borderRadius: BorderRadius.all(Radius.circular(2.0))),
                 ),
                 value: selectedItem,
-                icon: SvgPicture.asset("images/ico_arrow_down.svg"),
+                icon: app.icons.arrowDown(),
                 iconSize: 40,
                 onChanged: (ItemRecord? newValue) {
                   setState(() {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:memri/constants/app_icons.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
 class SaveKeysScreen extends StatefulWidget {
@@ -138,26 +138,25 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                 ),
               SizedBox(height: 15),
               if (!_hasAuthError)
-                TextButton(
-                  onPressed: () async {
-                    Clipboard.setData(
-                        ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
-                    setState(() {
-                      isCopied = true;
-                    });
-                  },
-                  style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Copy keys to clipboard",
-                        style: CVUFont.buttonLabel.copyWith(color: Colors.white),
-                      ),
-                      SizedBox(width: 10),
-                      AppIcons.copyToClipboard(color: Colors.white),
-                    ],
-                  ),
+              TextButton(
+                onPressed: () async {
+                  Clipboard.setData(
+                      ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
+                  setState(() {
+                    isCopied = true;
+                  });
+                },
+                style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Copy keys to clipboard",
+                      style: CVUFont.buttonLabel.copyWith(color: Colors.white),
+                    ),
+                    SizedBox(width: 10),
+                    app.icons.copyToClipboard(color: Colors.white),
+                  ],
                 ),
               if (_hasAuthError) ErrorMessage(appController.model.errorString!),
               if (isCopied)

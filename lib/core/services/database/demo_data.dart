@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -12,6 +11,7 @@ import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/models/database/item_edge_record.dart';
 import 'package:memri/models/database/item_property_record.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/string.dart';
 import 'package:uuid/uuid.dart';
@@ -100,7 +100,7 @@ class DemoData {
       {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
     await importData(
-        fileName: AppSettings.defaultDatabase,
+        fileName: app.settings.defaultDatabase,
         databaseController: databaseController,
         throwIfAgainstSchema: throwIfAgainstSchema);
   }

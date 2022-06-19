@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/app_icons.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/responsive_helper.dart';
 
 class Sticker extends StatelessWidget {
@@ -51,7 +51,7 @@ class Sticker extends StatelessWidget {
             if (description != null)
               Text(
                 description!,
-                style: CVUFont.bodyText1.copyWith(color: Color(0xff999999)),
+                style: CVUFont.bodyText1.copyWith(color: app.colors.brandGreyText),
               ),
             SizedBox(height: 40),
             if (buttonsTitle != null)
@@ -68,10 +68,10 @@ class Sticker extends StatelessWidget {
                             children: [
                               Text(
                                 buttonsTitle![index],
-                                style: CVUFont.bodyText1.copyWith(color: Color(0xffFE570F)),
+                                style: CVUFont.bodyText1.copyWith(color: app.colors.primary),
                               ),
                               SizedBox(width: 10),
-                              AppIcons.arrowRight(color: Color(0xffFE570F)),
+                              app.icons.arrowRight(color: app.colors.primary),
                             ],
                           ),
                         ),

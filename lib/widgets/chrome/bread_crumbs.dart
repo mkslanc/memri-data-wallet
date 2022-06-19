@@ -1,11 +1,11 @@
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/controllers/view_context_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/view_context.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/empty.dart';
 
 class BreadCrumbs extends StatefulWidget {
@@ -95,12 +95,7 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
                         ),
                       );
                     })
-                    .expand((item) => [
-                          SvgPicture.asset(
-                            "assets/images/brcmb_line.svg",
-                          ),
-                          item
-                        ])
+                    .expand((item) => [app.icons.breadCrumbsLine(), item])
                     .skip(1)
                     .toList())
             : Empty();

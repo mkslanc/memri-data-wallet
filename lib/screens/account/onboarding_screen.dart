@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/responsive_helper.dart';
-import 'package:memri/widgets/scaffold/account_scaffold.dart';
 import 'package:memri/widgets/empty.dart';
+import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen() : super();
@@ -23,7 +23,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     appController.model.setupAsNewPod = true;
-    appController.model.podURL = AppSettings.defaultPodURL;
+    appController.model.podURL = app.settings.defaultPodURL;
     super.initState();
   }
 
@@ -56,7 +56,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildDeveloperButton() {
-    if (!AppSettings.showDeveloperButton) {
+    if (!app.settings.showDeveloperButton) {
       return Empty();
     }
     return InkWell(
