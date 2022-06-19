@@ -5,7 +5,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/database_controller.dart';
 import 'package:memri/controllers/file_storage/file_storage_controller.dart';
@@ -17,6 +16,7 @@ import 'package:memri/models/database/database.dart';
 import 'package:memri/models/database/item_edge_record.dart';
 import 'package:memri/models/database/item_record.dart';
 import 'package:memri/models/sync_config.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:moor/moor.dart';
 
@@ -34,7 +34,7 @@ Future<void> runSync(SyncConfig config) async {
     }
   }
   final syncController = SyncController(dbController);
-  Stream.periodic(const Duration(seconds: AppSettings.syncControllerIntervalSecs))
+  Stream.periodic(Duration(seconds: app.settings.syncControllerIntervalSecs))
       .listen((_) => syncController.sync(connectionConfig: config.connection));
 }
 

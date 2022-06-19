@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/controllers/scene_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
@@ -24,7 +24,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
       children: [
         TextButton(
             onPressed: () => AppController.shared.navigationIsVisible.value = false,
-            child: SvgPicture.asset("assets/images/ico_close.svg")),
+            child: app.icons.close()),
         SizedBox(
           height: 71,
         ),

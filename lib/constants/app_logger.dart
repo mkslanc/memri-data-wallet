@@ -1,12 +1,12 @@
 import 'package:logger/logger.dart';
-import 'package:memri/constants/app_settings.dart';
+import 'package:memri/utils/app_helper.dart';
 
 class AppLogger {
   static final Logger logger = Logger(
-    level: AppSettings.loggerLevel,
+    level: app.settings.loggerLevel,
     printer: SimplePrinter(
-      colors: AppSettings.loggerColorEnabled,
-      printTime: AppSettings.loggerPrintTime,
+      colors: app.settings.loggerColorEnabled,
+      printTime: app.settings.loggerPrintTime,
     ),
   );
 
