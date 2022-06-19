@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
@@ -47,7 +47,7 @@ class OnboardingIncompatibleDeviceError extends StatelessWidget {
         ),
         Text(
           "Device not supported.",
-          style: CVUFont.headline1.copyWith(color: CVUColor.brandOrange),
+          style: CVUFont.headline1.copyWith(color: app.colors.brandOrange),
         ),
         SizedBox(
           height: 40,
@@ -74,7 +74,7 @@ class OnboardingIncompatibleBrowserError extends StatelessWidget {
         ),
         Text(
           "Browser not supported.",
-          style: CVUFont.headline1.copyWith(color: CVUColor.brandOrange),
+          style: CVUFont.headline1.copyWith(color: app.colors.brandOrange),
         ),
         SizedBox(
           height: 40,

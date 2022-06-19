@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/utils/app_helper.dart';
 
 import '../../controllers/app_controller.dart';
 
@@ -23,13 +23,14 @@ class MemriNotification extends StatelessWidget {
               Text(
                 lastError.errorString,
                 style: TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14, color: CVUColor.brandOrange),
+                    fontWeight: FontWeight.w500, fontSize: 14, color: app.colors.brandOrange),
               ),
               Spacer(),
               if (lastError.showDismiss)
                 InkWell(
                   onTap: () => appController.hideError(lastError),
-                  child: Text("Dismiss", style: CVUFont.link.copyWith(color: CVUColor.brandOrange)),
+                  child:
+                      Text("Dismiss", style: CVUFont.link.copyWith(color: app.colors.brandOrange)),
                 ),
               if (lastError.showRetry)
                 InkWell(
@@ -37,8 +38,8 @@ class MemriNotification extends StatelessWidget {
                     appController.hideError(lastError);
                     Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
                   },
-                  child:
-                      Text("Try again", style: CVUFont.link.copyWith(color: CVUColor.brandOrange)),
+                  child: Text("Try again",
+                      style: CVUFont.link.copyWith(color: app.colors.brandOrange)),
                 )
             ],
           )),

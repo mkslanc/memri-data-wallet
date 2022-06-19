@@ -48,9 +48,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           case AppState.incompatibleDevice:
           case AppState.incompatibleBrowser:
           case AppState.maintenance:
-          WidgetsBinding.instance!.addPostFrameCallback(
-                  (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.accountError));
-          return Empty();
+            WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                RouteNavigator.navigateToRoute(context: context, route: Routes.accountError));
+            return Empty();
         }
       },
     );

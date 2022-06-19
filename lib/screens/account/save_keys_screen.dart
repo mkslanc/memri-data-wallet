@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_styles.dart';
-import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
@@ -135,25 +134,26 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                 ),
               SizedBox(height: 15),
               if (!_hasAuthError)
-              TextButton(
-                onPressed: () async {
-                  Clipboard.setData(
-                      ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
-                  setState(() {
-                    isCopied = true;
-                  });
-                },
-                style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Copy keys to clipboard",
-                      style: CVUFont.buttonLabel.copyWith(color: Colors.white),
-                    ),
-                    SizedBox(width: 10),
-                    app.icons.copyToClipboard(color: Colors.white),
-                  ],
+                TextButton(
+                  onPressed: () async {
+                    Clipboard.setData(
+                        ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
+                    setState(() {
+                      isCopied = true;
+                    });
+                  },
+                  style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Copy keys to clipboard",
+                        style: CVUFont.buttonLabel.copyWith(color: Colors.white),
+                      ),
+                      SizedBox(width: 10),
+                      app.icons.copyToClipboard(color: Colors.white),
+                    ],
+                  ),
                 ),
               if (_hasAuthError)
                 Container(
@@ -161,7 +161,7 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                   child: Text(
                     "Key does not exist or already in use, please, try another one",
-                    style: CVUFont.bodyText1.copyWith(color: CVUColor.brandOrange),
+                    style: CVUFont.bodyText1.copyWith(color: app.colors.brandOrange),
                   ),
                 ),
               if (isCopied)

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/factory_reset.dart';
 import 'package:memri/widgets/space.dart';

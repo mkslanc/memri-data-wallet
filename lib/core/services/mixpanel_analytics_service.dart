@@ -1,5 +1,5 @@
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
 class MixpanelAnalyticsService {
@@ -7,7 +7,7 @@ class MixpanelAnalyticsService {
 
   Future<void> init() async {
     mixpanel = await Mixpanel.init(
-      AppSettings.mixPanelToken,
+      app.settings.mixPanelToken,
       optOutTrackingDefault: false,
     );
   }

@@ -3,22 +3,22 @@ import 'package:logger/logger.dart';
 class AppSettings {
   AppSettings._();
 
-  static const String defaultPodURL = "https://qa.pod.memri.io";
-  static const String defaultDevPodURL = "http://localhost:3030";
+  final String defaultPodURL = "https://qa.pod.memri.io";
+  final String defaultDevPodURL = "http://localhost:3030";
 
-  static const bool showDeveloperButton = false;
-  static const bool maintenanceInProgress = false;
+  final bool showDeveloperButton = false;
+  final bool maintenanceInProgress = false;
 
   /// Database
-  static const String defaultDatabase = "qa_database";
-  static const int syncControllerIntervalSecs = 3;
-  static const int checkPodExistenceTimeoutSecs = 3;
+  final String defaultDatabase = "qa_database";
+  final int syncControllerIntervalSecs = 3;
+  final int checkPodExistenceTimeoutSecs = 3;
 
   /// Logger
-  static const Level loggerLevel = Level.error;
-  static const bool loggerColorEnabled = false;
-  static const bool loggerPrintTime = true;
+  final Level loggerLevel = Level.error;
+  final bool loggerColorEnabled = false;
+  final bool loggerPrintTime = true;
 
   /// MixPanel
-  static const String mixPanelToken = "86aaa1cb53a04208f4279db4da62178e";
+  final String mixPanelToken = "86aaa1cb53a04208f4279db4da62178e";
 }
