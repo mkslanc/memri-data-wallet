@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/app_settings.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/controllers/app_controller.dart';
@@ -7,6 +6,8 @@ import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/account_scaffold.dart';
+
+import '../../widgets/components/error_message.dart';
 
 class OnboardingLogin extends StatefulWidget {
   final bool isDevelopersMode;
@@ -27,7 +28,8 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
     podPublicKeyController.addListener(_setPodPublicKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
     appController.model.setupAsNewPod = false;
-    appController.model.podURL = AppSettings.defaultPodURL;
+    appController.model.state = PodSetupState.idle;
+    appController.model.errorString = null;
     super.initState();
   }
 
@@ -110,20 +112,15 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
                   ],
                 ),
               ),
-              SizedBox(height: 40),
+              SizedBox(height: 20),
+              if (appController.model.state == PodSetupState.error)
+                ErrorMessage(appController.model.errorString!),
+              SizedBox(height: 20),
               TextButton(
                 onPressed: handleSetup,
                 style: primaryButtonStyle,
                 child: Text("Log in"),
               ),
-              if (appController.model.state == PodSetupState.error)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text(
-                    "Error: ${appController.model.errorString}",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
               if (!ResponsiveHelper(context).isLargeScreen)
                 Padding(
                   padding: EdgeInsets.only(top: 60, bottom: 40),
@@ -136,29 +133,6 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
               bottom: 61,
               child: _buildNewAccountButton(),
             ),
-          if (appController.model.state == PodSetupState.loading) ...[
-            SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
-            Center(
-              child: Column(
-                children: [
-                  Spacer(),
-                  SizedBox(
-                    child: CircularProgressIndicator(),
-                    width: 60,
-                    height: 60,
-                  ),
-                  Text(
-                    "Setup in progress...",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Spacer()
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -166,7 +140,12 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
 
   Widget _buildNewAccountButton() {
     return InkWell(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () {
+        appController.model.setupAsNewPod = true;
+        appController.model.state = PodSetupState.idle;
+        appController.model.errorString = null;
+        Navigator.of(context).pop();
+      },
       child: RichText(
         text: TextSpan(
           children: [
@@ -187,6 +166,10 @@ class _OnboardingLoginState extends State<OnboardingLogin> {
   void handleSetup() {
     MixpanelAnalyticsService().logSignIn(podPublicKeyController.text);
     setState(() => appController.model.state = PodSetupState.loading);
-    appController.setupApp(onPodConnected: () => Navigator.of(context).pop());
+    appController.setupApp(
+        onPodConnected: () => Navigator.of(context).pop(),
+        onError: () {
+          setState(() {});
+        });
   }
 }

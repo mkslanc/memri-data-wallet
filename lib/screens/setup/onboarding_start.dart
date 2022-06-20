@@ -11,6 +11,8 @@ import 'package:memri/utils/responsive_helper.dart';
 import 'package:memri/widgets/account_scaffold.dart';
 import 'package:memri/widgets/empty.dart';
 
+import '../../widgets/components/error_message.dart';
+
 class OnboardingStart extends StatefulWidget {
   const OnboardingStart() : super();
 
@@ -20,7 +22,6 @@ class OnboardingStart extends StatefulWidget {
 
 class _OnboardingStartState extends State<OnboardingStart> {
   AppController appController = AppController.shared;
-  final podUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -74,10 +75,7 @@ class _OnboardingStartState extends State<OnboardingStart> {
               ),
               SizedBox(height: 30),
               if (appController.model.state == PodSetupState.error)
-                Text(
-                  "Error: ${appController.model.errorString}",
-                  style: TextStyle(color: Colors.red),
-                ),
+                ErrorMessage(appController.model.errorString!),
               if (!ResponsiveHelper(context).isLargeScreen)
                 Padding(
                   padding: EdgeInsets.only(top: 60, bottom: 40),
