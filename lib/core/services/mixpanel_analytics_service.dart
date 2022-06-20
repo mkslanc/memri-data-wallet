@@ -148,6 +148,16 @@ class MixpanelAnalyticsService {
       },
     );
   }
+
+  void logError(String errorName, String stackTrace) {
+    mixpanel.track(
+      AnalyticsEvents.error,
+      properties: {
+        _AnalyticsProperties.errorName: errorName,
+        _AnalyticsProperties.errorStackTrace: stackTrace,
+      },
+    );
+  }
 }
 
 class AnalyticsEvents {
@@ -155,6 +165,7 @@ class AnalyticsEvents {
 
   static const signUp = 'sign_up';
   static const signIn = 'sign_in';
+  static const error = 'error';
 
   static const navigationButton = 'navigation_button';
   static const breadCrumbButton = 'bread_crumb_button';
@@ -197,4 +208,7 @@ class _AnalyticsProperties {
   static const projectPluginGitlabUrl = 'project_plugin_gitlab_url';
   static const projectTutorialLinkLabel = 'project_tutorial_link_label';
   static const projectTutorialLinkUrl = 'project_tutorial_link_url';
+
+  static const errorName = 'error_name';
+  static const errorStackTrace = 'error_stack_trace';
 }

@@ -2075,17 +2075,18 @@ class CVUActionAnalytics extends CVUAction {
       List<String?> params = await resolver.stringArray("params");
       switch (name) {
         case AnalyticsEvents.importerStatus:
-          MixpanelAnalyticsService().logImporterStatus(params.first ?? '');
+          MixpanelAnalyticsService().logImporterStatus(params.asMap()[0] ?? '');
           break;
         case AnalyticsEvents.projectCreate:
-          MixpanelAnalyticsService().logProjectCreate(params.first ?? '', params[1] ?? '');
+          MixpanelAnalyticsService()
+              .logProjectCreate(params.asMap()[0] ?? '', params.asMap()[1] ?? '');
           break;
         case AnalyticsEvents.projectDataSelect:
-          MixpanelAnalyticsService().logProjectDataSelect(params.first);
+          MixpanelAnalyticsService().logProjectDataSelect(params.asMap()[0]);
           break;
         case AnalyticsEvents.projectLabelsOverview:
-          MixpanelAnalyticsService()
-              .logProjectLabelsOverview(params[0] ?? '', params[1] ?? '', params[2] ?? '');
+          MixpanelAnalyticsService().logProjectLabelsOverview(
+              params.asMap()[0] ?? '', params.asMap()[1] ?? '', params.asMap()[2] ?? '');
           break;
         case AnalyticsEvents.projectTrainModel:
           MixpanelAnalyticsService().logProjectTrainModel();
@@ -2094,10 +2095,11 @@ class CVUActionAnalytics extends CVUAction {
           MixpanelAnalyticsService().logProjectGoogleColab();
           break;
         case AnalyticsEvents.projectTutorialLink:
-          MixpanelAnalyticsService().logProjectTutorialLink(params[0] ?? '', params[1] ?? '');
+          MixpanelAnalyticsService()
+              .logProjectTutorialLink(params.asMap()[0] ?? '', params.asMap()[1] ?? '');
           break;
         case AnalyticsEvents.projectPluginGitlabUrl:
-          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params[0] ?? '');
+          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params.asMap()[0] ?? '');
           break;
       }
     } else {
