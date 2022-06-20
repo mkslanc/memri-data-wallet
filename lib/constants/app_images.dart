@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AppImages {
-  AppImages();
+  static final AppImages _images = AppImages._internal();
+
+  factory AppImages() => _images;
+
+  AppImages._internal();
 
   final basePath = 'assets/images';
 

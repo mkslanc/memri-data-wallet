@@ -1,7 +1,11 @@
 import 'package:logger/logger.dart';
 
 class AppSettings {
-  AppSettings._();
+  static final AppSettings _settings = AppSettings._internal();
+
+  factory AppSettings() => _settings;
+
+  AppSettings._internal();
 
   final String defaultPodURL = "https://qa.pod.memri.io";
   final String defaultDevPodURL = "http://localhost:3030";

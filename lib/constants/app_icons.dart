@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AppIcons {
-  AppIcons();
+  static final AppIcons _icons = AppIcons._internal();
+
+  factory AppIcons() => _icons;
+
+  AppIcons._internal();
 
   final basePath = 'assets/icons';
 
