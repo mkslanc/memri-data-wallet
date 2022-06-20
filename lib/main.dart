@@ -13,14 +13,16 @@ void main() {
     await MixpanelAnalyticsService().init();
     runApp(MaterialApp(
         onGenerateRoute: (route) {
+          return MaterialPageRoute(builder: (_) => Scaffold(body: App()));
+        },
+        onGenerateInitialRoutes: (initialRoute) {
           var key;
-          if (route.name!.contains(RegExp(r"\/\?key=[\w]+$"))) {
-            key = route.name!.split("/\?key=")[1];
+          if (initialRoute.contains(RegExp(r"\/\?key=[\w]+$"))) {
+            key = initialRoute.split("/\?key=")[1];
           }
-          return MaterialPageRoute(builder: (_) => Scaffold(body: App(key)));
+          return [MaterialPageRoute(builder: (_) => Scaffold(body: App(key)))];
         },
         title: "Memri",
-        home: Scaffold(body: App()),
         theme: lightTheme));
   }, (error, stackTrace) async {
     MixpanelAnalyticsService().logError(error.toString(), stackTrace.toString());

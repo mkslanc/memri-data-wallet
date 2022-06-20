@@ -61,7 +61,6 @@ class SyncController {
   PodConnectionDetails? currentConnection;
   static String? documentsDirectory;
   static String? lastRootKey;
-  StreamSubscription? runSyncStream;
 
   SyncController(this.databaseController) : state = SyncControllerState.idle;
 
@@ -144,6 +143,36 @@ class SyncController {
       var request = PodStandardRequest.getVersion();
       await request.execute(config);
       return true;
+    } catch (e) {
+      AppLogger.err(e);
+      return false;
+    }
+  }
+
+  Future<bool> validateConfigCreated(PodConnectionDetails config) async {
+    try {
+      var payload = {"_limit": 1};
+      var request = PodStandardRequest.searchAction(payload);
+
+      var networkCall = await request.execute(config);
+      return networkCall.statusCode == 200;
+    } catch (e) {
+      AppLogger.err(e);
+      return false;
+    }
+  }
+
+  Future<bool> validateConfigExisted(PodConnectionDetails config) async {
+    try {
+      var payload = {"_limit": 1, "type": "Setting"};
+      var request = PodStandardRequest.searchAction(payload);
+
+      var networkCall = await request.execute(config);
+      if (networkCall.statusCode != 200) {
+        throw Exception("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+      }
+      var podItems = jsonDecode(networkCall.body);
+      return podItems is List && podItems.isNotEmpty;
     } catch (e) {
       AppLogger.err(e);
       return false;
