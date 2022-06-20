@@ -29,9 +29,11 @@ validate(String snippet, {errors = 0, warnings = 0, CVUParseErrors? parseError})
       expect(validator.errors.length, errors);
       expect(validator.warnings.length, warnings);
     } else {
-      AppLogger.err((validator.errors + validator.warnings)
-          .map((annotation) => annotation.message)
-          .join("\n"));
+      AppLogger.err(
+          (validator.errors + validator.warnings)
+              .map((annotation) => annotation.message)
+              .join("\n"),
+          sendCrashReport: false);
       expect(result, true);
     }
   } on CVUParseErrors catch (error) {

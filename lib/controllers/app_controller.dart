@@ -355,8 +355,8 @@ class AppController {
             databaseKey: databaseKey);
       }
       return _podConnectionConfig!;
-    } on Exception catch (error) {
-      AppLogger.err(error);
+    } on Exception catch (error, stackTrace) {
+      AppLogger.err(error, stackTrace: stackTrace);
       return null;
     }
   }

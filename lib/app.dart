@@ -15,6 +15,7 @@ import 'package:moor/moor_web.dart';
 
 import 'constants/app_settings.dart';
 
+import 'core/services/mixpanel_analytics_service.dart';
 import 'models/pod_setup.dart';
 
 /// This is the view used in each scene to display the appropriate state
@@ -63,7 +64,8 @@ class _AppState extends State<App> {
               onPodConnected: () => setState(() {}));
         }
       }
-    } on Exception catch (e) {
+    } on Exception catch (e, stackTrace) {
+      MixpanelAnalyticsService().logError(e.toString(), stackTrace.toString());
       authError = e;
       appController.state = AppState.authentication;
     }
