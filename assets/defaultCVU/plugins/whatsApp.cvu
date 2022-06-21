@@ -411,13 +411,12 @@
 
 .WhatsappPlugin-error {
     defaultRenderer: singleItem
-    showSearchBar: false
-    showContextualBottomBar: false
     showBottomBar: false
-    title: "Connect WhatsApp account"
+    showContextualBottomBar: false
+    showSearchBar: false
+    title: "Connecting"
 
-    [renderer = singleItem]{
-
+    [renderer = singleItem] {
     }
 
     Account > singleItem {
@@ -426,37 +425,71 @@
             padding: 60 30 0 30
 
             Text {
-                text: "Step 3"
+                color: brandOrange
                 font: link
-                padding: 0 5
+                text: "Something went wrong :("
             }
 
             Text {
-                text: "Error occurred!"
+                color: brandOrange
                 font: headline1
+                text: {{.~account.error = "notEnoughData" ? "There’s no data to import." : "Whatsapp importer failed to load your data."}}
             }
 
             Text {
-                text: "{.errorMessage}"
-                font: bodyText2
-                color: #737373
-                padding: 0 10
+                color: brandTextGrey
+                font: bodyText1
+                text: {{.~account.error = "notEnoughData" ? "It seems that there’s not much messages in your WhatsApp. Please start over with different account." : "Whatsapp importer failed to load your data. Please try again."}}
             }
 
-            Button {
-                padding: 60 0 0 0
+            HStack {
+                alignment: left
+                padding: 80 0 0 0
 
-                Text {
-                    text: "<  Back to data page"
-                    font: button_label
-                    color: #FE570F
+                Button {
+                    background: brandBlack
+                    onPress: [
+                        delete
+                        {
+                            subject: {{.~account}}
+                        }
+                        openPlugin
+                        {
+                            clearStack: true
+                            pluginName: "WhatsappPlugin"
+                        }
+                    ]
+                    styleName: primaryButton
+
+                    Text {
+                        text: "Try again"
+                    }
                 }
 
-                onPress: openView {
-                    viewName: "apps-and-plugins"
-                    clearStack: true
-                    viewArguments {
+                Button {
+                    onPress: [
+                        delete
+                        {
+                            subject: {{.~account}}
+                        }
+                        openView
+                        {
+                            clearStack: true
+                            inheritDatasource: false
+                            viewArguments: [
+                                {
+                                    readOnly: true
+                                }
+                            ]
+                            viewName: "allData"
+                        }
+                    ]
+                    styleName: secondaryButton
 
+                    Text {
+                        color: brandBlack
+                        font: button_label
+                        text: "Cancel"
                     }
                 }
             }

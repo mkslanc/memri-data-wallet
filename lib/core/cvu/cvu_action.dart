@@ -742,6 +742,10 @@ class CVUActionOpenPlugin extends CVUAction {
         case "daemon":
           viewName = "pluginShortInfo";
           break;
+        case "error":
+          account = await lastPluginRun.edgeItem("account");
+          viewName = "${pluginName}-error";
+          break;
         default:
           viewName = "${pluginName}Run";
           break;
