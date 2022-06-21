@@ -49,9 +49,9 @@ class _MemriState extends State<Memri> {
         if (_deviceLocales.isNotEmpty) {
           var intersection = _deviceLocales
               .where((deviceLocale) => supportedLocales
-              .map((supportedLocale) => supportedLocale.languageCode)
-              .toList()
-              .contains(deviceLocale.languageCode))
+                  .map((supportedLocale) => supportedLocale.languageCode)
+                  .toList()
+                  .contains(deviceLocale.languageCode))
               .toList();
           if (intersection.isNotEmpty) {
             locale = intersection.first;
@@ -59,10 +59,9 @@ class _MemriState extends State<Memri> {
         }
         locale ??= supportedLocales.first;
 
-        if (app.locales.systemAppLocale?.languageCode !=
-            locale.languageCode) {
-          WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => app.locales.systemAppLocale = locale!);
+        if (app.locales.systemAppLocale?.languageCode != locale.languageCode) {
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => app.locales.systemAppLocale = locale!);
         }
 
         return locale;
