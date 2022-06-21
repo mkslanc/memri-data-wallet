@@ -111,6 +111,10 @@ class PodStandardRequest<Payload> {
   static PodStandardRequest getVersion() {
     return PodStandardRequest(method: HTTPMethod.get, path: "version", payload: {});
   }
+
+  static PodStandardRequest queryGraphQL<Payload>(String query) {
+    return PodStandardRequest(path: "graphql", payload: query);
+  }
 }
 
 class PodUploadRequest<Payload> {
