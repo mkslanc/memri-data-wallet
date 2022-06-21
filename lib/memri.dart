@@ -15,7 +15,7 @@ class Memri extends StatefulWidget {
 }
 
 class _MemriState extends State<Memri> {
-  final List<Locale> _deviceLocales = WidgetsBinding.instance.window.locales;
+  final List<Locale> _deviceLocales = WidgetsBinding.instance!.window.locales;
   Locale _locale = app.locales.enUS;
 
   @override
@@ -60,7 +60,7 @@ class _MemriState extends State<Memri> {
         locale ??= supportedLocales.first;
 
         if (app.locales.systemAppLocale?.languageCode != locale.languageCode) {
-          WidgetsBinding.instance
+          WidgetsBinding.instance!
               .addPostFrameCallback((_) => app.locales.systemAppLocale = locale!);
         }
 
