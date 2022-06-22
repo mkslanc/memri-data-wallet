@@ -68,7 +68,7 @@
                     }
                     openLink
                     {
-                        link: "https://colab.research.google.com/drive/1WX1VYwoAQ_2yOMzqvrIz77x52vaNmrtW?usp=sharing"
+                        link: {{fromConfig("colablink")}}
                     }
                 ]
                 width: 200

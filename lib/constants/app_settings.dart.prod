@@ -24,4 +24,8 @@ class AppSettings {
 
   /// Plugins
   static const int minimalRequiredData = 1;
+
+  /// CVU constants
+  static const colabLink =
+      "https://colab.research.google.com/drive/1s6x3R5djQz_HkmOV-C1BqCk56_2O5fHz";
 }
