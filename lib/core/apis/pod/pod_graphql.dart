@@ -6,19 +6,6 @@ import "pod_connection_details.dart";
 import 'package:http/http.dart' as http;
 import 'package:collection/collection.dart';
 
-Future<http.Response?> execute_graphql(PodConnectionDetails connection, String query) async {
-  var request = PodStandardRequest.queryGraphQL(query);
-  var response = await request.execute(connection);
-  if (response.statusCode != 200) {
-    var error_msg = "ERROR: ${response.statusCode} ${response.reasonPhrase}";
-    AppLogger.err(error_msg);
-    return null;
-  }
-  return response;
-}
-
-// Inbox
-
 class Item {
   String type;
   Map<String, dynamic> properties;
@@ -79,6 +66,18 @@ class EdgeList {
   }
 }
 
+Future<http.Response?> execute_graphql(
+    PodConnectionDetails connection, String query) async {
+  var request = PodStandardRequest.queryGraphQL(query);
+  var response = await request.execute(connection);
+  if (response.statusCode != 200) {
+    var error_msg = "ERROR: ${response.statusCode} ${response.reasonPhrase}";
+    AppLogger.err(error_msg);
+    return null;
+  }
+  return response;
+}
+
 List<Item> parseGQLResponse(http.Response? response) {
   // TODO error handling. Returns an empty list on bad response for now.
   if (response == null) {
@@ -95,7 +94,8 @@ List<Item> parseGQLResponse(http.Response? response) {
 
 // Dataset
 
-Future<List<Item>> getDataset(PodConnectionDetails connection, String datasetName) async {
+Future<List<Item>> getDataset(
+    PodConnectionDetails connection, String datasetName) async {
   var query = '''
     query {
       Dataset (filter: {name: {eq: "$datasetName"}}) {
