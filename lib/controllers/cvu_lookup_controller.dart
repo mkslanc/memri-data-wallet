@@ -21,6 +21,8 @@ import 'package:memri/utils/extensions/string.dart';
 import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
 
+import '../constants/app_settings.dart';
+
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
 class CVULookupController {
@@ -892,6 +894,20 @@ class CVULookupController {
           return null;
         }
         currentValue = LookupStepValues([PropertyDatabaseValueString(currentValue.items[0].type)]);
+        break;
+      case "fromconfig":
+        var exp = nodeType.args.asMap()[0];
+        String? param = await resolve<String>(expression: exp, context: context, db: db);
+        if (param == null) {
+          return null;
+        }
+        switch (param.toLowerCase()) {
+          case "colablink":
+            currentValue = LookupStepValues([PropertyDatabaseValueString(AppSettings.colabLink)]);
+            break;
+          default:
+            return null;
+        }
         break;
       default:
         return null;
