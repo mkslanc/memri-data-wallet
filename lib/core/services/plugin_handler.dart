@@ -9,7 +9,7 @@ class PluginHandler {
   static run(
       {required ItemRecord plugin,
       required ItemRecord runner,
-      required memri.PageController pageController,
+      // required memri.PageController pageController,
       required CVUContext context}) async {
     AppController.shared.pubSubController.startObservingItemProperty(
         item: runner,
@@ -21,19 +21,19 @@ class PluginHandler {
 
             switch (status) {
               case "userActionNeeded":
-                presentCVUforPlugin(
-                    plugin: plugin,
-                    runner: runner,
-                    pageController: pageController,
-                    context: context);
+                // presentCVUforPlugin(
+                //     plugin: plugin,
+                //     runner: runner,
+                //     pageController: pageController,
+                //     context: context);
                 break;
               case "done":
               case "daemon":
               case "error":
                 //TODO: do we have better solution?
-                pageController.sceneController.scheduleUIUpdate();
-                stopPlugin(
-                    plugin: plugin, runner: runner, pageController: pageController, status: status);
+                // pageController.sceneController.scheduleUIUpdate();
+                // stopPlugin(
+                //     plugin: plugin, runner: runner, pageController: pageController, status: status);
                 break;
               default:
                 break;
