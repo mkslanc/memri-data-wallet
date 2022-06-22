@@ -21,4 +21,7 @@ class AppSettings {
 
   /// MixPanel
   static const String mixPanelToken = "86aaa1cb53a04208f4279db4da62178e";
+
+  /// Plugins
+  static const int minimalRequiredData = 1;
 }
