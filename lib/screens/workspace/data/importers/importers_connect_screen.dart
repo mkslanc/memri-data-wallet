@@ -189,7 +189,7 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
     // TODO, what are we doing with things from the default database?
     var pluginIdValue = 20004000000;
     var pluginModuleValue = "whatsapp.plugin";
-    var pluginNameValue = "WhatsappPlugin"
+    var pluginNameValue = "WhatsappPlugin";
     var containerValue = "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest";
     // if (pluginIdValue == null ||
     //     containerValue == null ||
@@ -237,10 +237,10 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
       await pluginRunItem.addEdge(edgeName: "plugin", targetItem: plugin);
       await pluginRunItem.setPropertyValueList(propertyRecords, db: db);
 
-      MixpanelAnalyticsService().logImporterConnect(pluginNameValue);
-      // TODO: fix handling updated plugin
-      await PluginHandler.run(
-          plugin: plugin, runner: pluginRunItem, context: context);
+    //   MixpanelAnalyticsService().logImporterConnect(pluginNameValue);
+    //   // TODO: fix handling updated plugin
+    //   await PluginHandler.run(
+    //       plugin: plugin, runner: pluginRunItem, context: context);
     } catch (error) {
       AppLogger.err("Error starting plugin: $error");
     }
