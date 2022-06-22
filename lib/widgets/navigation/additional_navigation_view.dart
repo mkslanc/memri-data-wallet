@@ -81,13 +81,13 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                       )),
                   InkWell(
                       onTap: () => launchUrlString(
-                          "https://memri.docs.memri.io/docs.memri.io/guides/import_your_data/"),
+                          "https://docs.memri.io/guides/import_your_data/"),
                       child: Text(
                         "Guides",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () => launchUrlString("https://memri.docs.memri.io/docs.memri.io/"),
+                      onTap: () => launchUrlString("https://docs.memri.io/"),
                       child: Text(
                         "Documentation",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),

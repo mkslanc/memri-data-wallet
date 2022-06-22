@@ -27,7 +27,7 @@
                     onPress: [
                         openLink
                         {
-                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/plugins/readme/"
+                            link: "https://docs.memri.io/component-architectures/plugins/readme/"
                         }
                     ]
                     text: "Plugin documentation page"

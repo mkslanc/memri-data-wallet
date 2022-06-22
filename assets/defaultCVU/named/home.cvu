@@ -218,7 +218,7 @@
                     onPress: [
                         openLink
                         {
-                            link: "https://memri.docs.memri.io/docs.memri.io/overview/quickStart/"
+                            link: "https://docs.memri.io/overview/quickStart/"
                         }
                     ]
 

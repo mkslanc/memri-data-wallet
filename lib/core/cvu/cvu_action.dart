@@ -1911,7 +1911,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
                     onPress: [
                         openLink
                         {
-                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/frontend/cvu-intro/"
+                            link: "https://docs.memri.io/component-architectures/frontend/cvu-intro/"
                         }
                     ]
 
@@ -1935,7 +1935,7 @@ class CVUActionGeneratePluginCvu extends CVUAction {
                     onPress: [
                         openLink
                         {
-                            link: "https://memri.docs.memri.io/docs.memri.io/component-architectures/frontend/cvu-ui-elements/"
+                            link: "https://docs.memri.io/component-architectures/frontend/cvu-ui-elements/"
                         }
                     ]
 
