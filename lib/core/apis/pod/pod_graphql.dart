@@ -66,6 +66,7 @@ class Item {
 }
 
 class EdgeList {
+  // EdgeList is a separate list to support future edge functionalities
   String name;
   List<Item> targets;
 
@@ -80,6 +81,7 @@ class EdgeList {
 }
 
 List<Item> parseGQLResponse(http.Response? response) {
+  // TODO error handling. Returns an empty list on bad response for now.
   if (response == null) {
     return [];
   }
@@ -93,6 +95,7 @@ List<Item> parseGQLResponse(http.Response? response) {
 }
 
 // Dataset
+
 Future<List<Item>> getDataset(
     PodConnectionDetails connection, String datasetName) async {
   var query = '''
@@ -105,9 +108,6 @@ Future<List<Item>> getDataset(
               id
               data {
                   content
-                  author {
-                      handle
-                  }
               }
               annotation {
                   labelValue
@@ -119,105 +119,24 @@ Future<List<Item>> getDataset(
   return parseGQLResponse(response);
 }
 
-void testGetDataset(PodConnectionDetails connection) async {
-  var items = await getDataset(connection, "example-dataset");
-  if (items.isEmpty) {
-    print("No results");
-  }
-  items.forEach((item) {
-    print("${item.type}, ${item.properties}");
-  });
+// Example usage
+// TODO remove
+// void testGetDataset(PodConnectionDetails connection) async {
+//   var items = await getDataset(connection, "example-dataset");
+//   if (items.isEmpty) {
+//     print("No results");
+//   }
+//   items.forEach((item) {
+//     print("${item.type}, ${item.properties}");
+//   });
 
-  if (items.length > 0) {
-    var content = items[0]
-        .getEdges("entry")
-        ?.first()
-        ?.getEdges("data")
-        ?.first()
-        ?.get("content");
-    print(content);
-  }
-}
-
-
-// Future<http.Response> getMessageChannels(PodConnectionDetails connection, String service) async {
-//     var query = '''
-//   query {
-//     MessageChannel (filter: {eq: {service: "$service"}}) {
-//       id
-//       service
-//       name
-//       topic
-//       photo {
-//         id
-//         file {
-//           fileName
-//           sha256
-//         }
-//         thumbnail {
-//           fileName
-//           sha256
-//         }
-//       }
-//     }
-//   }''';
-//   return execute_graphql(connection, query);
-// }
-
-
-
-
-
-// Future<http.Response> getChannelMessages(
-//     PodConnectionDetails connection,
-//     String channelId,
-//     int limit,
-//     int offset,
-//   ) async {
-//     var query = '''
-//   query {
-//     MessageChannel (filter: {eq: {id: "$channelId"}}) {
-//       id
-//       ~messageChannel (limit: $limit offset: $offset order_asc: dateReceived) {
-//         dateReceived
-//         content
-//         sender {
-
-//         }
-//       }
-//     }
-//   }''';
-//   return execute_graphql(connection, query);
-// }
-
-// // Projects
-
-// Future<http.Response> FindAllProjects(PodConnectionDetails connection) async {
-//   var query = '''
-//   query {
-//     Project {
-//       id
-//       name
-//       gitlabUrl
-//     }
-//   }''';
-//   return execute_graphql(connection, query);
-// }
-
-
-// Future<http.Response> getProjectDatasets(PodConnectionDetails connection, String projectId) async {
-//   var query = '''
-//   query {
-//     Project (filter: {eq: {id: "$projectId"}}) {
-//       id
-//       name
-//       gitlabUrl
-//       dataset {
-//         id
-//         name
-//         queryStr
-//       }
-//     }
-//   }''';
-//   return execute_graphql(connection, query);
+//   if (items.length > 0) {
+//     var content = items[0]
+//         .getEdges("entry")
+//         ?.first()
+//         ?.getEdges("data")
+//         ?.first()
+//         ?.get("content");
+//     print(content);
+//   }
 // }
