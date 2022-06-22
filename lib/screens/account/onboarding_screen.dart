@@ -38,21 +38,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           case AppState.setup:
             return _buildBody();
           case AppState.keySaving:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.saveKeys));
+            WidgetsBinding.instance.addPostFrameCallback(
+                (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.saveKeys));
             return Empty();
           case AppState.authenticated:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.workspace));
+            WidgetsBinding.instance.addPostFrameCallback(
+                (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.workspace));
             return Empty();
           case AppState.incompatibleDevice:
           case AppState.incompatibleBrowser:
           case AppState.maintenance:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.accountError));
+            WidgetsBinding.instance.addPostFrameCallback((_) =>
+                RouteNavigator.navigateToRoute(context: context, route: Routes.accountError));
             return Empty();
         }
       },
@@ -65,9 +62,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     return InkWell(
       onTap: () async {
-        WidgetsBinding.instance!.addPostFrameCallback((_) =>
-            RouteNavigator.navigateToRoute(
-                context: context, route: Routes.loginDev));
+        WidgetsBinding.instance.addPostFrameCallback(
+            (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.loginDev));
       },
       child: RichText(
         text: TextSpan(
@@ -118,10 +114,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   SizedBox(width: 30),
                   TextButton(
-                    onPressed: () => WidgetsBinding.instance!
-                        .addPostFrameCallback((_) =>
-                            RouteNavigator.navigateToRoute(
-                                context: context, route: Routes.login)),
+                    onPressed: () => WidgetsBinding.instance.addPostFrameCallback((_) =>
+                        RouteNavigator.navigateToRoute(context: context, route: Routes.login)),
                     child: Text(
                       "Log in",
                       style: CVUFont.buttonLabel

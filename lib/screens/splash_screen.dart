@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final isNonDesktop = kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.iOS ||
             defaultTargetPlatform == TargetPlatform.android);
-    final data = MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
+    final data = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
     return isNonDesktop || data.size.shortestSide < 600;
   }
 
