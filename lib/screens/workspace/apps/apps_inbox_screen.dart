@@ -1,14 +1,8 @@
 import 'dart:math';
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/models/database/item_record.dart';
-import 'package:memri/core/apis/pod/item.dart';
-import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/controllers/file_storage/web_file_storage_controller.dart';
-import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
@@ -163,6 +157,24 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
   List<ImageProvider?> chats_images = [];
   late Stream result;
 
+  Future<ImageProvider?> imageProviderFromPhoto(ItemRecord photoItem) async{
+    if (photoItem.type != "Photo"){ 
+      print("CCC");
+      return null;
+    }
+    var fileItem = await photoItem.edgeItem("file");
+    var fileID = (await fileItem?.propertyValue("sha256"))?.asString();
+    if (fileID == null) {
+      return null;
+    } else {
+      print("DWQG");
+      String fileURL = FileStorageController.getURLForFile(fileID);
+      var imageProvider = await FileStorageController.getImage(fileURL: fileURL);
+      return imageProvider;
+    }
+
+  }
+
   void getChats() async {
     var queryDef = DatabaseQueryConfig(
         itemTypes: ["MessageChannel"], pageSize: 1000, currentPage: 0);
@@ -173,22 +185,10 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
       List<ImageProvider?> _chats_images = [];
       for (ItemRecord c in event as List<ItemRecord>) {
         var photoItem = await c.edgeItem("photo");
-        var fileItem = await photoItem?.edgeItem("file");
-
-        var fileID = (await fileItem?.propertyValue("sha256"))?.asString();
-
-        if (fileID == null) {
-          chats_images.add(null);
-        } else {
-          print("CCCC");
-          print(fileID);
-          String fileURL = FileStorageController.getURLForFile(fileID);
-          var imageProvider = await FileStorageController.getImage(fileURL: fileURL);
-          _chats_images.add(imageProvider);
-        }
+        _chats_images.add(photoItem == null? null :await imageProviderFromPhoto.call(photoItem));
       }
       setState(() {
-        chats = event as List<ItemRecord>;
+        chats = event;
         chats_images = _chats_images;
         //  image: {{.sender.owner.profilePicture OR .sender.profilePicture OR "assets/images/person.png"}}
       });

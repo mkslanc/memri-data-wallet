@@ -899,8 +899,8 @@ class CVUActionPluginRun extends CVUAction {
       await pluginRunItem.setPropertyValueList(propertyRecords, db: db);
 
       MixpanelAnalyticsService().logImporterConnect(pluginName);
-      await PluginHandler.run(
-          plugin: plugin, runner: pluginRunItem, context: context);
+      // await PluginHandler.run(
+      //     plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
     } catch (error) {
       AppLogger.err("Error starting plugin: $error");
     }
