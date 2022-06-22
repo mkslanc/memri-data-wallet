@@ -1,13 +1,21 @@
 import 'dart:convert';
 
+import '../../../constants/app_logger.dart';
 import "pod_requests.dart";
 import "pod_connection_details.dart";
 import 'package:http/http.dart' as http;
 import 'package:collection/collection.dart';
 
-Future<http.Response> execute_graphql(PodConnectionDetails connection, String query) async {
+Future<http.Response?> execute_graphql(
+    PodConnectionDetails connection, String query) async {
   var request = PodStandardRequest.queryGraphQL(query);
-  return await request.execute(connection);
+  var response = await request.execute(connection);
+  if (response.statusCode != 200) {
+    var error_msg = "ERROR: ${response.statusCode} ${response.reasonPhrase}";
+    AppLogger.err(error_msg);
+    return null;
+  }
+  return response;
 }
 
 // Inbox
@@ -18,10 +26,11 @@ class Item {
   Map<String, EdgeList> edges;
 
   Item({
-    required this.type,
-    this.properties = const {},
-    this.edges = const {},
-  });
+    required String this.type,
+    Map<String, dynamic>? properties,
+    Map<String, EdgeList>? edges,
+  })  : properties = properties ?? {},
+        edges = edges ?? {};
 
   EdgeList? getEdges(String edgeName) {
     return this.edges[edgeName] ?? null;
@@ -57,43 +66,48 @@ class Item {
 }
 
 class EdgeList {
-  String  name;
+  String name;
   List<Item> targets;
 
   EdgeList({
     required this.name,
-    this.targets = const []
-  });
+    List<Item>? targets,
+  }) : targets = targets ?? [];
 
   Item? first() {
     return this.targets.firstOrNull;
   }
 }
 
-List<Item> parseGQLResponse(String bodyStr) {
+List<Item> parseGQLResponse(http.Response? response) {
+  if (response == null) {
+    return [];
+  }
   List<Item> result = [];
-  Map<String, dynamic> body = jsonDecode(bodyStr);
-  List<dynamic> data = body['data'];
-  
-  data.forEach((itemMap) =>
-    result.add(Item.fromJson(itemMap))
-  );
+  Map<String, dynamic> body = jsonDecode(response.body);
+  List<dynamic> data = body['data'] ?? [];
+
+  data.forEach((itemMap) => result.add(Item.fromJson(itemMap)));
 
   return result;
 }
 
 // Dataset
-Future<List<Item>> getDataset(PodConnectionDetails connection, String datasetName) async {
+Future<List<Item>> getDataset(
+    PodConnectionDetails connection, String datasetName) async {
   var query = '''
     query {
       Dataset (filter: {name: {eq: "$datasetName"}}) {
           type
           id
           name
-          entry {
+          entry (limit: 5000, offset: 0) {
               id
               data {
                   content
+                  author {
+                      handle
+                  }
               }
               annotation {
                   labelValue
@@ -102,16 +116,25 @@ Future<List<Item>> getDataset(PodConnectionDetails connection, String datasetNam
       }
   }''';
   var response = await execute_graphql(connection, query);
-  return parseGQLResponse(response.body);
+  return parseGQLResponse(response);
 }
 
 void testGetDataset(PodConnectionDetails connection) async {
-  // TODO add example-dataset from here instead of pymemri
   var items = await getDataset(connection, "example-dataset");
-  items.forEach((item) {print("${item.type}, ${item.properties}");});
+  if (items.isEmpty) {
+    print("No results");
+  }
+  items.forEach((item) {
+    print("${item.type}, ${item.properties}");
+  });
 
   if (items.length > 0) {
-    var content = items[0].getEdges("entry")!.first()!.getEdges("data")!.first()!.get("content");
+    var content = items[0]
+        .getEdges("entry")
+        ?.first()
+        ?.getEdges("data")
+        ?.first()
+        ?.get("content");
     print(content);
   }
 }
