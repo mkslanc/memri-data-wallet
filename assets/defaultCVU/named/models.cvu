@@ -28,11 +28,11 @@
                     analytics
                     {
                         name: "project_tutorial_link"
-                        params: ["model building guide", "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"]
+                        params: ["model building guide", "https://docs.memri.io/guides/load_dataset_finetune/"]
                     }
                     openLink
                     {
-                        link: "https://memri.docs.memri.io/docs.memri.io/guides/load_dataset_finetune/"
+                        link: "https://docs.memri.io/guides/load_dataset_finetune/"
                     }
                 ]
                 padding: 15 0 35 0
@@ -254,11 +254,11 @@
                     analytics
                     {
                         name: "project_tutorial_link"
-                        params: ["project_how_to_link","https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model"]
+                        params: ["project_how_to_link","https://docs.memri.io/guides/build_and_deploy_your_model/"]
                     }
                     openLink
                     {
-                        link: "https://memri.docs.memri.io/docs.memri.io/guides/build_and_deploy_your_model"
+                        link: "https://docs.memri.io/guides/build_and_deploy_your_model/"
                     }
                 ]
                 padding: 20 0 0 0
