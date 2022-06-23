@@ -13,6 +13,7 @@ import 'package:memri/models/cvu/cvu_value_expression.dart';
 import 'package:memri/models/cvu/cvu_value_lookup_node.dart';
 import 'package:memri/models/cvu/cvu_view_arguments.dart';
 import 'package:memri/models/database/item_record.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/binding.dart';
 import 'package:memri/utils/extensions/collection.dart';
 import 'package:memri/utils/extensions/date_time.dart';
@@ -20,8 +21,6 @@ import 'package:memri/utils/extensions/number.dart';
 import 'package:memri/utils/extensions/string.dart';
 import 'package:memri/utils/mock_generator.dart';
 import 'package:moor/moor.dart';
-
-import '../constants/app_settings.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
@@ -903,7 +902,7 @@ class CVULookupController {
         }
         switch (param.toLowerCase()) {
           case "colablink":
-            currentValue = LookupStepValues([PropertyDatabaseValueString(AppSettings.colabLink)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(app.settings.colabLink)]);
             break;
           default:
             return null;

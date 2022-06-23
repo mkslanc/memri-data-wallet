@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/components/shapes/clipper.dart';
 
-import '../../constants/cvu/cvu_color.dart';
 import '../../constants/cvu/cvu_font.dart';
 
 class ErrorMessage extends StatelessWidget {
@@ -32,7 +32,7 @@ class ErrorMessage extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           child: Text(
             errorMessage,
-            style: CVUFont.bodyText1.copyWith(color: CVUColor.brandOrange),
+            style: CVUFont.bodyText1.copyWith(color: app.colors.brandOrange),
           ),
         ),
       ],

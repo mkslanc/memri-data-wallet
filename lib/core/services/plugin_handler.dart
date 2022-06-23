@@ -1,17 +1,16 @@
 import 'dart:convert';
 
-import 'package:memri/constants/app_settings.dart';
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/controllers/database_query.dart';
 import 'package:memri/controllers/page_controller.dart' as memri;
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/models/database/item_edge_record.dart';
+import 'package:memri/models/database/item_property_record.dart';
 import 'package:memri/models/database/item_record.dart';
-
-import '../../constants/app_logger.dart';
-import '../../controllers/database_controller.dart';
-import '../../controllers/database_query.dart';
-import '../../models/database/item_property_record.dart';
+import 'package:memri/utils/app_helper.dart';
 
 class PluginHandler {
   static run(
@@ -62,7 +61,7 @@ class PluginHandler {
       }
     }
 
-    var requiredSize = AppSettings.minimalRequiredData;
+    var requiredSize = app.settings.minimalRequiredData;
 
     var data = await getPluginData(plugin: plugin, db: db, size: requiredSize);
     if (data == null) {

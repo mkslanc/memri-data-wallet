@@ -7,6 +7,7 @@ import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/models/pod_setup.dart';
 import 'package:memri/utils/app_helper.dart';
 import 'package:memri/utils/responsive_helper.dart';
+import 'package:memri/widgets/components/error_message.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
