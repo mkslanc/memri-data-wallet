@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/responsive_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/helpers/responsive_helper.dart';
 
 class Sticker extends StatelessWidget {
   final Widget? icon;
@@ -51,7 +51,8 @@ class Sticker extends StatelessWidget {
             if (description != null)
               Text(
                 description!,
-                style: CVUFont.bodyText1.copyWith(color: app.colors.brandGreyText),
+                style:
+                    CVUFont.bodyText1.copyWith(color: app.colors.brandGreyText),
               ),
             SizedBox(height: 40),
             if (buttonsTitle != null)
@@ -62,20 +63,24 @@ class Sticker extends StatelessWidget {
                     (index) => Column(
                       children: [
                         TextButton(
-                          style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.all(0))),
+                          style: ButtonStyle(
+                              padding:
+                                  MaterialStateProperty.all(EdgeInsets.all(0))),
                           onPressed: buttonsCallback![index],
                           child: Row(
                             children: [
                               Text(
                                 buttonsTitle![index],
-                                style: CVUFont.bodyText1.copyWith(color: app.colors.primary),
+                                style: CVUFont.bodyText1
+                                    .copyWith(color: app.colors.primary),
                               ),
                               SizedBox(width: 10),
                               app.icons.arrowRight(color: app.colors.primary),
                             ],
                           ),
                         ),
-                        if (index < buttonsTitle!.length - 1) SizedBox(height: 40),
+                        if (index < buttonsTitle!.length - 1)
+                          SizedBox(height: 40),
                       ],
                     ),
                   )),

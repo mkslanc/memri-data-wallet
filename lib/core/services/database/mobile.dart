@@ -2,9 +2,9 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:memri/controllers/sync_controller.dart';
+import 'package:memri/core/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_mobile.dart';
-import 'package:memri/models/database/database.dart';
+import 'package:memri/core/models/database/database.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
@@ -13,18 +13,24 @@ import 'package:path_provider/path_provider.dart' as paths;
 import 'package:sqlite3/open.dart';
 
 void setupSqlCipher() {
-  open.overrideFor(OperatingSystem.android, () => DynamicLibrary.open('libsqlcipher.so'));
+  open.overrideFor(
+      OperatingSystem.android, () => DynamicLibrary.open('libsqlcipher.so'));
 }
 
-Database constructDb({bool logStatements = false, bool inMemory = false, required databaseName}) {
+Database constructDb(
+    {bool logStatements = false,
+    bool inMemory = false,
+    required databaseName}) {
   setupSqlCipher();
   if (!inMemory) {
-    if (Authentication.lastRootPublicKey == null) throw Exception("Root key is not defined!");
+    if (Authentication.lastRootPublicKey == null)
+      throw Exception("Root key is not defined!");
 
     if (Platform.isIOS || Platform.isAndroid) {
       final executor = LazyDatabase(() async {
         final dataDir = await paths.getApplicationDocumentsDirectory();
-        final dbFile = File(p.join(dataDir.path + '/databases', databaseName + '.sqlite'));
+        final dbFile =
+            File(p.join(dataDir.path + '/databases', databaseName + '.sqlite'));
         return VmDatabase(dbFile, setup: (rawDb) {
           rawDb.execute("PRAGMA key = '${Authentication.lastRootPublicKey}';");
         }, logStatements: logStatements);
@@ -41,7 +47,8 @@ Database constructDb({bool logStatements = false, bool inMemory = false, require
 
 Future<void> deleteDb(databaseName) async {
   final dataDir = await paths.getApplicationDocumentsDirectory();
-  final dbFile = File(p.join(dataDir.path + '/databases', databaseName + '.sqlite'));
+  final dbFile =
+      File(p.join(dataDir.path + '/databases', databaseName + '.sqlite'));
 
   await dbFile.delete();
 }
@@ -71,12 +78,14 @@ void _backgroundConnection(_IsolateStartRequest request) {
 }
 
 Future<DriftIsolate> createDriftIsolate(
-    {bool logStatements = false, bool inMemory = false, required databaseName}) async {
+    {bool logStatements = false,
+    bool inMemory = false,
+    required databaseName}) async {
   final receivePort = ReceivePort();
   String? path;
   if (!inMemory) {
-    final dataDir =
-        SyncController.documentsDirectory ?? (await paths.getApplicationDocumentsDirectory()).path;
+    final dataDir = SyncController.documentsDirectory ??
+        (await paths.getApplicationDocumentsDirectory()).path;
     path = p.join(dataDir + '/databases', databaseName + '.sqlite');
   }
 
@@ -84,7 +93,8 @@ Future<DriftIsolate> createDriftIsolate(
       _backgroundConnection,
       _IsolateStartRequest(
           sendDriftIsolate: receivePort.sendPort,
-          rootKey: Authentication.lastRootPublicKey ?? SyncController.lastRootKey,
+          rootKey:
+              Authentication.lastRootPublicKey ?? SyncController.lastRootKey,
           inMemory: inMemory,
           path: path));
   return await receivePort.first as DriftIsolate;
@@ -97,7 +107,10 @@ class _IsolateStartRequest {
   final bool inMemory;
 
   _IsolateStartRequest(
-      {required this.sendDriftIsolate, this.rootKey, required this.path, required this.inMemory});
+      {required this.sendDriftIsolate,
+      this.rootKey,
+      required this.path,
+      required this.inMemory});
 }
 
 DatabaseConnection connectToWorker() {

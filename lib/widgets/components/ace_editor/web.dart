@@ -60,7 +60,8 @@ class AceEditorController {
           _validatedContent = data["content"];
           try {
             var annotations = await validate!.call(_validatedContent);
-            _postMessage(action: "updateValidation", data: {"annotations": annotations});
+            _postMessage(
+                action: "updateValidation", data: {"annotations": annotations});
           } catch (error) {
             AppLogger.err(error);
           }

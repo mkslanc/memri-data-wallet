@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/models/ui/calendar_renderer_model.dart';
-import 'package:memri/utils/calendar_helper.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/core/models/ui/calendar_renderer_model.dart';
+import 'package:memri/utilities/helpers/calendar_helper.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
@@ -39,10 +39,12 @@ class _CalendarRendererViewState extends RendererViewState {
   }
 
   init() async {
-    backgroundColor = await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+    backgroundColor = await widget
+            .viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground");
-    primaryColor = await widget.viewContext.rendererDefinitionPropertyResolver.color() ??
-        CVUColor.system("red");
+    primaryColor =
+        await widget.viewContext.rendererDefinitionPropertyResolver.color() ??
+            CVUColor.system("red");
     model = await calculateModel();
   }
 
@@ -51,9 +53,10 @@ class _CalendarRendererViewState extends RendererViewState {
     await calcs.init(
         calendarHelper: calendarHelper,
         data: widget.viewContext.items,
-        dateResolver: (ItemRecord item) async =>
-            (await widget.viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
-                item.dateModified));
+        dateResolver: (ItemRecord item) async => (await widget.viewContext
+                .nodePropertyResolver(item)
+                ?.dateTime("dateTime") ??
+            item.dateModified));
     return calcs;
   }
 
@@ -75,7 +78,9 @@ class _CalendarRendererViewState extends RendererViewState {
                         children: calendarHelper.daysInWeek
                             .map((dayString) => Text(
                                   dayString,
-                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600),
                                 ))
                             .toList(),
                       ),
@@ -130,7 +135,8 @@ class _CalendarRendererViewState extends RendererViewState {
                       viewName: "calendarDayView",
                       renderer: "timeline",
                       dateRange: calendarHelper.wholeDay(day))
-                  .execute(widget.pageController, widget.viewContext.getCVUContext());
+                  .execute(widget.pageController,
+                      widget.viewContext.getCVUContext());
             } else {
               return;
             }
@@ -142,7 +148,9 @@ class _CalendarRendererViewState extends RendererViewState {
               Text(
                 calendarHelper.dayString(day),
                 style: TextStyle(
-                    color: calendarHelper.isToday(day) ? primaryColor : CVUColor.system("label")),
+                    color: calendarHelper.isToday(day)
+                        ? primaryColor
+                        : CVUColor.system("label")),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -6,37 +6,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/cvu_controller.dart';
-import 'package:memri/controllers/cvu_lookup_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
-import 'package:memri/controllers/database_query.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/cvu_controller.dart';
+import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/controllers/database_query.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/core/apis/gitlab_api.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/core/models/database/item_edge_record.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/core/models/plugin_config_json.dart';
+import 'package:memri/core/models/view_context.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/plugin_handler.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
-import 'package:memri/models/database/item_edge_record.dart';
-import 'package:memri/models/database/item_property_record.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/models/view_context.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:memri/utils/mock_generator.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/utilities/mock_generator.dart';
 import 'package:moor/moor.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../models/plugin_config_json.dart';
 
 abstract class CVUAction {
   execute(memri.PageController pageController, CVUContext context);
@@ -71,7 +70,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
     case "openview":
       return ({Map? vars}) => CVUActionOpenView(vars: vars);
     case "opencvueditor":
-      return ({Map<String, CVUValue>? vars}) => CVUActionOpenCVUEditor(vars: vars);
+      return ({Map<String, CVUValue>? vars}) =>
+          CVUActionOpenCVUEditor(vars: vars);
     case "openlink":
       return ({Map? vars}) => CVUActionOpenLink(vars: vars);
     case "openviewbyname":
@@ -184,7 +184,9 @@ class CVUActionShowStarred extends CVUAction {
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {
-    Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
+    Map<String, CVUValue> newVars = {
+      "inheritDatasource": CVUValueConstant(CVUConstantBool(true))
+    };
     await CVUActionOpenView(
             vars: newVars,
             viewName: "filter-starred",
@@ -207,7 +209,9 @@ class CVUActionFilter extends CVUAction {
         .lastWhere((element) => element.type == CVUDefinitionType.datasource)
         .parsed = vars["datasource"]?.value;
     await CVUActionOpenView(
-            vars: vars, renderer: context.rendererName, viewDefinition: newDefinition)
+            vars: vars,
+            renderer: context.rendererName,
+            viewDefinition: newDefinition)
         .execute(pageController, context);
   }
 }
@@ -222,11 +226,17 @@ class CVUActionOpenView extends CVUAction {
   CVUDefinitionContent? viewDefinition;
 
   CVUActionOpenView(
-      {vars, this.viewName, this.renderer, this.uids, this.dateRange, this.viewDefinition})
+      {vars,
+      this.viewName,
+      this.renderer,
+      this.uids,
+      this.dateRange,
+      this.viewDefinition})
       : this.vars = vars ?? {};
 
   @override
-  Future execute(memri.PageController pageController, CVUContext context) async {
+  Future execute(
+      memri.PageController pageController, CVUContext context) async {
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -237,12 +247,17 @@ class CVUActionOpenView extends CVUAction {
     var viewArgs = vars["viewArguments"];
 
     var viewArguments = CVUViewArguments(
-        args: viewArgs is CVUValueSubdefinition ? viewArgs.value.properties : null,
+        args: viewArgs is CVUValueSubdefinition
+            ? viewArgs.value.properties
+            : null,
         argumentItem: context.currentItem,
         parentArguments: context.viewArguments);
     DatabaseController db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
 
     var sceneController = pageController.sceneController; //TODO
     memri.PageController? navigatePageController = pageController;
@@ -252,27 +267,33 @@ class CVUActionOpenView extends CVUAction {
       var pageLabel = await lookup.resolve<String>(
           value: viewArguments.args["pageLabel"], db: db, context: context);
       if (pageLabel != null) {
-        while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
+        while (pageLabel!.startsWith("~") &&
+            sceneController.parentSceneController != null) {
           sceneController = sceneController.parentSceneController!;
           pageLabel = pageLabel.substring(1);
         }
 
-        navigatePageController = sceneController.pageControllerByLabel(pageLabel);
+        navigatePageController =
+            sceneController.pageControllerByLabel(pageLabel);
 
         if (navigatePageController == null &&
             pageLabel.isNotEmpty &&
             viewArguments.args["addPageIfMissing"] != null) {
           var addPageIfMissing = await lookup.resolve<bool>(
-                  value: viewArguments.args["addPageIfMissing"], db: db, context: context) ??
+                  value: viewArguments.args["addPageIfMissing"],
+                  db: db,
+                  context: context) ??
               false;
           if (addPageIfMissing) {
-            navigatePageController = await sceneController.addPageController(pageLabel);
+            navigatePageController =
+                await sceneController.addPageController(pageLabel);
           }
         }
       }
     }
 
-    var cvuEditorPageController = sceneController.pageControllerByLabel("mainCVUEditor");
+    var cvuEditorPageController =
+        sceneController.pageControllerByLabel("mainCVUEditor");
     if (cvuEditorPageController != null && viewName != "cvuEditor") {
       sceneController.removePageController(cvuEditorPageController);
     }
@@ -288,7 +309,8 @@ class CVUActionOpenView extends CVUAction {
         dateRange: dateRange,
         customDefinition: customDefinition,
         viewArguments: viewArguments,
-        clearPageControllers: await resolver.boolean("clearPageControllers") ?? false,
+        clearPageControllers:
+            await resolver.boolean("clearPageControllers") ?? false,
         pageController: navigatePageController);
   }
 }
@@ -296,41 +318,53 @@ class CVUActionOpenView extends CVUAction {
 class CVUActionOpenCVUEditor extends CVUAction {
   Map<String, CVUValue> vars;
 
-  CVUActionOpenCVUEditor({Map<String, CVUValue>? vars}) : this.vars = vars ?? {};
+  CVUActionOpenCVUEditor({Map<String, CVUValue>? vars})
+      : this.vars = vars ?? {};
 
   @override
   execute(memri.PageController pageController, CVUContext context) async {
     var label = "mainCVUEditor";
-    var cvuEditorPageController = pageController.sceneController.pageControllerByLabel(label);
+    var cvuEditorPageController =
+        pageController.sceneController.pageControllerByLabel(label);
 
     var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
     var forceOpen = (await resolver.boolean("forceOpen", false))!;
 
     if (cvuEditorPageController != null && !forceOpen) {
-      pageController.sceneController.removePageController(cvuEditorPageController);
+      pageController.sceneController
+          .removePageController(cvuEditorPageController);
     } else {
       var newVars = Map.of(vars);
       var viewArguments = <String, CVUValue>{};
       if (newVars["viewArguments"] != null) {
-        viewArguments =
-            Map.of((newVars["viewArguments"] as CVUValueSubdefinition).value.properties);
+        viewArguments = Map.of(
+            (newVars["viewArguments"] as CVUValueSubdefinition)
+                .value
+                .properties);
       }
       newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(
           properties: viewArguments
             ..addAll({"clearStack": CVUValueConstant(CVUConstantBool(true))})));
 
-      int pageControllersCount = pageController.sceneController.pageControllers.length;
+      int pageControllersCount =
+          pageController.sceneController.pageControllers.length;
       if (forceOpen && cvuEditorPageController != null) {
-        pageController.sceneController.removePageController(cvuEditorPageController);
+        pageController.sceneController
+            .removePageController(cvuEditorPageController);
       }
 
-      cvuEditorPageController = await pageController.sceneController.addPageController(label);
+      cvuEditorPageController =
+          await pageController.sceneController.addPageController(label);
       int cols = (6 / pageControllersCount)
           .round(); //TODO will kinda sorta work for 1-3 page controllers, cols logic is tech debt for now
       pageController.sceneController.pageControllers.forEach(
-          (currentPageController) => currentPageController.topMostContext?.config.cols = cols);
+          (currentPageController) =>
+              currentPageController.topMostContext?.config.cols = cols);
 
       await CVUActionOpenView(
         vars: newVars,
@@ -347,12 +381,16 @@ class CVUActionOpenLink extends CVUAction {
   CVUActionOpenLink({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(memri.PageController pageController, CVUContext context) async {
+  Future execute(
+      memri.PageController pageController, CVUContext context) async {
     var link = vars["link"];
     if (link != null) {
       var db = pageController.appController.databaseController;
       var resolver = CVUPropertyResolver(
-          context: context, lookup: CVULookupController(), db: db, properties: vars);
+          context: context,
+          lookup: CVULookupController(),
+          db: db,
+          properties: vars);
       var url = await resolver.string("link");
       if (url != null) {
         if (url.toLowerCase().contains('discord.com')) {
@@ -390,18 +428,22 @@ class CVUActionOpenViewByName extends CVUAction {
     if (view is CVUValueSubdefinition) {
       customDefinition = view.value;
     }
-    viewArguments ??=
-        CVUViewArguments(args: view is CVUValueSubdefinition ? view.value.properties : null);
+    viewArguments ??= CVUViewArguments(
+        args: view is CVUValueSubdefinition ? view.value.properties : null);
     viewArguments.argumentItem = context.currentItem;
     viewArguments.parentArguments = context.viewArguments;
 
     AppController appController = AppController.shared;
     var db = appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
-    var viewName = this.viewName ?? await resolver.string("viewName") ?? "customView";
-    var viewDefinition = appController.cvuController
-            .viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
+    var viewName =
+        this.viewName ?? await resolver.string("viewName") ?? "customView";
+    var viewDefinition = appController.cvuController.viewDefinitionFor(
+            viewName: viewName, customDefinition: customDefinition) ??
         CVUDefinitionContent();
     var newContext = CVUContext(
         currentItem: null,
@@ -420,8 +462,8 @@ class CVUActionOpenViewByName extends CVUAction {
             .string("defaultRenderer") ??
         defaultRenderer))();
 
-    var datasource = viewDefinition.definitions
-        .firstWhereOrNull((definition) => definition.type == CVUDefinitionType.datasource);
+    var datasource = viewDefinition.definitions.firstWhereOrNull(
+        (definition) => definition.type == CVUDefinitionType.datasource);
     var queryConfig = await DatabaseQueryConfig.queryConfigWith(
         context: newContext, datasource: datasource, databaseController: db);
 
@@ -465,16 +507,21 @@ class CVUActionNavigateBack extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
     var pageLabel = await resolver.string("pageLabel");
     if (pageLabel != null) {
       var sceneController = pageController.sceneController;
-      while (pageLabel!.startsWith("~") && sceneController.parentSceneController != null) {
+      while (pageLabel!.startsWith("~") &&
+          sceneController.parentSceneController != null) {
         sceneController = sceneController.parentSceneController!;
         pageLabel = pageLabel.substring(1);
       }
 
-      pageController = sceneController.pageControllerByLabel(pageLabel) ?? pageController;
+      pageController =
+          sceneController.pageControllerByLabel(pageLabel) ?? pageController;
     }
 
     await pageController.navigateBack();
@@ -490,16 +537,21 @@ class CVUActionCopyToClipboard extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
     var value = await resolver.string("value");
     if (value != null) {
       if (value.toLowerCase().contains('key')) {
         if (value.contains('ownerKey')) {
-          Clipboard.setData(
-              ClipboardData(text: (await AppController.shared.podConnectionConfig)!.ownerKey));
+          Clipboard.setData(ClipboardData(
+              text:
+                  (await AppController.shared.podConnectionConfig)!.ownerKey));
         } else if (value.contains('databaseKey')) {
-          Clipboard.setData(
-              ClipboardData(text: (await AppController.shared.podConnectionConfig)!.databaseKey));
+          Clipboard.setData(ClipboardData(
+              text: (await AppController.shared.podConnectionConfig)!
+                  .databaseKey));
         }
       } else {
         Clipboard.setData(ClipboardData(text: value));
@@ -518,10 +570,14 @@ class CVUActionAddItem extends CVUAction {
   CVUActionAddItem({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(memri.PageController pageController, CVUContext context) async {
+  Future execute(
+      memri.PageController pageController, CVUContext context) async {
     var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
     var template = resolver.subdefinition("template");
     if (template == null) {
       return;
@@ -605,7 +661,10 @@ class CVUActionAddItem extends CVUAction {
             }
           }();
           if (propertyDatabaseValue != null) {
-            await ItemPropertyRecord(itemRowID: itemRowId, name: key, value: propertyDatabaseValue)
+            await ItemPropertyRecord(
+                    itemRowID: itemRowId,
+                    name: key,
+                    value: propertyDatabaseValue)
                 .save(db.databasePool, isNew: isNew ? true : null);
           }
         } else if (valueType is ResolvedTypeEdge) {
@@ -614,14 +673,16 @@ class CVUActionAddItem extends CVUAction {
           if (targetRowIDs.isEmpty) continue;
 
           if (!isNew) {
-            var existingEdges =
-                isReverse ? await item.reverseEdges(cleanKey) : await item.edges(cleanKey);
+            var existingEdges = isReverse
+                ? await item.reverseEdges(cleanKey)
+                : await item.edges(cleanKey);
             await Future.forEach<ItemEdgeRecord>(
                 existingEdges,
-                (edge) async =>
-                    targetRowIDs.contains(isReverse ? edge.sourceRowID : edge.targetRowID)
-                        ? targetRowIDs.remove(isReverse ? edge.sourceRowID! : edge.targetRowID!)
-                        : await edge.delete(db));
+                (edge) async => targetRowIDs.contains(
+                        isReverse ? edge.sourceRowID : edge.targetRowID)
+                    ? targetRowIDs.remove(
+                        isReverse ? edge.sourceRowID! : edge.targetRowID!)
+                    : await edge.delete(db));
           }
           for (var targetRowId in targetRowIDs) {
             await ItemEdgeRecord(
@@ -639,8 +700,8 @@ class CVUActionAddItem extends CVUAction {
         var viewName = await resolver.string("viewName");
         if (viewName == null) {
           renderer = "generalEditor";
-          var viewDefinition =
-              AppController.shared.cvuController.viewDefinitionForItemRecord(itemRecord: item);
+          var viewDefinition = AppController.shared.cvuController
+              .viewDefinitionForItemRecord(itemRecord: item);
           if (viewDefinition == null) {
             return;
           }
@@ -654,16 +715,21 @@ class CVUActionAddItem extends CVUAction {
         }
         var newVars = Map.of(vars);
         if (newVars["viewArguments"] != null) {
-          (newVars["viewArguments"] as CVUValueSubdefinition).value.properties.update(
-              "readOnly", (value) => CVUValueConstant(CVUConstantBool(false)),
-              ifAbsent: () => CVUValueConstant(CVUConstantBool(false)));
+          (newVars["viewArguments"] as CVUValueSubdefinition)
+              .value
+              .properties
+              .update("readOnly",
+                  (value) => CVUValueConstant(CVUConstantBool(false)),
+                  ifAbsent: () => CVUValueConstant(CVUConstantBool(false)));
         } else {
-          newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(properties: {
+          newVars["viewArguments"] =
+              CVUValueSubdefinition(CVUDefinitionContent(properties: {
             "readOnly": CVUValueConstant(CVUConstantBool(false)),
           }));
         }
 
-        await CVUActionOpenView(viewName: viewName, vars: newVars, renderer: renderer)
+        await CVUActionOpenView(
+                viewName: viewName, vars: newVars, renderer: renderer)
             .execute(pageController, context.replacingItem(item));
       }
 
@@ -692,17 +758,20 @@ class CVUActionOpenPlugin extends CVUAction {
     String? pluginName;
     ItemRecord? plugin;
     if (pluginValue != null) {
-      plugin = await lookup.resolve<ItemRecord>(value: pluginValue, context: context, db: db);
+      plugin = await lookup.resolve<ItemRecord>(
+          value: pluginValue, context: context, db: db);
     }
     if (plugin == null) {
-      pluginName = await lookup.resolve<String>(value: pluginNameValue, context: context, db: db);
+      pluginName = await lookup.resolve<String>(
+          value: pluginNameValue, context: context, db: db);
       if (pluginName == null) {
         AppLogger.warn("Plugin data missing");
         return;
       }
 
       var pluginItems = await db.databasePool.itemPropertyRecordsCustomSelect(
-          "name = ? AND value = ?", [Variable("pluginName"), Variable(pluginName)]);
+          "name = ? AND value = ?",
+          [Variable("pluginName"), Variable(pluginName)]);
       if (pluginItems.isNotEmpty) {
         plugin = await ItemRecord.fetchWithRowID(pluginItems[0].item);
       }
@@ -716,8 +785,8 @@ class CVUActionOpenPlugin extends CVUAction {
       pluginName = (await plugin.property("pluginName", db))!.$value.value;
     }
 
-    List<ItemRecord> pluginRunList =
-        await plugin.reverseEdgeItems("plugin", db: db, sourceItemType: "PluginRun");
+    List<ItemRecord> pluginRunList = await plugin.reverseEdgeItems("plugin",
+        db: db, sourceItemType: "PluginRun");
     pluginRunList.sort((a, b) => b.rowId! - a.rowId!);
 
     var lastPluginRun = pluginRunList.asMap()[0];
@@ -777,36 +846,48 @@ class CVUActionPluginRun extends CVUAction {
     }
     var configValue = vars["config"];
 
-    String? pluginId = await lookup.resolve<String>(value: pluginIdValue, context: context, db: db);
+    String? pluginId = await lookup.resolve<String>(
+        value: pluginIdValue, context: context, db: db);
 
-    String? container =
-        await lookup.resolve<String>(value: containerValue, context: context, db: db);
+    String? container = await lookup.resolve<String>(
+        value: containerValue, context: context, db: db);
     if (container == null) return;
 
     ItemRecord plugin = (await ItemRecord.fetchWithUID(pluginId!, db))!;
 
-    String? pluginModule =
-        await lookup.resolve<String>(value: pluginModuleValue, context: context, db: db) ?? "";
-    String? pluginName =
-        await lookup.resolve<String>(value: pluginNameValue, context: context, db: db) ?? "";
+    String? pluginModule = await lookup.resolve<String>(
+            value: pluginModuleValue, context: context, db: db) ??
+        "";
+    String? pluginName = await lookup.resolve<String>(
+            value: pluginNameValue, context: context, db: db) ??
+        "";
     String? config;
     if (configValue != null) {
-      config = await lookup.resolve<String>(value: configValue, context: context, db: db) ?? "";
+      config = await lookup.resolve<String>(
+              value: configValue, context: context, db: db) ??
+          "";
     }
     try {
       var pluginRunItem = ItemRecord(type: "PluginRun");
       var propertyRecords = [
         ItemPropertyRecord(
-            name: "targetItemId", value: PropertyDatabaseValueString(pluginRunItem.uid)),
-        ItemPropertyRecord(name: "pluginModule", value: PropertyDatabaseValueString(pluginModule)),
-        ItemPropertyRecord(name: "pluginName", value: PropertyDatabaseValueString(pluginName)),
-        ItemPropertyRecord(name: "containerImage", value: PropertyDatabaseValueString(container)),
-        ItemPropertyRecord(name: "status", value: PropertyDatabaseValueString("idle")),
+            name: "targetItemId",
+            value: PropertyDatabaseValueString(pluginRunItem.uid)),
+        ItemPropertyRecord(
+            name: "pluginModule",
+            value: PropertyDatabaseValueString(pluginModule)),
+        ItemPropertyRecord(
+            name: "pluginName", value: PropertyDatabaseValueString(pluginName)),
+        ItemPropertyRecord(
+            name: "containerImage",
+            value: PropertyDatabaseValueString(container)),
+        ItemPropertyRecord(
+            name: "status", value: PropertyDatabaseValueString("idle")),
       ];
 
       if (config != null) {
-        propertyRecords
-            .add(ItemPropertyRecord(name: "config", value: PropertyDatabaseValueString(config)));
+        propertyRecords.add(ItemPropertyRecord(
+            name: "config", value: PropertyDatabaseValueString(config)));
       }
 
       await pluginRunItem.save();
@@ -815,7 +896,10 @@ class CVUActionPluginRun extends CVUAction {
 
       MixpanelAnalyticsService().logImporterConnect(pluginName);
       await PluginHandler.run(
-          plugin: plugin, runner: pluginRunItem, pageController: pageController, context: context);
+          plugin: plugin,
+          runner: pluginRunItem,
+          pageController: pageController,
+          context: context);
     } catch (error) {
       AppLogger.err("Error starting plugin: $error");
     }
@@ -850,7 +934,8 @@ class CVUActionSync extends CVUAction {
           }
         }
 
-        var edgeItems = await item.edgeItems(null) + await item.reverseEdgeItems(null);
+        var edgeItems =
+            await item.edgeItems(null) + await item.reverseEdgeItems(null);
 
         for (var edgeItem in edgeItems) {
           if (edgeItem.syncState == SyncState.skip) {
@@ -924,18 +1009,21 @@ class CVUActionDelete extends CVUAction {
   }
 
   @override
-  Future<void> execute(memri.PageController pageController, CVUContext context) async {
+  Future<void> execute(
+      memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
 
     ItemRecord? subjectItem;
     var subjectVal = vars["subject"];
     if (subjectVal != null) {
-      subjectItem = await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+      subjectItem = await lookup.resolve<ItemRecord>(
+          value: subjectVal, context: context, db: db);
     }
     subjectItem ??= context.currentItem;
     if (subjectItem == null) {
-      AppLogger.warn("No subject item for property " + (subjectVal?.value?.toString() ?? ""));
+      AppLogger.warn("No subject item for property " +
+          (subjectVal?.value?.toString() ?? ""));
       return;
     }
 
@@ -946,7 +1034,8 @@ class CVUActionDelete extends CVUAction {
       var lookup = CVULookupController();
       var db = pageController.appController.databaseController;
 
-      bool shouldClose = (await lookup.resolve<bool>(value: closeVal, context: context, db: db))!;
+      bool shouldClose = (await lookup.resolve<bool>(
+          value: closeVal, context: context, db: db))!;
       if (shouldClose) {
         pageController.navigateBack();
       }
@@ -961,7 +1050,8 @@ class CVUActionDeleteItems extends CVUAction {
   CVUActionDeleteItems({vars}) : this.vars = vars ?? {};
 
   @override
-  Future<void> execute(memri.PageController pageController, CVUContext context) async {
+  Future<void> execute(
+      memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
 
@@ -969,7 +1059,10 @@ class CVUActionDeleteItems extends CVUAction {
     if (subjectVal == null) return;
 
     var subjectItems = await lookup.resolve<List>(
-        value: subjectVal, context: context, db: db, additionalType: ItemRecord);
+        value: subjectVal,
+        context: context,
+        db: db,
+        additionalType: ItemRecord);
     if (subjectItems == null) return;
 
     for (var subjectItem in subjectItems) {
@@ -1011,7 +1104,8 @@ class CVUActionLink extends CVUAction {
     var db = pageController.appController.databaseController;
 
     var currentItem = context.currentItem;
-    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: lookup, db: db, properties: vars);
     List<ItemRecord?> subjectItems = await resolver.items("subject");
     if (subjectItems.isEmpty) return;
 
@@ -1034,7 +1128,8 @@ class CVUActionLink extends CVUAction {
     }
 
     if (unique) {
-      var edges = await subjectItems[0]!.edges(edgeType); //TODO: logic for many edges
+      var edges =
+          await subjectItems[0]!.edges(edgeType); //TODO: logic for many edges
       for (ItemEdgeRecord currentEdge in edges) {
         if (currentEdge.name == edgeType) {
           var result = await currentEdge.delete();
@@ -1046,12 +1141,15 @@ class CVUActionLink extends CVUAction {
         }
       }
     } else if (removePrevious) {
-      var existingEdges =
-          isReverse ? await currentItem.edges(cleanKey) : await currentItem.reverseEdges(cleanKey);
+      var existingEdges = isReverse
+          ? await currentItem.edges(cleanKey)
+          : await currentItem.reverseEdges(cleanKey);
       await Future.forEach<ItemEdgeRecord>(
           existingEdges,
-          (edge) async => subjectRowIDs.contains(isReverse ? edge.targetRowID : edge.sourceRowID)
-              ? subjectRowIDs.remove(isReverse ? edge.targetRowID! : edge.sourceRowID!)
+          (edge) async => subjectRowIDs
+                  .contains(isReverse ? edge.targetRowID : edge.sourceRowID)
+              ? subjectRowIDs
+                  .remove(isReverse ? edge.targetRowID! : edge.sourceRowID!)
               : await edge.delete(db));
 
       if (subjectRowIDs.isEmpty) return;
@@ -1079,11 +1177,15 @@ class CVUActionUnlink extends CVUAction {
 
     var currentItem = context.currentItem;
     var subjectVal = vars["subject"];
-    ItemRecord subjectItem =
-        (await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db))!;
+    ItemRecord subjectItem = (await lookup.resolve<ItemRecord>(
+        value: subjectVal, context: context, db: db))!;
     var edgeTypeVal = vars["edgeType"];
-    String? edgeType = await lookup.resolve<String>(value: edgeTypeVal, context: context, db: db);
-    if (currentItem == null || subjectVal == null || edgeTypeVal == null || edgeType == null) {
+    String? edgeType = await lookup.resolve<String>(
+        value: edgeTypeVal, context: context, db: db);
+    if (currentItem == null ||
+        subjectVal == null ||
+        edgeTypeVal == null ||
+        edgeType == null) {
       return;
     }
 
@@ -1124,13 +1226,16 @@ class CVUActionStar extends CVUAction {
     var node = parser.parse();
 
     return await CVULookupController().resolve<String>(
-        expression: node, context: context, db: AppController.shared.databaseController);
+        expression: node,
+        context: context,
+        db: AppController.shared.databaseController);
   }
 
   CVUActionStar({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(memri.PageController pageController, CVUContext context) async {
+  Future execute(
+      memri.PageController pageController, CVUContext context) async {
     var currentItem = context.currentItem;
     if (currentItem == null) {
       return;
@@ -1139,7 +1244,8 @@ class CVUActionStar extends CVUAction {
     var prop = "starred";
     var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
     try {
-      await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
+      await currentItem.setPropertyValue(
+          prop, PropertyDatabaseValueBool(!currentVal));
     } catch (error) {
       AppLogger.err(
           "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
@@ -1322,8 +1428,8 @@ class CVUActionSetProperty extends CVUAction {
     var schema = db.schema;
 
     var subjectVal = vars["subject"];
-    ItemRecord? subjectItem =
-        await lookup.resolve<ItemRecord>(value: subjectVal, context: context, db: db);
+    ItemRecord? subjectItem = await lookup.resolve<ItemRecord>(
+        value: subjectVal, context: context, db: db);
     if (subjectItem == null) {
       AppLogger.warn("No subject item for property " + subjectVal?.value);
       return;
@@ -1338,7 +1444,8 @@ class CVUActionSetProperty extends CVUAction {
     }
     if (property == null) return;
 
-    SchemaValueType? expectedType = schema.expectedPropertyType(subjectItem.type, property);
+    SchemaValueType? expectedType =
+        schema.expectedPropertyType(subjectItem.type, property);
     CVUValue? value = vars["value"];
 
     if (expectedType == null || value == null) return;
@@ -1376,7 +1483,9 @@ class CVUActionToNextItem extends CVUAction {
     }
     var index = pageController.topMostContext!.focusedIndex;
     pageController.topMostContext?.focusedIndex =
-        index >= pageController.topMostContext!.items.length - 1 ? 0 : index + 1;
+        index >= pageController.topMostContext!.items.length - 1
+            ? 0
+            : index + 1;
     pageController.scheduleUIUpdate();
   }
 }
@@ -1392,8 +1501,9 @@ class CVUActionToPreviousItem extends CVUAction {
       return;
     }
     var index = pageController.topMostContext!.focusedIndex;
-    pageController.topMostContext?.focusedIndex =
-        index <= 0 ? pageController.topMostContext!.items.length - 1 : index - 1;
+    pageController.topMostContext?.focusedIndex = index <= 0
+        ? pageController.topMostContext!.items.length - 1
+        : index - 1;
     pageController.scheduleUIUpdate();
   }
 }
@@ -1456,11 +1566,13 @@ class CVUActionOpenPopup extends CVUAction {
     var textProp = vars["text"];
     if (titleProp == null || textProp == null) return null;
 
-    String? title = await lookup.resolve<String>(value: titleProp, context: context, db: db);
-    String? text = await lookup.resolve<String>(value: textProp, context: context, db: db);
+    String? title = await lookup.resolve<String>(
+        value: titleProp, context: context, db: db);
+    String? text =
+        await lookup.resolve<String>(value: textProp, context: context, db: db);
     if (title == null || text == null) return null;
-    var resolver =
-        CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: this.vars);
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: lookup, db: db, properties: this.vars);
     var actions = resolver.subdefinitionArray("actions");
     var popupActions = actions
         .map((action) => <String, dynamic>{
@@ -1485,15 +1597,18 @@ class CVUActionValidate extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
 
     var rules = resolver.subdefinitionArray("rules");
 
     for (var rule in rules) {
       var exp = (await rule.boolean("expression", false, true))!;
       if (!exp) {
-        var error =
-            await rule.string("error") ?? "Error on ${rule.properties["expression"].toString()}";
+        var error = await rule.string("error") ??
+            "Error on ${rule.properties["expression"].toString()}";
         throw error;
       }
     }
@@ -1509,8 +1624,11 @@ class CVUActionWait extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var seconds = vars["seconds"];
 
-    if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
-      await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {});
+    if (seconds != null &&
+        seconds is CVUValueConstant &&
+        seconds.value is CVUConstantNumber) {
+      await Future.delayed(
+          Duration(seconds: (seconds.value.value as num).toInt()), () {});
     }
   }
 }
@@ -1528,8 +1646,8 @@ class CVUActionBlock extends CVUAction {
     var pageLabelProp = vars["pageLabel"];
     if (pageLabelProp == null) return null;
 
-    String? pageLabel =
-        await lookup.resolve<String>(value: pageLabelProp, context: context, db: db);
+    String? pageLabel = await lookup.resolve<String>(
+        value: pageLabelProp, context: context, db: db);
     if (pageLabel == null) {
       return;
     }
@@ -1543,10 +1661,14 @@ class CVUActionBlock extends CVUAction {
 
     var seconds = vars["seconds"];
 
-    if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
-      Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {
+    if (seconds != null &&
+        seconds is CVUValueConstant &&
+        seconds.value is CVUConstantNumber) {
+      Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()),
+          () {
         if (appController.storage.containsKey(pageLabel)) {
-          (appController.storage[pageLabel]["isBlocked"] as ValueNotifier).value = false;
+          (appController.storage[pageLabel]["isBlocked"] as ValueNotifier)
+              .value = false;
         }
       });
     }
@@ -1562,7 +1684,8 @@ class CVUActionCreateLabellingTask extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
-    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: lookup, db: db, properties: vars);
     var template = resolver.subdefinition("template");
     if (template == null) {
       return;
@@ -1579,7 +1702,8 @@ class CVUActionCreateLabellingTask extends CVUAction {
     }
     var query = (await datasetType.propertyValue("queryStr"))?.asString();
     if (query == null) {
-      AppLogger.warn("CreateLabellingTask error: couldn't find query from dataset type");
+      AppLogger.warn(
+          "CreateLabellingTask error: couldn't find query from dataset type");
       return;
     }
     var decodedQuery = jsonDecode(query);
@@ -1594,36 +1718,48 @@ class CVUActionCreateLabellingTask extends CVUAction {
       filterQuery.remove('type');
       List<DatabaseQueryConditionPropertyEquals> properties = [];
       filterQuery.forEach((key, value) {
-        properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+        properties.add(
+            DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
 
       var databaseQueryConfig = DatabaseQueryConfig(
-          itemTypes: [itemType], pageSize: 500, conditions: properties, sortProperty: "random");
+          itemTypes: [itemType],
+          pageSize: 500,
+          conditions: properties,
+          sortProperty: "random");
       databaseQueryConfig.dbController = db;
       var datasetEntries = <ItemRecord>[];
-      var edgesFromFilteredItems = (await databaseQueryConfig.constructFilteredRequest())
-          .map((item) {
-            var datasetEntry = ItemRecord(type: "DatasetEntry");
-            datasetEntries.add(datasetEntry);
+      var edgesFromFilteredItems =
+          (await databaseQueryConfig.constructFilteredRequest())
+              .map((item) {
+                var datasetEntry = ItemRecord(type: "DatasetEntry");
+                datasetEntries.add(datasetEntry);
 
-            return [
-              ItemEdgeRecord(
-                  name: "entry", sourceRowID: dataset.rowId, targetUID: datasetEntry.uid),
-              ItemEdgeRecord(name: "data", sourceUID: datasetEntry.uid, targetRowID: item.rowId)
-            ];
-          })
-          .expand((element) => element)
-          .toList();
+                return [
+                  ItemEdgeRecord(
+                      name: "entry",
+                      sourceRowID: dataset.rowId,
+                      targetUID: datasetEntry.uid),
+                  ItemEdgeRecord(
+                      name: "data",
+                      sourceUID: datasetEntry.uid,
+                      targetRowID: item.rowId)
+                ];
+              })
+              .expand((element) => element)
+              .toList();
 
       await ItemRecord.insertList(datasetEntries, db: db.databasePool);
-      await ItemEdgeRecord.insertList(edgesFromFilteredItems, db: db.databasePool);
+      await ItemEdgeRecord.insertList(edgesFromFilteredItems,
+          db: db.databasePool);
     }
 
     List<ItemRecord> featureItems = await resolver.items("features");
     var cvu =
         '.labellingAnnotation${Uuid().v4()} { \n ${itemType} > labelAnnotation {\n VStack {\n alignment: left\n padding: 30\n spacing: 5\n';
     for (var feature in featureItems) {
-      var propertyName = (await feature.propertyValue("propertyName", db))?.value;
+      var propertyName =
+          (await feature.propertyValue("propertyName", db))?.value;
       if (propertyName != null) {
         if (itemType == "EmailMessage" && propertyName == "content") {
           cvu += '\nHTMLView {\n maxHeight: 400\n content: {{.content}}\n}';
@@ -1639,12 +1775,11 @@ class CVUActionCreateLabellingTask extends CVUAction {
       return;
     }
     var newVars = Map.of(vars);
-    newVars["template"] =
-        CVUValueSubdefinition((vars["template"] as CVUValueSubdefinition).value.clone());
-    (newVars["template"] as CVUValueSubdefinition)
-        .value
-        .properties
-        .update("view", (value) => CVUValueItem(cvuID), ifAbsent: () => CVUValueItem(cvuID));
+    newVars["template"] = CVUValueSubdefinition(
+        (vars["template"] as CVUValueSubdefinition).value.clone());
+    (newVars["template"] as CVUValueSubdefinition).value.properties.update(
+        "view", (value) => CVUValueItem(cvuID),
+        ifAbsent: () => CVUValueItem(cvuID));
     await CVUActionAddItem(vars: newVars).execute(pageController, context);
   }
 }
@@ -1658,7 +1793,8 @@ class CVUActionParsePluginItem extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
-    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: lookup, db: db, properties: vars);
     var project = await resolver.item("project");
     if (project == null) {
       throw "Labelling project is not exist!";
@@ -1677,15 +1813,17 @@ class CVUActionParsePluginItem extends CVUAction {
     }
 
     //TODO: for future we need to save branch
-    var searchNeedle =
-        url.replaceFirst("https://gitlab.memri.io/", "").replaceFirst(RegExp(r"\/\-\/tree.*$"), "");
+    var searchNeedle = url
+        .replaceFirst("https://gitlab.memri.io/", "")
+        .replaceFirst(RegExp(r"\/\-\/tree.*$"), "");
     var newUri = Uri.tryParse(
         "https://gitlab.memri.io/api/v4/projects?search=$searchNeedle&search_namespaces=true");
     if (newUri == null || !newUri.hasAbsolutePath) {
       throw "Url is not valid";
     }
 
-    var response = await http.get(newUri, headers: {"content-type": "application/json"});
+    var response =
+        await http.get(newUri, headers: {"content-type": "application/json"});
     if (response.statusCode != 200) {
       throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
     }
@@ -1717,35 +1855,43 @@ class CVUActionParsePluginItem extends CVUAction {
     pluginProperties.forEach((key, value) {
       if (value != null) {
         if (key == "description")
-          key = "pluginDescription"; //TODO: change this after param in pyMemri will be changed
-        properties.add(ItemPropertyRecord(name: key, value: PropertyDatabaseValueString(value)));
+          key =
+              "pluginDescription"; //TODO: change this after param in pyMemri will be changed
+        properties.add(ItemPropertyRecord(
+            name: key, value: PropertyDatabaseValueString(value)));
       }
     });
 
     var encodedConfig = await GitlabApi.downloadSingleArtifact(
-        gitProjectId: gitProjectId, filename: "config.json", jobName: "create_config");
-    properties.add(
-        ItemPropertyRecord(name: "configJson", value: PropertyDatabaseValueString(encodedConfig)));
-    var configJsonList =
-        (jsonDecode(encodedConfig) as List).map((json) => PluginConfigJson.fromJson(json)).toList();
+        gitProjectId: gitProjectId,
+        filename: "config.json",
+        jobName: "create_config");
+    properties.add(ItemPropertyRecord(
+        name: "configJson", value: PropertyDatabaseValueString(encodedConfig)));
+    var configJsonList = (jsonDecode(encodedConfig) as List)
+        .map((json) => PluginConfigJson.fromJson(json))
+        .toList();
     Map<String, dynamic> configData = {};
     for (var configItem in configJsonList) {
       if (configItem.defaultData != null && configItem.defaultData != "") {
-        configData.addEntries([MapEntry(configItem.name, configItem.defaultData)]);
+        configData
+            .addEntries([MapEntry(configItem.name, configItem.defaultData)]);
       }
     }
     configData["isMock"] ??= true;
     properties.add(ItemPropertyRecord(
-        name: "config", value: PropertyDatabaseValueString(jsonEncode(configData))));
-    properties.add(
-        ItemPropertyRecord(name: "gitProjectId", value: PropertyDatabaseValueInt(gitProjectId)));
+        name: "config",
+        value: PropertyDatabaseValueString(jsonEncode(configData))));
+    properties.add(ItemPropertyRecord(
+        name: "gitProjectId", value: PropertyDatabaseValueInt(gitProjectId)));
 
     await project.addEdge(edgeName: "labellingPlugin", targetItem: pluginItem);
     await pluginItem.setPropertyValueList(properties, db: db);
   }
 
   //TODO: this part is not used now, we will need it on next iterations
-  parsePluginSchema({required int gitProjectId, required DatabaseController db}) async {
+  parsePluginSchema(
+      {required int gitProjectId, required DatabaseController db}) async {
     var encodedSchema = await GitlabApi.getTextFileContentFromGitlab(
         gitProjectId: gitProjectId, filename: "schema.json");
     var decodedSchema = jsonDecode(encodedSchema);
@@ -1760,16 +1906,23 @@ class CVUActionParsePluginItem extends CVUAction {
         if (type == "ItemPropertySchema") {
           var itemType = el["itemType"];
           var propertyName = el["propertyName"];
-          var propertyValue = ItemRecord.reverseMapSchemaValueType(el["valueType"]);
-          if (itemType is String && propertyName is String && propertyValue is String) {
+          var propertyValue =
+              ItemRecord.reverseMapSchemaValueType(el["valueType"]);
+          if (itemType is String &&
+              propertyName is String &&
+              propertyValue is String) {
             var record = ItemRecord(type: "ItemPropertySchema");
             await record.save(db.databasePool);
             properties.addAll([
-              ItemPropertyRecord(name: "itemType", value: PropertyDatabaseValueString(itemType)),
               ItemPropertyRecord(
-                  name: "propertyName", value: PropertyDatabaseValueString(propertyName)),
+                  name: "itemType",
+                  value: PropertyDatabaseValueString(itemType)),
               ItemPropertyRecord(
-                  name: "valueType", value: PropertyDatabaseValueString(propertyValue)),
+                  name: "propertyName",
+                  value: PropertyDatabaseValueString(propertyName)),
+              ItemPropertyRecord(
+                  name: "valueType",
+                  value: PropertyDatabaseValueString(propertyValue)),
             ]);
 
             await record.setPropertyValueList(properties);
@@ -1779,15 +1932,21 @@ class CVUActionParsePluginItem extends CVUAction {
             var sourceType = el["sourceType"];
             var edgeName = el["edgeName"];
             var targetType = el["targetType"];
-            if (sourceType is String && edgeName is String && targetType is String) {
+            if (sourceType is String &&
+                edgeName is String &&
+                targetType is String) {
               var record = ItemRecord(type: "ItemEdgeSchema");
               await record.save(db.databasePool);
               properties.addAll([
                 ItemPropertyRecord(
-                    name: "sourceType", value: PropertyDatabaseValueString(sourceType)),
-                ItemPropertyRecord(name: "edgeName", value: PropertyDatabaseValueString(edgeName)),
+                    name: "sourceType",
+                    value: PropertyDatabaseValueString(sourceType)),
                 ItemPropertyRecord(
-                    name: "targetType", value: PropertyDatabaseValueString(targetType)),
+                    name: "edgeName",
+                    value: PropertyDatabaseValueString(edgeName)),
+                ItemPropertyRecord(
+                    name: "targetType",
+                    value: PropertyDatabaseValueString(targetType)),
               ]);
 
               await record.setPropertyValueList(properties);
@@ -1809,7 +1968,8 @@ class CVUActionGeneratePluginCvu extends CVUAction {
   execute(memri.PageController pageController, CVUContext context) async {
     var lookup = CVULookupController();
     var db = pageController.appController.databaseController;
-    var resolver = CVUPropertyResolver(context: context, lookup: lookup, db: db, properties: vars);
+    var resolver = CVUPropertyResolver(
+        context: context, lookup: lookup, db: db, properties: vars);
     var plugin = await resolver.item("plugin");
     if (plugin == null) {
       throw "Couldn't find plugin item in database";
@@ -1837,7 +1997,8 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         cvuController: pageController.topMostContext!.cvuController,
         pluginUID: plugin.uid);
     if (!forceUpdate) {
-      var viewEdge = ItemEdgeRecord(name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
+      var viewEdge = ItemEdgeRecord(
+          name: "view", sourceRowID: plugin.rowId, targetRowID: cvuRowId);
       await viewEdge.save(db.databasePool);
     }
   }
@@ -1860,7 +2021,8 @@ class CVUActionGeneratePluginCvu extends CVUAction {
       filterProperties.forEach((key, value) {
         propertiesFilter += '$key: "$value"\n';
         properties.addEntries({MapEntry(key, value)});
-        queryProperties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+        queryProperties.add(
+            DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
       });
       propertiesFilter += '\nisMock: {{isMock}}\n';
       propertiesFilter += "}}";
@@ -2018,7 +2180,8 @@ class CVUActionGeneratePluginCvu extends CVUAction {
                                 spans: [''';
 
     for (var feature in features) {
-      var propertyName = (await feature.propertyValue("propertyName", db))?.value;
+      var propertyName =
+          (await feature.propertyValue("propertyName", db))?.value;
       if (propertyName != null) {
         cvu += '\n {\n text: "{.${propertyName}} " \n}';
         if (!properties.containsKey(propertyName)) {
@@ -2040,7 +2203,9 @@ class CVUActionGeneratePluginCvu extends CVUAction {
         throw "CVU couldn't be saved";
       }
       var databaseQueryConfig = DatabaseQueryConfig(
-          itemTypes: [startItemType], pageSize: 10, conditions: queryProperties);
+          itemTypes: [startItemType],
+          pageSize: 10,
+          conditions: queryProperties);
       databaseQueryConfig.dbController = db;
       var items = await databaseQueryConfig.constructFilteredRequest();
       if (items.isEmpty) {
@@ -2048,8 +2213,8 @@ class CVUActionGeneratePluginCvu extends CVUAction {
             db: db, properties: properties, itemType: startItemType);
       } else {
         for (var item in items) {
-          await ItemRecord.fromItem(item)
-              .copy(db, withProperties: {"isMock": PropertyDatabaseValueBool(true)});
+          await ItemRecord.fromItem(item).copy(db,
+              withProperties: {"isMock": PropertyDatabaseValueBool(true)});
         }
       }
       return cvuID;
@@ -2064,10 +2229,14 @@ class CVUActionAnalytics extends CVUAction {
   CVUActionAnalytics({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(memri.PageController pageController, CVUContext context) async {
+  Future execute(
+      memri.PageController pageController, CVUContext context) async {
     DatabaseController db = pageController.appController.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), db: db, properties: vars);
+        context: context,
+        lookup: CVULookupController(),
+        db: db,
+        properties: vars);
 
     var name = await resolver.string("name") ?? "null";
     List<ItemRecord> paramList = await resolver.items("params");
@@ -2078,14 +2247,15 @@ class CVUActionAnalytics extends CVUAction {
           MixpanelAnalyticsService().logImporterStatus(params.first ?? '');
           break;
         case AnalyticsEvents.projectCreate:
-          MixpanelAnalyticsService().logProjectCreate(params.first ?? '', params[1] ?? '');
+          MixpanelAnalyticsService()
+              .logProjectCreate(params.first ?? '', params[1] ?? '');
           break;
         case AnalyticsEvents.projectDataSelect:
           MixpanelAnalyticsService().logProjectDataSelect(params.first);
           break;
         case AnalyticsEvents.projectLabelsOverview:
-          MixpanelAnalyticsService()
-              .logProjectLabelsOverview(params[0] ?? '', params[1] ?? '', params[2] ?? '');
+          MixpanelAnalyticsService().logProjectLabelsOverview(
+              params[0] ?? '', params[1] ?? '', params[2] ?? '');
           break;
         case AnalyticsEvents.projectTrainModel:
           MixpanelAnalyticsService().logProjectTrainModel();
@@ -2094,7 +2264,8 @@ class CVUActionAnalytics extends CVUAction {
           MixpanelAnalyticsService().logProjectGoogleColab();
           break;
         case AnalyticsEvents.projectTutorialLink:
-          MixpanelAnalyticsService().logProjectTutorialLink(params[0] ?? '', params[1] ?? '');
+          MixpanelAnalyticsService()
+              .logProjectTutorialLink(params[0] ?? '', params[1] ?? '');
           break;
         case AnalyticsEvents.projectPluginGitlabUrl:
           MixpanelAnalyticsService().logProjectPluginGitlabUrl(params[0] ?? '');
@@ -2103,13 +2274,16 @@ class CVUActionAnalytics extends CVUAction {
     } else {
       switch (name) {
         case AnalyticsEvents.projectDataSelect:
-          MixpanelAnalyticsService().logProjectDataSelect(paramList.map((e) => e.uid).toList());
+          MixpanelAnalyticsService()
+              .logProjectDataSelect(paramList.map((e) => e.uid).toList());
           break;
         case AnalyticsEvents.projectLabelsAdd:
-          MixpanelAnalyticsService().logProjectAddLabels(paramList.map((e) => e.uid).toList());
+          MixpanelAnalyticsService()
+              .logProjectAddLabels(paramList.map((e) => e.uid).toList());
           break;
         case AnalyticsEvents.projectLabelsSummary:
-          MixpanelAnalyticsService().logProjectLabelsSummary(paramList.map((e) => e.uid).toList());
+          MixpanelAnalyticsService()
+              .logProjectLabelsSummary(paramList.map((e) => e.uid).toList());
           break;
       }
     }

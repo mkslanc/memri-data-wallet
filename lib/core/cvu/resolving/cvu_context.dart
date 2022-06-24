@@ -2,9 +2,9 @@
 
 import 'dart:math';
 
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/core/models/database/item_record.dart';
 
 class CVUContext {
   ItemRecord? currentItem;
@@ -16,7 +16,8 @@ class CVUContext {
   CVUDefinitionContent viewDefinition;
   CVUViewArguments? viewArguments;
 
-  Map<String, dynamic> cache = {}; //TODO: review and improve, extreme mvp optimisation
+  Map<String, dynamic> cache =
+      {}; //TODO: review and improve, extreme mvp optimisation
   dynamic getCache(String key) => cache[key];
   bool hasCache(String key) => cache.containsKey(key);
   setCache(String key, dynamic value) => cache[key] = value;

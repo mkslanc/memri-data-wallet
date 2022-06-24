@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/database/item_record.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/general_editor_renderer.dart';
 
@@ -151,14 +151,18 @@ class _MemriButtonState extends State<MemriButton> {
                   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                   decoration: BoxDecoration(color: bgColor),
                   child: IntrinsicHeight(
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    if (title.isNotEmpty) GeneralEditorHeader(content: title.toUpperCase()),
-                    Text(
-                      value,
-                      style: TextStyle(fontSize: 13, color: foregroundColor),
-                    ),
-                    Divider(height: 1)
-                  ])));
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        if (title.isNotEmpty)
+                          GeneralEditorHeader(content: title.toUpperCase()),
+                        Text(
+                          value,
+                          style:
+                              TextStyle(fontSize: 13, color: foregroundColor),
+                        ),
+                        Divider(height: 1)
+                      ])));
             }
             return Empty();
           });

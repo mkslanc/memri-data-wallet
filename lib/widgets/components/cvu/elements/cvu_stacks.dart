@@ -42,7 +42,8 @@ class _CVUHStackState extends State<CVUHStack> {
   init() async {
     alignment = await widget.nodeResolver.propertyResolver.alignment("row");
     spacing = await widget.nodeResolver.propertyResolver.spacing;
-    fillWidth = (await widget.nodeResolver.propertyResolver.boolean("fillWidth", false))!;
+    fillWidth = (await widget.nodeResolver.propertyResolver
+        .boolean("fillWidth", false))!;
   }
 
   @override
@@ -52,8 +53,10 @@ class _CVUHStackState extends State<CVUHStack> {
         builder: (BuildContext builder, snapshot) {
           return Row(
             mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
-            crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
-            children: space(spacing?.x.toDouble() ?? 10 /*TODO default spacing*/,
+            crossAxisAlignment:
+                alignment?.crossAxis ?? CrossAxisAlignment.center,
+            children: space(
+                spacing?.x.toDouble() ?? 10 /*TODO default spacing*/,
                 widget.nodeResolver.childrenInForEach()),
           );
           /* TODO:
@@ -108,9 +111,10 @@ class _CVUVStackState extends State<CVUVStack> {
         builder: (BuildContext builder, snapshot) {
           return Column(
             mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
-            crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
-            children: space(spacing?.y.toDouble() ?? 10, widget.nodeResolver.childrenInForEach(),
-                Axis.vertical),
+            crossAxisAlignment:
+                alignment?.crossAxis ?? CrossAxisAlignment.center,
+            children: space(spacing?.y.toDouble() ?? 10,
+                widget.nodeResolver.childrenInForEach(), Axis.vertical),
           );
           /* TODO:
         .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
@@ -153,7 +157,8 @@ class _CVUZStackState extends State<CVUZStack> {
 
   init() async {
     spacing = await widget.nodeResolver.propertyResolver.spacing;
-    alignment = await widget.nodeResolver.propertyResolver.alignmentForStack("alignment");
+    alignment = await widget.nodeResolver.propertyResolver
+        .alignmentForStack("alignment");
   }
 
   @override

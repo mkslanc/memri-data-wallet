@@ -46,7 +46,8 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
                 var source = (widget.src != null)
                     ? widget.src
                     : Uri.dataFromString(widget.html!,
-                            mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+                            mimeType: 'text/html',
+                            encoding: Encoding.getByName('utf-8'))
                         .toString();
                 _webViewController.loadUrl(source!);
               });

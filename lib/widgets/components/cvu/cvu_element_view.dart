@@ -1,7 +1,7 @@
 //  Created by T Brennan on 7/1/21.
 
 import 'package:flutter/material.dart';
-import 'package:memri/models/cvu/cvu_ui_element_family.dart';
+import 'package:memri/core/models/cvu/cvu_ui_element_family.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_action_button.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_appearance_modifier.dart';
@@ -33,7 +33,8 @@ class CVUElementView extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
   final Map<String, dynamic>? additionalParams; //TODO not best solution
 
-  CVUElementView({required this.nodeResolver, this.additionalParams, Key? key}) : super(key: key);
+  CVUElementView({required this.nodeResolver, this.additionalParams, Key? key})
+      : super(key: key);
 
   @override
   _CVUElementViewState createState() => _CVUElementViewState();
@@ -54,7 +55,8 @@ class _CVUElementViewState extends State<CVUElementView> {
     switch (widget.nodeResolver.node.type) {
       case CVUUIElementFamily.ForEach:
         return CVUForEach(
-            nodeResolver: widget.nodeResolver, getWidget: widget.additionalParams!["getWidget"]);
+            nodeResolver: widget.nodeResolver,
+            getWidget: widget.additionalParams!["getWidget"]);
       case CVUUIElementFamily.HStack:
         return CVUHStack(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.VStack:
@@ -159,7 +161,8 @@ class _CVUElementViewState extends State<CVUElementView> {
           if (showNode == true) {
             return needsModifier
                 ? CVUAppearanceModifier(
-                    nodeResolver: widget.nodeResolver, child: resolvedComponent())
+                    nodeResolver: widget.nodeResolver,
+                    child: resolvedComponent())
                 : resolvedComponent();
           }
           return Empty();

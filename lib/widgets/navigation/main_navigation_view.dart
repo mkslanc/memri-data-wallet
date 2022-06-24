@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 
 import 'navigation_pane_view.dart';
 
@@ -28,9 +28,11 @@ class MainNavigationView extends StatelessWidget {
         _buildNavigationItemView('Data', 'allData',
             alternativeViewNames: ['WhatsappPlugin', 'pluginRunWait']),
         SizedBox(width: 30),
-        _buildNavigationItemView('Projects', 'allProjects', alternativeViewNames: ['add-project']),
+        _buildNavigationItemView('Projects', 'allProjects',
+            alternativeViewNames: ['add-project']),
         SizedBox(width: 30),
-        _buildNavigationItemView('Apps', 'apps-and-plugins', alternativeViewNames: ['dataPlugin']),
+        _buildNavigationItemView('Apps', 'apps-and-plugins',
+            alternativeViewNames: ['dataPlugin']),
         Spacer(),
         InkWell(
             onTap: () => sceneController.navigateToNewContext(
@@ -45,7 +47,8 @@ class MainNavigationView extends StatelessWidget {
     bool isCurrentViewSelected = currentViewName == viewName;
     if (!isCurrentViewSelected) {
       for (int i = 0; i < (alternativeViewNames ?? []).length; i++) {
-        if (currentViewName != null && currentViewName!.contains(alternativeViewNames![i])) {
+        if (currentViewName != null &&
+            currentViewName!.contains(alternativeViewNames![i])) {
           isCurrentViewSelected = true;
           break;
         }

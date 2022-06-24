@@ -1,7 +1,7 @@
 import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_value_expression.dart';
-import 'package:memri/models/cvu/cvu_value_lookup_node.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_value_expression.dart';
+import 'package:memri/core/models/cvu/cvu_value_lookup_node.dart';
 
 class CVUExpressionParseErrors extends Error {}
 
@@ -11,31 +11,38 @@ class CVUExpressionParseErrorsUnexpectedToken extends CVUExpressionParseErrors {
   CVUExpressionParseErrorsUnexpectedToken(this.value);
 }
 
-class CVUExpressionParseErrorsUndefinedOperator extends CVUExpressionParseErrors {
+class CVUExpressionParseErrorsUndefinedOperator
+    extends CVUExpressionParseErrors {
   String value;
 
   CVUExpressionParseErrorsUndefinedOperator(this.value);
 }
 
-class CVUExpressionParseErrorsExpectedCharacter extends CVUExpressionParseErrors {
+class CVUExpressionParseErrorsExpectedCharacter
+    extends CVUExpressionParseErrors {
   String value;
 
   CVUExpressionParseErrorsExpectedCharacter(this.value);
 }
 
-class CVUExpressionParseErrorsExpectedExpression extends CVUExpressionParseErrors {
+class CVUExpressionParseErrorsExpectedExpression
+    extends CVUExpressionParseErrors {
   ExprToken value;
 
   CVUExpressionParseErrorsExpectedExpression(this.value);
 }
 
-class CVUExpressionParseErrorsExpectedArgumentList extends CVUExpressionParseErrors {}
+class CVUExpressionParseErrorsExpectedArgumentList
+    extends CVUExpressionParseErrors {}
 
-class CVUExpressionParseErrorsExpectedIdentifier extends CVUExpressionParseErrors {}
+class CVUExpressionParseErrorsExpectedIdentifier
+    extends CVUExpressionParseErrors {}
 
-class CVUExpressionParseErrorsExpectedConditionElse extends CVUExpressionParseErrors {}
+class CVUExpressionParseErrorsExpectedConditionElse
+    extends CVUExpressionParseErrors {}
 
-class CVUExpressionParseErrorsMissingQuoteClose extends CVUExpressionParseErrors {}
+class CVUExpressionParseErrorsMissingQuoteClose
+    extends CVUExpressionParseErrors {}
 
 class CVUExpressionParser {
   List<ExprToken> tokens;
@@ -122,7 +129,8 @@ class CVUExpressionParser {
       throw CVUExpressionParseErrorsUnexpectedToken(lastToken!);
     }
     var value = token.value;
-    return CVUExpressionNodeConstant(CVUConstantString(value, token.isSingleQuote));
+    return CVUExpressionNodeConstant(
+        CVUConstantString(value, token.isSingleQuote));
   }
 
   CVUExpressionNode parseBool() {
@@ -151,7 +159,8 @@ class CVUExpressionParser {
     var op = token.value;
     if (op == ExprOperator.Minus) {
       var exp = parseIntExpressionComponent();
-      return CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0)), exp);
+      return CVUExpressionNodeSubtraction(
+          CVUExpressionNodeConstant(CVUConstantNumber(0)), exp);
     } else if (op == ExprOperator.Plus) {
       var exp = parseIntExpressionComponent();
       return exp;
@@ -319,7 +328,8 @@ class CVUExpressionParser {
     return op.precedence;
   }
 
-  CVUExpressionNode parseBinaryOp({CVUExpressionNode? node, int exprPrecedence = 0}) {
+  CVUExpressionNode parseBinaryOp(
+      {CVUExpressionNode? node, int exprPrecedence = 0}) {
     var lhs = node!;
     while (true) {
       var tokenPrecedence = getCurrentTokenPrecedence();

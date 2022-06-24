@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_text_properties_modifier.dart';
 import 'package:memri/widgets/empty.dart';
@@ -49,15 +49,18 @@ class _CVUDropdownState extends State<CVUDropdown> {
   }
 
   init() async {
-    resolvedTextProperties =
-        await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
-            .init();
-    style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
+    resolvedTextProperties = await CVUTextPropertiesModifier(
+            propertyResolver: widget.nodeResolver.propertyResolver)
+        .init();
+    style = await widget.nodeResolver.propertyResolver
+        .style<ButtonStyle>(type: StyleType.button);
     items = await widget.nodeResolver.propertyResolver.items("list");
 
-    var edgeName = await widget.nodeResolver.propertyResolver.string("edgeName");
+    var edgeName =
+        await widget.nodeResolver.propertyResolver.string("edgeName");
     if (edgeName != null) {
-      selectedItem = (await widget.nodeResolver.propertyResolver.edge("item", edgeName));
+      selectedItem =
+          (await widget.nodeResolver.propertyResolver.edge("item", edgeName));
     }
 
     selectedItem ??= items.asMap()[0];
@@ -89,7 +92,8 @@ class _CVUDropdownState extends State<CVUDropdown> {
                 items: items
                     .map((e) => DropdownMenuItem(
                         value: e,
-                        child: widget.nodeResolver.childrenInForEachWithWrap(usingItem: e)))
+                        child: widget.nodeResolver
+                            .childrenInForEachWithWrap(usingItem: e)))
                     .toList());
           }
           return Empty();

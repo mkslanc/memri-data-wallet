@@ -8,7 +8,10 @@ class GridRendererSimpleView extends GridRenderer {
   final EdgeInsets insets;
 
   GridRendererSimpleView(
-      {required this.scrollDirection, required this.insets, required spacing, required elements})
+      {required this.scrollDirection,
+      required this.insets,
+      required spacing,
+      required elements})
       : super(spacing: spacing, elements: elements);
 
   @override

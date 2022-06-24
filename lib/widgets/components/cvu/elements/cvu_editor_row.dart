@@ -30,7 +30,8 @@ class _CVUEditorRowState extends State<CVUEditorRow> {
   init() async {
     alignment = await widget.nodeResolver.propertyResolver.alignment("column");
     header = await _header;
-    noPadding = (await widget.nodeResolver.propertyResolver.boolean("nopadding", false))!;
+    noPadding = (await widget.nodeResolver.propertyResolver
+        .boolean("nopadding", false))!;
   }
 
   Future<Widget> get _header async {
@@ -56,7 +57,8 @@ class _CVUEditorRowState extends State<CVUEditorRow> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
-            crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
+            crossAxisAlignment:
+                alignment?.crossAxis ?? CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),

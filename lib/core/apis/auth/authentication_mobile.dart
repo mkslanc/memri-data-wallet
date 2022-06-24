@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:memri/core/apis/auth/auth_key.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,7 +35,8 @@ class Authentication {
   static Future<bool> get storageDoesNotExist async {
     try {
       if (await hasBiometrics) {
-        bool didAuthenticate = await localAuth.authenticate(localizedReason: ' ');
+        bool didAuthenticate =
+            await localAuth.authenticate(localizedReason: ' ');
         if (didAuthenticate) {
           var result = await storage.read(key: rootKeyTag);
           if (result == null) {
@@ -76,13 +77,17 @@ class Authentication {
     var publicKey = keyPair.publicKey as ECPublicKey;
     var privateKeyStr = privateKey.d!.toRadixString(16).toUpperCase();
     var publicKeyStr = publicKey.Q!.x!.toBigInteger()!.toRadixString(16);
-    return GeneratedKeys(privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
+    return GeneratedKeys(
+        privateKey: privateKeyStr, publicKey: publicKeyStr, dbKey: dbKey);
   }
 
-  static Future<GeneratedKeys> createOwnerAndDBKey([String? predefinedKey]) async {
+  static Future<GeneratedKeys> createOwnerAndDBKey(
+      [String? predefinedKey]) async {
     var keys = generateAllKeys();
     await setOwnerAndDBKey(
-        privateKey: keys.privateKey, publicKey: keys.publicKey, dbKey: keys.dbKey);
+        privateKey: keys.privateKey,
+        publicKey: keys.publicKey,
+        dbKey: keys.dbKey);
     return keys;
   }
 
@@ -105,8 +110,11 @@ class Authentication {
   }
 
   static setOwnerAndDBKey(
-      {required String privateKey, required String publicKey, required String dbKey}) async {
-    await ItemRecord.setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
+      {required String privateKey,
+      required String publicKey,
+      required String dbKey}) async {
+    await ItemRecord.setOwnerAndDBKey(
+        privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
   }
 
   static Future<AuthKeys> getOwnerAndDBKey() async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/binding.dart';
-import 'package:memri/utils/execute_actions.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utilities/binding.dart';
+import 'package:memri/utilities/execute_actions.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/text_field/memri_text_field.dart';
 
@@ -44,12 +44,17 @@ class _CVUTextFieldState extends State<CVUTextField> {
 
   init() async {
     // Secure mode hides the input (eg. for passwords)
-    secureMode = await widget.nodeResolver.propertyResolver.boolean("secure", false);
-    hint = (await widget.nodeResolver.propertyResolver.string("hint"))?.nullIfBlank;
-    contentBinding = await widget.nodeResolver.propertyResolver.binding<String>("value", null);
+    secureMode =
+        await widget.nodeResolver.propertyResolver.boolean("secure", false);
+    hint = (await widget.nodeResolver.propertyResolver.string("hint"))
+        ?.nullIfBlank;
+    contentBinding = await widget.nodeResolver.propertyResolver
+        .binding<String>("value", null);
     color = await widget.nodeResolver.propertyResolver.color();
-    isCollapsed = await widget.nodeResolver.propertyResolver.boolean("isCollapsed", false);
-    autoFocus = (await widget.nodeResolver.propertyResolver.boolean("autoFocus", false))!;
+    isCollapsed = await widget.nodeResolver.propertyResolver
+        .boolean("isCollapsed", false);
+    autoFocus = (await widget.nodeResolver.propertyResolver
+        .boolean("autoFocus", false))!;
     actions = widget.nodeResolver.propertyResolver.actions("onSubmit") ?? [];
   }
 

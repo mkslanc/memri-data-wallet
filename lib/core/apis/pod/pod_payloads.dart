@@ -6,8 +6,12 @@ class PodRequestBody<Payload> {
   Map<String, String> auth;
   Payload payload;
 
-  PodRequestBody({required PodConnectionDetails connectionConfig, required this.payload})
-      : auth = {"type": "ClientAuth", "databaseKey": connectionConfig.databaseKey};
+  PodRequestBody(
+      {required PodConnectionDetails connectionConfig, required this.payload})
+      : auth = {
+          "type": "ClientAuth",
+          "databaseKey": connectionConfig.databaseKey
+        };
 
   Map toJson() => {'auth': auth, 'payload': payload};
 }
@@ -53,7 +57,8 @@ class PodPayloadItemUIDWithServicePayload extends PodPayload {
   String uid;
   PodPayloadServicePayload servicePayload;
 
-  PodPayloadItemUIDWithServicePayload({required this.uid, required this.servicePayload});
+  PodPayloadItemUIDWithServicePayload(
+      {required this.uid, required this.servicePayload});
 
   toJson() => {'uid': uid, 'servicePayload': servicePayload};
 }

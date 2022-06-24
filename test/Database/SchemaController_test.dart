@@ -1,18 +1,19 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/demo_data.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/models/database/item_property_record.dart';
-import 'package:memri/models/database/item_record.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('testDecodeSchemaProperty', () {
-    var propertyString = '{ "item_type": "Review", "property": "title", "value_type": "string" }';
+    var propertyString =
+        '{ "item_type": "Review", "property": "title", "value_type": "string" }';
     var decodedJson = jsonDecode(propertyString);
     SchemaProperty property = SchemaProperty.fromJson(decodedJson);
     expect(property.itemType, "Review");
@@ -21,15 +22,18 @@ void main() {
   });
 
   test('testEncodeSchemaProperty', () {
-    var propertyString = '{ "item_type": "Review", "property": "title", "value_type": "string" }';
+    var propertyString =
+        '{ "item_type": "Review", "property": "title", "value_type": "string" }';
     var decodedJson = jsonDecode(propertyString);
     SchemaProperty property = SchemaProperty.fromJson(decodedJson);
     var encoded = jsonEncode(property);
-    expect(encoded, '{"item_type":"Review","property":"title","value_type":"string"}');
+    expect(encoded,
+        '{"item_type":"Review","property":"title","value_type":"string"}');
   });
 
   test('testDecodeSchemaEdge', () {
-    var edgeString = '{ "source_type": "Photo", "edge": "file", "target_type": "File" }';
+    var edgeString =
+        '{ "source_type": "Photo", "edge": "file", "target_type": "File" }';
     var decodedJson = jsonDecode(edgeString);
     SchemaEdge edge = SchemaEdge.fromJson(decodedJson);
     expect(edge.sourceType, "Photo");
@@ -39,7 +43,8 @@ void main() {
   });
 
   test('testDecodeSchemaEdgeArray', () {
-    var edgeString = '{ "source_type": "Email", "edge": "attachment", "target_type": "File[]" }';
+    var edgeString =
+        '{ "source_type": "Email", "edge": "attachment", "target_type": "File[]" }';
     var decodedJson = jsonDecode(edgeString);
     SchemaEdge edge = SchemaEdge.fromJson(decodedJson);
     expect(edge.sourceType, "Email");
@@ -49,19 +54,23 @@ void main() {
   });
 
   test('testEncodeSchemaEdge', () {
-    var edgeString = '{ "source_type": "Photo", "edge": "file", "target_type": "File" }';
+    var edgeString =
+        '{ "source_type": "Photo", "edge": "file", "target_type": "File" }';
     var decodedJson = jsonDecode(edgeString);
     SchemaEdge edge = SchemaEdge.fromJson(decodedJson);
     var encoded = jsonEncode(edge);
-    expect(encoded, '{"source_type":"Photo","edge":"file","target_type":"File"}');
+    expect(
+        encoded, '{"source_type":"Photo","edge":"file","target_type":"File"}');
   });
 
   test('testEncodeSchemaEdgeArray', () {
-    var edgeString = '{ "source_type": "Email", "edge": "attachment", "target_type": "File[]" }';
+    var edgeString =
+        '{ "source_type": "Email", "edge": "attachment", "target_type": "File[]" }';
     var decodedJson = jsonDecode(edgeString);
     SchemaEdge edge = SchemaEdge.fromJson(decodedJson);
     var encoded = jsonEncode(edge);
-    expect(encoded, '{"source_type":"Email","edge":"attachment","target_type":"File[]"}');
+    expect(encoded,
+        '{"source_type":"Email","edge":"attachment","target_type":"File[]"}');
   });
 
   test('testLoadSchemaFromJSON', () async {
@@ -74,7 +83,8 @@ void main() {
     var databaseController = DatabaseController(inMemory: true);
     await databaseController.init();
     await databaseController.importRequiredData();
-    var titleType = databaseController.schema.expectedPropertyType("Note", "title");
+    var titleType =
+        databaseController.schema.expectedPropertyType("Note", "title");
     expect(titleType, SchemaValueType.string);
   });
 
@@ -87,7 +97,8 @@ void main() {
     await ItemPropertyRecord(
             itemRowID: recordRowId,
             name: "sourceType",
-            value: PropertyDatabaseValue.create("Email", SchemaValueType.string))
+            value:
+                PropertyDatabaseValue.create("Email", SchemaValueType.string))
         .insert(databaseController.databasePool);
     await ItemPropertyRecord(
             itemRowID: recordRowId,
@@ -99,7 +110,8 @@ void main() {
             name: "targetType",
             value: PropertyDatabaseValue.create("Any", SchemaValueType.string))
         .insert(databaseController.databasePool);
-    String? targetType = databaseController.schema.expectedTargetType("Email", "test");
+    String? targetType =
+        databaseController.schema.expectedTargetType("Email", "test");
     expect(targetType, null);
     await databaseController.schema.load(databaseController.databasePool);
     targetType = databaseController.schema.expectedTargetType("Email", "test");

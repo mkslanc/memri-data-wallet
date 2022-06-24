@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/database_query.dart';
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/database_query.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/models/view_context.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/core/models/view_context.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scene_content_view.dart';
@@ -72,7 +72,8 @@ class _CVUSubViewState extends State<CVUSubView> {
   }
 
   Future init() async {
-    var viewDefinition = widget.nodeResolver.propertyResolver.value("view")?.getSubdefinition();
+    var viewDefinition =
+        widget.nodeResolver.propertyResolver.value("view")?.getSubdefinition();
     if (viewDefinition == null) {
       _viewContext = null;
       return;
@@ -91,8 +92,9 @@ class _CVUSubViewState extends State<CVUSubView> {
     if (id != null &&
         widget.nodeResolver.context.viewArguments != null &&
         widget.nodeResolver.context.viewArguments!.args.containsKey(id)) {
-      viewDefinition = viewDefinition.merge(
-          (widget.nodeResolver.context.viewArguments!.args[id] as CVUValueSubdefinition).value);
+      viewDefinition = viewDefinition.merge((widget.nodeResolver.context
+              .viewArguments!.args[id] as CVUValueSubdefinition)
+          .value);
     }
 
     _viewDefinition = viewDefinition;
@@ -100,7 +102,8 @@ class _CVUSubViewState extends State<CVUSubView> {
 
     String? rendererName;
     var defaultRenderer = viewDefinition.properties["defaultRenderer"];
-    if (defaultRenderer is CVUValueConstant && defaultRenderer.value is CVUConstantArgument) {
+    if (defaultRenderer is CVUValueConstant &&
+        defaultRenderer.value is CVUConstantArgument) {
       rendererName = (defaultRenderer.value as CVUConstantArgument).value;
     }
 
@@ -110,14 +113,16 @@ class _CVUSubViewState extends State<CVUSubView> {
 
     String? viewName;
     var viewNameProp = viewDefinition.properties["viewName"];
-    if (viewNameProp is CVUValueConstant && viewNameProp.value is CVUConstantArgument) {
+    if (viewNameProp is CVUValueConstant &&
+        viewNameProp.value is CVUConstantArgument) {
       viewName = (viewNameProp.value as CVUConstantArgument).value;
     }
 
-    var datasource = viewDefinition.definitions
-        .firstWhereOrNull((element) => element.type == CVUDefinitionType.datasource);
+    var datasource = viewDefinition.definitions.firstWhereOrNull(
+        (element) => element.type == CVUDefinitionType.datasource);
 
-    ItemRecord? initialItem = await widget.nodeResolver.propertyResolver.item("initialItem");
+    ItemRecord? initialItem =
+        await widget.nodeResolver.propertyResolver.item("initialItem");
     var items = await widget.nodeResolver.propertyResolver.items("query");
 
     var viewArgs = viewDefinition.properties["viewArguments"];
@@ -128,7 +133,8 @@ class _CVUSubViewState extends State<CVUSubView> {
         parentArguments: widget.nodeResolver.context.viewArguments);
 
     if (_id != null) {
-      widget.nodeResolver.context.viewArguments?.subViewArguments[id!] = viewArguments!;
+      widget.nodeResolver.context.viewArguments?.subViewArguments[id!] =
+          viewArguments!;
     }
 
     var newContext = CVUContext(
@@ -184,7 +190,8 @@ class _CVUSubViewState extends State<CVUSubView> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext context, snapshot) {
-          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          isInited =
+              isInited || snapshot.connectionState == ConnectionState.done;
           if (isInited) {
             return Flexible(child: renderer);
           }

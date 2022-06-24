@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/pod_setup.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/models/pod_setup.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
 class SaveKeysScreen extends StatefulWidget {
@@ -62,7 +62,8 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 25),
-                    Text("To use your keys locally in pymemri run:", style: CVUFont.headline3),
+                    Text("To use your keys locally in pymemri run:",
+                        style: CVUFont.headline3),
                     SizedBox(height: 5),
                     Text(
                       "store_keys --owner_key ${ownerKey} --database_key ${dbKey}",
@@ -73,12 +74,15 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                     TextButton(
                       onPressed: () {
                         Clipboard.setData(ClipboardData(
-                            text: "store_keys --owner_key ${ownerKey} --database_key ${dbKey}"));
+                            text:
+                                "store_keys --owner_key ${ownerKey} --database_key ${dbKey}"));
                       },
-                      style: TextButton.styleFrom(backgroundColor: Color(0xffF0F0F0)),
+                      style: TextButton.styleFrom(
+                          backgroundColor: Color(0xffF0F0F0)),
                       child: Text(
                         "Copy",
-                        style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+                        style: CVUFont.buttonLabel
+                            .copyWith(color: Color(0xffFE570F)),
                       ),
                     ),
                     SizedBox(height: 25),
@@ -111,24 +115,28 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                     SizedBox(height: 10),
                     Text(
                       "your login key".toUpperCase(),
-                      style: CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
+                      style:
+                          CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
                     ),
                     SizedBox(height: 5),
                     SelectableText(
                       ownerKey,
-                      style: CVUFont.bodyText1.copyWith(color: Color(0xffE9500F)),
+                      style:
+                          CVUFont.bodyText1.copyWith(color: Color(0xffE9500F)),
                     ),
                     SizedBox(height: 10),
                     Divider(height: 1),
                     SizedBox(height: 10),
                     Text(
                       "your password key".toUpperCase(),
-                      style: CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
+                      style:
+                          CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
                     ),
                     SizedBox(height: 5),
                     SelectableText(
                       dbKey,
-                      style: CVUFont.bodyText1.copyWith(color: Color(0xffE9500F)),
+                      style:
+                          CVUFont.bodyText1.copyWith(color: Color(0xffE9500F)),
                     ),
                   ],
                 ),
@@ -136,19 +144,22 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
               if (!_hasAuthError)
                 TextButton(
                   onPressed: () async {
-                    Clipboard.setData(
-                        ClipboardData(text: "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
+                    Clipboard.setData(ClipboardData(
+                        text:
+                            "Login Key: ${ownerKey}\nPassword Key: ${dbKey}"));
                     setState(() {
                       isCopied = true;
                     });
                   },
-                  style: TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
+                  style:
+                      TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         "Copy keys to clipboard",
-                        style: CVUFont.buttonLabel.copyWith(color: Colors.white),
+                        style:
+                            CVUFont.buttonLabel.copyWith(color: Colors.white),
                       ),
                       SizedBox(width: 10),
                       app.icons.copyToClipboard(color: Colors.white),
@@ -161,7 +172,8 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                   child: Text(
                     "Key does not exist or already in use, please, try another one",
-                    style: CVUFont.bodyText1.copyWith(color: app.colors.brandOrange),
+                    style: CVUFont.bodyText1
+                        .copyWith(color: app.colors.brandOrange),
                   ),
                 ),
               if (isCopied)
@@ -183,7 +195,8 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text("I’ve saved the keys",
-                            style: CVUFont.buttonLabel.copyWith(color: Colors.white)),
+                            style: CVUFont.buttonLabel
+                                .copyWith(color: Colors.white)),
                       ),
                     ),
                   ],

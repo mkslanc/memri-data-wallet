@@ -2,17 +2,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/grid_renderer_flow.dart';
 import 'package:memri/widgets/renderers/grid_renderer_simple.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
-
-import '../../models/cvu/cvu_value.dart';
-import '../../models/cvu/cvu_value_constant.dart';
-import '../../models/cvu/cvu_view_arguments.dart';
-import '../../models/database/item_record.dart';
-import '../components/shapes/circle.dart';
 
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
@@ -62,15 +61,18 @@ class GridRendererViewState extends RendererViewState {
 
   init() async {
     super.init();
-    layout =
-        await widget.viewContext.rendererDefinitionPropertyResolver.string("layout") ?? "simple";
-    singleChoice =
-        await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
+    layout = await widget.viewContext.rendererDefinitionPropertyResolver
+            .string("layout") ??
+        "simple";
+    singleChoice = await viewContext.viewDefinitionPropertyResolver
+            .boolean("singleChoice") ??
+        false;
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.fromLTRB(5, pageController.showTopBar ? 5 : 80, 5, 5);
 
-    var _scrollDirection =
-        await widget.viewContext.rendererDefinitionPropertyResolver.string("scrollDirection");
+    var _scrollDirection = await widget
+        .viewContext.rendererDefinitionPropertyResolver
+        .string("scrollDirection");
     scrollDirection = () {
       switch (_scrollDirection) {
         case "horizontal":
@@ -80,9 +82,11 @@ class GridRendererViewState extends RendererViewState {
       }
     }();
 
-    spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        CVUColor.system("systemBackground");
+    spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ??
+        Point(10, 10);
+    backgroundColor =
+        await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+            CVUColor.system("systemBackground");
   }
 
   @override
@@ -94,7 +98,8 @@ class GridRendererViewState extends RendererViewState {
         return isInited
             ? ValueListenableBuilder(
                 valueListenable: viewContext.itemsValueNotifier,
-                builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
+                builder: (BuildContext context, List<ItemRecord> value,
+                    Widget? child) {
                   if (!viewContext.isLoaded) {
                     return Empty();
                   }
@@ -113,9 +118,12 @@ class GridRendererViewState extends RendererViewState {
                                 child: viewContext.render(
                                     item: item,
                                     viewArguments: CVUViewArguments(args: {
-                                      "isSelected": CVUValueConstant(CVUConstantBool(isSelected))
+                                      "isSelected": CVUValueConstant(
+                                          CVUConstantBool(isSelected))
                                     }))),
-                            if (isSelected && isInEditMode && showDefaultSelections)
+                            if (isSelected &&
+                                isInEditMode &&
+                                showDefaultSelections)
                               Container(
                                 height: 30,
                                 width: 30,
@@ -124,7 +132,8 @@ class GridRendererViewState extends RendererViewState {
                                   children: [
                                     Circle(
                                         color: Colors.blue,
-                                        border: Border.all(color: Colors.white, width: 2)),
+                                        border: Border.all(
+                                            color: Colors.white, width: 2)),
                                     Icon(
                                       Icons.check,
                                       color: Colors.white,
@@ -150,11 +159,12 @@ class GridRendererViewState extends RendererViewState {
                   }
 
                   return RefreshIndicator(
-                    onRefresh: () async =>
-                        setState(() => pageController.topMostContext?.setupQueryObservation()),
+                    onRefresh: () async => setState(() =>
+                        pageController.topMostContext?.setupQueryObservation()),
                     child: elements.isNotEmpty
                         ? layout == "flow"
-                            ? GridRendererFlowView(elements: elements, spacing: spacing)
+                            ? GridRendererFlowView(
+                                elements: elements, spacing: spacing)
                             : GridRendererSimpleView(
                                 elements: elements,
                                 spacing: spacing,

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_value_expression.dart';
-import 'package:memri/models/cvu/cvu_value_lookup_node.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_value_expression.dart';
+import 'package:memri/core/models/cvu/cvu_value_lookup_node.dart';
 
 parse({snippet, stringMode = false}) {
   var lexer = CVUExpressionLexer(snippet, stringMode);
@@ -25,7 +25,8 @@ void main() {
                     CVUExpressionNodeMultiplication(
                         CVUExpressionNodeConstant(CVUConstantNumber(10)),
                         CVUExpressionNodeConstant(CVUConstantNumber(4)))),
-                CVUExpressionNodeDivision(CVUExpressionNodeConstant(CVUConstantNumber(3)),
+                CVUExpressionNodeDivision(
+                    CVUExpressionNodeConstant(CVUConstantNumber(3)),
                     CVUExpressionNodeConstant(CVUConstantNumber(10))),
                 true),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
@@ -36,7 +37,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeAnd(CVUExpressionNodeConstant(CVUConstantBool(true)),
+        equals(CVUExpressionNodeAnd(
+            CVUExpressionNodeConstant(CVUConstantBool(true)),
             CVUExpressionNodeConstant(CVUConstantBool(false)))));
   });
 
@@ -45,7 +47,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeOr(CVUExpressionNodeConstant(CVUConstantBool(true)),
+        equals(CVUExpressionNodeOr(
+            CVUExpressionNodeConstant(CVUConstantBool(true)),
             CVUExpressionNodeConstant(CVUConstantBool(false)))));
   });
 
@@ -61,23 +64,28 @@ void main() {
   });
 
   test('testMultiCondition', () {
-    var snippet = "true ? false and true ? -1 : false or true ? 'yes' : 'no' : -1";
+    var snippet =
+        "true ? false and true ? -1 : false or true ? 'yes' : 'no' : -1";
     var result = parse(snippet: snippet);
     expect(
         result,
         equals(CVUExpressionNodeConditional(
             CVUExpressionNodeConstant(CVUConstantBool(true)),
             CVUExpressionNodeConditional(
-                CVUExpressionNodeAnd(CVUExpressionNodeConstant(CVUConstantBool(false)),
+                CVUExpressionNodeAnd(
+                    CVUExpressionNodeConstant(CVUConstantBool(false)),
                     CVUExpressionNodeConstant(CVUConstantBool(true))),
-                CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0)),
+                CVUExpressionNodeSubtraction(
+                    CVUExpressionNodeConstant(CVUConstantNumber(0)),
                     CVUExpressionNodeConstant(CVUConstantNumber(1))),
                 CVUExpressionNodeConditional(
-                    CVUExpressionNodeOr(CVUExpressionNodeConstant(CVUConstantBool(false)),
+                    CVUExpressionNodeOr(
+                        CVUExpressionNodeConstant(CVUConstantBool(false)),
                         CVUExpressionNodeConstant(CVUConstantBool(true))),
                     CVUExpressionNodeConstant(CVUConstantString("yes")),
                     CVUExpressionNodeConstant(CVUConstantString("no")))),
-            CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0)),
+            CVUExpressionNodeSubtraction(
+                CVUExpressionNodeConstant(CVUConstantNumber(0)),
                 CVUExpressionNodeConstant(CVUConstantNumber(1))))));
   });
 
@@ -86,7 +94,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeAreEqual(CVUExpressionNodeConstant(CVUConstantBool(true)),
+        equals(CVUExpressionNodeAreEqual(
+            CVUExpressionNodeConstant(CVUConstantBool(true)),
             CVUExpressionNodeConstant(CVUConstantBool(false)))));
   });
 
@@ -95,7 +104,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeAreNotEqual(CVUExpressionNodeConstant(CVUConstantBool(true)),
+        equals(CVUExpressionNodeAreNotEqual(
+            CVUExpressionNodeConstant(CVUConstantBool(true)),
             CVUExpressionNodeConstant(CVUConstantBool(false)))));
   });
 
@@ -104,7 +114,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeGreaterThan(CVUExpressionNodeConstant(CVUConstantNumber(5)),
+        equals(CVUExpressionNodeGreaterThan(
+            CVUExpressionNodeConstant(CVUConstantNumber(5)),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
@@ -113,7 +124,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeGreaterThanOrEqual(CVUExpressionNodeConstant(CVUConstantNumber(5)),
+        equals(CVUExpressionNodeGreaterThanOrEqual(
+            CVUExpressionNodeConstant(CVUConstantNumber(5)),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
@@ -122,7 +134,8 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeLessThan(CVUExpressionNodeConstant(CVUConstantNumber(5)),
+        equals(CVUExpressionNodeLessThan(
+            CVUExpressionNodeConstant(CVUConstantNumber(5)),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
@@ -131,14 +144,16 @@ void main() {
     var result = parse(snippet: snippet);
     expect(
         result,
-        equals(CVUExpressionNodeLessThanOrEqual(CVUExpressionNodeConstant(CVUConstantNumber(5)),
+        equals(CVUExpressionNodeLessThanOrEqual(
+            CVUExpressionNodeConstant(CVUConstantNumber(5)),
             CVUExpressionNodeConstant(CVUConstantNumber(10)))));
   });
 
   test('testDotLookup', () {
     var snippet = ".";
     var result = parse(snippet: snippet);
-    expect(result, equals(CVUExpressionNodeLookup([CVULookupNode.defaultLookup])));
+    expect(
+        result, equals(CVUExpressionNodeLookup([CVULookupNode.defaultLookup])));
   });
 
   test('testMinusPlusModifier', () {
@@ -148,26 +163,34 @@ void main() {
         result,
         equals(CVUExpressionNodeSubtraction(
             CVUExpressionNodeAddition(
-                CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
+                CVUExpressionNodeSubtraction(
+                    CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                     CVUExpressionNodeConstant(CVUConstantNumber(5.0))),
                 CVUExpressionNodeSubtraction(
                     CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
-                    CVUExpressionNodeAddition(CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
-                        CVUExpressionNodeConstant(CVUConstantNumber(10.0)), true))),
+                    CVUExpressionNodeAddition(
+                        CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
+                        CVUExpressionNodeConstant(CVUConstantNumber(10.0)),
+                        true))),
             CVUExpressionNodeConstant(CVUConstantString("5")))));
   });
 
   test('testNegation', () {
     var snippet = "!true";
     var result = parse(snippet: snippet);
-    expect(result,
-        equals(CVUExpressionNodeNegation(CVUExpressionNodeConstant(CVUConstantBool(true)))));
+    expect(
+        result,
+        equals(CVUExpressionNodeNegation(
+            CVUExpressionNodeConstant(CVUConstantBool(true)))));
   });
 
   test('testStringEscaping', () {
     var snippet = "'asdadsasd\\'asdasd'";
     var result = parse(snippet: snippet);
-    expect(result, equals(CVUExpressionNodeConstant(CVUConstantString("asdadsasd'asdasd"))));
+    expect(
+        result,
+        equals(
+            CVUExpressionNodeConstant(CVUConstantString("asdadsasd'asdasd"))));
   });
 
   test('testTypeConversionToNumber', () {
@@ -176,7 +199,8 @@ void main() {
     expect(
         result,
         equals(CVUExpressionNodeAddition(
-            CVUExpressionNodeAddition(CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
+            CVUExpressionNodeAddition(
+                CVUExpressionNodeConstant(CVUConstantNumber(5.0)),
                 CVUExpressionNodeConstant(CVUConstantString("10.34"))),
             CVUExpressionNodeConstant(CVUConstantBool(true)))));
   });
@@ -188,16 +212,19 @@ void main() {
         result,
         equals(CVUExpressionNodeConditional(
             CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
-            CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
+            CVUExpressionNodeSubtraction(
+                CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                 CVUExpressionNodeConstant(CVUConstantNumber(1.0))),
             CVUExpressionNodeConditional(
                 CVUExpressionNodeConstant(CVUConstantNumber(1.0)),
                 CVUExpressionNodeConditional(
                     CVUExpressionNodeConstant(CVUConstantString("")),
-                    CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
+                    CVUExpressionNodeSubtraction(
+                        CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                         CVUExpressionNodeConstant(CVUConstantNumber(1.0))),
                     CVUExpressionNodeConstant(CVUConstantString("yes"))),
-                CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
+                CVUExpressionNodeSubtraction(
+                    CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                     CVUExpressionNodeConstant(CVUConstantNumber(1.0)))))));
   });
 
@@ -214,10 +241,15 @@ void main() {
               type: CVULookupTypeLookup([
                 CVUExpressionNodeAreEqual(
                     CVUExpressionNodeLookup([CVULookupNode.defaultLookup]),
-                    CVUExpressionNodeLookup(
-                        [CVULookupNode(name: "me", isArray: false, type: CVULookupTypeLookup())]))
+                    CVUExpressionNodeLookup([
+                      CVULookupNode(
+                          name: "me",
+                          isArray: false,
+                          type: CVULookupTypeLookup())
+                    ]))
               ])),
-          CVULookupNode(name: "firstName", isArray: false, type: CVULookupTypeLookup())
+          CVULookupNode(
+              name: "firstName", isArray: false, type: CVULookupTypeLookup())
         ])));
   });
 
@@ -228,7 +260,8 @@ void main() {
         result,
         equals(CVUExpressionNodeLookup([
           CVULookupNode.defaultLookup,
-          CVULookupNode(name: "sibling", isArray: false, type: CVULookupTypeLookup())
+          CVULookupNode(
+              name: "sibling", isArray: false, type: CVULookupTypeLookup())
         ])));
   });
 
@@ -239,7 +272,8 @@ void main() {
         result,
         equals(CVUExpressionNodeLookup([
           CVULookupNode.defaultLookup,
-          CVULookupNode(name: "~sibling", isArray: false, type: CVULookupTypeLookup())
+          CVULookupNode(
+              name: "~sibling", isArray: false, type: CVULookupTypeLookup())
         ])));
   });
 
@@ -250,7 +284,8 @@ void main() {
         result,
         equals(CVUExpressionNodeLookup([
           CVULookupNode.defaultLookup,
-          CVULookupNode(name: "_sibling", isArray: false, type: CVULookupTypeLookup())
+          CVULookupNode(
+              name: "_sibling", isArray: false, type: CVULookupTypeLookup())
         ])));
   });
 
@@ -261,7 +296,8 @@ void main() {
         result,
         equals(CVUExpressionNodeLookup([
           CVULookupNode.defaultLookup,
-          CVULookupNode(name: "_~sibling", isArray: true, type: CVULookupTypeLookup())
+          CVULookupNode(
+              name: "_~sibling", isArray: true, type: CVULookupTypeLookup())
         ])));
   });
 
@@ -272,8 +308,12 @@ void main() {
         result,
         equals(CVUExpressionNodeStringMode([
           CVUExpressionNodeConstant(CVUConstantString("Hello ")),
-          CVUExpressionNodeLookup(
-              [CVULookupNode(name: "fetchName", isArray: false, type: CVULookupTypeFunction([]))]),
+          CVUExpressionNodeLookup([
+            CVULookupNode(
+                name: "fetchName",
+                isArray: false,
+                type: CVULookupTypeFunction([]))
+          ]),
           CVUExpressionNodeConstant(CVUConstantString("!"))
         ])));
   });
@@ -287,12 +327,14 @@ void main() {
           CVUExpressionNodeConstant(CVUConstantString("Hello ")),
           CVUExpressionNodeLookup([
             CVULookupNode.defaultLookup,
-            CVULookupNode(name: "firstName", isArray: false, type: CVULookupTypeLookup())
+            CVULookupNode(
+                name: "firstName", isArray: false, type: CVULookupTypeLookup())
           ]),
           CVUExpressionNodeConstant(CVUConstantString(" ")),
           CVUExpressionNodeLookup([
             CVULookupNode.defaultLookup,
-            CVULookupNode(name: "lastName", isArray: false, type: CVULookupTypeLookup())
+            CVULookupNode(
+                name: "lastName", isArray: false, type: CVULookupTypeLookup())
           ])
         ])));
   });
@@ -306,14 +348,19 @@ void main() {
           CVUExpressionNodeOr(
               CVUExpressionNodeLookup([
                 CVULookupNode.defaultLookup,
-                CVULookupNode(name: "title", isArray: false, type: CVULookupTypeLookup())
+                CVULookupNode(
+                    name: "title", isArray: false, type: CVULookupTypeLookup())
               ]),
               CVUExpressionNodeConstant(CVUConstantString("test"))),
           CVUExpressionNodeConstant(CVUConstantString(" — ")),
           CVUExpressionNodeLookup([
             CVULookupNode.defaultLookup,
-            CVULookupNode(name: "content", isArray: false, type: CVULookupTypeLookup()),
-            CVULookupNode(name: "plainString", isArray: false, type: CVULookupTypeFunction([]))
+            CVULookupNode(
+                name: "content", isArray: false, type: CVULookupTypeLookup()),
+            CVULookupNode(
+                name: "plainString",
+                isArray: false,
+                type: CVULookupTypeFunction([]))
           ])
         ])));
   });
@@ -324,8 +371,12 @@ void main() {
     expect(
         result,
         equals(CVUExpressionNodeStringMode([
-          CVUExpressionNodeLookup(
-              [CVULookupNode(name: "fetchName", isArray: false, type: CVULookupTypeFunction([]))]),
+          CVUExpressionNodeLookup([
+            CVULookupNode(
+                name: "fetchName",
+                isArray: false,
+                type: CVULookupTypeFunction([]))
+          ]),
           CVUExpressionNodeConstant(CVUConstantString(" Hello"))
         ])));
   });
@@ -336,10 +387,12 @@ void main() {
     expect(
         result,
         equals(CVUExpressionNodeStringMode([
-          CVUExpressionNodeConstant(CVUConstantString("Photo AND ANY includes.uid = ")),
+          CVUExpressionNodeConstant(
+              CVUConstantString("Photo AND ANY includes.uid = ")),
           CVUExpressionNodeLookup([
             CVULookupNode.defaultLookup,
-            CVULookupNode(name: "uid", isArray: false, type: CVULookupTypeLookup())
+            CVULookupNode(
+                name: "uid", isArray: false, type: CVULookupTypeLookup())
           ])
         ])));
   });
@@ -353,20 +406,31 @@ void main() {
         equals(CVUExpressionNodeConditional(
             CVUExpressionNodeOr(
                 CVUExpressionNodeNegation(CVUExpressionNodeAddition(
-                    CVUExpressionNodeLookup(
-                        [CVULookupNode(name: "test", isArray: false, type: CVULookupTypeLookup())]),
-                    CVUExpressionNodeSubtraction(CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
+                    CVUExpressionNodeLookup([
+                      CVULookupNode(
+                          name: "test",
+                          isArray: false,
+                          type: CVULookupTypeLookup())
+                    ]),
+                    CVUExpressionNodeSubtraction(
+                        CVUExpressionNodeConstant(CVUConstantNumber(0.0)),
                         CVUExpressionNodeConstant(CVUConstantNumber(5.63537))),
                     true)),
-                CVUExpressionNodeDivision(CVUExpressionNodeConstant(CVUConstantNumber(4.0)),
+                CVUExpressionNodeDivision(
+                    CVUExpressionNodeConstant(CVUConstantNumber(4.0)),
                     CVUExpressionNodeConstant(CVUConstantNumber(3.0)))),
             CVUExpressionNodeLookup([
-              CVULookupNode(name: "variable", isArray: false, type: CVULookupTypeLookup()),
-              CVULookupNode(name: "func", isArray: false, type: CVULookupTypeFunction([]))
+              CVULookupNode(
+                  name: "variable",
+                  isArray: false,
+                  type: CVULookupTypeLookup()),
+              CVULookupNode(
+                  name: "func", isArray: false, type: CVULookupTypeFunction([]))
             ]),
             CVUExpressionNodeConditional(
                 CVUExpressionNodeLookup([
-                  CVULookupNode(name: "me", isArray: false, type: CVULookupTypeLookup()),
+                  CVULookupNode(
+                      name: "me", isArray: false, type: CVULookupTypeLookup()),
                   CVULookupNode(
                       name: "address",
                       isArray: true,
@@ -374,11 +438,16 @@ void main() {
                         CVUExpressionNodeAreEqual(
                             CVUExpressionNodeLookup([
                               CVULookupNode(
-                                  name: "primary", isArray: false, type: CVULookupTypeLookup())
+                                  name: "primary",
+                                  isArray: false,
+                                  type: CVULookupTypeLookup())
                             ]),
                             CVUExpressionNodeConstant(CVUConstantBool(true)))
                       ])),
-                  CVULookupNode(name: "country", isArray: false, type: CVULookupTypeLookup())
+                  CVULookupNode(
+                      name: "country",
+                      isArray: false,
+                      type: CVULookupTypeLookup())
                 ]),
                 CVUExpressionNodeAddition(
                     CVUExpressionNodeAddition(
@@ -391,20 +460,24 @@ void main() {
                       CVULookupNode(
                           name: "test",
                           isArray: true,
-                          type: CVULookupTypeLookup(
-                              [CVUExpressionNodeConstant(CVUConstantNumber(10.0))]))
+                          type: CVULookupTypeLookup([
+                            CVUExpressionNodeConstant(CVUConstantNumber(10.0))
+                          ]))
                     ]),
                     true),
                 CVUExpressionNodeAddition(
-                    CVUExpressionNodeConstant(CVUConstantString("asdads\'asdad")),
+                    CVUExpressionNodeConstant(
+                        CVUConstantString("asdads\'asdad")),
                     CVUExpressionNodeConstant(CVUConstantString("")))))));
   });
 
   test('testErrorIncompleteCondition', () {
     var snippet = "true ? 'yes'";
 
-    expect(() => parse(snippet: snippet),
-        throwsA(predicate((e) => e is CVUExpressionParseErrorsExpectedConditionElse)));
+    expect(
+        () => parse(snippet: snippet),
+        throwsA(predicate(
+            (e) => e is CVUExpressionParseErrorsExpectedConditionElse)));
   });
 
   test('testErrorIncompleteBinaryOp', () {
@@ -412,8 +485,9 @@ void main() {
 
     expect(
         () => parse(snippet: snippet),
-        throwsA(predicate(
-            (e) => e is CVUExpressionParseErrorsExpectedExpression && e.value is ExprTokenEOF)));
+        throwsA(predicate((e) =>
+            e is CVUExpressionParseErrorsExpectedExpression &&
+            e.value is ExprTokenEOF)));
   });
 
   test('testErrorUnsupportedBinaryOp', () {
@@ -432,8 +506,8 @@ void main() {
 
     expect(
         () => parse(snippet: snippet),
-        throwsA(
-            predicate((e) => e is CVUExpressionParseErrorsExpectedCharacter && e.value == ")")));
+        throwsA(predicate((e) =>
+            e is CVUExpressionParseErrorsExpectedCharacter && e.value == ")")));
   });
 
   test('testErrorMissingBracketClose', () {
@@ -441,15 +515,17 @@ void main() {
 
     expect(
         () => parse(snippet: snippet),
-        throwsA(
-            predicate((e) => e is CVUExpressionParseErrorsExpectedCharacter && e.value == "]")));
+        throwsA(predicate((e) =>
+            e is CVUExpressionParseErrorsExpectedCharacter && e.value == "]")));
   });
 
   test('testErrorMissingQuoteClose', () {
     var snippet = "'asdads";
 
-    expect(() => parse(snippet: snippet),
-        throwsA(predicate((e) => e is CVUExpressionParseErrorsMissingQuoteClose)));
+    expect(
+        () => parse(snippet: snippet),
+        throwsA(
+            predicate((e) => e is CVUExpressionParseErrorsMissingQuoteClose)));
   });
 
   test('testErrorUsingCurlyBracesNotInStringMode', () {
@@ -466,7 +542,8 @@ void main() {
   test('testErrorUsingCurlyBracesInWrongContext', () {
     var snippet = "Hello {'{fetchName()}'}";
 
-    expect(() => parse(snippet: snippet, stringMode: true), throwsA(predicate((e) {
+    expect(() => parse(snippet: snippet, stringMode: true),
+        throwsA(predicate((e) {
       return e is CVUExpressionParseErrorsExpectedExpression &&
           e.value is ExprTokenCurlyBracketClose &&
           (e.value as ExprTokenCurlyBracketClose).i == 22;

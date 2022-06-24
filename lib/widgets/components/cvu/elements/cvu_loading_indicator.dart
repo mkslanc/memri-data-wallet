@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 /// A CVU element for displaying a loading indicator
@@ -12,7 +12,8 @@ class CVULoadingIndicator extends StatefulWidget {
   _CVULoadingIndicatorState createState() => _CVULoadingIndicatorState();
 }
 
-class _CVULoadingIndicatorState extends State<CVULoadingIndicator> with TickerProviderStateMixin {
+class _CVULoadingIndicatorState extends State<CVULoadingIndicator>
+    with TickerProviderStateMixin {
   double size = 20;
   double? speed;
   Color? color;
@@ -30,14 +31,16 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator> with TickerPr
       vsync: this,
     );
 
-    rotateAnimation = CurvedAnimation(parent: rotateController, curve: Curves.linear);
+    rotateAnimation =
+        CurvedAnimation(parent: rotateController, curve: Curves.linear);
     super.initState();
     _init = init();
   }
 
   init() async {
     speed = (await widget.nodeResolver.propertyResolver.number("speed"));
-    rotateController.repeat(min: 0, max: 1, period: Duration(milliseconds: 1000 ~/ (speed ?? 1)));
+    rotateController.repeat(
+        min: 0, max: 1, period: Duration(milliseconds: 1000 ~/ (speed ?? 1)));
     color = await widget.nodeResolver.propertyResolver.color();
     size = (await widget.nodeResolver.propertyResolver.number("size")) ?? 20;
   }
@@ -60,7 +63,8 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator> with TickerPr
       future: _init,
       builder: (_, __) => RotationTransition(
         turns: rotateAnimation,
-        child: app.icons.loader(color: color ?? app.colors.primary, width: size, height: size),
+        child: app.icons.loader(
+            color: color ?? app.colors.primary, width: size, height: size),
       ),
     );
   }

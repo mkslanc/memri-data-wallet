@@ -1,5 +1,5 @@
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
 class MixpanelAnalyticsService {
@@ -14,8 +14,9 @@ class MixpanelAnalyticsService {
 
   void logSignUp(String userId) {
     mixpanel.identify(userId);
-    mixpanel.track(AnalyticsEvents.signUp,
-        properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
+    mixpanel.track(AnalyticsEvents.signUp, properties: {
+      _AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode
+    });
   }
 
   void logSignUpTime() => mixpanel.timeEvent(AnalyticsEvents.signUp);
@@ -23,8 +24,9 @@ class MixpanelAnalyticsService {
   void logSignIn(String userId) {
     mixpanel.timeEvent(AnalyticsEvents.signIn);
     mixpanel.identify(userId);
-    mixpanel.track(AnalyticsEvents.signIn,
-        properties: {_AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode});
+    mixpanel.track(AnalyticsEvents.signIn, properties: {
+      _AnalyticsProperties.developersMode: AppController.shared.isDevelopersMode
+    });
   }
 
   void logNavigationButton(String buttonText) {
@@ -100,7 +102,8 @@ class MixpanelAnalyticsService {
     );
   }
 
-  void logProjectLabelsOverview(String submitted, String skipped, String total) {
+  void logProjectLabelsOverview(
+      String submitted, String skipped, String total) {
     mixpanel.timeEvent(AnalyticsEvents.projectLabelsOverview);
     mixpanel.track(
       AnalyticsEvents.projectLabelsOverview,

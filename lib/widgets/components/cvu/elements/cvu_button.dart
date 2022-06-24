@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
-import 'package:memri/utils/execute_actions.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utilities/execute_actions.dart';
+import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
+import 'package:memri/widgets/components/cvu/elements/cvu_text_properties_modifier.dart';
 import 'package:memri/widgets/empty.dart';
-
-import '../cvu_ui_node_resolver.dart';
-import 'cvu_text_properties_modifier.dart';
 
 /// A CVU element for displaying a button
 /// - Use the `onPress` property to provide a CVU Action for the button
@@ -49,14 +48,18 @@ class _CVUButtonState extends State<CVUButton> {
   }
 
   init() async {
-    resolvedTextProperties =
-        await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
-            .init();
-    isLink = (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
-    style = await widget.nodeResolver.propertyResolver.style<ButtonStyle>(type: StyleType.button);
-    backgroundColor = await widget.nodeResolver.propertyResolver.backgroundColor;
+    resolvedTextProperties = await CVUTextPropertiesModifier(
+            propertyResolver: widget.nodeResolver.propertyResolver)
+        .init();
+    isLink =
+        (await widget.nodeResolver.propertyResolver.boolean("isLink", false))!;
+    style = await widget.nodeResolver.propertyResolver
+        .style<ButtonStyle>(type: StyleType.button);
+    backgroundColor =
+        await widget.nodeResolver.propertyResolver.backgroundColor;
     id = await widget.nodeResolver.propertyResolver.string("id");
-    var isDisabled = (await widget.nodeResolver.propertyResolver.boolean("isDisabled", false))!;
+    var isDisabled = (await widget.nodeResolver.propertyResolver
+        .boolean("isDisabled", false))!;
     _isDisabled = ValueNotifier(isDisabled);
   }
 
@@ -82,33 +85,45 @@ class _CVUButtonState extends State<CVUButton> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          isInited =
+              isInited || snapshot.connectionState == ConnectionState.done;
           return isInited
               ? ValueListenableBuilder(
                   valueListenable: _isDisabled,
-                  builder: (BuildContext context, bool isDisabled, Widget? child) => isLink
-                      ? InkWell(
-                          onTap: isDisabled ? null : onPress,
-                          child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
-                          onHover: id != null
-                              ? (bool isHovered) {
-                                  setState(() {
-                                    widget.nodeResolver.context.viewArguments ??=
-                                        CVUViewArguments();
-                                    widget.nodeResolver.context.viewArguments!
-                                            .args["isHovered$id"] =
-                                        CVUValueConstant(CVUConstantBool(isHovered));
-                                  });
-                                }
-                              : null)
-                      : TextButton(
-                          onPressed: isDisabled ? null : onPress,
-                          child: widget.nodeResolver.childrenInForEachWithWrap(centered: true),
-                          style: TextButton.styleFrom(
-                                  textStyle: resolvedTextProperties?.textStyle ?? TextStyle(),
-                                  backgroundColor: backgroundColor)
-                              .merge(style),
-                        ),
+                  builder: (BuildContext context, bool isDisabled,
+                          Widget? child) =>
+                      isLink
+                          ? InkWell(
+                              onTap: isDisabled ? null : onPress,
+                              child: widget.nodeResolver
+                                  .childrenInForEachWithWrap(centered: true),
+                              onHover: id != null
+                                  ? (bool isHovered) {
+                                      setState(() {
+                                        widget.nodeResolver.context
+                                                .viewArguments ??=
+                                            CVUViewArguments();
+                                        widget
+                                                .nodeResolver
+                                                .context
+                                                .viewArguments!
+                                                .args["isHovered$id"] =
+                                            CVUValueConstant(
+                                                CVUConstantBool(isHovered));
+                                      });
+                                    }
+                                  : null)
+                          : TextButton(
+                              onPressed: isDisabled ? null : onPress,
+                              child: widget.nodeResolver
+                                  .childrenInForEachWithWrap(centered: true),
+                              style: TextButton.styleFrom(
+                                      textStyle:
+                                          resolvedTextProperties?.textStyle ??
+                                              TextStyle(),
+                                      backgroundColor: backgroundColor)
+                                  .merge(style),
+                            ),
                 )
               : Empty();
         });

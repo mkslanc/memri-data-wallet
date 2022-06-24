@@ -4,8 +4,8 @@
 import 'dart:math';
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/widgets/chrome/top_bar_view.dart';
 import 'package:memri/widgets/navigation/main_navigation_view.dart';
 import 'package:memri/widgets/navigation/navigation_holder.dart';
@@ -35,7 +35,8 @@ class _SceneViewState extends State<SceneView> {
       pagesCount = widget.sceneController.pageControllers.length;
       viewCols = {};
     }
-    widget.sceneController.pageControllers.forEachIndexed((index, pageController) {
+    widget.sceneController.pageControllers
+        .forEachIndexed((index, pageController) {
       var viewContext = pageController.topMostContext;
       int cols = viewContext?.config.cols ??
           viewContext?.viewDefinitionPropertyResolver.syncInteger("cols") ??
@@ -45,10 +46,12 @@ class _SceneViewState extends State<SceneView> {
       viewContext?.config.cols = cols;
       viewCols[index] = cols;
 
-      showTopBar[index] =
-          viewContext?.viewDefinitionPropertyResolver.syncBoolean("showTopBar") ?? false;
+      showTopBar[index] = viewContext?.viewDefinitionPropertyResolver
+              .syncBoolean("showTopBar") ??
+          false;
       backgroundColor[index] =
-          viewContext?.viewDefinitionPropertyResolver.syncColor("background") ?? Colors.white;
+          viewContext?.viewDefinitionPropertyResolver.syncColor("background") ??
+              Colors.white;
     });
   }
 
@@ -84,7 +87,8 @@ class _SceneViewState extends State<SceneView> {
       top: true,
       child: Stack(
         children: [
-          LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+          LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
             return NavigationWrapperView(
                 sceneController: widget.sceneController,
                 child: Column(
@@ -100,7 +104,8 @@ class _SceneViewState extends State<SceneView> {
                             SizedBox(
                                 child: MainNavigationView(
                                     sceneController: widget.sceneController,
-                                    currentViewName: widget.sceneController.pageControllers
+                                    currentViewName: widget
+                                        .sceneController.pageControllers
                                         .asMap()[0]
                                         ?.navigationStack
                                         .state
@@ -111,21 +116,31 @@ class _SceneViewState extends State<SceneView> {
                         ),
                       ),
                       if (widget.sceneController.pageControllers.isNotEmpty)
-                        TopBarView(pageController: widget.sceneController.pageControllers.first),
+                        TopBarView(
+                            pageController:
+                                widget.sceneController.pageControllers.first),
                     ],
                     ValueListenableBuilder(
-                      valueListenable: widget.sceneController.appController.lastError,
-                      builder: (BuildContext context, SystemError? lastError, Widget? child) {
+                      valueListenable:
+                          widget.sceneController.appController.lastError,
+                      builder: (BuildContext context, SystemError? lastError,
+                          Widget? child) {
                         return ColoredBox(
-                          color: backgroundColor.length > 0 ? backgroundColor[0]! : Colors.white,
+                          color: backgroundColor.length > 0
+                              ? backgroundColor[0]!
+                              : Colors.white,
                           child: IntrinsicHeight(
                             child: Column(
                               children: [
-                                if (widget.sceneController.parentSceneController == null &&
+                                if (widget.sceneController
+                                            .parentSceneController ==
+                                        null &&
                                     lastError != null)
-                                  MemriNotification(widget.sceneController.appController),
+                                  MemriNotification(
+                                      widget.sceneController.appController),
                                 Row(
-                                    children: widget.sceneController.pageControllers
+                                    children: widget
+                                        .sceneController.pageControllers
                                         .mapIndexed((index, pageController) => [
                                               VerticalDivider(
                                                 width: 1,
@@ -138,21 +153,29 @@ class _SceneViewState extends State<SceneView> {
                                                       (constraints.maxWidth /
                                                               12 *
                                                               viewCols[index]! -
-                                                          (index > 0 && index == pagesCount - 1
+                                                          (index > 0 &&
+                                                                  index ==
+                                                                      pagesCount -
+                                                                          1
                                                               ? 0
                                                               : 1)),
                                                       0),
-                                                  height: countPageHeight(constraints.maxHeight),
+                                                  height: countPageHeight(
+                                                      constraints.maxHeight),
                                                   child: Column(
                                                     children: [
                                                       if (showTopBar[index]!)
                                                         TopBarView(
-                                                          pageController: pageController,
+                                                          pageController:
+                                                              pageController,
                                                         ),
                                                       Expanded(
-                                                        child: NavigationHolder(pageController
-                                                            .navigationController
-                                                          ..background = backgroundColor[index]!),
+                                                        child: NavigationHolder(
+                                                            pageController
+                                                                .navigationController
+                                                              ..background =
+                                                                  backgroundColor[
+                                                                      index]!),
                                                       ),
                                                     ],
                                                   ),

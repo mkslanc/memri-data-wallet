@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/constants/cvu/cvu_color.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
 import 'package:memri/widgets/scene_view.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
-
-import '../../constants/cvu/cvu_color.dart';
 
 class SceneViewRendererView extends Renderer {
   SceneViewRendererView({required pageController, required viewContext})
@@ -35,23 +34,28 @@ class _SceneViewRendererViewState extends RendererViewState {
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         await viewContext.viewDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.all(0);
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        await viewContext.viewDefinitionPropertyResolver.backgroundColor ??
-        CVUColor.system("systemBackground");
+    backgroundColor =
+        await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+            await viewContext.viewDefinitionPropertyResolver.backgroundColor ??
+            CVUColor.system("systemBackground");
 
     _sceneController = SceneController();
     _sceneController.parentSceneController = pageController.sceneController;
-    _sceneController.parentSceneController!.subSceneControllers.add(_sceneController);
-    var pageResolver = viewContext.rendererDefinitionPropertyResolver.subdefinition("pages");
-    var viewArguments =
-        viewContext.rendererDefinitionPropertyResolver.subdefinition("viewArguments");
+    _sceneController.parentSceneController!.subSceneControllers
+        .add(_sceneController);
+    var pageResolver =
+        viewContext.rendererDefinitionPropertyResolver.subdefinition("pages");
+    var viewArguments = viewContext.rendererDefinitionPropertyResolver
+        .subdefinition("viewArguments");
 
     pageResolver?.properties.forEach((label, viewName) {
       pages.add({
         "label": label,
-        "viewName": ((viewName as CVUValueConstant).value as CVUConstantString).value,
+        "viewName":
+            ((viewName as CVUValueConstant).value as CVUConstantString).value,
         "viewArguments": CVUViewArguments(
-            args: viewArguments?.properties, parentArguments: viewContext.config.viewArguments),
+            args: viewArguments?.properties,
+            parentArguments: viewContext.config.viewArguments),
         "targetItem": widget.viewContext.focusedItem
       }); //TODO resolve normally
     });
@@ -77,26 +81,27 @@ class _SceneViewRendererViewState extends RendererViewState {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init,
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-          ? pages.isEmpty
-              ? Empty()
-              : ColoredBox(
-                  color: backgroundColor,
-                  child: Padding(
-                    padding: insets ?? const EdgeInsets.all(0),
-                    child: SceneView(
-                      sceneController: _sceneController,
-                      showMainNavigation: false,
-                    ),
+      builder: (context, snapshot) =>
+          snapshot.connectionState == ConnectionState.done
+              ? pages.isEmpty
+                  ? Empty()
+                  : ColoredBox(
+                      color: backgroundColor,
+                      child: Padding(
+                        padding: insets ?? const EdgeInsets.all(0),
+                        child: SceneView(
+                          sceneController: _sceneController,
+                          showMainNavigation: false,
+                        ),
+                      ),
+                    )
+              : Center(
+                  child: SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
                   ),
-                )
-          : Center(
-              child: SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              ),
-            ),
+                ),
     );
   }
 }

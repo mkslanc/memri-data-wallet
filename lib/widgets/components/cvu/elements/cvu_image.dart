@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/file_storage/file_storage_controller.dart';
-import 'package:memri/models/cvu/cvu_sizing_mode.dart';
-import 'package:memri/utils/extensions/icon_data.dart';
+import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/models/cvu/cvu_sizing_mode.dart';
+import 'package:memri/utilities/extensions/icon_data.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 
@@ -49,10 +49,12 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   init() async {
-    isVector = (await widget.nodeResolver.propertyResolver.boolean("isVector", false))!;
+    isVector = (await widget.nodeResolver.propertyResolver
+        .boolean("isVector", false))!;
     maxWidth = await widget.nodeResolver.propertyResolver.maxWidth;
     if (isVector) {
-      vectorImageName = await widget.nodeResolver.propertyResolver.string("bundleImage");
+      vectorImageName =
+          await widget.nodeResolver.propertyResolver.string("bundleImage");
       color = await widget.nodeResolver.propertyResolver.color();
     } else {
       fileImage = await getFileImage();
@@ -62,7 +64,8 @@ class _CVUImageState extends State<CVUImage> {
         if (bundleImage == null) {
           font = await widget.nodeResolver.propertyResolver.font();
           color = await widget.nodeResolver.propertyResolver.color();
-          iconName = await widget.nodeResolver.propertyResolver.string("systemName");
+          iconName =
+              await widget.nodeResolver.propertyResolver.string("systemName");
         }
       }
     }
@@ -82,7 +85,8 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   Future<ImageProvider?> getBundleImage() async {
-    var imageName = await widget.nodeResolver.propertyResolver.string("bundleImage");
+    var imageName =
+        await widget.nodeResolver.propertyResolver.string("bundleImage");
     if (imageName == null) {
       return null;
     }
@@ -100,8 +104,13 @@ class _CVUImageState extends State<CVUImage> {
               image: ResizeImage(fileImage!,
                   width: maxWidth != null
                       ? maxWidth!.toInt()
-                      : MediaQuery.of(context).size.width.toInt()), //TODO: to avoid lagging
-              fit: sizingMode == CVU_SizingMode.fill ? BoxFit.fill : BoxFit.fitWidth,
+                      : MediaQuery.of(context)
+                          .size
+                          .width
+                          .toInt()), //TODO: to avoid lagging
+              fit: sizingMode == CVU_SizingMode.fill
+                  ? BoxFit.fill
+                  : BoxFit.fitWidth,
             );
           } else if (isVector) {
             return SvgPicture.asset(

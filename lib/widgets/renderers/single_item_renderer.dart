@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 
 class SingleItemRendererView extends Renderer {
@@ -43,9 +43,12 @@ class _SingleItemRendererViewState extends RendererViewState {
   Future init() async {
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.fromLTRB(30, 0, 30, 0);
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        CVUColor.system("systemBackground");
-    scrollable = await viewContext.rendererDefinitionPropertyResolver.boolean("scrollable") ?? true;
+    backgroundColor =
+        await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+            CVUColor.system("systemBackground");
+    scrollable = await viewContext.rendererDefinitionPropertyResolver
+            .boolean("scrollable") ??
+        true;
   }
 
   @override
@@ -55,13 +58,17 @@ class _SingleItemRendererViewState extends RendererViewState {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           return ValueListenableBuilder(
               valueListenable: viewContext.itemsValueNotifier,
-              builder: (BuildContext context, List<ItemRecord> value, Widget? child) {
-                var item = viewContext.focusedItem ?? viewContext.items.asMap()[0];
+              builder: (BuildContext context, List<ItemRecord> value,
+                  Widget? child) {
+                var item =
+                    viewContext.focusedItem ?? viewContext.items.asMap()[0];
                 Widget group;
                 if (item != null) {
-                  group = viewContext.render(item: item, items: viewContext.items);
+                  group =
+                      viewContext.render(item: item, items: viewContext.items);
                 } else {
-                  group = emptyResult ?? Center(child: Text("No item selected"));
+                  group =
+                      emptyResult ?? Center(child: Text("No item selected"));
                 }
                 if (insets != null) {
                   group = Padding(

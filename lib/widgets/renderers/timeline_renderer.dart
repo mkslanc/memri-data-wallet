@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
-import 'package:memri/models/ui/timeline_renderer_model.dart';
-import 'package:memri/utils/calendar_helper.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/core/models/ui/timeline_renderer_model.dart';
+import 'package:memri/utilities/helpers/calendar_helper.dart';
+import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_timeline_item.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
@@ -21,7 +21,9 @@ class TimelineRendererView extends Renderer {
   final ViewContextController viewContext;
 
   TimelineRendererView(
-      {required this.pageController, required this.viewContext, this.minSectionHeight = 40})
+      {required this.pageController,
+      required this.viewContext,
+      this.minSectionHeight = 40})
       : super(pageController: pageController, viewContext: viewContext);
   final double minSectionHeight;
 
@@ -29,7 +31,8 @@ class TimelineRendererView extends Renderer {
   _TimelineRendererViewState createState() => _TimelineRendererViewState();
 }
 
-class _TimelineRendererViewState extends RendererViewState<TimelineRendererView> {
+class _TimelineRendererViewState
+    extends RendererViewState<TimelineRendererView> {
   late Future<TimelineRendererModel> _generateModel;
 
   @override
@@ -55,7 +58,9 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
     await timelineRendererModel.init(
         dataItems: viewContext.items,
         itemDateTimeResolver: (item) async {
-          return await viewContext.nodePropertyResolver(item)?.dateTime("dateTime") ??
+          return await viewContext
+                  .nodePropertyResolver(item)
+                  ?.dateTime("dateTime") ??
               item.dateModified;
         },
         detailLevel: await detailLevel,
@@ -64,20 +69,23 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
   }
 
   Future<TimelineDetailLevel> get detailLevel async {
-    return TimelineDetailLevelExtension.init(
-            await viewContext.rendererDefinitionPropertyResolver.string("detailLevel")) ??
+    return TimelineDetailLevelExtension.init(await viewContext
+            .rendererDefinitionPropertyResolver
+            .string("detailLevel")) ??
         TimelineDetailLevel.hour;
   }
 
   Future<bool> get mostRecentFirst async {
-    return (await viewContext.rendererDefinitionPropertyResolver.boolean("recentFirst", true))!;
+    return (await viewContext.rendererDefinitionPropertyResolver
+        .boolean("recentFirst", true))!;
   }
 
   List<List<Widget>> sections(TimelineRendererModel model) {
     List<List<Widget>> widgetSections = [];
     model.data.forEach((group) {
       List<Widget> widgetSection = [];
-      widgetSection.add(header(model, group, TimelineRendererModel.calendarHelper));
+      widgetSection
+          .add(header(model, group, TimelineRendererModel.calendarHelper));
       group.items.forEach((element) {
         widgetSection.add(
           SizedBox(
@@ -89,18 +97,24 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
                       if (element.isGroup) {
                         CVUActionOpenView(
                                 renderer: "list",
-                                uids: Set.from(element.items.map((item) => item.rowId)))
-                            .execute(pageController, viewContext.getCVUContext());
+                                uids: Set.from(
+                                    element.items.map((item) => item.rowId)))
+                            .execute(
+                                pageController, viewContext.getCVUContext());
                       } else if (element.items.length > 0) {
                         var item = element.items.first;
-                        var press = viewContext.nodePropertyResolver(item)?.action("onPress");
+                        var press = viewContext
+                            .nodePropertyResolver(item)
+                            ?.action("onPress");
                         if (press != null) {
-                          press.execute(pageController, viewContext.getCVUContext(item: item));
+                          press.execute(pageController,
+                              viewContext.getCVUContext(item: item));
                         }
                       }
                     },
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: widget.minSectionHeight),
+                      constraints:
+                          BoxConstraints(minHeight: widget.minSectionHeight),
                       child: renderElement(element),
                     ),
                   ),
@@ -133,8 +147,8 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
   List<StaggeredTile> tiles(List<List<Widget>> widgetSections) => widgetSections
       .mapIndexed((i, widgetList) =>
           widgetList
-              .mapIndexed((index, widget) =>
-                  StaggeredTile.count(index == 0 ? 1 : 4, index == 0 ? widgetList.length - 1 : 1))
+              .mapIndexed((index, widget) => StaggeredTile.count(
+                  index == 0 ? 1 : 4, index == 0 ? widgetList.length - 1 : 1))
               .toList() +
           (i < widgetSections.length - 1 ? [StaggeredTile.count(5, 0.1)] : []))
       .expand((element) => element)
@@ -148,16 +162,20 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               TimelineRendererModel model = snapshot.data!;
-              var padding = EdgeInsets.fromLTRB(0, pageController.showTopBar ? 8 : 80, 10, 8);
+              var padding = EdgeInsets.fromLTRB(
+                  0, pageController.showTopBar ? 8 : 80, 10, 8);
               var widgetSections = sections(model);
               var index = 0;
               var lastIndex = widgetSections.length - 1;
               var children = widgetSections
-                  .expand((element) => element + (++index > lastIndex ? [] : [Divider(height: 1)]))
+                  .expand((element) =>
+                      element +
+                      (++index > lastIndex ? [] : [Divider(height: 1)]))
                   .toList();
 
               return StaggeredGridView.count(
-                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                physics: BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
                 padding: padding,
                 addRepaintBoundaries: false,
                 crossAxisCount: 5,
@@ -173,8 +191,10 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
   final double leadingInset = 60;
 
 // TODO: Clean up this function. Should probably define for each `DetailLevel` individually
-  Widget header(TimelineRendererModel model, TimelineGroup group, CalendarHelper calendarHelper) {
-    var matchesNow = calendarHelper.isSameAsNow(group.date, model.detailLevel.relevantComponents);
+  Widget header(TimelineRendererModel model, TimelineGroup group,
+      CalendarHelper calendarHelper) {
+    var matchesNow = calendarHelper.isSameAsNow(
+        group.date, model.detailLevel.relevantComponents);
 
     bool flipOrder = () {
       switch (model.detailLevel) {
@@ -220,8 +240,8 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
         case TimelineDetailLevel.hour:
           return Jiffy(group.date).format("h a");
         case TimelineDetailLevel.day:
-          return Jiffy(group.date)
-              .format("MMMM"); //group.isStartOf.contains(Units.YEAR) ? "MMMM y" : "MMMM"
+          return Jiffy(group.date).format(
+              "MMMM"); //group.isStartOf.contains(Units.YEAR) ? "MMMM y" : "MMMM"
         case TimelineDetailLevel.week:
           return "Week"; //TODO
         case TimelineDetailLevel.month:
@@ -252,7 +272,9 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
           ConstrainedBox(
             constraints: BoxConstraints(minWidth: 30, minHeight: 30),
             child: Circle(
-              color: useFillToIndicateNow(model) && matchesNow ? Colors.red : Colors.transparent,
+              color: useFillToIndicateNow(model) && matchesNow
+                  ? Colors.red
+                  : Colors.transparent,
               child: Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: matchesNow ? 3 : 0),
@@ -261,7 +283,9 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
                     style: TextStyle(
                       fontSize: 20,
                       color: matchesNow
-                          ? (useFillToIndicateNow(model) ? Colors.white : Colors.red)
+                          ? (useFillToIndicateNow(model)
+                              ? Colors.white
+                              : Colors.red)
                           : CVUColor.system("label"),
                     ),
                     maxLines: 1,

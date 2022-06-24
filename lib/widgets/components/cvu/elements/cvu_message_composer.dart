@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/space.dart';
 
@@ -54,7 +54,8 @@ class _CVUMessageComposerState extends State<CVUMessageComposer> {
               Flexible(
                 child: TextFormField(
                   controller: contentController,
-                  style: TextStyle(backgroundColor: CVUColor.system("systemBackground")),
+                  style: TextStyle(
+                      backgroundColor: CVUColor.system("systemBackground")),
                   decoration: InputDecoration(
                       isDense: true,
                       border: OutlineInputBorder(),
@@ -63,7 +64,8 @@ class _CVUMessageComposerState extends State<CVUMessageComposer> {
                 ),
               ),
               TextButton(
-                  onPressed: canSend ? onPressSend : null, child: Icon(Icons.arrow_circle_up))
+                  onPressed: canSend ? onPressSend : null,
+                  child: Icon(Icons.arrow_circle_up))
             ]),
           ),
         ),

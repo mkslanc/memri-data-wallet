@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utilities/binding.dart';
 import 'package:memri/widgets/components/picker.dart';
 
 class GridRendererSettingsView extends StatefulWidget {
@@ -11,7 +11,8 @@ class GridRendererSettingsView extends StatefulWidget {
   GridRendererSettingsView({required this.viewContext});
 
   @override
-  _GridRendererSettingsViewState createState() => _GridRendererSettingsViewState();
+  _GridRendererSettingsViewState createState() =>
+      _GridRendererSettingsViewState();
 }
 
 class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
@@ -27,10 +28,12 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
   void initState() {
     super.initState();
     layoutBinding = FutureBinding<String>(() async {
-      return await widget.viewContext.rendererDefinitionPropertyResolver.string("layout") ?? "grid";
+      return await widget.viewContext.rendererDefinitionPropertyResolver
+              .string("layout") ??
+          "grid";
     }, (newValue) async {
-      await widget.viewContext
-          .setRendererProperty("grid", "layout", CVUValueConstant(CVUConstantArgument(newValue)));
+      await widget.viewContext.setRendererProperty(
+          "grid", "layout", CVUValueConstant(CVUConstantArgument(newValue)));
       layout = newValue;
     });
 
@@ -39,8 +42,8 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
               .string("scrollDirection") ??
           "vertical";
     }, (newValue) async {
-      await widget.viewContext.setRendererProperty(
-          "grid", "scrollDirection", CVUValueConstant(CVUConstantArgument(newValue)));
+      await widget.viewContext.setRendererProperty("grid", "scrollDirection",
+          CVUValueConstant(CVUConstantArgument(newValue)));
     });
 
     layoutBinding.get().then((value) {
@@ -58,10 +61,12 @@ class _GridRendererSettingsViewState extends State<GridRendererSettingsView> {
           "waterfall": "Waterfall",
         }),
         if (layout == "grid")
-          Picker<String>("Scroll direction", selection: scrollDirectionBinding, group: {
-            "vertical": "Vertical",
-            "horizontal": "Horizontal",
-          })
+          Picker<String>("Scroll direction",
+              selection: scrollDirectionBinding,
+              group: {
+                "vertical": "Vertical",
+                "horizontal": "Horizontal",
+              })
       ],
     );
   }

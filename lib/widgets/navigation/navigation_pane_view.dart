@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
@@ -23,7 +23,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextButton(
-            onPressed: () => AppController.shared.navigationIsVisible.value = false,
+            onPressed: () =>
+                AppController.shared.navigationIsVisible.value = false,
             child: app.icons.close()),
         SizedBox(
           height: 71,
@@ -64,7 +65,8 @@ class NavigationItemView extends StatelessWidget {
   final SceneController sceneController;
   final Color? textColor;
 
-  NavigationItemView({required this.item, required this.sceneController, this.textColor});
+  NavigationItemView(
+      {required this.item, required this.sceneController, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +84,8 @@ class NavigationItemView extends StatelessWidget {
           AppController.shared.navigationIsVisible.value = false;
         }
       },
-      child: Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),
+      child:
+          Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),
     );
   }
 }
@@ -100,7 +103,10 @@ class NavigationHeadingView extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
             child: Text(
               title?.toUpperCase() ?? "",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xff8c73af)),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff8c73af)),
             )),
         Spacer()
       ],

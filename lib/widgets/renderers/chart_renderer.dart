@@ -2,8 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 
@@ -32,11 +32,14 @@ class _ChartRendererViewState extends RendererViewState {
   initState() {
     super.initState();
     backgroundColor = (() async =>
-        await widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        await widget
+            .viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground"))();
     _titlesInit = titlesInit();
     chartType = (() async =>
-        await widget.viewContext.rendererDefinitionPropertyResolver.string("chartType") ?? "bar")();
+        await widget.viewContext.rendererDefinitionPropertyResolver
+            .string("chartType") ??
+        "bar")();
   }
 
   @override
@@ -65,17 +68,22 @@ class _ChartRendererViewState extends RendererViewState {
   }
 
   titlesInit() async {
-    chartTitle = await widget.viewContext.rendererDefinitionPropertyResolver.string("title");
-    chartSubtitle = await widget.viewContext.rendererDefinitionPropertyResolver.string("subtitle");
+    chartTitle = await widget.viewContext.rendererDefinitionPropertyResolver
+        .string("title");
+    chartSubtitle = await widget.viewContext.rendererDefinitionPropertyResolver
+        .string("subtitle");
   }
 
   Future<Color> get primaryColor async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver.color() ??
+    return await widget.viewContext.rendererDefinitionPropertyResolver
+            .color() ??
         CVUColor.system("blue");
   }
 
   Future<double> get lineWidth async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver.cgFloat("lineWidth") ?? 0;
+    return await widget.viewContext.rendererDefinitionPropertyResolver
+            .cgFloat("lineWidth") ??
+        0;
   }
 
   Future<bool> get yAxisStartAtZero async {
@@ -123,7 +131,8 @@ class _ChartRendererViewState extends RendererViewState {
         ));
         itemChartProps[x] = ItemChartProps(
             xLabel: await resolver.replacingItem(item).string("label") ?? "",
-            yLabel: await resolver.replacingItem(item).string("yAxisLabel") ?? "",
+            yLabel:
+                await resolver.replacingItem(item).string("yAxisLabel") ?? "",
             barLabelFont: await barLabelFont,
             valueLabelFont: await valueLabelFont);
         x++;
@@ -131,7 +140,8 @@ class _ChartRendererViewState extends RendererViewState {
     });
     var hideGridLines = await hideGridlines;
     return BarChartData(
-      gridData: FlGridData(drawVerticalLine: !hideGridLines, drawHorizontalLine: !hideGridLines),
+      gridData: FlGridData(
+          drawVerticalLine: !hideGridLines, drawHorizontalLine: !hideGridLines),
       minY: await yAxisStartAtZero ? 0 : null,
       alignment: BarChartAlignment.spaceAround,
       borderData: FlBorderData(show: false),
@@ -140,11 +150,13 @@ class _ChartRendererViewState extends RendererViewState {
           show: true,
           bottomTitles: SideTitles(
               showTitles: true,
-              getTitles: (double value) => itemChartProps[value.toInt()]!.xLabel,
+              getTitles: (double value) =>
+                  itemChartProps[value.toInt()]!.xLabel,
               getTextStyles: (double value) => TextStyle(
                     color: Colors.black,
                     fontSize: itemChartProps[value.toInt()]!.barLabelFont.size,
-                    fontWeight: itemChartProps[value.toInt()]!.barLabelFont.weight,
+                    fontWeight:
+                        itemChartProps[value.toInt()]!.barLabelFont.weight,
                   ))),
       barTouchData: BarTouchData(
         enabled: false,
@@ -181,7 +193,8 @@ class _ChartRendererViewState extends RendererViewState {
       if (value != null) {
         itemChartProps[x] = ItemChartProps(
             xLabel: await resolver.replacingItem(item).string("label") ?? "",
-            yLabel: await resolver.replacingItem(item).string("yAxisLabel") ?? "",
+            yLabel:
+                await resolver.replacingItem(item).string("yAxisLabel") ?? "",
             barLabelFont: await barLabelFont,
             valueLabelFont: await valueLabelFont);
         data.add(PieChartSectionData(
@@ -223,7 +236,9 @@ class _ChartRendererViewState extends RendererViewState {
       }
     });
     return PieChartData(
-        sections: data, borderData: FlBorderData(show: false), centerSpaceRadius: double.infinity);
+        sections: data,
+        borderData: FlBorderData(show: false),
+        centerSpaceRadius: double.infinity);
   }
 
   Future<LineChartData> makeLineChartModel() async {
@@ -248,7 +263,8 @@ class _ChartRendererViewState extends RendererViewState {
       colors: [await primaryColor],
     );
     return LineChartData(
-      gridData: FlGridData(drawVerticalLine: !hideGridLines, drawHorizontalLine: !hideGridLines),
+      gridData: FlGridData(
+          drawVerticalLine: !hideGridLines, drawHorizontalLine: !hideGridLines),
       minY: await yAxisStartAtZero ? 0 : null,
       clipData: FlClipData.all(),
       borderData: FlBorderData(show: false),
@@ -271,8 +287,12 @@ class _ChartRendererViewState extends RendererViewState {
                 itemChartProps[lineBarSpot.x.toInt()]!.xLabel,
                 TextStyle(
                     color: Colors.black,
-                    fontSize: itemChartProps[lineBarSpot.x.toInt()]!.valueLabelFont.size,
-                    fontWeight: itemChartProps[lineBarSpot.x.toInt()]!.valueLabelFont.weight),
+                    fontSize: itemChartProps[lineBarSpot.x.toInt()]!
+                        .valueLabelFont
+                        .size,
+                    fontWeight: itemChartProps[lineBarSpot.x.toInt()]!
+                        .valueLabelFont
+                        .weight),
               );
             }).toList();
           },
@@ -294,7 +314,8 @@ class _ChartRendererViewState extends RendererViewState {
                 ),
                 Text(
                   chartSubtitle ?? "",
-                  style: TextStyle(color: CVUColor.system("secondaryLabel"), fontSize: 17),
+                  style: TextStyle(
+                      color: CVUColor.system("secondaryLabel"), fontSize: 17),
                 )
               ],
             );
@@ -314,7 +335,8 @@ class _ChartRendererViewState extends RendererViewState {
                 case "bar":
                   return FutureBuilder(
                       future: makeBarChartModel(),
-                      builder: (BuildContext builder, AsyncSnapshot<BarChartData> snapshot) {
+                      builder: (BuildContext builder,
+                          AsyncSnapshot<BarChartData> snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
                           if (snapshot.hasData) {
                             var model = snapshot.data;
@@ -323,8 +345,10 @@ class _ChartRendererViewState extends RendererViewState {
                             }
                             return Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                  children: [chartTitleView(), Expanded(child: BarChart(model))]),
+                              child: Column(children: [
+                                chartTitleView(),
+                                Expanded(child: BarChart(model))
+                              ]),
                             );
                           }
                         }
@@ -333,7 +357,8 @@ class _ChartRendererViewState extends RendererViewState {
                 case "line":
                   return FutureBuilder(
                       future: makeLineChartModel(),
-                      builder: (BuildContext builder, AsyncSnapshot<LineChartData> snapshot) {
+                      builder: (BuildContext builder,
+                          AsyncSnapshot<LineChartData> snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
                           if (snapshot.hasData) {
                             var model = snapshot.data;
@@ -342,8 +367,10 @@ class _ChartRendererViewState extends RendererViewState {
                             }
                             return Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                  children: [chartTitleView(), Expanded(child: LineChart(model))]),
+                              child: Column(children: [
+                                chartTitleView(),
+                                Expanded(child: LineChart(model))
+                              ]),
                             );
                           }
                         }
@@ -352,7 +379,8 @@ class _ChartRendererViewState extends RendererViewState {
                 case "pie":
                   return FutureBuilder(
                       future: makePieChartModel(),
-                      builder: (BuildContext builder, AsyncSnapshot<PieChartData> snapshot) {
+                      builder: (BuildContext builder,
+                          AsyncSnapshot<PieChartData> snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
                           if (snapshot.hasData) {
                             var model = snapshot.data;
@@ -361,8 +389,10 @@ class _ChartRendererViewState extends RendererViewState {
                             }
                             return Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                  children: [chartTitleView(), Expanded(child: PieChart(model))]),
+                              child: Column(children: [
+                                chartTitleView(),
+                                Expanded(child: PieChart(model))
+                              ]),
                             );
                           }
                         }

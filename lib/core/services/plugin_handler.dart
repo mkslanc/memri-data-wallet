@@ -1,9 +1,9 @@
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
+import 'package:memri/core/models/database/item_edge_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/database/item_edge_record.dart';
-import 'package:memri/models/database/item_record.dart';
 
 class PluginHandler {
   static run(
@@ -33,7 +33,10 @@ class PluginHandler {
                 //TODO: do we have better solution?
                 pageController.sceneController.scheduleUIUpdate();
                 stopPlugin(
-                    plugin: plugin, runner: runner, pageController: pageController, status: status);
+                    plugin: plugin,
+                    runner: runner,
+                    pageController: pageController,
+                    status: status);
                 break;
               default:
                 break;
@@ -69,17 +72,20 @@ class PluginHandler {
         return;
       }
 
-      var edge = ItemEdgeRecord(sourceRowID: runnerRowId, name: "account", targetRowID: itemRowId);
+      var edge = ItemEdgeRecord(
+          sourceRowID: runnerRowId, name: "account", targetRowID: itemRowId);
       await edge.save();
 
       var meRowID = (await ItemRecord.me())!.rowId;
-      var meEdge = ItemEdgeRecord(sourceRowID: itemRowId, name: "owner", targetRowID: meRowID);
+      var meEdge = ItemEdgeRecord(
+          sourceRowID: itemRowId, name: "owner", targetRowID: meRowID);
       await meEdge.save();
     }
 
     var pluginName = (await plugin.property("pluginName"))!.$value.value;
 
-    await runner.setPropertyValue("status", PropertyDatabaseValueString("cvuPresented"));
+    await runner.setPropertyValue(
+        "status", PropertyDatabaseValueString("cvuPresented"));
 
     await pageController.sceneController.navigateToNewContext(
         animated: false,

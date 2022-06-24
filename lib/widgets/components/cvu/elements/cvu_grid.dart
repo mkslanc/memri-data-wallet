@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_for_each.dart';
 import 'package:memri/widgets/empty.dart';
@@ -37,7 +37,8 @@ class _CVUGridState extends State<CVUGrid> with StackWidget {
     items = await widget.nodeResolver.propertyResolver.items("items");
     axis = await _axis;
     emptyText =
-        await widget.nodeResolver.propertyResolver.string("emptyResultText") ?? "No results";
+        await widget.nodeResolver.propertyResolver.string("emptyResultText") ??
+            "No results";
     spacing = await widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
     //TODO: minColumnHeight, maxColumnHeight
   }

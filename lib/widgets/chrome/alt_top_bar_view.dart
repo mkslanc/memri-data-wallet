@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
 import 'package:memri/widgets/components/button/action_button.dart';
 
 /// This view provides the 'navigation Bar' for the app interface
@@ -25,7 +25,8 @@ class _TopBarViewState extends State<AltTopBarView> {
   late Future<String?> title;
 
   Future<String?> get _title async {
-    return await widget.pageController.topMostContext?.viewDefinitionPropertyResolver
+    return await widget
+            .pageController.topMostContext?.viewDefinitionPropertyResolver
             .string("title") ??
         (viewContext?.focusedItem != null
             ? await viewContext!.itemPropertyResolver?.string("title")
@@ -63,9 +64,13 @@ class _TopBarViewState extends State<AltTopBarView> {
     viewContext?.removeListener(updateState);
     viewContext = widget.pageController.topMostContext;
     viewContext?.addListener(updateState);
-    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ?? [];
+    var actions =
+        viewContext?.viewDefinitionPropertyResolver.actions("actionButton") ??
+            [];
     actions.insert(
-        0, CVUActionOpenCVUEditor(vars: {"title": CVUValueConstant(CVUConstantString("Script"))}));
+        0,
+        CVUActionOpenCVUEditor(
+            vars: {"title": CVUValueConstant(CVUConstantString("Script"))}));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,7 +80,8 @@ class _TopBarViewState extends State<AltTopBarView> {
             if (actions.isNotEmpty && viewContext != null)
               ...actions.map((action) => ActionButton(
                     action: action,
-                    viewContext: viewContext!.getCVUContext(item: viewContext!.focusedItem),
+                    viewContext: viewContext!
+                        .getCVUContext(item: viewContext!.focusedItem),
                     pageController: widget.pageController,
                   )),
             TextButton(

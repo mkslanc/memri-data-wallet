@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/scene_controller.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/widgets/chrome/bottom_bar_view.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/filter_panel/filter_panel_view.dart';
@@ -44,7 +44,8 @@ class _BrowserViewState extends State<BrowserView> {
 
   bool get filterPanelIsVisible => _filterPanelIsVisible;
 
-  set filterPanelIsVisible(bool newValue) => setState(() => _filterPanelIsVisible = newValue);
+  set filterPanelIsVisible(bool newValue) =>
+      setState(() => _filterPanelIsVisible = newValue);
   double filterPanelGestureOffset = 0;
 
   late final Future<String?> _title;
@@ -53,7 +54,8 @@ class _BrowserViewState extends State<BrowserView> {
   initState() {
     super.initState();
     viewContext = widget.viewContext;
-    pageController = widget.pageController ?? SceneController.sceneController.pageControllers.first;
+    pageController = widget.pageController ??
+        SceneController.sceneController.pageControllers.first;
     _title = widget.viewContext.viewDefinitionPropertyResolver.string("title");
     viewContext.onAppear();
   }
@@ -68,30 +70,41 @@ class _BrowserViewState extends State<BrowserView> {
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
-        return ListRendererView(viewContext: viewContext, pageController: pageController);
+        return ListRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "grid":
-        return GridRendererView(viewContext: viewContext, pageController: pageController);
+        return GridRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "map":
-        return MapRendererView(viewContext: viewContext, pageController: pageController);
+        return MapRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "timeline":
-        return TimelineRendererView(viewContext: viewContext, pageController: pageController);
+        return TimelineRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "calendar":
-        return CalendarRendererView(viewContext: viewContext, pageController: pageController);
+        return CalendarRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "photoviewer":
-        return PhotoViewerRendererView(viewContext: viewContext, pageController: pageController);
+        return PhotoViewerRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "chart":
-        return ChartRendererView(viewContext: viewContext, pageController: pageController);
+        return ChartRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "singleitem":
-        return SingleItemRendererView(viewContext: viewContext, pageController: pageController);
+        return SingleItemRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "noteeditor":
-        return NoteEditorRendererView(viewContext: viewContext, pageController: pageController);
+        return NoteEditorRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "labelannotation":
         return LabelAnnotationRendererView(
             viewContext: viewContext, pageController: pageController);
       case "fileviewer":
-        return FileRendererView(viewContext: viewContext, pageController: pageController);
+        return FileRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "generaleditor":
-        return GeneralEditorRendererView(viewContext: viewContext, pageController: pageController);
+        return GeneralEditorRendererView(
+            viewContext: viewContext, pageController: pageController);
       default:
         return Expanded(
             child: Text(
@@ -103,7 +116,8 @@ class _BrowserViewState extends State<BrowserView> {
 
   Widget get topBarView => FutureBuilder<String?>(
       future: _title,
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+      builder: (context, snapshot) => snapshot.connectionState ==
+              ConnectionState.done
           ? Column(
               children: [
                 Padding(
@@ -116,7 +130,8 @@ class _BrowserViewState extends State<BrowserView> {
                       if (snapshot.hasData) ...[
                         Spacer(),
                         Text(snapshot.data!,
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                            style: TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w600)),
                         Spacer()
                       ]
                     ]),

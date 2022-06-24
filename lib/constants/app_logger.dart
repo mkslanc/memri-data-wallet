@@ -1,5 +1,5 @@
 import 'package:logger/logger.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 
 class AppLogger {
   static final Logger logger = Logger(
@@ -23,7 +23,8 @@ class AppLogger {
   static void info(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       logger.i(message, error, stackTrace);
 
-  static void recordCrashlyticsError(dynamic message, [dynamic error, StackTrace? stackTrace]) {
+  static void recordCrashlyticsError(dynamic message,
+      [dynamic error, StackTrace? stackTrace]) {
     // if (!kIsWeb) {
     //   /// TODO: We should add Firebase plugins
     //   FirebaseCrashlytics.instance.recordError(error ?? message, stackTrace, printDetails: false);

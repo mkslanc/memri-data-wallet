@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/binding.dart';
-import 'package:memri/utils/extensions/icon_data.dart';
+import 'package:memri/utilities/binding.dart';
+import 'package:memri/utilities/extensions/icon_data.dart';
 
 class OptionalDatePicker extends StatefulWidget {
   final String title;
@@ -46,8 +46,10 @@ class _OptionalDatePickerState extends State<OptionalDatePicker> {
           flex: 0,
           child: TextButton(
             onPressed: () => _selectDate(context),
-            child:
-                Text(unwrappedBinding.toString().split(' ').first), //TODO: format this with Jiffy
+            child: Text(unwrappedBinding
+                .toString()
+                .split(' ')
+                .first), //TODO: format this with Jiffy
           ),
         ),
         IconButton(
@@ -59,7 +61,8 @@ class _OptionalDatePickerState extends State<OptionalDatePicker> {
     } else {
       return [
         TextButton(
-            onPressed: () => setState(() => widget.selection.set(widget.initialSet)),
+            onPressed: () =>
+                setState(() => widget.selection.set(widget.initialSet)),
             child: Text("Set"))
       ];
     }

@@ -3,7 +3,7 @@
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
-import 'package:memri/models/cvu/cvu_lexer.dart';
+import 'package:memri/core/models/cvu/cvu_lexer.dart';
 
 class CVUParseErrorsUnexpectedToken extends CVUParseErrors {
   CVUParseErrorsUnexpectedToken(CVUToken token) : super(token);
@@ -20,7 +20,8 @@ class CVUParseErrorsUnknownDefinition extends CVUParseErrors {
 class CVUParseErrorsExpectedCharacter extends CVUParseErrors {
   final String character;
 
-  CVUParseErrorsExpectedCharacter(this.character, CVUToken token) : super(token);
+  CVUParseErrorsExpectedCharacter(this.character, CVUToken token)
+      : super(token);
 
   List<Object?> get props => [token, character];
 }
@@ -88,16 +89,20 @@ class CVUParseErrors with EquatableMixin implements Exception {
           'Expected Character ${error.character} and found ${displayToken(parts)} instead ${loc(parts)}';
     } else if (error is CVUParseErrorsExpectedDefinition) {
       parts = token.toParts();
-      message = 'Expected Definition and found ${displayToken(parts)} instead ${loc(parts)}';
+      message =
+          'Expected Definition and found ${displayToken(parts)} instead ${loc(parts)}';
     } else if (error is CVUParseErrorsExpectedIdentifier) {
       parts = token.toParts();
-      message = 'Expected Identifier and found ${displayToken(parts)} instead ${loc(parts)}';
+      message =
+          'Expected Identifier and found ${displayToken(parts)} instead ${loc(parts)}';
     } else if (error is CVUParseErrorsExpectedKey) {
       parts = token.toParts();
-      message = 'Expected Key and found ${displayToken(parts)} instead ${loc(parts)}';
+      message =
+          'Expected Key and found ${displayToken(parts)} instead ${loc(parts)}';
     } else if (error is CVUParseErrorsExpectedString) {
       parts = token.toParts();
-      message = 'Expected String and found ${displayToken(parts)} instead ${loc(parts)}';
+      message =
+          'Expected String and found ${displayToken(parts)} instead ${loc(parts)}';
     } else if (error is CVUParseErrorsMissingQuoteClose) {
       parts = token.toParts();
       message = 'Missing quote ${loc(parts)}';
@@ -122,7 +127,13 @@ class CVUParseErrors with EquatableMixin implements Exception {
         afterLines = afterLinesList.join("\n");
       }
 
-      return message + "\n\n" + beforeLines + "\n" + "-" * ch + "^\n" + afterLines;
+      return message +
+          "\n\n" +
+          beforeLines +
+          "\n" +
+          "-" * ch +
+          "^\n" +
+          afterLines;
     } else {
       return message;
     }

@@ -1,11 +1,11 @@
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/view_context.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/models/view_context.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/empty.dart';
 
 class BreadCrumbs extends StatefulWidget {
@@ -47,18 +47,21 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
       return [];
     }
     navigationStack = pageController.navigationStack.state;
-    var titleList =
-        await Future.wait(navigationStack.map((ViewContextHolder viewContextHolder) async {
+    var titleList = await Future.wait(
+        navigationStack.map((ViewContextHolder viewContextHolder) async {
       var viewContextController = pageController.makeContext(viewContextHolder);
 
-      return (await viewContextController.viewDefinitionPropertyResolver.string("title") ??
+      return (await viewContextController.viewDefinitionPropertyResolver
+                  .string("title") ??
               (viewContextController.focusedItem != null
-                  ? await viewContextController.itemPropertyResolver?.string("title")
+                  ? await viewContextController.itemPropertyResolver
+                      ?.string("title")
                   : null)) ??
           "Untitled";
     }));
 
-    showBreadCrumbs = await pageController.topMostContext?.viewDefinitionPropertyResolver
+    showBreadCrumbs = await pageController
+            .topMostContext?.viewDefinitionPropertyResolver
             .boolean("showBreadCrumbs") ??
         true;
 
@@ -82,15 +85,18 @@ class _BreadCrumbsState extends State<BreadCrumbs> {
                       return TextButton(
                         onPressed: () {
                           if (!isLast) {
-                            MixpanelAnalyticsService().logBreadCrumbButton(title);
-                            pageController.sceneController.removePageControllers();
+                            MixpanelAnalyticsService()
+                                .logBreadCrumbButton(title);
+                            pageController.sceneController
+                                .removePageControllers();
                             pageController.navigateTo(index);
                           }
                         },
                         child: Text(
                           title,
                           style: isLast && index > 0
-                              ? CVUFont.tabList.copyWith(color: Color(0xFF999999))
+                              ? CVUFont.tabList
+                                  .copyWith(color: Color(0xFF999999))
                               : CVUFont.tabList,
                         ),
                       );
