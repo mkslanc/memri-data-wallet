@@ -22,8 +22,17 @@ class Item {
     return this.edges[edgeName] ?? null;
   }
 
+  Item? edgeItem(String edgeName) {
+    // Returns first edge target, if it exists.
+    return this.getEdges(edgeName)?.first();
+  }
+
   dynamic get(String propertyName) {
     return this.properties[propertyName] ?? null;
+  }
+
+  dynamic propertyValue(String propertyName) {
+    return this.get(propertyName);
   }
 
   static Item fromJson(Map<String, dynamic> itemMap) {
@@ -66,7 +75,8 @@ class EdgeList {
   }
 }
 
-Future<http.Response?> execute_graphql(PodConnectionDetails connection, String query) async {
+Future<http.Response?> execute_graphql(
+    PodConnectionDetails connection, String query) async {
   var request = PodStandardRequest.queryGraphQL(query);
   var response = await request.execute(connection);
   if (response.statusCode != 200) {
@@ -93,7 +103,8 @@ List<Item> parseGQLResponse(http.Response? response) {
 
 // Dataset
 
-Future<List<Item>> getDataset(PodConnectionDetails connection, String datasetName) async {
+Future<List<Item>> getDataset(
+    PodConnectionDetails connection, String datasetName) async {
   var query = '''
     query {
       Dataset (filter: {name: {eq: "$datasetName"}}) {
@@ -111,6 +122,52 @@ Future<List<Item>> getDataset(PodConnectionDetails connection, String datasetNam
           }
       }
   }''';
+  var response = await execute_graphql(connection, query);
+  return parseGQLResponse(response);
+}
+
+// Inbox
+
+Future<List<Item>> getMessageChannels(PodConnectionDetails connection) async {
+  var query = '''
+    query {
+      MessageChannel (limit: 1000) {
+        id
+        name
+        photo {
+          id
+          file {
+            sha256
+          }
+        }
+        ~messageChannel (limit: 1, order_desc: dateReceived) {
+          dateReceived
+        }
+      }
+    }
+  ''';
+
+  var response = await execute_graphql(connection, query);
+  return parseGQLResponse(response);
+}
+
+Future<List<Item>> getChannelMessages(
+    {required PodConnectionDetails connection,
+    required String chatID,
+    int limit = 100,
+    int offset = 0}) async {
+  var query = '''
+    query {
+      MessageChannel (filter: {id: {eq: "$chatID"}}) {
+        id
+        ~messageChannel (limit: $limit, offset: $offset) {
+          dateReceived
+          content
+        }
+      }
+    }
+  ''';
+
   var response = await execute_graphql(connection, query);
   return parseGQLResponse(response);
 }
