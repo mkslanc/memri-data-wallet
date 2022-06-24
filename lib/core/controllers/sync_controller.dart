@@ -170,7 +170,8 @@ class SyncController {
 
       var networkCall = await request.execute(config);
       if (networkCall.statusCode != 200) {
-        throw Exception("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+        throw Exception(
+            "ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
       }
       var podItems = jsonDecode(networkCall.body);
       return podItems is List && podItems.isNotEmpty;

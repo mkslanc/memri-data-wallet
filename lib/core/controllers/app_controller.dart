@@ -341,11 +341,13 @@ class AppController {
 
     if (config is SetupConfigExistingPod) {
       if (!await syncController.validateConfigExisted(_podConnectionConfig!)) {
-        throw Exception("The username or password you have entered is invalid. Please try again.");
+        throw Exception(
+            "The username or password you have entered is invalid. Please try again.");
       }
     } else {
       if (!await syncController.validateConfigCreated(_podConnectionConfig!)) {
-        throw Exception("Key does not exist or already in use, please, try another one");
+        throw Exception(
+            "Key does not exist or already in use, please, try another one");
       }
     }
   }

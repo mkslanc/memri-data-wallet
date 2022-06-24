@@ -35,6 +35,7 @@ class AppLogger {
     // } else {
     //   /// TODO: We need a service from server-side to store these logs
     // }
-    MixpanelAnalyticsService().logError(message.toString(), stackTrace?.toString() ?? "");
+    MixpanelAnalyticsService()
+        .logError(message.toString(), stackTrace?.toString() ?? "");
   }
 }

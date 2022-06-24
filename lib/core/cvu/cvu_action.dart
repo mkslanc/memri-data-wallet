@@ -2251,15 +2251,17 @@ class CVUActionAnalytics extends CVUAction {
           MixpanelAnalyticsService().logImporterStatus(params.asMap()[0] ?? '');
           break;
         case AnalyticsEvents.projectCreate:
-          MixpanelAnalyticsService()
-              .logProjectCreate(params.asMap()[0] ?? '', params.asMap()[1] ?? '');
+          MixpanelAnalyticsService().logProjectCreate(
+              params.asMap()[0] ?? '', params.asMap()[1] ?? '');
           break;
         case AnalyticsEvents.projectDataSelect:
           MixpanelAnalyticsService().logProjectDataSelect(params.asMap()[0]);
           break;
         case AnalyticsEvents.projectLabelsOverview:
           MixpanelAnalyticsService().logProjectLabelsOverview(
-              params.asMap()[0] ?? '', params.asMap()[1] ?? '', params.asMap()[2] ?? '');
+              params.asMap()[0] ?? '',
+              params.asMap()[1] ?? '',
+              params.asMap()[2] ?? '');
           break;
         case AnalyticsEvents.projectTrainModel:
           MixpanelAnalyticsService().logProjectTrainModel();
@@ -2268,11 +2270,12 @@ class CVUActionAnalytics extends CVUAction {
           MixpanelAnalyticsService().logProjectGoogleColab();
           break;
         case AnalyticsEvents.projectTutorialLink:
-          MixpanelAnalyticsService()
-              .logProjectTutorialLink(params.asMap()[0] ?? '', params.asMap()[1] ?? '');
+          MixpanelAnalyticsService().logProjectTutorialLink(
+              params.asMap()[0] ?? '', params.asMap()[1] ?? '');
           break;
         case AnalyticsEvents.projectPluginGitlabUrl:
-          MixpanelAnalyticsService().logProjectPluginGitlabUrl(params.asMap()[0] ?? '');
+          MixpanelAnalyticsService()
+              .logProjectPluginGitlabUrl(params.asMap()[0] ?? '');
           break;
       }
     } else {

@@ -100,8 +100,8 @@ class SceneController extends ChangeNotifier {
 
   reset({isFactoryReset = false}) {
     navigationIsVisible.value = false;
-    pageControllers
-        .forEach((pageController) => pageController.reset(isFactoryReset: isFactoryReset));
+    pageControllers.forEach((pageController) =>
+        pageController.reset(isFactoryReset: isFactoryReset));
     pageControllers = [];
     parentSceneController?.subSceneControllers
         .removeWhere((subSceneController) => subSceneController == this);

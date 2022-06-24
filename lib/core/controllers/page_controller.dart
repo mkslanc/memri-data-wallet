@@ -67,7 +67,8 @@ class PageController extends ChangeNotifier {
         ? _navigationStack = null
         : navigationStack =
             null; //fixing async problem of deleting navigationStack after db is fully deleted
-    navigationController = MemriUINavigationController(); //TODO: change when navigation fixed
+    navigationController =
+        MemriUINavigationController(); //TODO: change when navigation fixed
   }
 
   ViewContextController makeContext(ViewContextHolder config) {

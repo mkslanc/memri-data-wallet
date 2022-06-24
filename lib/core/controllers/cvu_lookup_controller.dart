@@ -18,6 +18,7 @@ import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/date_time.dart';
 import 'package:memri/utilities/extensions/number.dart';
 import 'package:memri/utilities/extensions/string.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/utilities/mock_generator.dart';
 import 'package:moor/moor.dart';
 
@@ -976,17 +977,20 @@ class CVULookupController {
             currentValue.items.length == 0) {
           return null;
         }
-        currentValue = LookupStepValues([PropertyDatabaseValueString(currentValue.items[0].type)]);
+        currentValue = LookupStepValues(
+            [PropertyDatabaseValueString(currentValue.items[0].type)]);
         break;
       case "fromconfig":
         var exp = nodeType.args.asMap()[0];
-        String? param = await resolve<String>(expression: exp, context: context, db: db);
+        String? param =
+            await resolve<String>(expression: exp, context: context, db: db);
         if (param == null) {
           return null;
         }
         switch (param.toLowerCase()) {
           case "colablink":
-            currentValue = LookupStepValues([PropertyDatabaseValueString(app.settings.colabLink)]);
+            currentValue = LookupStepValues(
+                [PropertyDatabaseValueString(app.settings.colabLink)]);
             break;
           default:
             return null;

@@ -1,9 +1,16 @@
+import 'dart:convert';
+
+import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/controllers/database_query.dart';
 import 'package:memri/core/controllers/page_controller.dart' as memri;
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/models/database/item_edge_record.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
 import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 
 class PluginHandler {
   static run(
@@ -21,7 +28,10 @@ class PluginHandler {
 
             switch (status) {
               case "userActionNeeded":
-                presentCVUforPlugin(plugin: plugin, runner: runner, pageController: pageController);
+                presentCVUforPlugin(
+                    plugin: plugin,
+                    runner: runner,
+                    pageController: pageController);
                 break;
               case "daemon":
               case "done":
@@ -32,7 +42,10 @@ class PluginHandler {
                     status: status);
                 break;
               case "error":
-                errorOccurred(runner: runner, pageController: pageController, plugin: plugin);
+                errorOccurred(
+                    runner: runner,
+                    pageController: pageController,
+                    plugin: plugin);
                 break;
               default:
                 break;
@@ -65,8 +78,10 @@ class PluginHandler {
 
     if (data.length < requiredSize) {
       await runner.setPropertyValueList([
-        ItemPropertyRecord(name: "error", value: PropertyDatabaseValueString("notEnoughData")),
-        ItemPropertyRecord(name: "status", value: PropertyDatabaseValueString("error"))
+        ItemPropertyRecord(
+            name: "error", value: PropertyDatabaseValueString("notEnoughData")),
+        ItemPropertyRecord(
+            name: "status", value: PropertyDatabaseValueString("error"))
       ], db: db);
     } else {
       stopPlugin(runner);
@@ -98,11 +113,12 @@ class PluginHandler {
     filterQuery.remove('type');
     List<DatabaseQueryConditionPropertyEquals> properties = [];
     filterQuery.forEach((key, value) {
-      properties.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+      properties.add(
+          DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
     });
 
-    var databaseQueryConfig =
-        DatabaseQueryConfig(itemTypes: [itemType], pageSize: size, conditions: properties);
+    var databaseQueryConfig = DatabaseQueryConfig(
+        itemTypes: [itemType], pageSize: size, conditions: properties);
     databaseQueryConfig.dbController = db;
     return (await databaseQueryConfig.constructFilteredRequest())
         .map((item) => ItemRecord.fromItem(item))
