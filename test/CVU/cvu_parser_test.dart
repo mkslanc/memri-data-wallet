@@ -3,8 +3,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/core/cvu/parsing/cvu_parse_errors.dart';
 import 'package:memri/core/cvu/parsing/cvu_parser.dart';
-import 'package:memri/models/cvu/cvu_lexer.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_lexer.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
 
 List<CVUParsedDefinition> parse(String snippet) {
   CVULexer lexer = CVULexer(snippet);
@@ -308,7 +308,8 @@ void main() {
   });
 
   test('testSingleLineCSSLikeSyntax', () {
-    var snippet = """Person { background: #fff; border: 1 red; padding: 1 2 3 4; }""";
+    var snippet =
+        """Person { background: #fff; border: 1 red; padding: 1 2 3 4; }""";
     expect(parseToCVUString(snippet), """Person {
     background: #fff
     border: 1 red
@@ -529,7 +530,9 @@ Person {
     expect(
         () => parse(snippet),
         throwsA(predicate((e) =>
-            e is CVUParseErrors && e is CVUParseErrorsUnexpectedToken && e.token is CVUTokenEOF)));
+            e is CVUParseErrors &&
+            e is CVUParseErrorsUnexpectedToken &&
+            e.token is CVUTokenEOF)));
   });
 
   test('testErrorMissingBracketCloseInDefinition', () {
@@ -602,7 +605,8 @@ Person {
             e.token is CVUTokenNumber &&
             (e.token as CVUTokenNumber).value == 5 &&
             e.token.ln == 0 &&
-            e.token.ch == 1))); //TODO in swift there is 2, but doesn't seem correct
+            e.token.ch ==
+                1))); //TODO in swift there is 2, but doesn't seem correct
   });
 
   test('testErrorExtraCurlyBracket', () {

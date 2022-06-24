@@ -31,5 +31,8 @@ class TextProperties {
   TextAlign textAlign;
   int? lineLimit;
 
-  TextProperties({required this.textStyle, required this.textAlign, required this.lineLimit});
+  TextProperties(
+      {required this.textStyle,
+      required this.textAlign,
+      required this.lineLimit});
 }

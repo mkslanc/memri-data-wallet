@@ -4,10 +4,13 @@ import 'package:http/http.dart' as http;
 
 class GitlabApi {
   static Future<String> getTextFileContentFromGitlab(
-      {required int gitProjectId, required String filename, String branch = "main"}) async {
+      {required int gitProjectId,
+      required String filename,
+      String branch = "main"}) async {
     var repoUri = Uri.parse(
         "https://gitlab.memri.io/api/v4/projects/$gitProjectId/repository/files/$filename?ref=$branch");
-    var response = await http.get(repoUri, headers: {"content-type": "application/json"});
+    var response =
+        await http.get(repoUri, headers: {"content-type": "application/json"});
     if (response.statusCode != 200) {
       throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
     }
@@ -27,7 +30,8 @@ class GitlabApi {
       String branch = "main"}) async {
     var repoUri = Uri.parse(
         "https://gitlab.memri.io/api/v4/projects/$gitProjectId/jobs/artifacts/$branch/raw/$filename?job=$jobName");
-    var response = await http.get(repoUri, headers: {"content-type": "application/json"});
+    var response =
+        await http.get(repoUri, headers: {"content-type": "application/json"});
     if (response.statusCode != 200) {
       throw "ERROR: ${response.statusCode} ${response.reasonPhrase}";
     }

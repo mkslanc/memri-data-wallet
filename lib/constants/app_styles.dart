@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 
 final ButtonStyle primaryButtonStyle = TextButton.styleFrom(

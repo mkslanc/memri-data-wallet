@@ -1,8 +1,11 @@
-import 'package:memri/models/database/database.dart';
+import 'package:memri/core/models/database/database.dart';
 import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 
-Database constructDb({bool logStatements = false, bool inMemory = false, required databaseName}) {
+Database constructDb(
+    {bool logStatements = false,
+    bool inMemory = false,
+    required databaseName}) {
   throw 'Platform not supported';
 }
 
@@ -11,7 +14,9 @@ Future<void> deleteDb(databaseName) async {
 }
 
 Future<DriftIsolate> createDriftIsolate(
-    {bool logStatements = false, bool inMemory = false, required databaseName}) {
+    {bool logStatements = false,
+    bool inMemory = false,
+    required databaseName}) {
   throw 'Platform not supported';
 }
 

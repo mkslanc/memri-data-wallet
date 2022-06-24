@@ -1,7 +1,7 @@
-import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/demo_data.dart';
-import 'package:memri/models/database/item_record.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +40,8 @@ void main() {
   test('testSearch', () async {
     await DemoData.importDemoData(
         databaseController: databaseController, throwIfAgainstSchema: true);
-    List<ItemRecord> results = await databaseController.search("trailhead first");
+    List<ItemRecord> results =
+        await databaseController.search("trailhead first");
     expect(results.length, 1);
     expect(results[0].type, "Note");
   });

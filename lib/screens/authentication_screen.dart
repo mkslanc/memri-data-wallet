@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/factory_reset.dart';
+import 'package:memri/utilities/factory_reset.dart';
 import 'package:memri/widgets/space.dart';
 
 import '../constants/app_styles.dart';
@@ -31,14 +31,19 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
               spacing: -10,
               children: [
                 Text("Welcome to",
-                    style:
-                        TextStyle(fontFamily: "system", fontSize: 20, fontWeight: FontWeight.w100)),
+                    style: TextStyle(
+                        fontFamily: "system",
+                        fontSize: 20,
+                        fontWeight: FontWeight.w100)),
                 Text("memri",
-                    style:
-                        TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.purple))
+                    style: TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.purple))
               ],
             ),
-            Text("A place where your data belongs to you.", textAlign: TextAlign.center),
+            Text("A place where your data belongs to you.",
+                textAlign: TextAlign.center),
             SizedBox(height: 30),
             Column(
               children: [

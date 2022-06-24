@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/binding.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utilities/binding.dart';
+import 'package:memri/utilities/extensions/string.dart';
 
 class FilterPanelSortItemView extends StatelessWidget {
   final String property;
@@ -21,8 +21,11 @@ class FilterPanelSortItemView extends StatelessWidget {
           ),
           Spacer(),
           isSelected
-              ? TextButton(child: Icon(Icons.close_rounded), onPressed: () => selection.set(null))
-              : TextButton(onPressed: () => selection.set(property), child: Text("Set"))
+              ? TextButton(
+                  child: Icon(Icons.close_rounded),
+                  onPressed: () => selection.set(null))
+              : TextButton(
+                  onPressed: () => selection.set(property), child: Text("Set"))
         ],
       ),
     );

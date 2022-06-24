@@ -9,7 +9,8 @@ class MapMarker extends StatefulWidget {
   final LatLng _coordinate;
   final void Function(MapMarkerState) _addMarkerState;
 
-  MapMarker(String key, this._coordinate, this._initialPosition, this._addMarkerState)
+  MapMarker(
+      String key, this._coordinate, this._initialPosition, this._addMarkerState)
       : super(key: Key(key));
 
   @override
@@ -67,7 +68,8 @@ class MapMarkerState extends State<MapMarker> with TickerProviderStateMixin {
 
   void _onTap() {
     setState(() {
-      _iconSize = _iconSize == _initialIconSize ? _iconSize * 2 : _initialIconSize;
+      _iconSize =
+          _iconSize == _initialIconSize ? _iconSize * 2 : _initialIconSize;
     });
   }
 }

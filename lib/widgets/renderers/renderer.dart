@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/utilities/binding.dart';
 
 abstract class Renderer extends StatefulWidget {
   final memri.PageController pageController;
@@ -41,12 +41,13 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   }
 
   Future<void> init() async {
-    blockedFromStorage = pageController.appController.storage[pageController.label]?["isBlocked"];
+    blockedFromStorage = pageController
+        .appController.storage[pageController.label]?["isBlocked"];
     isBlocked = blockedFromStorage?.value ?? false;
     blockedFromStorage?.addListener(updateBlockedState);
-    showDefaultSelections =
-        await viewContext.rendererDefinitionPropertyResolver.boolean("showDefaultSelections") ??
-            true;
+    showDefaultSelections = await viewContext.rendererDefinitionPropertyResolver
+            .boolean("showDefaultSelections") ??
+        true;
     startingElement = getAdditionalElement("startingElement");
     trailingElement = getAdditionalElement("trailingElement");
     await initEditMode();
@@ -62,17 +63,20 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     isInEditMode = (await viewContext.viewDefinitionPropertyResolver
         .boolean("editMode", pageController.isInEditMode.value))!;
 
-    if (viewContext.rendererDefinitionPropertyResolver.properties.containsKey("selectedItems")) {
-      var selectedItems =
-          await viewContext.rendererDefinitionPropertyResolver.items("selectedItems");
-      viewContext.selectedItems = selectedItems.map((item) => item.rowId!).toList();
+    if (viewContext.rendererDefinitionPropertyResolver.properties
+        .containsKey("selectedItems")) {
+      var selectedItems = await viewContext.rendererDefinitionPropertyResolver
+          .items("selectedItems");
+      viewContext.selectedItems =
+          selectedItems.map((item) => item.rowId!).toList();
     }
 
     selectedIndicesBinding = viewContext.selectedIndicesBinding;
     selectedIndices = selectedIndicesBinding.get();
 
     if (mounted)
-      setState(() {}); //TODO figure out why future is completed done before getting this point
+      setState(
+          () {}); //TODO figure out why future is completed done before getting this point
   }
 
   updateIsInEditMode() async {
@@ -81,20 +85,25 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
   }
 
   Widget? getAdditionalElement(String elementName) {
-    var def = viewContext.viewDefinitionPropertyResolver.properties[elementName] ??
+    var def = viewContext
+            .viewDefinitionPropertyResolver.properties[elementName] ??
         viewContext.rendererDefinitionPropertyResolver.properties[elementName];
 
     var subDef = def?.getSubdefinition();
     if (subDef != null) {
       return viewContext.render(
-          nodeDefinition: subDef, item: viewContext.focusedItem, items: viewContext.items);
+          nodeDefinition: subDef,
+          item: viewContext.focusedItem,
+          items: viewContext.items);
     }
     return null;
   }
 
   Widget? get emptyResult {
-    var emptyResultDef = viewContext.viewDefinitionPropertyResolver.properties["emptyResult"] ??
-        viewContext.rendererDefinitionPropertyResolver.properties["emptyResult"];
+    var emptyResultDef =
+        viewContext.viewDefinitionPropertyResolver.properties["emptyResult"] ??
+            viewContext
+                .rendererDefinitionPropertyResolver.properties["emptyResult"];
 
     var emptyResultSubdef = emptyResultDef?.getSubdefinition();
     if (emptyResultSubdef != null) {
@@ -126,11 +135,12 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
         var item = viewContext.items.asMap()[index];
 
         if (item != null) {
-          var presses = viewContext.rendererDefinitionPropertyResolver.actions("onPress") ??
+          var presses = viewContext.rendererDefinitionPropertyResolver
+                  .actions("onPress") ??
               viewContext.nodePropertyResolver(item)?.actions("onPress");
           if (presses != null) {
-            presses.forEach((press) async =>
-                await press.execute(pageController, viewContext.getCVUContext(item: item)));
+            presses.forEach((press) async => await press.execute(
+                pageController, viewContext.getCVUContext(item: item)));
 
             selectIndice(index, true);
           }

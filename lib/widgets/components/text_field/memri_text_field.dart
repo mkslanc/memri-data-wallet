@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/utilities/binding.dart';
 
 class MemriTextField<T> extends StatefulWidget {
   final Binding<T>? binding;
@@ -54,7 +54,8 @@ class MemriTextField<T> extends StatefulWidget {
 class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   T? _value;
 
-  TextEditingController get controller => TextEditingController(text: _value?.toString());
+  TextEditingController get controller =>
+      TextEditingController(text: _value?.toString());
 
   late Future<T> _futureValue;
   final FocusNode _focusNode = FocusNode();
@@ -91,12 +92,14 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
         await updateFutureValue();
       } else {
         pending = false;
-        (AppController.shared.storage["isBlocked"] as ValueNotifier?)?.value = false;
+        (AppController.shared.storage["isBlocked"] as ValueNotifier?)?.value =
+            false;
       }
     }).catchError((error) {
       pending = false;
       usePending = false;
-      (AppController.shared.storage["isBlocked"] as ValueNotifier?)?.value = false;
+      (AppController.shared.storage["isBlocked"] as ValueNotifier?)?.value =
+          false;
     });
   }
 
@@ -151,32 +154,33 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   stringTextForm() {
     return ValueListenableBuilder<bool>(
       valueListenable: widget.isDisabled,
-      builder: (BuildContext context, disabledValue, Widget? child) => TextFormField(
-          focusNode: _focusNode,
-          obscureText: widget.secureMode,
-          readOnly: !widget.isEditing || disabledValue,
-          style: widget.style,
-          autofocus: widget.autoFocus,
-          decoration: InputDecoration(
-              isCollapsed: widget.isCollapsed,
-              contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              border: InputBorder.none,
-              hintText: widget.hint,
-              hintStyle: widget.hintStyle),
-          controller: controller,
-          maxLines: widget.isMultiline ? null : 1,
-          onChanged: (String newValue) async {
-            value = newValue;
-          },
-          onFieldSubmitted: (lastValue) async {
-            if (widget.onSubmit != null) {
-              await widget.onSubmit!();
-              if (widget.autoFocus)
-                Future.delayed(Duration(milliseconds: 500)).then((value) {
-                  FocusScope.of(context).requestFocus(_focusNode);
-                });
-            }
-          }),
+      builder: (BuildContext context, disabledValue, Widget? child) =>
+          TextFormField(
+              focusNode: _focusNode,
+              obscureText: widget.secureMode,
+              readOnly: !widget.isEditing || disabledValue,
+              style: widget.style,
+              autofocus: widget.autoFocus,
+              decoration: InputDecoration(
+                  isCollapsed: widget.isCollapsed,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  border: InputBorder.none,
+                  hintText: widget.hint,
+                  hintStyle: widget.hintStyle),
+              controller: controller,
+              maxLines: widget.isMultiline ? null : 1,
+              onChanged: (String newValue) async {
+                value = newValue;
+              },
+              onFieldSubmitted: (lastValue) async {
+                if (widget.onSubmit != null) {
+                  await widget.onSubmit!();
+                  if (widget.autoFocus)
+                    Future.delayed(Duration(milliseconds: 500)).then((value) {
+                      FocusScope.of(context).requestFocus(_focusNode);
+                    });
+                }
+              }),
     );
   }
 

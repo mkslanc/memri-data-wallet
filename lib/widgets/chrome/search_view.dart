@@ -1,8 +1,8 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/utilities/extensions/string.dart';
 
 /// This view is displayed when the user presses the search button
 /// It moves itself to be above the keyboard automatically
@@ -27,8 +27,8 @@ class _SearchViewState extends State<SearchView> {
         ),
         Expanded(
           child: TextFormField(
-            onChanged: (value) =>
-                setState(() => widget.viewContext.searchString = value.nullIfBlank),
+            onChanged: (value) => setState(
+                () => widget.viewContext.searchString = value.nullIfBlank),
             initialValue: widget.viewContext.searchString,
             decoration: InputDecoration(
                 isDense: true,

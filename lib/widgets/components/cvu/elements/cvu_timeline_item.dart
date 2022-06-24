@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/utils/extensions/icon_data.dart';
+import 'package:memri/utilities/extensions/icon_data.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 
@@ -32,7 +32,8 @@ class _CVUTimelineItemState extends State<CVUTimelineItem> {
 
   Future init() async {
     icon = MemriIcon.getByName(
-        await widget.nodeResolver.propertyResolver.string("icon") ?? "arrow_right");
+        await widget.nodeResolver.propertyResolver.string("icon") ??
+            "arrow_right");
     title = await widget.nodeResolver.propertyResolver.string("title") ?? "-";
     subtitle = await widget.nodeResolver.propertyResolver.string("text");
   }
@@ -41,10 +42,14 @@ class _CVUTimelineItemState extends State<CVUTimelineItem> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init,
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-          ? TimelineItemView(
-              icon: icon, title: title, subtitle: subtitle, backgroundColor: Colors.grey)
-          : Empty(),
+      builder: (context, snapshot) =>
+          snapshot.connectionState == ConnectionState.done
+              ? TimelineItemView(
+                  icon: icon,
+                  title: title,
+                  subtitle: subtitle,
+                  backgroundColor: Colors.grey)
+              : Empty(),
     );
   }
 }
@@ -65,14 +70,16 @@ class TimelineItemView extends StatelessWidget {
       this.cornerRadius = 5,
       backgroundColor})
       : this.icon = icon ?? Icons.send,
-        this.backgroundColor = backgroundColor ?? CVUColor.system("systemGreen");
+        this.backgroundColor =
+            backgroundColor ?? CVUColor.system("systemGreen");
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(cornerRadius)), color: backgroundColor),
+          borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
+          color: backgroundColor),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,8 +92,10 @@ class TimelineItemView extends StatelessWidget {
                 child: Icon(icon, color: foregroundColor),
               ),
               Text(title,
-                  style:
-                      TextStyle(fontWeight: FontWeight.w600, fontSize: 17, color: foregroundColor),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                      color: foregroundColor),
                   maxLines: 1)
             ],
           ),

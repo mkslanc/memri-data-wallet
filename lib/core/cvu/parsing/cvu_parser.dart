@@ -1,13 +1,13 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:memri/core/cvu/parsing/cvu_parse_errors.dart';
-import 'package:memri/models/cvu/cvu_lexer.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/cvu/cvu_ui_element_family.dart';
-import 'package:memri/models/cvu/cvu_ui_node.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_value_expression.dart';
+import 'package:memri/core/models/cvu/cvu_lexer.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_ui_element_family.dart';
+import 'package:memri/core/models/cvu/cvu_ui_node.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_value_expression.dart';
 
 class CVUParser {
   final List<CVUToken> tokens;
@@ -106,10 +106,13 @@ class CVUParser {
         throw CVUParseErrorsExpectedIdentifier(lastToken!);
       }
       return CVUParsedDefinition(
-          type: CVUDefinitionType.uiNode, selector: typeIdentifier, renderer: token.value);
+          type: CVUDefinitionType.uiNode,
+          selector: typeIdentifier,
+          renderer: token.value);
     }
 
-    return CVUParsedDefinition(type: CVUDefinitionType.view, selector: typeIdentifier);
+    return CVUParsedDefinition(
+        type: CVUDefinitionType.view, selector: typeIdentifier);
   }
 
   CVUParsedDefinition parseNamedIdentifierSelector() {
@@ -120,7 +123,8 @@ class CVUParser {
     }
     String name = token.value;
 
-    return CVUParsedDefinition(type: CVUDefinitionType.view, selector: ".$name", name: name);
+    return CVUParsedDefinition(
+        type: CVUDefinitionType.view, selector: ".$name", name: name);
   }
 
   // For JSON support
@@ -133,7 +137,9 @@ class CVUParser {
 
     if (value.startsWith(".")) {
       return CVUParsedDefinition(
-          type: CVUDefinitionType.view, selector: value, name: value.substring(0, 1));
+          type: CVUDefinitionType.view,
+          selector: value,
+          name: value.substring(0, 1));
     } else if (value.startsWith("[")) {
       throw Exception("Not supported yet"); // TODO:
     } else {
@@ -155,7 +161,8 @@ class CVUParser {
     String type = tokenT.value;
 
     // TODO: Only allow inside other definition
-    if (["session", "view"].contains(type) && peekCurrentToken() is CVUTokenBracketClose) {
+    if (["session", "view"].contains(type) &&
+        peekCurrentToken() is CVUTokenBracketClose) {
       popCurrentToken();
       switch (type) {
         case "session":
@@ -190,22 +197,34 @@ class CVUParser {
       switch (type) {
         case "sessions":
           return CVUParsedDefinition(
-              type: CVUDefinitionType.sessions, selector: "[sessions = $name]", name: name);
+              type: CVUDefinitionType.sessions,
+              selector: "[sessions = $name]",
+              name: name);
         case "session":
           return CVUParsedDefinition(
-              type: CVUDefinitionType.views, selector: "[session = $name]", name: name);
+              type: CVUDefinitionType.views,
+              selector: "[session = $name]",
+              name: name);
         case "view":
           return CVUParsedDefinition(
-              type: CVUDefinitionType.view, selector: "[view = $name]", name: name);
+              type: CVUDefinitionType.view,
+              selector: "[view = $name]",
+              name: name);
         case "datasource":
           return CVUParsedDefinition(
-              type: CVUDefinitionType.datasource, selector: "[datasource = $name]", name: name);
+              type: CVUDefinitionType.datasource,
+              selector: "[datasource = $name]",
+              name: name);
         case "renderer":
           return CVUParsedDefinition(
-              type: CVUDefinitionType.renderer, selector: "[renderer = $name]", name: name);
+              type: CVUDefinitionType.renderer,
+              selector: "[renderer = $name]",
+              name: name);
         case "language":
           return CVUParsedDefinition(
-              type: CVUDefinitionType.language, selector: "[language = $name]", name: name);
+              type: CVUDefinitionType.language,
+              selector: "[language = $name]",
+              name: name);
         default:
           throw CVUParseErrorsUnknownDefinition(type, typeToken);
       }
@@ -214,7 +233,8 @@ class CVUParser {
     }
   }
 
-  CVUExpressionNode createExpression(String code, [bool startInStringMode = false]) {
+  CVUExpressionNode createExpression(String code,
+      [bool startInStringMode = false]) {
     return CVUExpressionNode.create(code, startInStringMode);
   }
 
@@ -237,7 +257,8 @@ class CVUParser {
       }
     }
 
-    addUIElement(CVUUIElementFamily type, CVUDefinitionContent properties, CVUToken token) {
+    addUIElement(CVUUIElementFamily type, CVUDefinitionContent properties,
+        CVUToken token) {
       parsedContent.children.add(CVUUINode(
           type: type,
           children: properties.children,
@@ -248,7 +269,8 @@ class CVUParser {
     while (true) {
       CVUToken token = popCurrentToken();
       if (token is CVUTokenBool) {
-        stack.add(CVUValueConstant(CVUConstantBool(token.value), tokenLocation: token.location));
+        stack.add(CVUValueConstant(CVUConstantBool(token.value),
+            tokenLocation: token.location));
       } else if (token is CVUTokenBracketOpen) {
         if (stack.length == 0 && lastKey != null) {
           isArrayMode = true;
@@ -265,21 +287,24 @@ class CVUParser {
           isArrayMode = false;
           lastKey = null;
         } else {
-          throw CVUParseErrorsUnexpectedToken(lastToken!); // We should never get here
+          throw CVUParseErrorsUnexpectedToken(
+              lastToken!); // We should never get here
         }
       } else if (token is CVUTokenCurlyBracketOpen) {
         if (lastKey == null) {
           throw CVUParseErrorsExpectedIdentifier(lastToken!);
         }
 
-        stack.add(CVUValueSubdefinition(parseDict(lastKey), tokenLocation: token.location));
+        stack.add(CVUValueSubdefinition(parseDict(lastKey),
+            tokenLocation: token.location));
       } else if (token is CVUTokenCurlyBracketClose) {
         setPropertyValue();
         return parsedContent; // DONE
       } else if (token is CVUTokenColon) {
         throw CVUParseErrorsExpectedKey(lastToken!);
       } else if (token is CVUTokenExpression) {
-        stack.add(CVUValueExpression(createExpression(token.value), tokenLocation: token.location));
+        stack.add(CVUValueExpression(createExpression(token.value),
+            tokenLocation: token.location));
       } else if (token is CVUTokenIdentifier) {
         var v = token.value;
         if (lastKey == null) {
@@ -299,11 +324,14 @@ class CVUParser {
             }
 
             addUIElement(type, properties, token);
-          } else if (v == "userstate" || v == "viewarguments" || v == "contextpane") {
+          } else if (v == "userstate" ||
+              v == "viewarguments" ||
+              v == "contextpane") {
             if (nextToken is CVUTokenCurlyBracketOpen) {
               popCurrentToken();
               CVUDefinitionContent properties = parseDict();
-              stack.add(CVUValueSubdefinition(properties, tokenLocation: token.location));
+              stack.add(CVUValueSubdefinition(properties,
+                  tokenLocation: token.location));
             }
           } else if (nextToken is CVUTokenCurlyBracketOpen) {
             lastKey = v;
@@ -313,9 +341,12 @@ class CVUParser {
             parsedContent.definitions.add(parseDefinition(identifierNode));
           }
         } else {
-          stack.add(CVUValueConstant(CVUConstantArgument(v), tokenLocation: token.location));
+          stack.add(CVUValueConstant(CVUConstantArgument(v),
+              tokenLocation: token.location));
         }
-      } else if (token is CVUTokenNewline || token is CVUTokenComma || token is CVUTokenSemiColon) {
+      } else if (token is CVUTokenNewline ||
+          token is CVUTokenComma ||
+          token is CVUTokenSemiColon) {
         if (token is CVUTokenNewline || token is CVUTokenComma) {
           if (token is CVUTokenNewline && stack.length == 0) {
             continue;
@@ -327,9 +358,11 @@ class CVUParser {
         setPropertyValue();
         lastKey = null;
       } else if (token is CVUTokenNil) {
-        stack.add(CVUValueConstant(CVUConstantNil(), tokenLocation: token.location));
+        stack.add(
+            CVUValueConstant(CVUConstantNil(), tokenLocation: token.location));
       } else if (token is CVUTokenNumber) {
-        stack.add(CVUValueConstant(CVUConstantNumber(token.value), tokenLocation: token.location));
+        stack.add(CVUValueConstant(CVUConstantNumber(token.value),
+            tokenLocation: token.location));
       } else if (token is CVUTokenString) {
         var v = token.value;
         if (!isArrayMode && (peekCurrentToken() is CVUTokenColon)) {
@@ -339,14 +372,15 @@ class CVUParser {
         } else if (lastKey == null) {
           lastKey = v;
         } else {
-          stack.add(CVUValueConstant(CVUConstantString(v), tokenLocation: token.location));
+          stack.add(CVUValueConstant(CVUConstantString(v),
+              tokenLocation: token.location));
         }
       } else if (token is CVUTokenStringExpression) {
-        stack.add(
-            CVUValueExpression(createExpression(token.value, true), tokenLocation: token.location));
+        stack.add(CVUValueExpression(createExpression(token.value, true),
+            tokenLocation: token.location));
       } else if (token is CVUTokenColor) {
-        stack
-            .add(CVUValueConstant(CVUConstantColorHex(token.value), tokenLocation: token.location));
+        stack.add(CVUValueConstant(CVUConstantColorHex(token.value),
+            tokenLocation: token.location));
       } else {
         throw CVUParseErrorsUnexpectedToken(lastToken!);
       }

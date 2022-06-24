@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/models/ui/memri_text_editor_model.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/ui/memri_text_editor_model.dart';
+import 'package:memri/utilities/binding.dart';
 import 'package:memri/widgets/components/text_editor/memri_simple_text_editor.dart';
 
 /// The note editor renderer
@@ -14,7 +14,8 @@ class NoteEditorRendererView extends StatelessWidget {
   final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  NoteEditorRendererView({required this.pageController, required this.viewContext});
+  NoteEditorRendererView(
+      {required this.pageController, required this.viewContext});
 
   Future<FutureBinding<String>?> get noteTitle async {
     var item = viewContext.focusedItem;
@@ -45,7 +46,8 @@ class NoteEditorRendererView extends StatelessWidget {
   }
 
   Future<MemriTextEditorModel> getEditorModel() async {
-    return MemriTextEditorModel(title: (await noteTitle)?.get(), body: (await noteContent)?.get());
+    return MemriTextEditorModel(
+        title: (await noteTitle)?.get(), body: (await noteContent)?.get());
   }
 
   handleModelUpdate(MemriTextEditorModel newModel) async {

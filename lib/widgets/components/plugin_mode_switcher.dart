@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/database/item_property_record.dart';
-import 'package:memri/models/database/item_record.dart';
 import 'package:memri/widgets/empty.dart';
 
 class PluginModeSwitcher extends StatefulWidget {
@@ -35,13 +35,15 @@ class _PluginModeSwitcherState extends State<PluginModeSwitcher> {
                         var newContainer;
                         if (newValue) {
                           newContainer = currentContainer.replaceFirstMapped(
-                              RegExp(r"(:)dev(-.+$)"), (Match m) => "${m[1]}prod${m[2]}");
+                              RegExp(r"(:)dev(-.+$)"),
+                              (Match m) => "${m[1]}prod${m[2]}");
                         } else {
                           newContainer = currentContainer.replaceFirstMapped(
-                              RegExp(r"(:)prod(-.+$)"), (Match m) => "${m[1]}dev${m[2]}");
+                              RegExp(r"(:)prod(-.+$)"),
+                              (Match m) => "${m[1]}dev${m[2]}");
                         }
-                        await widget.item.setPropertyValue(
-                            "containerImage", PropertyDatabaseValueString(newContainer));
+                        await widget.item.setPropertyValue("containerImage",
+                            PropertyDatabaseValueString(newContainer));
                         setState(() {});
                       }),
                   Text("Prod"),

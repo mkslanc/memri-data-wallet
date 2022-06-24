@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/utilities/binding.dart';
 import 'package:memri/widgets/components/optional_date_picker.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/filter_panel/filter_panel_sort_item_view.dart';
@@ -13,7 +13,13 @@ import 'package:memri/widgets/renderer_settings_views/timeline_renderer_settings
 class FilterPanelView extends StatefulWidget {
   final ViewContextController viewContext;
 
-  static var excludedSortFields = ["uid", "deleted", "externalId", "version", "allEdges"];
+  static var excludedSortFields = [
+    "uid",
+    "deleted",
+    "externalId",
+    "version",
+    "allEdges"
+  ];
   static var defaultSortFields = ["dateCreated", "dateModified"];
 
   FilterPanelView({required this.viewContext});
@@ -26,7 +32,8 @@ enum FilterPanelTab { renderer, filterOptions, rendererOptions, sortOptions }
 
 class _FilterPanelViewState extends State<FilterPanelView> {
   final ViewContextController viewContext;
-  ValueNotifier<FilterPanelTab> _currentTab = ValueNotifier(FilterPanelTab.rendererOptions);
+  ValueNotifier<FilterPanelTab> _currentTab =
+      ValueNotifier(FilterPanelTab.rendererOptions);
 
   FilterPanelTab get currentTab => _currentTab.value;
 
@@ -67,8 +74,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
             blurRadius: 10,
           )
         ],
-        borderRadius:
-            BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       child: ValueListenableBuilder(
         builder: (BuildContext context, FilterPanelTab value, Widget? child) {
@@ -90,7 +97,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                     VerticalDivider(
                       width: 1,
                     ),
-                    tabButton(Icons.swap_vertical_circle, FilterPanelTab.sortOptions),
+                    tabButton(
+                        Icons.swap_vertical_circle, FilterPanelTab.sortOptions),
                     VerticalDivider(
                       width: 1,
                     )
@@ -117,30 +125,36 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                                 title: Center(
                                     child: Text(
                                   currentTabTitle,
-                                  style: TextStyle(color: Colors.black, fontSize: 17),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 17),
                                 )),
                                 actions: [
                                   if (currentTab == FilterPanelTab.sortOptions)
                                     TextButton(
-                                        child: Icon(!viewContext.config.query.sortAscending
+                                        child: Icon(!viewContext
+                                                .config.query.sortAscending
                                             ? Icons.arrow_upward
                                             : Icons.arrow_downward),
                                         onPressed: () => setState(() =>
-                                            viewContext.config.query.sortAscending =
-                                                !viewContext.config.query.sortAscending))
+                                            viewContext.config.query
+                                                    .sortAscending =
+                                                !viewContext.config.query
+                                                    .sortAscending))
                                 ],
                               ),
                             ],
                           ),
                         ),
                         body: SingleChildScrollView(
-                          physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                          physics: BouncingScrollPhysics(
+                              parent: AlwaysScrollableScrollPhysics()),
                           child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                                 child: Form(
                                   child: currentTabRenderer,
@@ -173,7 +187,9 @@ class _FilterPanelViewState extends State<FilterPanelView> {
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
-          color: currentTab == tab ? CVUColor.system("systemFill") : Colors.transparent,
+          color: currentTab == tab
+              ? CVUColor.system("systemFill")
+              : Colors.transparent,
         ),
         child: TextButton(
           child: Icon(
@@ -184,16 +200,20 @@ class _FilterPanelViewState extends State<FilterPanelView> {
           onPressed: () => currentTab = tab,
           style: TextButton.styleFrom(
             padding: EdgeInsets.all(5),
-            primary: currentTab == tab ? CVUColor.system("systemFill") : Colors.transparent,
+            primary: currentTab == tab
+                ? CVUColor.system("systemFill")
+                : Colors.transparent,
           ), //? Color(.systemFill) : Color(.secondarySystemBackground)
         ),
       ),
     );
   }
 
-  Widget optionalDateRow(String title, Binding<DateTime?> selection, [DateTime? initialSet]) {
+  Widget optionalDateRow(String title, Binding<DateTime?> selection,
+      [DateTime? initialSet]) {
     initialSet ??= DateTime.now();
-    return OptionalDatePicker(title: title, selection: selection, initialSet: initialSet);
+    return OptionalDatePicker(
+        title: title, selection: selection, initialSet: initialSet);
   }
 
   Widget get rendererTab {
@@ -217,15 +237,16 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                         ),
-                        onPressed: () => setState(
-                            () => viewContext.config.rendererName = supportedRenderers[index]),
+                        onPressed: () => setState(() => viewContext
+                            .config.rendererName = supportedRenderers[index]),
                         child: ListTile(
                             dense: true,
                             minVerticalPadding: 0,
                             title: Text(
                               supportedRenderers[index].toUpperCase(),
                               style: TextStyle(
-                                  fontWeight: supportedRenderers[index] == selectedRendererName
+                                  fontWeight: supportedRenderers[index] ==
+                                          selectedRendererName
                                       ? FontWeight.bold
                                       : null),
                             )),
@@ -255,7 +276,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("No configurable settings for this renderer.", style: TextStyle(fontSize: 16)),
+              Text("No configurable settings for this renderer.",
+                  style: TextStyle(fontSize: 16)),
             ],
           ),
         );
@@ -267,22 +289,30 @@ class _FilterPanelViewState extends State<FilterPanelView> {
     List<Widget> filterOptions = [
       optionalDateRow(
           "Modified after",
-          Binding(() => viewContext.config.query.dateModifiedAfter,
-              (newValue) => viewContext.config.query.dateModifiedAfter = newValue),
+          Binding(
+              () => viewContext.config.query.dateModifiedAfter,
+              (newValue) =>
+                  viewContext.config.query.dateModifiedAfter = newValue),
           date.subtract(Duration(days: 7))),
       optionalDateRow(
           "Modified before",
-          Binding(() => viewContext.config.query.dateModifiedBefore,
-              (newValue) => viewContext.config.query.dateModifiedBefore = newValue)),
+          Binding(
+              () => viewContext.config.query.dateModifiedBefore,
+              (newValue) =>
+                  viewContext.config.query.dateModifiedBefore = newValue)),
       optionalDateRow(
           "Created after",
-          Binding(() => viewContext.config.query.dateModifiedAfter,
-              (newValue) => viewContext.config.query.dateModifiedAfter = newValue),
+          Binding(
+              () => viewContext.config.query.dateModifiedAfter,
+              (newValue) =>
+                  viewContext.config.query.dateModifiedAfter = newValue),
           date.subtract(Duration(days: 7))),
       optionalDateRow(
           "Created before",
-          Binding(() => viewContext.config.query.dateCreatedBefore,
-              (newValue) => viewContext.config.query.dateCreatedBefore = newValue)),
+          Binding(
+              () => viewContext.config.query.dateCreatedBefore,
+              (newValue) =>
+                  viewContext.config.query.dateCreatedBefore = newValue)),
     ];
     return ListView.separated(
         padding: EdgeInsets.zero,
@@ -300,20 +330,23 @@ class _FilterPanelViewState extends State<FilterPanelView> {
 
   List<String>? get sortFields {
     var item = viewContext.items.asMap()[0];
-    var propertyTypes =
-        item == null ? null : viewContext.databaseController.schema.types[item.type]?.propertyTypes;
+    var propertyTypes = item == null
+        ? null
+        : viewContext.databaseController.schema.types[item.type]?.propertyTypes;
 
     if (propertyTypes == null) return null;
 
-    List<String> fields = propertyTypes.entries.map((propertyType) => propertyType.key).toList();
+    List<String> fields =
+        propertyTypes.entries.map((propertyType) => propertyType.key).toList();
     fields.addAll(FilterPanelView.defaultSortFields);
     fields.sort();
     return fields;
   }
 
   Widget get sortOptionsTab {
-    var fields =
-        sortFields?.where((field) => !FilterPanelView.excludedSortFields.contains(field)).toList();
+    var fields = sortFields
+        ?.where((field) => !FilterPanelView.excludedSortFields.contains(field))
+        .toList();
     if (fields == null) return Text("No sort options available.");
     return ListView.separated(
         physics: BouncingScrollPhysics(parent: BouncingScrollPhysics()),
@@ -326,8 +359,8 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                 property: fields[index],
                 selection: Binding(
                     () => viewContext.config.query.sortProperty,
-                    (sortProperty) =>
-                        setState(() => viewContext.config.query.sortProperty = sortProperty)),
+                    (sortProperty) => setState(() =>
+                        viewContext.config.query.sortProperty = sortProperty)),
               ),
             ),
         separatorBuilder: (context, index) => Divider(

@@ -2,12 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_text_properties_modifier.dart';
 import 'package:memri/widgets/empty.dart';
 
-import '../../../../utils/execute_actions.dart';
+import '../../../../utilities/execute_actions.dart';
 
 /// A CVU element for displaying text
 /// - Set the `text` property to the desired content
@@ -41,10 +41,11 @@ class _CVUTextState extends State<CVUText> {
   }
 
   init() async {
-    resolvedTextProperties =
-        await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
-            .init();
-    content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    resolvedTextProperties = await CVUTextPropertiesModifier(
+            propertyResolver: widget.nodeResolver.propertyResolver)
+        .init();
+    content = (await widget.nodeResolver.propertyResolver.string("text"))
+        ?.nullIfBlank;
   }
 
   @override
@@ -103,10 +104,11 @@ class _CVUSmartTextState extends State<CVUSmartText> {
   }
 
   init() async {
-    resolvedTextProperties =
-        await CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
-            .init();
-    content = (await widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    resolvedTextProperties = await CVUTextPropertiesModifier(
+            propertyResolver: widget.nodeResolver.propertyResolver)
+        .init();
+    content = (await widget.nodeResolver.propertyResolver.string("text"))
+        ?.nullIfBlank;
   }
 
   @override
@@ -165,10 +167,11 @@ class _CVURichTextState extends State<CVURichText> {
   }
 
   init() async {
-    resolvedTextProperties =
-        await (CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver)
-            .init());
-    var spans = widget.nodeResolver.propertyResolver.subdefinitionArray("spans");
+    resolvedTextProperties = await (CVUTextPropertiesModifier(
+            propertyResolver: widget.nodeResolver.propertyResolver)
+        .init());
+    var spans =
+        widget.nodeResolver.propertyResolver.subdefinitionArray("spans");
     await resolveTextSpans(spans);
   }
 
@@ -183,8 +186,10 @@ class _CVURichTextState extends State<CVURichText> {
             name: resolvedTextProperties.textStyle.fontFamily,
             size: resolvedTextProperties.textStyle.fontSize ?? 15,
             weight: resolvedTextProperties.textStyle.fontWeight,
-            italic: resolvedTextProperties.textStyle.fontStyle == FontStyle.italic));
-    var color = await spanResolver.color() ?? resolvedTextProperties.textStyle.color;
+            italic: resolvedTextProperties.textStyle.fontStyle ==
+                FontStyle.italic));
+    var color =
+        await spanResolver.color() ?? resolvedTextProperties.textStyle.color;
     var actions = spanResolver.actions("onPress");
     return TextSpan(
         text: await spanResolver.string("text"),
@@ -207,10 +212,13 @@ class _CVURichTextState extends State<CVURichText> {
     return FutureBuilder(
         future: _init,
         builder: (BuildContext builder, snapshot) {
-          _isInited = _isInited || snapshot.connectionState == ConnectionState.done;
+          _isInited =
+              _isInited || snapshot.connectionState == ConnectionState.done;
           if (_isInited) {
             return RichText(
-              text: TextSpan(style: resolvedTextProperties.textStyle, children: textBlocks),
+              text: TextSpan(
+                  style: resolvedTextProperties.textStyle,
+                  children: textBlocks),
               overflow: resolvedTextProperties.lineLimit == 1
                   ? TextOverflow.ellipsis
                   : TextOverflow.visible,

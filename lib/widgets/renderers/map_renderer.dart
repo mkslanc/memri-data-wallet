@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_map.dart';
 import 'package:memri/widgets/components/map/map_view.dart';
 
@@ -31,7 +31,8 @@ class MapRendererView extends StatelessWidget {
   }
 
   Future<String?> Function(ItemRecord) get labelResolver {
-    return (ItemRecord item) async => await viewContext.nodePropertyResolver(item)?.string("label");
+    return (ItemRecord item) async =>
+        await viewContext.nodePropertyResolver(item)?.string("label");
   }
 
   MapViewConfig get mapConfig {

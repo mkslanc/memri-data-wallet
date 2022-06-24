@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utilities/extensions/string.dart';
 
 void main() {
   test('testCamelCaseToWords', () {

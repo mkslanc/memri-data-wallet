@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/controllers/scene_controller.dart';
-import 'package:memri/models/ui/memri_text_editor_model.dart';
-import 'package:memri/utils/extensions/icon_data.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
+import 'package:memri/core/models/ui/memri_text_editor_model.dart';
+import 'package:memri/utilities/extensions/icon_data.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/components/text_editor/memri_text_editor.dart';
 import 'package:memri/widgets/space.dart';
@@ -25,7 +25,8 @@ class MemriTextEditorToolbar extends StatefulWidget {
 
 class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
   late ToolbarState toolbarState;
-  late final void Function(String, [Map<String, dynamic>?]) executeEditorCommand;
+  late final void Function(String, [Map<String, dynamic>?])
+      executeEditorCommand;
   Map<String, dynamic> _currentFormatting = {};
   SceneController sceneController = SceneController.sceneController;
   late final ValueNotifier<Map<String, dynamic>> currentFormatting;
@@ -38,38 +39,47 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
     currentFormatting = widget.currentFormatting;
   }
 
-  final TextStyle toolbarIconFont = TextStyle(fontSize: 17, fontWeight: FontWeight.bold);
+  final TextStyle toolbarIconFont =
+      TextStyle(fontSize: 17, fontWeight: FontWeight.bold);
 
   List<ToolbarItem> getToolbarItems() {
-    var currentColorVar =
-        _currentFormatting["text_color"] is String ? _currentFormatting["text_color"] : null;
+    var currentColorVar = _currentFormatting["text_color"] is String
+        ? _currentFormatting["text_color"]
+        : null;
     MemriTextEditorColor? matchingColor = MemriTextEditorColor.values
         .firstWhereOrNull((element) => element.cssVar == currentColorVar);
     switch (toolbarState) {
       case ToolbarState.main:
-        var isHeading =
-            (_currentFormatting["heading"] is int && _currentFormatting["heading"] != 0);
+        var isHeading = (_currentFormatting["heading"] is int &&
+            _currentFormatting["heading"] != 0);
         var toolbarItems = <ToolbarItem>[
           ToolbarItemButton(
               label: "Bold",
-              isActive: _currentFormatting["bold"] is bool ? _currentFormatting["bold"] : false,
+              isActive: _currentFormatting["bold"] is bool
+                  ? _currentFormatting["bold"]
+                  : false,
               icon: Icon(MemriIcon.getByName("bold")),
               onPress: () => executeEditorCommand("bold")),
           ToolbarItemButton(
               label: "Italic",
               icon: Icon(MemriIcon.getByName("italic")),
-              isActive: _currentFormatting["italic"] is bool ? _currentFormatting["italic"] : false,
+              isActive: _currentFormatting["italic"] is bool
+                  ? _currentFormatting["italic"]
+                  : false,
               onPress: () => executeEditorCommand("italic")),
           ToolbarItemButton(
               label: "Underline",
               icon: Icon(MemriIcon.getByName("underline")),
-              isActive:
-                  _currentFormatting["underline"] is bool ? _currentFormatting["underline"] : false,
+              isActive: _currentFormatting["underline"] is bool
+                  ? _currentFormatting["underline"]
+                  : false,
               onPress: () => executeEditorCommand("underline")),
           ToolbarItemButton(
               label: "Strike",
               icon: Icon(MemriIcon.getByName("strikethrough")),
-              isActive: _currentFormatting["strike"] is bool ? _currentFormatting["strike"] : false,
+              isActive: _currentFormatting["strike"] is bool
+                  ? _currentFormatting["strike"]
+                  : false,
               onPress: () => executeEditorCommand("strike")),
           ToolbarItemButton(
               label: "Color",
@@ -82,7 +92,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                     if (matchingColor != null)
                       Container(
                         constraints: BoxConstraints(maxHeight: 4),
-                        decoration: BoxDecoration(color: matchingColor.dartColor),
+                        decoration:
+                            BoxDecoration(color: matchingColor.dartColor),
                       )
                   ],
                 ),
@@ -95,8 +106,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
               label: "Highlighter",
               icon: Icon(MemriIcon.getByName("highlighter")),
               isActive: _currentFormatting["highlight_color"] != null,
-              onPress: () =>
-                  executeEditorCommand("highlight_color", {"backColor": "var(--text-highlight)"})),
+              onPress: () => executeEditorCommand(
+                  "highlight_color", {"backColor": "var(--text-highlight)"})),
           ToolbarItemDivider(),
           ToolbarItemButton(
               label: "Heading",
@@ -175,10 +186,12 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
           return ToolbarItemButton(
               label: "Set color",
               icon: SizedBox(
-                  height: 30, width: 30, child: Circle(color: color.dartColor ?? Colors.black)),
+                  height: 30,
+                  width: 30,
+                  child: Circle(color: color.dartColor ?? Colors.black)),
               isActive: isActiveColor,
-              onPress: () =>
-                  executeEditorCommand("text_color", {"color": color.cssVar, "override": true}));
+              onPress: () => executeEditorCommand(
+                  "text_color", {"color": color.cssVar, "override": true}));
         }).toList();
       case ToolbarState.heading:
         return [
@@ -188,7 +201,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                 "Body",
                 style: toolbarIconFont,
               ),
-              isActive: _currentFormatting["heading"] is int && _currentFormatting["heading"] == 0,
+              isActive: _currentFormatting["heading"] is int &&
+                  _currentFormatting["heading"] == 0,
               onPress: () => executeEditorCommand("heading", {"level": 0})),
           ToolbarItemButton(
               label: "H1",
@@ -196,7 +210,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                 "H1",
                 style: toolbarIconFont,
               ),
-              isActive: _currentFormatting["heading"] is int && _currentFormatting["heading"] == 1,
+              isActive: _currentFormatting["heading"] is int &&
+                  _currentFormatting["heading"] == 1,
               onPress: () => executeEditorCommand("heading", {"level": 1})),
           ToolbarItemButton(
               label: "H2",
@@ -204,7 +219,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                 "H2",
                 style: toolbarIconFont,
               ),
-              isActive: _currentFormatting["heading"] is int && _currentFormatting["heading"] == 2,
+              isActive: _currentFormatting["heading"] is int &&
+                  _currentFormatting["heading"] == 2,
               onPress: () => executeEditorCommand("heading", {"level": 2})),
           ToolbarItemButton(
               label: "H3",
@@ -212,7 +228,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                 "H3",
                 style: toolbarIconFont,
               ),
-              isActive: _currentFormatting["heading"] is int && _currentFormatting["heading"] == 3,
+              isActive: _currentFormatting["heading"] is int &&
+                  _currentFormatting["heading"] == 3,
               onPress: () => executeEditorCommand("heading", {"level": 3})),
           ToolbarItemButton(
               label: "H4",
@@ -220,7 +237,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                 "H4",
                 style: toolbarIconFont,
               ),
-              isActive: _currentFormatting["heading"] is int && _currentFormatting["heading"] == 4,
+              isActive: _currentFormatting["heading"] is int &&
+                  _currentFormatting["heading"] == 4,
               onPress: () => executeEditorCommand("heading", {"level": 4})),
         ];
       case ToolbarState.image:
@@ -258,14 +276,16 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                 width: MediaQuery.of(context).size.width,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  physics: BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: padding),
                     child: Row(
                       children: space(2, [
                         if (toolbarState.showBackButton)
                           Container(
-                            constraints: BoxConstraints(maxWidth: 30, maxHeight: 36),
+                            constraints:
+                                BoxConstraints(maxWidth: 30, maxHeight: 36),
                             child: TextButton(
                               onPressed: () => setState(() {
                                 toolbarState = toolbarState.onBack();
@@ -275,7 +295,8 @@ class _MemriTextEditorToolbarState extends State<MemriTextEditorToolbar> {
                                 minimumSize: Size(30, 36),
                               ),
                               child: Icon(
-                                MemriIcon.getByName("arrowshape.turn.up.left.circle"),
+                                MemriIcon.getByName(
+                                    "arrowshape.turn.up.left.circle"),
                                 color: CVUColor.system("label"),
                               ),
                             ),
@@ -333,7 +354,8 @@ class ToolbarItemButton extends ToolbarItem {
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(4)),
-          color: (isActive && !hideInactive) ? Colors.white : Colors.transparent,
+          color:
+              (isActive && !hideInactive) ? Colors.white : Colors.transparent,
         ),
         child: TextButton(
           onPressed: onPress,

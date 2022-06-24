@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/pod_setup.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/models/pod_setup.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/responsive_helper.dart';
-import 'package:memri/widgets/components/error_message.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/helpers/responsive_helper.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -42,11 +41,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _setPodPublicKey() {
-    setState(() => appController.model.podPublicKey = podPublicKeyController.text);
+    setState(
+        () => appController.model.podPublicKey = podPublicKeyController.text);
   }
 
   void _setPodDatabaseKey() {
-    setState(() => appController.model.podDatabaseKey = podDatabaseKeyController.text);
+    setState(() =>
+        appController.model.podDatabaseKey = podDatabaseKeyController.text);
   }
 
   @override
@@ -77,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("your login key".toUpperCase(),
-                        style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
+                        style: CVUFont.smallCaps
+                            .copyWith(color: Color(0xff828282))),
                     SizedBox(height: 5),
                     TextFormField(
                       controller: podPublicKeyController,
@@ -100,7 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("your password key".toUpperCase(),
-                        style: CVUFont.smallCaps.copyWith(color: Color(0xff828282))),
+                        style: CVUFont.smallCaps
+                            .copyWith(color: Color(0xff828282))),
                     SizedBox(height: 5),
                     TextFormField(
                       controller: podDatabaseKeyController,

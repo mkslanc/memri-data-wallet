@@ -50,7 +50,8 @@ class Routes {
     router.define(importer, handler: importerScreenHandler);
     router.define(importerCreate, handler: importerCreateScreenHandler);
     router.define(importerConnect, handler: importerConnectScreenHandler);
-    router.define(importerDownloading, handler: importerDownloadingScreenHandler);
+    router.define(importerDownloading,
+        handler: importerDownloadingScreenHandler);
 
     router.define(apps, handler: appsScreenHandler);
     router.define(inbox, handler: appsInboxScreenHandler);

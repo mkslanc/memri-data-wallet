@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/cvu_controller.dart';
+import 'package:memri/core/controllers/cvu_controller.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:memri/utils/extensions/enum.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/utilities/extensions/enum.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
 import 'package:moor/moor.dart';
-
-import '../../models/database/item_property_record.dart';
 
 enum LabelType { CategoricalLabel, BinaryLabel }
 
@@ -27,7 +26,8 @@ class LabelAnnotationRendererView extends Renderer {
       : super(pageController: pageController, viewContext: viewContext);
 
   @override
-  _LabelAnnotationRendererViewState createState() => _LabelAnnotationRendererViewState();
+  _LabelAnnotationRendererViewState createState() =>
+      _LabelAnnotationRendererViewState();
 }
 
 class _LabelAnnotationRendererViewState extends RendererViewState {
@@ -85,8 +85,9 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     await loadLabelOptions();
     await loadCVU();
 
-    inPreviewMode =
-        await viewContext.viewDefinitionPropertyResolver.boolean("inPreviewMode") ?? false;
+    inPreviewMode = await viewContext.viewDefinitionPropertyResolver
+            .boolean("inPreviewMode") ??
+        false;
 
     await loadDatasetEntry();
   }
@@ -102,7 +103,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   Future<void> loadDataset() async {
     var dataset = await labellingTask.reverseEdgeItem("labellingTask");
     datasetEntryList = await dataset!.edgeItems("entry");
-    var edges = (await widget.pageController.appController.databaseController.databasePool
+    var edges = (await widget
+        .pageController.appController.databaseController.databasePool
         .edgeRecordsCustomSelect(
             "source IN (${datasetEntryList.map((item) => item.rowId).join(", ")}) AND name = ?",
             [Variable("annotation")],
@@ -119,9 +121,10 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   Future<void> loadLabelOptions() async {
-    labelOptions =
-        await Future.wait((await labellingTask.edgeItems("labelOption")).map((labelOption) async {
-      var labelString = (await labelOption.property("name"))!.$value.asString()!;
+    labelOptions = await Future.wait(
+        (await labellingTask.edgeItems("labelOption")).map((labelOption) async {
+      var labelString =
+          (await labelOption.property("name"))!.$value.asString()!;
       return LabelOption(labelID: labelOption.uid, text: labelString);
     }));
   }
@@ -130,8 +133,9 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     var cvuController = widget.pageController.appController.cvuController;
     var view = await labellingTask.edgeItem("view");
     var cvuContent = (await view?.propertyValue("definition"))?.value;
-    var cvuDefinition =
-        cvuContent != null ? (await CVUController.parseCVU(cvuContent)).asMap()[0] : null;
+    var cvuDefinition = cvuContent != null
+        ? (await CVUController.parseCVU(cvuContent)).asMap()[0]
+        : null;
     if (cvuDefinition != null) {
       cvuController.definitions.add(cvuDefinition);
       contentDefinition = cvuDefinition.parsed;
@@ -139,12 +143,14 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   }
 
   void moveToPreviousItem() {
-    var index = currentIndex <= 0 ? datasetEntryList.length - 1 : currentIndex - 1;
+    var index =
+        currentIndex <= 0 ? datasetEntryList.length - 1 : currentIndex - 1;
     moveToIndex(index);
   }
 
   void moveToNextItem() {
-    var index = currentIndex >= datasetEntryList.length - 1 ? 0 : currentIndex + 1;
+    var index =
+        currentIndex >= datasetEntryList.length - 1 ? 0 : currentIndex + 1;
     moveToIndex(index);
   }
 
@@ -161,7 +167,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
       labelAnnotation = ItemRecord(type: labelType.inString);
       await labelAnnotation.save();
 
-      await currentEntry!.addEdge(edgeName: "annotation", targetItem: labelAnnotation);
+      await currentEntry!
+          .addEdge(edgeName: "annotation", targetItem: labelAnnotation);
       currentAnnotation = labelAnnotation;
     }
 
@@ -178,7 +185,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
     }
 
     if (isNew) {
-      await labelAnnotation.setPropertyValue("isSubmitted", PropertyDatabaseValueBool(false));
+      await labelAnnotation.setPropertyValue(
+          "isSubmitted", PropertyDatabaseValueBool(false));
       widget.pageController.sceneController
           .pageControllerByLabel("labellingSummary")
           ?.scheduleUIUpdate(); //TODO no sense in implementing more general as this is a hack till streams implemented
@@ -203,7 +211,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
       isSubmitted = await labelAnnotation.property("isSubmitted");
     }
     if (isNew || isSubmitted?.$value.value == false) {
-      await labelAnnotation.setPropertyValue("isSubmitted", PropertyDatabaseValueBool(true),
+      await labelAnnotation.setPropertyValue(
+          "isSubmitted", PropertyDatabaseValueBool(true),
           isNew: isNew);
     }
     widget.pageController.sceneController
@@ -215,16 +224,19 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
 
   saveSelectedValue() async {
     if (_existingSelectedLabels.difference(selectedLabels).isEmpty &&
-        selectedLabels.difference(_existingSelectedLabels).isEmpty) //TODO sets equals
+        selectedLabels
+            .difference(_existingSelectedLabels)
+            .isEmpty) //TODO sets equals
       return;
     switch (labelType) {
       case LabelType.CategoricalLabel:
         var labelValue = labelOptions
-            .compactMap(
-                (labelOption) => selectedLabels.contains(labelOption.id) ? labelOption.text : null)
+            .compactMap((labelOption) => selectedLabels.contains(labelOption.id)
+                ? labelOption.text
+                : null)
             .join(",");
-        await currentAnnotation!
-            .setPropertyValue("labelValue", PropertyDatabaseValueString(labelValue));
+        await currentAnnotation!.setPropertyValue(
+            "labelValue", PropertyDatabaseValueString(labelValue));
         break;
       default:
         break;
@@ -249,10 +261,14 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
         var labelValue = await annotation.property("labelValue");
         if (labelValue != null) {
           var selectedLabelValues =
-              (labelValue.$value as PropertyDatabaseValueString).value.split(",");
+              (labelValue.$value as PropertyDatabaseValueString)
+                  .value
+                  .split(",");
           selectedLabels = labelOptions
               .compactMap((labelOption) =>
-                  selectedLabelValues.contains(labelOption.text) ? labelOption.id : null)
+                  selectedLabelValues.contains(labelOption.text)
+                      ? labelOption.id
+                      : null)
               .toSet();
         }
         break;
@@ -273,7 +289,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
   Widget get currentContent {
     var item = currentItem;
     if (item != null) {
-      return widget.viewContext.render(item: item, overrideViewDefinition: contentDefinition);
+      return widget.viewContext
+          .render(item: item, overrideViewDefinition: contentDefinition);
     } else {
       return Text(
         "No items to label",
@@ -321,8 +338,8 @@ class _LabelAnnotationRendererViewState extends RendererViewState {
                   var index = -1;
                   if (selectedLabels.isNotEmpty) {
                     var selectedLabelOption = selectedLabels.toList().first;
-                    index = labelOptions
-                        .indexWhere((labelOption) => labelOption.id == selectedLabelOption);
+                    index = labelOptions.indexWhere(
+                        (labelOption) => labelOption.id == selectedLabelOption);
                   }
                   if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
                     index++;
@@ -420,14 +437,16 @@ class LabelSelectionView extends StatelessWidget {
                 children: options
                     .mapIndexed<Widget>((index, option) => TextButton(
                           style: TextButton.styleFrom(
-                              visualDensity: VisualDensity.compact, padding: EdgeInsets.all(0)),
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.all(0)),
                           onPressed: isLoading
                               ? null
                               : () {
                                   if (isSingleLabel) {
                                     selectedList = [option.id];
                                   } else {
-                                    if (selectedList.remove(option.id) == false) {
+                                    if (selectedList.remove(option.id) ==
+                                        false) {
                                       selectedList.add(option.id);
                                     }
                                   }
@@ -454,7 +473,8 @@ class LabelSelectionView extends StatelessWidget {
                                 Text(
                                   (index + 1).toString(),
                                   style: CVUFont.smallCaps.copyWith(
-                                      fontWeight: FontWeight.w700, color: Color(0xff999999)),
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xff999999)),
                                 )
                               ],
                             ),
@@ -494,7 +514,8 @@ class LabelSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
       return Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           direction: Axis.vertical,
@@ -503,10 +524,13 @@ class LabelSelectionView extends StatelessWidget {
           children: [
             if (topText != null) ...[
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 child: Text(
                   topText!,
-                  style: TextStyle(backgroundColor: CVUColor.system("secondarySystemBackground")),
+                  style: TextStyle(
+                      backgroundColor:
+                          CVUColor.system("secondarySystemBackground")),
                 ),
               ),
               Divider(
@@ -519,7 +543,8 @@ class LabelSelectionView extends StatelessWidget {
               child: isLoading
                   ? Center(
                       child: SizedBox(
-                        child: CircularProgressIndicator(color: Color(0xff333333)),
+                        child:
+                            CircularProgressIndicator(color: Color(0xff333333)),
                         width: 60,
                         height: 60,
                       ),
@@ -543,9 +568,12 @@ class LabelSelectionView extends StatelessWidget {
                         style: TextButton.styleFrom(
                             padding: EdgeInsets.all(10),
                             fixedSize: Size(50, 50),
-                            backgroundColor:
-                                enableBackButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
-                        onPressed: enableBackButton && !isLoading ? onBackPressed : null),
+                            backgroundColor: enableBackButton
+                                ? Color(0xFF333333)
+                                : Color(0xFFDFDEDE)),
+                        onPressed: enableBackButton && !isLoading
+                            ? onBackPressed
+                            : null),
                     Spacer(),
                     TextButton(
                       child: app.icons.check(color: app.colors.brandWhite),
@@ -553,17 +581,23 @@ class LabelSelectionView extends StatelessWidget {
                         backgroundColor: Color(0xFF333333),
                         fixedSize: Size(50, 50),
                       ),
-                      onPressed: enableCheckmarkButton && !isLoading ? onCheckmarkPressed : null,
+                      onPressed: enableCheckmarkButton && !isLoading
+                          ? onCheckmarkPressed
+                          : null,
                     ),
                     if (labelType == LabelType.BinaryLabel) ...binaryOptions,
                     Spacer(),
                     TextButton(
-                        child: Icon(Icons.arrow_forward, color: Color(0xFFF5F5F5)),
+                        child:
+                            Icon(Icons.arrow_forward, color: Color(0xFFF5F5F5)),
                         style: TextButton.styleFrom(
                             fixedSize: Size(50, 50),
-                            backgroundColor:
-                                enableSkipButton ? Color(0xFF333333) : Color(0xFFDFDEDE)),
-                        onPressed: enableSkipButton && !isLoading ? onSkipPressed : null),
+                            backgroundColor: enableSkipButton
+                                ? Color(0xFF333333)
+                                : Color(0xFFDFDEDE)),
+                        onPressed: enableSkipButton && !isLoading
+                            ? onSkipPressed
+                            : null),
                   ],
                 ),
               ),

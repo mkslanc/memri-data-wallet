@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/map_helper.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/utilities/helpers/map_helper.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/map/map_view.dart';
 
@@ -25,11 +25,13 @@ class CVUMap extends StatelessWidget {
   }
 
   Future<List<ItemRecord>> Function(ItemRecord) get addressResolver {
-    return (ItemRecord item) async => await nodeResolver.propertyResolver.items("address");
+    return (ItemRecord item) async =>
+        await nodeResolver.propertyResolver.items("address");
   }
 
   Future<String?> Function(ItemRecord) get labelResolver {
-    return (ItemRecord item) async => await nodeResolver.propertyResolver.string("label");
+    return (ItemRecord item) async =>
+        await nodeResolver.propertyResolver.string("label");
   }
 
   MapViewConfig get config {
@@ -107,7 +109,8 @@ class MapModel {
     clLocations.addAll(locations);
 
     var addresses = await addressResolver(dataItem);
-    var resolvedLocations = await Future.wait(addresses.map((el) async => await lookupAddress(el)));
+    var resolvedLocations =
+        await Future.wait(addresses.map((el) async => await lookupAddress(el)));
     clLocations.addAll(resolvedLocations.whereType<LatLng>());
 
     return clLocations;
@@ -128,5 +131,6 @@ class MapItem {
   LatLng coordinate;
   ItemRecord? dataItem;
 
-  MapItem({required this.label, required this.coordinate, required this.dataItem});
+  MapItem(
+      {required this.label, required this.coordinate, required this.dataItem});
 }

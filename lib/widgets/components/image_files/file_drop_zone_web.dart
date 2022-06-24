@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/models/database/item_edge_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/database/item_edge_record.dart';
-import 'package:memri/models/database/item_record.dart';
 
 class FileDropZone extends StatefulWidget {
   FileDropZone();
@@ -42,15 +42,19 @@ class _FileDropZoneState extends State<FileDropZone> {
                     child: RichText(
                         text: TextSpan(
                             text: 'Drag & drop your files here or ',
-                            style: CVUFont.bodyText1.copyWith(color: Color(0xff989898)),
+                            style: CVUFont.bodyText1
+                                .copyWith(color: Color(0xff989898)),
                             children: [
                       TextSpan(
                           text: 'browse',
-                          recognizer: TapGestureRecognizer()..onTap = () => startWebFilePicker(),
-                          style: CVUFont.bodyText1.copyWith(color: Color(0xffFE570F))),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => startWebFilePicker(),
+                          style: CVUFont.bodyText1
+                              .copyWith(color: Color(0xffFE570F))),
                       TextSpan(
                           text: ' to upload.',
-                          style: CVUFont.bodyText1.copyWith(color: Color(0xff989898)))
+                          style: CVUFont.bodyText1
+                              .copyWith(color: Color(0xff989898)))
                     ])))
               ],
             ),
@@ -142,9 +146,11 @@ class _FileDropZoneState extends State<FileDropZone> {
     await FileStorageController.writeData(fileData, sha256);
     item.fileState = FileState.needsUpload;
     await item.save();
-    await item.setPropertyValue("filename", PropertyDatabaseValueString(fileName));
+    await item.setPropertyValue(
+        "filename", PropertyDatabaseValueString(fileName));
     await item.setPropertyValue("sha256", PropertyDatabaseValueString(sha256));
-    var edge = ItemEdgeRecord(name: "file", sourceRowID: photo.rowId, targetRowID: item.rowId);
+    var edge = ItemEdgeRecord(
+        name: "file", sourceRowID: photo.rowId, targetRowID: item.rowId);
     await edge.save();
   }
 
@@ -152,13 +158,14 @@ class _FileDropZoneState extends State<FileDropZone> {
     var item = ItemRecord(type: "Note");
     await item.save();
     await item.setPropertyValue("title", PropertyDatabaseValueString(fileName));
-    await item.setPropertyValue(
-        "content", PropertyDatabaseValueString(Utf8Decoder().convert(fileData)));
+    await item.setPropertyValue("content",
+        PropertyDatabaseValueString(Utf8Decoder().convert(fileData)));
   }
 
   Widget displayFileName(String fileName, String mimeType) {
-    var color =
-        (mimeType == "text/plain" || mimeType.startsWith("image/")) ? Colors.black : Colors.red;
+    var color = (mimeType == "text/plain" || mimeType.startsWith("image/"))
+        ? Colors.black
+        : Colors.red;
     return Row(
       children: [
         Icon(
@@ -171,7 +178,8 @@ class _FileDropZoneState extends State<FileDropZone> {
         Expanded(
           child: Text(
             fileName,
-            style: CVUFont.bodyTiny.copyWith(overflow: TextOverflow.ellipsis, color: color),
+            style: CVUFont.bodyTiny
+                .copyWith(overflow: TextOverflow.ellipsis, color: color),
             overflow: TextOverflow.ellipsis,
             softWrap: true,
           ),

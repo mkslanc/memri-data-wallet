@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:memri/utils/map_helper.dart';
+import 'package:memri/utilities/helpers/map_helper.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_map.dart';
 import 'package:memri/widgets/components/map/map_marker.dart';
 
@@ -77,8 +77,8 @@ class _MapViewState extends State<MapView> {
   }
 
   void _addMarker(Point<double> point, LatLng coordinates) {
-    _markers
-        .add(MapMarker(Random().nextInt(100000).toString(), coordinates, point, _addMarkerStates));
+    _markers.add(MapMarker(Random().nextInt(100000).toString(), coordinates,
+        point, _addMarkerStates));
   }
 
   @override
@@ -104,7 +104,9 @@ class _MapViewState extends State<MapView> {
                     onCameraIdle: _onCameraIdleCallback,
                     accessToken: MapHelper.accessToken,
                     initialCameraPosition: CameraPosition(
-                        target: (firstItem != null) ? firstItem.coordinate : LatLng(0.0, 0.0),
+                        target: (firstItem != null)
+                            ? firstItem.coordinate
+                            : LatLng(0.0, 0.0),
                         zoom: widget.config.maxInitialZoom),
                   ),
                   Stack(

@@ -40,24 +40,28 @@ class _AppsScreenState extends State<AppsScreen> {
                             Text("Inbox", style: CVUFont.headline2),
                             Spacer(),
                             Text("Running",
-                                style: CVUFont.bodyText1.copyWith(color: Color(0xff15B599))),
+                                style: CVUFont.bodyText1
+                                    .copyWith(color: Color(0xff15B599))),
                           ],
                         ),
                         SizedBox(height: 15),
                         Text(
                           " The Inbox app displays all incoming messages and emails, and allows sending and receiving them. It requires the use of at least one messenger or email importer.",
-                          style: CVUFont.bodyTiny.copyWith(color: Color(0xff989898)),
+                          style: CVUFont.bodyTiny
+                              .copyWith(color: Color(0xff989898)),
                         ),
                         SizedBox(height: 10),
                         Row(children: [
                           TextButton(
-                            style:
-                                ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.all(0))),
+                            style: ButtonStyle(
+                                padding: MaterialStateProperty.all(
+                                    EdgeInsets.all(0))),
                             onPressed: () => RouteNavigator.navigateToRoute(
                                 context: context, route: Routes.inbox),
                             child: Text(
                               'Open App',
-                              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+                              style: CVUFont.buttonLabel
+                                  .copyWith(color: Color(0xffFE570F)),
                             ),
                           ),
                         ]),

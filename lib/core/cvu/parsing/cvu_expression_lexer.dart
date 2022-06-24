@@ -280,7 +280,8 @@ class CVUExpressionLexer {
             }
           case ">":
             if (c == "=") {
-              addToken(ExprTokenOperator(ExprOperator.ConditionGreaterThanOrEqual, i));
+              addToken(ExprTokenOperator(
+                  ExprOperator.ConditionGreaterThanOrEqual, i));
               continue;
             } else {
               addToken(ExprTokenOperator(ExprOperator.ConditionGreaterThan, i));
@@ -288,7 +289,8 @@ class CVUExpressionLexer {
             }
           case "<":
             if (c == "=") {
-              addToken(ExprTokenOperator(ExprOperator.ConditionLessThanOrEqual, i));
+              addToken(
+                  ExprTokenOperator(ExprOperator.ConditionLessThanOrEqual, i));
               continue;
             } else {
               addToken(ExprTokenOperator(ExprOperator.ConditionLessThan, i));
@@ -301,7 +303,8 @@ class CVUExpressionLexer {
 
       if (isMode.weight >= Mode.string.weight) {
         if (isMode == Mode.string &&
-            (c == startChar || startChar == null && startInStringMode && c == "{")) {
+            (c == startChar ||
+                startChar == null && startInStringMode && c == "{")) {
           if (keyword.length > 0 || i > 0 || c != "{") {
             addToken(ExprTokenString(keyword.join(), i, c == "'"));
           }
@@ -413,7 +416,8 @@ class CVUExpressionLexer {
             addToken(ExprTokenCurlyBracketOpen(i));
             isMode = Mode.idle;
           } else {
-            throw CVUExpressionParseErrorsUnexpectedToken(ExprTokenCurlyBracketOpen(i));
+            throw CVUExpressionParseErrorsUnexpectedToken(
+                ExprTokenCurlyBracketOpen(i));
           }
           break;
         case "}":
@@ -421,7 +425,8 @@ class CVUExpressionLexer {
             addToken(ExprTokenCurlyBracketClose(i));
             isMode = Mode.string;
           } else {
-            throw CVUExpressionParseErrorsUnexpectedToken(ExprTokenCurlyBracketOpen(i));
+            throw CVUExpressionParseErrorsUnexpectedToken(
+                ExprTokenCurlyBracketOpen(i));
           }
           break;
         default:
@@ -438,7 +443,8 @@ class CVUExpressionLexer {
 
     if (startInStringMode) {
       if (keyword.length > 0) {
-        addToken(ExprTokenString(keyword.join(), input.length - keyword.length));
+        addToken(
+            ExprTokenString(keyword.join(), input.length - keyword.length));
       }
     } else if (isMode == Mode.string) {
       throw CVUExpressionParseErrorsMissingQuoteClose();

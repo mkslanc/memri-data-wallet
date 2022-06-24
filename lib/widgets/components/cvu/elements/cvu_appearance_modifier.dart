@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/models/cvu/cvu_ui_element_family.dart';
+import 'package:memri/core/models/cvu/cvu_ui_element_family.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 
 /// Modifier used to apply common CVU properties (such as sizing, padding, colors, opacity, etc)
@@ -57,13 +57,17 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
 
   init() async {
     padding = await widget.nodeResolver.propertyResolver.padding;
-    backgroundColor = (await widget.nodeResolver.propertyResolver.backgroundColor) ?? null;
+    backgroundColor =
+        (await widget.nodeResolver.propertyResolver.backgroundColor) ?? null;
     minWidth = await widget.nodeResolver.propertyResolver.minWidth ?? 0;
-    maxWidth = await widget.nodeResolver.propertyResolver.maxWidth ?? double.infinity;
+    maxWidth =
+        await widget.nodeResolver.propertyResolver.maxWidth ?? double.infinity;
     minHeight = await widget.nodeResolver.propertyResolver.minHeight ?? 0;
-    maxHeight = await widget.nodeResolver.propertyResolver.maxHeight ?? double.infinity;
+    maxHeight =
+        await widget.nodeResolver.propertyResolver.maxHeight ?? double.infinity;
     cornerRadius = await widget.nodeResolver.propertyResolver.cornerRadius;
-    cornerRadiusOnly = await widget.nodeResolver.propertyResolver.cornerRadiusOnly;
+    cornerRadiusOnly =
+        await widget.nodeResolver.propertyResolver.cornerRadiusOnly;
     opacity = await widget.nodeResolver.propertyResolver.opacity;
     shadow = await widget.nodeResolver.propertyResolver.shadow;
     border = await widget.nodeResolver.propertyResolver.borderColor;
@@ -76,14 +80,16 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
         future: _init,
         builder: (BuildContext context, snapshot) {
           var childWidget = widget.child;
-          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          isInited =
+              isInited || snapshot.connectionState == ConnectionState.done;
           if (isInited) {
             if (widget.nodeResolver.node.type == CVUUIElementFamily.SubView) {
               //TODO this is a really bad workaround
               if (maxHeight == double.infinity) {
                 return childWidget;
               }
-              childWidget = SizedBox.expand(child: Column(children: [childWidget]));
+              childWidget =
+                  SizedBox.expand(child: Column(children: [childWidget]));
             }
             if (shadow != null) {
               childWidget = PhysicalModel(
@@ -93,7 +99,8 @@ class _CVUAppearanceModifierState extends State<CVUAppearanceModifier> {
               );
             }
             if (offset != Offset.zero) {
-              childWidget = Transform.translate(offset: offset, child: childWidget);
+              childWidget =
+                  Transform.translate(offset: offset, child: childWidget);
             }
             childWidget = Container(
                 constraints: BoxConstraints(

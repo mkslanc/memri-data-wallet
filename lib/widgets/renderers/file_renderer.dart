@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
 
 /// The file viewer renderer
 /// This presents the data items in a file viewer, that can page horizontally between files

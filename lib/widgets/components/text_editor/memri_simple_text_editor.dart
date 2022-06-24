@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/utilities/binding.dart';
 import 'package:memri/widgets/components/text_field/memri_text_field.dart';
 
 class MemriSimpleTextEditor extends StatefulWidget {
@@ -10,7 +10,8 @@ class MemriSimpleTextEditor extends StatefulWidget {
   final Future<FutureBinding<String>?> content;
   final ViewContextController viewContext;
 
-  MemriSimpleTextEditor({required this.title, required this.content, required this.viewContext});
+  MemriSimpleTextEditor(
+      {required this.title, required this.content, required this.viewContext});
 
   @override
   _MemriSimpleTextEditorState createState() => _MemriSimpleTextEditorState();
@@ -69,15 +70,20 @@ class _MemriSimpleTextEditorState extends State<MemriSimpleTextEditor> {
                     TextButton(
                       onPressed: () async {
                         //TODO: this is wrong, if we are editing note instead of adding new
-                        await widget.viewContext.focusedItem!.delete(
-                            widget.viewContext.pageController.appController.databaseController);
+                        await widget.viewContext.focusedItem!.delete(widget
+                            .viewContext
+                            .pageController
+                            .appController
+                            .databaseController);
                         widget.viewContext.pageController.navigateBack();
                       },
                       child: Text(
                         "Cancel",
-                        style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
+                        style: CVUFont.buttonLabel
+                            .copyWith(color: Color(0xff333333)),
                       ),
-                      style: TextButton.styleFrom(backgroundColor: null, minimumSize: Size(77, 36)),
+                      style: TextButton.styleFrom(
+                          backgroundColor: null, minimumSize: Size(77, 36)),
                     ),
                   ],
                 )

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/cvu/elements/cvu_text_properties_modifier.dart';
 import 'package:moor/moor.dart';

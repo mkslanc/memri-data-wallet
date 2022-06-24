@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/controllers/cvu_lookup_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
 import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_expression.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_expression.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:moor/moor.dart';
 
 CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
@@ -18,25 +18,34 @@ CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
 
 var lookupController = CVULookupController();
 
-Future<bool?> interpretAsBool(CVUExpressionNode expr, DatabaseController databaseController,
+Future<bool?> interpretAsBool(
+    CVUExpressionNode expr, DatabaseController databaseController,
     [CVUContext? context]) async {
   context ??= CVUContext();
   return await lookupController.resolve<bool>(
-      value: CVUValueExpression(expr), context: context, db: databaseController);
+      value: CVUValueExpression(expr),
+      context: context,
+      db: databaseController);
 }
 
-Future<double?> interpretAsDouble(CVUExpressionNode expr, DatabaseController databaseController,
+Future<double?> interpretAsDouble(
+    CVUExpressionNode expr, DatabaseController databaseController,
     [CVUContext? context]) async {
   context ??= CVUContext();
   return await lookupController.resolve<double>(
-      value: CVUValueExpression(expr), context: context, db: databaseController);
+      value: CVUValueExpression(expr),
+      context: context,
+      db: databaseController);
 }
 
-Future<String?> interpretAsString(CVUExpressionNode expr, DatabaseController databaseController,
+Future<String?> interpretAsString(
+    CVUExpressionNode expr, DatabaseController databaseController,
     [CVUContext? context]) async {
   context ??= CVUContext();
   return await lookupController.resolve<String>(
-      value: CVUValueExpression(expr), context: context, db: databaseController);
+      value: CVUValueExpression(expr),
+      context: context,
+      db: databaseController);
 }
 
 void main() {
@@ -59,7 +68,9 @@ void main() {
         .asMap()[0];
     if (note != null) {
       var noteRecord = ItemRecord.fromItem(note);
-      var noteString = (await noteRecord.propertyValue("title", databaseController))?.asString();
+      var noteString =
+          (await noteRecord.propertyValue("title", databaseController))
+              ?.asString();
       var context = CVUContext(currentItem: noteRecord);
       var result = await interpretAsString(expr, databaseController, context);
 

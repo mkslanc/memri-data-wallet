@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/constants/cvu/cvu_color.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
-
-import '../../constants/cvu/cvu_color.dart';
 
 class CustomRendererView extends Renderer {
   CustomRendererView({required pageController, required viewContext})
@@ -23,13 +22,15 @@ class _CustomRendererViewState extends RendererViewState {
     var viewDefinition;
     var viewName = viewContext.config.viewName;
     if (viewName != null) {
-      viewDefinition = viewContext.cvuController.viewDefinitionFor(viewName: viewName);
+      viewDefinition =
+          viewContext.cvuController.viewDefinitionFor(viewName: viewName);
     }
 
     return viewDefinition ??
         viewContext.config.viewDefinition.definitions
             .firstWhereOrNull((definition) =>
-                definition.type == CVUDefinitionType.renderer && definition.name == "custom")
+                definition.type == CVUDefinitionType.renderer &&
+                definition.name == "custom")
             ?.parsed;
   }
 
@@ -37,10 +38,13 @@ class _CustomRendererViewState extends RendererViewState {
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         await viewContext.viewDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.all(0);
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        await viewContext.viewDefinitionPropertyResolver.backgroundColor ??
-        CVUColor.system("systemBackground");
-    scrollable = await viewContext.viewDefinitionPropertyResolver.boolean("scrollable") ?? true;
+    backgroundColor =
+        await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+            await viewContext.viewDefinitionPropertyResolver.backgroundColor ??
+            CVUColor.system("systemBackground");
+    scrollable = await viewContext.viewDefinitionPropertyResolver
+            .boolean("scrollable") ??
+        true;
   }
 
   @override
@@ -70,7 +74,8 @@ class _CustomRendererViewState extends RendererViewState {
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               var group = viewContext.render(
-                  nodeDefinition: nodeDefinition, items: widget.viewContext.items);
+                  nodeDefinition: nodeDefinition,
+                  items: widget.viewContext.items);
               if (insets != null) {
                 group = Padding(
                   padding: insets!,

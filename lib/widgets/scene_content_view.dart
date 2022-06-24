@@ -1,8 +1,8 @@
 //  Created by T Brennan on 23/1/21.
 
 import 'package:flutter/cupertino.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/widgets/renderers/calendar_renderer.dart';
 import 'package:memri/widgets/renderers/chart_renderer.dart';
 import 'package:memri/widgets/renderers/custom_renderer.dart';
@@ -24,11 +24,13 @@ class SceneContentView extends StatefulWidget {
   final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  SceneContentView({required this.pageController, required this.viewContext, Key? key})
+  SceneContentView(
+      {required this.pageController, required this.viewContext, Key? key})
       : super(key: key);
 
   @override
-  _SceneContentViewState createState() => _SceneContentViewState(pageController, viewContext);
+  _SceneContentViewState createState() =>
+      _SceneContentViewState(pageController, viewContext);
 }
 
 class _SceneContentViewState extends State<SceneContentView> {
@@ -59,40 +61,56 @@ class _SceneContentViewState extends State<SceneContentView> {
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
-        return ListRendererView(viewContext: viewContext, pageController: pageController);
+        return ListRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "grid":
-        return GridRendererView(viewContext: viewContext, pageController: pageController);
+        return GridRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "map":
-        return MapRendererView(viewContext: viewContext, pageController: pageController);
+        return MapRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "timeline":
-        return TimelineRendererView(viewContext: viewContext, pageController: pageController);
+        return TimelineRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "calendar":
-        return CalendarRendererView(viewContext: viewContext, pageController: pageController);
+        return CalendarRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "photoviewer":
-        return PhotoViewerRendererView(viewContext: viewContext, pageController: pageController);
+        return PhotoViewerRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "chart":
-        return ChartRendererView(viewContext: viewContext, pageController: pageController);
+        return ChartRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "singleitem":
-        return SingleItemRendererView(viewContext: viewContext, pageController: pageController);
+        return SingleItemRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "noteeditor":
-        return NoteEditorRendererView(viewContext: viewContext, pageController: pageController);
+        return NoteEditorRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "cvueditor":
-        return CVUEditorRendererView(viewContext: viewContext, pageController: pageController);
+        return CVUEditorRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "labelannotation":
         return LabelAnnotationRendererView(
             viewContext: viewContext, pageController: pageController);
       case "custom":
-        return CustomRendererView(viewContext: viewContext, pageController: pageController);
+        return CustomRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "fileviewer":
-        return FileRendererView(viewContext: viewContext, pageController: pageController);
+        return FileRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "generaleditor":
-        return GeneralEditorRendererView(viewContext: viewContext, pageController: pageController);
+        return GeneralEditorRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "scene":
-        return SceneViewRendererView(viewContext: viewContext, pageController: pageController);
+        return SceneViewRendererView(
+            viewContext: viewContext, pageController: pageController);
       case "pluginconfig":
-        return PluginConfigRendererView(viewContext: viewContext, pageController: pageController);
+        return PluginConfigRendererView(
+            viewContext: viewContext, pageController: pageController);
       default:
-        return Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold));
+        return Text("No renderer selected",
+            style: TextStyle(fontWeight: FontWeight.bold));
     }
   }
 
