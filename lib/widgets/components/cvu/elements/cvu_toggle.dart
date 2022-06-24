@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/utilities/binding.dart';
 
 import '../cvu_ui_node_resolver.dart';
 
@@ -24,7 +24,9 @@ class _CVUToggleState extends State<CVUToggle> {
   }
 
   init() async {
-    await widget.nodeResolver.propertyResolver.binding<bool>("value", false).then((result) {
+    await widget.nodeResolver.propertyResolver
+        .binding<bool>("value", false)
+        .then((result) {
       binding = result;
       binding?.get().then((newValue) => updateValue(newValue));
     });

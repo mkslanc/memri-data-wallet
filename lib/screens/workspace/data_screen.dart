@@ -30,7 +30,8 @@ class _DataScreenState extends State<DataScreen> {
                 Text("Datastreams", style: CVUFont.headline1),
                 Spacer(),
                 TextButton(
-                  style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.all(0))),
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all(EdgeInsets.all(0))),
                   onPressed: () {},
                   child: Text(
                     'Open data explorer',
@@ -49,8 +50,8 @@ class _DataScreenState extends State<DataScreen> {
                   description: '23 feature variables',
                   size: 'MB',
                   status: 'ACTIVE',
-                  onTap: () =>
-                      RouteNavigator.navigateToRoute(context: context, route: Routes.importer),
+                  onTap: () => RouteNavigator.navigateToRoute(
+                      context: context, route: Routes.importer),
                 ),
                 _buildBox(
                   title: 'Gmail Plugin',
@@ -76,7 +77,8 @@ class _DataScreenState extends State<DataScreen> {
                 Text("Uploaded data", style: CVUFont.headline1),
                 Spacer(),
                 TextButton(
-                  style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.all(0))),
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all(EdgeInsets.all(0))),
                   onPressed: () {},
                   child: Text(
                     'Upload New Data',

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utilities/binding.dart';
 
 class ChartRendererSettingsView extends StatelessWidget {
   final ViewContextController viewContext;
@@ -11,28 +11,41 @@ class ChartRendererSettingsView extends StatelessWidget {
 
   FutureBinding<Color> get colorBinding {
     return FutureBinding<Color>(() async {
-      return await viewContext.rendererDefinitionPropertyResolver.color("color") ?? Colors.blue;
+      return await viewContext.rendererDefinitionPropertyResolver
+              .color("color") ??
+          Colors.blue;
     }, (newValue) async {
       var hex = newValue.value.toString();
-      viewContext.setRendererProperty("chart", "color", CVUValueConstant(CVUConstantColorHex(hex)));
+      viewContext.setRendererProperty(
+          "chart", "color", CVUValueConstant(CVUConstantColorHex(hex)));
     });
   }
 
   FutureBinding<String?> get titleBinding {
     return FutureBinding<String?>(() async {
-      return await viewContext.rendererDefinitionPropertyResolver.string("title");
+      return await viewContext.rendererDefinitionPropertyResolver
+          .string("title");
     }, (newValue) async {
-      viewContext.setRendererProperty("chart", "title",
-          CVUValueConstant(newValue != null ? CVUConstantString(newValue) : CVUConstantNil()));
+      viewContext.setRendererProperty(
+          "chart",
+          "title",
+          CVUValueConstant(newValue != null
+              ? CVUConstantString(newValue)
+              : CVUConstantNil()));
     });
   }
 
   FutureBinding<String?> get subtitleBinding {
     return FutureBinding<String?>(() async {
-      return await viewContext.rendererDefinitionPropertyResolver.string("subtitle");
+      return await viewContext.rendererDefinitionPropertyResolver
+          .string("subtitle");
     }, (newValue) async {
-      viewContext.setRendererProperty("chart", "subtitle",
-          CVUValueConstant(newValue != null ? CVUConstantString(newValue) : CVUConstantNil()));
+      viewContext.setRendererProperty(
+          "chart",
+          "subtitle",
+          CVUValueConstant(newValue != null
+              ? CVUConstantString(newValue)
+              : CVUConstantNil()));
     });
   }
 

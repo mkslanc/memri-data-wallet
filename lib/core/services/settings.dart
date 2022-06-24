@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/database/database.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/database/database.dart';
-import 'package:memri/models/database/item_record.dart';
 import 'package:uuid/uuid.dart';
 
 /// This class stores the settings used in the memri app. Settings may include things like how to format dates, whether to show certain
@@ -96,7 +96,8 @@ class Settings {
   /// - Parameter path: path for the setting
   /// - Returns: setting value
   Future<T?> getSetting<T>(String path) async {
-    var settingRowIDs = (await ItemRecord.fetchWithType("Setting")).map((setting) => setting.rowId);
+    var settingRowIDs = (await ItemRecord.fetchWithType("Setting"))
+        .map((setting) => setting.rowId);
 
     var db = AppController.shared.databaseController.databasePool;
 
@@ -104,13 +105,19 @@ class Settings {
     var settings = await db.itemPropertyRecordsCustomSelect(query);
 
     StringDb? setting = settings.firstWhere(
-        (setting) => setting is StringDb && setting.name == "keystr" && setting.value == path,
+        (setting) =>
+            setting is StringDb &&
+            setting.name == "keystr" &&
+            setting.value == path,
         orElse: () => null);
     if (setting == null) return null;
     var settingRowID = setting.item;
 
     setting = settings.firstWhere(
-        (setting) => setting is StringDb && setting.item == settingRowID && setting.name == "json",
+        (setting) =>
+            setting is StringDb &&
+            setting.item == settingRowID &&
+            setting.name == "json",
         orElse: () => null);
     if (setting?.value != null) {
       return jsonDecode(setting!.value) as T?;
@@ -131,7 +138,8 @@ class Settings {
   ///   - path: path of the setting
   ///   - value: setting Value
   setSetting(String path, dynamic value) async {
-    var settingRowIDs = (await ItemRecord.fetchWithType("Setting")).map((setting) => setting.rowId);
+    var settingRowIDs = (await ItemRecord.fetchWithType("Setting"))
+        .map((setting) => setting.rowId);
 
     var db = AppController.shared.databaseController.databasePool;
 
@@ -139,7 +147,10 @@ class Settings {
     var settings = await db.itemPropertyRecordsCustomSelect(query);
 
     StringDb? setting = settings.firstWhere(
-        (setting) => setting is StringDb && setting.name == "keystr" && setting.value == path,
+        (setting) =>
+            setting is StringDb &&
+            setting.name == "keystr" &&
+            setting.value == path,
         orElse: () => null);
     int? settingRowID = setting?.item;
 
@@ -150,11 +161,13 @@ class Settings {
 
     if (settingRowID == null) {
       await settingItem.save();
-      await settingItem.setPropertyValue("keystr", PropertyDatabaseValueString(path),
+      await settingItem.setPropertyValue(
+          "keystr", PropertyDatabaseValueString(path),
           state: SyncState.create);
     }
 
-    await settingItem.setPropertyValue("json", PropertyDatabaseValueString(jsonEncode(value)),
+    await settingItem.setPropertyValue(
+        "json", PropertyDatabaseValueString(jsonEncode(value)),
         state: SyncState.create);
   }
 

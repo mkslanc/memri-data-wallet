@@ -66,7 +66,8 @@ class EdgeList {
   }
 }
 
-Future<http.Response?> execute_graphql(PodConnectionDetails connection, String query) async {
+Future<http.Response?> execute_graphql(
+    PodConnectionDetails connection, String query) async {
   var request = PodStandardRequest.queryGraphQL(query);
   var response = await request.execute(connection);
   if (response.statusCode != 200) {
@@ -93,7 +94,8 @@ List<Item> parseGQLResponse(http.Response? response) {
 
 // Dataset
 
-Future<List<Item>> getDataset(PodConnectionDetails connection, String datasetName) async {
+Future<List<Item>> getDataset(
+    PodConnectionDetails connection, String datasetName) async {
   var query = '''
     query {
       Dataset (filter: {name: {eq: "$datasetName"}}) {

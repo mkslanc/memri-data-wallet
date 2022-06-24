@@ -9,7 +9,9 @@ abstract class CVUStringConvertible {
 extension ListCVUStringConvertible on List {
   String toCVUString(int depth, String tab, bool includeInitialTab) {
     List strings = map((value) {
-      return (value is CVUStringConvertible) ? value.toCVUString(depth + 1, tab, false) : null;
+      return (value is CVUStringConvertible)
+          ? value.toCVUString(depth + 1, tab, false)
+          : null;
     }).where((element) => element != null).toList();
 
     if (strings.isEmpty) {

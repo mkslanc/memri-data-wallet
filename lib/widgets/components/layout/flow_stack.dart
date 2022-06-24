@@ -30,7 +30,10 @@ class FlowStack<T> extends StatelessWidget {
             crossAxisAlignment: alignment,
             spacing: spacing.y.toDouble(),
             runSpacing: spacing.x.toDouble(),
-            children: data.map((e) => content(e)).expand((element) => element).toList(),
+            children: data
+                .map((e) => content(e))
+                .expand((element) => element)
+                .toList(),
           ),
         ],
       ),

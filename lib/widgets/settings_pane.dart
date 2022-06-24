@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/address_book_controller.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/factory_reset.dart';
+import 'package:memri/core/controllers/address_book_controller.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/factory_reset.dart';
 import 'package:memri/widgets/space.dart';
 
 class SettingsPane extends StatelessWidget {
@@ -23,7 +23,9 @@ class SettingsPane extends StatelessWidget {
                   ),
                   Text("Connected accounts",
                       style: TextStyle(
-                          color: app.colors.brandWhite, fontSize: 18, fontWeight: FontWeight.w600)),
+                          color: app.colors.brandWhite,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600)),
                   Row(
                     children: [
                       Expanded(
@@ -32,15 +34,19 @@ class SettingsPane extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text("WhatsApp",
-                              style: CVUFont.buttonLabel.copyWith(color: Colors.white)),
+                              style: CVUFont.buttonLabel
+                                  .copyWith(color: Colors.white)),
                           Text("Contacts, Messages",
-                              style: CVUFont.bodyText2.copyWith(color: app.colors.brandGreyText)),
+                              style: CVUFont.bodyText2
+                                  .copyWith(color: app.colors.brandGreyText)),
                         ],
                       )),
                       TextButton(
                           onPressed: null,
                           style: TextButton.styleFrom(
-                              textStyle: TextStyle(color: app.colors.brandBlueText, fontSize: 16),
+                              textStyle: TextStyle(
+                                  color: app.colors.brandBlueText,
+                                  fontSize: 16),
                               backgroundColor: app.colors.brandWhite),
                           child: Text("Connect")),
                     ],
@@ -50,7 +56,8 @@ class SettingsPane extends StatelessWidget {
                       Flexible(
                           child: Text(
                               "I consent to sharing my usage data for the purpose of enhancing user experience.",
-                              style: CVUFont.buttonLabel.copyWith(color: Colors.white))),
+                              style: CVUFont.buttonLabel
+                                  .copyWith(color: Colors.white))),
                       Switch(
                         value: false,
                         onChanged: null,
@@ -59,7 +66,8 @@ class SettingsPane extends StatelessWidget {
                   ),
                   Text(
                       "When this setting is on, you consent for memri to report information on app usage (for example, which of the features are most frequently used). Learn more.",
-                      style: CVUFont.bodyText2.copyWith(color: app.colors.brandGreyText)),
+                      style: CVUFont.bodyText2
+                          .copyWith(color: app.colors.brandGreyText)),
                   TextButton(
                       onPressed: () => showDialog<String>(
                             context: context,
@@ -76,30 +84,36 @@ class SettingsPane extends StatelessWidget {
                                   child: const Text('OK'),
                                 ),
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                                  onPressed: () =>
+                                      Navigator.pop(context, 'Cancel'),
                                   child: const Text('Cancel'),
                                 ),
                               ],
                             ),
                           ),
                       child: Text("Import contacts",
-                          style: TextStyle(color: app.colors.brandWhite, fontSize: 18))),
+                          style: TextStyle(
+                              color: app.colors.brandWhite, fontSize: 18))),
                   TextButton(
                       onPressed: null,
                       child: Text("Privacy and security",
-                          style: TextStyle(color: app.colors.brandGreyText, fontSize: 18))),
+                          style: TextStyle(
+                              color: app.colors.brandGreyText, fontSize: 18))),
                   TextButton(
                       onPressed: null,
                       child: Text("Report a bug",
-                          style: TextStyle(color: app.colors.brandGreyText, fontSize: 18))),
+                          style: TextStyle(
+                              color: app.colors.brandGreyText, fontSize: 18))),
                   TextButton(
                       onPressed: null,
                       child: Text("Request a feature",
-                          style: TextStyle(color: app.colors.brandGreyText, fontSize: 18))),
+                          style: TextStyle(
+                              color: app.colors.brandGreyText, fontSize: 18))),
                   TextButton(
                       onPressed: () => factoryReset(context),
                       child: Text("Factory reset",
-                          style: TextStyle(color: app.colors.brandWhite, fontSize: 18)))
+                          style: TextStyle(
+                              color: app.colors.brandWhite, fontSize: 18)))
                 ],
                 Axis.vertical),
           ),

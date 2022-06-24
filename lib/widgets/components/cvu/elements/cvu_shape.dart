@@ -26,7 +26,8 @@ class _CVUShapeCircleState extends State<CVUShapeCircle> {
   }
 
   init() async {
-    color = await widget.nodeResolver.propertyResolver.color() ?? CVUColor.system("clear");
+    color = await widget.nodeResolver.propertyResolver.color() ??
+        CVUColor.system("clear");
   }
 
   @override
@@ -67,7 +68,8 @@ class _CVUShapeRectangleState extends State<CVUShapeRectangle> {
 
   init() async {
     cornerRadius = await widget.nodeResolver.propertyResolver.cornerRadius;
-    color = await widget.nodeResolver.propertyResolver.color() ?? CVUColor.system("clear");
+    color = await widget.nodeResolver.propertyResolver.color() ??
+        CVUColor.system("clear");
   }
 
   @override

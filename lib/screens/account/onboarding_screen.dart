@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/pod_setup.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/models/pod_setup.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/responsive_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/helpers/responsive_helper.dart';
 import 'package:memri/widgets/components/error_message.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
@@ -38,18 +38,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           case AppState.setup:
             return _buildBody();
           case AppState.keySaving:
-            WidgetsBinding.instance!.addPostFrameCallback(
-                (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.saveKeys));
+            WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                RouteNavigator.navigateToRoute(
+                    context: context, route: Routes.saveKeys));
             return Empty();
           case AppState.authenticated:
-            WidgetsBinding.instance!.addPostFrameCallback(
-                (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.workspace));
+            WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                RouteNavigator.navigateToRoute(
+                    context: context, route: Routes.workspace));
             return Empty();
           case AppState.incompatibleDevice:
           case AppState.incompatibleBrowser:
           case AppState.maintenance:
             WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(context: context, route: Routes.accountError));
+                RouteNavigator.navigateToRoute(
+                    context: context, route: Routes.accountError));
             return Empty();
         }
       },
@@ -62,8 +65,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     return InkWell(
       onTap: () async {
-        WidgetsBinding.instance!.addPostFrameCallback(
-            (_) => RouteNavigator.navigateToRoute(context: context, route: Routes.loginDev));
+        WidgetsBinding.instance!.addPostFrameCallback((_) =>
+            RouteNavigator.navigateToRoute(
+                context: context, route: Routes.loginDev));
       },
       child: RichText(
         text: TextSpan(
@@ -114,11 +118,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   SizedBox(width: 30),
                   TextButton(
-                    onPressed: () => WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                        RouteNavigator.navigateToRoute(context: context, route: Routes.login)),
+                    onPressed: () => WidgetsBinding.instance!
+                        .addPostFrameCallback((_) =>
+                            RouteNavigator.navigateToRoute(
+                                context: context, route: Routes.login)),
                     child: Text(
                       "Log in",
-                      style: CVUFont.buttonLabel.copyWith(color: Color(0xff333333)),
+                      style: CVUFont.buttonLabel
+                          .copyWith(color: Color(0xff333333)),
                     ),
                     style: TextButton.styleFrom(backgroundColor: null),
                   ),

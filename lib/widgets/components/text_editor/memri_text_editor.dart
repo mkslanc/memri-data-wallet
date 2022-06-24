@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/models/ui/memri_text_editor_model.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/ui/memri_text_editor_model.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/text_editor/memri_text_editor_toolbar.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,7 +16,10 @@ class MemriTextEditor extends StatefulWidget {
   final Function(MemriTextEditorModel) onModelUpdate;
   final ViewContextController viewContext;
 
-  MemriTextEditor({required this.model, required this.onModelUpdate, required this.viewContext});
+  MemriTextEditor(
+      {required this.model,
+      required this.onModelUpdate,
+      required this.viewContext});
 
   @override
   _MemriTextEditorState createState() => _MemriTextEditorState();
@@ -44,7 +47,8 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   void dispose() {
     super.dispose();
     widget.viewContext.searchStringNotifier.removeListener(updateSearchState);
-    widget.viewContext.pageController.isInEditMode.removeListener(switchEditMode);
+    widget.viewContext.pageController.isInEditMode
+        .removeListener(switchEditMode);
   }
 
   @override
@@ -63,19 +67,22 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
                       JavascriptChannel(
                           name: 'textChange',
                           onMessageReceived: (JavascriptMessage message) {
-                            var model = MemriTextEditorModel.html(message.message);
+                            var model =
+                                MemriTextEditorModel.html(message.message);
                             widget.onModelUpdate(model);
                           }),
                       JavascriptChannel(
                           name: 'formatChange',
                           onMessageReceived: (JavascriptMessage message) {
-                            currentFormatting.value = jsonDecode(message.message);
+                            currentFormatting.value =
+                                jsonDecode(message.message);
                           })
                     ]),
                     javascriptMode: JavascriptMode.unrestricted,
                     onWebViewCreated: (controller) {
                       _controller = controller;
-                      widget.viewContext.pageController.isInEditMode.addListener(switchEditMode);
+                      widget.viewContext.pageController.isInEditMode
+                          .addListener(switchEditMode);
                     },
                     onPageFinished: onEditorLoaded,
                   ),
@@ -145,14 +152,14 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
     final jsPathApp = join(tempDir.path, names["jsApp"]);
     final jsPathChunk = join(tempDir.path, names["jsChunk"]);
 
-    String css =
-        await rootBundle.loadString('assets/noteEditor/noteEditorDist/css/${names["css"]}');
+    String css = await rootBundle
+        .loadString('assets/noteEditor/noteEditorDist/css/${names["css"]}');
     File(cssPath).writeAsStringSync(css);
-    String jsApp =
-        await rootBundle.loadString('assets/noteEditor/noteEditorDist/js/${names["jsApp"]}');
+    String jsApp = await rootBundle
+        .loadString('assets/noteEditor/noteEditorDist/js/${names["jsApp"]}');
     File(jsPathApp).writeAsStringSync(jsApp);
-    String jsChunk =
-        await rootBundle.loadString('assets/noteEditor/noteEditorDist/js/${names["jsChunk"]}');
+    String jsChunk = await rootBundle
+        .loadString('assets/noteEditor/noteEditorDist/js/${names["jsChunk"]}');
     File(jsPathChunk).writeAsStringSync(jsChunk);
 
     File(htmlPath).writeAsStringSync("""

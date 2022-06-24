@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/file_storage/file_storage_controller.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/components/image_files/photo_viewer_view.dart';
 
 /// The photo viewer renderer
@@ -12,7 +12,8 @@ class PhotoViewerRendererView extends StatelessWidget {
   final memri.PageController pageController;
   final ViewContextController viewContext;
 
-  PhotoViewerRendererView({required this.pageController, required this.viewContext});
+  PhotoViewerRendererView(
+      {required this.pageController, required this.viewContext});
 
   Future<PhotoViewerControllerPhotoItem?> photoItemProvider(int index) async {
     ItemRecord? item = viewContext.items.asMap()[index];

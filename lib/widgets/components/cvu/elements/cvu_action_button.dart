@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
 import 'package:memri/widgets/browser_view.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
@@ -33,7 +33,8 @@ class _CVUActionButtonState extends State<CVUActionButton> {
 
   init() {
     if (action is CVUActionStar) {
-      _starred = widget.nodeResolver.context.currentItem?.propertyValue("starred");
+      _starred =
+          widget.nodeResolver.context.currentItem?.propertyValue("starred");
     }
   }
 
@@ -47,7 +48,8 @@ class _CVUActionButtonState extends State<CVUActionButton> {
       return;
     }
     for (var action in actions) {
-      await action.execute(widget.nodeResolver.pageController, widget.nodeResolver.context);
+      await action.execute(
+          widget.nodeResolver.pageController, widget.nodeResolver.context);
     }
   }
 
@@ -82,7 +84,8 @@ class _CVUActionButtonState extends State<CVUActionButton> {
     properties["subject"] = CVUValueItem(currentItem.rowId!);
 
     return CVUViewArguments(
-        args: properties, argumentItem: widget.nodeResolver.context.currentItem);
+        args: properties,
+        argumentItem: widget.nodeResolver.context.currentItem);
   }
 
   @override
@@ -94,7 +97,8 @@ class _CVUActionButtonState extends State<CVUActionButton> {
                 context: context,
                 useRootNavigator: true,
                 isScrollControlled: true,
-                builder: (BuildContext context) => FutureBuilder<ViewContextController?>(
+                builder: (BuildContext context) =>
+                    FutureBuilder<ViewContextController?>(
                   future: validAction.getViewContext(
                       CVUContext(
                           currentItem: widget.nodeResolver.context.currentItem,
@@ -129,7 +133,8 @@ class _CVUActionButtonState extends State<CVUActionButton> {
           child: FutureBuilder(
               initialData: starred,
               future: _starred,
-              builder: (BuildContext context, AsyncSnapshot<PropertyDatabaseValue?> snapshot) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<PropertyDatabaseValue?> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   starred = snapshot.data;
                 }
@@ -137,7 +142,8 @@ class _CVUActionButtonState extends State<CVUActionButton> {
               }),
           onPressed: () async {
             await validAction
-                .execute(widget.nodeResolver.pageController, widget.nodeResolver.context)
+                .execute(widget.nodeResolver.pageController,
+                    widget.nodeResolver.context)
                 .whenComplete(() => setState(init));
           });
     }

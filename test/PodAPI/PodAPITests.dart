@@ -2,19 +2,20 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/controllers/database_controller.dart';
-import 'package:memri/controllers/sync_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/controllers/sync_controller.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/models/database/item_property_record.dart';
-import 'package:memri/models/database/item_record.dart';
 import 'package:uuid/uuid.dart';
 
 /// This connection config is used to connect to the pod for the tests. You can change url scheme/path/port etc here
-var connectionConfig = PodConnectionDetails(ownerKey: Uuid().v4(), host: "192.168.88.17");
+var connectionConfig =
+    PodConnectionDetails(ownerKey: Uuid().v4(), host: "192.168.88.17");
 
 /// These are used to create test items in the pod for use in later tests
 var noteRowId = 100;
@@ -35,7 +36,8 @@ void main() {
 
   setupPodForTesting() async {
     var noteItem = ItemRecord(rowId: noteRowId, uid: noteUID, type: "Note");
-    var indexerItem = ItemRecord(rowId: indexerRowId, uid: indexerUID, type: "Indexer");
+    var indexerItem =
+        ItemRecord(rowId: indexerRowId, uid: indexerUID, type: "Indexer");
     //var fileItem = ItemRecord(rowId: fileRowId, uid: fileUID, type: "File");
 
     Map<String, dynamic> testNoteItem = () {
@@ -61,7 +63,8 @@ void main() {
             value: PropertyDatabaseValueString("indexerRepo")),
       ];
 
-      return indexerItem.mergeDict(properties: testItemProperties, schema: schema);
+      return indexerItem.mergeDict(
+          properties: testItemProperties, schema: schema);
     }();
 
     var bulkAction = PodPayloadBulkAction(

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/components/layout/flow_stack.dart';
 
@@ -62,7 +62,8 @@ class _CVUFlowStackState extends State<CVUFlowStack> {
               direction: direction,
               data: content,
               spacing: spacing,
-              content: (listItem) => widget.nodeResolver.childrenInForEach(usingItem: listItem));
+              content: (listItem) =>
+                  widget.nodeResolver.childrenInForEach(usingItem: listItem));
         });
   }
 }

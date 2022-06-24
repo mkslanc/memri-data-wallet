@@ -3,31 +3,32 @@ import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
-import 'package:memri/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/models/database/item_edge_record.dart';
+import 'package:memri/core/models/database/item_property_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/models/database/item_edge_record.dart';
-import 'package:memri/models/database/item_property_record.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:uuid/uuid.dart';
 
 class DemoData {
   static Map<String, SchemaType> types = {};
 
   static importSchemaOnce(
-      {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
+      {DatabaseController? databaseController,
+      bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
 
-    var schemaItems =
-        await ItemRecord.fetchWithType("ItemPropertySchema", databaseController.databasePool);
+    var schemaItems = await ItemRecord.fetchWithType(
+        "ItemPropertySchema", databaseController.databasePool);
     if (schemaItems.isEmpty) {
-      schemaItems =
-          await ItemRecord.fetchWithType("ItemEdgeSchema", databaseController.databasePool);
+      schemaItems = await ItemRecord.fetchWithType(
+          "ItemEdgeSchema", databaseController.databasePool);
     }
 
     if (schemaItems.isNotEmpty) {
@@ -64,13 +65,16 @@ class DemoData {
     var jsonFile = jsonDecode(fileData);
     var fileDecoded = SchemaFile.fromJson(jsonFile);
 
-    var groupedProperties =
-        Dictionary.groupBy(fileDecoded.properties, (SchemaProperty $0) => $0.itemType);
-    var groupedEdges = Dictionary.groupBy(fileDecoded.edges, (SchemaEdge $0) => $0.sourceType);
-    var allTypes = Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
+    var groupedProperties = Dictionary.groupBy(
+        fileDecoded.properties, (SchemaProperty $0) => $0.itemType);
+    var groupedEdges =
+        Dictionary.groupBy(fileDecoded.edges, (SchemaEdge $0) => $0.sourceType);
+    var allTypes =
+        Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
 
     // Confirm that all edge target types actually exist in the schema
-    var allEdgeTargetTypes = Set.of(fileDecoded.edges.map(($0) => $0.targetType));
+    var allEdgeTargetTypes =
+        Set.of(fileDecoded.edges.map(($0) => $0.targetType));
     var undefinedEdgeTargetTypes =
         allEdgeTargetTypes.difference(allTypes).difference(Set.of(["Any"]));
     if (undefinedEdgeTargetTypes.isNotEmpty) {
@@ -83,12 +87,14 @@ class DemoData {
       var schemaType = SchemaType(
           type: type,
           propertyTypes: Map.fromEntries(groupedProperties[type]?.map(($0) {
-                var schemaProperty = SchemaProperty($0.itemType, $0.property, $0.valueType);
+                var schemaProperty =
+                    SchemaProperty($0.itemType, $0.property, $0.valueType);
                 return MapEntry($0.property, schemaProperty);
               }) ??
               []),
           edgeTypes: Map.fromEntries(groupedEdges[type]?.map(($0) {
-                var schemaEdge = SchemaEdge($0.sourceType, $0.edge, $0.targetType);
+                var schemaEdge =
+                    SchemaEdge($0.sourceType, $0.edge, $0.targetType);
                 return MapEntry($0.edge, schemaEdge);
               }) ??
               []));
@@ -97,7 +103,8 @@ class DemoData {
   }
 
   static importDefaultData(
-      {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
+      {DatabaseController? databaseController,
+      bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
     await importData(
         fileName: app.settings.defaultDatabase,
@@ -106,7 +113,8 @@ class DemoData {
   }
 
   static importDemoData(
-      {DatabaseController? databaseController, bool throwIfAgainstSchema = false}) async {
+      {DatabaseController? databaseController,
+      bool throwIfAgainstSchema = false}) async {
     databaseController ??= AppController.shared.databaseController;
     await importData(
         fileName: "demo_database",
@@ -127,8 +135,9 @@ class DemoData {
     await databaseController.databasePool.transaction(() async {
       await loadSchema();
 
-      List<DemoDataItem> processedItems = (await Future.wait(items.map((item) async =>
-              await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))))
+      List<DemoDataItem> processedItems = (await Future.wait(items.map(
+              (item) async => await processItemJSON(
+                  item: item, isRunningTests: throwIfAgainstSchema))))
           .expand((element) => element)
           .toList();
 
@@ -159,8 +168,8 @@ class DemoData {
 
       for (var item in processedItems) {
         for (var property in item.properties) {
-          ItemPropertyRecord record =
-              ItemPropertyRecord(itemUID: item.uid, name: property.name, value: property.value);
+          ItemPropertyRecord record = ItemPropertyRecord(
+              itemUID: item.uid, name: property.name, value: property.value);
           properties.add(record);
         }
         for (var edge in item.edges) {
@@ -171,19 +180,23 @@ class DemoData {
 
           var sourceUID = sourceIDLookup[item.uid];
 
-          var record =
-              ItemEdgeRecord(sourceUID: sourceUID, name: edge.name, targetUID: targetActualID);
+          var record = ItemEdgeRecord(
+              sourceUID: sourceUID, name: edge.name, targetUID: targetActualID);
           edges.add(record);
         }
       }
       await ItemRecord.insertList(records, db: databaseController.databasePool);
-      await ItemPropertyRecord.insertList(properties, db: databaseController.databasePool);
-      await ItemEdgeRecord.insertList(edges, db: databaseController.databasePool);
+      await ItemPropertyRecord.insertList(properties,
+          db: databaseController.databasePool);
+      await ItemEdgeRecord.insertList(edges,
+          db: databaseController.databasePool);
     });
   }
 
   static Future<List<DemoDataItem>> processItemJSON(
-      {required Map<String, dynamic> item, String? overrideUID, isRunningTests = false}) async {
+      {required Map<String, dynamic> item,
+      String? overrideUID,
+      isRunningTests = false}) async {
     handleError(String string) {
       if (isRunningTests) {
         // Used for testing: throw an error if error in demo data
@@ -212,8 +225,8 @@ class DemoData {
     List<DemoDataEdge> edges = [];
     // Fake a recent date for the demo data
 
-    var dateCreated =
-        DateTime.now().subtract(Duration(milliseconds: Random().nextInt(1814400 * 1000)));
+    var dateCreated = DateTime.now()
+        .subtract(Duration(milliseconds: Random().nextInt(1814400 * 1000)));
     var dateModified = dateCreated;
 
     await Future.forEach(item.entries, (MapEntry itemProperty) async {
@@ -247,7 +260,8 @@ class DemoData {
               handleError("$itemType.$edgeName targetType is missing");
               return;
             }
-            if (targetType != expectedEdge.targetType && expectedEdge.targetType != "Any") {
+            if (targetType != expectedEdge.targetType &&
+                expectedEdge.targetType != "Any") {
               handleError(
                   "$itemType.$edgeName targetType should be ${expectedEdge.targetType}, $targetType received");
               return;
@@ -255,15 +269,19 @@ class DemoData {
 
             var targetUID = edge["uid"]?.toString();
             if (targetUID != null) {
-              edges.add(
-                  DemoDataEdge(name: edgeName, targetTempUID: targetUID, targetType: targetType));
+              edges.add(DemoDataEdge(
+                  name: edgeName,
+                  targetTempUID: targetUID,
+                  targetType: targetType));
             } else {
               var subitem = edge["_target"];
               if (subitem is Map) {
                 // Sub-item declared as edge, add edge property AND item
                 var targetUID = Uuid().v4();
-                edges.add(
-                    DemoDataEdge(name: edgeName, targetTempUID: targetUID, targetType: targetType));
+                edges.add(DemoDataEdge(
+                    name: edgeName,
+                    targetTempUID: targetUID,
+                    targetType: targetType));
                 items = [
                   ...items,
                   ...await processItemJSON(
@@ -289,8 +307,8 @@ class DemoData {
             return;
           }
           try {
-            var databaseValue = PropertyDatabaseValue.create(
-                propertyValue, expectedType.valueType, "$itemType.$propertyName");
+            var databaseValue = PropertyDatabaseValue.create(propertyValue,
+                expectedType.valueType, "$itemType.$propertyName");
 
             if (!isRunningTests &&
                 itemType == "File" &&
@@ -304,19 +322,23 @@ class DemoData {
                   ("${fileName.fileName ?? ""}.${fileName.fileExtension ?? "jpg"}");
 
               // Also add sha256 property for item
-              var byteData = await FileStorageController.getByteDataFromAsset(sourcePath);
-              var sha256 = FileStorageController.getHashForData(
-                  byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+              var byteData =
+                  await FileStorageController.getByteDataFromAsset(sourcePath);
+              var sha256 = FileStorageController.getHashForData(byteData.buffer
+                  .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
 
-              var url = (await FileStorageController.getFileStorageURL()) + "/" + sha256;
+              var url = (await FileStorageController.getFileStorageURL()) +
+                  "/" +
+                  sha256;
 
-              properties.add(
-                  DemoDataProperty(name: "sha256", value: PropertyDatabaseValueString(sha256)));
+              properties.add(DemoDataProperty(
+                  name: "sha256", value: PropertyDatabaseValueString(sha256)));
 
               await FileStorageController.copy(sourcePath, url);
             }
 
-            properties.add(DemoDataProperty(name: propertyName, value: databaseValue));
+            properties.add(
+                DemoDataProperty(name: propertyName, value: databaseValue));
           } catch (error) {
             handleError(error.toString());
             return;
@@ -367,7 +389,10 @@ class DemoDataEdge {
   String targetTempUID;
   String targetType;
 
-  DemoDataEdge({required this.name, required this.targetTempUID, required this.targetType});
+  DemoDataEdge(
+      {required this.name,
+      required this.targetTempUID,
+      required this.targetType});
 }
 
 class SchemaFile {
@@ -380,7 +405,9 @@ class SchemaFile {
       : properties = (json['properties'] as List)
             .map((property) => SchemaProperty.fromJson(property))
             .toList(),
-        edges = (json['edges'] as List).map((edge) => SchemaEdge.fromJson(edge)).toList();
+        edges = (json['edges'] as List)
+            .map((edge) => SchemaEdge.fromJson(edge))
+            .toList();
 
   Map<String, dynamic> toJson() => {
         'properties': properties,

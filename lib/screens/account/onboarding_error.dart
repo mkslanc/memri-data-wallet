@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 

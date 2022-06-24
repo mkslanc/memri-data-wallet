@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utils/binding.dart';
+import 'package:memri/utilities/binding.dart';
 import 'package:memri/widgets/empty.dart';
 
 class Picker<T> extends StatefulWidget {
@@ -37,7 +37,8 @@ class _PickerState<T> extends State<Picker<T>> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                  onPressed: () => Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
                         return MaterialApp(
                           debugShowCheckedModeBanner: false,
                           home: Scaffold(
@@ -45,12 +46,14 @@ class _PickerState<T> extends State<Picker<T>> {
                                 preferredSize: Size.fromHeight(32.0),
                                 child: AppBar(
                                   leading: TextButton(
-                                    style: TextButton.styleFrom(primary: Colors.black),
+                                    style: TextButton.styleFrom(
+                                        primary: Colors.black),
                                     child: Icon(
                                       Icons.arrow_back,
                                       size: 24,
                                     ),
-                                    onPressed: () => Navigator.of(context).pop(),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
                                   ),
                                   centerTitle: true,
                                   primary: false,
@@ -59,7 +62,8 @@ class _PickerState<T> extends State<Picker<T>> {
                                   title: Center(
                                       child: Text(
                                     widget.label,
-                                    style: TextStyle(color: Colors.black, fontSize: 17),
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 17),
                                   )),
                                 )),
                             body: Column(

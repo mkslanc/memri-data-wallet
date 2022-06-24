@@ -27,35 +27,38 @@ dependencies:
     sdk: flutter
   moor: ^4.6.1+1
   sqlcipher_flutter_libs: ^0.5.1
-  path_provider: ^2.0.8
-  path: ^1.8.0
-  uuid: ^3.0.5
-  equatable: ^2.0.3
+  path_provider: ^2.0.8           # All
+  path: ^1.8.0                    # All, Dart
+  uuid: ^3.0.5                    # All, Dart
+  equatable: ^2.0.3               # All, Dart
   html: ^0.15.0
   webview_flutter: ^3.0.0
   jiffy: ^5.0.0
   intl: ^0.17.0
   fl_chart: ^0.35.0
   mapbox_gl: ^0.15.0
-  http: ^0.13.4
+  http: ^0.13.4                   # All, Dart
   flutter_contact: ^0.9.1+8
   permission_handler: ^8.3.0
   phone_number: ^0.12.0+1
-  json_serializable: ^6.1.4
+  json_serializable: ^6.1.4       # Dart
   flutter_secure_storage: ^5.0.2
   local_auth: ^1.1.10
   pointycastle: ^3.5.1
   idb_shim: ^2.0.1
-  flutter_svg: ^1.0.3
+  flutter_svg: ^1.0.3             # All
   url_launcher: ^6.0.18
   json_annotation: ^4.4.0
   flutter_dropzone: ^3.0.5
   dotted_border: ^2.0.0+2
   pointer_interceptor: 0.9.1
   faker: ^2.0.0
-  logger: ^1.1.0
-  fluro: ^2.0.3
+  logger: ^1.1.0                  # All, Dart
+  fluro: ^2.0.3                   # All
   mixpanel_flutter: ^1.4.5
+  provider: ^6.0.3                # All
+  get_it: ^7.2.0                  # All, Dart
+  shared_preferences: ^2.0.15     # All
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

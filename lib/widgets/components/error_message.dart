@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/components/shapes/clipper.dart';
 
 import '../../constants/cvu/cvu_font.dart';

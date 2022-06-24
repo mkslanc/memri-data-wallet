@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/apis/auth/auth_key.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
@@ -47,25 +47,32 @@ class Authentication {
   }
 
   static String generateCryptoStrongKey() {
-    return "${Uuid().v4(options: {'rng': UuidUtil.cryptoRNG})}${Uuid().v4(options: {
+    return "${Uuid().v4(options: {
           'rng': UuidUtil.cryptoRNG
-        })}"
+        })}${Uuid().v4(options: {'rng': UuidUtil.cryptoRNG})}"
         .replaceAll("-", "");
   }
 
-  static Future<GeneratedKeys> createOwnerAndDBKey([String? predefinedKey]) async {
+  static Future<GeneratedKeys> createOwnerAndDBKey(
+      [String? predefinedKey]) async {
     var keys = generateAllKeys(predefinedKey);
     await setOwnerAndDBKey(
-        privateKey: keys.privateKey, publicKey: keys.publicKey, dbKey: keys.dbKey);
+        privateKey: keys.privateKey,
+        publicKey: keys.publicKey,
+        dbKey: keys.dbKey);
     return keys;
   }
 
   static void createRootKey() => isOwnerAuthenticated = true;
 
   static setOwnerAndDBKey(
-      {required String privateKey, required String publicKey, required String dbKey}) async {
-    await ItemRecord.setOwnerAndDBKey(privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
+      {required String privateKey,
+      required String publicKey,
+      required String dbKey}) async {
+    await ItemRecord.setOwnerAndDBKey(
+        privateKey: privateKey, publicKey: publicKey, dbKey: dbKey);
   }
 
-  static Future<AuthKeys> getOwnerAndDBKey() async => await ItemRecord.getOwnerAndDBKey();
+  static Future<AuthKeys> getOwnerAndDBKey() async =>
+      await ItemRecord.getOwnerAndDBKey();
 }

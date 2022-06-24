@@ -4,11 +4,11 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:memri/controllers/cvu_lookup_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
 import 'package:moor/moor.dart';
 
 /// This type is used as an intermediate for storing and retrieving values from the database
@@ -61,7 +61,8 @@ abstract class PropertyDatabaseValue with EquatableMixin {
     }
   }
 
-  static PropertyDatabaseValue create(dynamic value, SchemaValueType propertyType,
+  static PropertyDatabaseValue create(
+      dynamic value, SchemaValueType propertyType,
       [String debugInfo = ""]) {
     switch (propertyType) {
       case SchemaValueType.double:
@@ -94,7 +95,8 @@ abstract class PropertyDatabaseValue with EquatableMixin {
         if (value != null && value is int) {
           return PropertyDatabaseValueInt(value);
         }
-        throw Exception('Expected DateTime (Int with milliseconds since 1970): $debugInfo');
+        throw Exception(
+            'Expected DateTime (Int with milliseconds since 1970): $debugInfo');
       case SchemaValueType.blob:
         if (value is String) {
           return PropertyDatabaseValueBlob(value);
@@ -117,31 +119,36 @@ abstract class PropertyDatabaseValue with EquatableMixin {
     var resolvedValue;
     switch (propertyType) {
       case SchemaValueType.double:
-        resolvedValue = await lookup.resolve<double>(value: cvuValue, context: context, db: db);
+        resolvedValue = await lookup.resolve<double>(
+            value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueDouble(resolvedValue);
       case SchemaValueType.bool:
-        resolvedValue = await lookup.resolve<bool>(value: cvuValue, context: context, db: db);
+        resolvedValue = await lookup.resolve<bool>(
+            value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueBool(resolvedValue);
       case SchemaValueType.int:
-        resolvedValue = await lookup.resolve<int>(value: cvuValue, context: context, db: db);
+        resolvedValue = await lookup.resolve<int>(
+            value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueInt(resolvedValue);
       case SchemaValueType.string:
-        resolvedValue = await lookup.resolve<String>(value: cvuValue, context: context, db: db);
+        resolvedValue = await lookup.resolve<String>(
+            value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueString(resolvedValue);
       case SchemaValueType.datetime:
-        resolvedValue = await lookup.resolve<int>(value: cvuValue, context: context, db: db);
+        resolvedValue = await lookup.resolve<int>(
+            value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }

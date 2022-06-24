@@ -1,15 +1,15 @@
 //  Created by T Brennan on 7/1/21.
 
 import 'package:flutter/cupertino.dart';
-import 'package:memri/controllers/cvu_lookup_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/cvu/resolving/cvu_property_resolver.dart';
-import 'package:memri/models/cvu/cvu_ui_element_family.dart';
-import 'package:memri/models/cvu/cvu_ui_node.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/database/item_record.dart';
+import 'package:memri/core/models/cvu/cvu_ui_element_family.dart';
+import 'package:memri/core/models/cvu/cvu_ui_node.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/widgets/components/cvu/cvu_element_view.dart';
 
 /// This struct allows for a CVU node to be queried for the value of its properties.
@@ -33,12 +33,15 @@ class CVUUINodeResolver {
       children: childrenInForEach(usingItem: usingItem),
       alignment: centered ? WrapAlignment.center : WrapAlignment.start,
       runAlignment: centered ? WrapAlignment.center : WrapAlignment.start,
-      crossAxisAlignment: centered ? WrapCrossAlignment.center : WrapCrossAlignment.start,
+      crossAxisAlignment:
+          centered ? WrapCrossAlignment.center : WrapCrossAlignment.start,
     );
   }
 
-  List<Widget> childrenInForEach({Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
-    var newContext = usingItem != null ? context.replacingItem(usingItem) : context.clone();
+  List<Widget> childrenInForEach(
+      {Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
+    var newContext =
+        usingItem != null ? context.replacingItem(usingItem) : context.clone();
     var nodeChildren = node.children.asMap();
 
     return nodeChildren
@@ -47,11 +50,14 @@ class CVUUINodeResolver {
             nodeResolver: copyForNode(child, newContext),
             additionalParams: additionalParams,
           );
-          if ((child.shouldExpandWidth && node.type == CVUUIElementFamily.HStack) ||
-              (child.shouldExpandHeight && node.type == CVUUIElementFamily.VStack)) {
+          if ((child.shouldExpandWidth &&
+                  node.type == CVUUIElementFamily.HStack) ||
+              (child.shouldExpandHeight &&
+                  node.type == CVUUIElementFamily.VStack)) {
             widget = Expanded(child: widget);
           }
-          if (child.type == CVUUIElementFamily.Spacer && node.type == CVUUIElementFamily.HStack) {
+          if (child.type == CVUUIElementFamily.Spacer &&
+              node.type == CVUUIElementFamily.HStack) {
             if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Text ||
                 nodeChildren[index - 1]?.type == CVUUIElementFamily.Text) {
               return MapEntry(index, null);
@@ -61,10 +67,13 @@ class CVUUINodeResolver {
             if (child.type == CVUUIElementFamily.Text) {
               if (nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer ||
                   (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer &&
-                      nodeChildren[index - 2]?.type == CVUUIElementFamily.Text)) {
-                if (nodeChildren[index - 1]?.type == CVUUIElementFamily.Spacer) {
+                      nodeChildren[index - 2]?.type ==
+                          CVUUIElementFamily.Text)) {
+                if (nodeChildren[index - 1]?.type ==
+                    CVUUIElementFamily.Spacer) {
                   widget = Align(
-                      alignment: nodeChildren[index + 1]?.type == CVUUIElementFamily.Spacer
+                      alignment: nodeChildren[index + 1]?.type ==
+                              CVUUIElementFamily.Spacer
                           ? Alignment.center
                           : Alignment.centerRight,
                       child: widget);
@@ -80,7 +89,10 @@ class CVUUINodeResolver {
                 child.properties["cols"] is CVUValueConstant) {
               widget = Flexible(
                 child: widget,
-                flex: (child.properties["cols"] as CVUValueConstant).value.asInt() ?? 1,
+                flex: (child.properties["cols"] as CVUValueConstant)
+                        .value
+                        .asInt() ??
+                    1,
               );
             }
           }

@@ -1,14 +1,14 @@
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/cvu_lookup_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/cvu/cvu_ui_element_family.dart';
-import 'package:memri/models/cvu/cvu_ui_node.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_value_expression.dart';
-import 'package:memri/utils/extensions/enum.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_ui_element_family.dart';
+import 'package:memri/core/models/cvu/cvu_ui_node.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/core/models/cvu/cvu_value_expression.dart';
+import 'package:memri/utilities/extensions/enum.dart';
 
 enum UIElementProperties {
   resizable,
@@ -73,7 +73,10 @@ class CVUErrorAnnotation {
   String message;
 
   CVUErrorAnnotation(
-      {required this.type, required this.row, required this.column, required this.message});
+      {required this.type,
+      required this.row,
+      required this.column,
+      required this.message});
 }
 
 class CVUValidator {
@@ -84,8 +87,10 @@ class CVUValidator {
   CVULookupController lookupController;
 
   CVUValidator(
-      {DatabaseController? databaseController, required CVULookupController this.lookupController})
-      : this.databaseController = databaseController ?? AppController.shared.databaseController;
+      {DatabaseController? databaseController,
+      required CVULookupController this.lookupController})
+      : this.databaseController =
+            databaseController ?? AppController.shared.databaseController;
 
   valueToTruncatedString(value) {
     var str = value.toString();
@@ -128,7 +133,8 @@ class CVUValidator {
       return true;
     }
 
-    var prop = EnumExtension.rawValue<UIElementProperties>(UIElementProperties.values, key);
+    var prop = EnumExtension.rawValue<UIElementProperties>(
+        UIElementProperties.values, key);
     switch (prop) {
       case UIElementProperties.resizable:
       case UIElementProperties.title:
@@ -207,7 +213,8 @@ class CVUValidator {
           type: CVUErrorType.error,
           row: cvuValue.tokenLocation!.ln,
           column: cvuValue.tokenLocation!.ch,
-          message: 'Invalid action ${valueToTruncatedString(actionName)} for ${key}'));
+          message:
+              'Invalid action ${valueToTruncatedString(actionName)} for ${key}'));
     }
     return type;
   }
@@ -244,7 +251,8 @@ class CVUValidator {
   }
 
   validateProperties(Map<String, CVUValue> properties) async {
-    await Future.forEach<MapEntry<String, CVUValue>>(properties.entries, (entry) async {
+    await Future.forEach<MapEntry<String, CVUValue>>(properties.entries,
+        (entry) async {
       var value = entry.value;
       var key = entry.key;
       if (value is CVUValueSubdefinition) {
@@ -256,7 +264,8 @@ class CVUValidator {
   }
 
   validateDefinitions(List<CVUParsedDefinition> definitions) async {
-    await Future.forEach<CVUParsedDefinition>(definitions, (subDefinition) async {
+    await Future.forEach<CVUParsedDefinition>(definitions,
+        (subDefinition) async {
       await validateDefinition(subDefinition.parsed);
     });
   }

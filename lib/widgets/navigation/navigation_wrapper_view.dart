@@ -1,8 +1,8 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/navigation/navigation_pane_view.dart';
 
@@ -18,7 +18,8 @@ class NavigationWrapperView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
       return body(constraints);
     });
   }
@@ -37,7 +38,8 @@ class NavigationWrapperView extends StatelessWidget {
               return Stack(
                 children: [
                   GestureDetector(
-                    onTap: () => AppController.shared.navigationIsVisible.value = false,
+                    onTap: () =>
+                        AppController.shared.navigationIsVisible.value = false,
                     child: SizedBox(
                       width: geom.maxWidth,
                       height: geom.maxHeight,

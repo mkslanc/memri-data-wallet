@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/factory_reset.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/factory_reset.dart';
 import 'package:memri/widgets/space.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -11,7 +11,8 @@ class AdditionalNavigationView extends StatefulWidget {
   AdditionalNavigationView();
 
   @override
-  _AdditionalNavigationViewState createState() => _AdditionalNavigationViewState();
+  _AdditionalNavigationViewState createState() =>
+      _AdditionalNavigationViewState();
 }
 
 class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
@@ -39,7 +40,8 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                           app.icons.key(),
                           Text(
                             "Your pod keys",
-                            style: CVUFont.bodyText1.copyWith(color: Colors.white),
+                            style:
+                                CVUFont.bodyText1.copyWith(color: Colors.white),
                           )
                         ],
                       )),
@@ -50,7 +52,8 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                           app.icons.logOut(),
                           Text(
                             "Sign out and reset",
-                            style: CVUFont.bodyText1.copyWith(color: Colors.white),
+                            style:
+                                CVUFont.bodyText1.copyWith(color: Colors.white),
                           )
                         ],
                       ))
@@ -71,15 +74,16 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                   InkWell(
                       onTap: () {
                         MixpanelAnalyticsService().logDiscordButton();
-                        launchUrlString("https://discord.com/invite/BcRfajJk4k");
+                        launchUrlString(
+                            "https://discord.com/invite/BcRfajJk4k");
                       },
                       child: Text(
                         "Discord",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
                       )),
                   InkWell(
-                      onTap: () =>
-                          launchUrlString("https://docs.memri.io/guides/import_your_data/"),
+                      onTap: () => launchUrlString(
+                          "https://docs.memri.io/guides/import_your_data/"),
                       child: Text(
                         "Guides",
                         style: CVUFont.bodyText1.copyWith(color: Colors.white),
@@ -93,7 +97,8 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                   InkWell(
                       onTap: () {
                         MixpanelAnalyticsService().logGitlabButton();
-                        launchUrlString("https://gitlab.memri.io/users/sign_in");
+                        launchUrlString(
+                            "https://gitlab.memri.io/users/sign_in");
                       },
                       child: Text(
                         "Repositories",
@@ -102,7 +107,8 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                   InkWell(
                       onTap: () {
                         MixpanelAnalyticsService().logDiscordButton();
-                        launchUrlString("https://discord.com/invite/BcRfajJk4k");
+                        launchUrlString(
+                            "https://discord.com/invite/BcRfajJk4k");
                       },
                       child: Text(
                         "Get support",

@@ -1,5 +1,5 @@
 import 'package:flutter/painting.dart';
-import 'package:memri/utils/app_helper.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 
 class CVUColor {
   late Color value;

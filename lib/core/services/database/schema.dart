@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/database/database.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/database/database.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 
 /// A schema definition. This is used to dynamically enforce supported types and properties
 class Schema {
@@ -15,18 +15,21 @@ class Schema {
     var groupedProperties = await getSchemaProperties(db);
     var groupedEdges = await getSchemaEdges(db);
 
-    var allTypes = Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
+    var allTypes =
+        Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
 
     types = Map.fromEntries(allTypes.map((type) {
       var schemaType = SchemaType(
           type: type,
           propertyTypes: Map.fromEntries(groupedProperties[type]?.map(($0) {
-                var schemaProperty = SchemaProperty($0.itemType, $0.property, $0.valueType);
+                var schemaProperty =
+                    SchemaProperty($0.itemType, $0.property, $0.valueType);
                 return MapEntry($0.property, schemaProperty);
               }) ??
               []),
           edgeTypes: Map.fromEntries(groupedEdges[type]?.map(($0) {
-                var schemaEdge = SchemaEdge($0.sourceType, $0.edge, $0.targetType);
+                var schemaEdge =
+                    SchemaEdge($0.sourceType, $0.edge, $0.targetType);
                 return MapEntry($0.edge, schemaEdge);
               }) ??
               []));
@@ -34,10 +37,14 @@ class Schema {
     }));
   }
 
-  Future<Map<String, List<SchemaProperty>>> getSchemaProperties([Database? db]) async {
+  Future<Map<String, List<SchemaProperty>>> getSchemaProperties(
+      [Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
     var itemRecords = await db.itemRecordsFetchByType("ItemPropertySchema");
-    var itemRowIDs = itemRecords.map((itemRecord) => itemRecord.rowId).whereType<int>().toList();
+    var itemRowIDs = itemRecords
+        .map((itemRecord) => itemRecord.rowId)
+        .whereType<int>()
+        .toList();
     var query = "item IN (${itemRowIDs.join(", ")})";
     var schemaPropertyRecords = await db.itemPropertyRecordsCustomSelect(query);
 
@@ -49,26 +56,31 @@ class Schema {
         groupedItemPropertyRecords[rowID] = {};
       }
 
-      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] = itemPropertyRecord.value;
+      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] =
+          itemPropertyRecord.value;
     });
 
     return Dictionary.groupBy(
-        groupedItemPropertyRecords.values.toList().compactMap((itemPropertyRecord) =>
-            itemPropertyRecord["itemType"] == null ||
+        groupedItemPropertyRecords.values.toList().compactMap(
+            (itemPropertyRecord) => itemPropertyRecord["itemType"] == null ||
                     itemPropertyRecord["propertyName"] == null ||
                     itemPropertyRecord["valueType"] == null
                 ? null
                 : SchemaProperty(
                     itemPropertyRecord["itemType"]!,
                     itemPropertyRecord["propertyName"]!,
-                    SchemaValueTypeExtension.rawValue(itemPropertyRecord["valueType"]!))),
+                    SchemaValueTypeExtension.rawValue(
+                        itemPropertyRecord["valueType"]!))),
         (SchemaProperty $0) => $0.itemType);
   }
 
   Future<Map<String, List<SchemaEdge>>> getSchemaEdges([Database? db]) async {
     db ??= AppController.shared.databaseController.databasePool;
     var itemRecords = await db.itemRecordsFetchByType("ItemEdgeSchema");
-    var itemRowIDs = itemRecords.map((itemRecord) => itemRecord.rowId).whereType<int>().toList();
+    var itemRowIDs = itemRecords
+        .map((itemRecord) => itemRecord.rowId)
+        .whereType<int>()
+        .toList();
     var query = "item IN (${itemRowIDs.join(", ")})";
     var schemaEdgeRecords = await db.itemPropertyRecordsCustomSelect(query);
     var groupedItemPropertyRecords = <int, Map<String, String>>{};
@@ -79,16 +91,19 @@ class Schema {
         groupedItemPropertyRecords[rowID] = {};
       }
 
-      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] = itemPropertyRecord.value;
+      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] =
+          itemPropertyRecord.value;
     });
 
     return Dictionary.groupBy(
-        groupedItemPropertyRecords.values.toList().compactMap((itemPropertyRecord) =>
-            itemPropertyRecord["sourceType"] == null ||
+        groupedItemPropertyRecords.values.toList().compactMap(
+            (itemPropertyRecord) => itemPropertyRecord["sourceType"] == null ||
                     itemPropertyRecord["edgeName"] == null ||
                     itemPropertyRecord["targetType"] == null
                 ? null
-                : SchemaEdge(itemPropertyRecord["sourceType"]!, itemPropertyRecord["edgeName"]!,
+                : SchemaEdge(
+                    itemPropertyRecord["sourceType"]!,
+                    itemPropertyRecord["edgeName"]!,
                     itemPropertyRecord["targetType"]!)),
         (SchemaEdge $0) => $0.sourceType);
   }
@@ -156,7 +171,10 @@ class SchemaType {
   /// Supported properties for this type in the schema. Target type must be another type (eg. Photo, File, etc)
   Map<String, SchemaEdge> edgeTypes;
 
-  SchemaType({required this.type, required this.propertyTypes, required this.edgeTypes});
+  SchemaType(
+      {required this.type,
+      required this.propertyTypes,
+      required this.edgeTypes});
 }
 
 /// A schema property definition.
@@ -213,7 +231,8 @@ class SchemaEdge {
     this.sourceType = json['source_type'];
     this.edge = json['edge'];
     if (json['target_type'].endsWith("[]")) {
-      this.targetType = json['target_type'].substring(0, json['target_type'].length - 2);
+      this.targetType =
+          json['target_type'].substring(0, json['target_type'].length - 2);
       this.allowsMultiple = true;
     } else {
       this.targetType = json['target_type'];

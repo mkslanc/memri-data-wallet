@@ -37,7 +37,8 @@ class _CVUHTMLViewState extends State<CVUHTMLView> {
   init() async {
     src = await widget.nodeResolver.propertyResolver.string("src");
     _content = await widget.nodeResolver.propertyResolver.string("content");
-    reload = (await widget.nodeResolver.propertyResolver.boolean("reload", false))!;
+    reload =
+        (await widget.nodeResolver.propertyResolver.boolean("reload", false))!;
   }
 
   @override

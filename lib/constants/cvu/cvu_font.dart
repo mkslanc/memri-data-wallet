@@ -22,7 +22,12 @@ class CVUFont {
         this.size = size ?? 15;
 
   Map<String, dynamic> get font {
-    return {"family": name, "size": size, "weight": weight ?? FontWeight.normal, "italic": italic};
+    return {
+      "family": name,
+      "size": size,
+      "weight": weight ?? FontWeight.normal,
+      "italic": italic
+    };
   }
 
   static const Map<String, FontWeight> Weight = {
@@ -74,14 +79,18 @@ class CVUFont {
         size: tileLabel.fontSize!,
         weight: tileLabel.fontWeight,
         letterSpacing: tileLabel.letterSpacing),
-    "link":
-        CVUFont(size: link.fontSize!, weight: link.fontWeight, letterSpacing: link.letterSpacing),
+    "link": CVUFont(
+        size: link.fontSize!,
+        weight: link.fontWeight,
+        letterSpacing: link.letterSpacing),
     "small_caps": CVUFont(
         size: smallCaps.fontSize!,
         weight: smallCaps.fontWeight,
         letterSpacing: smallCaps.letterSpacing),
     "small_caps_bold": CVUFont(
-        size: smallCaps.fontSize!, weight: FontWeight.w700, letterSpacing: smallCaps.letterSpacing),
+        size: smallCaps.fontSize!,
+        weight: FontWeight.w700,
+        letterSpacing: smallCaps.letterSpacing),
     "tab_list": CVUFont(
       size: tabList.fontSize!,
       weight: tabList.fontWeight,
@@ -113,7 +122,10 @@ class CVUFont {
       letterSpacing: -0.01,
       color: Color(0xff333333));
   static const headline3 = TextStyle(
-      fontFamily: 'Karla', fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 15,
+      fontWeight: FontWeight.w500,
+      color: Color(0xff333333));
   static const headline4 = TextStyle(
       fontFamily: 'Karla',
       fontSize: 16,
@@ -121,13 +133,25 @@ class CVUFont {
       letterSpacing: 0.16,
       color: Color(0xff333333));
   static const bodyText1 = TextStyle(
-      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
   static const bodyBold = TextStyle(
-      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      color: Color(0xff333333));
   static const bodyText2 = TextStyle(
-      fontFamily: 'Karla', fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
   static const buttonLabel = TextStyle(
-      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
   static const tileLabel = TextStyle(
       fontFamily: 'Karla',
       fontSize: 13,
@@ -135,7 +159,10 @@ class CVUFont {
       letterSpacing: 1.04,
       color: Color(0xff333333));
   static const link = TextStyle(
-      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
   static const smallCaps = TextStyle(
       fontFamily: 'Karla',
       fontSize: 10,
@@ -143,9 +170,18 @@ class CVUFont {
       letterSpacing: 0.11,
       color: Color(0xff333333));
   static const tabList = TextStyle(
-      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
   static const bodyTiny = TextStyle(
-      fontFamily: 'Karla', fontSize: 10, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
   static const ul = TextStyle(
-      fontFamily: 'Karla', fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xff333333));
+      fontFamily: 'Karla',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff333333));
 }

@@ -2,15 +2,19 @@ import 'dart:html';
 
 import 'package:idb_shim/idb.dart' as idb;
 import 'package:idb_shim/idb_browser.dart';
-import 'package:memri/models/database/database.dart';
+import 'package:memri/core/models/database/database.dart';
 import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 import 'package:moor/moor_web.dart';
 import 'package:moor/remote.dart';
 
-Database constructDb({bool logStatements = false, bool inMemory = false, required databaseName}) {
+Database constructDb(
+    {bool logStatements = false,
+    bool inMemory = false,
+    required databaseName}) {
   final executor = LazyDatabase(() async {
-    return WebDatabase.withStorage(await MoorWebStorage.indexedDbIfSupported(databaseName),
+    return WebDatabase.withStorage(
+        await MoorWebStorage.indexedDbIfSupported(databaseName),
         logStatements: logStatements);
   });
   return Database(executor);
@@ -42,7 +46,9 @@ Future<void> deleteDb(databaseName) async {
 }
 
 Future<DriftIsolate> createDriftIsolate(
-    {bool logStatements = false, bool inMemory = false, required databaseName}) {
+    {bool logStatements = false,
+    bool inMemory = false,
+    required databaseName}) {
   throw 'Platform not supported';
 }
 

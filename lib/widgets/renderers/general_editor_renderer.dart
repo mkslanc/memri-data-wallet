@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
-import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/controllers/page_controller.dart' as memri;
-import 'package:memri/controllers/view_context_controller.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/controllers/page_controller.dart' as memri;
+import 'package:memri/core/controllers/view_context_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
+import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/core/models/cvu/cvu_view_arguments.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/models/cvu/cvu_parsed_definition.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/cvu/cvu_view_arguments.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/binding.dart';
-import 'package:memri/utils/extensions/collection.dart';
-import 'package:memri/utils/extensions/dictionary.dart';
-import 'package:memri/utils/extensions/string.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utilities/binding.dart';
+import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/utilities/extensions/dictionary.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/button/action_button.dart';
 import 'package:memri/widgets/components/memri_date_picker.dart';
 import 'package:memri/widgets/components/text_field/memri_text_field.dart';
@@ -31,7 +31,8 @@ class GeneralEditorLayoutItem {
     return dict.containsKey(propName);
   }
 
-  T? get<T>({required String propName, ItemRecord? item, Type? additionalType}) {
+  T? get<T>(
+      {required String propName, ItemRecord? item, Type? additionalType}) {
     var propValue = dict[propName];
     if (propValue == null) {
       return null;
@@ -85,7 +86,8 @@ class GeneralEditorRendererView extends Renderer {
       : super(pageController: pageController, viewContext: viewContext);
 
   @override
-  _GeneralEditorRendererViewState createState() => _GeneralEditorRendererViewState();
+  _GeneralEditorRendererViewState createState() =>
+      _GeneralEditorRendererViewState();
 }
 
 class _GeneralEditorRendererViewState extends RendererViewState {
@@ -111,37 +113,44 @@ class _GeneralEditorRendererViewState extends RendererViewState {
     var viewLayout = viewContext.cvuController
             .viewDefinitionForItemRecord(itemRecord: currentItem)
             ?.definitions
-            .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+            .firstWhereOrNull((definition) =>
+                definition.selector == "[renderer = generalEditor]")
             ?.get("layout") ??
         viewContext.cvuController
             .viewDefinitionFor(viewName: viewContext.config.viewName ?? "")
             ?.definitions
-            .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+            .firstWhereOrNull((definition) =>
+                definition.selector == "[renderer = generalEditor]")
             ?.get("layout");
     List<Map<String, CVUValue>>? viewDefs = [];
 
     if (viewLayout is CVUValueArray) {
       var values = viewLayout.value;
-      viewDefs.addAll(values.compactMap((value) => value.getSubdefinition()?.properties));
+      viewDefs.addAll(
+          values.compactMap((value) => value.getSubdefinition()?.properties));
     }
 
     var generalLayout = viewContext.cvuController
-        .rendererDefinitionForSelector(selector: "[renderer = ${viewContext.config.rendererName}]")
+        .rendererDefinitionForSelector(
+            selector: "[renderer = ${viewContext.config.rendererName}]")
         ?.properties["layout"];
     List<Map<String, CVUValue>>? generalDefs = [];
     if (generalLayout is CVUValueArray) {
       var values = generalLayout.value;
-      generalDefs.addAll(values.compactMap((value) => value.getSubdefinition()?.properties));
+      generalDefs.addAll(
+          values.compactMap((value) => value.getSubdefinition()?.properties));
     }
     if (viewDefs.isEmpty || generalDefs.isEmpty) {
       return [];
     }
 
     var showDefaultLayout = true;
-    var showDefaultLayoutValue = viewContext.config.viewDefinition.properties["showDefaultLayout"];
+    var showDefaultLayoutValue =
+        viewContext.config.viewDefinition.properties["showDefaultLayout"];
     if (showDefaultLayoutValue is CVUValueConstant) {
       if (showDefaultLayoutValue.value is CVUConstantBool) {
-        showDefaultLayout = (showDefaultLayoutValue.value as CVUConstantBool).value;
+        showDefaultLayout =
+            (showDefaultLayoutValue.value as CVUConstantBool).value;
       }
     }
 
@@ -181,7 +190,8 @@ class _GeneralEditorRendererViewState extends RendererViewState {
     Set<String> uniqueFields = Set();
 
     for (var layoutItem in layout) {
-      var fields = layoutItem.get<List>(propName: "fields", additionalType: String);
+      var fields =
+          layoutItem.get<List>(propName: "fields", additionalType: String);
       if (fields != null) {
         for (var field in fields) {
           uniqueFields.add(field);
@@ -206,7 +216,8 @@ class _GeneralEditorRendererViewState extends RendererViewState {
                   layout: layoutSection,
                   item: currentItem,
                   usedFields: _usedFields,
-                  isEditing: !viewContext.config.viewArguments!.args["readOnly"]!.value.value,
+                  isEditing: !viewContext
+                      .config.viewArguments!.args["readOnly"]!.value.value,
                   pageController: pageController,
                 ))
             .toList()
@@ -308,17 +319,20 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
     if (isEditing) {
       return false;
     }
-    return widget.layout.has("edges") && fields.length == 0 && currentEdgeItems.length == 0;
+    return widget.layout.has("edges") &&
+        fields.length == 0 &&
+        currentEdgeItems.length == 0;
   }
 
   List<String> get fields {
     List<String> fields =
-        (widget.layout.get<List>(propName: "fields", additionalType: String) as List<String>?) ??
+        (widget.layout.get<List>(propName: "fields", additionalType: String)
+                as List<String>?) ??
             [];
     if (fields.isNotEmpty && fields[0] == "*") {
       fields = [];
-      var propertyTypes =
-          widget.viewContext.databaseController.schema.propertyNamesForItemType(widget.item.type);
+      var propertyTypes = widget.viewContext.databaseController.schema
+          .propertyNamesForItemType(widget.item.type);
       for (var propertyType in propertyTypes) {
         if (!widget.usedFields.contains(propertyType)) {
           fields.add(propertyType);
@@ -330,16 +344,18 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
   }
 
   Future<List<ItemRecord>> get edgeItems async {
-    var edges = widget.layout.get<List>(propName: "edges", additionalType: String);
+    var edges =
+        widget.layout.get<List>(propName: "edges", additionalType: String);
     if (edges == null) {
       return [];
     }
     List<ItemRecord> items = [];
     for (var edge in edges) {
-      List<ItemRecord> edgeItems = await widget.viewContext.lookupController.resolve<List>(
-          edge: edge,
-          item: widget.item,
-          db: widget.viewContext.databaseController) as List<ItemRecord>;
+      List<ItemRecord> edgeItems = await widget.viewContext.lookupController
+          .resolve<List>(
+              edge: edge,
+              item: widget.item,
+              db: widget.viewContext.databaseController) as List<ItemRecord>;
       items.addAll(edgeItems);
     }
 
@@ -350,14 +366,16 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
     CVUDefinitionContent? nodeDefinition = widget.viewContext.cvuController
         .viewDefinitionForItemRecord(itemRecord: widget.item)
         ?.definitions
-        .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+        .firstWhereOrNull(
+            (definition) => definition.selector == "[renderer = generalEditor]")
         ?.get(widget.layout.id)
         ?.getSubdefinition();
     if (nodeDefinition != null) {
       return nodeDefinition;
     } else {
       nodeDefinition = widget.viewContext.cvuController
-          .rendererDefinitionForSelector(viewName: widget.viewContext.config.rendererName)
+          .rendererDefinitionForSelector(
+              viewName: widget.viewContext.config.rendererName)
           ?.properties[widget.layout.id]
           ?.getSubdefinition();
       if (nodeDefinition != null) {
@@ -368,7 +386,8 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
           var nodeDefinition = widget.viewContext.cvuController
               .viewDefinitionFor(viewName: viewName)
               ?.definitions
-              .firstWhereOrNull((definition) => definition.selector == "[renderer = generalEditor]")
+              .firstWhereOrNull((definition) =>
+                  definition.selector == "[renderer = generalEditor]")
               ?.get(widget.layout.id)
               ?.getSubdefinition();
           return nodeDefinition;
@@ -379,8 +398,9 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
   }
 
   CVUViewArguments? get viewArguments {
-    String? edgeType =
-        widget.layout.get<List>(propName: "edges", additionalType: String)?.asMap()[0];
+    String? edgeType = widget.layout
+        .get<List>(propName: "edges", additionalType: String)
+        ?.asMap()[0];
     if (!isEditing || edgeType == null || !widget.layout.has("edges")) {
       return null;
     }
@@ -398,10 +418,14 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
   }
 
   CVUActionOpenViewByName? get action {
-    String? edgeType =
-        widget.layout.get<List>(propName: "edges", additionalType: String)?.asMap()[0];
+    String? edgeType = widget.layout
+        .get<List>(propName: "edges", additionalType: String)
+        ?.asMap()[0];
     String? itemType = widget.layout.get<String>(propName: "type");
-    if (!isEditing || edgeType == null || itemType == null || !widget.layout.has("edges")) {
+    if (!isEditing ||
+        edgeType == null ||
+        itemType == null ||
+        !widget.layout.has("edges")) {
       return null;
     }
 
@@ -415,11 +439,15 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
     };
 
     Map<String, CVUValue> vars = {
-      "viewArguments": CVUValueSubdefinition(CVUDefinitionContent(properties: properties))
+      "viewArguments":
+          CVUValueSubdefinition(CVUDefinitionContent(properties: properties))
     };
 
     return CVUActionOpenViewByName(
-        vars: vars, viewName: "itemByQuery", renderer: "list", itemType: itemType);
+        vars: vars,
+        viewName: "itemByQuery",
+        renderer: "list",
+        itemType: itemType);
   }
 
   init() {
@@ -454,30 +482,38 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
                   return Empty();
                 } else {
                   List<Widget> header = [];
-                  var layoutShowTitle = widget.layout.get<bool>(propName: "showTitle");
-                  if (shouldShowTitle && title != null && layoutShowTitle != false) {
+                  var layoutShowTitle =
+                      widget.layout.get<bool>(propName: "showTitle");
+                  if (shouldShowTitle &&
+                      title != null &&
+                      layoutShowTitle != false) {
                     header.add(GeneralEditorHeader(
-                        content: title.toUpperCase())); // .generalEditorHeader()
+                        content:
+                            title.toUpperCase())); // .generalEditorHeader()
                     if (action != null) {
                       header.add(Spacer());
-                      header.add(ActionPopupButton(action!, widget.pageController));
+                      header.add(
+                          ActionPopupButton(action!, widget.pageController));
                     }
                   }
                   List<Widget> content = [];
 
                   if (nodeDefinition != null) {
                     content = [
-                      widget.viewContext.render(item: widget.item, nodeDefinition: nodeDefinition)
+                      widget.viewContext.render(
+                          item: widget.item, nodeDefinition: nodeDefinition)
                     ];
                   } else {
                     var _fields = fields;
                     _fields.sort();
                     _fields.forEach((field) {
-                      var fieldProperty = AppController.shared.databaseController.schema
+                      var fieldProperty = AppController
+                          .shared.databaseController.schema
                           .expectedPropertyType(widget.item.type, field);
 
                       if (fieldProperty != null) {
-                        var schemaProperty = SchemaProperty(widget.item.type, field, fieldProperty);
+                        var schemaProperty = SchemaProperty(
+                            widget.item.type, field, fieldProperty);
                         content.add(DefaultGeneralEditorRow(
                           viewContext: widget.viewContext,
                           property: schemaProperty,
@@ -493,8 +529,8 @@ class _GeneralEditorSectionState extends State<GeneralEditorSection> {
 
                     if (currentEdgeItems.isNotEmpty) {
                       currentEdgeItems.forEach((edgeItem) {
-                        var nodeDefinition =
-                            widget.viewContext.cvuController.edgeDefinitionFor(edgeItem);
+                        var nodeDefinition = widget.viewContext.cvuController
+                            .edgeDefinitionFor(edgeItem);
                         if (nodeDefinition != null) {
                           content.add(widget.viewContext.render(
                               item: edgeItem,
@@ -560,7 +596,8 @@ class DefaultGeneralEditorRow extends StatelessWidget {
         ?.getSubdefinition();
     if (nodeDefinition == null) {
       nodeDefinition = viewContext.cvuController
-          .rendererDefinitionForSelector(viewName: viewContext.config.rendererName)
+          .rendererDefinitionForSelector(
+              viewName: viewContext.config.rendererName)
           ?.properties[prop]
           ?.getSubdefinition();
     }
@@ -612,9 +649,13 @@ class DefaultGeneralEditorRow extends StatelessWidget {
             children: [
               if (showLabel)
                 _GeneralEditorLabel(
-                    content: prop.camelCaseToWords().toLowerCase().capitalizingFirst()),
+                    content: prop
+                        .camelCaseToWords()
+                        .toLowerCase()
+                        .capitalizingFirst()),
               nodeDefinition != null
-                  ? viewContext.render(item: item, nodeDefinition: nodeDefinition)
+                  ? viewContext.render(
+                      item: item, nodeDefinition: nodeDefinition)
                   : currentWidget,
               if (!isLast)
                 Divider(
@@ -629,8 +670,11 @@ class DefaultGeneralEditorRow extends StatelessWidget {
 
   Widget stringRow() {
     var binding = FutureBinding<String>(
-        () async => (await currentItem.propertyValue(property.property))?.asString() ?? "",
-        (value) => currentItem.setPropertyValue(prop, PropertyDatabaseValueString(value)));
+        () async =>
+            (await currentItem.propertyValue(property.property))?.asString() ??
+            "",
+        (value) => currentItem.setPropertyValue(
+            prop, PropertyDatabaseValueString(value)));
     return MemriTextField.async(
       futureBinding: binding,
       style: generalEditorCaptionStyle(),
@@ -657,8 +701,10 @@ class DefaultGeneralEditorRow extends StatelessWidget {
 
   Widget intRow() {
     var binding = FutureBinding<int>(
-        () async => (await currentItem.propertyValue(property.property))?.asInt() ?? 0,
-        (value) async => currentItem.setPropertyValue(prop, PropertyDatabaseValueInt(value)));
+        () async =>
+            (await currentItem.propertyValue(property.property))?.asInt() ?? 0,
+        (value) async => currentItem.setPropertyValue(
+            prop, PropertyDatabaseValueInt(value)));
 
     return MemriTextField.async(
       futureBinding: binding,
@@ -669,35 +715,44 @@ class DefaultGeneralEditorRow extends StatelessWidget {
 
   Widget doubleRow() {
     var binding = FutureBinding<double>(
-        () async => (await currentItem.propertyValue(property.property))?.asDouble() ?? 0,
-        (value) async =>
-            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDouble(value)));
+        () async =>
+            (await currentItem.propertyValue(property.property))?.asDouble() ??
+            0,
+        (value) async => await currentItem.setPropertyValue(
+            prop, PropertyDatabaseValueDouble(value)));
 
     return MemriTextField.async(
-        futureBinding: binding, style: generalEditorCaptionStyle(), isEditing: isEditing);
+        futureBinding: binding,
+        style: generalEditorCaptionStyle(),
+        isEditing: isEditing);
   }
 
   Widget dateRow() {
     var binding = FutureBinding<DateTime?>(
-        () async => (await currentItem.propertyValue(property.property))?.asDate(),
-        (value) async =>
-            await currentItem.setPropertyValue(prop, PropertyDatabaseValueDatetime(value!)));
+        () async =>
+            (await currentItem.propertyValue(property.property))?.asDate(),
+        (value) async => await currentItem.setPropertyValue(
+            prop, PropertyDatabaseValueDatetime(value!)));
     return FutureBuilder<DateTime?>(
       future: binding.get(),
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-          ? MemriDatePicker(
-              initialSet: snapshot.data,
-              onPressed: isEditing ? (DateTime value) async => await binding.set(value) : null,
-              formatter: "MMM d, yyyy",
-              style: generalEditorCaptionStyle(),
-              isEditing: isEditing)
-          : Empty(),
+      builder: (context, snapshot) =>
+          snapshot.connectionState == ConnectionState.done
+              ? MemriDatePicker(
+                  initialSet: snapshot.data,
+                  onPressed: isEditing
+                      ? (DateTime value) async => await binding.set(value)
+                      : null,
+                  formatter: "MMM d, yyyy",
+                  style: generalEditorCaptionStyle(),
+                  isEditing: isEditing)
+              : Empty(),
     );
   }
 
   Widget defaultRow([String? caption]) {
     return _GeneralEditorCaption(
-        content: caption ?? prop.camelCaseToWords().toLowerCase().capitalizingFirst());
+        content: caption ??
+            prop.camelCaseToWords().toLowerCase().capitalizingFirst());
   }
 
   TextStyle generalEditorCaptionStyle() {

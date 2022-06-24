@@ -6,18 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/controllers/cvu_lookup_controller.dart';
-import 'package:memri/controllers/database_controller.dart';
-import 'package:memri/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/core/controllers/database_controller.dart';
+import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/core/cvu/resolving/cvu_context.dart';
+import 'package:memri/core/models/cvu/cvu_sizing_mode.dart';
+import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/models/cvu/cvu_sizing_mode.dart';
-import 'package:memri/models/cvu/cvu_value.dart';
-import 'package:memri/models/cvu/cvu_value_constant.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/binding.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/core/models/cvu/cvu_value_constant.dart';
+import 'package:memri/utilities/binding.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 
 class CVUPropertyResolver {
   final CVUContext context;
@@ -26,7 +26,10 @@ class CVUPropertyResolver {
   final Map<String, CVUValue> properties;
 
   CVUPropertyResolver(
-      {required this.context, required this.lookup, required this.db, required this.properties});
+      {required this.context,
+      required this.lookup,
+      required this.db,
+      required this.properties});
 
   CVUPropertyResolver replacingItem(ItemRecord item) {
     CVUPropertyResolver result = this;
@@ -99,7 +102,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    return (await lookup.resolve<double>(value: val, context: context, db: db))?.toInt();
+    return (await lookup.resolve<double>(value: val, context: context, db: db))
+        ?.toInt();
   }
 
   int? syncInteger(String key) {
@@ -132,17 +136,20 @@ class CVUPropertyResolver {
 
   Future<List<String>> stringArray(String key) async {
     return (await Future.wait(valueArray(key).map((CVUValue element) async =>
-            await lookup.resolve<String>(value: element, context: this.context, db: this.db))))
+            await lookup.resolve<String>(
+                value: element, context: this.context, db: this.db))))
         .whereType<String>()
         .toList();
   }
 
-  List<String> syncStringArray(String key) => resolveStringArray(valueArray(key));
+  List<String> syncStringArray(String key) =>
+      resolveStringArray(valueArray(key));
 
   List<String> resolveStringArray(List<CVUValue> value) {
     return value.compactMap((val) {
       if (val is CVUValueConstant) {
-        if (val.value is CVUConstantString || val.value is CVUConstantArgument) {
+        if (val.value is CVUConstantString ||
+            val.value is CVUConstantArgument) {
           return val.value.value.toString();
         }
       }
@@ -152,19 +159,22 @@ class CVUPropertyResolver {
 
   Future<List<int>> intArray(String key) async {
     return (await Future.wait(valueArray(key).map((CVUValue element) async =>
-            await lookup.resolve<int>(value: element, context: this.context, db: this.db))))
+            await lookup.resolve<int>(
+                value: element, context: this.context, db: this.db))))
         .whereType<int>()
         .toList();
   }
 
   Future<List<double>> numberArray(String key) async {
     return (await Future.wait(valueArray(key).map((CVUValue element) async =>
-            await lookup.resolve<double>(value: element, context: this.context, db: this.db))))
+            await lookup.resolve<double>(
+                value: element, context: this.context, db: this.db))))
         .whereType<double>()
         .toList();
   }
 
-  Future<bool?> boolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) async {
+  Future<bool?> boolean(String key,
+      [bool? defaultValue, bool? defaultValueForMissingKey]) async {
     CVUValue? val = value(key);
     if (val == null) {
       if (defaultValue != null || defaultValueForMissingKey != null) {
@@ -172,11 +182,13 @@ class CVUPropertyResolver {
       }
       return null;
     }
-    return await lookup.resolve<bool>(value: val, context: this.context, db: this.db) ??
+    return await lookup.resolve<bool>(
+            value: val, context: this.context, db: this.db) ??
         defaultValue;
   }
 
-  bool? syncBoolean(String key, [bool? defaultValue, bool? defaultValueForMissingKey]) {
+  bool? syncBoolean(String key,
+      [bool? defaultValue, bool? defaultValueForMissingKey]) {
     var val = value(key);
     if (val == null) {
       if (defaultValue != null || defaultValueForMissingKey != null) {
@@ -226,7 +238,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    return await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
+    return await lookup.resolve<ItemRecord>(
+        value: val, context: context, db: db);
   }
 
   Future<List<ItemRecord>> items(String key) async {
@@ -235,7 +248,10 @@ class CVUPropertyResolver {
       return [];
     }
     return (await lookup.resolve<List>(
-        value: val, context: context, db: db, additionalType: ItemRecord)) as List<ItemRecord>;
+        value: val,
+        context: context,
+        db: db,
+        additionalType: ItemRecord)) as List<ItemRecord>;
   }
 
   Future<ItemRecord?> edge(String key, String edgeName) async {
@@ -243,11 +259,13 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    ItemRecord? item = await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
+    ItemRecord? item =
+        await lookup.resolve<ItemRecord>(value: val, context: context, db: db);
     if (item == null) {
       return null;
     }
-    return await lookup.resolve<ItemRecord>(edge: edgeName, item: item, db: this.db);
+    return await lookup.resolve<ItemRecord>(
+        edge: edgeName, item: item, db: this.db);
   }
 
   Future<PropertyDatabaseValue?> property(
@@ -259,13 +277,14 @@ class CVUPropertyResolver {
     }
   }
 
-  Future<PropertyDatabaseValue?> _propertyForString(String key, String propertyName) async {
+  Future<PropertyDatabaseValue?> _propertyForString(
+      String key, String propertyName) async {
     var val = value(key);
     if (val == null) {
       return null;
     }
-    ItemRecord? item =
-        await lookup.resolve<ItemRecord>(value: val, context: this.context, db: this.db);
+    ItemRecord? item = await lookup.resolve<ItemRecord>(
+        value: val, context: this.context, db: this.db);
     if (item == null) {
       return null;
     }
@@ -281,14 +300,17 @@ class CVUPropertyResolver {
 
   Future<FutureBinding<T>?> binding<T>(String key, [T? defaultValue]) async {
     if (T == bool) {
-      return await _bindingWithBoolean(key, defaultValue != null ? defaultValue as bool : false)
+      return await _bindingWithBoolean(
+              key, defaultValue != null ? defaultValue as bool : false)
           as FutureBinding<T>?;
     } else {
-      return await _bindingWithString(key, defaultValue?.toString()) as FutureBinding<T>?;
+      return await _bindingWithString(key, defaultValue?.toString())
+          as FutureBinding<T>?;
     }
   }
 
-  Future<FutureBinding<bool>?> _bindingWithBoolean(String key, [bool defaultValue = false]) async {
+  Future<FutureBinding<bool>?> _bindingWithBoolean(String key,
+      [bool defaultValue = false]) async {
     var val = this.value(key);
     if (val == null) {
       return null;
@@ -301,7 +323,8 @@ class CVUPropertyResolver {
         additionalType: bool) as FutureBinding<bool>?;
   }
 
-  Future<FutureBinding<String>?> _bindingWithString(String key, String? defaultValue) async {
+  Future<FutureBinding<String>?> _bindingWithString(
+      String key, String? defaultValue) async {
     var val = value(key);
     if (val == null) {
       return null;
@@ -411,7 +434,8 @@ class CVUPropertyResolver {
       file = await edge(key, "file");
     }
     if (file != null && file.type == "File") {
-      String? filename = (await property(item: file, propertyName: "sha256"))?.asString();
+      String? filename =
+          (await property(item: file, propertyName: "sha256"))?.asString();
       return filename;
     }
     return null;
@@ -428,7 +452,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return CVU_SizingMode.fit;
     }
-    String? string = await lookup.resolve<String>(value: val, context: context, db: db);
+    String? string =
+        await lookup.resolve<String>(value: val, context: context, db: db);
     if (string == null) {
       return CVU_SizingMode.fit;
     }
@@ -441,7 +466,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return null;
     }
-    String? string = await lookup.resolve<String>(value: val, context: this.context, db: this.db);
+    String? string = await lookup.resolve<String>(
+        value: val, context: this.context, db: this.db);
     if (string == null) {
       return null;
     }
@@ -452,129 +478,161 @@ class CVUPropertyResolver {
     return CVUColor(color: string).value;
   }
 
-  Future<AlignmentResolver> alignment(String alignType, [String propertyName = "alignment"]) async {
+  Future<AlignmentResolver> alignment(String alignType,
+      [String propertyName = "alignment"]) async {
     var val = value(propertyName);
     if (val == null) {
       return AlignmentResolver(
-          mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
+          mainAxis: MainAxisAlignment.center,
+          crossAxis: CrossAxisAlignment.center);
     }
     if (alignType == "row") {
-      switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+      switch (
+          await lookup.resolve<String>(value: val, context: context, db: db)) {
         case "left":
         case "leading":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.center);
         case "top":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
         case "right":
         case "trailing":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.center);
         case "bottom":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.end);
         case "center":
         case "centre":
         case "middle":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.center);
         case "lefttop":
         case "topleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
         case "righttop":
         case "topright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.start);
         case "leftbottom":
         case "bottomleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.end);
         case "rightbottom":
         case "bottomright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.end);
         case "topspacebetween":
         case "spacebetweentop":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.spaceBetween,
+              crossAxis: CrossAxisAlignment.start);
         case "bottomspacebetween":
         case "spacebetweenbottom":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.spaceBetween,
+              crossAxis: CrossAxisAlignment.end);
         case "spacebetween":
         case "centerspacebetween":
         case "spacebetweencenter":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.spaceBetween,
+              crossAxis: CrossAxisAlignment.center);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.center);
       }
     } else {
-      switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+      switch (
+          await lookup.resolve<String>(value: val, context: context, db: db)) {
         case "left":
         case "leading":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.start);
         case "top":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.center);
         case "right":
         case "trailing":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.end);
         case "bottom":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.start);
         case "center":
         case "centre":
         case "middle":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.center);
         case "lefttop":
         case "topleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.start);
         case "righttop":
         case "topright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.start, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.start,
+              crossAxis: CrossAxisAlignment.end);
         case "leftbottom":
         case "bottomleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.start);
         case "rightbottom":
         case "bottomright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.end, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.end,
+              crossAxis: CrossAxisAlignment.end);
         case "leftspacebetween":
         case "spacebetweenleft":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.start);
+              mainAxis: MainAxisAlignment.spaceBetween,
+              crossAxis: CrossAxisAlignment.start);
         case "rightspacebetween":
         case "spacebetweenright":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.end);
+              mainAxis: MainAxisAlignment.spaceBetween,
+              crossAxis: CrossAxisAlignment.end);
         case "spacebetween":
         case "centerspacebetween":
         case "spacebetweencenter":
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.spaceBetween, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.spaceBetween,
+              crossAxis: CrossAxisAlignment.center);
         default:
           return AlignmentResolver(
-              mainAxis: MainAxisAlignment.center, crossAxis: CrossAxisAlignment.center);
+              mainAxis: MainAxisAlignment.center,
+              crossAxis: CrossAxisAlignment.center);
       }
     }
   }
 
-  Future<Alignment> alignmentForStack([String propertyName = "alignment"]) async {
+  Future<Alignment> alignmentForStack(
+      [String propertyName = "alignment"]) async {
     var val = value(propertyName);
     if (val == null) {
       return Alignment.center;
     }
-    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+    switch (
+        await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
       case "leading":
         return Alignment.centerLeft;
@@ -611,7 +669,8 @@ class CVUPropertyResolver {
     if (val == null) {
       return TextAlign.left;
     }
-    switch (await lookup.resolve<String>(value: val, context: context, db: db)) {
+    switch (
+        await lookup.resolve<String>(value: val, context: context, db: db)) {
       case "left":
       case "leading":
         return TextAlign.left;
@@ -630,8 +689,10 @@ class CVUPropertyResolver {
     var values = valueArray(propertyName);
     double? x, y;
     if (values.length >= 2) {
-      x = await lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
-      y = await lookup.resolve<double>(value: values[1], context: this.context, db: this.db);
+      x = await lookup.resolve<double>(
+          value: values[0], context: this.context, db: this.db);
+      y = await lookup.resolve<double>(
+          value: values[1], context: this.context, db: this.db);
     }
 
     if (x != null && y != null) {
@@ -666,8 +727,9 @@ class CVUPropertyResolver {
 
   Future<EdgeInsets?> insets(String propertyName) async {
     var values = this.valueArray(propertyName);
-    List<double> insetArray = (await Future.wait(values.map<Future<double?>>((element) async =>
-            await lookup.resolve<double>(value: element, context: this.context, db: this.db))))
+    List<double> insetArray = (await Future.wait(values.map<Future<double?>>(
+            (element) async => await lookup.resolve<double>(
+                value: element, context: this.context, db: this.db))))
         .whereType<double>()
         .toList();
     if (insetArray.length > 0) {
@@ -694,42 +756,51 @@ class CVUPropertyResolver {
     return null;
   }
 
-  Future<CVUFont> font([String propertyName = "font", CVUFont? defaultValue]) async {
+  Future<CVUFont> font(
+      [String propertyName = "font", CVUFont? defaultValue]) async {
     defaultValue = defaultValue ?? CVUFont();
     var values = valueArray(propertyName);
     String? name;
     double? size;
     if (values.length >= 2) {
-      name = await lookup.resolve<String>(value: values[1], context: this.context, db: this.db);
-      size = await lookup.resolve<double>(value: values[0], context: this.context, db: this.db);
+      name = await lookup.resolve<String>(
+          value: values[1], context: this.context, db: this.db);
+      size = await lookup.resolve<double>(
+          value: values[0], context: this.context, db: this.db);
     }
 
     if (name != null && size != null) {
-      var weight =
-          await lookup.resolve<String>(value: values[1], context: this.context, db: this.db);
-      return CVUFont(size: size, weight: CVUFont.Weight[weight] ?? defaultValue.weight);
+      var weight = await lookup.resolve<String>(
+          value: values[1], context: this.context, db: this.db);
+      return CVUFont(
+          size: size, weight: CVUFont.Weight[weight] ?? defaultValue.weight);
     } else {
       if (values.isNotEmpty) {
         var val = values[0];
-        String? defaultStyle =
-            await lookup.resolve<String>(value: val, context: this.context, db: this.db);
+        String? defaultStyle = await lookup.resolve<String>(
+            value: val, context: this.context, db: this.db);
         if (defaultStyle != null && CVUFont.predefined[defaultStyle] != null) {
           return CVUFont.predefined[defaultStyle]!;
         } else {
-          double? size =
-              await lookup.resolve<double>(value: val, context: this.context, db: this.db);
+          double? size = await lookup.resolve<double>(
+              value: val, context: this.context, db: this.db);
           if (size != null) {
             return CVUFont(
                 name: name,
                 size: size,
                 weight: CVUFont.Weight[await lookup.resolve<String>(
-                        value: values[0], context: this.context, db: this.db)] ??
+                        value: values[0],
+                        context: this.context,
+                        db: this.db)] ??
                     defaultValue.weight);
           } else {
-            var weight = CVUFont.Weight[
-                await lookup.resolve<String>(value: val, context: this.context, db: this.db)];
+            var weight = CVUFont.Weight[await lookup.resolve<String>(
+                value: val, context: this.context, db: this.db)];
             if (weight != null) {
-              return CVUFont(name: defaultValue.name, size: defaultValue.size, weight: weight);
+              return CVUFont(
+                  name: defaultValue.name,
+                  size: defaultValue.size,
+                  weight: weight);
             }
           }
         }
@@ -750,7 +821,8 @@ class CVUPropertyResolver {
   }
 
   Future<bool> get showNode async {
-    return (await boolean("show", false, true))!; //TODO boolean function type @anijanyan
+    return (await boolean(
+        "show", false, true))!; //TODO boolean function type @anijanyan
   }
 
   Future<double> get opacity async {
@@ -814,7 +886,8 @@ class CVUPropertyResolver {
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
-    return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
+    return EdgeInsets.fromLTRB(
+        uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
   Future<EdgeInsets> get margin async {
@@ -822,7 +895,8 @@ class CVUPropertyResolver {
     if (uiInsets == null) {
       return EdgeInsets.zero;
     }
-    return EdgeInsets.fromLTRB(uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
+    return EdgeInsets.fromLTRB(
+        uiInsets.left, uiInsets.top, uiInsets.right, uiInsets.bottom);
   }
 
   Future<double> get cornerRadius async {

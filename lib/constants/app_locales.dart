@@ -19,10 +19,12 @@ class AppLocales {
 
   bool get useCustomLocale => customAppLocale != null;
 
-  String get locale => appLocale.languageCode + '_' + appLocale.countryCode!.toUpperCase();
+  String get locale =>
+      appLocale.languageCode + '_' + appLocale.countryCode!.toUpperCase();
 
   Locale get appLocale => customAppLocale ?? (systemAppLocale ?? enUS);
 
   /// TODO replace with condition to support fonts for different language
-  String? get fontFamily => appLocale.languageCode == enUS.languageCode ? fontEnUS : fontNlNL;
+  String? get fontFamily =>
+      appLocale.languageCode == enUS.languageCode ? fontEnUS : fontNlNL;
 }
