@@ -32,4 +32,15 @@ class AppSettings {
   /// CVU constants
   final String colabLink =
       "https://colab.research.google.com/drive/1WX1VYwoAQ_2yOMzqvrIz77x52vaNmrtW";
+
+  /// DIO
+  final int dioConnectTimeout = 10000;
+  final int dioReceiveTimeout = 5000;
+  final int dioFailureRetries = 3; // Number of retries before a failure
+  final bool dioLoggerEnabled = false;
+  final bool dioLogInterceptorRequest = false;
+  final bool dioLogInterceptorRequestHeader = false;
+  final bool dioLogInterceptorRequestBody = false;
+  final bool dioLogInterceptorResponseHeader = false;
+  final bool dioLogInterceptorResponseBody = false;
 }
