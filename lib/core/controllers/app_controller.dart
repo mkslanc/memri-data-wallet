@@ -97,6 +97,7 @@ class AppController {
   late PubSubController pubSubController;
   late PermissionsController permissionController;
   late PodSetupModel model;
+  late PodAPI podApi;
 
   Isolate? syncIsolate;
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
@@ -134,6 +135,7 @@ class AppController {
 
   AppController() {
     databaseController = DatabaseController(inMemory: false);
+    podApi = PodAPI();
     syncController = SyncController(databaseController);
     cvuController = CVUController(databaseController);
     pubSubController = PubSubController(databaseController);
