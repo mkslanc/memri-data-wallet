@@ -5,24 +5,24 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/cvu_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
-import 'package:memri/core/controllers/permission_controller.dart';
-import 'package:memri/core/controllers/pod_api.dart';
-import 'package:memri/core/controllers/pub_sub_controller.dart';
-import 'package:memri/core/controllers/scene_controller.dart';
-import 'package:memri/core/controllers/sync_controller.dart';
+import 'package:memri/controllers/cvu_controller.dart';
+import 'package:memri/controllers/database_controller.dart';
+import 'package:memri/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/controllers/permission_controller.dart';
+import 'package:memri/controllers/pod_api.dart';
+import 'package:memri/controllers/pub_sub_controller.dart';
+import 'package:memri/controllers/scene_controller.dart';
+import 'package:memri/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
-import 'package:memri/core/models/pod_setup.dart';
-import 'package:memri/core/models/sync_config.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/settings.dart';
-import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/models/sync_config.dart';
+import 'package:memri/models/pod_setup.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:memri/utilities/extensions/string.dart';
+import 'package:memri/utils/extensions/string.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 enum AppState {
@@ -159,8 +159,7 @@ class AppController {
   }
 
   bool get isOwnerKeyExist =>
-      _podConnectionConfig?.ownerKey != null &&
-      _podConnectionConfig!.ownerKey.length > 12;
+      _podConnectionConfig?.ownerKey != null && _podConnectionConfig!.ownerKey.length > 12;
 
   Future init() async {
     await databaseController.init();
@@ -189,9 +188,7 @@ class AppController {
   }
 
   Future<void> syncStream() async {
-    _isInDemoMode =
-        await Settings.shared.get<bool>("defaults/general/isInDemoMode") ??
-            false;
+    _isInDemoMode = await Settings.shared.get<bool>("defaults/general/isInDemoMode") ?? false;
     if (!_isInDemoMode) {
       PodConnectionDetails connection = (await podConnectionConfig)!;
       var receivePort = ReceivePort();
@@ -208,13 +205,10 @@ class AppController {
                 rootKey: Authentication.lastRootPublicKey,
                 isolate: databaseController.driftIsolate!));
       } else {
-        runSync(SyncConfig(
-            connection: connection, schema: databaseController.schema));
+        runSync(SyncConfig(connection: connection, schema: databaseController.schema));
       }
 
-      _connectivity = Connectivity()
-          .onConnectivityChanged
-          .listen((ConnectivityResult result) {
+      _connectivity = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
         var connection = result != ConnectivityResult.none;
         if (hasNetworkConnection && !connection) {
           hasNetworkConnection = false;
@@ -227,29 +221,25 @@ class AppController {
     }
 
     isDevelopersMode =
-        await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ??
-            false;
+        await Settings.shared.get<bool>("defaults/general/isDevelopersMode") ?? false;
   }
 
-  SetupConfig getSetupConfig(bool localOnly) {
+  SetupConfig? getSetupConfig(bool localOnly) {
     if (localOnly) {
       return SetupConfigLocal();
     } else if (model.setupAsNewPod) {
       var config = NewPodConfig(model.podURL ?? app.settings.defaultPodURL);
       return SetupConfigNewPod(config);
     } else {
-      var privateKey = model.podPrivateKey?.nullIfBlank ??
-          Uuid().v4(); //TODO: kill when we will have end-to-end
+      var privateKey =
+          model.podPrivateKey?.nullIfBlank ?? Uuid().v4(); //TODO: kill when we will have end-to-end
       var publicKey = model.podPublicKey?.nullIfBlank;
-      if (publicKey == null) {
-        throw Exception("Login key is required");
-      }
       var databaseKey = model.podDatabaseKey?.nullIfBlank;
-      if (databaseKey == null) {
-        throw Exception("Password key is required");
+      if (publicKey == null || databaseKey == null) {
+        return null;
       }
-      var config = ExistingPodConfig(model.podURL ?? app.settings.defaultPodURL,
-          privateKey, publicKey, databaseKey);
+      var config = ExistingPodConfig(
+          model.podURL ?? app.settings.defaultPodURL, privateKey, publicKey, databaseKey);
       return SetupConfigExistingPod(config);
     }
   }
@@ -261,8 +251,7 @@ class AppController {
         await databaseController.importRequiredData();
         if (model.useDemoData) await databaseController.setupWithDemoData();
         if (config is SetupConfigLocal) _isInDemoMode = true;
-        await Settings.shared
-            .set("defaults/general/isInDemoMode", _isInDemoMode);
+        await Settings.shared.set("defaults/general/isInDemoMode", _isInDemoMode);
         await cvuController.storeDefinitions();
       }
     }
@@ -270,45 +259,39 @@ class AppController {
 
   // MARK: Setup
   Future<void> setupApp(
-      {bool localOnly = false,
-      VoidCallback? onPodConnected,
-      VoidCallback? onError,
-      String? predefinedKey}) async {
-    SetupConfig config;
+      {bool localOnly = false, VoidCallback? onPodConnected, String? predefinedKey}) async {
+    var config = getSetupConfig(localOnly);
+    if (config == null) {
+      model.state = PodSetupState.idle;
+      return;
+    }
+
     try {
-      config = getSetupConfig(localOnly);
       await connectToPod(config, predefinedKey: predefinedKey);
     } on Exception catch (error) {
       model.state = PodSetupState.error;
-      model.errorString = error.toString().replaceFirst("Exception: ", "");
-      if (onError != null) onError();
+      model.errorString = error.toString();
       return;
     }
 
     if (onPodConnected != null) onPodConnected();
-    state = config is SetupConfigNewPod
-        ? AppState.keySaving
-        : AppState.authenticated;
+    state = config is SetupConfigNewPod ? AppState.keySaving : AppState.authenticated;
     model.state = PodSetupState.idle;
 
-    await importData(config)
-        .then((value) => SceneController.sceneController.scheduleUIUpdate());
+    await importData(config).then((value) => SceneController.sceneController.scheduleUIUpdate());
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
         _isNewPodSetup = true;
         await Settings.shared.set("defaults/pod/url", config.config.podURL);
         //TODO owner and database key should not be stored in settings
-        await Settings.shared
-            .set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
-        await Settings.shared
-            .set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
+        await Settings.shared.set("defaults/pod/publicKey", _podConnectionConfig!.ownerKey);
+        await Settings.shared.set("defaults/pod/databaseKey", _podConnectionConfig!.databaseKey);
       }
       await syncController.sync();
     }
 
-    await Settings.shared
-        .set("defaults/general/isDevelopersMode", isDevelopersMode);
+    await Settings.shared.set("defaults/general/isDevelopersMode", isDevelopersMode);
     _isAuthenticated = true;
     await syncStream();
   }
@@ -331,26 +314,14 @@ class AppController {
           port: uri.port,
           ownerKey: keys.publicKey,
           databaseKey: keys.dbKey);
-    } else {
-      return;
     }
 
-    if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
-          Duration(seconds: app.settings.checkPodExistenceTimeoutSecs),
-          onTimeout: () => throw Exception("Pod doesn't respond"),
-        )) {
-      throw Exception("Pod doesn't respond");
-    }
-
-    if (config is SetupConfigExistingPod) {
-      if (!await syncController.validateConfigExisted(_podConnectionConfig!)) {
-        throw Exception(
-            "The username or password you have entered is invalid. Please try again.");
-      }
-    } else {
-      if (!await syncController.validateConfigCreated(_podConnectionConfig!)) {
-        throw Exception(
-            "Key does not exist or already in use, please, try another one");
+    if (_podConnectionConfig != null) {
+      if (!await syncController.podIsExist(_podConnectionConfig!).timeout(
+            Duration(seconds: app.settings.checkPodExistenceTimeoutSecs),
+            onTimeout: () => throw Exception("Pod doesn't respond"),
+          )) {
+        throw Exception("Pod doesn't respond");
       }
     }
   }
@@ -378,39 +349,38 @@ class AppController {
             databaseKey: databaseKey);
       }
       return _podConnectionConfig!;
-    } on Exception catch (error, stackTrace) {
-      AppLogger.err(error, stackTrace: stackTrace);
+    } on Exception catch (error) {
+      AppLogger.err(error);
       return null;
     }
   }
 
   resetApp() async {
-    try {
-      SceneController.sceneController.reset(isFactoryReset: true);
-      navigationIsVisible.value = false;
-      if (!_isInDemoMode) {
-        hasNetworkConnection = true;
-        await _connectivity?.cancel();
-        _connectivity = null;
-        _podConnectionConfig = null;
-        syncIsolate?.kill(priority: Isolate.immediate);
-      }
-      pubSubController.reset();
-      cvuController.reset();
-      await FileStorageController.deleteFileStorage();
-      await databaseController.delete();
-      Authentication.createRootKey();
-      state = AppState.setup;
-      await init();
-      await SceneController.sceneController.init();
-
-      _isAuthenticated = false;
-      _isNewPodSetup = false;
-      _isInDemoMode = false;
-      isDevelopersMode = false;
-    } catch (e) {
-      AppLogger.err(e);
+    await SceneController.sceneController.reset();
+    navigationIsVisible.value = false;
+    if (!_isInDemoMode) {
+      hasNetworkConnection = true;
+      await _connectivity?.cancel();
+      _connectivity = null;
+      _podConnectionConfig = null;
+      syncIsolate?.kill(priority: Isolate.immediate);
     }
+    if (syncController.runSyncStream != null) {
+      await syncController.runSyncStream!.cancel();
+    }
+    pubSubController.reset();
+    cvuController.reset();
+    await FileStorageController.deleteFileStorage();
+    await databaseController.delete();
+    Authentication.createRootKey();
+    state = AppState.setup;
+    await init();
+    await SceneController.sceneController.init();
+
+    _isAuthenticated = false;
+    _isNewPodSetup = false;
+    _isInDemoMode = false;
+    isDevelopersMode = false;
   }
 }
 
@@ -442,6 +412,5 @@ class ExistingPodConfig {
   final String podPublicKey;
   final String podDatabaseKey;
 
-  ExistingPodConfig(
-      this.podURL, this.podPrivateKey, this.podPublicKey, this.podDatabaseKey);
+  ExistingPodConfig(this.podURL, this.podPrivateKey, this.podPublicKey, this.podDatabaseKey);
 }
