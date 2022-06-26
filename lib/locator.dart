@@ -17,11 +17,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final locator = GetIt.instance;
 
-Future<void> setupLocator() async {
+Future<void> setup() async {
   SharedPreferences _prefs = await SharedPreferences.getInstance();
 
   /// PROVIDERS
-  locator.registerLazySingleton<AppProvider>(() => AppProvider());
+  locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
   locator.registerLazySingleton<AuthProvider>(() => AuthProvider());
   locator.registerLazySingleton<WorkspaceProvider>(() => WorkspaceProvider());
   locator.registerLazySingleton<ImporterProvider>(() => ImporterProvider());

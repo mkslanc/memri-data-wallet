@@ -1,4 +1,3 @@
-import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/apis/gitlab_api.dart';
 import 'package:memri/core/services/api_service.dart';
 
@@ -13,10 +12,7 @@ class GitlabService extends ApiService<GitlabAPI> {
       api
           .getTextFileContentFromGitlab(
               gitProjectId: gitProjectId, filename: filename, branch: branch)
-          .catchError((error) {
-        AppLogger.err(error);
-        return '';
-      });
+          .catchError((error) => '');
 
   Future<String> downloadSingleArtifact({
     required int gitProjectId,
@@ -30,8 +26,5 @@ class GitlabService extends ApiService<GitlabAPI> {
               filename: filename,
               jobName: jobName,
               branch: branch)
-          .catchError((error) {
-        AppLogger.err(error);
-        return '';
-      });
+          .catchError((error) => '');
 }

@@ -3,4 +3,6 @@ import 'package:memri/core/services/api_service.dart';
 
 class PodService extends ApiService<PodAPI> {
   PodService() : super(api: PodAPI());
+
+  Future<String> podVersion() => api.podVersion().catchError((error) => '');
 }

@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/controllers/scene_controller.dart';
+import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:moor/moor_web.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -20,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
+    Provider.of<AppProvider>(context, listen: false).initialize();
     SceneController.sceneController = SceneController();
     init();
     super.initState();
@@ -85,15 +88,34 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      body: Stack(
         children: [
-          app.images.logo(height: 100),
-          SizedBox(height: 30),
-          SizedBox(
-            child: LinearProgressIndicator(color: Color(0xffFE570F)),
-            width: 150,
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                app.images.logo(height: 100),
+                SizedBox(height: 30),
+                SizedBox(
+                  child: LinearProgressIndicator(color: Color(0xffFE570F)),
+                  width: 150,
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Consumer<AppProvider>(builder: (context, provider, child) {
+              return Column(
+                children: [
+                  Text('POD: V.${provider.podVersion}'),
+                  Text('APP: V.${provider.appVersion}'),
+                ],
+              );
+            }),
           ),
         ],
       ),

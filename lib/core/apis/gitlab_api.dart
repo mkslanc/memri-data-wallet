@@ -20,7 +20,11 @@ class GitlabAPI extends BaseAPI {
       options: Options(responseType: ResponseType.json),
     );
     checkResponseError(response);
-    return response.data;
+    var decodedGitJson = jsonDecode(response.data);
+    if (decodedGitJson.length == 0 || decodedGitJson["content"] == null) {
+      throw "$filename is not available in provided repository link";
+    }
+    return Utf8Decoder().convert(base64Decode(decodedGitJson["content"]));
   }
 
   Future<String> downloadSingleArtifact({

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:memri/core/apis/base_api.dart';
 
 class LogAPI extends BaseAPI {

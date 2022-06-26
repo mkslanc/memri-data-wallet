@@ -19,8 +19,8 @@ class BaseAPI {
     _dio.interceptors.clear();
     _dio.options = BaseOptions(
       baseUrl: app.settings.defaultPodURL,
-      connectTimeout: app.settings.dioConnectTimeout,
-      receiveTimeout: app.settings.dioReceiveTimeout,
+      // connectTimeout: app.settings.dioConnectTimeout,
+      // receiveTimeout: app.settings.dioReceiveTimeout,
     );
     _dio.interceptors.addAll([
       if (!app.settings.dioLoggerEnabled)
@@ -46,9 +46,32 @@ class BaseAPI {
     return _dio;
   }
 
-  void checkResponseError(Response response){
+  void checkResponseError(Response response) {
     if (response.statusCode != 200) {
-      throw "ERROR: ${response.statusCode} ${response.statusMessage}";
+      String errMessage = _handleError(response.statusCode, response.data);
+      var error =
+          "ERROR ${response.statusCode} - $errMessage:\n${response.statusMessage}";
+      AppLogger.err(error);
+      throw error;
+    }
+  }
+
+  String _handleError(int? statusCode, dynamic error) {
+    switch (statusCode) {
+      case 400:
+        return 'Bad request';
+      case 401:
+        return 'Unauthorized';
+      case 403:
+        return 'Forbidden';
+      case 404:
+        return error['message'];
+      case 500:
+        return 'Internal server error';
+      case 502:
+        return 'Bad gateway';
+      default:
+        return 'Oops something went wrong';
     }
   }
 }
