@@ -45,7 +45,7 @@ class GitlabAPI extends BaseAPI {
 }
 
 /// Old Implementation
-@deprecated
+/// Deprecated
 class GitlabApi {
   static Future<String> getTextFileContentFromGitlab(
       {required int gitProjectId,
