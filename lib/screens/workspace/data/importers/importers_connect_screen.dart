@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/app_styles.dart';
+import 'package:memri/utils/app_helper.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:flutter/material.dart';
@@ -16,9 +19,12 @@ import '../../../../core/services/mixpanel_analytics_service.dart';
 import '../../../../widgets/components/html_view/html_view.dart';
 
 class ImporterInfoLine extends StatelessWidget {
-  const ImporterInfoLine({Key? key, required this.content}) : super(key: key);
+  const ImporterInfoLine(
+      {Key? key, required this.weights, required this.contents})
+      : super(key: key);
 
-  final String content;
+  final List<FontWeight> weights;
+  final List<String> contents;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +33,9 @@ class ImporterInfoLine extends StatelessWidget {
         Container(
             padding: new EdgeInsets.only(top: 12, bottom: 12, right: 12),
             child: SvgPicture.asset("assets/images/arrow-right-circle.svg")),
-        Text(content, style: TextStyle(fontSize: 14)),
+        for (int i = 0; i < contents.length; i++)
+          Text(contents[i],
+              style: TextStyle(fontSize: 14, fontWeight: weights[i]))
       ],
     );
   }
@@ -51,63 +59,89 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text("Step 2", style: TextStyle(fontSize: 12)),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Text("Step 2", style: TextStyle(fontSize: 12)),
+              //   ],
+              // ),
               Row(
                 children: [
                   Text("On your phone", style: TextStyle(fontSize: 30)),
                 ],
               ),
-              ImporterInfoLine(content: "Open Whatsapp"),
               ImporterInfoLine(
-                  content: "Tap settings and select linked devices"),
-              ImporterInfoLine(content: "Tap link device"),
+                  contents: ["Open", " Whatsapp"],
+                  weights: [FontWeight.normal, FontWeight.bold]),
               ImporterInfoLine(
-                  content:
-                      "Point your phone to the QR code on the screen of your computer and capture the code"),
+                contents: [
+                  "Tap",
+                  " settings",
+                  " and select",
+                  " Linked devices"
+                ],
+                weights: [
+                  FontWeight.normal,
+                  FontWeight.bold,
+                  FontWeight.normal,
+                  FontWeight.bold
+                ],
+              ),
+              ImporterInfoLine(
+                contents: ["Tap", " Link a device"],
+                weights: [FontWeight.normal, FontWeight.bold],
+              ),
+              ImporterInfoLine(
+                contents: [
+                  "Point your phone to the QR code on the screen of your computer to",
+                  " capture the code"
+                ],
+                weights: [FontWeight.normal, FontWeight.bold],
+              ),
               Container(
-                  child:
-                  (() {
-                    if (status == "idle" && url == null){
-                      return CircularProgressIndicator();
-                    }
-                    else if (status=="userActionNeeded" || status=="daemon"){
-                      return Column(
-                        children: [
-                          Container(
-                            height: 300,
-                            width: 300,
-                            child: HtmlView(src: url, reload: true)
-                          ),
-                          Row(
-                            children: [
-                              TextButton(
-                                onPressed: () =>
-                                    RouteNavigator.navigateToRoute(context: context, route: Routes.importerDownloading),
-                                style: primaryButtonStyle,
-                                child: Text("Create a new project"),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    RouteNavigator.navigateToRoute(context: context, route: Routes.data),
-                                style: primaryButtonStyle,
-                                child: Text("Back to data screen"),
-                              ),
-                            ],
-                          )
-                        ],
+                  child: (() {
+                if (status == "idle" && url == null) {
+                  return Container(
+                      height: 350,
+                      constraints: BoxConstraints(maxWidth: 350),
+                      // color:Color.fromARGB(194, 66, 14, 14),
+                      color:Color(0xffF6F6F6),
+                      padding: EdgeInsets.all(32),
+                      child: Center(
+                        child: Text("Please wait for your QR code to be generated. This make take a few moments.", style: TextStyle(fontSize: 14, color: app.colors.brandGreyText))
+                      )
                       );
-                    }
-                    else if (status=="started"){
-                      return Text("plugin already running");
-                    }
-                    else if (status=="error"){
-                      return Text("Something went wrong");
-                    }
-                    }())
+                } else if (status == "userActionNeeded") {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                          // dont change this height, it will cut off the qr code
+                          height: 350,
+                          width: 350,
+                          child: HtmlView(src: url, reload: true)),
+                    ],
+                  );
+                }
+                else if ( status == "daemon") {
+                  return Container(
+                      child: Row(
+                    children: [
+                      Text("Signing in", style: TextStyle(color: app.colors.brandOrange, fontSize: 14),),
+                    ],
+                  ));
+                }
+                else if (status == "started") {
+                  return Container(
+                      child: Row(
+                    children: [
+                      Text("Error:Another plugin is already running"),
+                    ],
+                  ));
+                } else if (status == "error") {
+                  return Text("Something went wrong");
+                }
+              }())
                   // url==null ? CircularProgressIndicator(): HtmlView(src: url, reload: true)),
                   )
             ],
@@ -121,8 +155,16 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
     execute();
   }
 
+  @override
+  void dispose() {
+    pluginRunItemStreamSubscription?.cancel();
+    super.dispose();
+  }
+
   String? url = null;
   String? status = null;
+  bool authenticated = false;
+  StreamSubscription<Item>? pluginRunItemStreamSubscription = null;
 
   void execute() async {
     var db = AppController.shared.databaseController;
@@ -136,28 +178,33 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
       Item item = Item(type: "PluginRun", id: id, properties: {
         "pluginName": "WhatsappPlugin",
         "pluginModule": "whatsapp.plugin",
-        "containerImage": "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest",
+        "containerImage":
+            "gitlab.memri.io:5050/memri/plugins/whatsapp-multi-device:dev-latest",
         "status": "idle",
-        "targetItemId": id}
-       );
+        "targetItemId": id
+      });
       MixpanelAnalyticsService().logImporterConnect("WhatsappPlugin");
 
       List<Item> createItems = [item];
-      var bulkPayload = PodPayloadBulkAction(createItems: createItems.map((e) => e.toJson()).toList(), updateItems: [], deleteItems: [], createEdges: []);
-      print("CALLING");
-
+      var bulkPayload = PodPayloadBulkAction(
+          createItems: createItems.map((e) => e.toJson()).toList(),
+          updateItems: [],
+          deleteItems: [],
+          createEdges: []);
 
       Stream<Item> itemStream(String id) async* {
-        while (true){
+        while (true) {
           await Future.delayed(Duration(seconds: 1));
           Item? res = null;
-          await AppController.shared.podApi.getItem(id: id, completion: (data, error) {
-              var pluginrunItem = data;
-              if (pluginrunItem != null){
-                res = pluginrunItem;
-              }
-          });
-          if (res != null){
+          await AppController.shared.podApi.getItem(
+              id: id,
+              completion: (data, error) {
+                var pluginrunItem = data;
+                if (pluginrunItem != null) {
+                  res = pluginrunItem;
+                }
+              });
+          if (res != null) {
             yield res!;
           }
         }
@@ -165,21 +212,25 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
 
       Stream<Item> pluginRunItemStream = itemStream(id);
 
+      AppController.shared.podApi.bulkAction(
+          bulkPayload: bulkPayload,
+          completion: ((error) async {
+            pluginRunItemStreamSubscription = pluginRunItemStream.listen((item) {
+              var _status = item.get("status");
+              authenticated = _status == "daemon";
+              if (authenticated){
+                RouteNavigator.navigateToRoute(
+                    context: context, route: Routes.importerDownloading);
+              }
 
-      AppController.shared.podApi.bulkAction(bulkPayload: bulkPayload, completion: ((error) async {
-        pluginRunItemStream.listen((item) {
-          print("Polling pluginrun");
-          var _status = item.get("status");
-          setState(() {
-            print("setting state");
-            url = item.get("authUrl");
-            status = _status;
-            print(url);
-            print(status);
-          });
-
-        });
-      }));
+              setState(() {
+                url = item.get("authUrl");
+                status = _status;
+                print(url);
+                print(status);
+              });
+            });
+          }));
 
       // AppController.shared.podApi.bulkAction(bulkPayload: bulkPayload, completion: ((error) async {
       //   print("called bulkaction");
@@ -196,8 +247,6 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
 
       //     }
       // }));
-
-
 
       print("SYNCING");
 
