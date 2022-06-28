@@ -17,19 +17,30 @@ class ImportersScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Step 1", style: CVUFont.link),
-            SizedBox(height: 4),
             Text("WhatsApp authorisation", style: CVUFont.headline1),
             SizedBox(height: 10),
             Text(
-                "To complete the WhatsApp authorisation you will need your phone to scan the QR code",
+                "To connect your Whatsapp to memri you will need your phone with a camera to scan a QR code and a current version of Whatsapp installed.",
                 style: CVUFont.bodyText1.copyWith(color: Color(0xff737373))),
             SizedBox(height: 60),
-            TextButton(
-              onPressed: () => RouteNavigator.navigateToRoute(
-                  context: context, route: Routes.importerConnect),
-              style: primaryButtonStyle,
-              child: Text("Connect!"),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () => RouteNavigator.navigateToRoute(
+                      context: context, route: Routes.importerConnect),
+                  style: primaryButtonStyle,
+                  child: Text("Ok, let's go!"),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left:10),
+                  child: TextButton(
+                    onPressed: () => RouteNavigator.navigateToRoute(
+                        context: context, route: Routes.data),
+                    style: secondaryButtonStyle,
+                    child: Text("Cancel"),
+                  ),
+                )
+              ],
             ),
           ],
         ),
