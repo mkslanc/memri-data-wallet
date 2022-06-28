@@ -34,6 +34,7 @@ class AppColors {
   final Color brandPurple = const Color(0xff532a84);
   final Color brandPurpleText = const Color(0xff543184);
   final Color brandBlue = const Color(0xff4abff1);
+  final Color brandViolet = Color(0xff4F56FE);
   final Color brandBlueText = const Color(0xff17a4e0);
   final Color brandGreyText = const Color(0xff999999);
   final Color brandWhite = const Color(0xfff5f5f5);
