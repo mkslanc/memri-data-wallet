@@ -70,9 +70,8 @@ var importerCreateScreenHandler =
 var importerConnectScreenHandler =
     Handler(handlerFunc: (_, __) => ImportersConnectScreen());
 
-var importerDownloadingScreenHandler = Handler(
-    handlerFunc: (_, Map<String, List<String>> params) =>
-        ImportersDownloadingScreen(id: params["id"]?.first ?? ""));
+var importerDownloadingScreenHandler =
+    Handler(handlerFunc: (_, Map<String, List<String>> params) => ImportersDownloadingScreen(id: params["id"]?.first ?? ""));
 
 ///
 /// Apps
