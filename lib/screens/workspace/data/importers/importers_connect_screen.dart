@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ui';
-import 'package:memri/configs/routes/route_navigator.dart';
-import 'package:memri/constants/app_styles.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
+import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../constants/app_logger.dart';
-import '../../../../controllers/app_controller.dart';
 import '../../../../core/apis/pod/item.dart';
 import '../../../../core/services/mixpanel_analytics_service.dart';
 import '../../../../widgets/components/html_view/html_view.dart';
@@ -99,17 +96,19 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
               ),
               Container(
                   child: (() {
-                if ((status == "idle" && url == null) || status =="started") {
+                if ((status == "idle" && url == null) || status == "started") {
                   return Container(
                       height: 350,
                       constraints: BoxConstraints(maxWidth: 350),
                       // color:Color.fromARGB(194, 66, 14, 14),
-                      color:Color(0xffF6F6F6),
+                      color: Color(0xffF6F6F6),
                       padding: EdgeInsets.all(32),
                       child: Center(
-                        child: Text("Please wait for your QR code to be generated. This make take a few moments.", style: TextStyle(fontSize: 14, color: app.colors.brandGreyText))
-                      )
-                      );
+                          child: Text(
+                              "Please wait for your QR code to be generated. This make take a few moments.",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: app.colors.brandGreyText))));
                 } else if (status == "userActionNeeded") {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -122,16 +121,18 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
                           child: HtmlView(src: url, reload: true)),
                     ],
                   );
-                }
-                else if ( status == "daemon") {
+                } else if (status == "daemon") {
                   return Container(
                       child: Row(
                     children: [
-                      Text("Signing in", style: TextStyle(color: app.colors.brandOrange, fontSize: 14),),
+                      Text(
+                        "Signing in",
+                        style: TextStyle(
+                            color: app.colors.brandOrange, fontSize: 14),
+                      ),
                     ],
                   ));
-                } 
-                else if (status == "error") {
+                } else if (status == "error") {
                   return Text("Something went wrong");
                 }
               }())
@@ -209,14 +210,16 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
       AppController.shared.podApi.bulkAction(
           bulkPayload: bulkPayload,
           completion: ((error) async {
-            pluginRunItemStreamSubscription = pluginRunItemStream.listen((item) {
+            pluginRunItemStreamSubscription =
+                pluginRunItemStream.listen((item) {
               var _status = item.get("status");
               authenticated = _status == "daemon";
-              if (authenticated){
+              if (authenticated) {
                 RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.importerDownloading, param: {"id": id});
-              }
-              else{
+                    context: context,
+                    route: Routes.importerDownloading,
+                    param: {"id": id});
+              } else {
                 setState(() {
                   url = item.get("authUrl");
                   status = _status;
@@ -226,8 +229,6 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
               }
             });
           }));
-
-
     } catch (error) {
       AppLogger.err("Error starting plugin: $error");
     }

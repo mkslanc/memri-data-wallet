@@ -39,7 +39,7 @@ class PluginHandler {
                 await checkEnoughData(
                     plugin: plugin,
                     runner: runner,
-                    db: pageController.appController.databaseController,
+                    db: AppController.shared.databaseController,
                     status: status);
                 break;
               case "error":
