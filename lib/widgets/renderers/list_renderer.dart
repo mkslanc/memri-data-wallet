@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_color.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
-import 'package:memri/models/database/item_record.dart';
-import 'package:memri/utils/app_helper.dart';
-import 'package:memri/utils/extensions/collection.dart';
+import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/renderers/renderer.dart';
@@ -61,18 +61,22 @@ class _ListRendererViewState extends RendererViewState {
     super.init();
     insets = await viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.only(top: 0, left: 30, bottom: 0, right: 30);
-    spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
-    backgroundColor = await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-        CVUColor.system("systemBackground");
-    separatorsEnabled =
-        !(await viewContext.rendererDefinitionPropertyResolver.boolean("hideSeparators", false))!;
-    isReverse = (await viewContext.rendererDefinitionPropertyResolver.boolean("isReverse", false))!;
-    singleChoice =
-        await viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
-    backgroundSelected =
-        await viewContext.rendererDefinitionPropertyResolver.color("backgroundSelected");
-    selectFirst =
-        (await viewContext.rendererDefinitionPropertyResolver.boolean("selectFirst", false))!;
+    spacing = await viewContext.rendererDefinitionPropertyResolver.spacing ??
+        Point(10, 10);
+    backgroundColor =
+        await viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+            CVUColor.system("systemBackground");
+    separatorsEnabled = !(await viewContext.rendererDefinitionPropertyResolver
+        .boolean("hideSeparators", false))!;
+    isReverse = (await viewContext.rendererDefinitionPropertyResolver
+        .boolean("isReverse", false))!;
+    singleChoice = await viewContext.viewDefinitionPropertyResolver
+            .boolean("singleChoice") ??
+        false;
+    backgroundSelected = await viewContext.rendererDefinitionPropertyResolver
+        .color("backgroundSelected");
+    selectFirst = (await viewContext.rendererDefinitionPropertyResolver
+        .boolean("selectFirst", false))!;
   }
 
   @override
@@ -80,7 +84,8 @@ class _ListRendererViewState extends RendererViewState {
     return FutureBuilder(
         future: _init,
         builder: (context, snapshot) {
-          isInited = isInited || snapshot.connectionState == ConnectionState.done;
+          isInited =
+              isInited || snapshot.connectionState == ConnectionState.done;
           if (isInited) {
             if (!viewContext.isLoaded) {
               return Empty();
@@ -89,8 +94,10 @@ class _ListRendererViewState extends RendererViewState {
             if (viewContext.hasItems) {
               var lastIndex = viewContext.items.length - 1;
               elements = List<Widget>.from(viewContext.items
-                  .mapIndexed((index, item) =>
-                      [_buildItem(item, index), if (index < lastIndex) _buildSeparator()])
+                  .mapIndexed((index, item) => [
+                        _buildItem(item, index),
+                        if (index < lastIndex) _buildSeparator()
+                      ])
                   .expand((element) => element));
             }
 
@@ -100,7 +107,8 @@ class _ListRendererViewState extends RendererViewState {
                   dense: true,
                   minVerticalPadding: 0,
                   visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                  contentPadding: EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                  contentPadding: EdgeInsets.fromLTRB(
+                      insets.left, 0, insets.right, spacing.y / 2),
                   title: startingElement!,
                 ),
                 _buildSeparator()
@@ -113,22 +121,25 @@ class _ListRendererViewState extends RendererViewState {
                   dense: true,
                   minVerticalPadding: 0,
                   visualDensity: VisualDensity(horizontal: -2, vertical: -2),
-                  contentPadding: EdgeInsets.fromLTRB(insets.left, 0, insets.right, spacing.y / 2),
+                  contentPadding: EdgeInsets.fromLTRB(
+                      insets.left, 0, insets.right, spacing.y / 2),
                   title: trailingElement!,
                 )
               ]);
             }
 
             return RefreshIndicator(
-              onRefresh: () async =>
-                  setState(() => pageController.topMostContext?.setupQueryObservation()),
+              onRefresh: () async => setState(
+                  () => pageController.topMostContext?.setupQueryObservation()),
               child: elements.isNotEmpty
                   ? ListView.custom(
                       reverse: isReverse,
                       shrinkWrap: true,
                       padding: EdgeInsets.fromLTRB(
                           0,
-                          pageController.showTopBar ? insets.top : insets.top + 80,
+                          pageController.showTopBar
+                              ? insets.top
+                              : insets.top + 80,
                           0,
                           insets.bottom),
                       childrenDelegate: SliverChildListDelegate(elements),
@@ -168,12 +179,17 @@ class _ListRendererViewState extends RendererViewState {
 
   Widget _buildItem(ItemRecord item, int index) {
     var callback = isBlocked ? null : selectionMode(index);
-    if (callback != null && index == 0 && selectedIndices.isEmpty && selectFirst) {
+    if (callback != null &&
+        index == 0 &&
+        selectedIndices.isEmpty &&
+        selectFirst) {
       WidgetsBinding.instance.addPostFrameCallback((_) => callback());
     }
     var isSelected = selectedIndices.contains(index);
-    var titleWidget = isBlocked ? blockedSkeleton : viewContext.render(item: item);
-    var title = ColoredBox(key: Key(item.uid), color: backgroundColor, child: titleWidget);
+    var titleWidget =
+        isBlocked ? blockedSkeleton : viewContext.render(item: item);
+    var title = ColoredBox(
+        key: Key(item.uid), color: backgroundColor, child: titleWidget);
 
     Widget tile = ListTile(
       key: Key(item.uid),
@@ -186,11 +202,14 @@ class _ListRendererViewState extends RendererViewState {
           insets.left,
           index == 0 && startingElement == null ? 0 : spacing.y / 2,
           insets.right,
-          index == viewContext.items.length - 1 && trailingElement == null ? 0 : spacing.y / 2),
+          index == viewContext.items.length - 1 && trailingElement == null
+              ? 0
+              : spacing.y / 2),
       title: isInEditMode && showDefaultSelections
           ? Row(
               children: [
-                app.icons.check(color: isSelected ? Colors.black : Color(0xffDFDEDE)),
+                app.icons.check(
+                    color: isSelected ? Colors.black : Color(0xffDFDEDE)),
                 SizedBox(
                   width: 18,
                 ),
