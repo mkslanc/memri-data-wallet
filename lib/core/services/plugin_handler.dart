@@ -34,6 +34,14 @@ class PluginHandler {
                 //     pageController: pageController,
                 //     context: context);
                 break;
+              case "daemon":
+              case "done":
+                await checkEnoughData(
+                    plugin: plugin,
+                    runner: runner,
+                    db: AppController.shared.databaseController,
+                    status: status);
+                break;
               case "error":
                 //TODO: do we have better solution?
                 // pageController.sceneController.scheduleUIUpdate();
