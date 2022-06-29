@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
@@ -20,9 +21,6 @@ class ImportersDownloadingScreen extends StatefulWidget {
 
 class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen> {
 
-  StreamSubscription<Item>? pluginRunItemStreamSubscription = null;
-  double? progress;
-
   @override
   Widget build(BuildContext context) {
     print("building progress $progress");
@@ -34,6 +32,7 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(progress.toString()),
                   Row(
                     children: [
                       Text("Success!", style: TextStyle(fontSize: 12, color: app.colors.brandBlack)),
@@ -59,8 +58,9 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
                       Text("Uploading WhatsApp data:",
                        style: TextStyle(fontSize: 14, color: app.colors.brandBlack)),
                        SizedBox(width: 4),
-                      Text(progress ==null? "Starting": (progress! * 100.0).toString() +"%",
+                      Text((progress ==null? "starting":(progress! * 100.0).toString() +"%"),
                        style: TextStyle(fontSize: 30, color: app.colors.brandViolet)),
+
                     ],
                   ),
                   SizedBox(height: 64),
@@ -90,40 +90,50 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
                 ])));
   }
 
-  @override
-  void dispose() {
-    pluginRunItemStreamSubscription?.cancel();
-    super.dispose();
-  }
 
   @override
   void initState() {
-    progress=null;
     super.initState();
+    setup();
+  }
+
+  @override
+  void dispose() {
+    pluginRunItemStreamSubscription.cancel();
+    super.dispose();
+  }
+  late StreamSubscription<Item> pluginRunItemStreamSubscription;
+  double? progress = null;
+
+  void setup() async{
     Stream<Item> itemStream(String id) async* {
-      while (true) {
-        await Future.delayed(Duration(seconds: 1));
-        Item? res = null;
-        await AppController.shared.podApi.getItem(
-            id: id,
-            completion: (data, error) {
-              var pluginrunItem = data;
-              if (pluginrunItem != null) {
-                res = pluginrunItem;
-              }
-            });
-        if (res != null) {
-          yield res!;
+        while (true) {
+          await Future.delayed(Duration(seconds: 1));
+          Item? res = null;
+          await AppController.shared.podApi.getItem(
+              id: id,
+              completion: (data, error) {
+                var pluginrunItem = data;
+                if (pluginrunItem != null) {
+                  res = pluginrunItem;
+                }
+              });
+          if (res != null) {
+            yield res!;
+          }
         }
       }
-    }
 
-    Stream<Item> pluginRunItemStream = itemStream(widget.id);
-    pluginRunItemStreamSubscription = pluginRunItemStream.listen((item) {
-      setState(() {
-        progress = item.get("progress");
-        print(progress);
-      });
+    Stream<Item> pluginRunItemStream2 = itemStream(widget.id);
+    pluginRunItemStreamSubscription = pluginRunItemStream2.listen((item) {
+      double? _progress = item.get("progress");
+
+      if (_progress != null){
+        setState(() {
+          progress = _progress;
+          print("setting progress $progress");
+        });
+      }
     });
   }
 }

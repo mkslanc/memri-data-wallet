@@ -99,7 +99,7 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
               ),
               Container(
                   child: (() {
-                if (status == "idle" && url == null) {
+                if ((status == "idle" && url == null) || status =="started") {
                   return Container(
                       height: 350,
                       constraints: BoxConstraints(maxWidth: 350),
@@ -130,15 +130,8 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
                       Text("Signing in", style: TextStyle(color: app.colors.brandOrange, fontSize: 14),),
                     ],
                   ));
-                }
-                else if (status == "started") {
-                  return Container(
-                      child: Row(
-                    children: [
-                      Text("Signing in", style: TextStyle(color: app.colors.brandOrange, fontSize: 14),),
-                    ],
-                  ));
-                } else if (status == "error") {
+                } 
+                else if (status == "error") {
                   return Text("Something went wrong");
                 }
               }())
@@ -157,14 +150,15 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
 
   @override
   void dispose() {
-    pluginRunItemStreamSubscription?.cancel();
+    pluginRunItemStreamSubscription.cancel();
     super.dispose();
   }
 
   String? url = null;
   String? status = null;
   bool authenticated = false;
-  StreamSubscription<Item>? pluginRunItemStreamSubscription = null;
+  late StreamSubscription<Item> pluginRunItemStreamSubscription;
+  late Stream<Item> pluginRunItemStream;
 
   void execute() async {
     var db = AppController.shared.databaseController;
@@ -210,7 +204,7 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
         }
       }
 
-      Stream<Item> pluginRunItemStream = itemStream(id);
+      pluginRunItemStream = itemStream(id);
 
       AppController.shared.podApi.bulkAction(
           bulkPayload: bulkPayload,
@@ -222,13 +216,14 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
                 RouteNavigator.navigateToRoute(
                     context: context, route: Routes.importerDownloading, param: {"id": id});
               }
-
-              setState(() {
-                url = item.get("authUrl");
-                status = _status;
-                print(url);
-                print(status);
-              });
+              else{
+                setState(() {
+                  url = item.get("authUrl");
+                  status = _status;
+                  print(url);
+                  print(status);
+                });
+              }
             });
           }));
 
