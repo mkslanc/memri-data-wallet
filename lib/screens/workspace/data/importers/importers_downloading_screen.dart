@@ -1,12 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/app_styles.dart';
+import 'package:memri/controllers/app_controller.dart';
+import 'package:memri/core/apis/pod/item.dart';
 import 'package:memri/utils/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
-class ImportersDownloadingScreen extends StatelessWidget {
-  const ImportersDownloadingScreen({Key? key}) : super(key: key);
+class ImportersDownloadingScreen extends StatefulWidget {
+  const ImportersDownloadingScreen({Key? key, required this.id}) : super(key: key);
+
+  final String id;
+
+  @override
+  State<ImportersDownloadingScreen> createState() => _ImportersDownloadingScreenState();
+}
+
+class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen> {
+  
+  StreamSubscription<Item>? pluginRunItemStreamSubscription = null;
+  double? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +58,7 @@ class ImportersDownloadingScreen extends StatelessWidget {
                       Text("Uploading WhatsApp data:",
                        style: TextStyle(fontSize: 14, color: app.colors.brandBlack)),
                        SizedBox(width: 4),
-                      Text("36%",
+                      Text(progress ==null? "Starting": (progress! * 100.0).toString() +"%",
                        style: TextStyle(fontSize: 30, color: app.colors.brandViolet)),
                     ],
                   ),
@@ -72,5 +87,42 @@ class ImportersDownloadingScreen extends StatelessWidget {
                     ],
                   )
                 ])));
+  }
+
+  @override
+  void dispose() {
+    pluginRunItemStreamSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    progress=null;
+    super.initState();
+    Stream<Item> itemStream(String id) async* {
+      while (true) {
+        await Future.delayed(Duration(seconds: 1));
+        Item? res = null;
+        await AppController.shared.podApi.getItem(
+            id: id,
+            completion: (data, error) {
+              var pluginrunItem = data;
+              if (pluginrunItem != null) {
+                res = pluginrunItem;
+              }
+            });
+        if (res != null) {
+          yield res!;
+        }
+      }
+    }
+
+    Stream<Item> pluginRunItemStream = itemStream(widget.id);
+    pluginRunItemStreamSubscription = pluginRunItemStream.listen((item) {
+      setState(() {
+        progress = item.get("progress");
+        print(progress);
+      });
+    });
   }
 }
