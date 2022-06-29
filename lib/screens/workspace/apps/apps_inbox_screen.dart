@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
+import 'package:memri/utils/app_helper.dart';
 
 import '../../../controllers/file_storage/web_file_storage_controller.dart';
 import '../../../core/apis/pod/item.dart';
@@ -40,7 +41,16 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     return InkWell(
+                        hoverColor: selectedChannel == index
+                            ? app.colors.greyLight
+                            : app.colors.white,
+                        focusColor: selectedChannel == index
+                            ? app.colors.greyLight
+                            : app.colors.white,
                         onTap: () {
+                          setState(() {
+                            selectedChannel = index;
+                          });
                           String? chatID = chats[index].get("id")?.toString();
                           setActiveChat(chatID: chatID!);
                         },
@@ -143,14 +153,17 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
     );
   }
 
+  int selectedChannel = 0;
   List<Item> chats = [];
   List<Item> activeChatMessages = [];
   StreamSubscription<List<Item>>? chatStreamSubscription;
   StreamSubscription<List<Item>>? messageStreamSubscription;
+  late FocusNode chatFocus;
 
   @override
   void initState() {
     super.initState();
+    chatFocus = FocusNode();
     getChats();
   }
 
@@ -158,6 +171,7 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
   void dispose() {
     chatStreamSubscription?.cancel();
     messageStreamSubscription?.cancel();
+    chatFocus.dispose();
     super.dispose();
   }
 
