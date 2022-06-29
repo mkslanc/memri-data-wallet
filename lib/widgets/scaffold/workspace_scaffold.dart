@@ -3,7 +3,8 @@ import 'package:memri/controllers/app_controller.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 
 class WorkspaceScaffold extends StatelessWidget {
-  const WorkspaceScaffold({Key? key, required this.currentItem, required this.child})
+  const WorkspaceScaffold(
+      {Key? key, required this.currentItem, required this.child})
       : super(key: key);
 
   final Widget child;
@@ -16,10 +17,11 @@ class WorkspaceScaffold extends StatelessWidget {
         builder: (BuildContext context, bool value, _) {
           return Scaffold(
             appBar: PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width, value ? 368 : 191),
+              preferredSize:
+                  Size(MediaQuery.of(context).size.width, value ? 368 : 191),
               child: NavigationAppBar(currentItem: currentItem),
             ),
-            body: SingleChildScrollView(child: child),
+            body: child,
           );
         });
   }
