@@ -19,7 +19,8 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   Widget build(BuildContext context) {
     return WorkspaceScaffold(
       currentItem: NavigationItem.workspace,
-      child: Container(
+      child: SingleChildScrollView(
+          child: Container(
         width: MediaQuery.of(context).size.width,
         color: Color(0xfff6f6f6),
         padding: EdgeInsets.all(30),
@@ -74,7 +75,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

@@ -21,7 +21,7 @@ class WorkspaceScaffold extends StatelessWidget {
                   Size(MediaQuery.of(context).size.width, value ? 368 : 191),
               child: NavigationAppBar(currentItem: currentItem),
             ),
-            body: SingleChildScrollView(child: child),
+            body: child,
           );
         });
   }
