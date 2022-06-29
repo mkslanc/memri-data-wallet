@@ -135,7 +135,7 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
                   return Container(
                       child: Row(
                     children: [
-                      Text("Error:Another plugin is already running"),
+                      Text("Signing in", style: TextStyle(color: app.colors.brandOrange, fontSize: 14),),
                     ],
                   ));
                 } else if (status == "error") {
@@ -220,7 +220,7 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
               authenticated = _status == "daemon";
               if (authenticated){
                 RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.importerDownloading);
+                    context: context, route: Routes.importerDownloading, param: {"id": id});
               }
 
               setState(() {
@@ -232,27 +232,6 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
             });
           }));
 
-      // AppController.shared.podApi.bulkAction(bulkPayload: bulkPayload, completion: ((error) async {
-      //   print("called bulkaction");
-      //     String status ="idle";
-      //     while (status=="idle"){
-      //       AppController.shared.podApi.getItem(id: id, completion: (error, data) async {
-      //         await Future.delayed(Duration(seconds: 1));
-      //         // TODO this should happen in a PodClient
-      //         item = Item.fromJson(jsonDecode(data!));
-      //         else{
-
-      //         }
-      //       });
-
-      //     }
-      // }));
-
-      print("SYNCING");
-
-      // TODO: fix handling updated plugin
-      // await PluginHandler.run(
-      //     plugin: plugin, runner: pluginRunItem, context: context);
 
     } catch (error) {
       AppLogger.err("Error starting plugin: $error");
