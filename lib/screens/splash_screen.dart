@@ -48,21 +48,25 @@ class _SplashScreenState extends State<SplashScreen> {
         case AppState.authentication:
         case AppState.setup:
           route = Routes.onboarding;
+          RouteNavigator.navigateToRoute(
+              context: context, route: route, clearStack: true);
           break;
         case AppState.keySaving:
           route = Routes.saveKeys;
+          RouteNavigator.navigateToRoute(
+              context: context, route: route, clearStack: true);
           break;
         case AppState.authenticated:
-          route = Routes.workspace;
+          // route = Routes.workspace;
           break;
         case AppState.incompatibleDevice:
         case AppState.incompatibleBrowser:
         case AppState.maintenance:
           route = Routes.accountError;
+          RouteNavigator.navigateToRoute(
+              context: context, route: route, clearStack: true);
           break;
       }
-      RouteNavigator.navigateToRoute(
-          context: context, route: route, clearStack: true);
     } on Exception catch (e) {
       authError = e;
       appController.state = AppState.authentication;
