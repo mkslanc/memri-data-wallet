@@ -53,9 +53,9 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
                                       radius: 16.0,
                                       backgroundImage:
                                           // chats_images.elementAt(index) == null ? Image.asset('assets/images/person.png'): Image(image: chats_images[index]!),
-                                          ChatImages.length > index &&
-                                                  ChatImages[index] != null
-                                              ? ChatImages[index]!
+                                          chatImages.length > index &&
+                                                  chatImages[index] != null
+                                              ? chatImages[index]!
                                               : AssetImage(
                                                   'assets/images/person.png'),
                                       backgroundColor: Colors.transparent),
