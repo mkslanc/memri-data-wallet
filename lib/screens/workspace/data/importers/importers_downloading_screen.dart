@@ -58,8 +58,7 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
                       Text("Uploading WhatsApp data:",
                        style: TextStyle(fontSize: 14, color: app.colors.brandBlack)),
                        SizedBox(width: 4),
-                       if (progress != null)
-                      Text((progress! * 100.0).toString() +"%",
+                      Text(progress ==null? "Starting": (progress! * 100.0).toString() +"%",
                        style: TextStyle(fontSize: 30, color: app.colors.brandViolet)),
                     ],
                   ),
@@ -98,6 +97,7 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
 
   @override
   void initState() {
+    progress=null;
     super.initState();
     Stream<Item> itemStream(String id) async* {
       while (true) {
@@ -119,13 +119,10 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
 
     Stream<Item> pluginRunItemStream = itemStream(widget.id);
     pluginRunItemStreamSubscription = pluginRunItemStream.listen((item) {
-
-      Future.delayed(Duration(seconds: 1), () {
-        setState(() {
-          progress = item.get("progress");
-          print(progress);
-        });
-      },);
+      setState(() {
+        progress = item.get("progress");
+        print(progress);
+      });
     });
   }
 }
