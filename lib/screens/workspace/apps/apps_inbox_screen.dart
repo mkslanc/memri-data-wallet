@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
             Expanded(
               flex: 1,
               child: ListView.builder(
+                  controller: ScrollController(),
                   itemCount: chats.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
@@ -53,11 +55,11 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
                                       radius: 16.0,
                                       backgroundImage:
                                           // chats_images.elementAt(index) == null ? Image.asset('assets/images/person.png'): Image(image: chats_images[index]!),
-                                          chatImages.length > index &&
-                                                  chatImages[index] != null
-                                              ? chatImages[index]!
-                                              : AssetImage(
-                                                  'assets/images/person.png'),
+                                          // chatImageUrls.length > index &&
+                                          //         chatImageUrls[index] != null
+                                          //     ? chatImageUrls[index]!
+                                          AssetImage(
+                                              'assets/images/person.png'),
                                       backgroundColor: Colors.transparent),
                                   title: Text(chats[index].get("name") != null
                                       ? chats[index].get("name")
@@ -76,6 +78,8 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
             Expanded(
                 flex: 2,
                 child: ListView.builder(
+                    controller: ScrollController(),
+                    reverse: true,
                     itemCount: activeChatMessages.length,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
@@ -141,7 +145,6 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
 
   List<Item> chats = [];
   List<Item> activeChatMessages = [];
-  List<ImageProvider?> chatImages = [];
   StreamSubscription<List<Item>>? chatStreamSubscription;
   StreamSubscription<List<Item>>? messageStreamSubscription;
 
@@ -172,19 +175,6 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
       if (items != null) {
         yield items!;
       }
-    }
-  }
-
-  Future<ImageProvider?> imageProviderFromPhoto(Item photoItem) async {
-    var fileItem = photoItem.edgeItem("file");
-    var fileID = (await fileItem?.get("sha256"))?.toString();
-    if (fileID == null) {
-      return null;
-    } else {
-      String fileURL = FileStorageController.getURLForFile(fileID);
-      var imageProvider =
-          await FileStorageController.getImage(fileURL: fileURL);
-      return imageProvider;
     }
   }
 
@@ -242,8 +232,16 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
           ~messageChannel (limit: 1, order_desc: dateSent) {
             dateSent
           }
+          photo {
+            id
+            file {
+              sha256
+            }
+          }
         }
       }''';
+
+    Map<String, String> chatImageUrls = {};
 
     chatStreamSubscription = gqlStream(query).listen((res) {
       // for (var item in res) {
@@ -254,6 +252,14 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
           edge: "~messageChannel",
           property: "dateSent",
           order: "desc");
+      for (var item in res) {
+        var itemID = item.get("id");
+        var fileID =
+            item.edgeItem("photo")?.edgeItem("file")?.get("sha256")?.toString();
+        if (fileID != null) {
+          chatImageUrls[itemID] = FileStorageController.getURLForFile(fileID);
+        }
+      }
       setState(() {
         chats = res;
       });
