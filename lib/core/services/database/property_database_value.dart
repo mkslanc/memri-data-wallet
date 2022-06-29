@@ -4,12 +4,13 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:memri/core/controllers/cvu_lookup_controller.dart';
+import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/core/cvu/resolving/cvu_context.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/core/models/cvu/cvu_value.dart';
+import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:moor/moor.dart';
+
+import '../../../cvu/services/resolving/cvu_context.dart';
 
 /// This type is used as an intermediate for storing and retrieving values from the database
 /// It makes use of the dynamic schema to determine what type to resolve the data as.

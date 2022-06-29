@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';

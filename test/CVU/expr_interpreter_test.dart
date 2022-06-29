@@ -3,13 +3,13 @@
 //  Created by T Brennan on 24/12/20.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/core/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
-import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
-import 'package:memri/core/cvu/resolving/cvu_context.dart';
-import 'package:memri/core/models/cvu/cvu_value.dart';
-import 'package:memri/core/models/cvu/cvu_value_expression.dart';
+import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
+import 'package:memri/cvu/models/cvu_value.dart';
+import 'package:memri/cvu/models/cvu_value_expression.dart';
+import 'package:memri/cvu/services/parsing/cvu_expression_lexer.dart';
+import 'package:memri/cvu/services/parsing/cvu_expression_parser.dart';
+import 'package:memri/cvu/services/resolving/cvu_context.dart';
 
 CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
   var lexer = CVUExpressionLexer(snippet, stringMode);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';

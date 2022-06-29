@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/core/cvu/parsing/cvu_expression_lexer.dart';
-import 'package:memri/core/cvu/parsing/cvu_expression_parser.dart';
-import 'package:memri/core/models/cvu/cvu_value_constant.dart';
-import 'package:memri/core/models/cvu/cvu_value_expression.dart';
-import 'package:memri/core/models/cvu/cvu_value_lookup_node.dart';
+import 'package:memri/cvu/models/cvu_value_constant.dart';
+import 'package:memri/cvu/models/cvu_value_expression.dart';
+import 'package:memri/cvu/models/cvu_value_lookup_node.dart';
+import 'package:memri/cvu/services/parsing/cvu_expression_lexer.dart';
+import 'package:memri/cvu/services/parsing/cvu_expression_parser.dart';
 
 parse({snippet, stringMode = false}) {
   var lexer = CVUExpressionLexer(snippet, stringMode);

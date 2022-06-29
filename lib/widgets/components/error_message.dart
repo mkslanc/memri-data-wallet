@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/components/shapes/clipper.dart';
 
-import '../../constants/cvu/cvu_font.dart';
+import '../../cvu/constants/cvu_font.dart';
 
 class ErrorMessage extends StatelessWidget {
   final String errorMessage;

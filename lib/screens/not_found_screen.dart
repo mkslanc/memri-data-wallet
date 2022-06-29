@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 
 class NotFoundScreen extends StatelessWidget {
   const NotFoundScreen({Key? key}) : super(key: key);

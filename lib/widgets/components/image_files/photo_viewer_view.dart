@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/core/controllers/view_context_controller.dart';
+import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/empty.dart';
 

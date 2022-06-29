@@ -2,7 +2,6 @@ import 'package:memri/core/models/database/date_time_converter.dart';
 import 'package:memri/core/models/database/item_edge_record.dart';
 import 'package:memri/core/models/database/item_property_record.dart';
 import 'package:memri/core/models/database/item_record.dart';
-import 'package:memri/core/services/database/navigation_stack.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:moor/moor.dart';
 
@@ -517,17 +516,6 @@ class Database extends _$Database {
     return await (select(navigationState)
           ..where((t) => t.pageLabel.equals(pageLabel)))
         .getSingleOrNull();
-  }
-
-  Future<int> navigationStateSave(NavigationStack record) async {
-    return await into(navigationState)
-        .insertOnConflictUpdate(record.toCompanion());
-  }
-
-  Future<int> navigationStateDelete(NavigationStack record) async {
-    return await (delete(navigationState)
-          ..where((t) => t.sessionID.equals(record.sessionID)))
-        .go();
   }
 
   Future navigationStateClear() async {

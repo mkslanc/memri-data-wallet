@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:memri/cvu/widgets/components/elements/cvu_map.dart';
 import 'package:memri/utilities/helpers/map_helper.dart';
-import 'package:memri/widgets/components/cvu/elements/cvu_map.dart';
 import 'package:memri/widgets/components/map/map_marker.dart';
 
 class MapView extends StatefulWidget {

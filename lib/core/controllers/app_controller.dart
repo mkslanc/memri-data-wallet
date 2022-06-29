@@ -5,12 +5,10 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/cvu_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/controllers/permission_controller.dart';
 import 'package:memri/core/controllers/pub_sub_controller.dart';
-import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
@@ -23,6 +21,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:memri/utilities/extensions/string.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+
+import '../../cvu/controllers/cvu_controller.dart';
 
 enum AppState {
   setup,
@@ -162,7 +162,6 @@ class AppController {
   Future init() async {
     await databaseController.init();
     await cvuController.init();
-    await SceneController.sceneController.init();
     await MixpanelAnalyticsService().init();
   }
 
@@ -180,9 +179,6 @@ class AppController {
     state = _isNewPodSetup ? AppState.keySaving : AppState.authenticated;
 
     await syncStream();
-    if (!isDevelopersMode) {
-      await cvuController.resetToDefault();
-    }
   }
 
   Future<void> syncStream() async {
@@ -260,7 +256,6 @@ class AppController {
         if (config is SetupConfigLocal) _isInDemoMode = true;
         await Settings.shared
             .set("defaults/general/isInDemoMode", _isInDemoMode);
-        await cvuController.storeDefinitions();
       }
     }
   }
@@ -288,8 +283,8 @@ class AppController {
         : AppState.authenticated;
     model.state = PodSetupState.idle;
 
-    await importData(config)
-        .then((value) => SceneController.sceneController.scheduleUIUpdate());
+    /*await importData(config)
+        .then((value) => SceneController.sceneController.scheduleUIUpdate());*/
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
@@ -383,7 +378,8 @@ class AppController {
 
   resetApp() async {
     try {
-      SceneController.sceneController.reset(isFactoryReset: true);
+      //TODO:
+      //SceneController.sceneController.reset(isFactoryReset: true);
       navigationIsVisible.value = false;
       if (!_isInDemoMode) {
         hasNetworkConnection = true;
@@ -399,7 +395,8 @@ class AppController {
       Authentication.createRootKey();
       state = AppState.setup;
       await init();
-      await SceneController.sceneController.init();
+      //TODO:
+      //await SceneController.sceneController.init();
 
       _isAuthenticated = false;
       _isNewPodSetup = false;

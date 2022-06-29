@@ -1,10 +1,10 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/core/cvu/parsing/cvu_parse_errors.dart';
-import 'package:memri/core/cvu/parsing/cvu_parser.dart';
-import 'package:memri/core/models/cvu/cvu_lexer.dart';
-import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/cvu/models/cvu_lexer.dart';
+import 'package:memri/cvu/models/cvu_parsed_definition.dart';
+import 'package:memri/cvu/services/parsing/cvu_parse_errors.dart';
+import 'package:memri/cvu/services/parsing/cvu_parser.dart';
 
 List<CVUParsedDefinition> parse(String snippet) {
   CVULexer lexer = CVULexer(snippet);

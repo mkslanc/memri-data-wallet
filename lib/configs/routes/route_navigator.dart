@@ -31,6 +31,7 @@ class Routes {
   static String projectsAppCreate = '/projects/new_app/create';
   static String projectsAppDeploy = '/projects/new_app/deploy';
   static String projectsAppSummary = '/projects/new_app/summary';
+  static String cvu = '/cvu';
 
   static String apps = '/workspace/apps';
   static String inbox = '/workspace/apps/inbox';
@@ -63,6 +64,8 @@ class Routes {
     router.define(projectsAppCreate, handler: projectsAppCreateScreenHandler);
     router.define(projectsAppDeploy, handler: projectsAppDeployScreenHandler);
     router.define(projectsAppSummary, handler: projectsAppSummaryScreenHandler);
+
+    router.define(cvu, handler: cvuHandler);
   }
 }
 

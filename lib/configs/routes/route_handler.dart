@@ -6,6 +6,7 @@ import 'package:memri/screens/account/onboarding_screen.dart';
 import 'package:memri/screens/account/login_developer_screen.dart';
 import 'package:memri/screens/account/login_screen.dart';
 import 'package:memri/screens/account/save_keys_screen.dart';
+import 'package:memri/screens/cvu_screen.dart';
 import 'package:memri/screens/not_found_screen.dart';
 import 'package:memri/screens/splash_screen.dart';
 import 'package:memri/screens/workspace/apps/apps_configure_screen.dart';
@@ -107,3 +108,5 @@ var projectsAppDeployScreenHandler =
 
 var projectsAppSummaryScreenHandler =
     Handler(handlerFunc: (_, __) => ProjectsAppSummaryScreen());
+
+var cvuHandler = Handler(handlerFunc: (_, __) => CVUScreen());

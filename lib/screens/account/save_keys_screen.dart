@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_styles.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/models/pod_setup.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';

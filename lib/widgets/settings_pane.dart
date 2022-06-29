@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/core/controllers/address_book_controller.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/utilities/factory_reset.dart';

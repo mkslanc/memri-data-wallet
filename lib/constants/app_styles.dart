@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 
 final ButtonStyle primaryButtonStyle = TextButton.styleFrom(
     backgroundColor: app.colors.brandOrange,

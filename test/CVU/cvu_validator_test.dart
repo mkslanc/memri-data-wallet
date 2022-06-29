@@ -1,13 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/cvu_controller.dart';
-import 'package:memri/core/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/core/cvu/parsing/cvu_parse_errors.dart';
-import 'package:memri/core/cvu/parsing/cvu_parser.dart';
-import 'package:memri/core/cvu/parsing/cvu_validator.dart';
-import 'package:memri/core/models/cvu/cvu_lexer.dart';
-import 'package:memri/core/models/cvu/cvu_parsed_definition.dart';
+import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
+import 'package:memri/cvu/models/cvu_lexer.dart';
+import 'package:memri/cvu/models/cvu_parsed_definition.dart';
+import 'package:memri/cvu/services/parsing/cvu_parse_errors.dart';
+import 'package:memri/cvu/services/parsing/cvu_parser.dart';
+import 'package:memri/cvu/services/parsing/cvu_validator.dart';
 
 var databaseController = DatabaseController();
 var lookupController = CVULookupController();
@@ -45,17 +44,13 @@ validate(String snippet,
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('testNamedViewDefinition', () async {
+  test('testValidation', () async {
     var snippet = """.defaultButtonsForItem {
-    actionButton: toggleEditMode
+      Text {
+        }
 }""";
 
-    await validate(snippet);
-  });
-
-  test('testDefaultCVUs', () async {
-    var string = await CVUController.readCVUString();
-    await validate(string);
+    await validate(snippet, errors: 1);
   });
 
   test('testParseError', () async {

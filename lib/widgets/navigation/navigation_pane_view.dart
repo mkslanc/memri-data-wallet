@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
@@ -18,7 +17,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
   bool showSettings = false;
 
   Widget build(BuildContext context) {
-    SceneController.sceneController.setupObservations();
+    //TODO: ?
+    //SceneController.sceneController.setupObservations();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -62,11 +62,9 @@ class Item {
 
 class NavigationItemView extends StatelessWidget {
   final Item item;
-  final SceneController sceneController;
   final Color? textColor;
 
-  NavigationItemView(
-      {required this.item, required this.sceneController, this.textColor});
+  NavigationItemView({required this.item, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +72,6 @@ class NavigationItemView extends StatelessWidget {
       onPressed: () {
         MixpanelAnalyticsService().logNavigationButton(item.name);
         if (item.callback != null) item.callback!();
-        if (item.targetViewName != null) {
-          sceneController.exitEditMode();
-          sceneController.navigateToNewContext(
-              clearStack: true,
-              animated: false,
-              viewName: item.targetViewName,
-              clearPageControllers: true);
-          AppController.shared.navigationIsVisible.value = false;
-        }
       },
       child:
           Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),

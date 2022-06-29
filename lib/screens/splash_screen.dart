@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:moor/moor_web.dart';
@@ -23,7 +22,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     Provider.of<AppProvider>(context, listen: false).initialize();
-    SceneController.sceneController = SceneController();
     init();
     super.initState();
   }

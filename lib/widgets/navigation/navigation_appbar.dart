@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_pane_view.dart';
 
-enum NavigationItem { workspace, data, projects, apps }
+enum NavigationItem { workspace, data, projects, apps, cvu }
 
 class NavigationAppBar extends StatelessWidget {
   const NavigationAppBar({Key? key, required this.currentItem})
@@ -81,6 +81,18 @@ class NavigationAppBar extends StatelessWidget {
                             "Apps",
                             style: CVUFont.bodyText1.copyWith(
                                 color: currentItem == NavigationItem.apps
+                                    ? Color(0xffFE570F)
+                                    : Color(0xff333333)),
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        TextButton(
+                          onPressed: () => RouteNavigator.navigateToRoute(
+                              context: context, route: Routes.cvu),
+                          child: Text(
+                            "CVU Test",
+                            style: CVUFont.bodyText1.copyWith(
+                                color: currentItem == NavigationItem.cvu
                                     ? Color(0xffFE570F)
                                     : Color(0xff333333)),
                           ),

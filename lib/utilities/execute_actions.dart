@@ -1,47 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/cvu/cvu_action.dart';
-import 'package:memri/widgets/components/cvu/cvu_ui_node_resolver.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
-
-import 'package:memri/utilities/extensions/collection.dart';
+import 'package:memri/cvu/services/cvu_action.dart';
+import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 
 executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
     {ValueNotifier<bool>? isDisabled,
     List<CVUAction>? actions,
     String? actionsKey}) async {
-  //TODO clear up this part, if it's not thrown away on refactor
-  openPopup(Map<String, dynamic> settings) {
-    List<Map<String, dynamic>>? actions = settings['actions'];
-    return showDialog<String>(
-      context: state.context,
-      builder: (BuildContext context) => AlertDialog(
-          title: Text(settings['title']),
-          content: Text(settings['text']),
-          actions: actions?.compactMap(
-            (action) {
-              var title = action["title"]?.value?.value;
-              if (title != null) {
-                return PointerInterceptor(
-                    child: TextButton(
-                  onPressed: () async {
-                    for (var cvuAction in action["actions"]) {
-                      await cvuAction.execute(
-                          nodeResolver.pageController, nodeResolver.context);
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: Text(title),
-                ));
-              } else {
-                return null;
-              }
-            },
-          ).toList()),
-    );
-  }
-
   openErrorPopup(String text) {
     ScaffoldMessenger.of(state.context).showSnackBar(SnackBar(
       content: Text(
@@ -59,23 +25,13 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
     nodeResolver.context.clearCache();
     try {
       for (var action in actions) {
-        if (action is CVUActionOpenPopup) {
-          var settings = await action.setPopupSettings(
-              nodeResolver.pageController, nodeResolver.context);
-          if (settings != null) {
-            openPopup(settings);
-          }
-        } else {
-          await action.execute(
-              nodeResolver.pageController, nodeResolver.context);
-        }
+        await action.execute(nodeResolver.context);
       }
     } catch (e) {
       if (e is String) {
         openErrorPopup(e);
       } else {
-        nodeResolver.pageController.appController
-            .showError(SystemError.generalError);
+        AppController.shared.showError(SystemError.generalError);
         isDisabled?.value = false;
         throw e;
       }
@@ -93,8 +49,7 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
   }
   isDisabled?.value = true;
 
-  var isBlocked =
-      nodeResolver.pageController.appController.storage["isBlocked"];
+  var isBlocked = AppController.shared.storage["isBlocked"];
   if (isBlocked is ValueNotifier && isBlocked.value == true) {
     executeActionsWhenUnblocked() async {
       if (isBlocked.value == false) {
