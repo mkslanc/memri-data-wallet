@@ -1,13 +1,13 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:memri/controllers/app_controller.dart';
-import 'package:memri/models/database/item_record.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
-import '../../../controllers/database_query.dart';
 import '../../../controllers/file_storage/web_file_storage_controller.dart';
+import '../../../core/apis/pod/item.dart';
 import '../../../core/services/database/property_database_value.dart';
 
 class AppsInboxScreen extends StatefulWidget {
@@ -39,11 +39,12 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
                   itemBuilder: (context, index) {
                     return InkWell(
                         onTap: () {
-                          setActiveChat();
+                          String? chatID = chats[index].get("id")?.toString();
+                          setActiveChat(chatID: chatID!);
                         },
                         child: Container(
-                           padding: new EdgeInsets.symmetric(
-                                                  vertical: 5, horizontal: 0),
+                          padding: new EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 0),
                           child: Row(
                             children: [
                               Expanded(
@@ -52,21 +53,15 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
                                       radius: 16.0,
                                       backgroundImage:
                                           // chats_images.elementAt(index) == null ? Image.asset('assets/images/person.png'): Image(image: chats_images[index]!),
-                                          chats_images.length > index && chats_images[index] != null
-                                              ? chats_images[index]!
+                                          ChatImages.length > index &&
+                                                  ChatImages[index] != null
+                                              ? ChatImages[index]!
                                               : AssetImage(
                                                   'assets/images/person.png'),
                                       backgroundColor: Colors.transparent),
-                                  title: FutureBuilder(
-                                      future: chats[index].propertyValue('name'),
-                                      builder: (context, value) {
-                                        if (!value.hasData) return Text("");
-                                        return Text(
-                                            (value.data! as PropertyDatabaseValue)
-                                                .value
-                                                .toString(),
-                                            style: TextStyle(fontSize: 13));
-                                      }),
+                                  title: Text(chats[index].get("name") != null
+                                      ? chats[index].get("name")
+                                      : ""),
                                 ),
                               ),
                               IconButton(
@@ -92,49 +87,47 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
                                   child:
                                       Image.asset('assets/images/person.png'),
                                   backgroundColor: Colors.transparent),
-                              title: FutureBuilder(
-                                  future: activeChatMessages[index]
-                                      .propertyValue('content'),
-                                  builder: (context, value) {
-                                    if (!value.hasData)
-                                      return Text("");
-                                    else {
-                                      var rng = Random();
-                                      var by_me = rng.nextInt(2) == 0;
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                              padding: new EdgeInsets.symmetric(
-                                                  vertical: 10, horizontal: 15),
-                                              child: Text(
-                                                (value.data!
-                                                        as PropertyDatabaseValue)
-                                                    .value
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: by_me
-                                                        ? Color(0xFFFBFBFB)
-                                                        : Color(0xFF333333)),
-                                              ),
-                                              decoration: BoxDecoration(
+                              title: Builder(builder: (context) {
+                                var value = activeChatMessages[index]
+                                    .get('content')
+                                    ?.toString();
+                                if (value == null) {
+                                  return Text("");
+                                } else {
+                                  bool by_me = activeChatMessages[index]
+                                          .edgeItem("sender")
+                                          ?.get("isMe") ??
+                                      false;
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                          padding: new EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 15),
+                                          child: Text(
+                                            value,
+                                            style: TextStyle(
+                                                fontSize: 13,
                                                 color: by_me
-                                                    ? Color(0xFF4F56FE)
-                                                    : Color(0xFFF8F8F8),
-                                                borderRadius: BorderRadius.only(
-                                                    topRight:
-                                                        Radius.circular(10),
-                                                    bottomRight:
-                                                        Radius.circular(10),
-                                                    bottomLeft:
-                                                        Radius.circular(10)),
-                                              )),
-                                        ],
-                                      );
-                                    }
-                                  }),
+                                                    ? Color(0xFFFBFBFB)
+                                                    : Color(0xFF333333)),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: by_me
+                                                ? Color(0xFF4F56FE)
+                                                : Color(0xFFF8F8F8),
+                                            borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(10),
+                                                bottomRight:
+                                                    Radius.circular(10),
+                                                bottomLeft:
+                                                    Radius.circular(10)),
+                                          )),
+                                    ],
+                                  );
+                                }
+                              }),
                             ),
                           )
                         ],
@@ -146,64 +139,161 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
     );
   }
 
+  List<Item> chats = [];
+  List<Item> activeChatMessages = [];
+  List<ImageProvider?> chatImages = [];
+  StreamSubscription<List<Item>>? chatStreamSubscription;
+  StreamSubscription<List<Item>>? messageStreamSubscription;
+
   @override
   void initState() {
     super.initState();
     getChats();
   }
 
-  List<ItemRecord> chats = [];
-  List<ItemRecord> activeChatMessages = [];
-  List<ImageProvider?> chats_images = [];
-  late Stream result;
+  @override
+  void dispose() {
+    chatStreamSubscription?.cancel();
+    messageStreamSubscription?.cancel();
+    super.dispose();
+  }
 
-  Future<ImageProvider?> imageProviderFromPhoto(ItemRecord photoItem) async{
-    if (photoItem.type != "Photo"){
-      print("CCC");
-      return null;
+  Stream<List<Item>> gqlStream(String query) async* {
+    while (true) {
+      await Future.delayed(Duration(seconds: 1));
+      List<Item>? items = null;
+      await AppController.shared.podApi.graphql(
+          query: query,
+          completion: (data, error) {
+            if (data != null) {
+              items = data;
+            }
+          });
+      if (items != null) {
+        yield items!;
+      }
     }
-    var fileItem = await photoItem.edgeItem("file");
-    var fileID = (await fileItem?.propertyValue("sha256"))?.asString();
+  }
+
+  Future<ImageProvider?> imageProviderFromPhoto(Item photoItem) async {
+    var fileItem = photoItem.edgeItem("file");
+    var fileID = (await fileItem?.get("sha256"))?.toString();
     if (fileID == null) {
       return null;
     } else {
-      print("DWQG");
       String fileURL = FileStorageController.getURLForFile(fileID);
-      var imageProvider = await FileStorageController.getImage(fileURL: fileURL);
+      var imageProvider =
+          await FileStorageController.getImage(fileURL: fileURL);
       return imageProvider;
     }
+  }
 
+  void testPrint(List<Item> result) {
+    print("num chats ${result.length}");
+    for (Item item in result) {
+      print("${item.properties}");
+    }
+  }
+
+  void sortByEdgeProperty(
+      {required List<Item> items,
+      required String edge,
+      required String property,
+      required String order}) {
+    if (order == "asc") {
+      items.sort((a, b) {
+        if (a.edgeItem(edge)?.get(property) == null) {
+          return 1;
+        } else if (b.edgeItem(edge)?.get(property) == null) {
+          return -1;
+        }
+        return a
+            .edgeItem(edge)!
+            .get(property)
+            .compareTo(b.edgeItem(edge)!.get(property));
+      });
+    } else {
+      items.sort((b, a) {
+        if (a.edgeItem(edge)?.get(property) == null) {
+          return 1;
+        } else if (b.edgeItem(edge)?.get(property) == null) {
+          return -1;
+        }
+        return a
+            .edgeItem(edge)!
+            .get(property)
+            .compareTo(b.edgeItem(edge)!.get(property));
+      });
+    }
   }
 
   void getChats() async {
-    var queryDef = DatabaseQueryConfig(
-        itemTypes: ["MessageChannel"], pageSize: 1000, currentPage: 0);
-    result = queryDef.executeRequest(AppController.shared.databaseController);
+    var query = '''
+      query {
+        MessageChannel (limit: 1000) {
+          id
+          name
+          photo {
+            id
+            file {
+              sha256
+            }
+          }
+          ~messageChannel (limit: 1, order_desc: dateSent) {
+            dateSent
+          }
+        }
+      }''';
 
-    print("BBB");
-    result.asBroadcastStream().listen((event) async {
-      List<ImageProvider?> _chats_images = [];
-      for (ItemRecord c in event as List<ItemRecord>) {
-        var photoItem = await c.edgeItem("photo");
-        _chats_images.add(photoItem == null? null :await imageProviderFromPhoto.call(photoItem));
-      }
+    chatStreamSubscription = gqlStream(query).listen((res) {
+      // for (var item in res) {
+      //   print(item.edgeItem("~messageChannel")?.get("dateSent"));
+      // }
+      sortByEdgeProperty(
+          items: res,
+          edge: "~messageChannel",
+          property: "dateSent",
+          order: "desc");
       setState(() {
-        chats = event;
-        chats_images = _chats_images;
-        //  image: {{.sender.owner.profilePicture OR .sender.profilePicture OR "assets/images/person.png"}}
+        chats = res;
       });
     });
   }
 
-  void setActiveChat() async {
-    var queryDef = DatabaseQueryConfig(
-        itemTypes: ["Message"], pageSize: 30, currentPage: 0);
-    result = queryDef.executeRequest(AppController.shared.databaseController);
+  void setActiveChat({required String chatID, limit = 30, offset = 0}) async {
+    // Reset active messages while waiting for query
+    messageStreamSubscription?.cancel();
+    setState(() {
+      activeChatMessages = [];
+    });
 
-    print(result);
-    result.asBroadcastStream().listen((event) {
+    String query = '''
+      query {
+        MessageChannel (filter: {id: {eq: "$chatID"}}) {
+          id
+          ~messageChannel (limit: $limit, offset: $offset, order_desc: dateSent) {
+            dateSent
+            content
+            sender {
+              displayName
+              isMe
+            }
+          }
+        }
+      }
+    ''';
+
+    messageStreamSubscription = gqlStream(query).listen((result) {
+      List<Item> messages = [];
+      if (result.length > 0) {
+        var _messages = result[0].getEdges("~messageChannel")?.targets;
+        if (_messages != null) {
+          messages = _messages;
+        }
+      }
+
       setState(() {
-        activeChatMessages = event as List<ItemRecord>;
+        activeChatMessages = messages;
       });
     });
   }
