@@ -32,7 +32,6 @@ class _ImportersDownloadingScreenState extends State<ImportersDownloadingScreen>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(progress.toString()),
                   Row(
                     children: [
                       Text("Success!", style: TextStyle(fontSize: 12, color: app.colors.brandBlack)),
