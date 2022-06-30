@@ -8,6 +8,7 @@ import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/utilities/helpers/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
 import 'package:memri/widgets/empty.dart';
+import 'package:memri/widgets/scaffold/base_scaffold.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class AccountScaffold extends StatefulWidget {
@@ -83,7 +84,8 @@ class _AccountScaffoldState extends State<AccountScaffold>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
+      checkAuth: false,
       body: Stack(
         children: [
           Container(
@@ -179,26 +181,40 @@ class _AccountScaffoldState extends State<AccountScaffold>
           Expanded(
             flex: 2,
             child: Container(
-                color: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 120),
-                child: widget.child),
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: widget.showSlider ? animation.value : Colors.white,
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 50,
-                    bottom: 60,
-                    right: 50,
-                    child: _buildSlider(),
-                  ),
-                ],
-              ),
+              height: MediaQuery.of(context).size.height,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 120),
+              child: widget.showSlider
+                  ? widget.child
+                  : Row(children: [
+                      Expanded(
+                        flex: 2,
+                        child: widget.child,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(color: Colors.white),
+                      ),
+                    ]),
             ),
-          )
+          ),
+          if (widget.showSlider)
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: widget.showSlider ? animation.value : Colors.white,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 50,
+                      bottom: 60,
+                      right: 50,
+                      child: _buildSlider(),
+                    ),
+                  ],
+                ),
+              ),
+            )
         ],
       ),
     );

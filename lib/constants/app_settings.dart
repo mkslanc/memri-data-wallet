@@ -7,8 +7,9 @@ class AppSettings {
 
   AppSettings._internal();
 
-  final String defaultPodURL = "https://dev.pod.memri.io";
-  final String defaultDevPodURL = "http://localhost:3030";
+  final String defaultPodUrl = 'https://dev.pod.memri.io';
+  final String defaultDevPodUrl = 'http://localhost:3030';
+  final String podVersion = 'v4';
 
   final bool showDeveloperButton = true;
   final bool maintenanceInProgress = false;

@@ -1,5 +1,12 @@
 {
   "memri": "Memri",
   "memri_name": "Memri - Machine learning-tools ontworpen om uw privacy te beschermen",
-  "memri_description": "De eenvoudigste manier om ML-apps op persoonlijke gegevens te bouwen, implementeren en delen"
+  "memri_description": "De eenvoudigste manier om ML-apps op persoonlijke gegevens te bouwen, implementeren en delen",
+  "hi_there": "",
+  "welcome_to_memri": "",
+  "onboarding_message": "",
+  "create_account": "",
+  "log_in": "",
+  "switch_to": "",
+  "developers_mode": ""
 }

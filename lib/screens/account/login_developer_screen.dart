@@ -25,7 +25,7 @@ class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
   @override
   void initState() {
     podUrlController.addListener(_setPodUrl);
-    podUrlController.text = app.settings.defaultDevPodURL;
+    podUrlController.text = app.settings.defaultDevPodUrl;
     appController.isDevelopersMode = true;
     appController.model.setupAsNewPod = false;
     super.initState();
@@ -81,7 +81,7 @@ class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
                       controller: podUrlController,
                       decoration: InputDecoration.collapsed(
                         border: InputBorder.none,
-                        hintText: app.settings.defaultPodURL,
+                        hintText: app.settings.defaultPodUrl,
                       ),
                       style: TextStyle(color: Color(0xffFE570F), fontSize: 13),
                     ),
@@ -172,7 +172,7 @@ class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
       onTap: () {
         appController.isDevelopersMode = false;
         appController.model.setupAsNewPod = true;
-        appController.model.podURL = app.settings.defaultPodURL;
+        appController.model.podURL = app.settings.defaultPodUrl;
         Navigator.of(context).pop();
       },
       child: RichText(

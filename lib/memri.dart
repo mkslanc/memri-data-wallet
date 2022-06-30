@@ -6,7 +6,7 @@ import 'package:memri/constants/app_themes.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/locator.dart';
 import 'package:memri/providers/app_provider.dart';
-import 'package:memri/providers/auth_provider.dart';
+import 'package:memri/providers/pod_provider.dart';
 import 'package:memri/providers/importer_provider.dart';
 import 'package:memri/providers/project_provider.dart';
 import 'package:memri/providers/workspace_provider.dart';
@@ -22,7 +22,7 @@ class Memri extends StatefulWidget {
 }
 
 class _MemriState extends State<Memri> {
-  final List<Locale> _deviceLocales = WidgetsBinding.instance!.window.locales;
+  final List<Locale> _deviceLocales = WidgetsBinding.instance.window.locales;
   Locale _locale = app.locales.enUS;
 
   @override
@@ -38,7 +38,7 @@ class _MemriState extends State<Memri> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => locator<AppProvider>()),
-        ChangeNotifierProvider(create: (_) => locator<AuthProvider>()),
+        ChangeNotifierProvider(create: (_) => locator<PodProvider>()),
         ChangeNotifierProvider(create: (_) => locator<WorkspaceProvider>()),
         ChangeNotifierProvider(create: (_) => locator<ImporterProvider>()),
         ChangeNotifierProvider(create: (_) => locator<ProjectProvider>()),
@@ -77,7 +77,7 @@ class _MemriState extends State<Memri> {
 
           if (app.locales.systemAppLocale?.languageCode !=
               locale.languageCode) {
-            WidgetsBinding.instance!.addPostFrameCallback(
+            WidgetsBinding.instance.addPostFrameCallback(
                 (_) => app.locales.systemAppLocale = locale!);
           }
 

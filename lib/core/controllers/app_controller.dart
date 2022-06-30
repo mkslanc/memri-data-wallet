@@ -13,7 +13,7 @@ import 'package:memri/core/controllers/pub_sub_controller.dart';
 import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/models/pod_setup.dart';
 import 'package:memri/core/models/sync_config.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
@@ -100,7 +100,7 @@ class AppController {
 
   Isolate? syncIsolate;
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
-  PodConnectionDetails? _podConnectionConfig;
+  PodConfig? _podConnectionConfig;
   StreamSubscription<ConnectivityResult>? _connectivity;
 
   bool isDevelopersMode = false;
@@ -111,7 +111,6 @@ class AppController {
   bool _isAuthenticated = false; //TODO @anijanyan
 
   ValueNotifier<AppState> get state => _state;
-  ValueNotifier<bool> navigationIsVisible = ValueNotifier(false);
 
   set state(newValue) => _state.value = newValue;
 
@@ -190,7 +189,7 @@ class AppController {
         await Settings.shared.get<bool>("defaults/general/isInDemoMode") ??
             false;
     if (!_isInDemoMode) {
-      PodConnectionDetails connection = (await podConnectionConfig)!;
+      PodConfig connection = (await podConnectionConfig)!;
       var receivePort = ReceivePort();
       var documentsDirectory;
       if (!kIsWeb) {
@@ -232,7 +231,7 @@ class AppController {
     if (localOnly) {
       return SetupConfigLocal();
     } else if (model.setupAsNewPod) {
-      var config = NewPodConfig(model.podURL ?? app.settings.defaultPodURL);
+      var config = NewPodConfig(model.podURL ?? app.settings.defaultPodUrl);
       return SetupConfigNewPod(config);
     } else {
       var privateKey = model.podPrivateKey?.nullIfBlank ??
@@ -245,7 +244,7 @@ class AppController {
       if (databaseKey == null) {
         throw Exception("Password key is required");
       }
-      var config = ExistingPodConfig(model.podURL ?? app.settings.defaultPodURL,
+      var config = ExistingPodConfig(model.podURL ?? app.settings.defaultPodUrl,
           privateKey, publicKey, databaseKey);
       return SetupConfigExistingPod(config);
     }
@@ -313,7 +312,7 @@ class AppController {
   Future<void> connectToPod(SetupConfig config, {String? predefinedKey}) async {
     if (config is SetupConfigExistingPod) {
       var uri = Uri.parse(config.config.podURL);
-      _podConnectionConfig = PodConnectionDetails(
+      _podConnectionConfig = PodConfig(
           scheme: uri.scheme,
           host: uri.host,
           port: uri.port,
@@ -322,7 +321,7 @@ class AppController {
     } else if (config is SetupConfigNewPod) {
       var uri = Uri.parse(config.config.podURL);
       var keys = await Authentication.createOwnerAndDBKey(predefinedKey);
-      _podConnectionConfig = PodConnectionDetails(
+      _podConnectionConfig = PodConfig(
           scheme: uri.scheme,
           host: uri.host,
           port: uri.port,
@@ -356,7 +355,7 @@ class AppController {
       await AppController.shared.databaseController.hasImportedSchema;
 
   // MARK: Pod connection
-  Future<PodConnectionDetails?> get podConnectionConfig async {
+  Future<PodConfig?> get podConnectionConfig async {
     if (_isInDemoMode) return null;
     try {
       // Here you should retrieve the connection details stored in the database
@@ -367,7 +366,7 @@ class AppController {
         var databaseKey = keys.dbKey;
         if (podURL == null) return null;
         var uri = Uri.parse(podURL);
-        _podConnectionConfig = PodConnectionDetails(
+        _podConnectionConfig = PodConfig(
             scheme: uri.scheme,
             host: uri.host,
             port: uri.port,
@@ -384,7 +383,7 @@ class AppController {
   resetApp() async {
     try {
       SceneController.sceneController.reset(isFactoryReset: true);
-      navigationIsVisible.value = false;
+      // navigationIsVisible.value = false;
       if (!_isInDemoMode) {
         hasNetworkConnection = true;
         await _connectivity?.cancel();

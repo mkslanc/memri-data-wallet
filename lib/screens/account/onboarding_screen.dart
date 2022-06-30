@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/models/pod_setup.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
+import 'package:memri/localization/generated/l10n.dart';
+import 'package:memri/providers/pod_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/utilities/helpers/responsive_helper.dart';
-import 'package:memri/widgets/components/error_message.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
+import 'package:provider/provider.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen() : super();
@@ -19,74 +17,10 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  AppController appController = AppController.shared;
-
-  @override
-  void initState() {
-    appController.model.setupAsNewPod = true;
-    appController.model.podURL = app.settings.defaultPodURL;
-    super.initState();
-  }
+  late var _podProvider = Provider.of<PodProvider>(context, listen: false);
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: appController.state,
-      builder: (BuildContext context, AppState value, Widget? child) {
-        switch (value) {
-          case AppState.authentication:
-          case AppState.setup:
-            return _buildBody();
-          case AppState.keySaving:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.saveKeys));
-            return Empty();
-          case AppState.authenticated:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.workspace));
-            return Empty();
-          case AppState.incompatibleDevice:
-          case AppState.incompatibleBrowser:
-          case AppState.maintenance:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                RouteNavigator.navigateToRoute(
-                    context: context, route: Routes.accountError));
-            return Empty();
-        }
-      },
-    );
-  }
-
-  Widget _buildDeveloperButton() {
-    if (!app.settings.showDeveloperButton) {
-      return Empty();
-    }
-    return InkWell(
-      onTap: () async {
-        WidgetsBinding.instance!.addPostFrameCallback((_) =>
-            RouteNavigator.navigateToRoute(
-                context: context, route: Routes.loginDev));
-      },
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: "Switch to ",
-              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
-            ),
-            TextSpan(
-              text: "developers mode",
-              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBody() {
     return AccountScaffold(
       child: Stack(
         children: [
@@ -95,35 +29,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               SizedBox(height: 112),
               Text(
-                "Hi there!",
+                S.current.hi_there + "!",
                 style: CVUFont.headline1,
               ),
               SizedBox(height: 62),
               Text(
-                "Welcome to Memri!",
+                S.current.welcome_to_memri + "!",
                 style: CVUFont.bodyText1,
               ),
               SizedBox(height: 15),
               Text(
-                "Please create a new POD account or log into your existing account.",
+                S.current.onboarding_message,
                 style: CVUFont.bodyText1,
               ),
               SizedBox(height: 45),
               Wrap(
                 children: [
                   TextButton(
-                    onPressed: handleSetup,
+                    onPressed: () => _podProvider.signUp(context),
                     style: primaryButtonStyle,
-                    child: Text("Create account"),
+                    child: Text(S.current.create_account),
                   ),
                   SizedBox(width: 30),
                   TextButton(
-                    onPressed: () => WidgetsBinding.instance!
-                        .addPostFrameCallback((_) =>
-                            RouteNavigator.navigateToRoute(
-                                context: context, route: Routes.login)),
+                    onPressed: () => _podProvider.openLoginScreen(context),
                     child: Text(
-                      "Log in",
+                      S.current.log_in,
                       style: CVUFont.buttonLabel
                           .copyWith(color: Color(0xff333333)),
                     ),
@@ -132,8 +63,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ],
               ),
               SizedBox(height: 30),
-              if (appController.model.state == PodSetupState.error)
-                ErrorMessage(appController.model.errorString!),
               if (!ResponsiveHelper(context).isLargeScreen)
                 Padding(
                   padding: EdgeInsets.only(top: 60, bottom: 40),
@@ -151,9 +80,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  void handleSetup() {
-    MixpanelAnalyticsService().logSignUpTime();
-    setState(() => appController.model.state = PodSetupState.loading);
-    appController.setupApp();
+  Widget _buildDeveloperButton() {
+    if (!app.settings.showDeveloperButton) {
+      return Empty();
+    }
+    return InkWell(
+      onTap: () => _podProvider.openLoginScreen(context, developerMode: true),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: S.current.switch_to + " ",
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xff989898)),
+            ),
+            TextSpan(
+              text: S.current.developers_mode,
+              style: CVUFont.buttonLabel.copyWith(color: Color(0xffFE570F)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

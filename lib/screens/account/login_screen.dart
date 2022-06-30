@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     podPublicKeyController.addListener(_setPodPublicKey);
     podDatabaseKeyController.addListener(_setPodDatabaseKey);
     appController.model.setupAsNewPod = false;
-    appController.model.podURL = app.settings.defaultPodURL;
+    appController.model.podURL = app.settings.defaultPodUrl;
     appController.model.state = PodSetupState.idle;
     appController.model.errorString = null;
     super.initState();

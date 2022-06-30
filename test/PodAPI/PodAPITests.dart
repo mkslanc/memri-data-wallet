@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/controllers/sync_controller.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
 import 'package:memri/core/models/database/item_property_record.dart';
@@ -15,7 +15,7 @@ import 'package:uuid/uuid.dart';
 
 /// This connection config is used to connect to the pod for the tests. You can change url scheme/path/port etc here
 var connectionConfig =
-    PodConnectionDetails(ownerKey: Uuid().v4(), host: "192.168.88.17");
+    PodConfig(ownerKey: Uuid().v4(), host: "192.168.88.17");
 
 /// These are used to create test items in the pod for use in later tests
 var noteRowId = 100;

@@ -22,10 +22,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "create_account":
+            MessageLookupByLibrary.simpleMessage("Create account"),
+        "developers_mode":
+            MessageLookupByLibrary.simpleMessage("developers mode"),
+        "hi_there": MessageLookupByLibrary.simpleMessage("Hi there"),
+        "log_in": MessageLookupByLibrary.simpleMessage("Log in"),
         "memri": MessageLookupByLibrary.simpleMessage("Memri"),
         "memri_description": MessageLookupByLibrary.simpleMessage(
             "The easiest way to build, deploy and share ML apps on personal data"),
         "memri_name": MessageLookupByLibrary.simpleMessage(
-            "Memri - Machine learning tools designed to protect your privacy")
+            "Memri - Machine learning tools designed to protect your privacy"),
+        "onboarding_message": MessageLookupByLibrary.simpleMessage(
+            "Please create a new POD account or log into your existing account."),
+        "switch_to": MessageLookupByLibrary.simpleMessage("Switch to"),
+        "welcome_to_memri":
+            MessageLookupByLibrary.simpleMessage("Welcome to Memri")
       };
 }

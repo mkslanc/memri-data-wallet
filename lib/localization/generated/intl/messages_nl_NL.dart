@@ -22,10 +22,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "create_account": MessageLookupByLibrary.simpleMessage(""),
+        "developers_mode": MessageLookupByLibrary.simpleMessage(""),
+        "hi_there": MessageLookupByLibrary.simpleMessage(""),
+        "log_in": MessageLookupByLibrary.simpleMessage(""),
         "memri": MessageLookupByLibrary.simpleMessage("Memri"),
         "memri_description": MessageLookupByLibrary.simpleMessage(
             "De eenvoudigste manier om ML-apps op persoonlijke gegevens te bouwen, implementeren en delen"),
         "memri_name": MessageLookupByLibrary.simpleMessage(
-            "Memri - Machine learning-tools ontworpen om uw privacy te beschermen")
+            "Memri - Machine learning-tools ontworpen om uw privacy te beschermen"),
+        "onboarding_message": MessageLookupByLibrary.simpleMessage(""),
+        "switch_to": MessageLookupByLibrary.simpleMessage(""),
+        "welcome_to_memri": MessageLookupByLibrary.simpleMessage("")
       };
 }

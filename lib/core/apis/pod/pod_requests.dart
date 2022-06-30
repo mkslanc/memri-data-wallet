@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:moor/moor.dart';
@@ -29,7 +29,7 @@ class PodStandardRequest<Payload> {
       : headers = headers ?? {"content-type": "application/json"};
 
   Future<http.Response> _executeRequest(
-      PodConnectionDetails connectionConfig) async {
+      PodConfig connectionConfig) async {
     Uri url = Uri(
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,
@@ -71,7 +71,7 @@ class PodStandardRequest<Payload> {
     }
   }
 
-  Future<http.Response> execute(PodConnectionDetails connectionConfig) async {
+  Future<http.Response> execute(PodConfig connectionConfig) async {
     return await _executeRequest(connectionConfig);
   }
 
@@ -136,7 +136,7 @@ class PodUploadRequest<Payload> {
 
   PodUploadRequest({required this.path, required this.payload});
 
-  Future<http.Response> execute(PodConnectionDetails connectionConfig) async {
+  Future<http.Response> execute(PodConfig connectionConfig) async {
     Uri url = Uri(
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,
@@ -151,7 +151,7 @@ class PodUploadRequest<Payload> {
       {required String fileURL,
       Uint8List? fileData,
       String? fileSHAHash,
-      required PodConnectionDetails connectionConfig}) async {
+      required PodConfig connectionConfig}) async {
     fileData ??= await FileStorageController.getData(fileURL: fileURL);
     fileSHAHash ??=
         fileData != null ? FileStorageController.getHashForData(fileData) : "";
@@ -185,7 +185,7 @@ class PodDownloadRequest<Payload> {
     return await FileStorageController.getURLForFile(fileUID);
   }
 
-  Future<http.Response> execute(PodConnectionDetails connectionConfig) async {
+  Future<http.Response> execute(PodConfig connectionConfig) async {
     Uri url = Uri(
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,

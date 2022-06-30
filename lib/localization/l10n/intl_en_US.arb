@@ -1,5 +1,12 @@
 {
   "memri": "Memri",
   "memri_name": "Memri - Machine learning tools designed to protect your privacy",
-  "memri_description": "The easiest way to build, deploy and share ML apps on personal data"
+  "memri_description": "The easiest way to build, deploy and share ML apps on personal data",
+  "hi_there": "Hi there",
+  "welcome_to_memri": "Welcome to Memri",
+  "onboarding_message": "Please create a new POD account or log into your existing account.",
+  "create_account": "Create account",
+  "log_in": "Log in",
+  "switch_to": "Switch to",
+  "developers_mode": "developers mode"
 }

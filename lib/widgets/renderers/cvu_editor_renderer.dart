@@ -10,7 +10,7 @@ import 'package:memri/core/controllers/database_query.dart';
 import 'package:memri/core/controllers/page_controller.dart' as memri;
 import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/controllers/view_context_controller.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
 import 'package:memri/core/cvu/cvu_action.dart';
 import 'package:memri/core/cvu/parsing/cvu_parse_errors.dart';
@@ -97,7 +97,7 @@ class _CVUEditorRendererViewState extends State<CVUEditorRendererView> {
     if (!logMode) initCVU();
   }
 
-  getLogs(PodConnectionDetails connection, String id) async {
+  getLogs(PodConfig connection, String id) async {
     if (id == "") {
       controller.updateEditorContent(
           "Please, start plugin before trying to access logs");

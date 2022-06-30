@@ -1,10 +1,11 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/controllers/scene_controller.dart';
+import 'package:memri/providers/app_provider.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/navigation/navigation_pane_view.dart';
+import 'package:provider/provider.dart';
 
 /// This view manages displaying the navigation pane, as well as its gestures
 class NavigationWrapperView extends StatelessWidget {
@@ -32,14 +33,15 @@ class NavigationWrapperView extends StatelessWidget {
           height: geom.maxHeight,
           child: child,
         ),
-        ValueListenableBuilder(
-          builder: (BuildContext context, bool value, Widget? child) {
-            if (value) {
+        Consumer<AppProvider>(
+          builder: (BuildContext context, provider, _) {
+            if (provider.navigationIsVisible) {
               return Stack(
                 children: [
                   GestureDetector(
                     onTap: () =>
-                        AppController.shared.navigationIsVisible.value = false,
+                        Provider.of<AppProvider>(context, listen: false)
+                            .navigationIsVisible = false,
                     child: SizedBox(
                       width: geom.maxWidth,
                       height: geom.maxHeight,
@@ -62,7 +64,6 @@ class NavigationWrapperView extends StatelessWidget {
               return Empty();
             }
           },
-          valueListenable: AppController.shared.navigationIsVisible,
         )
       ],
     );

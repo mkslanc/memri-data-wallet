@@ -79,6 +79,76 @@ class S {
       args: [],
     );
   }
+
+  /// `Hi there`
+  String get hi_there {
+    return Intl.message(
+      'Hi there',
+      name: 'hi_there',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Welcome to Memri`
+  String get welcome_to_memri {
+    return Intl.message(
+      'Welcome to Memri',
+      name: 'welcome_to_memri',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please create a new POD account or log into your existing account.`
+  String get onboarding_message {
+    return Intl.message(
+      'Please create a new POD account or log into your existing account.',
+      name: 'onboarding_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create account`
+  String get create_account {
+    return Intl.message(
+      'Create account',
+      name: 'create_account',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log in`
+  String get log_in {
+    return Intl.message(
+      'Log in',
+      name: 'log_in',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch to`
+  String get switch_to {
+    return Intl.message(
+      'Switch to',
+      name: 'switch_to',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `developers mode`
+  String get developers_mode {
+    return Intl.message(
+      'developers mode',
+      name: 'developers_mode',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
