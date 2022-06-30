@@ -283,8 +283,8 @@ class AppController {
         : AppState.authenticated;
     model.state = PodSetupState.idle;
 
-    /*await importData(config)
-        .then((value) => SceneController.sceneController.scheduleUIUpdate());*/
+    await importData(config);
+    //.then((value) => SceneController.sceneController.scheduleUIUpdate());
 
     if (_podConnectionConfig != null) {
       if (config is SetupConfigNewPod) {
