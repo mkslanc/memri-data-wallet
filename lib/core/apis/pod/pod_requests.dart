@@ -28,8 +28,7 @@ class PodStandardRequest<Payload> {
       required this.payload})
       : headers = headers ?? {"content-type": "application/json"};
 
-  Future<http.Response> _executeRequest(
-      PodConfig connectionConfig) async {
+  Future<http.Response> _executeRequest(PodConfig connectionConfig) async {
     Uri url = Uri(
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,

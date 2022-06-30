@@ -181,9 +181,7 @@ class SyncController {
     }
   }
 
-  sync(
-      {PodConfig? connectionConfig,
-      Function(String?)? completion}) async {
+  sync({PodConfig? connectionConfig, Function(String?)? completion}) async {
     if (!AppController.shared.hasNetworkConnection) return;
     currentConnection =
         connectionConfig ?? await AppController.shared.podConnectionConfig;

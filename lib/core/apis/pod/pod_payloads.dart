@@ -6,8 +6,7 @@ class PodRequestBody<Payload> {
   Map<String, String> auth;
   Payload payload;
 
-  PodRequestBody(
-      {required PodConfig connectionConfig, required this.payload})
+  PodRequestBody({required PodConfig connectionConfig, required this.payload})
       : auth = {
           "type": "ClientAuth",
           "databaseKey": connectionConfig.databaseKey

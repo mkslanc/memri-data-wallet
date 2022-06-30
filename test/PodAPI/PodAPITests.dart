@@ -14,8 +14,7 @@ import 'package:memri/core/services/database/schema.dart';
 import 'package:uuid/uuid.dart';
 
 /// This connection config is used to connect to the pod for the tests. You can change url scheme/path/port etc here
-var connectionConfig =
-    PodConfig(ownerKey: Uuid().v4(), host: "192.168.88.17");
+var connectionConfig = PodConfig(ownerKey: Uuid().v4(), host: "192.168.88.17");
 
 /// These are used to create test items in the pod for use in later tests
 var noteRowId = 100;
