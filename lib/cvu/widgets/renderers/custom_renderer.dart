@@ -44,7 +44,7 @@ class _CustomRendererViewState extends RendererViewState {
             CVUColor.system("systemBackground");
     scrollable = await viewContext.viewDefinitionPropertyResolver
             .boolean("scrollable") ??
-        true;
+        false;
   }
 
   @override
