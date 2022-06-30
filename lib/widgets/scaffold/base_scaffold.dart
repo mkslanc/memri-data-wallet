@@ -49,14 +49,14 @@ class _BaseScaffoldState extends State<BaseScaffold> {
             child = Scaffold(appBar: widget.appBar, body: widget.body);
             break;
           case AppState.error:
-            WidgetsBinding.instance
+            WidgetsBinding.instance!
                 .addPostFrameCallback((_) => RouteNavigator.navigateTo(
                       context: context,
                       route: Routes.error,
                     ));
             break;
           case AppState.unauthenticated:
-            WidgetsBinding.instance
+            WidgetsBinding.instance!
                 .addPostFrameCallback((_) => RouteNavigator.navigateTo(
                       context: context,
                       route: Routes.onboarding,

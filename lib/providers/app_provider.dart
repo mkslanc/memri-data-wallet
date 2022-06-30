@@ -1,15 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppState { init, loading, success, error, unauthenticated }
 
 class AppProvider with ChangeNotifier {
   final PodService _podService;
-  final SharedPreferences _prefs;
 
-  AppProvider(this._podService, this._prefs);
+  AppProvider(this._podService);
 
   AppState state = AppState.init;
   PackageInfo? _packageInfo;
@@ -43,12 +41,6 @@ class AppProvider with ChangeNotifier {
     } on Exception catch (e) {
       _handleError(e);
     }
-  }
-
-  void _handleLoading() {
-    state = AppState.loading;
-    errorMessage = '';
-    notifyListeners();
   }
 
   void _handleUnauthenticated() {

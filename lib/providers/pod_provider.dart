@@ -72,7 +72,7 @@ class PodProvider with ChangeNotifier {
 
   void openLoginScreen(BuildContext context, {bool developerMode = false}) {
     this._developerMode = developerMode;
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
+    WidgetsBinding.instance!.addPostFrameCallback((_) =>
         RouteNavigator.navigateTo(
             context: context,
             route: developerMode ? Routes.loginDev : Routes.login));
@@ -85,7 +85,7 @@ class PodProvider with ChangeNotifier {
   }
 
   void finishAuthentication(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
+    WidgetsBinding.instance!.addPostFrameCallback((_) =>
         RouteNavigator.navigateTo(
             context: context, route: Routes.workspace, clearStack: true));
   }

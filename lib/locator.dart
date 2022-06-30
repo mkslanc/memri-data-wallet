@@ -20,8 +20,7 @@ Future<void> setup() async {
   SharedPreferences _prefs = await SharedPreferences.getInstance();
 
   /// PROVIDERS
-  locator.registerLazySingleton<AppProvider>(
-      () => AppProvider(locator(), locator()));
+  locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
   locator.registerLazySingleton<PodProvider>(
       () => PodProvider(locator(), locator()));
   locator.registerLazySingleton<WorkspaceProvider>(() => WorkspaceProvider());
