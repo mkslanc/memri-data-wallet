@@ -1,116 +1,97 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/apis/base_api.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
+import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:moor/moor.dart';
+
+class PodAPI extends BaseAPI {
+  PodAPI() : super('');
+
+  late PodConnectionDetails connectionConfig;
+  String endpointUrl = '';
+
+  void setConnectionConfig(PodConnectionDetails cc) {
+    connectionConfig = cc;
+    endpointUrl =
+        '${connectionConfig.baseUrl}/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}';
+  }
+
+  Future<dynamic> search(dynamic payload) async {
+    var endpoint = '$endpointUrl/save-all';
+    var response = await dio.post(endpoint, data: payload);
+    checkResponseError(response);
+    return response.data;
+  }
+
+  Future<dynamic> createItem(Map<String, dynamic> syncDict) async {
+    String endpoint = '$endpointUrl/create_item';
+    var response = await dio.post(endpoint, data: syncDict);
+    checkResponseError(response);
+    return response.data;
+  }
+
+  Future<dynamic> updateItem(Map<String, dynamic> syncDict) async {
+    String endpoint = '$endpointUrl/update_item';
+    var response = await dio.post(endpoint, data: syncDict);
+    checkResponseError(response);
+    return response.data;
+  }
+
+  Future<dynamic> deleteItem(String itemId) async {
+    String endpoint = '$endpointUrl/delete_item';
+    var response = await dio.post(endpoint, data: itemId);
+    checkResponseError(response);
+    return response.data;
+  }
+
+  Future<Item> getItem(String id) async {
+    String endpoint = '$endpointUrl/get_item';
+    var response = await dio.post(endpoint, data: id);
+    checkResponseError(response);
+    var res_dict = jsonDecode(response.data);
+    return Item.fromJson(res_dict[0]);
+  }
+
+  Future<dynamic> getLogsForPluginRun(String itemId) async {
+    String endpoint = '$endpointUrl/get_pluginrun_log';
+    var response = await dio.post(endpoint, data: itemId);
+    checkResponseError(response);
+    return response.data;
+  }
+
+  Future<dynamic> bulkAction(dynamic payload) async {
+    String endpoint = '$endpointUrl/bulk';
+    var response = await dio.post(endpoint, data: payload);
+    checkResponseError(response);
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> queryGraphQL(String query) async {
+    String endpoint = '$endpointUrl/graphql';
+    var response = await dio.post(endpoint, data: query);
+    checkResponseError(response);
+    String resBody = Utf8Decoder().convert(response.data);
+    return jsonDecode(resBody);
+  }
+
+  Future<String> podVersion() async {
+    String endpoint = '$baseUrl/version';
+    var response = await dio.get(endpoint);
+    checkResponseError(response);
+    return jsonDecode(response.data)['cargo'];
+  }
+}
 
 enum HTTPMethod { get, post, delete, put }
 
 extension HTTPMethodExtension on HTTPMethod {
   String get inString {
     return this.toString().toUpperCase();
-  }
-}
-
-class PodStandardRequest<Payload> {
-  HTTPMethod method = HTTPMethod.post;
-  String path;
-  Map<String, String> headers;
-  Payload payload;
-
-  PodStandardRequest(
-      {this.method = HTTPMethod.post,
-      required this.path,
-      headers,
-      required this.payload})
-      : headers = headers ?? {"content-type": "application/json"};
-
-  Future<http.Response> _executeRequest(
-      PodConnectionDetails connectionConfig) async {
-    Uri url = Uri(
-        scheme: connectionConfig.scheme,
-        host: connectionConfig.host,
-        port: connectionConfig.port,
-        path:
-            "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
-
-    /// For a `post` request (or other types of request) encode our payload into the body of the request.
-    var body = jsonEncode(
-        PodRequestBody(connectionConfig: connectionConfig, payload: payload));
-    switch (method) {
-      case HTTPMethod.get:
-        if (path == "version") {
-          url = Uri(
-              scheme: connectionConfig.scheme,
-              host: connectionConfig.host,
-              port: connectionConfig.port,
-              path: "/$path");
-        } else {
-          if (payload is PodPayload) {
-            url = Uri(
-                scheme: connectionConfig.scheme,
-                host: connectionConfig.host,
-                port: connectionConfig.port,
-                path:
-                    "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path",
-                queryParameters: (payload as PodPayload).toJson());
-          }
-        }
-
-        /// For a `get` request, encode our payload into the URL.
-        return await http.get(url, headers: headers);
-      case HTTPMethod.post:
-        return await http.post(url, headers: headers, body: body);
-      case HTTPMethod.delete:
-        return await http.delete(url, headers: headers, body: body);
-      case HTTPMethod.put:
-        return await http.put(url, headers: headers, body: body);
-    }
-  }
-
-  Future<http.Response> execute(PodConnectionDetails connectionConfig) async {
-    return await _executeRequest(connectionConfig);
-  }
-
-  static PodStandardRequest searchAction<Payload>(Payload payload) {
-    return PodStandardRequest(path: "search", payload: payload);
-  }
-
-  static PodStandardRequest createItem(Map<String, dynamic> syncDict) {
-    return PodStandardRequest(path: "create_item", payload: syncDict);
-  }
-
-  static PodStandardRequest updateItem(Map<String, dynamic> syncDict) {
-    return PodStandardRequest(path: "update_item", payload: syncDict);
-  }
-
-  static PodStandardRequest deleteItem(String itemId) {
-    // Note payload is just item UID (no JSON)
-    return PodStandardRequest(path: "delete_item", payload: itemId);
-  }
-
-  static PodStandardRequest getItem<Payload>(Payload payload) {
-    return PodStandardRequest(path: "get_item", payload: payload);
-  }
-
-  static PodStandardRequest getLogsForPluginRun(String itemId) {
-    return PodStandardRequest(path: "get_pluginrun_log", payload: itemId);
-  }
-
-  static PodStandardRequest bulkAction<Payload>(Payload payload) {
-    return PodStandardRequest(path: "bulk", payload: payload);
-  }
-
-  static PodStandardRequest getVersion() {
-    return PodStandardRequest(
-        method: HTTPMethod.get, path: "version", payload: {});
-  }
-
-  static PodStandardRequest queryGraphQL<Payload>(String query) {
-    return PodStandardRequest(path: "graphql", payload: query);
   }
 }
 

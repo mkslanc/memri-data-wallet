@@ -13,7 +13,9 @@ class AppProvider with ChangeNotifier {
   String podVersion = 'x.x.x.x';
   String appVersion = 'x.x.x.x';
   PackageInfo? _packageInfo;
-  late PodConnectionDetails connectionConfig;
+
+  /// TODO fill this after merge auth changes
+  PodConnectionDetails connectionConfig = PodConnectionDetails();
 
   Future<void> initialize() async {
     _packageInfo = await PackageInfo.fromPlatform();
@@ -23,13 +25,7 @@ class AppProvider with ChangeNotifier {
             ? '0'
             : _packageInfo!.buildNumber);
 
-    // TODO connectionConfig = PodConnectionDetails();
-    _podService.podVersion(
-        connectionConfig: connectionConfig,
-        completion: (version, error) {
-          podVersion = version!;
-        });
-
+    podVersion = await _podService.podVersion();
     notifyListeners();
   }
 }

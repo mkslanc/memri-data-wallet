@@ -1,91 +1,42 @@
-import 'dart:convert';
-
-import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/models/item.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod_api.dart';
+import 'package:memri/core/models/item.dart';
+import 'package:memri/core/services/api_service.dart';
 
-class PodService {
-  podVersion(
-      {required PodConnectionDetails connectionConfig,
-      required Function(String?, String?) completion}) async {
-    var request = PodStandardRequest.getVersion();
-    var response = await request.execute(connectionConfig);
+class PodService extends ApiService<PodAPI> {
+  PodService() : super(api: PodAPI());
 
-    var error;
-    if (response.statusCode != 200) {
-      AppLogger.err("ERROR: ${response.statusCode} ${response.reasonPhrase}");
-      error =
-          response.statusCode.toString() + ' ' + (response.reasonPhrase ?? "");
-    }
+  Future<String> podVersion() async =>
+      api.podVersion().catchError((error) => '');
 
-    var version = jsonDecode(response.body)["cargo"];
-    await completion(version, error);
+  Future<dynamic> bulkAction({
+    required PodConnectionDetails connectionConfig,
+    required PodPayloadBulkAction bulkPayload,
+  }) async {
+    api.setConnectionConfig(connectionConfig);
+    return api.bulkAction(bulkPayload);
   }
 
-  bulkAction(
-      {required PodPayloadBulkAction bulkPayload,
-      required Function(String?) completion,
-      required PodConnectionDetails connectionConfig}) async {
-    var request = PodStandardRequest.bulkAction(bulkPayload);
-    var networkCall = await request.execute(connectionConfig);
-    var error;
-    if (networkCall.statusCode != 200) {
-      AppLogger.err(
-          "ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-      error = networkCall.statusCode.toString() +
-          ' ' +
-          (networkCall.reasonPhrase ?? "");
-    }
-    await completion(error);
+  Future<Item> getItem({
+    required PodConnectionDetails connectionConfig,
+    required String id,
+  }) async {
+    api.setConnectionConfig(connectionConfig);
+    return api.getItem(id);
   }
 
-  getItem(
-      {required Function(Item?, String?)? completion,
-      required PodConnectionDetails connectionConfig,
-      required String id}) async {
-    var payload = id;
-
-    var request = PodStandardRequest.getItem(payload);
-    var response = await request.execute(connectionConfig);
-    var error;
-    if (response.statusCode != 200) {
-      AppLogger.err("ERROR: ${response.statusCode} ${response.reasonPhrase}");
-      error =
-          response.statusCode.toString() + ' ' + (response.reasonPhrase ?? "");
-    }
-    if (completion != null) {
-      var res_dict = jsonDecode(response.body);
-      Item item = Item.fromJson(res_dict[0]);
-      await completion(item, error);
-    }
-  }
-
-  graphql({
+  Future<List<Item>> graphql({
     required PodConnectionDetails connectionConfig,
     required String query,
-    required Function(List<Item>, String?)? completion,
   }) async {
-    var request = PodStandardRequest.queryGraphQL(query);
-    var response = await request.execute(connectionConfig);
-    var error;
-    if (response.statusCode != 200) {
-      AppLogger.err("ERROR: ${response.statusCode} ${response.reasonPhrase}");
-      error =
-          response.statusCode.toString() + ' ' + (response.reasonPhrase ?? "");
-    }
-    if (completion != null) {
-      String resBody = Utf8Decoder().convert(response.bodyBytes);
-      var items = parseGQLResponse(resBody);
-      await completion(items, error);
-    }
+    api.setConnectionConfig(connectionConfig);
+    return _parseGQLResponse(await api.queryGraphQL(query));
   }
 
-  List<Item> parseGQLResponse(String body) {
-    Map<String, dynamic> dict = jsonDecode(body);
+  List<Item> _parseGQLResponse(Map<String, dynamic> jsonBody) {
     List<Item> result = [];
-    List<dynamic> data = dict['data'] ?? [];
+    List<dynamic> data = jsonBody['data'] ?? [];
     data.forEach((itemMap) => result.add(Item.fromJson(itemMap)));
     return result;
   }
