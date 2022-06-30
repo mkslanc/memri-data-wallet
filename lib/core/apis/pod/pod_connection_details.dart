@@ -2,6 +2,7 @@
 
 /// This type holds all the details required to connect to the pod and authenticate for a request
 class PodConnectionDetails {
+  final String baseUrl;
   final String scheme;
   final String host;
   final int port;
@@ -10,7 +11,8 @@ class PodConnectionDetails {
   final String databaseKey;
 
   PodConnectionDetails(
-      {this.scheme = "http",
+      {this.baseUrl = 'http://localhost:3030',
+      this.scheme = "http",
       this.host = "localhost",
       this.port = 3030,
       this.apiVersion = "v4",
