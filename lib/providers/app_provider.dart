@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -12,6 +13,7 @@ class AppProvider with ChangeNotifier {
   String podVersion = 'x.x.x.x';
   String appVersion = 'x.x.x.x';
   PackageInfo? _packageInfo;
+  late PodConnectionDetails connectionConfig;
 
   Future<void> initialize() async {
     _packageInfo = await PackageInfo.fromPlatform();
@@ -20,7 +22,14 @@ class AppProvider with ChangeNotifier {
         (_packageInfo?.buildNumber == null || _packageInfo!.buildNumber.isEmpty
             ? '0'
             : _packageInfo!.buildNumber);
-    podVersion = await _podService.podVersion();
+
+    // TODO connectionConfig = PodConnectionDetails();
+    _podService.podVersion(
+        connectionConfig: connectionConfig,
+        completion: (version, error) {
+          podVersion = version!;
+        });
+
     notifyListeners();
   }
 }
