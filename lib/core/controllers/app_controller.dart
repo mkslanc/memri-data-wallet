@@ -256,6 +256,7 @@ class AppController {
         if (config is SetupConfigLocal) _isInDemoMode = true;
         await Settings.shared
             .set("defaults/general/isInDemoMode", _isInDemoMode);
+        await cvuController.storeDefinitions();
       }
     }
   }
