@@ -81,66 +81,6 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
   }
 }
 
-/*class CVUActionOpenCVUEditor extends CVUAction {
-  Map<String, CVUValue> vars;
-
-  CVUActionOpenCVUEditor({Map<String, CVUValue>? vars})
-      : this.vars = vars ?? {};
-
-  @override
-  execute(memri.PageController pageController, CVUContext context) async {
-    var label = "mainCVUEditor";
-    var cvuEditorPageController =
-        pageController.sceneController.pageControllerByLabel(label);
-
-    var db = AppController.shared.databaseController;
-    var resolver = CVUPropertyResolver(
-        context: context,
-        lookup: CVULookupController(),
-        db: db,
-        properties: vars);
-    var forceOpen = (await resolver.boolean("forceOpen", false))!;
-
-    if (cvuEditorPageController != null && !forceOpen) {
-      pageController.sceneController
-          .removePageController(cvuEditorPageController);
-    } else {
-      var newVars = Map.of(vars);
-      var viewArguments = <String, CVUValue>{};
-      if (newVars["viewArguments"] != null) {
-        viewArguments = Map.of(
-            (newVars["viewArguments"] as CVUValueSubdefinition)
-                .value
-                .properties);
-      }
-      newVars["viewArguments"] = CVUValueSubdefinition(CVUDefinitionContent(
-          properties: viewArguments
-            ..addAll({"clearStack": CVUValueConstant(CVUConstantBool(true))})));
-
-      int pageControllersCount =
-          pageController.sceneController.pageControllers.length;
-      if (forceOpen && cvuEditorPageController != null) {
-        pageController.sceneController
-            .removePageController(cvuEditorPageController);
-      }
-
-      cvuEditorPageController =
-          await pageController.sceneController.addPageController(label);
-      int cols = (6 / pageControllersCount)
-          .round(); //TODO will kinda sorta work for 1-3 page controllers, cols logic is tech debt for now
-      pageController.sceneController.pageControllers.forEach(
-          (currentPageController) =>
-              currentPageController.topMostContext?.config.cols = cols);
-
-      await CVUActionOpenView(
-        vars: newVars,
-        viewName: "cvuEditor",
-        renderer: "cvueditor",
-      ).execute(cvuEditorPageController, context);
-    }
-  }
-}*/
-
 class CVUActionOpenLink extends CVUAction {
   Map<String, CVUValue> vars;
 
