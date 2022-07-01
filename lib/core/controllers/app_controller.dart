@@ -8,7 +8,6 @@ import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/controllers/permission_controller.dart';
-import 'package:memri/core/controllers/pub_sub_controller.dart';
 import 'package:memri/core/controllers/sync_controller.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
@@ -94,7 +93,6 @@ class AppController {
   late DatabaseController databaseController;
   late SyncController syncController;
   late CVUController cvuController;
-  late PubSubController pubSubController;
   late PermissionsController permissionController;
   late PodSetupModel model;
 
@@ -136,7 +134,6 @@ class AppController {
     databaseController = DatabaseController(inMemory: false);
     syncController = SyncController(databaseController);
     cvuController = CVUController(databaseController);
-    pubSubController = PubSubController(databaseController);
     permissionController = PermissionsController();
     model = PodSetupModel();
   }
@@ -389,7 +386,6 @@ class AppController {
         _podConnectionConfig = null;
         syncIsolate?.kill(priority: Isolate.immediate);
       }
-      pubSubController.reset();
       cvuController.reset();
       await FileStorageController.deleteFileStorage();
       await databaseController.delete();
