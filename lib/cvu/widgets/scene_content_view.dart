@@ -58,9 +58,6 @@ class _SceneContentViewState extends State<SceneContentView> {
         return ChartRendererView(viewContext: viewContext);
       case "singleitem":
         return SingleItemRendererView(viewContext: viewContext);
-      /*case "cvueditor":
-        return CVUEditorRendererView(
-            viewContext: viewContext, pageController: pageController);*/
       case "custom":
         return CustomRendererView(viewContext: viewContext);
       default:
