@@ -19,6 +19,7 @@ class AppColors {
   final Color orange = const Color(0xffff9500);
   final Color yellow = const Color(0xffffcc00);
   final Color green = const Color(0xff34c759);
+  final Color brandGreen = Color(0xff15B599);
 
   final Color primary = const Color(0xffFE570F);
   final Color accent = const Color(0xff007aff);
@@ -27,6 +28,7 @@ class AppColors {
 
   final Color greenBackground = const Color(0xffdbf7c5);
   final Color purpleBackground = const Color(0xffefe4fd);
+  final Color greyBackGround = Color(0xffF6F6F6);
 
   final Color greyInactive = const Color(0xffd0d0d0);
   final Color textLight = const Color(0xffc0c0c0);

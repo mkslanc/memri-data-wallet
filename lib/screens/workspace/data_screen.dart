@@ -45,7 +45,7 @@ class _DataScreenState extends State<DataScreen> {
               spacing: 30,
               runSpacing: 30,
               children: [
-                _buildBox(
+                buildBox(
                   title: 'Whatsapp',
                   description: '23 feature variables',
                   size: 'MB',
@@ -53,14 +53,14 @@ class _DataScreenState extends State<DataScreen> {
                   onTap: () => RouteNavigator.navigateToRoute(
                       context: context, route: Routes.importer),
                 ),
-                _buildBox(
+                buildBox(
                   title: 'Gmail Plugin',
                   description: '23 feature variables',
                   size: 'MB',
                   status: 'ACTIVE',
                   onTap: () {},
                 ),
-                _buildBox(
+                buildBox(
                   title: 'Instagram',
                   description: '23 feature variables',
                   size: 'MB',
@@ -93,7 +93,10 @@ class _DataScreenState extends State<DataScreen> {
     );
   }
 
-  Widget _buildBox({
+
+}
+
+  Widget buildBox({
     required String title,
     required String description,
     required String size,
@@ -132,4 +135,3 @@ class _DataScreenState extends State<DataScreen> {
       ),
     );
   }
-}

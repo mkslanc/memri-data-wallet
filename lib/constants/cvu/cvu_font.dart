@@ -107,6 +107,10 @@ class CVUFont {
       size: ul.fontSize!,
       weight: ul.fontWeight,
     ),
+    "input": CVUFont(
+      size: 13,
+      weight: FontWeight.w400,
+    ),
   };
 
   static const headline1 = TextStyle(
@@ -184,4 +188,9 @@ class CVUFont {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Color(0xff333333));
+  static const input = TextStyle(
+      fontFamily: 'Karla',
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff99999980));
 }

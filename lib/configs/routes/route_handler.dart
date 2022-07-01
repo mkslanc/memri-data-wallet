@@ -21,6 +21,8 @@ import 'package:memri/screens/workspace/projects/projects_app_deploy_screen.dart
 import 'package:memri/screens/workspace/projects/projects_app_summary_screen.dart';
 import 'package:memri/screens/workspace/projects/projects_create_screen.dart';
 import 'package:memri/screens/workspace/projects/projects_label_data_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_setup_data_screen.dart';
+import 'package:memri/screens/workspace/projects/projects_setup_label_editor.dart';
 import 'package:memri/screens/workspace/projects_screen.dart';
 import 'package:memri/screens/workspace/projects/projects_summary_screen.dart';
 import 'package:memri/screens/workspace/workspace_screen.dart';
@@ -107,3 +109,9 @@ var projectsAppDeployScreenHandler =
 
 var projectsAppSummaryScreenHandler =
     Handler(handlerFunc: (_, __) => ProjectsAppSummaryScreen());
+
+var projectsSetupDataScreenHandler =
+    Handler(handlerFunc: (_, __) => ProjectsSetupDataScreen());
+
+var projectsSetupLabelEditorHandler =
+    Handler(handlerFunc: (_, __) => ProjectsSetupLabelEditorScreen());
