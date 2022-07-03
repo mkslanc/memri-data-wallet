@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 
-
 class Item {
   String type;
   String? id;
@@ -30,10 +29,10 @@ class Item {
     return this.properties![propertyName] ?? null;
   }
 
-  Map<String, dynamic> toJson(){
+  Map<String, dynamic> toJson() {
     Map<String, dynamic> obj = properties ?? {};
     obj["type"] = type;
-    if (id != null){
+    if (id != null) {
       obj["id"] = id;
     }
     return obj;
@@ -78,4 +77,3 @@ class EdgeList {
     return this.targets.firstOrNull;
   }
 }
-
