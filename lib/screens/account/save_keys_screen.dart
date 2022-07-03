@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/providers/pod_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/widgets/components/error_message.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 import 'package:provider/provider.dart';
 
-class SaveKeysScreen extends StatefulWidget {
+class SaveKeysScreen extends StatelessWidget {
   const SaveKeysScreen() : super();
 
-  @override
-  State<SaveKeysScreen> createState() => _SaveKeysScreenState();
-}
-
-class _SaveKeysScreenState extends State<SaveKeysScreen> {
   @override
   Widget build(BuildContext context) {
     return AccountScaffold(
@@ -27,17 +24,17 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
               children: [
                 SizedBox(height: 16),
                 Text(
-                  "Save your crypto keys",
+                  S.current.account_save_keys_title,
                   style: CVUFont.headline1,
                 ),
                 SizedBox(height: 32),
                 Text(
-                  "These are your personal Crypto Keys. Save them in a safe place.",
+                  S.current.account_save_keys_message,
                   style: CVUFont.bodyText1,
                 ),
                 SizedBox(height: 15),
                 Text(
-                  "You will need your keys to log into your account. If you lose your keys, you will not be able to recover them and you will permanently lose access to your account and POD. ",
+                  S.current.account_save_keys_message_highlight,
                   style: CVUFont.bodyText1.copyWith(color: Color(0xff4F56FE)),
                 ),
                 SizedBox(height: 16),
@@ -47,7 +44,7 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 25),
-                      Text("To use your keys locally in pymemri run:",
+                      Text(S.current.account_save_keys_developer_hint,
                           style: CVUFont.headline3),
                       SizedBox(height: 5),
                       Text(
@@ -61,7 +58,7 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                         style: TextButton.styleFrom(
                             backgroundColor: Color(0xffF0F0F0)),
                         child: Text(
-                          "Copy",
+                          S.current.copy,
                           style: CVUFont.buttonLabel
                               .copyWith(color: Color(0xffFE570F)),
                         ),
@@ -70,32 +67,12 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                       Divider(height: 1),
                     ],
                   ),
-                // if (_isKeysLoading)
-                //   Padding(
-                //     padding: EdgeInsets.only(top: 24),
-                //     child: Center(
-                //       child: Column(
-                //         children: [
-                //           SizedBox(
-                //             child: CircularProgressIndicator(),
-                //             width: 28,
-                //             height: 28,
-                //           ),
-                //           Text(
-                //             "Generating your keys",
-                //             style: TextStyle(color: Colors.black),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   )
-                // else if (!_hasAuthError)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 10),
                     Text(
-                      "your login key".toUpperCase(),
+                      S.current.your_login_key.toUpperCase(),
                       style:
                           CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
                     ),
@@ -109,7 +86,7 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                     Divider(height: 1),
                     SizedBox(height: 10),
                     Text(
-                      "your password key".toUpperCase(),
+                      S.current.your_password_key.toUpperCase(),
                       style:
                           CVUFont.smallCaps.copyWith(color: Color(0xff828282)),
                     ),
@@ -122,32 +99,33 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                   ],
                 ),
                 SizedBox(height: 15),
-                // if (!_hasAuthError)
-                TextButton(
-                  onPressed: provider.copyKeysToClipboard,
-                  style:
-                      TextButton.styleFrom(backgroundColor: Color(0xffFE570F)),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Copy keys to clipboard",
-                        style:
-                            CVUFont.buttonLabel.copyWith(color: Colors.white),
-                      ),
-                      SizedBox(width: 10),
-                      app.icons.copyToClipboard(color: Colors.white),
-                    ],
+                if (provider.state != AuthState.error)
+                  TextButton(
+                    onPressed: provider.copyKeysToClipboard,
+                    style: TextButton.styleFrom(
+                        backgroundColor: Color(0xffFE570F)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          S.current.copy_keys_to_clipboard,
+                          style:
+                              CVUFont.buttonLabel.copyWith(color: Colors.white),
+                        ),
+                        SizedBox(width: 10),
+                        app.icons.copyToClipboard(color: Colors.white),
+                      ],
+                    ),
                   ),
-                ),
-                // if (_hasAuthError) ErrorMessage(appController.model.errorString!),
+                if (provider.state == AuthState.error)
+                  ErrorMessage(provider.errorMessage),
                 if (provider.state == AuthState.savedKeys)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 20),
                       Text(
-                        "You need your login and password keys in the creating app process.",
+                        S.current.account_save_keys_copy_warning,
                         style: CVUFont.bodyText1,
                       ),
                       SizedBox(height: 20),
@@ -156,7 +134,7 @@ class _SaveKeysScreenState extends State<SaveKeysScreen> {
                         style: primaryButtonStyle,
                         child: Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text("I’ve saved the keys",
+                          child: Text(S.current.account_save_keys_saved_button,
                               style: CVUFont.buttonLabel
                                   .copyWith(color: Colors.white)),
                         ),

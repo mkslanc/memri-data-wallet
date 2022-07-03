@@ -22,7 +22,7 @@ Future<void> setup() async {
   /// PROVIDERS
   locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
   locator.registerLazySingleton<PodProvider>(
-      () => PodProvider(locator(), locator()));
+      () => PodProvider(locator(), locator(), locator()));
   locator.registerLazySingleton<WorkspaceProvider>(() => WorkspaceProvider());
   locator.registerLazySingleton<ImporterProvider>(() => ImporterProvider());
   locator.registerLazySingleton<ProjectProvider>(() => ProjectProvider());

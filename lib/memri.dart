@@ -37,7 +37,8 @@ class _MemriState extends State<Memri> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => locator<AppProvider>()),
+        ChangeNotifierProvider(
+            create: (_) => locator<AppProvider>()..initialize()),
         ChangeNotifierProvider(create: (_) => locator<PodProvider>()),
         ChangeNotifierProvider(create: (_) => locator<WorkspaceProvider>()),
         ChangeNotifierProvider(create: (_) => locator<ImporterProvider>()),
