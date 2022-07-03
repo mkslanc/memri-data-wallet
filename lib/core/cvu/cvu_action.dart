@@ -900,9 +900,7 @@ class CVUActionPluginRun extends CVUAction {
 
       MixpanelAnalyticsService().logImporterConnect(pluginName);
       await PluginHandler.run(
-          plugin: plugin,
-          runner: pluginRunItem,
-          context: context);
+          plugin: plugin, runner: pluginRunItem, context: context);
     } catch (error) {
       AppLogger.err("Error starting plugin: $error");
     }
