@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:memri/core/apis/base_api.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/models/item.dart';
@@ -12,68 +12,129 @@ import 'package:moor/moor.dart';
 class PodAPI extends BaseAPI {
   PodAPI() : super('');
 
-  late PodConnectionDetails connectionConfig;
-  String endpointUrl = '';
+  late PodConfig _podConfig;
+  String _endpointUrl = '';
 
-  void setConnectionConfig(PodConnectionDetails cc) {
-    connectionConfig = cc;
-    endpointUrl =
-        '${connectionConfig.baseUrl}/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}';
+  void setConnectionConfig(PodConfig podConfig) {
+    _podConfig = podConfig;
+    _endpointUrl =
+        '${_podConfig.baseUrl}/${_podConfig.apiVersion}/${_podConfig.ownerKey}';
+  }
+
+  Future<dynamic> authenticate() async {
+    String endpoint = '$_endpointUrl/search';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': {'_limit': 1},
+      },
+    );
+    checkResponseError(response);
+    return response.data;
   }
 
   Future<dynamic> search(dynamic payload) async {
-    var endpoint = '$endpointUrl/save-all';
-    var response = await dio.post(endpoint, data: payload);
+    var endpoint = '$_endpointUrl/search';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': payload,
+      },
+    );
     checkResponseError(response);
     return response.data;
   }
 
   Future<dynamic> createItem(Map<String, dynamic> syncDict) async {
-    String endpoint = '$endpointUrl/create_item';
-    var response = await dio.post(endpoint, data: syncDict);
+    String endpoint = '$_endpointUrl/create_item';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': syncDict,
+      },
+    );
     checkResponseError(response);
     return response.data;
   }
 
   Future<dynamic> updateItem(Map<String, dynamic> syncDict) async {
-    String endpoint = '$endpointUrl/update_item';
-    var response = await dio.post(endpoint, data: syncDict);
+    String endpoint = '$_endpointUrl/update_item';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': syncDict,
+      },
+    );
     checkResponseError(response);
     return response.data;
   }
 
   Future<dynamic> deleteItem(String itemId) async {
-    String endpoint = '$endpointUrl/delete_item';
-    var response = await dio.post(endpoint, data: itemId);
+    String endpoint = '$_endpointUrl/delete_item';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': itemId,
+      },
+    );
     checkResponseError(response);
     return response.data;
   }
 
   Future<Item> getItem(String id) async {
-    String endpoint = '$endpointUrl/get_item';
-    var response = await dio.post(endpoint, data: id);
+    String endpoint = '$_endpointUrl/get_item';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': id,
+      },
+    );
     checkResponseError(response);
     var res_dict = jsonDecode(response.data);
     return Item.fromJson(res_dict[0]);
   }
 
   Future<dynamic> getLogsForPluginRun(String itemId) async {
-    String endpoint = '$endpointUrl/get_pluginrun_log';
-    var response = await dio.post(endpoint, data: itemId);
+    String endpoint = '$_endpointUrl/get_pluginrun_log';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': itemId,
+      },
+    );
     checkResponseError(response);
     return response.data;
   }
 
   Future<dynamic> bulkAction(dynamic payload) async {
-    String endpoint = '$endpointUrl/bulk';
-    var response = await dio.post(endpoint, data: payload);
+    String endpoint = '$_endpointUrl/bulk';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': payload,
+      },
+    );
     checkResponseError(response);
     return response.data;
   }
 
   Future<Map<String, dynamic>> queryGraphQL(String query) async {
-    String endpoint = '$endpointUrl/graphql';
-    var response = await dio.post(endpoint, data: query);
+    String endpoint = '$_endpointUrl/graphql';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': query,
+      },
+    );
     checkResponseError(response);
     String resBody = Utf8Decoder().convert(response.data);
     return jsonDecode(resBody);
@@ -106,7 +167,7 @@ class PodUploadRequest<Payload> {
 
   PodUploadRequest({required this.path, required this.payload});
 
-  Future<http.Response> execute(PodConnectionDetails connectionConfig) async {
+  Future<http.Response> execute(PodConfig connectionConfig) async {
     Uri url = Uri(
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,
@@ -121,7 +182,7 @@ class PodUploadRequest<Payload> {
       {required String fileURL,
       Uint8List? fileData,
       String? fileSHAHash,
-      required PodConnectionDetails connectionConfig}) async {
+      required PodConfig connectionConfig}) async {
     fileData ??= await FileStorageController.getData(fileURL: fileURL);
     fileSHAHash ??=
         fileData != null ? FileStorageController.getHashForData(fileData) : "";
@@ -155,7 +216,7 @@ class PodDownloadRequest<Payload> {
     return await FileStorageController.getURLForFile(fileUID);
   }
 
-  Future<http.Response> execute(PodConnectionDetails connectionConfig) async {
+  Future<http.Response> execute(PodConfig connectionConfig) async {
     Uri url = Uri(
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,

@@ -26,7 +26,7 @@ class ImportersScreen extends StatelessWidget {
                 style: CVUFont.bodyText1.copyWith(color: Color(0xff737373))),
             SizedBox(height: 60),
             TextButton(
-              onPressed: () => RouteNavigator.navigateToRoute(
+              onPressed: () => RouteNavigator.navigateTo(
                   context: context, route: Routes.importerConnect),
               style: primaryButtonStyle,
               child: Text("Connect!"),
