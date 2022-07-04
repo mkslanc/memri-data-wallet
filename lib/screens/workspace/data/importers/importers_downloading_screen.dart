@@ -79,7 +79,7 @@ class _ImportersDownloadingScreenState
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () => RouteNavigator.navigateToRoute(
+                          onPressed: () => RouteNavigator.navigateTo(
                               context: context, route: Routes.projects),
                           style: primaryButtonStyle,
                           child: Text("Create a new project"),
@@ -88,7 +88,7 @@ class _ImportersDownloadingScreenState
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () => RouteNavigator.navigateToRoute(
+                          onPressed: () => RouteNavigator.navigateTo(
                               context: context, route: Routes.data),
                           style: secondaryButtonStyle,
                           child: Text("Back to data screen"),

@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/apis/pod/item.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
 import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 
 class PodAPI {
   // PodConnectionDetails? currentConnection;
@@ -14,7 +14,7 @@ class PodAPI {
   bulkAction(
       {required PodPayloadBulkAction bulkPayload,
       required Function(String?) completion,
-      PodConnectionDetails? connectionConfig}) async {
+      PodConfig? connectionConfig}) async {
     connectionConfig ??= await AppController.shared.podConnectionConfig;
     if (connectionConfig == null) {
       throw Exception("No pod connection config");
@@ -35,7 +35,7 @@ class PodAPI {
 
   getItem(
       {required Function(Item?, String?)? completion,
-      PodConnectionDetails? connectionConfig,
+      PodConfig? connectionConfig,
       required String id}) async {
     connectionConfig ??= await AppController.shared.podConnectionConfig;
     if (connectionConfig == null) {
@@ -59,7 +59,7 @@ class PodAPI {
   }
 
   graphql({
-    PodConnectionDetails? connectionConfig,
+    PodConfig? connectionConfig,
     required String query,
     required Function(List<Item>, String?)? completion,
   }) async {
@@ -82,8 +82,8 @@ class PodAPI {
     }
   }
 
-  Future<List<Item>> getDataset(PodConnectionDetails connectionConfig,
-      String datasetName, Function(List<Item>, String?)? completion) async {
+  Future<List<Item>> getDataset(PodConfig connectionConfig, String datasetName,
+      Function(List<Item>, String?)? completion) async {
     var query = '''
       query {
         Dataset (filter: {name: {eq: "$datasetName"}}) {
@@ -115,27 +115,27 @@ class PodAPI {
     return result;
   }
 
-  //   search(
-  //     {required int dateServerModifiedTimestamp,
-  //     required Function(String?, String?)? completion,
-  //     required int limit,
-  //     PodConnectionDetails? connectionConfig,
-  //     order = "Asc"}) async {
+//   search(
+//     {required int dateServerModifiedTimestamp,
+//     required Function(String?, String?)? completion,
+//     required int limit,
+//     PodConnectionDetails? connectionConfig,
+//     order = "Asc"}) async {
 
-  //   connectionConfig ??= await AppController.shared.podConnectionConfig;
-  //   var payload = {
-  //     "dateServerModified>=": dateServerModifiedTimestamp,
-  //     "[[edges]]": {},
-  //     "_limit": limit,
-  //     "_sortOrder": order
-  //   };
-  //   var request = PodStandardRequest.searchAction(payload);
-  //   var networkCall = await request.execute(connectionConfig!);
-  //   var error;
-  //   if (networkCall.statusCode != 200) {
-  //     AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
-  //     error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
-  //   }
-  //   if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
-  // }
+//   connectionConfig ??= await AppController.shared.podConnectionConfig;
+//   var payload = {
+//     "dateServerModified>=": dateServerModifiedTimestamp,
+//     "[[edges]]": {},
+//     "_limit": limit,
+//     "_sortOrder": order
+//   };
+//   var request = PodStandardRequest.searchAction(payload);
+//   var networkCall = await request.execute(connectionConfig!);
+//   var error;
+//   if (networkCall.statusCode != 200) {
+//     AppLogger.err("ERROR: ${networkCall.statusCode} ${networkCall.reasonPhrase}");
+//     error = networkCall.statusCode.toString() + ' ' + (networkCall.reasonPhrase ?? "");
+//   }
+//   if (completion != null) await completion(Utf8Decoder().convert(networkCall.bodyBytes), error);
+// }
 }

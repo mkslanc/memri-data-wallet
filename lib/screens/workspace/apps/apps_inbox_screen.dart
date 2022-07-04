@@ -178,9 +178,9 @@ class _AppsInboxScreenState extends State<AppsInboxScreen> {
       await AppController.shared.podApi.graphql(
           query: query,
           completion: (data, error) {
-            if (data != null) {
-              items = data;
-            }
+            // if (data != null) {
+            items = data;
+            // }
           });
       if (items != null) {
         yield items!;
