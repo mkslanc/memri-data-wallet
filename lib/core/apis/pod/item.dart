@@ -20,6 +20,11 @@ class Item {
     return this.edges![edgeName] ?? null;
   }
 
+  Item? edgeItem(String edgeName) {
+    // Returns first edge target, if it exists.
+    return this.getEdges(edgeName)?.first();
+  }
+
   dynamic get(String propertyName) {
     return this.properties![propertyName] ?? null;
   }
