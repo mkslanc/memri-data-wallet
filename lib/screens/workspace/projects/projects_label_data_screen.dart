@@ -75,8 +75,6 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
                         ],
                       ),
                     ),
-
-                  
                   Container(
                     padding: EdgeInsets.all(32),
                     child: Column(
@@ -116,19 +114,31 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
                             child: InkWell(
                               onTap: () => handleLabelClick(labels[i]),
                               child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
                                   margin: EdgeInsets.symmetric(vertical: 2),
                                   decoration: BoxDecoration(
-                                      color: labels[i].selected ? app.colors.backgroundOrange: app.colors.brandWhite,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20))),
+                                      color: labels[i].selected
+                                          ? app.colors.backgroundOrange
+                                          : app.colors.brandWhite,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
                                   child: Row(
                                     children: [
-                                      Text(labels[i].item?.get("labelName"), style: CVUFont.bodyText1.copyWith(color: labels[i].selected ? app.colors.brandOrange: app.colors.brandBlack),),
+                                      Text(
+                                        labels[i].item?.get("labelName"),
+                                        style: CVUFont.bodyText1.copyWith(
+                                            color: labels[i].selected
+                                                ? app.colors.brandOrange
+                                                : app.colors.brandBlack),
+                                      ),
                                       SizedBox(
                                         width: 4,
                                       ),
-                                      Text(i.toString(), style: CVUFont.smallCaps,),
+                                      Text(
+                                        i.toString(),
+                                        style: CVUFont.smallCaps,
+                                      ),
                                     ],
                                   )),
                             ),
@@ -293,15 +303,15 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
         ));
   }
 
-  resetLabels(){
+  resetLabels() {
     setState(() {
-        for (var _label in labels){
-          _label.selected=false;
-        }
+      for (var _label in labels) {
+        _label.selected = false;
+      }
     });
   }
 
-  inheritCurrentLabel(){
+  inheritCurrentLabel() {
     // TODO
   }
 
@@ -319,7 +329,7 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
     if (currentItem > 0) {
       setState(() {
         currentItem -= 1;
-      resetLabels();
+        resetLabels();
       });
       // TODO: Store label here
     }
@@ -349,23 +359,22 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
     Item.fromJson({"content": "Lorum ipsum 2", "dateSent": 123456})
   ];
   int currentItem = 0;
-  bool showInfo=true;
-  
+  bool showInfo = true;
+
   handleLabelClick(Label label) {
     setState(() {
-      for (var _label in labels){
-        if (_label != label){
-          _label.selected=false;
-        } 
+      for (var _label in labels) {
+        if (_label != label) {
+          _label.selected = false;
+        }
       }
       label.selected = !label.selected;
     });
-
   }
-  
+
   toggleShowInfo() {
     setState(() {
-      showInfo=false;
+      showInfo = false;
     });
   }
 }

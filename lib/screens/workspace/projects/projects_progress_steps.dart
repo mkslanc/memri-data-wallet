@@ -18,7 +18,7 @@ class _ProjectProgressStepsState extends State<ProjectProgressSteps> {
   @override
   Widget build(BuildContext context) {
     return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < contents.length; i++)
           Container(
@@ -28,7 +28,8 @@ class _ProjectProgressStepsState extends State<ProjectProgressSteps> {
               children: [
                 Text(
                   "0${i + 1}",
-                  style: CVUFont.smallCaps.copyWith(color:app.colors.brandBlack),
+                  style:
+                      CVUFont.smallCaps.copyWith(color: app.colors.brandBlack),
                 ),
                 AppImages().arrowLong(),
                 Container(
@@ -45,7 +46,7 @@ class _ProjectProgressStepsState extends State<ProjectProgressSteps> {
     );
   }
 
-    List<String> contents = [
+  List<String> contents = [
     "Collect your data",
     "Create new project",
     'Label your data',
@@ -54,4 +55,3 @@ class _ProjectProgressStepsState extends State<ProjectProgressSteps> {
     "Add a UI"
   ];
 }
-

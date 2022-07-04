@@ -19,7 +19,7 @@ final ButtonStyle secondaryButtonStyle = TextButton.styleFrom(
     padding: const EdgeInsets.all(10),
     onSurface: Colors.white);
 
-final ButtonStyle tertiaryButtonStyle= TextButton.styleFrom(
+final ButtonStyle tertiaryButtonStyle = TextButton.styleFrom(
     backgroundColor: app.colors.brandBlack,
     primary: app.colors.brandWhite,
     textStyle: CVUFont.buttonLabel,

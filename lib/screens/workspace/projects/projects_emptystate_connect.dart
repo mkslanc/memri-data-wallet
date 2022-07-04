@@ -38,9 +38,7 @@ class _ProjectsEmptyStateScreenState extends State<ProjectsEmptyStateScreen> {
             SizedBox(height: 32),
             TextButton(
                 onPressed: () => RouteNavigator.navigateTo(
-                    context: context,
-                    route: Routes.projectsCreate)
-                    ,
+                    context: context, route: Routes.projectsCreate),
                 style: primaryButtonStyle,
                 child: Text("Create your project"))
           ],

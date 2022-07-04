@@ -22,7 +22,9 @@ class ProjectsSummaryScreen extends StatelessWidget {
               "Your labelling summary",
               style: CVUFont.headline1,
             ),
-            SizedBox(height: 16,),
+            SizedBox(
+              height: 16,
+            ),
             Container(
               constraints: BoxConstraints(maxWidth: 500),
               child: Text(

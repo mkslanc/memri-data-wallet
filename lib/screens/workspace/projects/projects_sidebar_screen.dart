@@ -29,8 +29,7 @@ class ProjectSideBar extends StatelessWidget {
               children: [
                 Text(
                   "Support",
-                  style: TextStyle(
-                      color: app.colors.brandBlack, fontSize: 20),
+                  style: TextStyle(color: app.colors.brandBlack, fontSize: 20),
                 ),
               ],
             ),
@@ -49,16 +48,16 @@ class ProjectSideBar extends StatelessWidget {
             Row(
               children: [
                 Text("Getting started",
-                    style: TextStyle(
-                        color: app.colors.brandOrange, fontSize: 14)),
+                    style:
+                        TextStyle(color: app.colors.brandOrange, fontSize: 14)),
               ],
             ),
             SizedBox(height: 16),
             Row(
               children: [
                 Text("Chat with us on Discord",
-                    style: TextStyle(
-                        color: app.colors.brandOrange, fontSize: 14)),
+                    style:
+                        TextStyle(color: app.colors.brandOrange, fontSize: 14)),
               ],
             ),
           ],

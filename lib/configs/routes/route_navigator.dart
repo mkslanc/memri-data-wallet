@@ -30,7 +30,8 @@ class Routes {
   static String projectsAppDeploy = '/projects/new_app/deploy';
   static String projectsAppSummary = '/projects/new_app/summary';
   static String projectsSetupData = '/projects/new_app/setup_data';
-  static String projectsSetupLabelEditor = '/projects/new_app/setup_label_editor';
+  static String projectsSetupLabelEditor =
+      '/projects/new_app/setup_label_editor';
 
   static String apps = '/workspace/apps';
   static String inbox = '/workspace/apps/inbox';
@@ -62,7 +63,8 @@ class Routes {
     router.define(projectsAppDeploy, handler: projectsAppDeployScreenHandler);
     router.define(projectsAppSummary, handler: projectsAppSummaryScreenHandler);
     router.define(projectsSetupData, handler: projectsSetupDataScreenHandler);
-    router.define(projectsSetupLabelEditor, handler: projectsSetupLabelEditorHandler);
+    router.define(projectsSetupLabelEditor,
+        handler: projectsSetupLabelEditorHandler);
   }
 }
 
