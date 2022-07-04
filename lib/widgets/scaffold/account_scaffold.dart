@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/models/pod_setup.dart';
+import 'package:memri/localization/generated/l10n.dart';
+import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/utilities/helpers/responsive_helper.dart';
 import 'package:memri/widgets/dots_indicator.dart';
 import 'package:memri/widgets/empty.dart';
+import 'package:memri/widgets/scaffold/base_scaffold.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class AccountScaffold extends StatefulWidget {
@@ -23,7 +25,6 @@ class AccountScaffold extends StatefulWidget {
 
 class _AccountScaffoldState extends State<AccountScaffold>
     with SingleTickerProviderStateMixin {
-  AppController appController = AppController.shared;
   final List<Widget> _slides = <Widget>[];
   PageController _controller = PageController();
   Timer? _periodicTimer;
@@ -47,6 +48,7 @@ class _AccountScaffoldState extends State<AccountScaffold>
 
   @override
   void initState() {
+    Provider.of<AppProvider>(context, listen: false).initAccountsAuthState();
     if (widget.showSlider) {
       _animationController = AnimationController(
           duration: const Duration(milliseconds: 600), vsync: this);
@@ -58,7 +60,8 @@ class _AccountScaffoldState extends State<AccountScaffold>
       _slides.addAll([_slide1, _slide2, _slide3]);
       _periodicTimer = Timer.periodic(const Duration(seconds: 3), (_) {
         if (_controller.page == null) return;
-        if (_controller.page == _slides.length - 1) {
+        if (_controller.page! > 0 &&
+            _controller.page!.toInt() == _slides.length - 1) {
           _controller.animateToPage(
             0,
             duration: const Duration(milliseconds: 300),
@@ -76,14 +79,14 @@ class _AccountScaffoldState extends State<AccountScaffold>
   @override
   void dispose() {
     _controller.dispose();
-    _periodicTimer?.cancel();
+    if (_periodicTimer != null) _periodicTimer!.cancel();
     _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       body: Stack(
         children: [
           Container(
@@ -108,7 +111,7 @@ class _AccountScaffoldState extends State<AccountScaffold>
                 Container(
                   height: ResponsiveHelper(context).isLargeScreen ? 52 : 36,
                   alignment: Alignment.bottomCenter,
-                  child: Text('memri',
+                  child: Text(S.current.memri.toLowerCase(),
                       style: CVUFont.headline2.copyWith(color: Colors.white)),
                 ),
               ],
@@ -120,50 +123,17 @@ class _AccountScaffoldState extends State<AccountScaffold>
             child: InkWell(
               onTap: () => launchUrlString(
                   'https://www.memri.io/memri-privacy-preserving-license'),
-              child: Text('License',
+              child: Text(S.current.license,
                   style: CVUFont.headline4
                       .copyWith(color: Colors.white, fontSize: 17)),
             ),
           ),
-          Stack(
-            children: [
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 30),
-                child: ResponsiveHelper(context).isLargeScreen
-                    ? _buildDesktopBody()
-                    : _buildMobileBody(),
-              ),
-              if (appController.model.state == PodSetupState.loading) ...[
-                Stack(
-                  children: [
-                    Positioned(
-                        top: 0,
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                        child: ColoredBox(color: Color.fromRGBO(0, 0, 0, 0.7))),
-                    Center(
-                      child: Column(
-                        children: [
-                          Spacer(),
-                          SizedBox(
-                            child: CircularProgressIndicator(),
-                            width: 60,
-                            height: 60,
-                          ),
-                          Text(
-                            "Setup in progress...",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          Spacer()
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
+          Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 30),
+            child: ResponsiveHelper(context).isLargeScreen
+                ? _buildDesktopBody()
+                : _buildMobileBody(),
           ),
         ],
       ),
@@ -179,26 +149,40 @@ class _AccountScaffoldState extends State<AccountScaffold>
           Expanded(
             flex: 2,
             child: Container(
-                color: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 120),
-                child: widget.child),
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: widget.showSlider ? animation.value : Colors.white,
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 50,
-                    bottom: 60,
-                    right: 50,
-                    child: _buildSlider(),
-                  ),
-                ],
-              ),
+              height: MediaQuery.of(context).size.height,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 120),
+              child: widget.showSlider
+                  ? widget.child
+                  : Row(children: [
+                      Expanded(
+                        flex: 2,
+                        child: widget.child,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(color: Colors.white),
+                      ),
+                    ]),
             ),
-          )
+          ),
+          if (widget.showSlider)
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: widget.showSlider ? animation.value : Colors.white,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 50,
+                      bottom: 60,
+                      right: 50,
+                      child: _buildSlider(),
+                    ),
+                  ],
+                ),
+              ),
+            )
         ],
       ),
     );
@@ -270,12 +254,12 @@ class _AccountScaffoldState extends State<AccountScaffold>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Create data apps with your own data",
+            S.current.account_slider_1_title,
             style: CVUFont.headline1.copyWith(color: Colors.white),
           ),
           SizedBox(height: 30),
           Text(
-            "Import your data from services like WhatsApp, Gmail, Instagram and Twitter into your private Memri POD. Process and use your data to build machine learning apps all in one platform.",
+            S.current.account_slider_1_message,
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],
@@ -286,12 +270,12 @@ class _AccountScaffoldState extends State<AccountScaffold>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Easy deployment into apps you can use",
+            S.current.account_slider_2_title,
             style: CVUFont.headline1.copyWith(color: Colors.white),
           ),
           SizedBox(height: 30),
           Text(
-            "Add and edit a custom interface to your app and see changes live. Select from ready building blocks such as VStacks, HStacks, Text and buttons inside the embedded Ace editor without leaving the platform.",
+            S.current.account_slider_2_message,
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],
@@ -302,12 +286,12 @@ class _AccountScaffoldState extends State<AccountScaffold>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Share your apps in an instant",
+            S.current.account_slider_3_title,
             style: CVUFont.headline1.copyWith(color: Colors.white),
           ),
           SizedBox(height: 30),
           Text(
-            "Push your code to your repo in the dev or prod branch using our plugin template, and you’re done.",
+            S.current.account_slider_3_message,
             style: CVUFont.bodyText1.copyWith(color: Colors.white),
           ),
         ],

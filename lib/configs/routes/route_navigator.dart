@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_handler.dart';
 
 class Routes {
-  static String splash = '/';
+  static String workspace = '/';
   static String onboarding = '/hello';
-  static String accountError = '/account/error';
+  static String error = '/error';
   // static String create = '/account/create';
   static String login = '/login';
   static String loginDev = '/login_dev';
@@ -15,8 +15,6 @@ class Routes {
 
   // static String verifyKeys = '/account/verify_keys';
   // static String forgotPassword = '/account/forgot_password';
-
-  static String workspace = '/workspace';
 
   static String data = '/data';
   static String importer = '/data/importers';
@@ -37,14 +35,12 @@ class Routes {
 
   static void configureRoutes(FluroRouter router) {
     router.notFoundHandler = notFoundHandler;
-    router.define(splash, handler: splashScreenHandler);
+    router.define(workspace, handler: workspaceScreenHandler);
     router.define(onboarding, handler: onboardingScreenHandler);
     router.define(login, handler: loginScreenHandler);
     router.define(loginDev, handler: loginDeveloperScreenHandler);
     router.define(saveKeys, handler: saveKeysScreenHandler);
-    router.define(accountError, handler: accountErrorScreenHandler);
-
-    router.define(workspace, handler: workspaceScreenHandler);
+    router.define(error, handler: errorScreenHandler);
 
     router.define(data, handler: dataScreenHandler);
     router.define(importer, handler: importerScreenHandler);
@@ -69,9 +65,9 @@ class Routes {
 class RouteNavigator {
   static late FluroRouter router;
 
-  static Future<dynamic> navigateToRoute({
-    required BuildContext context,
+  static Future<dynamic> navigateTo({
     required String route,
+    required BuildContext context,
     Duration transitionDuration = const Duration(milliseconds: 300),
     TransitionType transition = TransitionType.fadeIn,
     Map<String, dynamic>? param,

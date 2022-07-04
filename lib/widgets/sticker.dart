@@ -30,7 +30,7 @@ class Sticker extends StatelessWidget {
             ),
           )
         : Container(
-            width: 400,
+            width: 350,
             height: 450,
             child: _buildBody(),
           );
