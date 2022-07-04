@@ -20,8 +20,7 @@ class ImporterDownloadingScreen extends StatefulWidget {
       _ImporterDownloadingScreenState();
 }
 
-class _ImporterDownloadingScreenState
-    extends State<ImporterDownloadingScreen> {
+class _ImporterDownloadingScreenState extends State<ImporterDownloadingScreen> {
   @override
   Widget build(BuildContext context) {
     print("building progress $progress");
