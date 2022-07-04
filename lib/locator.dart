@@ -25,7 +25,8 @@ Future<void> setup() async {
       () => PodProvider(locator(), locator(), locator()));
   locator.registerLazySingleton<WorkspaceProvider>(() => WorkspaceProvider());
   locator.registerLazySingleton<ImporterProvider>(() => ImporterProvider());
-  locator.registerLazySingleton<ProjectProvider>(() => ProjectProvider(locator()));
+  locator
+      .registerLazySingleton<ProjectProvider>(() => ProjectProvider(locator()));
 
   /// SERVICES
   locator.registerLazySingleton<PodService>(() => PodService(locator()));
