@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod_api.dart';
 import 'package:memri/core/models/item.dart';
@@ -22,6 +26,13 @@ class PodService extends ApiService<PodAPI> {
 
   final SharedPreferences _prefs;
   late PodConfig podConfig;
+  final Map<String, String> _podPropertyTypes = {
+    "string": "Text",
+    "int": "Integer",
+    "double": "Real",
+    "bool": "Bool",
+    "datetime": "DateTime",
+  };
 
   /**
    *  Authentication
@@ -63,26 +74,101 @@ class PodService extends ApiService<PodAPI> {
   /**
    * POD
    */
+
+  Future<void> createSchema() async {
+    Map<String, dynamic> schemaJson =
+        jsonDecode(await rootBundle.loadString("assets/schema.json"));
+
+    List<Map<String, dynamic>> schemaItems = [];
+
+    for (var property in schemaJson["properties"]) {
+      schemaItems.add({
+        "type": "ItemPropertySchema",
+        "itemType": property["item_type"],
+        "propertyName": property["property"],
+        "valueType": _podPropertyTypes[property["value_type"]],
+      });
+    }
+
+    for (var edge in schemaJson["edges"]) {
+      schemaItems.add({
+        "type": "ItemEdgeSchema",
+        "sourceType": edge["source_type"],
+        "targetType": edge["target_type"],
+        "edgeName": edge["edge"],
+      });
+    }
+
+    debugPrint("[DEBUG] create schema: ${schemaItems.length} items");
+    var payload = PodPayloadBulkAction(
+        createItems: schemaItems,
+        updateItems: [],
+        deleteItems: [],
+        createEdges: []);
+    api.bulkAction(payload);
+  }
+
   Future<String> podVersion() async =>
       api.podVersion().catchError((error) => '');
 
-  Future<dynamic> bulkAction({
-    required PodConfig connectionConfig,
-    required PodPayloadBulkAction bulkPayload,
-  }) async =>
-      api.bulkAction(bulkPayload);
+  Future<void> bulkAction({
+    List<Item>? createItems = null,
+    List<Item>? updateItems = null,
+    List<String>? deleteItems = null,
+    List<Edge>? createEdges = null,
+  }) async {
+    List<Map<String, dynamic>> createPayload = [];
+    if (createItems != null) {
+      createItems.forEach((item) {
+        item.setIdIfNotExists();
+        createPayload.add(item.toJson());
+      });
+    }
+
+    List<Map<String, dynamic>> updatePayload = [];
+    if (updateItems != null) {
+      updateItems.forEach((item) {
+        updatePayload.add(item.toJson());
+      });
+    }
+
+    List<Map<String, dynamic>> edgePayload = [];
+    if (createEdges != null) {
+      createEdges.forEach((edge) {
+        edgePayload.add(edge.toJson());
+      });
+    }
+
+    var bulkPayload = PodPayloadBulkAction(
+        createItems: createPayload,
+        updateItems: updatePayload,
+        deleteItems: deleteItems ?? [],
+        createEdges: edgePayload);
+
+    await api.bulkAction(bulkPayload);
+  }
 
   Future<Item> getItem({
-    required PodConfig connectionConfig,
     required String id,
   }) async =>
-      api.getItem(id);
+      Item.fromJson(await api.getItem(id));
 
   Future<List<Item>> graphql({
-    required PodConfig connectionConfig,
     required String query,
   }) async =>
       _parseGQLResponse(await api.queryGraphQL(query));
+
+  Future<Item> createItem({
+    required Item item,
+  }) async {
+    if (item.type == null) {
+      throw new Exception("Attempted to create item without an item type.");
+    }
+    var itemMap = item.toJson();
+    var resultID = await api.createItem(itemMap);
+    item.properties["id"] = resultID;
+    return item;
+  }
 
   List<Item> _parseGQLResponse(Map<String, dynamic> jsonBody) {
     List<Item> result = [];

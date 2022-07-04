@@ -5,7 +5,6 @@ import 'package:memri/core/apis/base_api.dart';
 import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
-import 'package:memri/core/models/item.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:moor/moor.dart';
 
@@ -47,13 +46,13 @@ class PodAPI extends BaseAPI {
     return response.data;
   }
 
-  Future<dynamic> createItem(Map<String, dynamic> syncDict) async {
+  Future<String> createItem(Map<String, dynamic> item_map) async {
     String endpoint = '$_endpointUrl/create_item';
     var response = await dio.post(
       endpoint,
       data: {
         'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
-        'payload': syncDict,
+        'payload': item_map,
       },
     );
     checkResponseError(response);
@@ -86,7 +85,7 @@ class PodAPI extends BaseAPI {
     return response.data;
   }
 
-  Future<Item> getItem(String id) async {
+  Future<Map<String, dynamic>> getItem(String id) async {
     String endpoint = '$_endpointUrl/get_item';
     var response = await dio.post(
       endpoint,
@@ -96,8 +95,7 @@ class PodAPI extends BaseAPI {
       },
     );
     checkResponseError(response);
-    var res_dict = jsonDecode(response.data);
-    return Item.fromJson(res_dict[0]);
+    return jsonDecode(response.data);
   }
 
   Future<dynamic> getLogsForPluginRun(String itemId) async {
