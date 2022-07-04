@@ -569,6 +569,186 @@ class S {
       args: [],
     );
   }
+
+  /// `One place for your data apps`
+  String get workspace_title {
+    return Intl.message(
+      'One place for your data apps',
+      name: 'workspace_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect and label your data, train ML models, and build, customise and deploy new machine learning apps. Get started here!`
+  String get workspace_description {
+    return Intl.message(
+      'Connect and label your data, train ML models, and build, customise and deploy new machine learning apps. Get started here!',
+      name: 'workspace_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect and collect your data`
+  String get workspace_sticker_1_title {
+    return Intl.message(
+      'Connect and collect your data',
+      name: 'workspace_sticker_1_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import data from WhatsApp, Gmail or Instagram, create a custom importer, or upload data directly.`
+  String get workspace_sticker_1_description {
+    return Intl.message(
+      'Import data from WhatsApp, Gmail or Instagram, create a custom importer, or upload data directly.',
+      name: 'workspace_sticker_1_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect your services`
+  String get workspace_sticker_1_button_1_label {
+    return Intl.message(
+      'Connect your services',
+      name: 'workspace_sticker_1_button_1_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload data`
+  String get workspace_sticker_1_button_2_label {
+    return Intl.message(
+      'Upload data',
+      name: 'workspace_sticker_1_button_2_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Build a machine learning app`
+  String get workspace_sticker_2_title {
+    return Intl.message(
+      'Build a machine learning app',
+      name: 'workspace_sticker_2_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select the datasource, label data, and build a ML model with just a few lines of code.`
+  String get workspace_sticker_2_description {
+    return Intl.message(
+      'Select the datasource, label data, and build a ML model with just a few lines of code.',
+      name: 'workspace_sticker_2_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a new dataset`
+  String get workspace_sticker_2_button_1_label {
+    return Intl.message(
+      'Create a new dataset',
+      name: 'workspace_sticker_2_button_1_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ``
+  String get workspace_sticker_2_button_2_label {
+    return Intl.message(
+      '',
+      name: 'workspace_sticker_2_button_2_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add and edit UI live`
+  String get workspace_sticker_3_title {
+    return Intl.message(
+      'Add and edit UI live',
+      name: 'workspace_sticker_3_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a user interface to your app using standard building blocks such as VStacks, HStacks, Text, and Buttons.`
+  String get workspace_sticker_3_description {
+    return Intl.message(
+      'Add a user interface to your app using standard building blocks such as VStacks, HStacks, Text, and Buttons.',
+      name: 'workspace_sticker_3_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Deploy your app`
+  String get workspace_sticker_3_button_1_label {
+    return Intl.message(
+      'Deploy your app',
+      name: 'workspace_sticker_3_button_1_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ``
+  String get workspace_sticker_3_button_2_label {
+    return Intl.message(
+      '',
+      name: 'workspace_sticker_3_button_2_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View documentation`
+  String get workspace_sticker_4_title {
+    return Intl.message(
+      'View documentation',
+      name: 'workspace_sticker_4_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Learn everything you need to know about POD architecture, plugins, and importers on our developer site. If you get stuck, join our community for help!`
+  String get workspace_sticker_4_description {
+    return Intl.message(
+      'Learn everything you need to know about POD architecture, plugins, and importers on our developer site. If you get stuck, join our community for help!',
+      name: 'workspace_sticker_4_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quick start guide`
+  String get workspace_sticker_4_button_1_label {
+    return Intl.message(
+      'Quick start guide',
+      name: 'workspace_sticker_4_button_1_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get support on Discord`
+  String get workspace_sticker_4_button_2_label {
+    return Intl.message(
+      'Get support on Discord',
+      name: 'workspace_sticker_4_button_2_label',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

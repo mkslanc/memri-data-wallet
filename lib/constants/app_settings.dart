@@ -44,4 +44,8 @@ class AppSettings {
   final bool dioLogInterceptorRequestBody = true;
   final bool dioLogInterceptorResponseHeader = true;
   final bool dioLogInterceptorResponseBody = true;
+
+  /// Links
+  final String guideUrl = 'https://docs.memri.io/overview/quickStart/';
+  final String discordUrl = 'https://discord.com/invite/BcRfajJk4k';
 }

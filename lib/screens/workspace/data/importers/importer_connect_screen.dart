@@ -38,14 +38,14 @@ class ImporterInfoLine extends StatelessWidget {
   }
 }
 
-class ImportersConnectScreen extends StatefulWidget {
-  const ImportersConnectScreen({Key? key}) : super(key: key);
+class ImporterConnectScreen extends StatefulWidget {
+  const ImporterConnectScreen({Key? key}) : super(key: key);
 
   @override
-  State<ImportersConnectScreen> createState() => _ImportersConnectScreenState();
+  State<ImporterConnectScreen> createState() => _ImporterConnectScreenState();
 }
 
-class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
+class _ImporterConnectScreenState extends State<ImporterConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return WorkspaceScaffold(

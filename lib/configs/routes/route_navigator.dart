@@ -6,6 +6,7 @@ class Routes {
   static String workspace = '/';
   static String onboarding = '/hello';
   static String error = '/error';
+
   // static String create = '/account/create';
   static String login = '/login';
   static String loginDev = '/login_dev';
@@ -17,10 +18,11 @@ class Routes {
   // static String forgotPassword = '/account/forgot_password';
 
   static String data = '/data';
-  static String importer = '/data/importers';
-  static String importerCreate = '/data/importers/create';
-  static String importerConnect = '/data/importers/connect';
-  static String importerDownloading = '/data/importers/downloading';
+  static String importer = '/data/importer';
+  static String importerCreate = '/data/importer/create';
+  static String importerConnect = '/data/importer/connect';
+  static String importerDownloading = '/data/importer/downloading';
+  static String importerError = '/data/importer/error';
 
   static String projects = '/projects';
   static String projectsCreate = '/projects/create';
@@ -51,6 +53,7 @@ class Routes {
     router.define(importerConnect, handler: importerConnectScreenHandler);
     router.define(importerDownloading,
         handler: importerDownloadingScreenHandler);
+    router.define(importerError, handler: importerErrorScreenHandler);
 
     router.define(apps, handler: appsScreenHandler);
     router.define(inbox, handler: appsInboxScreenHandler);

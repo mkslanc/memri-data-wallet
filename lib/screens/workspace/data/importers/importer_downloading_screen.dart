@@ -9,19 +9,19 @@ import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
-class ImportersDownloadingScreen extends StatefulWidget {
-  const ImportersDownloadingScreen({Key? key, required this.id})
+class ImporterDownloadingScreen extends StatefulWidget {
+  const ImporterDownloadingScreen({Key? key, required this.id})
       : super(key: key);
 
   final String id;
 
   @override
-  State<ImportersDownloadingScreen> createState() =>
-      _ImportersDownloadingScreenState();
+  State<ImporterDownloadingScreen> createState() =>
+      _ImporterDownloadingScreenState();
 }
 
-class _ImportersDownloadingScreenState
-    extends State<ImportersDownloadingScreen> {
+class _ImporterDownloadingScreenState
+    extends State<ImporterDownloadingScreen> {
   @override
   Widget build(BuildContext context) {
     print("building progress $progress");
