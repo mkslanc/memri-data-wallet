@@ -162,7 +162,7 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
   late Stream<Item> pluginRunItemStream;
 
   void execute() async {
-    var db = AppController.shared.databaseController;
+    // var db = AppController.shared.databaseController;
 
     // TODO, what are we doing with things from the default database?
 

@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/app_images.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/core/models/database/database.dart';
-import 'package:memri/screens/workspace/projects/projects_progress_steps.dart';
-import 'package:memri/utilities/binding.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
-import 'package:memri/widgets/components/text_field/memri_text_field.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
-import 'package:memri/screens/workspace/data_screen.dart';
 import 'dart:html';
 
 class ProjectsSetupLabelEditorScreen extends StatefulWidget {
