@@ -44,6 +44,8 @@ class PodProvider with ChangeNotifier {
     try {
       await _podService.authenticate(
           podAddress: podUrl, ownerKey: ownerKey, dbKey: dbKey);
+      // TODO move this once not required on signup
+      await _podService.createSchema();
       _handleAuthenticated(context);
 
       RouteNavigator.navigateTo(
