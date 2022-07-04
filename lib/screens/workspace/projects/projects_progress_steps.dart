@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_images.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 
 class ProjectProgressSteps extends StatefulWidget {
   const ProjectProgressSteps({
@@ -17,21 +18,25 @@ class _ProjectProgressStepsState extends State<ProjectProgressSteps> {
   @override
   Widget build(BuildContext context) {
     return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < contents.length; i++)
           Container(
-            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            padding: EdgeInsets.only(right: 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "0${i + 1}",
-                  style: CVUFont.bodyText1,
+                  style: CVUFont.smallCaps.copyWith(color:app.colors.brandBlack),
                 ),
                 AppImages().arrowLong(),
-                Text(
-                  contents[i],
-                  style: CVUFont.bodyText2,
+                Container(
+                  constraints: BoxConstraints(maxWidth: 80),
+                  child: Text(
+                    contents[i],
+                    style: CVUFont.bodyText1,
+                  ),
                 ),
               ],
             ),

@@ -34,10 +34,15 @@ class _ProjectsSetupDataScreenState extends State<ProjectsSetupDataScreen> {
               children: [
                 Text("Step 2", style: CVUFont.headline2),
                 Text("Select feature variables", style: CVUFont.headline1),
-                SizedBox(height: 32,),
-                Text(
-                    "Feature variables represent different information available in your connected datasets. You may choose the most relevant variables based on what kind of predictions you wish your app to make. For example, if you want the app use the message body, choose ‘message text’.",
-                    style: CVUFont.bodyText1),
+                SizedBox(
+                  height: 32,
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 600),
+                  child: Text(
+                      "Feature variables represent different information available in your connected datasets. You may choose the most relevant variables based on what kind of predictions you wish your app to make. For example, if you want the app use the message body, choose ‘message text’.",
+                      style: CVUFont.bodyText1),
+                ),
                 Text(
                     "Select which information from your dataset you wish to use in your app:",
                     style: CVUFont.bodyText1),
@@ -57,7 +62,7 @@ class _ProjectsSetupDataScreenState extends State<ProjectsSetupDataScreen> {
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                             color: selected[0]
-                                ? Color.fromARGB(20, 254, 87, 15)
+                                ? app.colors.backgroundOrange
                                 : app.colors.brandWhite,
                             borderRadius: BorderRadius.all(Radius.circular(2))),
                         child: Row(children: [
@@ -74,7 +79,7 @@ class _ProjectsSetupDataScreenState extends State<ProjectsSetupDataScreen> {
                         ]),
                       ),
                     ),
-                                        InkWell(
+                    InkWell(
                       onTap: () {
                         setState(() {
                           selected[1] = !selected[1];

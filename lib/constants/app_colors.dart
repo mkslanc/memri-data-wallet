@@ -42,4 +42,6 @@ class AppColors {
   final Color brandWhite = const Color(0xfff5f5f5);
   final Color brandBlack = const Color(0xff333333);
   final Color brandOrange = const Color(0xffE9500F);
+
+  final Color backgroundOrange = const Color.fromARGB(20, 254, 87, 15);
 }

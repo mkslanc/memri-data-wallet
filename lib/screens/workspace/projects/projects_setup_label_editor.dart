@@ -12,6 +12,7 @@ import 'package:memri/widgets/components/text_field/memri_text_field.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 import 'package:memri/screens/workspace/data_screen.dart';
+import 'dart:html';
 
 class ProjectsSetupLabelEditorScreen extends StatefulWidget {
   const ProjectsSetupLabelEditorScreen({Key? key}) : super(key: key);
@@ -25,6 +26,11 @@ class _ProjectsSetupDataScreenState
     extends State<ProjectsSetupLabelEditorScreen> {
   @override
   Widget build(BuildContext context) {
+    document.addEventListener('keydown', (dynamic event) {
+      if (event.code == 'Tab') {
+        event.preventDefault();
+      }
+    });
     return WorkspaceScaffold(
         currentItem: NavigationItem.data,
         child: Container(
@@ -39,9 +45,12 @@ class _ProjectsSetupDataScreenState
                 SizedBox(
                   height: 32,
                 ),
-                Text(
-                    "Add the labels you want to use on your data and in your app.  You may only use one label per data item. For example, if you are building a sentiment analysis app, add: positive, negative and neutral to label each message.",
-                    style: CVUFont.bodyText1),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 500),
+                  child: Text(
+                      "Add the labels you want to use on your data and in your app.  You may only use one label per data item. For example, if you are building a sentiment analysis app, add: positive, negative and neutral to label each message.",
+                      style: CVUFont.bodyText1),
+                ),
                 Text(
                     "Use the index numbers for keyboard shortcuts to help you label at warp speed!",
                     style: CVUFont.bodyText1),
@@ -51,21 +60,28 @@ class _ProjectsSetupDataScreenState
                 Column(
                   children: [
                     for (var i = 0; i < labels.length; i++)
-                      Container(
-                          padding: EdgeInsets.all(8),
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                              color: app.colors.brandWhite,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
-                          child: Row(
-                            children: [
-                              Text(labels[i]),
-                              SizedBox(width: 4,),
-                              Text(i.toString()),
-                              AppImages().x()
-                            ],
-                          )),
+                      FittedBox(
+                        child: Container(
+                            padding: EdgeInsets.all(8),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                                color: app.colors.brandWhite,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20))),
+                            child: Row(
+                              children: [
+                                Text(labels[i]),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(i.toString()),
+                                InkWell(
+                                  child: AppImages().x(),
+                                  onTap: () => handleLabelCancel(i),
+                                )
+                              ],
+                            )),
+                      ),
                   ],
                 ),
                 Row(
@@ -75,6 +91,7 @@ class _ProjectsSetupDataScreenState
                       child: Container(
                           color: Color(0xffF5F5F5),
                           child: TextFormField(
+                              onFieldSubmitted: (str) => handleNewLabel(),
                               controller: userInput,
                               decoration: InputDecoration(
                                   hintText: "e.g. positive",
@@ -146,11 +163,19 @@ class _ProjectsSetupDataScreenState
   }
 
   void setSelected() {}
-  
+
   void handleNewLabel() {
     setState(() {
-      labels.add(userInput.text);
-      userInput.text = "";
+      if (userInput.text != "") {
+        labels.add(userInput.text);
+        userInput.text = "";
+      }
+    });
+  }
+
+  handleLabelCancel(int labelIndex) {
+    setState(() {
+      labels.removeAt(labelIndex);
     });
   }
 }

@@ -18,6 +18,13 @@ class ProjectsLabelDataScreen extends StatefulWidget {
       _ProjectsLabelDataScreenState();
 }
 
+class Label {
+  bool selected = false;
+  Item? item;
+
+  Label(this.item, {this.selected = false}) {}
+}
+
 class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
   @override
   Widget build(BuildContext context) {
@@ -31,33 +38,47 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
           child: Row(
             children: [
               // labeling panel
-              Flexible(
+              Expanded(
                 flex: 3,
                 child: Column(children: [
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    width: double.infinity,
-                    color: Color.fromARGB(10, 33, 192, 164),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppImages().x(
-                            color: app.colors.brandGreen,
-                            height: 20,
-                            width: 20),
-                        Text(
-                          "You don’t need to label entire dataset upfront, though accurately labeled data will increase your model’s accuracy.",
-                          style: greenstyle,
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Text(
-                            "Once you feel you have labeled enough to train the model, quit labelling and move to next step.",
-                            style: greenstyle),
-                      ],
+                  if (showInfo)
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      width: double.infinity,
+                      color: Color.fromARGB(10, 33, 192, 164),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: (() => toggleShowInfo()),
+                              child: AppImages().x(
+                                  color: app.colors.brandGreen,
+                                  height: 20,
+                                  width: 20),
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "You don’t need to label entire dataset upfront, though accurately labeled data will increase your model’s accuracy.",
+                                style: greenstyle,
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                  "Once you feel you have labeled enough to train the model, quit labelling and move to next step.",
+                                  style: greenstyle),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+
+                  
                   Container(
                     padding: EdgeInsets.all(32),
                     child: Column(
@@ -66,29 +87,54 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
                         //   "Hey Davis,\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Eu scelerisque nisi et aliquam arcu enim. ",
                         //   style: CVUFont.headline1,
                         // ),
-                        Text(
-                          items[currentItem].get("content"),
-                          style: CVUFont.headline1,
+                        Container(
+                          padding: EdgeInsets.all(128),
+                          child: Text(
+                            items[currentItem].get("content"),
+                            style: CVUFont.headline1,
+                          ),
                         ),
 
+                        // Wrap(
+                        //   children: [
+                        //     for (var i = 0; i < labels.length; i++)
+                        //       Chip(
+                        //         label: InkWell(
+                        //           child: Text(labels[i]),
+                        //           onTap: () {},
+                        //         ),
+                        //         deleteIcon: AppImages().x(),
+                        //         onDeleted: () {},
+                        //         backgroundColor: app.colors.brandWhite,
+                        //       ),
+                        //   ],
+                        //   spacing: 8,
+                        //   direction: Axis.vertical,
+                        //   crossAxisAlignment: WrapCrossAlignment.center,
+                        //   runSpacing: 8,
+                        // ),
                         for (var i = 0; i < labels.length; i++)
-                          Container(
-                              padding: EdgeInsets.all(8),
-                              margin: EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                  color: app.colors.brandWhite,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: Row(
-                                children: [
-                                  Text(labels[i]),
-                                  SizedBox(
-                                    width: 4,
-                                  ),
-                                  Text(i.toString()),
-                                  AppImages().x()
-                                ],
-                              )),
+                          FittedBox(
+                            child: InkWell(
+                              onTap: () => handleLabelClick(labels[i]),
+                              child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  margin: EdgeInsets.symmetric(vertical: 2),
+                                  decoration: BoxDecoration(
+                                      color: labels[i].selected ? app.colors.backgroundOrange: app.colors.brandWhite,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(20))),
+                                  child: Row(
+                                    children: [
+                                      Text(labels[i].item?.get("labelName"), style: CVUFont.bodyText1.copyWith(color: labels[i].selected ? app.colors.brandOrange: app.colors.brandBlack),),
+                                      SizedBox(
+                                        width: 4,
+                                      ),
+                                      Text(i.toString(), style: CVUFont.smallCaps,),
+                                    ],
+                                  )),
+                            ),
+                          ),
                         Row(
                           children: [
                             TextButton(
@@ -132,63 +178,113 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
                       SizedBox(
                         height: 32,
                       ),
-                      Text("ITEMS", style: CVUFont.headline4),
+                      Text("ITEMS",
+                          style: CVUFont.smallCaps
+                              .copyWith(color: Color(0xff999999))),
+                      SizedBox(height: 4),
                       Row(
                         children: [
-                          Text("Labeled", style: CVUFont.ul),
+                          Text("Labeled",
+                              style: CVUFont.ul
+                                  .copyWith(color: Color(0xff999999))),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("234", style: CVUFont.ul),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("80%", style: CVUFont.ul),
                         ],
                       ),
+                      SizedBox(height: 4),
                       Row(
                         children: [
-                          Text("Skipped", style: CVUFont.ul),
+                          Text("Skipped",
+                              style: CVUFont.ul
+                                  .copyWith(color: Color(0xff999999))),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("23", style: CVUFont.ul),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("8%", style: CVUFont.ul),
                         ],
                       ),
+                      SizedBox(height: 4),
                       Row(
                         children: [
-                          Text("Total dataset", style: CVUFont.ul),
+                          Text("Total dataset",
+                              style: CVUFont.ul
+                                  .copyWith(color: Color(0xff999999))),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("500", style: CVUFont.ul),
                         ],
                       ),
                       SizedBox(
                         height: 32,
                       ),
-                      Text("LABELS", style: CVUFont.headline4),
+                      Text("LABELS",
+                          style: CVUFont.smallCaps
+                              .copyWith(color: Color(0xff999999))),
+                      SizedBox(height: 4),
                       Row(
                         children: [
                           Text("Positive", style: CVUFont.ul),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("23", style: CVUFont.ul),
+                          SizedBox(
+                            width: 8,
+                          ),
                           Text("8%", style: CVUFont.ul),
                         ],
                       ),
                       SizedBox(
                         height: 32,
                       ),
-                      Text("HISTORY", style: CVUFont.headline4),
-                          Text("lorum ipsum dolrated", style: CVUFont.ul),
+                      Text("HISTORY",
+                          style: CVUFont.smallCaps
+                              .copyWith(color: Color(0xff999999))),
+                      SizedBox(height: 4),
+                      Text("lorum ipsum Dolor sit amet", style: CVUFont.ul),
+                      SizedBox(height: 4),
+                      Text("lorum ipsum Dolor sit amet", style: CVUFont.ul),
                       SizedBox(
-                        height: 16,
+                        height: 128,
                       ),
-                      TextButton(
-                          onPressed: () => RouteNavigator.navigateToRoute(
-                              context: context,
-                              route: Routes.projectsSetupData),
-                          style: primaryButtonStyle,
-                          child: Row(
-                            children: [
-                              Text("Quite Labeling"),
-                              AppImages().arrow()
-                            ],
-                          )),
-                      TextButton(
-                          onPressed: () => RouteNavigator.navigateToRoute(
-                              context: context,
-                              route: Routes.projectsSetupData),
-                          style: secondaryButtonStyle,
-                          child: Text("Back to labeling setup"))
+                      ConstrainedBox(
+                        constraints: BoxConstraints.tightFor(width: 180),
+                        child: TextButton(
+                            onPressed: () => RouteNavigator.navigateToRoute(
+                                context: context,
+                                route: Routes.projectsSummary),
+                            style: primaryButtonStyle,
+                            child: Row(
+                              children: [
+                                Text("Quit Labeling"),
+                                Spacer(),
+                                AppImages().arrow()
+                              ],
+                            )),
+                      ),
+                      SizedBox(
+                        height: 32,
+                      ),
+                      ConstrainedBox(
+                        constraints: BoxConstraints.tightFor(width: 180),
+                        child: TextButton(
+                            onPressed: () => RouteNavigator.navigateToRoute(
+                                context: context,
+                                route: Routes.projectsSetupLabelEditor),
+                            style: secondaryButtonStyle,
+                            child: Text("Back to labeling setup")),
+                      )
                     ],
                     crossAxisAlignment: CrossAxisAlignment.start,
                   ),
@@ -199,10 +295,23 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
         ));
   }
 
+  resetLabels(){
+    setState(() {
+        for (var _label in labels){
+          _label.selected=false;
+        }
+    });
+  }
+
+  inheritCurrentLabel(){
+    // TODO
+  }
+
   handNext() {
     if (currentItem < items.length - 1) {
       setState(() {
         currentItem += 1;
+        resetLabels();
       });
       // TODO: Store label here
     }
@@ -212,6 +321,7 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
     if (currentItem > 0) {
       setState(() {
         currentItem -= 1;
+      resetLabels();
       });
       // TODO: Store label here
     }
@@ -221,11 +331,17 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
     if (currentItem < items.length - 1) {
       setState(() {
         currentItem += 1;
+        resetLabels();
       });
     }
   }
 
-  List<String> labels = ["positive", "negative", "completely toxic"];
+  List<Label> labels = [
+    Label(Item.fromJson({"labelName": "positive"})),
+    Label(Item.fromJson({"labelName": "negative"})),
+    Label(Item.fromJson({"labelName": "completely toxic"}))
+  ];
+
   List<Item> items = [
     Item.fromJson({
       "content":
@@ -235,4 +351,23 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
     Item.fromJson({"content": "Lorum ipsum 2", "dateSent": 123456})
   ];
   int currentItem = 0;
+  bool showInfo=true;
+  
+  handleLabelClick(Label label) {
+    setState(() {
+      for (var _label in labels){
+        if (_label != label){
+          _label.selected=false;
+        } 
+      }
+      label.selected = !label.selected;
+    });
+
+  }
+  
+  toggleShowInfo() {
+    setState(() {
+      showInfo=false;
+    });
+  }
 }

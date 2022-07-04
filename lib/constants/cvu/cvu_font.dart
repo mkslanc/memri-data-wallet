@@ -170,8 +170,8 @@ class CVUFont {
   static const smallCaps = TextStyle(
       fontFamily: 'Karla',
       fontSize: 10,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0.11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.76,
       color: Color(0xff333333));
   static const tabList = TextStyle(
       fontFamily: 'Karla',

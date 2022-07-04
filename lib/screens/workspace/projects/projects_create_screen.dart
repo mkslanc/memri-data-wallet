@@ -5,14 +5,20 @@ import 'package:memri/constants/app_styles.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/screens/workspace/projects/projects_progress_steps.dart';
 import 'package:memri/utilities/binding.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/components/text_field/memri_text_field.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 import 'package:memri/screens/workspace/data_screen.dart';
 
-class ProjectsCreateScreen extends StatelessWidget {
+class ProjectsCreateScreen extends StatefulWidget {
   const ProjectsCreateScreen({Key? key}) : super(key: key);
 
+  @override
+  State<ProjectsCreateScreen> createState() => _ProjectsCreateScreenState();
+}
+
+class _ProjectsCreateScreenState extends State<ProjectsCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return WorkspaceScaffold(
@@ -36,19 +42,25 @@ class ProjectsCreateScreen extends StatelessWidget {
                 style: CVUFont.bodyText1),
             SizedBox(height: 32),
             Container(
+              padding: EdgeInsets.symmetric(horizontal: 8),
               color: Color(0xffF5F5F5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Text("YOUR PROJECT NAME"),
-              TextField(
-                  decoration: InputDecoration(
-                      hintText: "project 1",
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      border: InputBorder.none,
-                      hintStyle: CVUFont.input)),
-
-              ],),
+                  Container(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text("YOUR PROJECT NAME",
+                          style: CVUFont.smallCaps
+                              .copyWith(color: app.colors.brandGreyText))),
+                  TextField(
+                      decoration: InputDecoration(
+                          hintText: "project 1",
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                          border: InputBorder.none,
+                          hintStyle: CVUFont.input)),
+                ],
+              ),
             ),
             SizedBox(height: 32),
             Text("Select data source", style: CVUFont.headline3),
@@ -62,16 +74,33 @@ class ProjectsCreateScreen extends StatelessWidget {
               description: '2 feature variables',
               size: 'MB',
               status: 'ACTIVE',
-              onTap: () {},
+              selected: whatsappSelected,
+              onTap: () => handleSelectDataSource(),
             ),
             SizedBox(height: 8),
+            if (errorMessage != "")
+              Container(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 800,
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        color: app.colors.backgroundOrange,
+                        child: Text(errorMessage,
+                            style: TextStyle(color: app.colors.brandOrange)),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              ),
             Row(
               children: [
                 Column(
                   children: [
                     TextButton(
-                        onPressed: () => RouteNavigator.navigateToRoute(
-                            context: context, route: Routes.projectsSetupData),
+                        onPressed: () => handleNext(),
                         style: primaryButtonStyle,
                         child: Container(
                             child: Row(
@@ -99,5 +128,25 @@ class ProjectsCreateScreen extends StatelessWidget {
             )
           ]),
         ));
+  }
+
+  String errorMessage = "";
+  bool whatsappSelected = false;
+
+  handleSelectDataSource() {
+    setState(() {
+      whatsappSelected = !whatsappSelected;
+    });
+  }
+
+  handleNext() {
+    if (whatsappSelected) {
+      RouteNavigator.navigateToRoute(
+          context: context, route: Routes.projectsSetupData);
+    } else {
+      setState(() {
+        errorMessage = "Select a datasource first";
+      });
+    }
   }
 }
