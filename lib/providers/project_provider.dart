@@ -37,42 +37,10 @@ class ProjectProvider with ChangeNotifier {
 
   handleCreateDataset(
       BuildContext context, List<String> properties, List<bool> selected) {
+    // TODO handle selected properties
     createDataset();
     RouteNavigator.navigateTo(
         context: context, route: Routes.projectsSetupLabelEditor);
-  }
-
-  void getProjects() async {
-    var query = '''
-      query {
-        Project {
-          id
-          dataset {
-            id
-            name
-            feature {
-              propertyName
-            }
-            labellingTask {
-              name
-              taskType
-              labelOption {
-                name
-              }
-            }
-            datasetType {
-              name
-              datasetPlugin {
-                name
-              }
-            }
-          }
-        }
-      }
-    ''';
-
-    projects = await _podService.graphql(query: query);
-    notifyListeners();
   }
 
   void createProject({required String name}) async {
