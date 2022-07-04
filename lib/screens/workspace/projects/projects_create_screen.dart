@@ -19,6 +19,14 @@ class ProjectsCreateScreen extends StatefulWidget {
 }
 
 class _ProjectsCreateScreenState extends State<ProjectsCreateScreen> {
+  final _projectNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _projectNameController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WorkspaceScaffold(
@@ -54,12 +62,14 @@ class _ProjectsCreateScreenState extends State<ProjectsCreateScreen> {
                             style: CVUFont.smallCaps
                                 .copyWith(color: app.colors.brandGreyText))),
                     TextField(
-                        decoration: InputDecoration(
-                            hintText: "project 1",
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 0),
-                            border: InputBorder.none,
-                            hintStyle: CVUFont.input)),
+                      decoration: InputDecoration(
+                          hintText: "project 1",
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                          border: InputBorder.none,
+                          hintStyle: CVUFont.input),
+                      controller: _projectNameController,
+                    )
                   ],
                 ),
               ),
@@ -101,7 +111,8 @@ class _ProjectsCreateScreenState extends State<ProjectsCreateScreen> {
                   Column(
                     children: [
                       TextButton(
-                          onPressed: () => provider.handleNext(context),
+                          onPressed: () => provider.handleCreateProject(
+                              context, _projectNameController.text),
                           style: primaryButtonStyle,
                           child: Container(
                               child: Row(
