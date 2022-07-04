@@ -8,7 +8,7 @@ import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
 import 'package:memri/core/models/database/database.dart';
@@ -59,7 +59,7 @@ class SyncController {
   Function(String?)? completion;
   final DatabaseController databaseController;
   SyncControllerState state;
-  PodConnectionDetails? currentConnection;
+  PodConfig? currentConnection;
   static String? documentsDirectory;
   static String? lastRootKey;
 
@@ -139,7 +139,7 @@ class SyncController {
     }
   }
 
-  Future<bool> podIsExist(PodConnectionDetails config) async {
+  Future<bool> podIsExist(PodConfig config) async {
     try {
       var request = PodStandardRequest.getVersion();
       await request.execute(config);
@@ -150,7 +150,7 @@ class SyncController {
     }
   }
 
-  Future<bool> validateConfigCreated(PodConnectionDetails config) async {
+  Future<bool> validateConfigCreated(PodConfig config) async {
     try {
       var payload = {"_limit": 1};
       var request = PodStandardRequest.searchAction(payload);
@@ -163,7 +163,7 @@ class SyncController {
     }
   }
 
-  Future<bool> validateConfigExisted(PodConnectionDetails config) async {
+  Future<bool> validateConfigExisted(PodConfig config) async {
     try {
       var payload = {"_limit": 1, "type": "Setting"};
       var request = PodStandardRequest.searchAction(payload);
@@ -181,9 +181,7 @@ class SyncController {
     }
   }
 
-  sync(
-      {PodConnectionDetails? connectionConfig,
-      Function(String?)? completion}) async {
+  sync({PodConfig? connectionConfig, Function(String?)? completion}) async {
     if (!AppController.shared.hasNetworkConnection) return;
     currentConnection =
         connectionConfig ?? await AppController.shared.podConnectionConfig;
@@ -610,7 +608,7 @@ class SyncController {
   bulkAction(
       {required PodPayloadBulkAction bulkPayload,
       required Function(String?) completion,
-      PodConnectionDetails? connectionConfig}) async {
+      PodConfig? connectionConfig}) async {
     connectionConfig ??=
         currentConnection ?? await AppController.shared.podConnectionConfig;
     if (connectionConfig == null) {

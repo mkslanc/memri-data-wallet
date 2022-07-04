@@ -136,14 +136,14 @@ class ProjectsSummaryScreen extends StatelessWidget {
             Row(
               children: [
                 TextButton(
-                    onPressed: () => RouteNavigator.navigateToRoute(
+                    onPressed: () => RouteNavigator.navigateTo(
                         context: context, route: Routes.projectsSummary),
                     style: primaryButtonStyle,
                     child: Row(
                       children: [Text("Next step"), AppImages().arrow()],
                     )),
                 TextButton(
-                    onPressed: () => RouteNavigator.navigateToRoute(
+                    onPressed: () => RouteNavigator.navigateTo(
                         context: context, route: Routes.projectsLabelData),
                     style: secondaryButtonStyle,
                     child: Text("Back to labelling"))

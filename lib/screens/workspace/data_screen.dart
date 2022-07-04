@@ -51,7 +51,7 @@ class _DataScreenState extends State<DataScreen> {
                   description: '23 feature variables',
                   size: 'MB',
                   status: 'ACTIVE',
-                  onTap: () => RouteNavigator.navigateToRoute(
+                  onTap: () => RouteNavigator.navigateTo(
                       context: context, route: Routes.importer),
                 ),
                 buildBox(

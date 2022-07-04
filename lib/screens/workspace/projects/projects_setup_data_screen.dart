@@ -111,7 +111,7 @@ class _ProjectsSetupDataScreenState extends State<ProjectsSetupDataScreen> {
                     Column(
                       children: [
                         TextButton(
-                            onPressed: () => RouteNavigator.navigateToRoute(
+                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context,
                                 route: Routes.projectsSetupLabelEditor),
                             style: primaryButtonStyle,
@@ -131,7 +131,7 @@ class _ProjectsSetupDataScreenState extends State<ProjectsSetupDataScreen> {
                     Column(
                       children: [
                         TextButton(
-                            onPressed: () => RouteNavigator.navigateToRoute(
+                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context, route: Routes.projectsCreate),
                             style: secondaryButtonStyle,
                             child: Text("Back to project setup")),

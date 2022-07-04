@@ -26,15 +26,15 @@ class ImportersScreen extends StatelessWidget {
             Row(
               children: [
                 TextButton(
-                  onPressed: () => RouteNavigator.navigateToRoute(
+                  onPressed: () => RouteNavigator.navigateTo(
                       context: context, route: Routes.importerConnect),
                   style: primaryButtonStyle,
                   child: Text("Ok, let's go!"),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left:10),
+                  padding: EdgeInsets.only(left: 10),
                   child: TextButton(
-                    onPressed: () => RouteNavigator.navigateToRoute(
+                    onPressed: () => RouteNavigator.navigateTo(
                         context: context, route: Routes.data),
                     style: secondaryButtonStyle,
                     child: Text("Cancel"),

@@ -259,7 +259,7 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
                       ConstrainedBox(
                         constraints: BoxConstraints.tightFor(width: 180),
                         child: TextButton(
-                            onPressed: () => RouteNavigator.navigateToRoute(
+                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context,
                                 route: Routes.projectsSummary),
                             style: primaryButtonStyle,
@@ -277,7 +277,7 @@ class _ProjectsLabelDataScreenState extends State<ProjectsLabelDataScreen> {
                       ConstrainedBox(
                         constraints: BoxConstraints.tightFor(width: 180),
                         child: TextButton(
-                            onPressed: () => RouteNavigator.navigateToRoute(
+                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context,
                                 route: Routes.projectsSetupLabelEditor),
                             style: secondaryButtonStyle,

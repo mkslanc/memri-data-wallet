@@ -11,14 +11,14 @@ class BaseAPI {
   late final String baseUrl;
 
   BaseAPI(String apiUrl, {bool isPodUrl = true}) {
-    baseUrl = isPodUrl ? app.settings.defaultPodURL + apiUrl : apiUrl;
+    baseUrl = isPodUrl ? app.settings.defaultPodUrl + apiUrl : apiUrl;
   }
 
   Dio get dio {
     Dio _dio = Dio();
     _dio.interceptors.clear();
     _dio.options = BaseOptions(
-      baseUrl: app.settings.defaultPodURL,
+      baseUrl: app.settings.defaultPodUrl,
       // connectTimeout: app.settings.dioConnectTimeout,
       // receiveTimeout: app.settings.dioReceiveTimeout,
     );

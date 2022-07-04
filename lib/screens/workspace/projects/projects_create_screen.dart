@@ -116,7 +116,7 @@ class _ProjectsCreateScreenState extends State<ProjectsCreateScreen> {
                 Column(
                   children: [
                     TextButton(
-                        onPressed: () => RouteNavigator.navigateToRoute(
+                        onPressed: () => RouteNavigator.navigateTo(
                             context: context, route: Routes.projects),
                         style: secondaryButtonStyle,
                         child: Text("Cancel")),
@@ -139,7 +139,7 @@ class _ProjectsCreateScreenState extends State<ProjectsCreateScreen> {
 
   handleNext() {
     if (whatsappSelected) {
-      RouteNavigator.navigateToRoute(
+      RouteNavigator.navigateTo(
           context: context, route: Routes.projectsSetupData);
     } else {
       setState(() {

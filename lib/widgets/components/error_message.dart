@@ -26,8 +26,7 @@ class ErrorMessage extends StatelessWidget {
           ),
         ),
         Container(
-          width: 673,
-          height: 51,
+          width: 632,
           color: Color(0x33E9500F),
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           child: Text(

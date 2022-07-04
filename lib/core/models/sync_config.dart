@@ -1,11 +1,11 @@
 import 'dart:isolate';
 
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/services/database/schema.dart';
 import 'package:moor/isolate.dart';
 
 class SyncConfig {
-  final PodConnectionDetails connection;
+  final PodConfig connection;
   final Schema schema;
 
   SyncConfig({required this.connection, required this.schema});
@@ -13,7 +13,7 @@ class SyncConfig {
 
 class IsolateSyncConfig extends SyncConfig {
   final SendPort port;
-  final PodConnectionDetails connection;
+  final PodConfig connection;
   final Schema schema;
   final String? documentsDirectory;
   final String? rootKey;

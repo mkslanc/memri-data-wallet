@@ -37,7 +37,7 @@ class _ProjectsEmptyStateScreenState extends State<ProjectsEmptyStateScreen> {
             ProjectProgressSteps(step: 1),
             SizedBox(height: 32),
             TextButton(
-                onPressed: () => RouteNavigator.navigateToRoute(
+                onPressed: () => RouteNavigator.navigateTo(
                     context: context,
                     route: Routes.projectsCreate)
                     ,

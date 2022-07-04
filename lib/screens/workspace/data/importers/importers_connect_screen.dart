@@ -162,8 +162,6 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
   late Stream<Item> pluginRunItemStream;
 
   void execute() async {
-    // var db = AppController.shared.databaseController;
-
     // TODO, what are we doing with things from the default database?
 
     try {
@@ -215,10 +213,11 @@ class _ImportersConnectScreenState extends State<ImportersConnectScreen> {
               var _status = item.get("status");
               authenticated = _status == "daemon";
               if (authenticated) {
-                RouteNavigator.navigateToRoute(
-                    context: context,
-                    route: Routes.importerDownloading,
-                    param: {"id": id});
+                RouteNavigator.navigateTo(
+                  context: context,
+                  route: Routes.importerDownloading,
+                  param: {"id": id},
+                );
               } else {
                 setState(() {
                   url = item.get("authUrl");

@@ -114,7 +114,7 @@ class _ProjectsSetupDataScreenState
                     Column(
                       children: [
                         TextButton(
-                            onPressed: () => RouteNavigator.navigateToRoute(
+                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context,
                                 route: Routes.projectsLabelData),
                             style: primaryButtonStyle,
@@ -134,7 +134,7 @@ class _ProjectsSetupDataScreenState
                     Column(
                       children: [
                         TextButton(
-                            onPressed: () => RouteNavigator.navigateToRoute(
+                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context,
                                 route: Routes.projectsSetupData),
                             style: secondaryButtonStyle,

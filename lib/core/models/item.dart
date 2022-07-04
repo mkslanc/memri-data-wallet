@@ -2,40 +2,22 @@ import 'package:collection/collection.dart';
 
 class Item {
   String type;
-  String? id;
-  Map<String, dynamic>? properties;
-
-  Map<String, EdgeList>? edges;
+  Map<String, dynamic> properties;
+  Map<String, EdgeList> edges;
 
   Item({
     required String this.type,
-    String? id,
     Map<String, dynamic>? properties,
     Map<String, EdgeList>? edges,
   })  : properties = properties ?? {},
-        edges = edges ?? {},
-        id = id ?? null;
+        edges = edges ?? {};
 
   EdgeList? getEdges(String edgeName) {
-    return this.edges![edgeName] ?? null;
-  }
-
-  Item? edgeItem(String edgeName) {
-    // Returns first edge target, if it exists.
-    return this.getEdges(edgeName)?.first();
+    return this.edges[edgeName] ?? null;
   }
 
   dynamic get(String propertyName) {
-    return this.properties![propertyName] ?? null;
-  }
-
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> obj = properties ?? {};
-    obj["type"] = type;
-    if (id != null) {
-      obj["id"] = id;
-    }
-    return obj;
+    return this.properties[propertyName] ?? null;
   }
 
   static Item fromJson(Map<String, dynamic> itemMap) {
