@@ -5,8 +5,8 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
-class ImportersScreen extends StatelessWidget {
-  const ImportersScreen({Key? key}) : super(key: key);
+class ImporterScreen extends StatelessWidget {
+  const ImporterScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -111,6 +111,42 @@ class MessageLookup extends MessageLookupByLibrary {
         "welcome": MessageLookupByLibrary.simpleMessage("Welcome"),
         "welcome_to_memri":
             MessageLookupByLibrary.simpleMessage("Welcome to Memri"),
+        "workspace_description": MessageLookupByLibrary.simpleMessage(
+            "Connect and label your data, train ML models, and build, customise and deploy new machine learning apps. Get started here!"),
+        "workspace_sticker_1_button_1_label":
+            MessageLookupByLibrary.simpleMessage("Connect your services"),
+        "workspace_sticker_1_button_2_label":
+            MessageLookupByLibrary.simpleMessage("Upload data"),
+        "workspace_sticker_1_description": MessageLookupByLibrary.simpleMessage(
+            "Import data from WhatsApp, Gmail or Instagram, create a custom importer, or upload data directly."),
+        "workspace_sticker_1_title": MessageLookupByLibrary.simpleMessage(
+            "Connect and collect your data"),
+        "workspace_sticker_2_button_1_label":
+            MessageLookupByLibrary.simpleMessage("Create a new dataset"),
+        "workspace_sticker_2_button_2_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_2_description": MessageLookupByLibrary.simpleMessage(
+            "Select the datasource, label data, and build a ML model with just a few lines of code."),
+        "workspace_sticker_2_title": MessageLookupByLibrary.simpleMessage(
+            "Build a machine learning app"),
+        "workspace_sticker_3_button_1_label":
+            MessageLookupByLibrary.simpleMessage("Deploy your app"),
+        "workspace_sticker_3_button_2_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_3_description": MessageLookupByLibrary.simpleMessage(
+            "Add a user interface to your app using standard building blocks such as VStacks, HStacks, Text, and Buttons."),
+        "workspace_sticker_3_title":
+            MessageLookupByLibrary.simpleMessage("Add and edit UI live"),
+        "workspace_sticker_4_button_1_label":
+            MessageLookupByLibrary.simpleMessage("Quick start guide"),
+        "workspace_sticker_4_button_2_label":
+            MessageLookupByLibrary.simpleMessage("Get support on Discord"),
+        "workspace_sticker_4_description": MessageLookupByLibrary.simpleMessage(
+            "Learn everything you need to know about POD architecture, plugins, and importers on our developer site. If you get stuck, join our community for help!"),
+        "workspace_sticker_4_title":
+            MessageLookupByLibrary.simpleMessage("View documentation"),
+        "workspace_title": MessageLookupByLibrary.simpleMessage(
+            "One place for your data apps"),
         "your_login_key":
             MessageLookupByLibrary.simpleMessage("Your Login Key"),
         "your_password_key":

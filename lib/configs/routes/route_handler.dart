@@ -9,10 +9,11 @@ import 'package:memri/screens/not_found_screen.dart';
 import 'package:memri/screens/workspace/apps/apps_configure_screen.dart';
 import 'package:memri/screens/workspace/apps/apps_inbox_screen.dart';
 import 'package:memri/screens/workspace/apps_screen.dart';
-import 'package:memri/screens/workspace/data/importers/importers_connect_screen.dart';
-import 'package:memri/screens/workspace/data/importers/importers_create_screen.dart';
-import 'package:memri/screens/workspace/data/importers/importers_downloading_screen.dart';
-import 'package:memri/screens/workspace/data/importers/importers_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importer_connect_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importer_create_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importer_downloading_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importer_error_screen.dart';
+import 'package:memri/screens/workspace/data/importers/importer_screen.dart';
 import 'package:memri/screens/workspace/data_screen.dart';
 import 'package:memri/screens/workspace/error_screen.dart';
 import 'package:memri/screens/workspace/projects/projects_app_create_screen.dart';
@@ -60,17 +61,20 @@ var dataScreenHandler = Handler(handlerFunc: (_, __) => DataScreen());
 ///
 /// Importers
 ///
-var importerScreenHandler = Handler(handlerFunc: (_, __) => ImportersScreen());
+var importerScreenHandler = Handler(handlerFunc: (_, __) => ImporterScreen());
 
 var importerCreateScreenHandler =
-    Handler(handlerFunc: (_, __) => ImportersCreateScreen());
+    Handler(handlerFunc: (_, __) => ImporterCreateScreen());
 
 var importerConnectScreenHandler =
-    Handler(handlerFunc: (_, __) => ImportersConnectScreen());
+    Handler(handlerFunc: (_, __) => ImporterConnectScreen());
 
 var importerDownloadingScreenHandler = Handler(
     handlerFunc: (_, Map<String, List<String>> params) =>
-        ImportersDownloadingScreen(id: params["id"]?.first ?? ""));
+        ImporterDownloadingScreen(id: params["id"]?.first ?? ""));
+
+var importerErrorScreenHandler =
+    Handler(handlerFunc: (_, __) => ImporterErrorScreen());
 
 ///
 /// Apps

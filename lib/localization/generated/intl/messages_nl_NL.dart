@@ -86,6 +86,36 @@ class MessageLookup extends MessageLookupByLibrary {
         "switch_to": MessageLookupByLibrary.simpleMessage(""),
         "welcome": MessageLookupByLibrary.simpleMessage(""),
         "welcome_to_memri": MessageLookupByLibrary.simpleMessage(""),
+        "workspace_description": MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_1_button_1_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_1_button_2_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_1_description":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_1_title": MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_2_button_1_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_2_button_2_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_2_description":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_2_title": MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_3_button_1_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_3_button_2_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_3_description":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_3_title": MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_4_button_1_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_4_button_2_label":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_4_description":
+            MessageLookupByLibrary.simpleMessage(""),
+        "workspace_sticker_4_title": MessageLookupByLibrary.simpleMessage(""),
+        "workspace_title": MessageLookupByLibrary.simpleMessage(""),
         "your_login_key": MessageLookupByLibrary.simpleMessage(""),
         "your_password_key": MessageLookupByLibrary.simpleMessage(""),
         "your_pod_address": MessageLookupByLibrary.simpleMessage("")

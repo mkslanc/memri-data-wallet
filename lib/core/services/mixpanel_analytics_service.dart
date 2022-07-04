@@ -57,6 +57,11 @@ class MixpanelAnalyticsService {
     mixpanel.track(AnalyticsEvents.gitlab);
   }
 
+  void logGuideButton() {
+    mixpanel.timeEvent(AnalyticsEvents.guide);
+    mixpanel.track(AnalyticsEvents.guide);
+  }
+
   void logImporterSelect(String importerName) {
     mixpanel.timeEvent(AnalyticsEvents.importerSelect);
     mixpanel.track(AnalyticsEvents.importerSelect,
@@ -176,6 +181,7 @@ class AnalyticsEvents {
 
   static const discord = 'discord';
   static const gitlab = 'gitlab';
+  static const guide = 'guide';
 
   static const importerSelect = 'importer_select';
   static const importerConnect = 'importer_connect';
