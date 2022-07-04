@@ -9,6 +9,7 @@ import 'package:memri/core/controllers/cvu_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/controllers/permission_controller.dart';
+import 'package:memri/core/controllers/pod_api.dart';
 import 'package:memri/core/controllers/pub_sub_controller.dart';
 import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/controllers/sync_controller.dart';
@@ -97,6 +98,7 @@ class AppController {
   late PubSubController pubSubController;
   late PermissionsController permissionController;
   late PodSetupModel model;
+  late PodAPI podApi;
 
   Isolate? syncIsolate;
   ValueNotifier<AppState> _state = ValueNotifier(AppState.setup);
@@ -133,6 +135,7 @@ class AppController {
 
   AppController() {
     databaseController = DatabaseController(inMemory: false);
+    podApi = PodAPI();
     syncController = SyncController(databaseController);
     cvuController = CVUController(databaseController);
     pubSubController = PubSubController(databaseController);
