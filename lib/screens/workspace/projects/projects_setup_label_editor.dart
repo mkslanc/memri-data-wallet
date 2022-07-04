@@ -20,11 +20,6 @@ class _ProjectsSetupDataScreenState
     extends State<ProjectsSetupLabelEditorScreen> {
   @override
   Widget build(BuildContext context) {
-    document.addEventListener('keydown', (dynamic event) {
-      if (event.code == 'Tab') {
-        event.preventDefault();
-      }
-    });
     return WorkspaceScaffold(
         currentItem: NavigationItem.data,
         child: Container(
