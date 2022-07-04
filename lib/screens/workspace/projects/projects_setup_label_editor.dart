@@ -6,7 +6,6 @@ import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
-import 'dart:html';
 
 class ProjectsSetupLabelEditorScreen extends StatefulWidget {
   const ProjectsSetupLabelEditorScreen({Key? key}) : super(key: key);
