@@ -61,7 +61,7 @@
 //           route = Routes.accountError;
 //           break;
 //       }
-//       RouteNavigator.navigateToRoute(
+//       RouteNavigator.navigateTo(
 //           context: context, route: route, clearStack: true);
 //     } on Exception catch (e) {
 //       authError = e;

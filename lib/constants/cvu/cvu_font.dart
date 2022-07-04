@@ -107,6 +107,10 @@ class CVUFont {
       size: ul.fontSize!,
       weight: ul.fontWeight,
     ),
+    "input": CVUFont(
+      size: 13,
+      weight: FontWeight.w400,
+    ),
   };
 
   static const headline1 = TextStyle(
@@ -166,8 +170,8 @@ class CVUFont {
   static const smallCaps = TextStyle(
       fontFamily: 'Karla',
       fontSize: 10,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0.11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.76,
       color: Color(0xff333333));
   static const tabList = TextStyle(
       fontFamily: 'Karla',
@@ -184,4 +188,9 @@ class CVUFont {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Color(0xff333333));
+  static const input = TextStyle(
+      fontFamily: 'Karla',
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: Color(0xff99999980));
 }

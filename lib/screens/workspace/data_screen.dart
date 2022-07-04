@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 import 'package:memri/widgets/scaffold/workspace_scaffold.dart';
 
@@ -45,7 +46,7 @@ class _DataScreenState extends State<DataScreen> {
               spacing: 30,
               runSpacing: 30,
               children: [
-                _buildBox(
+                buildBox(
                   title: 'Whatsapp',
                   description: '23 feature variables',
                   size: 'MB',
@@ -53,14 +54,14 @@ class _DataScreenState extends State<DataScreen> {
                   onTap: () => RouteNavigator.navigateTo(
                       context: context, route: Routes.importer),
                 ),
-                _buildBox(
+                buildBox(
                   title: 'Gmail Plugin',
                   description: '23 feature variables',
                   size: 'MB',
                   status: 'ACTIVE',
                   onTap: () {},
                 ),
-                _buildBox(
+                buildBox(
                   title: 'Instagram',
                   description: '23 feature variables',
                   size: 'MB',
@@ -92,44 +93,52 @@ class _DataScreenState extends State<DataScreen> {
       ),
     );
   }
+}
 
-  Widget _buildBox({
-    required String title,
-    required String description,
-    required String size,
-    required String status,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 205,
-        height: 95,
-        color: Color(0xfff6f6f6),
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: CVUFont.headline3,
-            ),
-            SizedBox(height: 10),
-            Text(
-              description,
-              style: CVUFont.bodyTiny.copyWith(color: Color(0xff989898)),
-            ),
-            Text(
-              size,
-              style: CVUFont.bodyTiny.copyWith(color: Color(0xff989898)),
-            ),
-            Text(
-              status,
-              style: CVUFont.bodyTiny.copyWith(color: Color(0xff15B599)),
-            ),
-          ],
-        ),
+Widget buildBox({
+  required String title,
+  required String description,
+  required String size,
+  required String status,
+  VoidCallback? onTap,
+  bool selected = false,
+}) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      width: 205,
+      height: 95,
+      decoration: selected
+          ? BoxDecoration(
+              border: Border.all(color: app.colors.brandOrange),
+              color: app.colors.backgroundOrange)
+          : BoxDecoration(color: Color(0xfff6f6f6)),
+      padding: EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: CVUFont.headline3.copyWith(
+                color:
+                    selected ? app.colors.brandOrange : app.colors.brandBlack),
+          ),
+          SizedBox(height: 10),
+          Text(
+            description,
+            style: CVUFont.bodyTiny.copyWith(color: Color(0xff989898)),
+          ),
+          Text(
+            size,
+            style: CVUFont.bodyTiny.copyWith(color: Color(0xff989898)),
+          ),
+          Text(
+            status,
+            style: CVUFont.bodyTiny.copyWith(
+                color: selected ? app.colors.brandOrange : Color(0xff15B599)),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }
