@@ -21,7 +21,7 @@ ViewContext _$ViewContextFromJson(Map<String, dynamic> json) => ViewContext(
               json['viewArguments'] as Map<String, dynamic>),
       focusedItem: json['focusedItem'] == null
           ? null
-          : ItemRecord.fromJson(json['focusedItem'] as Map<String, dynamic>),
+          : Item.fromJson(json['focusedItem'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ViewContextToJson(ViewContext instance) =>

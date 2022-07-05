@@ -41,7 +41,7 @@ class CVUValueConstant extends CVUValue {
 
 @JsonSerializable()
 class CVUValueItem extends CVUValue {
-  final int value;
+  final String value;
 
   CVUValueItem(this.value, {CVUTokenLocation? tokenLocation})
       : super(tokenLocation);
@@ -118,7 +118,7 @@ abstract class CVUValue with EquatableMixin implements CVUStringConvertible {
     } else if (cvuValue is CVUValueConstant) {
       return cvuValue.value.toCVUString();
     } else if (cvuValue is CVUValueItem) {
-      int uid = cvuValue.value;
+      String uid = cvuValue.value;
       return '{{item($uid)}}';
     } else if (cvuValue is CVUValueArray) {
       List<CVUValue> values = cvuValue.value;

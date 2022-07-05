@@ -4,10 +4,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/database_query.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/models/database/item_record.dart';
 
 part 'view_context.g.dart';
 
@@ -25,7 +25,7 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
 
   CVUViewArguments? _viewArguments;
 
-  ItemRecord? _focusedItem;
+  Item? _focusedItem;
 
   String? get viewName => _viewName;
 
@@ -67,9 +67,9 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
     notifyListeners();
   }
 
-  ItemRecord? get focusedItem => _focusedItem;
+  Item? get focusedItem => _focusedItem;
 
-  set focusedItem(ItemRecord? value) {
+  set focusedItem(Item? value) {
     if (_focusedItem == value) return;
     _focusedItem = value;
     notifyListeners();
@@ -81,7 +81,7 @@ class ViewContext extends ChangeNotifier with EquatableMixin {
       String? viewName,
       CVUDefinitionContent? viewDefinition,
       CVUViewArguments? viewArguments,
-      ItemRecord? focusedItem})
+      Item? focusedItem})
       : this._rendererName = rendererName,
         this._query = query,
         this._viewName = viewName,

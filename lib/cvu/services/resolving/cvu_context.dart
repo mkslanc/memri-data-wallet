@@ -2,13 +2,13 @@
 
 import 'dart:math';
 
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/models/database/item_record.dart';
 
 class CVUContext {
-  ItemRecord? currentItem;
-  List<ItemRecord>? items;
+  Item? currentItem;
+  List<Item>? items;
 
   String? selector;
   String? viewName;
@@ -51,7 +51,7 @@ class CVUContext {
         viewArguments: viewArguments);
   }
 
-  CVUContext replacingItem(ItemRecord item) {
+  CVUContext replacingItem(Item item) {
     return CVUContext(
         currentItem: item,
         items: items,

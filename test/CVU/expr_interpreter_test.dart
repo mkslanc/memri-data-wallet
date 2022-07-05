@@ -22,21 +22,21 @@ var databaseController = DatabaseController();
 var lookupController = CVULookupController(LookupMock(true, "Memri", 10, 10));
 
 Future<bool?> interpretAsBool(CVUExpressionNode expr) async {
-  return await lookupController.resolve<bool>(
+  return lookupController.resolve<bool>(
       value: CVUValueExpression(expr),
       context: CVUContext(),
       db: databaseController);
 }
 
 Future<double?> interpretAsDouble(CVUExpressionNode expr) async {
-  return await lookupController.resolve<double>(
+  return lookupController.resolve<double>(
       value: CVUValueExpression(expr),
       context: CVUContext(),
       db: databaseController);
 }
 
 Future<String?> interpretAsString(CVUExpressionNode expr) async {
-  return await lookupController.resolve<String>(
+  return lookupController.resolve<String>(
       value: CVUValueExpression(expr),
       context: CVUContext(),
       db: databaseController);

@@ -111,45 +111,45 @@ abstract class PropertyDatabaseValue with EquatableMixin {
     }
   }
 
-  static Future<PropertyDatabaseValue?> createFromCVUValue(
+  static PropertyDatabaseValue? createFromCVUValue(
       {required CVUValue cvuValue,
       required SchemaValueType propertyType,
       required CVUContext context,
-      required DatabaseController db}) async {
+      required DatabaseController db}) {
     var lookup = CVULookupController();
     var resolvedValue;
     switch (propertyType) {
       case SchemaValueType.double:
-        resolvedValue = await lookup.resolve<double>(
-            value: cvuValue, context: context, db: db);
+        resolvedValue =
+            lookup.resolve<double>(value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueDouble(resolvedValue);
       case SchemaValueType.bool:
-        resolvedValue = await lookup.resolve<bool>(
-            value: cvuValue, context: context, db: db);
+        resolvedValue =
+            lookup.resolve<bool>(value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueBool(resolvedValue);
       case SchemaValueType.int:
-        resolvedValue = await lookup.resolve<int>(
-            value: cvuValue, context: context, db: db);
+        resolvedValue =
+            lookup.resolve<int>(value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueInt(resolvedValue);
       case SchemaValueType.string:
-        resolvedValue = await lookup.resolve<String>(
-            value: cvuValue, context: context, db: db);
+        resolvedValue =
+            lookup.resolve<String>(value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueString(resolvedValue);
       case SchemaValueType.datetime:
-        resolvedValue = await lookup.resolve<int>(
-            value: cvuValue, context: context, db: db);
+        resolvedValue =
+            lookup.resolve<int>(value: cvuValue, context: context, db: db);
         if (resolvedValue == null) {
           return null;
         }

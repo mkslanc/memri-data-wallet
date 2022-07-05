@@ -5,13 +5,13 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/cvu_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/cvu/models/view_context.dart';
 import 'package:memri/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
@@ -55,6 +55,7 @@ class ViewContextController extends ChangeNotifier {
     _updateCachedValues();
 
     setupQueryObservation();
+    this.cvuController.addListener(() => updateUI());
   }
 
   factory ViewContextController.fromParams(
@@ -62,10 +63,39 @@ class ViewContextController extends ChangeNotifier {
       String rendererName = "custom",
       CVUDefinitionContent? viewDefinition,
       CVUViewArguments? viewArguments,
-      ItemRecord? focusedItem}) {
+      Item? focusedItem}) {
+    AppController appController = AppController.shared;
+    var db = appController.databaseController;
+
+    viewArguments ??= CVUViewArguments();
+    viewArguments.argumentItem = focusedItem;
+
+    viewDefinition ??=
+        appController.cvuController.viewDefinitionFor(viewName: viewName) ??
+            CVUDefinitionContent();
+    var newContext = CVUContext(
+        currentItem: focusedItem,
+        selector: null,
+        viewName: viewName,
+        viewDefinition: viewDefinition,
+        viewArguments: viewArguments);
     //TODO:
-    var queryConfig = DatabaseQueryConfig();
-    queryConfig.dbController = AppController.shared.databaseController;
+    var datasource = viewDefinition.definitions.firstWhereOrNull(
+        (definition) => definition.type == CVUDefinitionType.datasource);
+    var queryConfig = DatabaseQueryConfig.queryConfigWith(
+        context: newContext, datasource: datasource, databaseController: db);
+    queryConfig.dbController = db;
+
+    var defaultRenderer = "list";
+    var rendererName = ((() =>
+        viewDefinition!
+            .propertyResolver(
+                context: newContext,
+                lookup: CVULookupController(),
+                db: appController.databaseController)
+            .string("defaultRenderer") ??
+        defaultRenderer))();
+
     var config = ViewContext(
         viewName: viewName,
         rendererName: rendererName,
@@ -98,9 +128,9 @@ class ViewContextController extends ChangeNotifier {
     }
   }
 
-  ItemRecord? get focusedItem => config.focusedItem;
+  Item? get focusedItem => config.focusedItem;
 
-  set focusedItem(ItemRecord? newValue) {
+  set focusedItem(Item? newValue) {
     config.focusedItem = newValue;
   }
 
@@ -119,14 +149,14 @@ class ViewContextController extends ChangeNotifier {
   /// Return a Widget for the given item based on it's CVU definition.
   /// Set `overrideRenderer` if you want to render the item as though it is in a different renderer to the context (eg. "list" to get the list-specific appearance)
   Widget render(
-      {ItemRecord? item,
-      List<ItemRecord>? items,
+      {Item? item,
+      List<Item>? items,
       String? overrideRenderer,
       CVUDefinitionContent? overrideViewDefinition,
       CVUDefinitionContent? nodeDefinition,
       CVUViewArguments? viewArguments,
       bool blankIfNoDefinition = false}) {
-    var key = item != null ? Key(item.uid) : null;
+    var key = item != null ? Key(item.id) : null;
     return cvuController.render(
         cvuContext: getCVUContext(
             item: item,
@@ -142,8 +172,8 @@ class ViewContextController extends ChangeNotifier {
   }
 
   CVUContext getCVUContext(
-      {ItemRecord? item,
-      List<ItemRecord>? items,
+      {Item? item,
+      List<Item>? items,
       CVUViewArguments? viewArguments,
       CVUDefinitionContent? overrideViewDefinition,
       String? overrideRenderer}) {
@@ -166,7 +196,7 @@ class ViewContextController extends ChangeNotifier {
     if (viewDefinition == null) {
       var item = config.focusedItem;
       viewDefinition = item != null
-          ? cvuController.viewDefinitionForItemRecord(itemRecord: item)
+          ? cvuController.viewDefinitionForItemRecord(item: item)
           : null;
     }
 
@@ -190,15 +220,15 @@ class ViewContextController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Set<String>> get supportedRenderers async {
+  Set<String> get supportedRenderers {
     var defined =
-        (await viewDefinitionPropertyResolver.stringArray("supportedRenderers"))
+        (viewDefinitionPropertyResolver.stringArray("supportedRenderers"))
             .map((property) => property.toLowerCase());
     if (defined.isNotEmpty) {
       return Set.of(defined);
     } else {
       var defaultRenderer =
-          (await viewDefinitionPropertyResolver.string("defaultRenderer"))
+          (viewDefinitionPropertyResolver.string("defaultRenderer"))
               ?.toLowerCase();
       List<String> list = config.viewDefinition.definitions
           .map((def) {
@@ -232,7 +262,7 @@ class ViewContextController extends ChangeNotifier {
 
   CVUPropertyResolver? get itemPropertyResolver {
     var viewDefinition =
-        cvuController.viewDefinitionForItemRecord(itemRecord: focusedItem);
+        cvuController.viewDefinitionForItemRecord(item: focusedItem);
     if (viewDefinition == null) {
       return null;
     }
@@ -258,7 +288,7 @@ class ViewContextController extends ChangeNotifier {
     _updateCachedValues();
   }
 
-  CVUPropertyResolver? nodePropertyResolver(ItemRecord item) {
+  CVUPropertyResolver? nodePropertyResolver(Item item) {
     var context = getCVUContext(item: item);
     return cvuController.nodeDefinitionFor(context)?.propertyResolver(
         context: context,
@@ -268,46 +298,32 @@ class ViewContextController extends ChangeNotifier {
 
   // MARK: Query RESULT
   /// This holds the array of results for the query. If `isObserving` is set to true, this will be up to date with any changes in the database.
-  // @Published
-  List<ItemRecord>? _items;
-
-  List<ItemRecord> get items => _items ?? [];
-
-  set items(List<ItemRecord> items) {
-    /*if (config.focusedItem != null) {//TODO doesn't work correctly with add item action
-      if (items.indexOf(config.focusedItem!) < 0) {
-        config.focusedItem = null;
-      }
-    }*/
-
+  List<Item>? _items;
+  List<Item> get items => _items ?? [];
+  set items(List<Item> items) {
     _items = items;
-    /*if (focusedItem != null) {
-      focusedItem = items[focusedIndex];
-    }*/
-    itemsValueNotifier.value = _items!;
+    // itemsValueNotifier.value = _itemRecords!;
     notifyListeners();
   }
 
-  ValueNotifier<List<ItemRecord>> itemsValueNotifier =
+  ValueNotifier<List<Item>> itemsValueNotifier =
       ValueNotifier([]); //TODO not sure if this is right architecture
-
-  // AnyPublisher<[ItemRecord], Never> _itemsChangePublisher;
 
   /// Convenience variable returning whether the items are loaded or not
   bool get isLoaded => _items != null;
 
   /// Convenience variable returning whether there are any items
-  bool get hasItems => items.isNotEmpty;
+  bool get hasItems => items.isNotEmpty || items.isNotEmpty;
 
   // MARK: Selection State
-  List<int> _selectedItems = <int>[];
+  List<String> _selectedItems = <String>[];
 
   get selectedItems => _selectedItems;
 
   set selectedItems(selectedItems) {
     _selectedItems = selectedItems;
-    config.viewArguments?.args["selectedItems"] = CVUValueArray(
-        _selectedItems.compactMap((rowId) => CVUValueItem(rowId)));
+    config.viewArguments?.args["selectedItems"] =
+        CVUValueArray(_selectedItems.compactMap((uid) => CVUValueItem(uid)));
   }
 
   Binding<Set<int>> get selectedIndicesBinding {
@@ -319,12 +335,12 @@ class ViewContextController extends ChangeNotifier {
             : [];
     return Binding(
         () => Set.of(selectedItems
-            .map((rowId) => items.indexWhere((item) => item.rowId == rowId))
+            .map((uid) => items.indexWhere((item) => item.id == uid))
             .whereType<int>()
             .toList()), (Set<int> newValue) {
-      selectedItems = Set.of(newValue
-          .toList()
-          .compactMap((index) => items.asMap()[index]?.rowId)).toList();
+      selectedItems = Set.of(
+              newValue.toList().compactMap((index) => items.asMap()[index]?.id))
+          .toList();
     });
   }
 
@@ -360,28 +376,21 @@ class ViewContextController extends ChangeNotifier {
     }
 
     queryConfig.addListener(setupQueryObservation);
-    queryObservation = queryConfig
-        .executeRequest(databaseController)
-        .asBroadcastStream()
-        .listen((records) {
+    if (queryConfig.queryGraphQL != null) {
+      getItems(queryConfig);
+      // queryObservation = Stream.periodic(Duration(seconds: app.settings.syncControllerIntervalSecs))
+      //     .listen((_) => getItems(queryConfig));
+    }
+  }
+
+  getItems(DatabaseQueryConfig queryConfig) {
+    queryConfig.executeGraphQLRequest().then((records) {
       items = records;
     });
   }
 
-  update() async {
-    var currentItem = config.focusedItem;
-    if (currentItem != null) {
-      var refreshedItem = await ItemRecord.fetchWithRowID(currentItem.rowId!);
-      if (refreshedItem != null) {
-        config.focusedItem = refreshedItem;
-      }
-    }
-    items = await Future.wait<ItemRecord>(items.compactMap<Future<ItemRecord>>(
-        (el) async => (await ItemRecord.fetchWithRowID(el.rowId!))!));
-
+  updateUI() {
     viewDefinition = null;
-
     _updateCachedValues();
-    notifyListeners();
   }
 }

@@ -37,7 +37,7 @@ Map<String, dynamic> _$CVUValueConstantToJson(CVUValueConstant instance) =>
     };
 
 CVUValueItem _$CVUValueItemFromJson(Map<String, dynamic> json) => CVUValueItem(
-      json['value'] as int,
+      json['value'] as String,
       tokenLocation: json['tokenLocation'] == null
           ? null
           : CVUTokenLocation.fromJson(

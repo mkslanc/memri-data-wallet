@@ -21,8 +21,6 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator>
   late AnimationController rotateController;
   late Animation<double> rotateAnimation;
 
-  late Future _init;
-
   @override
   void initState() {
     rotateController = AnimationController(
@@ -34,21 +32,21 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator>
     rotateAnimation =
         CurvedAnimation(parent: rotateController, curve: Curves.linear);
     super.initState();
-    _init = init();
+    init();
   }
 
-  init() async {
-    speed = (await widget.nodeResolver.propertyResolver.number("speed"));
+  void init() {
+    speed = (widget.nodeResolver.propertyResolver.number("speed"));
     rotateController.repeat(
         min: 0, max: 1, period: Duration(milliseconds: 1000 ~/ (speed ?? 1)));
-    color = await widget.nodeResolver.propertyResolver.color();
-    size = (await widget.nodeResolver.propertyResolver.number("size")) ?? 20;
+    color = widget.nodeResolver.propertyResolver.color();
+    size = (widget.nodeResolver.propertyResolver.number("size")) ?? 20;
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
   @override
@@ -58,14 +56,9 @@ class _CVULoadingIndicatorState extends State<CVULoadingIndicator>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _init,
-      builder: (_, __) => RotationTransition(
+  Widget build(BuildContext context) => RotationTransition(
         turns: rotateAnimation,
         child: app.icons.loader(
             color: color ?? app.colors.primary, width: size, height: size),
-      ),
-    );
-  }
+      );
 }

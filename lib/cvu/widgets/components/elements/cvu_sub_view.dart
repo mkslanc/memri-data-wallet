@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/database_query.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/cvu/models/view_context.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
@@ -27,7 +27,6 @@ class CVUSubView extends StatefulWidget {
 }
 
 class _CVUSubViewState extends State<CVUSubView> {
-  late Future _init;
   bool isInited = false;
 
   CVUDefinitionContent? _viewDefinition;
@@ -63,16 +62,16 @@ class _CVUSubViewState extends State<CVUSubView> {
   initState() {
     super.initState();
     key = ValueNotifier(Key(Uuid().v4()));
-    _init = init();
+    init();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  Future init() async {
+  init() {
     var viewDefinition =
         widget.nodeResolver.propertyResolver.value("view")?.getSubdefinition();
     if (viewDefinition == null) {
@@ -80,7 +79,7 @@ class _CVUSubViewState extends State<CVUSubView> {
       return;
     }
 
-    var id = await widget.nodeResolver.propertyResolver.string("id");
+    var id = widget.nodeResolver.propertyResolver.string("id");
     if (id == _id && _viewDefinition == viewDefinition) {
       viewContext?.setupQueryObservation();
       return;
@@ -122,9 +121,9 @@ class _CVUSubViewState extends State<CVUSubView> {
     var datasource = viewDefinition.definitions.firstWhereOrNull(
         (element) => element.type == CVUDefinitionType.datasource);
 
-    ItemRecord? initialItem =
-        await widget.nodeResolver.propertyResolver.item("initialItem");
-    var items = await widget.nodeResolver.propertyResolver.items("query");
+    Item? initialItem =
+        widget.nodeResolver.propertyResolver.item("initialItem");
+    var items = widget.nodeResolver.propertyResolver.items("query");
 
     var viewArgs = viewDefinition.properties["viewArguments"];
     viewArguments = CVUViewArguments(
@@ -147,7 +146,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         viewDefinition: viewDefinition,
         viewArguments: viewArguments);
 
-    queryConfig = await DatabaseQueryConfig.queryConfigWith(
+    queryConfig = DatabaseQueryConfig.queryConfigWith(
         context: newContext,
         datasource: datasource,
         databaseController: AppController.shared.databaseController);
@@ -185,15 +184,6 @@ class _CVUSubViewState extends State<CVUSubView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext context, snapshot) {
-          isInited =
-              isInited || snapshot.connectionState == ConnectionState.done;
-          if (isInited) {
-            return Flexible(child: renderer);
-          }
-          return Empty();
-        });
+    return Flexible(child: renderer);
   }
 }

@@ -3,7 +3,6 @@ import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/models/database/item_property_record.dart';
 import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
-import 'package:memri/cvu/controllers/database_query.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,41 +13,6 @@ void main() {
     await databaseController.init();
     await databaseController.importRequiredData(throwIfAgainstSchema: true);
     await databaseController.setupWithDemoData(throwIfAgainstSchema: true);
-  });
-
-  test('testQuery', () {
-    var queryDef = DatabaseQueryConfig(
-        itemTypes: ["Note", "Photo"], pageSize: 1000, currentPage: 0);
-    var result = queryDef.executeRequest(databaseController);
-    result.listen(expectAsync1(
-        (List<ItemRecord> records) =>
-            expect(records, isNot(records.length == 0)),
-        max: -1));
-  });
-
-  test('testQueryWithConditions', () {
-    var queryDef =
-        DatabaseQueryConfig(pageSize: 1000, currentPage: 0, conditions: [
-      DatabaseQueryConditionPropertyEquals(
-          PropertyEquals("title", "A demo note")),
-      DatabaseQueryConditionPropertyEquals(PropertyEquals("starred", true))
-    ]);
-    var result = queryDef.executeRequest(databaseController);
-    result.listen(expectAsync1((List<ItemRecord> records) {
-      expect(records.length, 1);
-    }, max: -1));
-  });
-
-  test('testSearchQuery', () {
-    var queryDef = DatabaseQueryConfig(
-        itemTypes: ["Note", "Photo"],
-        searchString: "demo",
-        pageSize: 10,
-        currentPage: 0);
-    var result = queryDef.executeRequest(databaseController);
-    result.listen(expectAsync1((List<ItemRecord> records) {
-      expect(records.length, 1);
-    }, max: -1));
   });
 
   test('testWriteInRead', () async {

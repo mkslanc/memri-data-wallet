@@ -20,42 +20,33 @@ class _CVUHTMLViewState extends State<CVUHTMLView> {
   late String? src;
   late bool reload;
 
-  late Future _init;
-
   @override
   initState() {
     super.initState();
-    _init = init();
+    init();
   }
 
   @override
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  init() async {
-    src = await widget.nodeResolver.propertyResolver.string("src");
-    _content = await widget.nodeResolver.propertyResolver.string("content");
-    reload =
-        (await widget.nodeResolver.propertyResolver.boolean("reload", false))!;
+  void init() {
+    src = widget.nodeResolver.propertyResolver.string("src");
+    _content = widget.nodeResolver.propertyResolver.string("content");
+    reload = (widget.nodeResolver.propertyResolver.boolean("reload", false))!;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (_content != null || src != null) {
-              return HtmlView(
-                html: _content,
-                src: src,
-                reload: reload,
-              );
-            }
-          }
-          return Empty();
-        });
+    if (_content != null || src != null) {
+      return HtmlView(
+        html: _content,
+        src: src,
+        reload: reload,
+      );
+    }
+    return Empty();
   }
 }

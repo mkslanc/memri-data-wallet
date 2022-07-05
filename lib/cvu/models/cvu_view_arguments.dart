@@ -2,8 +2,8 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
-import 'package:memri/core/models/database/item_record.dart';
 
 part 'cvu_view_arguments.g.dart';
 
@@ -17,9 +17,9 @@ class CVUViewArguments with EquatableMixin {
   Map<String, CVUValue> get args => _args;
 
   // The item that is `.` when resolving these view arguments
-  ItemRecord? argumentItem;
+  Item? argumentItem;
 
-  List<ItemRecord>? argumentItems;
+  List<Item>? argumentItems;
 
   // The view arguments of the parent view (used to resolve)
   CVUViewArguments? parentArguments;

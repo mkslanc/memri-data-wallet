@@ -1,12 +1,12 @@
 //  Created by T Brennan on 7/1/21.
 
 import 'package:flutter/cupertino.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/models/cvu_ui_element_family.dart';
 import 'package:memri/cvu/models/cvu_ui_node.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/cvu/services/resolving/cvu_property_resolver.dart';
 import 'package:memri/cvu/widgets/components/cvu_element_view.dart';
 
@@ -26,7 +26,7 @@ class CVUUINodeResolver {
       required this.node,
       required this.db});
 
-  Widget childrenInForEachWithWrap({centered = false, ItemRecord? usingItem}) {
+  Widget childrenInForEachWithWrap({centered = false, Item? usingItem}) {
     return Wrap(
       children: childrenInForEach(usingItem: usingItem),
       alignment: centered ? WrapAlignment.center : WrapAlignment.start,
@@ -37,7 +37,7 @@ class CVUUINodeResolver {
   }
 
   List<Widget> childrenInForEach(
-      {Map<String, dynamic>? additionalParams, ItemRecord? usingItem}) {
+      {Map<String, dynamic>? additionalParams, Item? usingItem}) {
     var newContext =
         usingItem != null ? context.replacingItem(usingItem) : context.clone();
     var nodeChildren = node.children.asMap();

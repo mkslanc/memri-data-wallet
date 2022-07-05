@@ -30,12 +30,15 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     super.dispose();
   }
 
-  Future<void> init() async {
-    showDefaultSelections = await viewContext.rendererDefinitionPropertyResolver
+  void init() {
+    showDefaultSelections = viewContext.rendererDefinitionPropertyResolver
             .boolean("showDefaultSelections") ??
         true;
     startingElement = getAdditionalElement("startingElement");
     trailingElement = getAdditionalElement("trailingElement");
+
+    selectedIndicesBinding = viewContext.selectedIndicesBinding;
+    selectedIndices = selectedIndicesBinding.get();
   }
 
   Widget? getAdditionalElement(String elementName) {

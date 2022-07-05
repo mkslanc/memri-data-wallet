@@ -26,46 +26,33 @@ class _CVUHStackState extends State<CVUHStack> {
 
   bool fillWidth = false;
 
-  late Future _init;
-
   @override
   initState() {
     super.initState();
-    _init = init();
+    init();
   }
 
   @override
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  init() async {
-    alignment = await widget.nodeResolver.propertyResolver.alignment("row");
-    spacing = await widget.nodeResolver.propertyResolver.spacing;
-    fillWidth = (await widget.nodeResolver.propertyResolver
-        .boolean("fillWidth", false))!;
+  void init() {
+    alignment = widget.nodeResolver.propertyResolver.alignment("row");
+    spacing = widget.nodeResolver.propertyResolver.spacing;
+    fillWidth =
+        (widget.nodeResolver.propertyResolver.boolean("fillWidth", false))!;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext builder, snapshot) {
-          return Row(
-            mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
-            crossAxisAlignment:
-                alignment?.crossAxis ?? CrossAxisAlignment.center,
-            children: space(
-                spacing?.x.toDouble() ?? 10 /*TODO default spacing*/,
-                widget.nodeResolver.childrenInForEach()),
-          );
-          /* TODO:
-        .if(nodeResolver.propertyResolver.bool("fillWidth", defaultValue: false)) {
-            $0.frame(maxWidth: .infinity, alignment: nodeResolver.propertyResolver.alignment())
-        }
-    }*/
-        });
+    return Row(
+      mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
+      crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
+      children: space(spacing?.x.toDouble() ?? 10 /*TODO default spacing*/,
+          widget.nodeResolver.childrenInForEach()),
+    );
   }
 }
 
@@ -86,43 +73,31 @@ class _CVUVStackState extends State<CVUVStack> {
 
   Point? spacing;
 
-  late Future _init;
-
   @override
   initState() {
     super.initState();
-    _init = init();
+    init();
   }
 
   @override
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  init() async {
-    alignment = await widget.nodeResolver.propertyResolver.alignment("column");
-    spacing = await widget.nodeResolver.propertyResolver.spacing;
+  void init() {
+    alignment = widget.nodeResolver.propertyResolver.alignment("column");
+    spacing = widget.nodeResolver.propertyResolver.spacing;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext builder, snapshot) {
-          return Column(
-            mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
-            crossAxisAlignment:
-                alignment?.crossAxis ?? CrossAxisAlignment.center,
-            children: space(spacing?.y.toDouble() ?? 10,
-                widget.nodeResolver.childrenInForEach(), Axis.vertical),
-          );
-          /* TODO:
-        .if(nodeResolver.propertyResolver.bool("fillHeight", defaultValue: false)) {
-            $0.frame(maxHeight: .infinity, alignment: nodeResolver.propertyResolver.alignment())
-        }
-    }*/
-        });
+    return Column(
+      mainAxisAlignment: alignment?.mainAxis ?? MainAxisAlignment.start,
+      crossAxisAlignment: alignment?.crossAxis ?? CrossAxisAlignment.center,
+      children: space(spacing?.y.toDouble() ?? 10,
+          widget.nodeResolver.childrenInForEach(), Axis.vertical),
+    );
   }
 }
 
@@ -142,36 +117,30 @@ class _CVUZStackState extends State<CVUZStack> {
 
   Alignment? alignment;
 
-  late Future _init;
-
   @override
   initState() {
     super.initState();
-    _init = init();
+    init();
   }
 
   @override
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  init() async {
-    spacing = await widget.nodeResolver.propertyResolver.spacing;
-    alignment = await widget.nodeResolver.propertyResolver
-        .alignmentForStack("alignment");
+  void init() {
+    spacing = widget.nodeResolver.propertyResolver.spacing;
+    alignment =
+        widget.nodeResolver.propertyResolver.alignmentForStack("alignment");
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext builder, snapshot) {
-          return Stack(
-            alignment: alignment ?? Alignment.center,
-            children: widget.nodeResolver.childrenInForEach(),
-          );
-        });
+    return Stack(
+      alignment: alignment ?? Alignment.center,
+      children: widget.nodeResolver.childrenInForEach(),
+    );
   }
 }
 
@@ -187,36 +156,30 @@ class CVUWrap extends StatefulWidget {
 class _CVUWrapState extends State<CVUWrap> {
   Point? spacing;
 
-  late Future _init;
-
   @override
   initState() {
     super.initState();
-    _init = init();
+    init();
   }
 
   @override
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  init() async {
-    spacing = await widget.nodeResolver.propertyResolver.spacing;
+  void init() {
+    spacing = widget.nodeResolver.propertyResolver.spacing;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext builder, snapshot) {
-          return Wrap(
-            spacing: spacing?.x.toDouble() ?? 0,
-            runSpacing: spacing?.y.toDouble() ?? 0,
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: widget.nodeResolver.childrenInForEach(),
-          );
-        });
+    return Wrap(
+      spacing: spacing?.x.toDouble() ?? 0,
+      runSpacing: spacing?.y.toDouble() ?? 0,
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: widget.nodeResolver.childrenInForEach(),
+    );
   }
 }

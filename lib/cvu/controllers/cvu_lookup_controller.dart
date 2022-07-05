@@ -2,17 +2,15 @@ import 'dart:convert';
 
 import 'package:html/parser.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/cvu/controllers/database_query.dart';
+import 'package:memri/core/controllers/database_controller.dart' as database;
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/models/cvu_value_lookup_node.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/models/cvu_value_expression.dart';
-import 'package:memri/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/date_time.dart';
 import 'package:memri/utilities/extensions/number.dart';
@@ -30,198 +28,175 @@ class CVULookupController {
 
   CVULookupController([this.lookupMockMode]);
 
-  Future<T?> resolve<T>(
+  T? resolve<T>(
       {CVUValue? value,
       List<CVULookupNode>? nodes,
       String? edge,
-      ItemRecord? item,
+      Item? item,
       String? property,
       CVUExpressionNode? expression,
       CVUContext? context,
       dynamic defaultValue,
-      DatabaseController? db,
-      Type? additionalType}) async {
+      database.DatabaseController? db,
+      Type? additionalType}) {
     switch (T) {
       case double:
         if (nodes != null) {
-          return await _resolveNodesDouble(nodes, context!, db!) as T?;
+          return _resolveNodesDouble(nodes, context!, db!) as T?;
         } else if (expression != null) {
-          return await _resolveExpressionDouble(expression, context!, db!)
-              as T?;
+          return _resolveExpressionDouble(expression, context!, db!) as T?;
         }
-        return await _resolveDouble(value!, context!, db!) as T?;
+        return _resolveDouble(value!, context!, db!) as T?;
       case int:
         if (nodes != null) {
-          return await _resolveNodesInt(nodes, context!, db!) as T?;
+          return _resolveNodesInt(nodes, context!, db!) as T?;
         } else if (expression != null) {
-          return await _resolveExpressionInt(expression, context!, db!) as T?;
+          return _resolveExpressionInt(expression, context!, db!) as T?;
         }
-        return await _resolveInt(value!, context!, db!) as T?;
+        return _resolveInt(value!, context!, db!) as T?;
       case String:
         if (nodes != null) {
-          return await _resolveNodesString(nodes, context!, db!) as T?;
+          return _resolveNodesString(nodes, context!, db!) as T?;
         } else if (expression != null) {
-          return await _resolveExpressionString(expression, context!, db!)
-              as T?;
+          return _resolveExpressionString(expression, context!, db!) as T?;
         }
-        return await _resolveString(value!, context!, db!) as T?;
+        return _resolveString(value!, context!, db!) as T?;
       case bool:
         if (nodes != null) {
-          return await _resolveNodesBool(nodes, context!, db!) as T?;
+          return _resolveNodesBool(nodes, context!, db!) as T?;
         } else if (expression != null) {
-          return await _resolveExpressionBool(expression, context!, db!) as T?;
+          return _resolveExpressionBool(expression, context!, db!) as T?;
         }
-        return await _resolveBool(value!, context!, db!) as T?;
+        return _resolveBool(value!, context!, db!) as T?;
       case DateTime:
-        return await _resolveDate(value!, context!, db!) as T?;
-      case ItemRecord:
+        return _resolveDate(value!, context!, db!) as T?;
+      case Item:
         if (edge != null) {
-          return await _resolveEdgeItemRecord(edge, item!, db!) as T?;
+          return _resolveEdgeItem(edge, item!, db!) as T?;
         } else if (nodes != null) {
-          return await _resolveNodesItemRecord(nodes, context!, db!) as T?;
+          return _resolveNodesItem(nodes, context!, db!) as T?;
         } else if (expression != null) {
-          return await _resolveExpressionItemRecord(expression, context!, db!)
-              as T?;
+          return _resolveExpressionItem(expression, context!, db!) as T?;
         }
-        return await _resolveItemRecord(value!, context!, db!) as T?;
+        return _resolveItem(value!, context!, db!) as T?;
       case List:
         if (edge != null) {
-          return await _resolveEdgeItemRecordArray(edge, item!, db!) as T?;
+          return _resolveEdgeItemArray(edge, item!, db!) as T?;
         } else if (nodes != null) {
-          return await _resolveNodesItemRecordArray(nodes, context!, db!) as T?;
+          return _resolveNodesItemArray(nodes, context!, db!) as T?;
         } else if (expression != null) {
-          return await _resolveExpressionItemRecordArray(
-              expression, context!, db!) as T?;
+          return _resolveExpressionItemArray(expression, context!, db!) as T?;
         }
         if (additionalType == CVUValue) {
-          return await _resolveCVUValueArray(value!, context!, db!) as T?;
+          return _resolveCVUValueArray(value!, context!, db!) as T?;
         } else if (additionalType == CVUConstant) {
-          return await _resolveCVUConstantArray(value!, context!, db!) as T?;
+          return _resolveCVUConstantArray(value!, context!, db!) as T?;
         } else if (additionalType == Map) {
-          return await _resolveArrayOfCVUConstantMap(value!, context!, db!)
-              as T?;
+          return _resolveArrayOfCVUConstantMap(value!, context!, db!) as T?;
         }
-        return await _resolveItemRecordArray(value!, context!, db!) as T?;
-      case FutureBinding:
-        return await _resolveBinding(
-            value!, context!, db!, defaultValue, additionalType!) as T?;
+        return _resolveItemArray(value!, context!, db!) as T?;
       case LookupStep:
-        return await _resolveLookupStep(nodes!, context!, db!) as T?;
+        return _resolveLookupStep(nodes!, context!, db!) as T?;
       case PropertyDatabaseValue:
-        return await _resolvePropertyDatabaseValue(property!, item!, db!) as T?;
+        return _resolvePropertyDatabaseValue(property!, item!, db!) as T?;
       default:
         throw Exception("Type is required");
     }
   }
 
-  Future<int?> _resolveInt(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  int? _resolveInt(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       return value.value.asInt();
     } else if (value is CVUValueExpression) {
-      return await resolve<int>(
-          expression: value.value, context: context, db: db);
+      return resolve<int>(expression: value.value, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<double?> _resolveDouble(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  double? _resolveDouble(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       return value.value.asNumber();
     } else if (value is CVUValueExpression) {
-      return await resolve<double>(
-          expression: value.value, context: context, db: db);
+      return resolve<double>(expression: value.value, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<String?> _resolveString(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  String? _resolveString(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       return value.value.asString();
     } else if (value is CVUValueExpression) {
-      return await resolve<String>(
-          expression: value.value, context: context, db: db);
+      return resolve<String>(expression: value.value, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<bool?> _resolveBool(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  bool? _resolveBool(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       return value.value.asBool();
     } else if (value is CVUValueExpression) {
-      return await resolve<bool>(
-          expression: value.value, context: context, db: db);
+      return resolve<bool>(expression: value.value, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<DateTime?> _resolveDate(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  DateTime? _resolveDate(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       return DateTime.fromMillisecondsSinceEpoch(
           int.parse(value.value.asNumber().toString()));
     } else if (value is CVUValueExpression) {
-      return await resolve<DateTime>(
+      return resolve<DateTime>(
           expression: value.value, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<ItemRecord?> _resolveItemRecord(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  Item? _resolveItem(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       return null;
-    } else if (value is CVUValueItem) {
-      return await ItemRecord.fetchWithRowID(value.value, db);
     } else if (value is CVUValueExpression) {
-      return await resolve<ItemRecord>(
-          expression: value.value, context: context, db: db);
+      return resolve<Item>(expression: value.value, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<List<ItemRecord>> _resolveItemRecordArray(
-      CVUValue value, CVUContext context, DatabaseController db) async {
-    if (value is CVUValueItem) {
-      int itemRowID = value.value;
-      ItemRecord? itemRecord = await ItemRecord.fetchWithRowID(itemRowID, db);
-      return (itemRecord != null) ? [itemRecord] : [];
-    } else if (value is CVUValueExpression) {
+  List<Item> _resolveItemArray(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
+    if (value is CVUValueExpression) {
       CVUExpressionNode expression = value.value;
-      return (await resolve<List>(
+      return (resolve<List>(
           expression: expression,
           context: context,
           db: db,
-          additionalType: ItemRecord)) as List<ItemRecord>;
+          additionalType: Item)) as List<Item>;
     } else if (value is CVUValueArray) {
-      var cvuValueArray = (await resolve<List>(
+      var cvuValueArray = (resolve<List>(
           value: value,
           context: context,
           db: db,
           additionalType: CVUValue)) as List<CVUValue>;
 
-      return (await Future.wait(cvuValueArray
-              .map((cvuValue) async => await resolve<ItemRecord>(
-                  value: cvuValue, context: context, db: db))
-              .toList()))
-          .whereType<ItemRecord>()
-          .toList();
+      return cvuValueArray.compactMap((cvuValue) =>
+          resolve<Item>(value: cvuValue, context: context, db: db));
     } else {
       return [];
     }
   }
 
-  Future<List<CVUValue>> _resolveCVUValueArray(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  List<CVUValue> _resolveCVUValueArray(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueArray) {
       var values = value.value;
       return values;
@@ -230,18 +205,16 @@ class CVULookupController {
     }
   }
 
-  Future<List<Map<String, List<CVUConstant>>>> _resolveArrayOfCVUConstantMap(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  List<Map<String, List<CVUConstant>>> _resolveArrayOfCVUConstantMap(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueArray) {
       var values = value.value;
-      return (await Future.wait(values.map((el) async => Map.fromEntries(
-              (await Future.wait(
-                      (el.getSubdefinition()?.properties.entries.toList() ?? [])
-                          .map((entry) async => MapEntry(
-                              entry.key,
-                              await resolve<List<CVUConstant>>(
-                                  value: entry.value)))))
-                  .where((element) => element.value != null)))))
+      return values
+          .map((el) => Map.fromEntries(
+              (el.getSubdefinition()?.properties.entries.toList() ?? [])
+                  .map((entry) => MapEntry(entry.key,
+                      resolve<List<CVUConstant>>(value: entry.value)))
+                  .where((element) => element.value != null)))
           .whereType<Map<String, List<CVUConstant>>>()
           .where((element) => element.isNotEmpty)
           .toList();
@@ -250,64 +223,50 @@ class CVULookupController {
     }
   }
 
-  Future<List<CVUConstant>?> _resolveCVUConstantArray(
-      CVUValue value, CVUContext context, DatabaseController db) async {
+  List<CVUConstant>? _resolveCVUConstantArray(
+      CVUValue value, CVUContext context, database.DatabaseController db) {
     if (value is CVUValueConstant) {
       var constant = value.value;
       return [constant];
     } else if (value is CVUValueArray) {
       var values = value.value;
-      return (await Future.wait(values.map((element) async =>
-              (await resolve<List>(
-                      value: element, additionalType: CVUConstant) ??
-                  []) as List<CVUConstant>)))
-          .expand((element) => element)
-          .toList();
+      return (values.map((element) =>
+          (resolve<List>(value: element, additionalType: CVUConstant) ?? [])
+              as List<CVUConstant>)).expand((element) => element).toList();
     } else {
       return null;
     }
   }
 
-  Future<FutureBinding?> _resolveBinding(CVUValue value, CVUContext context,
-      DatabaseController db, dynamic defaultValue, Type type) async {
-    if (value is CVUValueExpression) {
-      var expression = value.value;
-      if (expression is CVUExpressionNodeLookup) {
-        List<CVULookupNode> nodes = []..addAll(expression.nodes);
-        List? res = await _resolveToItemAndProperty(nodes, context, db);
-        ItemRecord? item = res?[0];
-        String? property = res?[1];
-        if (res != null && item != null && property != null) {
-          return await item.propertyBinding(
-              name: property, defaultValue: defaultValue, type: type);
-        }
-      }
-      return null;
-    } else {
+  /// Lookup an edge from an Item
+  Item? _resolveEdgeItem(
+      String edge, Item item, database.DatabaseController db) {
+    return item.getEdges(edge)?.first();
+  }
+
+  /// Lookup an edge array from an Item
+  List<Item> _resolveEdgeItemArray(
+      String edge, Item item, database.DatabaseController db) {
+    return item.getEdges(edge)?.targets ?? [];
+  }
+
+  /// Lookup a property from an Item
+  PropertyDatabaseValue? _resolvePropertyDatabaseValue(
+      String property, Item item, database.DatabaseController db) {
+    var value = item.get(property);
+    if (value == null) {
       return null;
     }
+    SchemaValueType? propertyType =
+        db.schema.expectedPropertyType(item.type, property);
+    if (propertyType == null) {
+      return null;
+    }
+    return PropertyDatabaseValue.create(value, propertyType);
   }
 
-  /// Lookup an edge from an ItemRecord
-  Future<ItemRecord?> _resolveEdgeItemRecord(
-      String edge, ItemRecord item, DatabaseController db) async {
-    return await item.edgeItem(edge, db: db);
-  }
-
-  /// Lookup an edge array from an ItemRecord
-  Future<List<ItemRecord>> _resolveEdgeItemRecordArray(
-      String edge, ItemRecord item, DatabaseController db) async {
-    return await item.edgeItems(edge, db: db);
-  }
-
-  /// Lookup a property from an ItemRecord
-  Future<PropertyDatabaseValue?> _resolvePropertyDatabaseValue(
-      String property, ItemRecord item, DatabaseController db) async {
-    return await item.propertyValue(property, db);
-  }
-
-  Future<LookupStep?> _resolveLookupStep(List<CVULookupNode> nodes,
-      CVUContext context, DatabaseController db) async {
+  LookupStep? _resolveLookupStep(List<CVULookupNode> nodes, CVUContext context,
+      database.DatabaseController db) {
     LookupStep? currentValue;
     var nodePath = "";
     for (CVULookupNode node in nodes) {
@@ -322,7 +281,7 @@ class CVULookupController {
         var nodeType = node.type;
 
         if (nodeType is CVULookupTypeDefault) {
-          ItemRecord? currentItem = context.currentItem;
+          Item? currentItem = context.currentItem;
           if (currentItem == null) {
             currentValue = null;
           } else {
@@ -330,9 +289,9 @@ class CVULookupController {
           }
         } else if (nodeType is CVULookupTypeFunction) {
           currentValue =
-              await _resolveLookupFunction(node, currentValue, context, db);
+              _resolveLookupFunction(node, currentValue, context, db);
         } else if (nodeType is CVULookupTypeLookup) {
-          currentValue = await _resolveLookup(node, currentValue, context, db);
+          currentValue = _resolveLookup(node, currentValue, context, db);
         } else {
           throw Exception("Unknown CVULookupType ${nodeType.toString()}");
         }
@@ -349,15 +308,12 @@ class CVULookupController {
     return currentValue;
   }
 
-  Future<LookupStep?> _resolveLookup(
-      CVULookupNode node,
-      LookupStep? currentValue,
-      CVUContext context,
-      DatabaseController db) async {
+  LookupStep? _resolveLookup(CVULookupNode node, LookupStep? currentValue,
+      CVUContext context, database.DatabaseController db) {
     var nodeType = node.type as CVULookupTypeLookup;
 
     if (currentValue is LookupStepItems) {
-      currentValue = await itemLookup(
+      currentValue = itemLookup(
           node: node,
           items: currentValue.items,
           subexpressions: nodeType.subexpressions,
@@ -394,7 +350,7 @@ class CVULookupController {
             throw Exception("Unknown CVUConstant: ${constant.toString()}");
           }
         } else if (argValue is CVUValueExpression) {
-          currentValue = await () async {
+          currentValue = () {
             CVUExpressionNode expression = argValue.value;
 
             var context = CVUContext(
@@ -402,24 +358,24 @@ class CVULookupController {
                 items: viewArgs.argumentItems,
                 viewArguments: viewArgs.parentArguments);
 
-            List<ItemRecord> items = await resolve<List>(
+            List<Item> items = resolve<List>(
                 expression: expression,
                 context: context,
                 db: db,
-                additionalType: ItemRecord) as List<ItemRecord>;
+                additionalType: Item) as List<Item>;
 
             if (items.isNotEmpty) return LookupStepItems(items);
 
-            ItemRecord? item = await resolve<ItemRecord>(
-                expression: expression, context: context, db: db);
+            Item? item =
+                resolve<Item>(expression: expression, context: context, db: db);
             if (item != null) return LookupStepItems([item]);
 
-            double? number = await resolve<double>(
+            double? number = resolve<double>(
                 expression: expression, context: context, db: db);
             if (number != null)
               return LookupStepValues([PropertyDatabaseValueDouble(number)]);
 
-            String? string = await resolve<String>(
+            String? string = resolve<String>(
                 expression: expression, context: context, db: db);
             if (string != null)
               return LookupStepValues([PropertyDatabaseValueString(string)]);
@@ -429,19 +385,14 @@ class CVULookupController {
         } else {
           currentValue = null;
         }
-      } else if (node.name == "me") {
-        var me = await ItemRecord.me();
-        if (me != null) {
-          currentValue = LookupStepItems([me]);
-        }
       } else if (node.name == "uid") {
-        var item = context.currentItem;
-        if (item != null && item.rowId != null) {
+        var uid = context.currentItem?.id;
+        if (uid != null) {
           currentValue =
-              LookupStepValues([PropertyDatabaseValueInt(item.rowId!)]);
+              LookupStepValues([PropertyDatabaseValueString(uid as String)]);
         }
       } else if (node.name == "items") {
-        List<ItemRecord>? items = context.items;
+        List<Item>? items = context.items;
         if (items == null) {
           return null;
         }
@@ -457,72 +408,14 @@ class CVULookupController {
     return currentValue;
   }
 
-  Future<LookupStep?> _resolveLookupFunction(
+  LookupStep? _resolveLookupFunction(
       CVULookupNode node,
       LookupStep? currentValue,
       CVUContext context,
-      DatabaseController db) async {
+      database.DatabaseController db) {
     var nodeType = node.type as CVULookupTypeFunction;
     List<CVUExpressionNode> args = nodeType.args;
     switch (node.name.toLowerCase()) {
-      case "item":
-        var exp = nodeType.args.asMap()[0];
-        if (exp == null) {
-          return null;
-        }
-        int? itemRowId =
-            await resolve<int>(expression: exp, context: context, db: db);
-        if (itemRowId == null) {
-          return null;
-        }
-        ItemRecord? item = await ItemRecord.fetchWithRowID(itemRowId, db);
-        if (item == null) {
-          return null;
-        }
-        currentValue = LookupStepItems([item]);
-        break;
-      case "items":
-        var byType = await _resolveNamedExpression<String>(
-            nodeType.args, "type", db, context);
-        if (byType != null) {
-          List<ItemRecord> items =
-              await ItemRecord.fetchWithType(byType, db.databasePool);
-          if (items.isEmpty) {
-            return null;
-          }
-          currentValue = LookupStepItems(items);
-        } else {
-          return null;
-        }
-        break;
-      case "datasourceitems":
-        var exp = nodeType.args.asMap()[0];
-        String? key =
-            await resolve<String>(expression: exp, context: context, db: db);
-        if (key == null) {
-          return null;
-        }
-
-        var datasources = context.viewArguments?.args["datasources"];
-        if (datasources is! CVUValueSubdefinition) {
-          return null;
-        }
-
-        var datasourceDefinition = datasources.value.properties[key];
-        if (datasourceDefinition is! CVUValueSubdefinition) {
-          return null;
-        }
-
-        var queryConfig = await DatabaseQueryConfig.queryConfigWith(
-            context: context,
-            datasourceContent: datasourceDefinition.value,
-            databaseController: db);
-
-        var items = await queryConfig.constructFilteredRequest();
-
-        currentValue = LookupStepItems(
-            items.map((item) => ItemRecord.fromItem(item)).toList());
-        break;
       case "joined":
         if (currentValue == null || currentValue is! LookupStepValues) {
           return null;
@@ -532,8 +425,7 @@ class CVULookupController {
           return null;
         }
         String? separator;
-        separator =
-            await resolve<String>(expression: exp, context: context, db: db);
+        separator = resolve<String>(expression: exp, context: context, db: db);
 
         if (separator != null && separator.isNotEmpty) {
           String joined = currentValue.values
@@ -552,20 +444,16 @@ class CVULookupController {
         }
         break;
       case "joinwithcomma":
-        String joined = (await Future.wait(args.map((element) async =>
-                (await resolve<String>(
-                    expression: element, context: context, db: db)))))
+        String joined = (args.map((element) => (resolve<String>(
+                expression: element, context: context, db: db))))
             .where((element) => element != null && element.isNotEmpty)
             .join(", ");
         currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
         break;
       case "joinnatural":
-        List<String> strings = (await Future.wait(args.map((element) async =>
-                (await resolve<String>(
-                        expression: element, context: context, db: db))
-                    .toString())))
-            .where((element) => element.isNotEmpty)
-            .toList();
+        List<String> strings = (args.map((element) =>
+            (resolve<String>(expression: element, context: context, db: db))
+                .toString())).where((element) => element.isNotEmpty).toList();
         var joined = strings
             .join(", "); //TODO @anijanyan String.localizedString(strings);
         currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
@@ -642,8 +530,7 @@ class CVULookupController {
         var exp = nodeType.args.asMap()[0];
         double? arg;
         if (exp != null) {
-          arg =
-              await resolve<double>(expression: exp, context: context, db: db);
+          arg = resolve<double>(expression: exp, context: context, db: db);
           if (arg == null) {
             return null;
           }
@@ -665,12 +552,12 @@ class CVULookupController {
           if (currentValue.items.isEmpty) {
             return null;
           }
-          ItemRecord first = currentValue.items[0];
+          Item first = currentValue.items[0];
           if (first.type == "Person") {
             String name = [
-              await resolve<PropertyDatabaseValue>(
+              resolve<PropertyDatabaseValue>(
                   property: "firstName", item: first, db: db),
-              await resolve<PropertyDatabaseValue>(
+              resolve<PropertyDatabaseValue>(
                   property: "lastName", item: first, db: db)
             ].map((element) => (element?.asString() ?? "")).join(" ");
             currentValue =
@@ -695,12 +582,12 @@ class CVULookupController {
           if (currentValue.items.isEmpty) {
             return null;
           }
-          ItemRecord first = currentValue.items[0];
+          Item first = currentValue.items[0];
           if (first.type == "Person") {
             String initials = [
-              await resolve<PropertyDatabaseValue>(
+              resolve<PropertyDatabaseValue>(
                   property: "firstName", item: first, db: db),
-              await resolve<PropertyDatabaseValue>(
+              resolve<PropertyDatabaseValue>(
                   property: "lastName", item: first, db: db)
             ]
                 .map((element) => element?.asString()?[0])
@@ -721,10 +608,14 @@ class CVULookupController {
           if (currentValue.items.isEmpty) {
             return null;
           }
-          ItemRecord first = currentValue.items[0];
+          Item first = currentValue.items[0];
           if (first.type == "Person") {
-            var dateCreated = first.dateCreated.formatted();
-            var timeSinceCreated = first.dateCreated.timeDelta;
+            var dateCreated =
+                DateTime.fromMillisecondsSinceEpoch(first.get("dateCreated"))
+                    .formatted();
+            var timeSinceCreated =
+                DateTime.fromMillisecondsSinceEpoch(first.get("dateCreated"))
+                    .timeDelta;
             return LookupStepValues([
               PropertyDatabaseValueString(
                   "You created this ${first.type} $dateCreated over the past $timeSinceCreated")
@@ -826,8 +717,7 @@ class CVULookupController {
         break;
       case "subview":
         var exp = nodeType.args.asMap()[0];
-        String? id =
-            await resolve<String>(expression: exp, context: context, db: db);
+        String? id = resolve<String>(expression: exp, context: context, db: db);
         if (id == null) {
           return null;
         }
@@ -848,11 +738,11 @@ class CVULookupController {
         if (viewArgs.args["selectedItems"] == null) {
           return null;
         }
-        List<ItemRecord> items = await resolve<List>(
+        List<Item> items = resolve<List>(
             value: viewArgs.args["selectedItems"],
             db: db,
             context: context,
-            additionalType: ItemRecord) as List<ItemRecord>;
+            additionalType: Item) as List<Item>;
         if (items.isEmpty) {
           return null;
         }
@@ -864,8 +754,7 @@ class CVULookupController {
           return null;
         }
         var exp = nodeType.args.asMap()[0];
-        String? id =
-            await resolve<String>(expression: exp, context: context, db: db);
+        String? id = resolve<String>(expression: exp, context: context, db: db);
         if (id == null) {
           return null;
         }
@@ -888,7 +777,7 @@ class CVULookupController {
           }
 
           String? property =
-              await resolve<String>(expression: exp, context: context, db: db);
+              resolve<String>(expression: exp, context: context, db: db);
           if (property == null) {
             return null;
           }
@@ -917,14 +806,14 @@ class CVULookupController {
       case "generaterandom":
         var exp = nodeType.args.asMap()[0];
         String? type =
-            await resolve<String>(expression: exp, context: context, db: db);
+            resolve<String>(expression: exp, context: context, db: db);
         if (type == null) {
           return null;
         }
         var propertyExp = nodeType.args.asMap()[1];
         String? property;
         if (propertyExp != null) {
-          property = await resolve<String>(
+          property = resolve<String>(
               expression: propertyExp, context: context, db: db);
         }
 
@@ -958,8 +847,8 @@ class CVULookupController {
           var exp = nodeType.args.asMap()[0];
           String? dateFormat;
           if (exp != null) {
-            dateFormat = await resolve<String>(
-                expression: exp, context: context, db: db);
+            dateFormat =
+                resolve<String>(expression: exp, context: context, db: db);
           }
           var newDate = currentValue.values.first
               .asDate()
@@ -984,7 +873,7 @@ class CVULookupController {
       case "fromconfig":
         var exp = nodeType.args.asMap()[0];
         String? param =
-            await resolve<String>(expression: exp, context: context, db: db);
+            resolve<String>(expression: exp, context: context, db: db);
         if (param == null) {
           return null;
         }
@@ -1003,39 +892,35 @@ class CVULookupController {
     return currentValue;
   }
 
-  Future<List<ItemRecord>> filter(
-      List<ItemRecord> items,
-      CVUExpressionNode? exp,
-      DatabaseController? db,
-      CVUContext context) async {
+  List<Item> filter(List<Item> items, CVUExpressionNode? exp,
+      database.DatabaseController? db, CVUContext context) {
     if (exp == null) {
       return items;
     }
 
-    return (await Future.wait(items.map((item) async => (await resolve<bool>(
-                    expression: exp,
-                    context: CVUContext(
-                        currentItem: item,
-                        viewArguments: CVUViewArguments(
-                          argumentItem: context.currentItem,
-                          argumentItems: context.items,
-                          args: context.viewArguments?.args,
-                        )),
-                    db: db) ??
-                false)
-            ? item
-            : null)))
-        .compactMap();
+    return (items.compactMap((item) => (resolve<bool>(
+                expression: exp,
+                context: CVUContext(
+                    currentItem: item,
+                    viewArguments: CVUViewArguments(
+                      argumentItem: context.currentItem,
+                      argumentItems: context.items,
+                      args: context.viewArguments?.args,
+                    )),
+                db: db) ??
+            false)
+        ? item
+        : null));
   }
 
-  Future<T?> _resolveNamedExpression<T>(List<CVUExpressionNode> expressions,
-      String name, DatabaseController db, CVUContext context) async {
+  T? _resolveNamedExpression<T>(List<CVUExpressionNode> expressions,
+      String name, database.DatabaseController db, CVUContext context) {
     var expression = _getNamedExpression(expressions, name);
     if (expression == null) {
       return null;
     }
 
-    return await resolve<T>(expression: expression, context: context, db: db);
+    return resolve<T>(expression: expression, context: context, db: db);
   }
 
   CVUExpressionNode? _getNamedExpression(
@@ -1046,13 +931,10 @@ class CVULookupController {
         ?.value;
   }
 
-  Future<List<Map<String, dynamic>>> getSort(
-      List<CVUExpressionNode> expressions,
-      String edgeType,
-      DatabaseController db,
-      CVUContext context) async {
+  List<Map<String, dynamic>> getSort(List<CVUExpressionNode> expressions,
+      String edgeType, database.DatabaseController db, CVUContext context) {
     var sortData =
-        await _resolveNamedExpression<String>(expressions, "sort", db, context);
+        _resolveNamedExpression<String>(expressions, "sort", db, context);
     var sort = <Map<String, dynamic>>[];
 
     if (sortData != null && sortData.isNotEmpty) {
@@ -1061,10 +943,10 @@ class CVULookupController {
         var sortData = sortProperty.trim().split(" ");
         SchemaValueType schemaValueType =
             db.schema.expectedPropertyType(edgeType, sortData[0])!;
-        ItemRecordPropertyTable itemRecordPropertyTable =
+        ItemRecordPropertyTable ItemPropertyTable =
             PropertyDatabaseValue.toDBTableName(schemaValueType);
         TableInfo table =
-            db.databasePool.getItemPropertyRecordTable(itemRecordPropertyTable);
+            db.databasePool.getItemPropertyRecordTable(ItemPropertyTable);
         sort.add({
           "table": table,
           "property": sortData[0],
@@ -1076,12 +958,12 @@ class CVULookupController {
     return sort;
   }
 
-  Future<LookupStep?> itemLookup(
+  LookupStep? itemLookup(
       {required CVULookupNode node,
-      required List<ItemRecord> items,
+      required List<Item> items,
       List<CVUExpressionNode>? subexpressions,
       required CVUContext context,
-      required DatabaseController db}) async {
+      required database.DatabaseController db}) {
     if (items.isEmpty) {
       return null;
     }
@@ -1093,125 +975,90 @@ class CVULookupController {
           ? subexpressions.first
           : _getNamedExpression(subexpressions, "filter");
     }
-    switch (node.name[0]) {
-      case "~":
 
-        /// LOOKUP REVERSE EDGE FOR EACH ITEM
-        String itemType = items[0].type;
-        var expectedTypes =
-            db.schema.expectedSourceTypes(itemType, trimmedName);
-        if (expectedTypes.isEmpty) return null;
+    /// CHECK IF WE'RE EXPECTING EDGES OR PROPERTIES
+    String itemType = items[0].type;
 
-        var sort = <Map<String, dynamic>>[];
-        int? limit;
-        if (subexpressions != null) {
-          sort = await getSort(subexpressions, expectedTypes[0], db, context);
-          limit = await _resolveNamedExpression<int>(
-              subexpressions, "limit", db, context);
-        }
-        List<ItemRecord> result;
-        if (node.isArray) {
-          result = (await Future.wait(items.map((item) async =>
-                  await item.reverseEdgeItems(trimmedName,
-                      db: db, sort: sort, limit: limit))))
-              .expand((element) => element)
-              .toList();
-        } else {
-          result = (await Future.wait(items.map((item) async =>
-                  await item.reverseEdgeItem(trimmedName, db: db, sort: sort))))
-              .whereType<ItemRecord>()
-              .toList();
-        }
-        var stepItems = await filter(result, filterExpression, db, context);
-        return LookupStepItems(stepItems);
+    /// Check if this is an intrinsic property
+    switch (node.name) {
+      case "uid":
+      case "id":
+        return LookupStepValues(items
+            .map((element) => PropertyDatabaseValueString(element.id))
+            .toList());
+      case "dateModified":
+        return LookupStepValues(items
+            .map((element) => PropertyDatabaseValueDatetime(
+                DateTime.fromMillisecondsSinceEpoch(
+                    element.get("dateModified"))))
+            .toList());
+      case "dateCreated":
+        return LookupStepValues(items
+            .map((element) => PropertyDatabaseValueDatetime(
+                DateTime.fromMillisecondsSinceEpoch(
+                    element.get("dateCreated"))))
+            .toList());
+      case "label":
+        return LookupStepItems(
+            items.asMap()[0]?.getEdges("label")?.targets ?? []);
       default:
+        break;
+    }
 
-        /// CHECK IF WE'RE EXPECTING EDGES OR PROPERTIES
-        String itemType = items[0].type;
+    /// Find out if it is a property or an edge (according to schema)
 
-        /// Check if this is an intrinsic property
-        switch (node.name) {
-          case "uid":
-            return LookupStepValues(items
-                .map((element) => PropertyDatabaseValueInt(element.rowId!))
-                .toList());
-          case "id":
-            return LookupStepValues(items
-                .map((element) => PropertyDatabaseValueString(element.uid))
-                .toList());
-          case "dateModified":
-            return LookupStepValues(items
-                .map((element) =>
-                    PropertyDatabaseValueDatetime(element.dateModified))
-                .toList());
-          case "dateCreated":
-            return LookupStepValues(items
-                .map((element) =>
-                    PropertyDatabaseValueDatetime(element.dateCreated))
-                .toList());
-          case "label":
-            return LookupStepItems(
-                await items.asMap()[0]?.edgeItems("label") ?? []);
-          default:
-            break;
-        }
+    ResolvedType? expectedType;
+    if (node.name.startsWith("~")) {
+      var expectedTypes = db.schema.expectedSourceTypes(itemType, trimmedName);
+      if (expectedTypes.isEmpty) return null;
 
-        /// Find out if it is a property or an edge (according to schema)
-        var expectedType = db.schema.expectedType(itemType, node.name);
-        if (expectedType is ResolvedTypeProperty) {
-          /// LOOKUP PROPERTY FOR EACH ITEM
-          List<PropertyDatabaseValue> result = [];
-          await Future.forEach(items, (ItemRecord item) async {
-            PropertyDatabaseValue? value =
-                await item.propertyValue(node.name, db);
-            if (value == null) {
-              return null;
-            }
-            result.add(value);
-          });
-          return LookupStepValues(result);
-        } else if (expectedType is ResolvedTypeEdge) {
-          /// LOOKUP EDGE FOR EACH ITEM
+      expectedType = ResolvedTypeEdge(expectedTypes.first);
+    } else {
+      expectedType = db.schema.expectedType(itemType, node.name);
+    }
 
-          var sort = <Map<String, dynamic>>[];
-          int? limit;
-          if (subexpressions != null) {
-            sort =
-                await getSort(subexpressions, expectedType.value, db, context);
-            limit = await _resolveNamedExpression<int>(
-                subexpressions, "limit", db, context);
-          }
-
-          List<ItemRecord> result;
-          if (node.isArray) {
-            result = (await Future.wait(items.map((item) async => await item
-                    .edgeItems(trimmedName, db: db, sort: sort, limit: limit))))
-                .expand((element) => element)
-                .toList();
-          } else {
-            result = [];
-            await Future.forEach(items, (ItemRecord item) async {
-              var itemRecord =
-                  await item.edgeItem(trimmedName, db: db, sort: sort);
-              if (itemRecord != null) result.add(itemRecord);
-            });
-          }
-          var stepItems = await filter(result, filterExpression, db, context);
-          return LookupStepItems(stepItems);
-        } else {
+    if (expectedType is ResolvedTypeProperty) {
+      /// LOOKUP PROPERTY FOR EACH ITEM
+      List<PropertyDatabaseValue> result = [];
+      items.forEach((Item item) {
+        PropertyDatabaseValue? value =
+            _resolvePropertyDatabaseValue(node.name, item, db);
+        if (value == null) {
           return null;
         }
+        result.add(value);
+      });
+      return LookupStepValues(result);
+    } else if (expectedType is ResolvedTypeEdge) {
+      /// LOOKUP EDGE FOR EACH ITEM
+      List<Item> result;
+      if (node.isArray) {
+        result = items
+            .map((item) => item.getEdges(trimmedName)?.targets ?? [])
+            .expand((element) => element)
+            .toList();
+      } else {
+        result = [];
+        items.forEach((Item item) {
+          var Item = item.getEdges(trimmedName)?.first();
+          if (Item != null) result.add(Item);
+        });
+      }
+      var stepItems = filter(result, filterExpression, db, context);
+      return LookupStepItems(stepItems);
+    } else {
+      return null;
     }
   }
 
   /// Lookup a variable using its CVU string and return the value as a double
-  Future<double?> _resolveNodesDouble(List<CVULookupNode> nodes,
-      CVUContext context, DatabaseController db) async {
+  double? _resolveNodesDouble(List<CVULookupNode> nodes, CVUContext context,
+      database.DatabaseController db) {
     if (lookupMockMode != null) {
       return lookupMockMode!.number;
     }
     var lookupResult =
-        await resolve<LookupStep>(nodes: nodes, context: context, db: db);
+        resolve<LookupStep>(nodes: nodes, context: context, db: db);
     if (lookupResult == null) {
       return null;
     }
@@ -1223,13 +1070,13 @@ class CVULookupController {
   }
 
   /// Lookup a variable using its CVU string and return the value as a int
-  Future<int?> _resolveNodesInt(List<CVULookupNode> nodes, CVUContext context,
-      DatabaseController db) async {
+  int? _resolveNodesInt(List<CVULookupNode> nodes, CVUContext context,
+      database.DatabaseController db) {
     if (lookupMockMode != null) {
       return lookupMockMode!.integer;
     }
     var lookupResult =
-        await resolve<LookupStep>(nodes: nodes, context: context, db: db);
+        resolve<LookupStep>(nodes: nodes, context: context, db: db);
     if (lookupResult == null) {
       return null;
     }
@@ -1241,13 +1088,13 @@ class CVULookupController {
   }
 
   /// Lookup a variable using its CVU string and return the value as a string
-  Future<String?> _resolveNodesString(List<CVULookupNode> nodes,
-      CVUContext context, DatabaseController db) async {
+  String? _resolveNodesString(List<CVULookupNode> nodes, CVUContext context,
+      database.DatabaseController db) {
     if (lookupMockMode != null) {
       return lookupMockMode!.string;
     }
     LookupStep? lookupResult =
-        await resolve<LookupStep>(nodes: nodes, context: context, db: db);
+        resolve<LookupStep>(nodes: nodes, context: context, db: db);
     if (lookupResult == null) {
       return null;
     }
@@ -1259,13 +1106,13 @@ class CVULookupController {
   }
 
   /// Lookup a variable using its CVU string and return the value as a bool
-  Future<bool?> _resolveNodesBool(List<CVULookupNode> nodes, CVUContext context,
-      DatabaseController db) async {
+  bool? _resolveNodesBool(List<CVULookupNode> nodes, CVUContext context,
+      database.DatabaseController db) {
     if (lookupMockMode != null) {
       return lookupMockMode!.boolean;
     }
     LookupStep? lookupResult =
-        await resolve<LookupStep>(nodes: nodes, context: context, db: db);
+        resolve<LookupStep>(nodes: nodes, context: context, db: db);
     if (lookupResult == null) {
       return null;
     }
@@ -1279,10 +1126,10 @@ class CVULookupController {
   }
 
   /// Lookup using a CVU expression string and return the value as an item
-  Future<ItemRecord?> _resolveNodesItemRecord(List<CVULookupNode> nodes,
-      CVUContext context, DatabaseController db) async {
+  Item? _resolveNodesItem(List<CVULookupNode> nodes, CVUContext context,
+      database.DatabaseController db) {
     LookupStep? lookupResult =
-        await resolve<LookupStep>(nodes: nodes, context: context, db: db);
+        resolve<LookupStep>(nodes: nodes, context: context, db: db);
     if (lookupResult == null) {
       return null;
     }
@@ -1294,12 +1141,10 @@ class CVULookupController {
   }
 
   /// Lookup using a CVU expression string and return the value as an array of items
-  Future<List<ItemRecord>> _resolveNodesItemRecordArray(
-      List<CVULookupNode> nodes,
-      CVUContext context,
-      DatabaseController db) async {
+  List<Item> _resolveNodesItemArray(List<CVULookupNode> nodes,
+      CVUContext context, database.DatabaseController db) {
     LookupStep? lookupResult =
-        await resolve<LookupStep>(nodes: nodes, context: context, db: db);
+        resolve<LookupStep>(nodes: nodes, context: context, db: db);
     if (lookupResult == null) {
       return [];
     }
@@ -1310,164 +1155,135 @@ class CVULookupController {
     }
   }
 
-  Future<ItemRecord?> _resolveExpressionItemRecord(CVUExpressionNode expression,
-      CVUContext context, DatabaseController db) async {
+  Item? _resolveExpressionItem(CVUExpressionNode expression, CVUContext context,
+      database.DatabaseController db) {
     if (expression is CVUExpressionNodeLookup) {
-      return await resolve<ItemRecord>(
-          nodes: expression.nodes, context: context, db: db);
+      return resolve<Item>(nodes: expression.nodes, context: context, db: db);
     } else if (expression is CVUExpressionNodeConditional) {
-      bool conditionResolved = await resolve<bool>(
+      bool conditionResolved = resolve<bool>(
               expression: expression.condition, context: context, db: db) ??
           false;
       if (conditionResolved) {
-        return await resolve<ItemRecord>(
+        return resolve<Item>(
             expression: expression.trueExp, context: context, db: db);
       } else {
-        return await resolve<ItemRecord>(
+        return resolve<Item>(
             expression: expression.falseExp, context: context, db: db);
       }
     } else if (expression is CVUExpressionNodeOr) {
-      return await resolve<ItemRecord>(
+      return resolve<Item>(
               expression: expression.lhs, context: context, db: db) ??
-          await resolve<ItemRecord>(
-              expression: expression.rhs, context: context, db: db);
+          resolve<Item>(expression: expression.rhs, context: context, db: db);
     } else {
       return null;
     }
   }
 
-  Future<List<ItemRecord>> _resolveExpressionItemRecordArray(
-      CVUExpressionNode expression,
-      CVUContext context,
-      DatabaseController db) async {
+  List<Item> _resolveExpressionItemArray(CVUExpressionNode expression,
+      CVUContext context, database.DatabaseController db) {
     if (expression is CVUExpressionNodeLookup) {
-      return (await resolve<List>(
+      return (resolve<List>(
           nodes: expression.nodes,
           context: context,
           db: db,
-          additionalType: ItemRecord)) as List<ItemRecord>;
+          additionalType: Item)) as List<Item>;
     } else if (expression is CVUExpressionNodeConditional) {
-      bool conditionResolved = await resolve<bool>(
+      bool conditionResolved = resolve<bool>(
               expression: expression.condition, context: context, db: db) ??
           false;
       if (conditionResolved) {
-        return (await resolve<List>(
+        return (resolve<List>(
             expression: expression.trueExp,
             context: context,
             db: db,
-            additionalType: ItemRecord)) as List<ItemRecord>;
+            additionalType: Item)) as List<Item>;
       } else {
-        return (await resolve<List>(
+        return (resolve<List>(
             expression: expression.falseExp,
             context: context,
             db: db,
-            additionalType: ItemRecord)) as List<ItemRecord>;
+            additionalType: Item)) as List<Item>;
       }
     } else if (expression is CVUExpressionNodeAnd) {
-      return ((await resolve<List>(
+      return ((resolve<List>(
               expression: expression.lhs,
               context: context,
               db: db,
-              additionalType: ItemRecord)) as List<ItemRecord>) +
-          ((await resolve<List>(
+              additionalType: Item)) as List<Item>) +
+          ((resolve<List>(
               expression: expression.rhs,
               context: context,
               db: db,
-              additionalType: ItemRecord)) as List<ItemRecord>);
+              additionalType: Item)) as List<Item>);
     } else if (expression is CVUExpressionNodeOr) {
-      var resolvedA = (await resolve<List>(
+      var resolvedA = (resolve<List>(
           expression: expression.lhs,
           context: context,
           db: db,
-          additionalType: ItemRecord)) as List<ItemRecord>;
+          additionalType: Item)) as List<Item>;
       return resolvedA.length > 0
           ? resolvedA
-          : (await resolve<List>(
+          : (resolve<List>(
               expression: expression.rhs,
               context: context,
               db: db,
-              additionalType: ItemRecord)) as List<ItemRecord>;
-    } else if (expression is CVUExpressionNodeStringMode) {
-      var first = expression.nodes.asMap()[0];
-      var last = expression.nodes.asMap()[expression.nodes.length - 1];
-      if (first is CVUExpressionNodeConstant &&
-          last is CVUExpressionNodeLookup) {
-        var query = first.value;
-        var lookupNodes = last.nodes;
-        List? res = await _resolveToItemAndProperty(lookupNodes, context, db);
-        ItemRecord? item = res?[0];
-        String? property = res?[1];
-        if (item != null && property != null) {
-          var value = property == "uid"
-              ? PropertyDatabaseValue.createFromDBValue(
-                  Value(item.uid), SchemaValueType.string)
-              : await resolve<PropertyDatabaseValue>(
-                  property: property, item: item, db: db);
-          if (value != null && value is PropertyDatabaseValueString) {
-            var valueString = value.value;
-            return await db.search("${query.asString()} $valueString");
-          }
-        }
-      }
-      return [];
+              additionalType: Item)) as List<Item>;
     } else {
       return [];
     }
   }
 
-  Future<double?> _resolveExpressionDouble(CVUExpressionNode expression,
-      CVUContext context, DatabaseController db) async {
+  double? _resolveExpressionDouble(CVUExpressionNode expression,
+      CVUContext context, database.DatabaseController db) {
     if (expression is CVUExpressionNodeLookup) {
-      return await resolve<double>(
-          nodes: expression.nodes, context: context, db: db);
+      return resolve<double>(nodes: expression.nodes, context: context, db: db);
     } else if (expression is CVUExpressionNodeConditional) {
-      bool conditionResolved = await resolve<bool>(
+      bool conditionResolved = resolve<bool>(
               expression: expression.condition, context: context, db: db) ??
           false;
       if (conditionResolved) {
-        return await resolve<double>(
+        return resolve<double>(
             expression: expression.trueExp, context: context, db: db);
       } else {
-        return await resolve<double>(
+        return resolve<double>(
             expression: expression.falseExp, context: context, db: db);
       }
     } else if (expression is CVUExpressionNodeOr) {
-      return await resolve<double>(
+      return resolve<double>(
               expression: expression.lhs, context: context, db: db) ??
-          await resolve<double>(
-              expression: expression.rhs, context: context, db: db);
+          resolve<double>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
       AppLogger.err(
           "CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
-      return (await resolve<double>(
+      return (resolve<double>(
                   expression: expression.lhs, context: context, db: db) ??
               0) +
-          (await resolve<double>(
+          (resolve<double>(
                   expression: expression.rhs, context: context, db: db) ??
               0);
     } else if (expression is CVUExpressionNodeSubtraction) {
-      return (await resolve<double>(
+      return (resolve<double>(
                   expression: expression.lhs, context: context, db: db) ??
               0) -
-          (await resolve<double>(
+          (resolve<double>(
                   expression: expression.rhs, context: context, db: db) ??
               0);
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asNumber();
     } else if (expression is CVUExpressionNodeMultiplication) {
-      return (await resolve<double>(
+      return (resolve<double>(
                   expression: expression.lhs, context: context, db: db) ??
               0) *
-          (await resolve<double>(
+          (resolve<double>(
                   expression: expression.rhs, context: context, db: db) ??
               0);
     } else if (expression is CVUExpressionNodeDivision) {
-      double? lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      double? rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      double? lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      double? rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs != null && rhs != null && rhs != 0) {
         return lhs / rhs;
       } else {
@@ -1478,59 +1294,54 @@ class CVULookupController {
     }
   }
 
-  Future<int?> _resolveExpressionInt(CVUExpressionNode expression,
-      CVUContext context, DatabaseController db) async {
+  int? _resolveExpressionInt(CVUExpressionNode expression, CVUContext context,
+      database.DatabaseController db) {
     if (expression is CVUExpressionNodeLookup) {
-      return await resolve<int>(
-          nodes: expression.nodes, context: context, db: db);
+      return resolve<int>(nodes: expression.nodes, context: context, db: db);
     } else if (expression is CVUExpressionNodeConditional) {
-      bool conditionResolved = await resolve<bool>(
+      bool conditionResolved = resolve<bool>(
               expression: expression.condition, context: context, db: db) ??
           false;
       if (conditionResolved) {
-        return await resolve<int>(
+        return resolve<int>(
             expression: expression.trueExp, context: context, db: db);
       } else {
-        return await resolve<int>(
+        return resolve<int>(
             expression: expression.falseExp, context: context, db: db);
       }
     } else if (expression is CVUExpressionNodeOr) {
-      return await resolve<int>(
+      return resolve<int>(
               expression: expression.lhs, context: context, db: db) ??
-          await resolve<int>(
-              expression: expression.rhs, context: context, db: db);
+          resolve<int>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
       AppLogger.err(
           "CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
-      return (await resolve<int>(
+      return (resolve<int>(
                   expression: expression.lhs, context: context, db: db) ??
               0) +
-          (await resolve<int>(
-                  expression: expression.rhs, context: context, db: db) ??
+          (resolve<int>(expression: expression.rhs, context: context, db: db) ??
               0);
     } else if (expression is CVUExpressionNodeSubtraction) {
-      return (await resolve<int>(
+      return (resolve<int>(
                   expression: expression.lhs, context: context, db: db) ??
               0) -
-          (await resolve<int>(
-                  expression: expression.rhs, context: context, db: db) ??
+          (resolve<int>(expression: expression.rhs, context: context, db: db) ??
               0);
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asInt();
     } else if (expression is CVUExpressionNodeMultiplication) {
-      return (await resolve<int>(
+      return (resolve<int>(
                   expression: expression.lhs, context: context, db: db) ??
               0) *
-          (await resolve<int>(
-                  expression: expression.rhs, context: context, db: db) ??
+          (resolve<int>(expression: expression.rhs, context: context, db: db) ??
               0);
     } else if (expression is CVUExpressionNodeDivision) {
-      int? lhs = await resolve<int>(
-          expression: expression.lhs, context: context, db: db);
-      int? rhs = await resolve<int>(
-          expression: expression.rhs, context: context, db: db);
+      int? lhs =
+          resolve<int>(expression: expression.lhs, context: context, db: db);
+      int? rhs =
+          resolve<int>(expression: expression.rhs, context: context, db: db);
       if (lhs != null && rhs != null && rhs != 0) {
         return (lhs / rhs).floor();
       } else {
@@ -1541,39 +1352,37 @@ class CVULookupController {
     }
   }
 
-  Future<String?> _resolveExpressionString(CVUExpressionNode expression,
-      CVUContext context, DatabaseController db) async {
+  String? _resolveExpressionString(CVUExpressionNode expression,
+      CVUContext context, database.DatabaseController db) {
     if (expression is CVUExpressionNodeLookup) {
-      return await resolve<String>(
-          nodes: expression.nodes, context: context, db: db);
+      return resolve<String>(nodes: expression.nodes, context: context, db: db);
     } else if (expression is CVUExpressionNodeConditional) {
-      bool conditionResolved = await resolve<bool>(
+      bool conditionResolved = resolve<bool>(
               expression: expression.condition, context: context, db: db) ??
           false;
       if (conditionResolved) {
-        return await resolve<String>(
+        return resolve<String>(
             expression: expression.trueExp, context: context, db: db);
       } else {
-        return await resolve<String>(
+        return resolve<String>(
             expression: expression.falseExp, context: context, db: db);
       }
     } else if (expression is CVUExpressionNodeOr) {
-      return await resolve<String>(
+      return resolve<String>(
               expression: expression.lhs,
               context: context,
               db: db) //TODO nilIfBlank?
           ??
-          await resolve<String>(
-              expression: expression.rhs, context: context, db: db);
+          resolve<String>(expression: expression.rhs, context: context, db: db);
     } else if (expression is CVUExpressionNodeNegation) {
       AppLogger.err(
           "CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
-      return (await resolve<String>(
+      return (resolve<String>(
                   expression: expression.lhs, context: context, db: db) ??
               "") +
-          (await resolve<String>(
+          (resolve<String>(
                   expression: expression.rhs, context: context, db: db) ??
               "");
     } else if (expression is CVUExpressionNodeSubtraction) {
@@ -1583,9 +1392,8 @@ class CVULookupController {
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asString();
     } else if (expression is CVUExpressionNodeStringMode) {
-      return (await Future.wait(expression.nodes.map((element) async =>
-              await resolve<String>(
-                  expression: element, context: context, db: db))))
+      return (expression.nodes.map((element) =>
+              resolve<String>(expression: element, context: context, db: db)))
           .whereType<String>()
           .join();
     } else {
@@ -1593,38 +1401,37 @@ class CVULookupController {
     }
   }
 
-  Future<bool?> _resolveExpressionBool(CVUExpressionNode expression,
-      CVUContext context, DatabaseController db) async {
+  bool? _resolveExpressionBool(CVUExpressionNode expression, CVUContext context,
+      database.DatabaseController db) {
     if (expression is CVUExpressionNodeLookup) {
-      return await resolve<bool>(
-          nodes: expression.nodes, context: context, db: db);
+      return resolve<bool>(nodes: expression.nodes, context: context, db: db);
     } else if (expression is CVUExpressionNodeConditional) {
-      bool conditionResolved = await resolve<bool>(
+      bool conditionResolved = resolve<bool>(
               expression: expression.condition, context: context, db: db) ??
           false;
       if (conditionResolved) {
-        return await resolve<bool>(
+        return resolve<bool>(
             expression: expression.trueExp, context: context, db: db);
       } else {
-        return await resolve<bool>(
+        return resolve<bool>(
             expression: expression.falseExp, context: context, db: db);
       }
     } else if (expression is CVUExpressionNodeAnd) {
-      return (await resolve<bool>(
+      return (resolve<bool>(
                   expression: expression.lhs, context: context, db: db) ??
               false) &&
-          (await resolve<bool>(
+          (resolve<bool>(
                   expression: expression.rhs, context: context, db: db) ??
               false);
     } else if (expression is CVUExpressionNodeOr) {
-      return (await resolve<bool>(
+      return (resolve<bool>(
                   expression: expression.lhs, context: context, db: db) ??
               false) ||
-          (await resolve<bool>(
+          (resolve<bool>(
                   expression: expression.rhs, context: context, db: db) ??
               false);
     } else if (expression is CVUExpressionNodeNegation) {
-      bool? res = await resolve<bool>(
+      bool? res = resolve<bool>(
           expression: expression.expression, context: context, db: db);
       return res == null ? res : !res;
     } else if (expression is CVUExpressionNodeAddition) {
@@ -1638,96 +1445,96 @@ class CVULookupController {
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asBool();
     } else if (expression is CVUExpressionNodeLessThan) {
-      double? lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      double? rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      double? lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      double? rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs < rhs;
     } else if (expression is CVUExpressionNodeGreaterThan) {
-      double? lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      double? rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      double? lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      double? rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs > rhs;
     } else if (expression is CVUExpressionNodeLessThanOrEqual) {
-      double? lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      double? rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      double? lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      double? rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs <= rhs;
     } else if (expression is CVUExpressionNodeGreaterThanOrEqual) {
-      double? lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      double? rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      double? lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      double? rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs >= rhs;
     } else if (expression is CVUExpressionNodeAreEqual) {
-      dynamic lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      dynamic rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      dynamic lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      dynamic rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
-        lhs = await resolve<ItemRecord>(
-            expression: expression.lhs, context: context, db: db);
-        rhs = await resolve<ItemRecord>(
-            expression: expression.rhs, context: context, db: db);
-        if (lhs != null && rhs != null) {
-          return lhs.rowId == rhs.rowId;
+        lhs =
+            resolve<Item>(expression: expression.lhs, context: context, db: db);
+        rhs =
+            resolve<Item>(expression: expression.rhs, context: context, db: db);
+        if (lhs is Item && rhs is Item) {
+          return lhs.id == rhs.id;
         }
       }
       if (lhs == null || rhs == null) {
-        lhs = await resolve<String>(
+        lhs = resolve<String>(
             expression: expression.lhs, context: context, db: db);
-        rhs = await resolve<String>(
+        rhs = resolve<String>(
             expression: expression.rhs, context: context, db: db);
       }
       if (lhs == null || rhs == null) {
-        lhs = await resolve<bool>(
-            expression: expression.lhs, context: context, db: db);
-        rhs = await resolve<bool>(
-            expression: expression.rhs, context: context, db: db);
+        lhs =
+            resolve<bool>(expression: expression.lhs, context: context, db: db);
+        rhs =
+            resolve<bool>(expression: expression.rhs, context: context, db: db);
       }
       if (lhs == null || rhs == null) {
         return false;
       }
       return lhs == rhs;
     } else if (expression is CVUExpressionNodeAreNotEqual) {
-      dynamic lhs = await resolve<double>(
-          expression: expression.lhs, context: context, db: db);
-      dynamic rhs = await resolve<double>(
-          expression: expression.rhs, context: context, db: db);
+      dynamic lhs =
+          resolve<double>(expression: expression.lhs, context: context, db: db);
+      dynamic rhs =
+          resolve<double>(expression: expression.rhs, context: context, db: db);
       if (lhs == null || rhs == null) {
-        lhs = await resolve<ItemRecord>(
-            expression: expression.lhs, context: context, db: db);
-        rhs = await resolve<ItemRecord>(
-            expression: expression.rhs, context: context, db: db);
-        if (lhs != null && rhs != null) {
-          return lhs.rowId != rhs.rowId;
+        lhs =
+            resolve<Item>(expression: expression.lhs, context: context, db: db);
+        rhs =
+            resolve<Item>(expression: expression.rhs, context: context, db: db);
+        if (lhs is Item && rhs is Item) {
+          return lhs.id != rhs.id;
         }
       }
       if (lhs == null || rhs == null) {
-        lhs = await resolve<String>(
+        lhs = resolve<String>(
             expression: expression.lhs, context: context, db: db);
-        rhs = await resolve<String>(
+        rhs = resolve<String>(
             expression: expression.rhs, context: context, db: db);
       }
       if (lhs == null || rhs == null) {
-        lhs = await resolve<bool>(
-            expression: expression.lhs, context: context, db: db);
-        rhs = await resolve<bool>(
-            expression: expression.rhs, context: context, db: db);
+        lhs =
+            resolve<bool>(expression: expression.lhs, context: context, db: db);
+        rhs =
+            resolve<bool>(expression: expression.rhs, context: context, db: db);
       }
       if (lhs == null || rhs == null) {
         return true;
@@ -1736,52 +1543,6 @@ class CVULookupController {
     } else {
       return null;
     }
-  }
-
-/*(ItemRecord item, String property) */
-  Future<List?> _resolveToItemAndProperty(List<CVULookupNode> nodes,
-      CVUContext context, DatabaseController db) async {
-    ItemRecord? currentItem;
-    if (nodes.isEmpty) {
-      return null;
-    }
-
-    // Find the item referenced by the lookup
-    CVULookupNode? last = nodes.removeLast();
-    for (CVULookupNode node in nodes) {
-      var nodeType = node.type;
-      if (nodeType is CVULookupTypeDefault) {
-        ItemRecord? defaultItem = context.currentItem;
-        if (defaultItem == null) {
-          return null;
-        }
-        currentItem = defaultItem;
-        break;
-      } else if (nodeType is CVULookupTypeLookup) {
-        ItemRecord? nextItem = currentItem;
-        if (nextItem != null) {
-          LookupStep? step = await itemLookup(
-              node: node,
-              items: [nextItem],
-              subexpressions: nodeType.subexpressions,
-              context: context,
-              db: db);
-          if (step != null && step is LookupStepItems) {
-            currentItem = step.items[0];
-          }
-        }
-        break;
-      } else if (nodeType is CVULookupTypeFunction) {
-        return null;
-      } else {
-        throw Exception("Unknown CVULookupNode: ${nodeType.toString()}");
-      }
-    }
-    ItemRecord? targetItem = currentItem;
-    CVULookupNode? propertyLookup = last;
-
-    // Make a binding to the right property
-    return [targetItem, propertyLookup.name];
   }
 }
 
@@ -1795,7 +1556,7 @@ class LookupMock {
 }
 
 class LookupStepItems extends LookupStep {
-  final List<ItemRecord> items;
+  final List<Item> items;
 
   LookupStepItems(this.items);
 }

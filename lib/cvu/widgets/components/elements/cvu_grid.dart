@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:memri/core/models/database/item_record.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 import 'package:memri/cvu/widgets/components/elements/cvu_for_each.dart';
-import 'package:memri/widgets/empty.dart';
 
 class CVUGrid extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
@@ -16,66 +15,63 @@ class CVUGrid extends StatefulWidget {
 }
 
 class _CVUGridState extends State<CVUGrid> with StackWidget {
-  late final List<ItemRecord> items;
+  late List<Item> items;
 
-  late final Axis axis;
+  late Axis axis;
 
-  late final String emptyText;
+  late String emptyText;
 
-  late final Point spacing;
-
-  late final Future _init;
+  late Point spacing;
 
   @override
   initState() {
     super.initState();
     nodeResolver = widget.nodeResolver;
-    _init = init();
+    init();
   }
 
-  init() async {
-    items = await widget.nodeResolver.propertyResolver.items("items");
-    axis = await _axis;
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() => init());
+  }
+
+  void init() {
+    items = widget.nodeResolver.propertyResolver.items("items");
+    axis = _axis;
     emptyText =
-        await widget.nodeResolver.propertyResolver.string("emptyResultText") ??
+        widget.nodeResolver.propertyResolver.string("emptyResultText") ??
             "No results";
-    spacing = await widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
+    spacing = widget.nodeResolver.propertyResolver.spacing ?? Point(0, 0);
     //TODO: minColumnHeight, maxColumnHeight
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _init,
-        builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (items.isNotEmpty) {
-              return initWidget();
-            } else {
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    Spacer(),
-                    Opacity(
-                      opacity: 0.7,
-                      child: Text(
-                        emptyText,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                    Spacer()
-                  ],
+    if (items.isNotEmpty) {
+      return initWidget();
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            Spacer(),
+            Opacity(
+              opacity: 0.7,
+              child: Text(
+                emptyText,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
                 ),
-              );
-            }
-          }
-          return Empty();
-        });
+              ),
+            ),
+            Spacer()
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -91,8 +87,8 @@ class _CVUGridState extends State<CVUGrid> with StackWidget {
     );
   }
 
-  Future<Axis> get _axis async {
-    switch (await widget.nodeResolver.propertyResolver.string("axis")) {
+  Axis get _axis {
+    switch (widget.nodeResolver.propertyResolver.string("axis")) {
       case "vertical":
         return Axis.vertical;
       default:

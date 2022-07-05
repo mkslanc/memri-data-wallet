@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/models/cvu_ui_element_family.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/cvu/widgets/components/cvu_element_view.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
@@ -21,43 +21,34 @@ class CVUForEach extends StatefulWidget {
 }
 
 class _CVUForEachState extends State<CVUForEach> {
-  late final Future<List<ItemRecord>> _items;
+  late List<Item> items;
 
   @override
   initState() {
     super.initState();
-    _items = widget.nodeResolver.propertyResolver.items("items");
+    items = widget.nodeResolver.propertyResolver.items("items");
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _items,
-        builder:
-            (BuildContext builder, AsyncSnapshot<List<ItemRecord>> snapshot) {
-          if (snapshot.hasData) {
-            var items = snapshot.requireData;
-            if (items.isNotEmpty) {
-              return widget.getWidget(items
-                  .map((item) {
-                    var context =
-                        widget.nodeResolver.context.replacingItem(item);
-                    return widget.nodeResolver.node.children
-                        .map((child) => CVUElementView(
-                                nodeResolver: CVUUINodeResolver(
-                              context: context,
-                              lookup: widget.nodeResolver.lookup,
-                              node: child,
-                              db: widget.nodeResolver.db,
-                            )))
-                        .toList();
-                  })
-                  .expand((element) => element)
-                  .toList());
-            }
-          }
-          return Empty();
-        });
+    if (items.isNotEmpty) {
+      return widget.getWidget(items
+          .map((item) {
+            var context = widget.nodeResolver.context.replacingItem(item);
+            return widget.nodeResolver.node.children
+                .map((child) => CVUElementView(
+                        nodeResolver: CVUUINodeResolver(
+                      context: context,
+                      lookup: widget.nodeResolver.lookup,
+                      node: child,
+                      db: widget.nodeResolver.db,
+                    )))
+                .toList();
+          })
+          .expand((element) => element)
+          .toList());
+    }
+    return Empty();
   }
 }
 

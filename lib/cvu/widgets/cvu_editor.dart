@@ -8,6 +8,7 @@ import 'package:memri/constants/app_styles.dart';
 import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
 import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/enum.dart';
 import 'package:memri/utilities/extensions/string.dart';
@@ -33,7 +34,6 @@ class CVUEditor extends StatefulWidget {
 class _CVUEditorViewState extends State<CVUEditor> {
   late final AceEditorController controller;
 
-  late Future<void> _init;
   bool logMode = false;
   bool allowLogMode = true;
   StreamSubscription? logsStream;
@@ -44,7 +44,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
   initState() {
     super.initState();
     controller = AceEditorController(saveCVU, validate: validate);
-    _init = init();
+    init();
   }
 
   @override
@@ -54,8 +54,8 @@ class _CVUEditorViewState extends State<CVUEditor> {
     logsStream = null;
   }
 
-  Future<void> init() async {
-    definitions = (await CVUController.parseCVU(widget.viewDefinition))
+  void init() {
+    definitions = CVUController.parseCVUString(widget.viewDefinition)
         .compactMap((definition) => AppController.shared.cvuController
             .definitionByQuery(definition.queryStr));
 
@@ -83,7 +83,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
 
   setLogMode() async {
     var currentConnection = await AppController.shared.podConnectionConfig;
-    var pluginRuns = []; //TODO get plugin runs
+    var pluginRuns = <Item>[]; //TODO get plugin runs
     controller.updateEditorContent("Loading...");
     setState(() {
       logMode = true;
@@ -91,7 +91,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
       if (logsStream == null)
         logsStream = Stream.periodic(const Duration(seconds: 3)).listen((_) =>
             getLogs(currentConnection!,
-                pluginRuns.isNotEmpty ? pluginRuns.last.uid : ""));
+                pluginRuns.isNotEmpty ? pluginRuns.last.id : ""));
     });
   }
 
@@ -106,10 +106,10 @@ class _CVUEditorViewState extends State<CVUEditor> {
 
   didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _init = init();
+    setState(() => init());
   }
 
-  Future<List<Map<String, dynamic>>> validate(content) async {
+  List<Map<String, dynamic>> validate(content) {
     List<CVUParsedDefinition> parsed = <CVUParsedDefinition>[];
     try {
       parsed = CVUController.parseCVUString(content);
@@ -131,7 +131,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
     var validator = CVUValidator(
         lookupController: CVULookupController(),
         databaseController: AppController.shared.databaseController);
-    await validator.validate(parsed);
+    validator.validate(parsed);
 
     return (validator.errors + validator.warnings)
         .map((annotation) => {
@@ -153,10 +153,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _init,
-      builder: (context, snapshot) => Container(
+  Widget build(BuildContext context) => Container(
         color: Color(0xff333333),
         child: Column(
           children: [
@@ -207,7 +204,9 @@ class _CVUEditorViewState extends State<CVUEditor> {
                         Spacer(),
                         if (!logMode)
                           TextButton(
-                              onPressed: () {/*TODO regenerate cvu*/},
+                              onPressed: () {
+                                /*TODO regenerate cvu*/
+                              },
                               child: Wrap(
                                 alignment: WrapAlignment.center,
                                 runAlignment: WrapAlignment.center,
@@ -248,7 +247,9 @@ class _CVUEditorViewState extends State<CVUEditor> {
                         style: TextButton.styleFrom(
                                 backgroundColor: Color(0xff4F56FE))
                             .merge(primaryButtonStyle),
-                        onPressed: () {/*TODO run app*/},
+                        onPressed: () {
+                          /*TODO run app*/
+                        },
                         child: Text(
                           "Run your app",
                           style: CVUFont.link
@@ -261,14 +262,13 @@ class _CVUEditorViewState extends State<CVUEditor> {
             Expanded(child: AceEditor(controller)),
           ],
         ),
-      ),
-    );
-  }
+      );
 
   saveCVU() async {
     if (definitions.isNotEmpty) {
       await AppController.shared.cvuController
           .updateDefinition(content: controller.content);
+      setState(() => init());
     }
     //widget.pageController.sceneController.scheduleUIUpdate();
   }

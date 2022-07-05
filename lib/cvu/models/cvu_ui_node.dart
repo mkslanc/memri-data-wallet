@@ -44,8 +44,7 @@ class CVUUINode extends CVUStringConvertible with EquatableMixin {
       }
     });
 
-    if (type == CVUUIElementFamily.FlowStack ||
-        type == CVUUIElementFamily.Textfield) {
+    if (type == CVUUIElementFamily.FlowStack) {
       shouldExpandWidth = true;
     }
   }

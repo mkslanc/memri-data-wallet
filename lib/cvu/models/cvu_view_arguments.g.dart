@@ -13,13 +13,13 @@ CVUViewArguments _$CVUViewArgumentsFromJson(Map<String, dynamic> json) =>
       ),
       argumentItem: json['argumentItem'] == null
           ? null
-          : ItemRecord.fromJson(json['argumentItem'] as Map<String, dynamic>),
+          : Item.fromJson(json['argumentItem'] as Map<String, dynamic>),
       parentArguments: json['parentArguments'] == null
           ? null
           : CVUViewArguments.fromJson(
               json['parentArguments'] as Map<String, dynamic>),
       argumentItems: (json['argumentItems'] as List<dynamic>?)
-          ?.map((e) => ItemRecord.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => Item.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

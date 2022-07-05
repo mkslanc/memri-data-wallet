@@ -12,7 +12,7 @@ class AceEditorController {
   String _validatedContent = "";
 
   final VoidCallback onResultReceived;
-  final Future<List<Map<String, dynamic>>> Function(String)? validate;
+  final List<Map<String, dynamic>> Function(String)? validate;
 
   bool _isEditorLoaded = false;
 
@@ -59,7 +59,7 @@ class AceEditorController {
           if (data["content"] == _validatedContent) return;
           _validatedContent = data["content"];
           try {
-            var annotations = await validate!.call(_validatedContent);
+            var annotations = validate!.call(_validatedContent);
             _postMessage(
                 action: "updateValidation", data: {"annotations": annotations});
           } catch (error) {

@@ -49,23 +49,22 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   init() async {
-    isVector = (await widget.nodeResolver.propertyResolver
-        .boolean("isVector", false))!;
-    maxWidth = await widget.nodeResolver.propertyResolver.maxWidth;
+    isVector =
+        (widget.nodeResolver.propertyResolver.boolean("isVector", false))!;
+    maxWidth = widget.nodeResolver.propertyResolver.maxWidth;
     if (isVector) {
       vectorImageName =
-          await widget.nodeResolver.propertyResolver.string("bundleImage");
-      color = await widget.nodeResolver.propertyResolver.color();
+          widget.nodeResolver.propertyResolver.string("bundleImage");
+      color = widget.nodeResolver.propertyResolver.color();
     } else {
       fileImage = await getFileImage();
-      sizingMode = await widget.nodeResolver.propertyResolver.sizingMode();
+      sizingMode = widget.nodeResolver.propertyResolver.sizingMode();
       if (fileImage == null) {
         bundleImage = await getBundleImage();
         if (bundleImage == null) {
-          font = await widget.nodeResolver.propertyResolver.font();
-          color = await widget.nodeResolver.propertyResolver.color();
-          iconName =
-              await widget.nodeResolver.propertyResolver.string("systemName");
+          font = widget.nodeResolver.propertyResolver.font();
+          color = widget.nodeResolver.propertyResolver.color();
+          iconName = widget.nodeResolver.propertyResolver.string("systemName");
         }
       }
     }
@@ -73,9 +72,9 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   Future<ImageProvider?> getFileImage() async {
-    var imageURI = await widget.nodeResolver.propertyResolver.fileUID("image");
+    var imageURI = widget.nodeResolver.propertyResolver.fileUID("image");
     if (imageURI == null) {
-      imageURI = await widget.nodeResolver.propertyResolver.string("image");
+      imageURI = widget.nodeResolver.propertyResolver.string("image");
       if (imageURI != null) {
         return await FileStorageController.getImage(fileURL: imageURI);
       }
@@ -85,8 +84,7 @@ class _CVUImageState extends State<CVUImage> {
   }
 
   Future<ImageProvider?> getBundleImage() async {
-    var imageName =
-        await widget.nodeResolver.propertyResolver.string("bundleImage");
+    var imageName = widget.nodeResolver.propertyResolver.string("bundleImage");
     if (imageName == null) {
       return null;
     }

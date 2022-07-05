@@ -4,10 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
-//import 'package:memri/cvu/widgets/renderers/cvu_editor_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/list_renderer.dart';
-import 'package:memri/cvu/widgets/renderers/map_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/photo_viewer_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/single_item_renderer.dart';
 
@@ -50,8 +48,6 @@ class _SceneContentViewState extends State<SceneContentView> {
         return ListRendererView(viewContext: viewContext);
       case "grid":
         return GridRendererView(viewContext: viewContext);
-      case "map":
-        return MapRendererView(viewContext: viewContext);
       case "photoviewer":
         return PhotoViewerRendererView(viewContext: viewContext);
       case "chart":

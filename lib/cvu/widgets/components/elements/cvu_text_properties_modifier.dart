@@ -9,11 +9,11 @@ class CVUTextPropertiesModifier {
 
   CVUTextPropertiesModifier({required this.propertyResolver});
 
-  Future<TextProperties> init() async {
-    var font = await propertyResolver.font();
-    var color = await propertyResolver.color();
-    var textAlign = await propertyResolver.textAlignment();
-    var lineLimit = await propertyResolver.lineLimit;
+  TextProperties init() {
+    var font = propertyResolver.font();
+    var color = propertyResolver.color();
+    var textAlign = propertyResolver.textAlignment();
+    var lineLimit = propertyResolver.lineLimit;
     return TextProperties(
         textStyle: TextStyle(
           fontFamily: font.name,

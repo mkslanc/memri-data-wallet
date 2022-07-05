@@ -24,7 +24,7 @@ List<CVUParsedDefinition> parse(String snippet) {
 validate(String snippet,
     {errors = 0, warnings = 0, CVUParseErrors? parseError}) async {
   try {
-    var result = await validator.validate(parse(snippet));
+    var result = validator.validate(parse(snippet));
     if (errors > 0 || warnings > 0) {
       expect(validator.errors.length, errors);
       expect(validator.warnings.length, warnings);

@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/services/parsing/cvu_parser.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/app_controller.dart';
@@ -14,7 +15,7 @@ import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_ui_node.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/models/database/database.dart';
+import 'package:memri/core/models/database/database.dart' as database;
 import 'package:memri/core/models/database/item_property_record.dart';
 import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
@@ -27,7 +28,7 @@ import 'package:memri/widgets/empty.dart';
 
 import '../services/resolving/cvu_context.dart';
 
-class CVUController {
+class CVUController extends ChangeNotifier {
   late List<CVUParsedDefinition> definitions;
   final DatabaseController databaseController;
 
@@ -112,8 +113,8 @@ class CVUController {
     for (var definition in parsed) {
       var storedDefinitionItems = await databaseController.databasePool
           .itemPropertyRecordsSelect("queryStr", value: definition.queryStr);
-      var storedDefinitionIds = storedDefinitionItems
-          .compactMap<int>((item) => item is StringDb ? item.item : null);
+      var storedDefinitionIds = storedDefinitionItems.compactMap<int>(
+          (item) => item is database.StringDb ? item.item : null);
       var validStoredDefinitions =
           (await ItemRecord.fetchWithRowIDs(storedDefinitionIds))
               .where((item) => item.type == "CVUStoredDefinition");
@@ -127,6 +128,7 @@ class CVUController {
           PropertyDatabaseValueString(definition.toCVUString(0, "    ", true)));
       replaceDefinitionByQuery(definition.queryStr, definition);
     }
+    notifyListeners();
   }
 
   storeDefinitions() async {
@@ -287,7 +289,7 @@ class CVUController {
   }
 
   CVUParsedDefinition? nodeDefinitionForItem(
-      {required ItemRecord item, String? selector, String? renderer}) {
+      {required Item item, String? selector, String? renderer}) {
     return definitionFor(
         type: CVUDefinitionType.uiNode,
         selector: item.type,
@@ -301,17 +303,17 @@ class CVUController {
     return definition?.merge(customDefinition) ?? customDefinition;
   }
 
-  CVUDefinitionContent? viewDefinitionForItemRecord({ItemRecord? itemRecord}) {
+  CVUDefinitionContent? viewDefinitionForItemRecord({Item? item}) {
     var definition =
-        definitionFor(type: CVUDefinitionType.view, selector: itemRecord?.type)
+        definitionFor(type: CVUDefinitionType.view, selector: item?.type)
             ?.parsed;
     return definition;
   }
 
-  CVUDefinitionContent? edgeDefinitionFor(ItemRecord itemRecord) {
-    var definition = definitionFor(
-            type: CVUDefinitionType.view, selector: "${itemRecord.type}[]")
-        ?.parsed;
+  CVUDefinitionContent? edgeDefinitionFor(Item item) {
+    var definition =
+        definitionFor(type: CVUDefinitionType.view, selector: "${item.type}[]")
+            ?.parsed;
     return definition;
   }
 

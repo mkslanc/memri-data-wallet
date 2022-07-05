@@ -1,8 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/constants/cvu_color.dart';
 import 'package:memri/cvu/constants/cvu_font.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/cvu/widgets/renderers/renderer.dart';
@@ -23,40 +23,25 @@ class _ChartRendererViewState extends RendererViewState {
 
   final Map<int, ItemChartProps> itemChartProps = {};
 
-  late Future<Color> backgroundColor;
-  late Future _titlesInit;
-  late Future<String> chartType;
+  late Color backgroundColor;
+  late String chartType;
 
   @override
   initState() {
     super.initState();
-    backgroundColor = (() async =>
-        await widget
-            .viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+    backgroundColor = (() =>
+        widget.viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
         CVUColor.system("systemBackground"))();
-    _titlesInit = titlesInit();
-    chartType = (() async =>
-        await widget.viewContext.rendererDefinitionPropertyResolver
+    titlesInit();
+    chartType = (() =>
+        widget.viewContext.rendererDefinitionPropertyResolver
             .string("chartType") ??
         "bar")();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Color>(
-        future: backgroundColor,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return ColoredBox(color: snapshot.data!, child: chartView);
-            default:
-              return SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              );
-          }
-        });
+    return ColoredBox(color: backgroundColor, child: chartView);
   }
 
   Widget get missingDataView {
@@ -66,82 +51,80 @@ class _ChartRendererViewState extends RendererViewState {
     );
   }
 
-  titlesInit() async {
-    chartTitle = await widget.viewContext.rendererDefinitionPropertyResolver
-        .string("title");
-    chartSubtitle = await widget.viewContext.rendererDefinitionPropertyResolver
+  titlesInit() {
+    chartTitle =
+        widget.viewContext.rendererDefinitionPropertyResolver.string("title");
+    chartSubtitle = widget.viewContext.rendererDefinitionPropertyResolver
         .string("subtitle");
   }
 
-  Future<Color> get primaryColor async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver
-            .color() ??
+  Color get primaryColor {
+    return widget.viewContext.rendererDefinitionPropertyResolver.color() ??
         CVUColor.system("blue");
   }
 
-  Future<double> get lineWidth async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver
+  double get lineWidth {
+    return widget.viewContext.rendererDefinitionPropertyResolver
             .cgFloat("lineWidth") ??
         0;
   }
 
-  Future<bool> get yAxisStartAtZero async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver
+  bool get yAxisStartAtZero {
+    return (widget.viewContext.rendererDefinitionPropertyResolver
         .boolean("yAxisStartAtZero", false))!;
   }
 
-  Future<bool> get hideGridlines async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver
+  bool get hideGridlines {
+    return (widget.viewContext.rendererDefinitionPropertyResolver
         .boolean("hideGridlines", false))!;
   }
 
-  Future<CVUFont> get barLabelFont async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver
+  CVUFont get barLabelFont {
+    return widget.viewContext.rendererDefinitionPropertyResolver
         .font("barLabelFont", CVUFont(size: 13));
   }
 
-  Future<bool> get showValueLabels async {
-    return (await widget.viewContext.rendererDefinitionPropertyResolver
+  bool get showValueLabels {
+    return (widget.viewContext.rendererDefinitionPropertyResolver
         .boolean("yAxisStartAtZero", true))!;
   }
 
-  Future<CVUFont> get valueLabelFont async {
-    return await widget.viewContext.rendererDefinitionPropertyResolver
+  CVUFont get valueLabelFont {
+    return widget.viewContext.rendererDefinitionPropertyResolver
         .font("valueLabelFont", CVUFont(size: 14));
   }
 
-  Future<BarChartData> makeBarChartModel() async {
+  BarChartData makeBarChartModel() {
     var resolver = widget.viewContext.rendererDefinitionPropertyResolver;
     List<BarChartGroupData> data = [];
     var x = 0;
-    await Future.forEach(widget.viewContext.items, (ItemRecord item) async {
-      var y = await resolver.replacingItem(item).number("yAxis");
+    widget.viewContext.items.forEach((Item item) {
+      var y = resolver.replacingItem(item).number("yAxis");
       if (y != null) {
         data.add(BarChartGroupData(
           x: x,
           barRods: [
             BarChartRodData(
-                colors: [await primaryColor],
+                colors: [primaryColor],
                 y: y,
                 width: 30,
                 borderRadius: BorderRadius.all(Radius.zero))
           ],
-          showingTooltipIndicators: await showValueLabels ? [0] : [],
+          showingTooltipIndicators: showValueLabels ? [0] : [],
         ));
         itemChartProps[x] = ItemChartProps(
-            xLabel: await resolver.replacingItem(item).string("label") ?? "",
-            yLabel:
-                await resolver.replacingItem(item).string("yAxisLabel") ?? "",
-            barLabelFont: await barLabelFont,
-            valueLabelFont: await valueLabelFont);
+            xLabel: resolver.replacingItem(item).string("label") ?? "",
+            yLabel: resolver.replacingItem(item).string("yAxisLabel") ?? "",
+            barLabelFont: barLabelFont,
+            valueLabelFont: valueLabelFont);
         x++;
       }
     });
-    var hideGridLines = await hideGridlines;
+    var hideGridLines = hideGridlines;
     return BarChartData(
       gridData: FlGridData(
           drawVerticalLine: !hideGridLines, drawHorizontalLine: !hideGridLines),
-      minY: await yAxisStartAtZero ? 0 : null,
+      minY: yAxisStartAtZero ? 0 : null,
       alignment: BarChartAlignment.spaceAround,
       borderData: FlBorderData(show: false),
       barGroups: data,
@@ -183,19 +166,18 @@ class _ChartRendererViewState extends RendererViewState {
     );
   }
 
-  Future<PieChartData> makePieChartModel() async {
+  PieChartData makePieChartModel() {
     var resolver = widget.viewContext.rendererDefinitionPropertyResolver;
     List<PieChartSectionData> data = [];
     var x = 0;
-    await Future.forEach(widget.viewContext.items, (ItemRecord item) async {
-      var value = await resolver.replacingItem(item).number("yAxis");
+    widget.viewContext.items.forEach((Item item) {
+      var value = resolver.replacingItem(item).number("yAxis");
       if (value != null) {
         itemChartProps[x] = ItemChartProps(
-            xLabel: await resolver.replacingItem(item).string("label") ?? "",
-            yLabel:
-                await resolver.replacingItem(item).string("yAxisLabel") ?? "",
-            barLabelFont: await barLabelFont,
-            valueLabelFont: await valueLabelFont);
+            xLabel: resolver.replacingItem(item).string("label") ?? "",
+            yLabel: resolver.replacingItem(item).string("yAxisLabel") ?? "",
+            barLabelFont: barLabelFont,
+            valueLabelFont: valueLabelFont);
         data.add(PieChartSectionData(
             color: Colors.primaries[x],
             value: value,
@@ -240,35 +222,35 @@ class _ChartRendererViewState extends RendererViewState {
         centerSpaceRadius: double.infinity);
   }
 
-  Future<LineChartData> makeLineChartModel() async {
+  LineChartData makeLineChartModel() {
     var resolver = widget.viewContext.rendererDefinitionPropertyResolver;
     List<FlSpot> spots = [];
-    await Future.forEach(widget.viewContext.items, (ItemRecord item) async {
-      var x = await resolver.replacingItem(item).number("xAxis");
-      var y = await resolver.replacingItem(item).number("yAxis");
+    widget.viewContext.items.forEach((Item item) {
+      var x = resolver.replacingItem(item).number("xAxis");
+      var y = resolver.replacingItem(item).number("yAxis");
       if (x != null && y != null) {
         spots.add(FlSpot(x, y));
         itemChartProps[x.toInt()] = ItemChartProps(
-            xLabel: await resolver.replacingItem(item).string("label") ?? "",
+            xLabel: resolver.replacingItem(item).string("label") ?? "",
             yLabel: "",
-            barLabelFont: await barLabelFont,
-            valueLabelFont: await valueLabelFont);
+            barLabelFont: barLabelFont,
+            valueLabelFont: valueLabelFont);
       }
     });
-    var hideGridLines = await hideGridlines;
+    var hideGridLines = hideGridlines;
     var lineChartData = LineChartBarData(
       spots: spots,
-      barWidth: await lineWidth,
-      colors: [await primaryColor],
+      barWidth: lineWidth,
+      colors: [primaryColor],
     );
     return LineChartData(
       gridData: FlGridData(
           drawVerticalLine: !hideGridLines, drawHorizontalLine: !hideGridLines),
-      minY: await yAxisStartAtZero ? 0 : null,
+      minY: yAxisStartAtZero ? 0 : null,
       clipData: FlClipData.all(),
       borderData: FlBorderData(show: false),
       lineBarsData: [lineChartData],
-      showingTooltipIndicators: await showValueLabels
+      showingTooltipIndicators: showValueLabels
           ? spots
               .mapIndexed((i, el) => ShowingTooltipIndicators(i, [
                     LineBarSpot(lineChartData, 0, lineChartData.spots[i]),
@@ -301,107 +283,46 @@ class _ChartRendererViewState extends RendererViewState {
   }
 
   Widget chartTitleView() {
-    return FutureBuilder(
-        future: _titlesInit,
-        builder: (BuildContext builder, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Column(
-              children: [
-                Text(
-                  chartTitle ?? "",
-                  style: TextStyle(fontSize: 28),
-                ),
-                Text(
-                  chartSubtitle ?? "",
-                  style: TextStyle(
-                      color: CVUColor.system("secondaryLabel"), fontSize: 17),
-                )
-              ],
-            );
-          }
-          return Empty();
-        });
+    return Column(
+      children: [
+        Text(
+          chartTitle ?? "",
+          style: TextStyle(fontSize: 28),
+        ),
+        Text(
+          chartSubtitle ?? "",
+          style:
+              TextStyle(color: CVUColor.system("secondaryLabel"), fontSize: 17),
+        )
+      ],
+    );
   }
 
   Widget get chartView {
-    return FutureBuilder(
-        future: chartType,
-        builder: (BuildContext builder, AsyncSnapshot<String> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData) {
-              var _chartType = snapshot.data;
-              switch (_chartType) {
-                case "bar":
-                  return FutureBuilder(
-                      future: makeBarChartModel(),
-                      builder: (BuildContext builder,
-                          AsyncSnapshot<BarChartData> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          if (snapshot.hasData) {
-                            var model = snapshot.data;
-                            if (model == null) {
-                              return missingDataView;
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(children: [
-                                chartTitleView(),
-                                Expanded(child: BarChart(model))
-                              ]),
-                            );
-                          }
-                        }
-                        return Empty();
-                      });
-                case "line":
-                  return FutureBuilder(
-                      future: makeLineChartModel(),
-                      builder: (BuildContext builder,
-                          AsyncSnapshot<LineChartData> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          if (snapshot.hasData) {
-                            var model = snapshot.data;
-                            if (model == null) {
-                              return missingDataView;
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(children: [
-                                chartTitleView(),
-                                Expanded(child: LineChart(model))
-                              ]),
-                            );
-                          }
-                        }
-                        return Empty();
-                      });
-                case "pie":
-                  return FutureBuilder(
-                      future: makePieChartModel(),
-                      builder: (BuildContext builder,
-                          AsyncSnapshot<PieChartData> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          if (snapshot.hasData) {
-                            var model = snapshot.data;
-                            if (model == null) {
-                              return missingDataView;
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(children: [
-                                chartTitleView(),
-                                Expanded(child: PieChart(model))
-                              ]),
-                            );
-                          }
-                        }
-                        return Empty();
-                      });
-              }
-            }
-          }
-          return Empty();
-        });
+    switch (chartType) {
+      case "bar":
+        var model = makeBarChartModel();
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+              children: [chartTitleView(), Expanded(child: BarChart(model))]),
+        );
+      case "line":
+        var model = makeLineChartModel();
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+              children: [chartTitleView(), Expanded(child: LineChart(model))]),
+        );
+      case "pie":
+        var model = makePieChartModel();
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+              children: [chartTitleView(), Expanded(child: PieChart(model))]),
+        );
+    }
+    return Empty();
   }
 }
 

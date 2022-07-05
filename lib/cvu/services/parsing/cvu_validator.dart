@@ -107,9 +107,6 @@ class CVUValidator {
       case CVUUIElementFamily.Text:
         requiredPropertyList = ["text"];
         break;
-      case CVUUIElementFamily.Textfield:
-        requiredPropertyList = ["value"];
-        break;
       default:
         return;
     }
@@ -176,15 +173,15 @@ class CVUValidator {
   // Check that there are no fields that are not known UIElement properties (warn)
   // Check that they have the right type (error)
   // Error if (required fields are missing (e.g. text for Text, image for Image)
-  validateUIElement(CVUUINode element) async {
+  validateUIElement(CVUUINode element) {
     validateRequiredProperties(element);
-    await validateProperties(element.properties);
-    await validateUIElements(element.children);
+    validateProperties(element.properties);
+    validateUIElements(element.children);
   }
 
-  validateUIElements(List<CVUUINode> elements) async {
-    await Future.forEach<CVUUINode>(elements, (uiNode) async {
-      await validateUIElement(uiNode);
+  validateUIElements(List<CVUUINode> elements) {
+    elements.forEach((uiNode) {
+      validateUIElement(uiNode);
     });
   }
 
@@ -250,37 +247,35 @@ class CVUValidator {
     }
   }
 
-  validateProperties(Map<String, CVUValue> properties) async {
-    await Future.forEach<MapEntry<String, CVUValue>>(properties.entries,
-        (entry) async {
+  validateProperties(Map<String, CVUValue> properties) {
+    properties.entries.forEach((entry) {
       var value = entry.value;
       var key = entry.key;
       if (value is CVUValueSubdefinition) {
-        await validateDefinition(value.value);
+        validateDefinition(value.value);
       } else {
         validateProperty(key, value);
       }
     });
   }
 
-  validateDefinitions(List<CVUParsedDefinition> definitions) async {
-    await Future.forEach<CVUParsedDefinition>(definitions,
-        (subDefinition) async {
-      await validateDefinition(subDefinition.parsed);
+  validateDefinitions(List<CVUParsedDefinition> definitions) {
+    definitions.forEach((subDefinition) {
+      validateDefinition(subDefinition.parsed);
     });
   }
 
-  validateDefinition(CVUDefinitionContent definition) async {
-    await validateProperties(definition.properties);
-    await validateDefinitions(definition.definitions);
-    await validateUIElements(definition.children);
+  validateDefinition(CVUDefinitionContent definition) {
+    validateProperties(definition.properties);
+    validateDefinitions(definition.definitions);
+    validateUIElements(definition.children);
   }
 
-  Future<bool> validate(List<CVUParsedDefinition> definitions) async {
+  bool validate(List<CVUParsedDefinition> definitions) {
     warnings = [];
     errors = [];
 
-    await validateDefinitions(definitions);
+    validateDefinitions(definitions);
 
     return errors.isEmpty;
   }

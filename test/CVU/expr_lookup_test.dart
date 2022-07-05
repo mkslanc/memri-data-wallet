@@ -1,13 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/core/models/database/item_record.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_expression.dart';
 import 'package:memri/cvu/services/parsing/cvu_expression_lexer.dart';
 import 'package:memri/cvu/services/parsing/cvu_expression_parser.dart';
 import 'package:memri/cvu/services/resolving/cvu_context.dart';
-import 'package:moor/moor.dart';
 
 CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
   var lexer = CVUExpressionLexer(snippet, stringMode);
@@ -22,7 +20,7 @@ Future<bool?> interpretAsBool(
     CVUExpressionNode expr, DatabaseController databaseController,
     [CVUContext? context]) async {
   context ??= CVUContext();
-  return await lookupController.resolve<bool>(
+  return lookupController.resolve<bool>(
       value: CVUValueExpression(expr),
       context: context,
       db: databaseController);
@@ -32,7 +30,7 @@ Future<double?> interpretAsDouble(
     CVUExpressionNode expr, DatabaseController databaseController,
     [CVUContext? context]) async {
   context ??= CVUContext();
-  return await lookupController.resolve<double>(
+  return lookupController.resolve<double>(
       value: CVUValueExpression(expr),
       context: context,
       db: databaseController);
@@ -42,7 +40,7 @@ Future<String?> interpretAsString(
     CVUExpressionNode expr, DatabaseController databaseController,
     [CVUContext? context]) async {
   context ??= CVUContext();
-  return await lookupController.resolve<String>(
+  return lookupController.resolve<String>(
       value: CVUValueExpression(expr),
       context: context,
       db: databaseController);
@@ -59,7 +57,7 @@ void main() {
     await databaseController.setupWithDemoData(throwIfAgainstSchema: true);
   });
 
-  test('testStringModeStartWithString', () async {
+/*  test('testStringModeStartWithString', () async {
     var snippet = "Note title: {.title}";
 
     var expr = parse(snippet, true);
@@ -96,5 +94,5 @@ void main() {
     } else {
       throw ("No item");
     }
-  });
+  });*/
 }

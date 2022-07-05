@@ -1,175 +1,135 @@
 .allData {
-    cols: 8
-    defaultRenderer: custom
-    scrollable: false
-    title: "All Data"
+    defaultRenderer: grid
 
-    VStack {
-        alignment: topleft
-        maxWidth: 910
-        padding: 60 30 60 30
+    [renderer = grid] {
+        layout: "flow"
+        onPress: [
+            openPlugin
+            {
+                plugin: {{.}}
+                viewArguments: {
+                    addPageIfMissing: true
+                    pageLabel: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "daemon" ? "mainPlugin" : ""}}
+                }
+            }
+        ]
+        showDefaultSelections: false
         spacing: 30
+        title: "All Data"
+        trailingElement: {
+            Button {
+                isLink: true
+                onPress: [
+                    openView
+                    {
+                        viewName: "createNewImporter"
+                    }
+                ]
 
-        HStack {
-            alignment: bottomleft
+                VStack {
+                    alignment: leftspacebetween
+                    background: "#FFFFFF"
+                    border: "#F0F0F0"
+                    height: 96
+                    padding: 10
+                    spacing: 5
+                    width: 205
+
+                    Text {
+                        color: "#333333"
+                        font: headline3
+                        text: "Create new importer"
+                    }
+
+                    Text {
+                        color: #FE570F
+                        font: "body_tiny_bold"
+                        text: "Learn how to create your own importer"
+                    }
+                }
+            }
+        }
+    }
+
+    [datasource = pod] {
+        filter: {
+            properties: {
+                pluginType: "importer"
+            }
+        }
+        query: Plugin
+        queryGraphQL: "query [
+             Plugin (limit: 1000) [
+               name
+               ~datasetPlugin [
+                 name
+               ]
+             ]
+           ]"
+    }
+
+    Plugin > grid {
+        viewArguments: {
+            datasources: {
+                featureVariables: {
+                    filter: {
+                        properties: {
+                            itemType: {{.~datasetPlugin.queryStr.fromJson("type")}}
+                            propertyName: "content" "dateSent"
+                        }
+                    }
+                    query: ItemPropertySchema
+                }
+            }
+            lastPluginRun: {{.~plugin[].last()}}
+            pluginRunStatus: {{.~plugin[].last().status}}
+        }
+
+        VStack {
+            alignment: topleft
+            background: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
+            border: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
+            height: 96
+            padding: 10
+            spacing: 0
+            width: 205
 
             Text {
-                color: #333333
-                font: headline2
-                text: "Data streams"
+                color: {{lastPluginRun ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
+                font: headline3
+                text: {{.name}}
             }
 
             Spacer
 
-            Button {
-                isLink: true
-                onPress: [
-                    openLink
-                    {
-                        link: "https://data.memri.io/"
-                    }
-                ]
-
-                Text {
-                    color: #FE570F
-                    font: link
-                    text: "Open data explorer"
-                }
+            Text {
+                color: #FE570F
+                font: "body_tiny_bold"
+                show: {{!.~plugin}}
+                text: "Connect"
             }
-        }
 
-        SubView {
-            view: {
-                defaultRenderer: grid
+            Text {
+                color: #989898
+                font: body_tiny
+                padding: 0 5
+                show: {{lastPluginRun}}
+                text: {{datasourceItems("featureVariables").count() + " feature variables"}}
+            }
 
-                [datasource = pod] {
-                    filter: {
-                        properties: {
-                            pluginType: "importer"
-                        }
-                    }
-                    query: Plugin
-                }
+            Text {
+                color: {{pluginRunStatus = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
+                font: body_tiny
+                padding: 0 10 0 0
+                show: {{pluginRunStatus = "done" OR pluginRunStatus = "error" OR lastPluginRun.progress > 0.96 OR pluginRunStatus = "cvuPresented"}}
+                text: "{pluginRunStatus = 'cvuPresented' ? 'Pending' : pluginRunStatus = 'error' ? 'Error' : 'Running'}"
+            }
 
-                [renderer = grid] {
-                    showDefaultSelections: false
-                    layout: "flow"
-                    onPress: [
-                        openPlugin
-                        {
-                            plugin: {{.}}
-                            viewArguments: {
-                                addPageIfMissing: true
-                                pageLabel: {{.~plugin[].last().status = "done" OR .~plugin[].last().status = "daemon" ? "mainPlugin" : ""}}
-                            }
-                        }
-                    ]
-                    spacing: 30
-                    trailingElement: {
-                        Button {
-                            isLink: true
-                            onPress: [
-                                openView
-                                {
-                                    viewName: "createNewImporter"
-                                }
-                            ]
-
-                            VStack {
-                                alignment: leftspacebetween
-                                background: "#FFFFFF"
-                                border: "#F0F0F0"
-                                height: 96
-                                padding: 10
-                                spacing: 5
-                                width: 205
-
-                                Text {
-                                    color: "#333333"
-                                    font: headline3
-                                    text: "Create new importer"
-                                }
-
-                                Text {
-                                    color: #FE570F
-                                    font: "body_tiny_bold"
-                                    text: "Learn how to create your own importer"
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Plugin > grid {
-                    viewArguments: {
-                        datasources: {
-                            featureVariables: {
-                                filter: {
-                                    properties: {
-                                        itemType: {{.~datasetPlugin.queryStr.fromJson("type")}}
-                                        propertyName: "content" "dateSent"
-                                    }
-                                }
-                                query: ItemPropertySchema
-                            }
-                        }
-                        lastPluginRun: {{.~plugin[].last()}}
-                        pluginRunStatus: {{.~plugin[].last().status}}
-                    }
-
-                    Observer {
-                        item: {{lastPluginRun}}
-                        property: "progress"
-
-                        VStack {
-                            alignment: topleft
-                            background: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#1AE9500F" : "#F5F5F5" : "#FFFFFF"}}
-                            border: {{lastPluginRun AND (pluginRunStatus = "daemon" OR pluginRunStatus = "done") ? isSelected ? "#80E9500F" : "#F0F0F0" : "#F0F0F0"}}
-                            height: 96
-                            padding: 10
-                            spacing: 0
-                            width: 205
-
-                            Text {
-                                color: {{lastPluginRun ? isSelected ? "#E9500F" : "#333333" : "#999999"}}
-                                font: headline3
-                                text: {{.name}}
-                            }
-
-                            Spacer
-
-                            Text {
-                                color: #FE570F
-                                font: "body_tiny_bold"
-                                show: {{!.~plugin}}
-                                text: "Connect"
-                            }
-
-                            Text {
-                                color: #989898
-                                font: body_tiny
-                                padding: 0 5
-                                show: {{lastPluginRun}}
-                                text: {{datasourceItems("featureVariables").count() + " feature variables"}}
-                            }
-
-                            Text {
-                                color: {{pluginRunStatus = "error" ? "#FE570F" : isSelected ? "#E9500F" : "#15B599"}}
-                                font: body_tiny
-                                padding: 0 10 0 0
-                                show: {{pluginRunStatus = "done" OR pluginRunStatus = "error" OR lastPluginRun.progress > 0.96 OR pluginRunStatus = "cvuPresented"}}
-                                text: "{pluginRunStatus = 'cvuPresented' ? 'Pending' : pluginRunStatus = 'error' ? 'Error' : 'Running'}"
-                            }
-
-                            Text {
-                                color: #4F56FE
-                                font: body_tiny
-                                show: {{pluginRunStatus = "daemon" AND lastPluginRun.progress < 0.96}}
-                                text: "Downloading data {lastPluginRun.progress.percent()} %"
-                            }
-                        }
-                    }
-                }
+            Text {
+                color: #4F56FE
+                font: body_tiny
+                show: {{pluginRunStatus = "daemon" AND lastPluginRun.progress < 0.96}}
+                text: "Downloading data {lastPluginRun.progress.percent()} %"
             }
         }
     }
