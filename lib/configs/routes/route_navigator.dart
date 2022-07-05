@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_handler.dart';
 
 class Routes {
-  static String splash = '/';
+  static String workspace = '/';
   static String onboarding = '/hello';
-  static String accountError = '/account/error';
+  static String error = '/error';
+
   // static String create = '/account/create';
   static String login = '/login';
   static String loginDev = '/login_dev';
@@ -16,13 +17,12 @@ class Routes {
   // static String verifyKeys = '/account/verify_keys';
   // static String forgotPassword = '/account/forgot_password';
 
-  static String workspace = '/workspace';
-
   static String data = '/data';
-  static String importer = '/data/importers';
-  static String importerCreate = '/data/importers/create';
-  static String importerConnect = '/data/importers/connect';
-  static String importerDownloading = '/data/importers/downloading';
+  static String importer = '/data/importer';
+  static String importerCreate = '/data/importer/create';
+  static String importerConnect = '/data/importer/connect';
+  static String importerDownloading = '/data/importer/downloading';
+  static String importerError = '/data/importer/error';
 
   static String projects = '/projects';
   static String projectsCreate = '/projects/create';
@@ -31,6 +31,9 @@ class Routes {
   static String projectsAppCreate = '/projects/new_app/create';
   static String projectsAppDeploy = '/projects/new_app/deploy';
   static String projectsAppSummary = '/projects/new_app/summary';
+  static String projectsSetupData = '/projects/new_app/setup_data';
+  static String projectsSetupLabelEditor =
+      '/projects/new_app/setup_label_editor';
   static String cvu = '/cvu';
 
   static String apps = '/workspace/apps';
@@ -38,14 +41,12 @@ class Routes {
 
   static void configureRoutes(FluroRouter router) {
     router.notFoundHandler = notFoundHandler;
-    router.define(splash, handler: splashScreenHandler);
+    router.define(workspace, handler: workspaceScreenHandler);
     router.define(onboarding, handler: onboardingScreenHandler);
     router.define(login, handler: loginScreenHandler);
     router.define(loginDev, handler: loginDeveloperScreenHandler);
     router.define(saveKeys, handler: saveKeysScreenHandler);
-    router.define(accountError, handler: accountErrorScreenHandler);
-
-    router.define(workspace, handler: workspaceScreenHandler);
+    router.define(error, handler: errorScreenHandler);
 
     router.define(data, handler: dataScreenHandler);
     router.define(importer, handler: importerScreenHandler);
@@ -53,6 +54,7 @@ class Routes {
     router.define(importerConnect, handler: importerConnectScreenHandler);
     router.define(importerDownloading,
         handler: importerDownloadingScreenHandler);
+    router.define(importerError, handler: importerErrorScreenHandler);
 
     router.define(apps, handler: appsScreenHandler);
     router.define(inbox, handler: appsInboxScreenHandler);
@@ -64,6 +66,9 @@ class Routes {
     router.define(projectsAppCreate, handler: projectsAppCreateScreenHandler);
     router.define(projectsAppDeploy, handler: projectsAppDeployScreenHandler);
     router.define(projectsAppSummary, handler: projectsAppSummaryScreenHandler);
+    router.define(projectsSetupData, handler: projectsSetupDataScreenHandler);
+    router.define(projectsSetupLabelEditor,
+        handler: projectsSetupLabelEditorHandler);
 
     router.define(cvu, handler: cvuHandler);
   }
@@ -72,9 +77,9 @@ class Routes {
 class RouteNavigator {
   static late FluroRouter router;
 
-  static Future<dynamic> navigateToRoute({
-    required BuildContext context,
+  static Future<dynamic> navigateTo({
     required String route,
+    required BuildContext context,
     Duration transitionDuration = const Duration(milliseconds: 300),
     TransitionType transition = TransitionType.fadeIn,
     Map<String, dynamic>? param,

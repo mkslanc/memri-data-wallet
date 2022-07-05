@@ -33,4 +33,24 @@ class AppImages {
   Widget signFourth({double? width, double? height, Color? color}) =>
       SvgPicture.asset('$basePath/sign_fourth.svg',
           width: width, height: height, color: color);
+
+  Widget arrowLong({double? width, double? height, Color? color}) =>
+      SvgPicture.asset('$basePath/ico_arrow_long.svg',
+          width: width, height: height, color: color);
+
+  Widget arrow({double? width, double? height, Color? color}) =>
+      SvgPicture.asset('$basePath/ico_arrow.svg',
+          width: width, height: height, color: color);
+
+  Widget arrowLeft({double? width, double? height, Color? color}) =>
+      SvgPicture.asset('$basePath/ico_arrow_left.svg',
+          width: width, height: height, color: color);
+
+  Widget checkmark({double? width, double? height, Color? color}) =>
+      SvgPicture.asset('$basePath/ico_check.svg',
+          width: width, height: height, color: color);
+
+  Widget x({double? width, double? height, Color? color}) =>
+      SvgPicture.asset('$basePath/x.svg',
+          width: width, height: height, color: color);
 }

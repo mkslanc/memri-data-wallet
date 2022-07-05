@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memri/cvu/constants/cvu_font.dart';
-import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
-import 'package:memri/utilities/helpers/app_helper.dart';
+import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/factory_reset.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/space.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class AdditionalNavigationView extends StatefulWidget {
@@ -33,7 +34,8 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                       onTap: () {
                         // widget.sceneController.navigateToNewContext(
                         //     clearStack: true, animated: false, viewName: "allCryptoKeys");
-                        AppController.shared.navigationIsVisible.value = false;
+                        Provider.of<AppProvider>(context, listen: false)
+                            .navigationIsVisible = false;
                       },
                       child: Row(
                         children: [

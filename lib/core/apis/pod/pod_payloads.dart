@@ -1,4 +1,4 @@
-import 'pod_connection_details.dart';
+import '../../models/pod/pod_config.dart';
 
 /// A type representing the most common `post` body for pod API requests.
 /// This typically includes a database key, and a payload (different for each API endpoints)
@@ -6,8 +6,7 @@ class PodRequestBody<Payload> {
   Map<String, String> auth;
   Payload payload;
 
-  PodRequestBody(
-      {required PodConnectionDetails connectionConfig, required this.payload})
+  PodRequestBody({required PodConfig connectionConfig, required this.payload})
       : auth = {
           "type": "ClientAuth",
           "databaseKey": connectionConfig.databaseKey
@@ -68,7 +67,7 @@ class PodPayloadServicePayload extends PodPayload {
   String databaseKey;
   String ownerKey;
 
-  PodPayloadServicePayload(PodConnectionDetails connectionConfig)
+  PodPayloadServicePayload(PodConfig connectionConfig)
       : databaseKey = connectionConfig.databaseKey,
         ownerKey = connectionConfig.ownerKey;
 

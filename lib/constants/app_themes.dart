@@ -20,6 +20,7 @@ final lightTheme = ThemeData(
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           padding: const EdgeInsets.all(10.0))),
+  // ignore: deprecated_member_use
   scrollbarTheme: const ScrollbarThemeData(isAlwaysShown: true),
   pageTransitionsTheme: PageTransitionsTheme(builders: {
     TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),

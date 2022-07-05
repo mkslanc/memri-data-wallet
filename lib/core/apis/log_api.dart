@@ -1,7 +1,8 @@
 import 'package:memri/core/apis/base_api.dart';
+import 'package:memri/utilities/helpers/app_helper.dart';
 
 class LogAPI extends BaseAPI {
-  LogAPI() : super('/logs');
+  LogAPI() : super('/${app.settings.podVersion}');
 
   Future<String?> saveAll(List<String> logs) async {
     var endpoint = '$baseUrl/save-all';

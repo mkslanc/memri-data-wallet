@@ -1,6 +1,7 @@
 import 'package:memri/constants/app_colors.dart';
 import 'package:memri/constants/app_icons.dart';
 import 'package:memri/constants/app_images.dart';
+import 'package:memri/constants/app_keys.dart';
 import 'package:memri/constants/app_locales.dart';
 import 'package:memri/constants/app_settings.dart';
 
@@ -20,6 +21,8 @@ class ApplicationHelper {
   AppImages get images => AppImages();
 
   AppLocales get locales => AppLocales();
+
+  AppKeys get keys => AppKeys();
 }
 
 ApplicationHelper get app => ApplicationHelper();

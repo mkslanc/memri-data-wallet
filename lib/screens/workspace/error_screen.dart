@@ -5,14 +5,14 @@ import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 
-class AccountErrorScreen extends StatefulWidget {
-  const AccountErrorScreen() : super();
+class ErrorScreen extends StatefulWidget {
+  const ErrorScreen() : super();
 
   @override
-  State<AccountErrorScreen> createState() => _AccountErrorScreenState();
+  State<ErrorScreen> createState() => _ErrorScreenState();
 }
 
-class _AccountErrorScreenState extends State<AccountErrorScreen> {
+class _ErrorScreenState extends State<ErrorScreen> {
   AppController appController = AppController.shared;
 
   @override

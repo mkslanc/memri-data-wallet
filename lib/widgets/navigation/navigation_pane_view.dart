@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memri/cvu/constants/cvu_font.dart';
-import 'package:memri/core/controllers/app_controller.dart';
+import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
+import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
+import 'package:provider/provider.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -17,14 +19,12 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
   bool showSettings = false;
 
   Widget build(BuildContext context) {
-    //TODO: ?
-    //SceneController.sceneController.setupObservations();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextButton(
-            onPressed: () =>
-                AppController.shared.navigationIsVisible.value = false,
+            onPressed: () => Provider.of<AppProvider>(context, listen: false)
+                .navigationIsVisible = false,
             child: app.icons.close()),
         SizedBox(
           height: 71,
@@ -72,6 +72,16 @@ class NavigationItemView extends StatelessWidget {
       onPressed: () {
         MixpanelAnalyticsService().logNavigationButton(item.name);
         if (item.callback != null) item.callback!();
+        if (item.targetViewName != null) {
+          sceneController.exitEditMode();
+          sceneController.navigateToNewContext(
+              clearStack: true,
+              animated: false,
+              viewName: item.targetViewName,
+              clearPageControllers: true);
+          Provider.of<AppProvider>(context, listen: false).navigationIsVisible =
+              false;
+        }
       },
       child:
           Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),

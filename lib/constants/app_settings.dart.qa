@@ -7,8 +7,9 @@ class AppSettings {
 
   AppSettings._internal();
 
-  final String defaultPodURL = "https://qa.pod.memri.io";
-  final String defaultDevPodURL = "http://localhost:3030";
+  final String defaultPodUrl = 'https://qa.pod.memri.io';
+  final String defaultDevPodUrl = 'http://localhost:3030';
+  final String podVersion = 'v4';
 
   final bool showDeveloperButton = false;
   final bool maintenanceInProgress = false;
@@ -43,4 +44,8 @@ class AppSettings {
   final bool dioLogInterceptorRequestBody = false;
   final bool dioLogInterceptorResponseHeader = false;
   final bool dioLogInterceptorResponseBody = false;
+
+  /// Links
+  final String guideUrl = 'https://docs.memri.io/overview/quickStart';
+  final String discordUrl = 'https://discord.com/invite/BcRfajJk4k';
 }

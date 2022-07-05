@@ -1,31 +1,55 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:uuid/uuid.dart';
 
 class Item {
-  String type;
+  String? type;
   Map<String, dynamic> properties;
   Map<String, EdgeList> edges;
 
   Item({
-    required String this.type,
+    String? this.type = null,
     Map<String, dynamic>? properties,
     Map<String, EdgeList>? edges,
   })  : properties = properties ?? {},
         edges = edges ?? {};
 
-  EdgeList? getEdges(String edgeName) {
-    return this.edges[edgeName] ?? null;
+  List<Edge>? getEdges(String edgeName) {
+    var edgeList = this.edges[edgeName];
+    if (edgeList == null) {
+      return null;
+    } else {
+      List<Edge> edges = [];
+      edgeList.targets.forEach((target) {
+        edges.add(Edge(
+          source: this,
+          target: target,
+          name: edgeList.name,
+        ));
+      });
+      return edges;
+    }
+  }
+
+  List<Item>? getEdgeTargets(String edgeName) {
+    return this.edges[edgeName]?.targets;
   }
 
   dynamic get(String propertyName) {
     return this.properties[propertyName] ?? null;
   }
 
+  void setIdIfNotExists() {
+    if (this.get("id") == null) {
+      this.properties["id"] = Uuid().v4();
+    }
+  }
+
   get id => get("id");
 
   factory Item.fromJson(Map<String, dynamic> itemMap) {
-    String type = "Item";
+    String? type;
     Map<String, dynamic> properties = {};
     Map<String, EdgeList> edges = {};
     itemMap.forEach((key, value) {
@@ -48,7 +72,12 @@ class Item {
     );
   }
 
-  Map<String, dynamic> toJson() => jsonDecode(jsonEncode(this)); //TODO
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> result = {};
+    result.addAll(this.properties);
+    result["type"] = this.type;
+    return result;
+  }
 }
 
 class EdgeList {
@@ -58,10 +87,30 @@ class EdgeList {
 
   EdgeList({
     required this.name,
-    List<Item>? targets,
+    required List<Item>? targets,
   }) : targets = targets ?? [];
 
   Item? first() {
     return this.targets.firstOrNull;
+  }
+}
+
+class Edge {
+  Item source;
+  Item target;
+  String name;
+
+  Edge({
+    required this.source,
+    required this.target,
+    required this.name,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "_source": this.source.get("id"),
+      "_target": this.target.get("id"),
+      "_name": this.name,
+    };
   }
 }
