@@ -13,7 +13,6 @@ import 'package:memri/core/models/database/item_edge_record.dart';
 import 'package:memri/core/models/database/item_property_record.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:moor/moor.dart';
 import 'package:uuid/uuid.dart';
@@ -465,33 +464,6 @@ class ItemRecord with EquatableMixin {
             itemType: sourceItemType))
         .map((owningItem) => ItemRecord.fromItem(owningItem))
         .toList();
-  }
-
-  Future<FutureBinding> propertyBinding(
-      {required String name,
-      dynamic defaultValue,
-      DatabaseController? db,
-      Type? type}) async {
-    db ??= AppController.shared.databaseController;
-    switch (type) {
-      case bool:
-        return FutureBinding<bool>(
-            () async =>
-                (await propertyValue(name, db))?.asBool() ?? defaultValue,
-            (newValue) async {
-          await setPropertyValue(name, PropertyDatabaseValueBool(newValue),
-              db: db);
-        });
-      default:
-        return FutureBinding<String>(
-            () async =>
-                (await propertyValue(name, db))?.asString() ??
-                defaultValue?.toString() ??
-                "", (newValue) async {
-          await setPropertyValue(name, PropertyDatabaseValueString(newValue),
-              db: db);
-        });
-    }
   }
 
   factory ItemRecord.fromJson(Map<String, dynamic> json) =>
