@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 
 class Item {
@@ -20,7 +22,9 @@ class Item {
     return this.properties[propertyName] ?? null;
   }
 
-  static Item fromJson(Map<String, dynamic> itemMap) {
+  get id => get("id");
+
+  factory Item.fromJson(Map<String, dynamic> itemMap) {
     String type = "Item";
     Map<String, dynamic> properties = {};
     Map<String, EdgeList> edges = {};
@@ -43,6 +47,8 @@ class Item {
       edges: edges,
     );
   }
+
+  Map<String, dynamic> toJson() => jsonDecode(jsonEncode(this)); //TODO
 }
 
 class EdgeList {
