@@ -170,6 +170,14 @@ class PodService extends ApiService<PodAPI> {
     return item;
   }
 
+  Future<Item> updateItem({
+    required Item item,
+  }) async {
+    var itemMap = item.toJson();
+    await api.updateItem(itemMap);
+    return item;
+  }
+
   List<Item> _parseGQLResponse(Map<String, dynamic> jsonBody) {
     List<Item> result = [];
     List<dynamic> data = jsonBody['data'] ?? [];
