@@ -35,7 +35,6 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) =>
       edgeTargetsOperator: $enumDecodeNullable(
               _$ConditionOperatorEnumMap, json['edgeTargetsOperator']) ??
           ConditionOperator.and,
-      count: json['count'] as int?,
     )
       ..deleted = json['deleted'] as bool?
       ..groupByProperties = (json['groupByProperties'] as List<dynamic>)
@@ -61,7 +60,6 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(
       'includeImmediateEdgeSearch': instance.includeImmediateEdgeSearch,
       'edgeTargetsOperator':
           _$ConditionOperatorEnumMap[instance.edgeTargetsOperator],
-      'count': instance.count,
       'groupByProperties': instance.groupByProperties,
       'queryGraphQL': instance.queryGraphQL,
     };

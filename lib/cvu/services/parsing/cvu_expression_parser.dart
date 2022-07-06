@@ -130,8 +130,8 @@ class CVUExpressionParser {
       throw CVUExpressionParseErrorsUnexpectedToken(lastToken!);
     }
     var value = token.value;
-    return CVUExpressionNodeConstant(
-        CVUConstantString(value, token.isSingleQuote));
+    return CVUExpressionNodeConstant(CVUConstantString(value,
+        isSingleQuote: token.isSingleQuote, isMultiline: token.isMultiline));
   }
 
   CVUExpressionNode parseBool() {

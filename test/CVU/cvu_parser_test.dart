@@ -719,4 +719,16 @@ Text {
 }""";
     expect(parseToCVUString(snippet), snippet);
   });
+
+  test('testStringMultiline', () {
+    var snippet = """Person { title: '''query {
+                 world!
+                 '''
+                  }""";
+    expect(parseToCVUString(snippet), """Person {
+    title: '''query {
+                 world!
+                 '''
+}""");
+  });
 }

@@ -84,8 +84,10 @@ class ExprTokenString extends ExprToken {
   final String value;
   final int i;
   final bool isSingleQuote;
+  final bool isMultiline;
 
-  ExprTokenString(this.value, this.i, [this.isSingleQuote = false]);
+  ExprTokenString(this.value, this.i,
+      {this.isSingleQuote = false, this.isMultiline = false});
 }
 
 class ExprTokenPeriod extends ExprToken {
@@ -306,7 +308,8 @@ class CVUExpressionLexer {
             (c == startChar ||
                 startChar == null && startInStringMode && c == "{")) {
           if (keyword.length > 0 || i > 0 || c != "{") {
-            addToken(ExprTokenString(keyword.join(), i, c == "'"));
+            addToken(ExprTokenString(keyword.join(), i,
+                isSingleQuote: c == "'", isMultiline: c == "'''"));
           }
           if (c == "{") {
             addToken(ExprTokenCurlyBracketOpen(i));

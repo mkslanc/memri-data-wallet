@@ -24,7 +24,8 @@ CVUConstantInt _$CVUConstantIntFromJson(Map<String, dynamic> json) =>
 CVUConstantString _$CVUConstantStringFromJson(Map<String, dynamic> json) =>
     CVUConstantString(
       json['value'] as String,
-      json['isSingleQuote'] as bool? ?? false,
+      isSingleQuote: json['isSingleQuote'] as bool? ?? false,
+      isMultiline: json['isMultiline'] as bool? ?? false,
     );
 
 CVUConstantBool _$CVUConstantBoolFromJson(Map<String, dynamic> json) =>

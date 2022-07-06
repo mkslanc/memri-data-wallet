@@ -373,7 +373,10 @@ class CVUParser {
         } else if (lastKey == null) {
           lastKey = v;
         } else {
-          stack.add(CVUValueConstant(CVUConstantString(v),
+          stack.add(CVUValueConstant(
+              CVUConstantString(v,
+                  isSingleQuote: token.isSingleQuote,
+                  isMultiline: token.isMultiline),
               tokenLocation: token.location));
         }
       } else if (token is CVUTokenStringExpression) {

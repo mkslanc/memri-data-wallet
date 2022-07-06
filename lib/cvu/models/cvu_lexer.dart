@@ -29,8 +29,12 @@ class CVUTokenNumber extends CVUToken {
 
 class CVUTokenString extends CVUToken {
   final String value;
+  final bool isSingleQuote;
+  final bool isMultiline;
 
-  CVUTokenString(this.value, ln, ch) : super(ln, ch);
+  CVUTokenString(this.value, ln, ch,
+      {this.isSingleQuote = false, this.isMultiline = false})
+      : super(ln, ch);
 }
 
 class CVUTokenIdentifier extends CVUToken {
@@ -316,8 +320,31 @@ class CVULexer {
       }
     }
 
-    this.input.split("").forEach((c) {
+    var isMultilineString = false;
+    var multilineStringChar = "";
+
+    var inputList = input.split("").asMap();
+    inputList.forEach((index, c) {
       ch += 1;
+
+      if (isMultilineString) {
+        multilineStringChar += c;
+        if (multilineStringChar != "'''") {
+          return;
+        } else {
+          c = multilineStringChar;
+          isMultilineString = false;
+          multilineStringChar = "";
+        }
+      }
+
+      if (c == "'" &&
+          inputList[index + 1] == "'" &&
+          inputList[index + 2] == "'") {
+        isMultilineString = true;
+        multilineStringChar = c;
+        return;
+      }
 
       if (isMode.weight >= Mode.string.weight) {
         if (c == "\n") {
@@ -335,7 +362,8 @@ class CVULexer {
             tokens.add(CVUTokenStringExpression(
                 keyword.join(), ln, ch - keyword.length));
           } else {
-            tokens.add(CVUTokenString(keyword.join(), ln, ch - keyword.length));
+            tokens.add(CVUTokenString(keyword.join(), ln, ch - keyword.length,
+                isSingleQuote: c == "'", isMultiline: c == "'''"));
           }
 
           keyword = [];
@@ -346,7 +374,7 @@ class CVULexer {
           keyword.add(c);
         }
 
-        if (c == "{") {
+        if (c == "{" && startChar != "'''") {
           isStringExpression = true;
         }
 
@@ -419,6 +447,7 @@ class CVULexer {
           break;
         case "'":
         case "\"":
+        case "'''":
           isMode = Mode.string;
           startChar = c;
           break;

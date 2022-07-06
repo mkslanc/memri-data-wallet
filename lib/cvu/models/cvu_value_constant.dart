@@ -112,7 +112,11 @@ abstract class CVUConstant with EquatableMixin {
       return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 2);
     } else if (cvuConstant is CVUConstantString) {
       String escaped = cvuConstant.value.replaceAll("\"", "\\\"");
-      var quote = cvuConstant.isSingleQuote ? "'" : '"';
+      var quote = cvuConstant.isMultiline
+          ? "'''"
+          : cvuConstant.isSingleQuote
+              ? "'"
+              : '"';
       return insideStringMode ? escaped : "$quote$escaped$quote";
     } else if (cvuConstant is CVUConstantBool) {
       return cvuConstant.value ? "true" : "false";
@@ -191,9 +195,11 @@ class CVUConstantInt extends CVUConstant {
 class CVUConstantString extends CVUConstant {
   final String value;
   final bool isSingleQuote;
+  final bool isMultiline;
   get type => "CVUConstantString";
 
-  CVUConstantString(this.value, [this.isSingleQuote = false]);
+  CVUConstantString(this.value,
+      {this.isSingleQuote = false, this.isMultiline = false});
 
   factory CVUConstantString.fromJson(Map<String, dynamic> json) =>
       _$CVUConstantStringFromJson(json);
