@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
-import 'package:memri/utilities/binding.dart';
+import 'package:memri/cvu/utilities/binding.dart';
 
 abstract class Renderer extends StatefulWidget {
   final ViewContextController viewContext;

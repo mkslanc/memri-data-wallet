@@ -3,7 +3,7 @@ import 'package:memri/cvu/models/cvu_view_arguments.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
-import 'package:memri/utilities/execute_actions.dart';
+import 'package:memri/cvu/utilities/execute_actions.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 
 import '../../../services/resolving/cvu_property_resolver.dart';

@@ -5,7 +5,7 @@ import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 import 'package:memri/widgets/empty.dart';
 
-import '../../../../utilities/execute_actions.dart';
+import '../../../utilities/execute_actions.dart';
 import '../../../services/resolving/cvu_property_resolver.dart';
 import 'cvu_text_properties_modifier.dart';
 

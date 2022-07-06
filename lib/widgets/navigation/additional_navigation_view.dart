@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/factory_reset.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';

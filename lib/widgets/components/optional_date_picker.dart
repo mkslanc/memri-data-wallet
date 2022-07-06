@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memri/utilities/binding.dart';
+import 'package:memri/cvu/utilities/binding.dart';
 import 'package:memri/utilities/extensions/icon_data.dart';
 
 class OptionalDatePicker extends StatefulWidget {

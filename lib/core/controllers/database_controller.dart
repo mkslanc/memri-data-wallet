@@ -11,8 +11,6 @@ import 'package:moor/moor.dart';
 
 /// The database controller provides access to the app's SQLite database. Generally only a single database controller will be used throughout the app
 class DatabaseController {
-  Schema schema;
-
   /// This is the connection to the database used throughout the app
   late Database databasePool;
   String databaseName;
@@ -23,24 +21,13 @@ class DatabaseController {
 
   /// Create a DatabaseController. Change the databaseName to create/access a different database file (eg. for testing purposes)
   DatabaseController(
-      {this.databaseName = "memri", Schema? schema, this.inMemory = false})
-      : this.schema = schema ?? Schema();
+      {this.databaseName = "memri", Schema? schema, this.inMemory = false});
 
-  init() async {
+  Future init() async {
     if (isInited) return;
-    if (!kIsWeb) {
-      driftIsolate = await createDriftIsolate(
-          inMemory: inMemory, databaseName: databaseName);
-      connection = await driftIsolate!.connect();
-    } else {
-      connection = connectToWorker();
-    }
+    connection = connectToWorker();
 
     databasePool = Database.connect(connection);
-
-    if (await hasImportedSchema) {
-      await schema.load(databasePool);
-    }
 
     isInited = true;
   }

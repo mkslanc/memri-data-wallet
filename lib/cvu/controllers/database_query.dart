@@ -1,14 +1,11 @@
-import 'dart:convert';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:json_annotation/json_annotation.dart' as annotation;
-import 'package:memri/core/apis/pod/pod_requests.dart';
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/models/item.dart';
+import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/core/models/database/item_record.dart';
 
@@ -21,6 +18,9 @@ enum ConditionOperator { and, or }
 /// This type is used to describe a database query.
 @JsonSerializable()
 class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
+  @annotation.JsonKey(ignore: true)
+  final PodService _podService;
+
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
 
@@ -103,14 +103,21 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   ConditionOperator edgeTargetsOperator = ConditionOperator.and;
 
   @annotation.JsonKey(ignore: true)
-  late DatabaseController dbController;
-
   int? count;
 
   /// A list of conditions. eg. property name = "Demo note"
   List<String> groupByProperties = [];
 
-  String? queryGraphQL;
+  /// Only include items created before this date
+  String? _queryGraphQL;
+
+  String? get queryGraphQL => _queryGraphQL;
+
+  set queryGraphQL(String? newValue) {
+    if (_queryGraphQL == newValue) return;
+    _queryGraphQL = newValue;
+    notifyListeners();
+  }
 
   DatabaseQueryConfig(
       {List<String>? itemTypes,
@@ -135,7 +142,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         _dateModifiedAfter = dateModifiedAfter,
         _dateModifiedBefore = dateModifiedBefore,
         _dateCreatedAfter = dateCreatedAfter,
-        _dateCreatedBefore = dateCreatedBefore;
+        _dateCreatedBefore = dateCreatedBefore,
+        _podService = GetIt.I();
 
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
@@ -158,37 +166,25 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   Future<List<Item>> executeGraphQLRequest() async {
-    var request = PodStandardRequest.queryGraphQL(queryGraphQL!);
-    var networkCall = await request
-        .execute((await AppController.shared.podConnectionConfig)!);
-    var res = jsonDecode(networkCall.body);
-
-    List<Item> items = (res["data"] as List<dynamic>)
-        .map((itemMap) => Item.fromJson(itemMap))
-        .toList();
-
-    return items;
+    return await _podService.graphql(query: queryGraphQL!);
   }
 
-  factory DatabaseQueryConfig.queryConfigWith(
-      {required CVUContext context,
-      CVUParsedDefinition? datasource,
-      CVUDefinitionContent? datasourceContent,
-      DatabaseQueryConfig? inheritQuery,
-      Set<int>? overrideUIDs,
-      ItemRecord? targetItem,
-      DateTimeRange? dateRange,
-      DatabaseController? databaseController}) {
-    databaseController ??= AppController.shared.databaseController;
-
+  factory DatabaseQueryConfig.queryConfigWith({
+    required CVUContext context,
+    CVUParsedDefinition? datasource,
+    CVUDefinitionContent? datasourceContent,
+    DatabaseQueryConfig? inheritQuery,
+    Set<int>? overrideUIDs,
+    ItemRecord? targetItem,
+    DateTimeRange? dateRange,
+  }) {
     datasourceContent ??= datasource?.parsed;
     var datasourceResolver = datasourceContent?.propertyResolver(
-        context: context,
-        lookup: CVULookupController(),
-        db: databaseController);
+      context: context,
+      lookup: CVULookupController(),
+    );
 
     var queryConfig = inheritQuery?.clone() ?? DatabaseQueryConfig();
-    queryConfig.dbController = databaseController;
     var queryGraphQL = datasourceResolver?.string("queryGraphQL") ?? "";
     if (queryGraphQL.isNotEmpty) {
       queryConfig.queryGraphQL =

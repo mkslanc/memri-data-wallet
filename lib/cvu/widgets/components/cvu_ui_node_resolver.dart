@@ -3,7 +3,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/models/cvu_ui_element_family.dart';
 import 'package:memri/cvu/models/cvu_ui_node.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
@@ -18,13 +17,11 @@ class CVUUINodeResolver {
   CVULookupController lookup;
   CVUUINode node;
 
-  DatabaseController db;
-
-  CVUUINodeResolver(
-      {required this.context,
-      required this.lookup,
-      required this.node,
-      required this.db});
+  CVUUINodeResolver({
+    required this.context,
+    required this.lookup,
+    required this.node,
+  });
 
   Widget childrenInForEachWithWrap({centered = false, Item? usingItem}) {
     return Wrap(
@@ -130,11 +127,11 @@ class CVUUINodeResolver {
 
   CVUUINodeResolver copyForNode(CVUUINode newNode, [CVUContext? newContext]) {
     return CVUUINodeResolver(
-        context: newContext ?? context, lookup: lookup, node: newNode, db: db);
+        context: newContext ?? context, lookup: lookup, node: newNode);
   }
 
   CVUPropertyResolver get propertyResolver {
     return CVUPropertyResolver(
-        context: context, lookup: lookup, db: db, properties: node.properties);
+        context: context, lookup: lookup, properties: node.properties);
   }
 }

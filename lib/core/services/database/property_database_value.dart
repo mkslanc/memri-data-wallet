@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:moor/moor.dart';
@@ -114,42 +113,38 @@ abstract class PropertyDatabaseValue with EquatableMixin {
   static PropertyDatabaseValue? createFromCVUValue(
       {required CVUValue cvuValue,
       required SchemaValueType propertyType,
-      required CVUContext context,
-      required DatabaseController db}) {
+      required CVUContext context}) {
     var lookup = CVULookupController();
     var resolvedValue;
     switch (propertyType) {
       case SchemaValueType.double:
         resolvedValue =
-            lookup.resolve<double>(value: cvuValue, context: context, db: db);
+            lookup.resolve<double>(value: cvuValue, context: context);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueDouble(resolvedValue);
       case SchemaValueType.bool:
-        resolvedValue =
-            lookup.resolve<bool>(value: cvuValue, context: context, db: db);
+        resolvedValue = lookup.resolve<bool>(value: cvuValue, context: context);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueBool(resolvedValue);
       case SchemaValueType.int:
-        resolvedValue =
-            lookup.resolve<int>(value: cvuValue, context: context, db: db);
+        resolvedValue = lookup.resolve<int>(value: cvuValue, context: context);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueInt(resolvedValue);
       case SchemaValueType.string:
         resolvedValue =
-            lookup.resolve<String>(value: cvuValue, context: context, db: db);
+            lookup.resolve<String>(value: cvuValue, context: context);
         if (resolvedValue == null) {
           return null;
         }
         return PropertyDatabaseValueString(resolvedValue);
       case SchemaValueType.datetime:
-        resolvedValue =
-            lookup.resolve<int>(value: cvuValue, context: context, db: db);
+        resolvedValue = lookup.resolve<int>(value: cvuValue, context: context);
         if (resolvedValue == null) {
           return null;
         }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
-import 'package:memri/core/controllers/scene_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/navigation/additional_navigation_view.dart';
@@ -73,12 +72,6 @@ class NavigationItemView extends StatelessWidget {
         MixpanelAnalyticsService().logNavigationButton(item.name);
         if (item.callback != null) item.callback!();
         if (item.targetViewName != null) {
-          sceneController.exitEditMode();
-          sceneController.navigateToNewContext(
-              clearStack: true,
-              animated: false,
-              viewName: item.targetViewName,
-              clearPageControllers: true);
           Provider.of<AppProvider>(context, listen: false).navigationIsVisible =
               false;
         }

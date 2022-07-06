@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:get_it/get_it.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/core/models/database/item_property_record.dart';
 import 'package:memri/core/models/database/item_record.dart';
@@ -52,7 +53,7 @@ class MockDataGenerator {
       await item.save(db.databasePool);
 
       properties.forEach((key, value) {
-        var valueType = db.schema.expectedPropertyType(itemType, key);
+        var valueType = GetIt.I<Schema>().expectedPropertyType(itemType, key);
         if (valueType != null) {
           var newValue = value ??
               MockDataGenerator.generateMockData(

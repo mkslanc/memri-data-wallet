@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/core/controllers/database_controller.dart';
-import 'package:memri/core/controllers/sync_controller.dart';
 import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
@@ -31,7 +31,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Schema schema;
   late DatabaseController databaseController;
-  late SyncController syncController;
 
   setupPodForTesting() async {
     var noteItem = ItemRecord(rowId: noteRowId, uid: noteUID, type: "Note");
@@ -79,9 +78,8 @@ void main() {
   setUpAll(() async {
     HttpOverrides.global = null;
     databaseController = DatabaseController(inMemory: true);
-    syncController = SyncController(databaseController);
     await databaseController.init();
-    schema = databaseController.schema;
+    schema = GetIt.I<Schema>();
     await databaseController.setupWithDemoData();
     await setupPodForTesting();
   });
@@ -93,11 +91,5 @@ void main() {
     var networkCall = await request.execute(connectionConfig);
     var podItems = jsonDecode(networkCall.body);
     expect(podItems.length, greaterThan(1));
-  });
-
-  test('testSyncing', () async {
-    syncController.currentConnection = connectionConfig;
-    await syncController.sync(connectionConfig: connectionConfig);
-    expect(syncController.lastError, equals(null));
   });
 }

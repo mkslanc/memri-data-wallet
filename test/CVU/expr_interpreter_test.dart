@@ -3,7 +3,6 @@
 //  Created by T Brennan on 24/12/20.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_expression.dart';
@@ -18,28 +17,27 @@ CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
   return parser.parse();
 }
 
-var databaseController = DatabaseController();
 var lookupController = CVULookupController(LookupMock(true, "Memri", 10, 10));
 
 Future<bool?> interpretAsBool(CVUExpressionNode expr) async {
   return lookupController.resolve<bool>(
-      value: CVUValueExpression(expr),
-      context: CVUContext(),
-      db: databaseController);
+    value: CVUValueExpression(expr),
+    context: CVUContext(),
+  );
 }
 
 Future<double?> interpretAsDouble(CVUExpressionNode expr) async {
   return lookupController.resolve<double>(
-      value: CVUValueExpression(expr),
-      context: CVUContext(),
-      db: databaseController);
+    value: CVUValueExpression(expr),
+    context: CVUContext(),
+  );
 }
 
 Future<String?> interpretAsString(CVUExpressionNode expr) async {
   return lookupController.resolve<String>(
-      value: CVUValueExpression(expr),
-      context: CVUContext(),
-      db: databaseController);
+    value: CVUValueExpression(expr),
+    context: CVUContext(),
+  );
 }
 
 void main() {

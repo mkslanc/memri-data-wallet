@@ -1,28 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:memri/core/controllers/app_controller.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/widgets/cvu_editor.dart';
 import 'package:memri/cvu/widgets/scene_content_view.dart';
+import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/navigation/navigation_appbar.dart';
 
+import '../core/services/database/schema.dart';
+import '../cvu/controllers/cvu_controller.dart';
 import '../widgets/scaffold/cvu_scaffold.dart';
 
-class CVUScreen extends StatelessWidget {
+class CVUScreen extends StatefulWidget {
   const CVUScreen({Key? key}) : super(key: key);
 
   @override
+  State<CVUScreen> createState() => _CVUScreenState();
+}
+
+class _CVUScreenState extends State<CVUScreen> {
+  late Future _init;
+
+  initState() {
+    super.initState();
+    _init = init();
+  }
+
+  init() async {
+    //TODO CVU test
+    await GetIt.I<Schema>().load();
+    await GetIt.I<CVUController>().loadStoredDefinitions();
+    return true;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CVUScaffold(
-      currentItem: NavigationItem.cvu,
-      child: SceneContentView(
-        viewContext: ViewContextController.fromParams(viewName: "allData"),
-      ),
-      editor: CVUEditor(
-        viewDefinition: AppController.shared.cvuController
-            .definitionFor(viewName: "allData", type: CVUDefinitionType.view)!
-            .toCVUString(0, "  ", false),
-      ),
-    );
+    return FutureBuilder(
+        future: _init,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return Empty();
+          }
+          return CVUScaffold(
+            currentItem: NavigationItem.cvu,
+            child: SceneContentView(
+              viewContext: ViewContextController.fromParams(
+                  viewName: "messageChannelView"),
+            ),
+            editor: CVUEditor(
+              viewDefinition: GetIt.I<CVUController>()
+                  .definitionFor(
+                      viewName: "messageChannelView",
+                      type: CVUDefinitionType.view)!
+                  .toCVUString(0, "  ", false),
+            ),
+          );
+        });
   }
 }

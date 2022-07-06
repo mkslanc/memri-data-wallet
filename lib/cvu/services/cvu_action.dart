@@ -2,7 +2,6 @@
 
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
@@ -21,11 +20,9 @@ abstract class CVUAction {
   late Map<String, CVUValue> vars;
 
   String? getString(String key, CVUContext context) {
-    var db = AppController.shared.databaseController;
     var resolver = CVUPropertyResolver(
         context: context,
         lookup: CVULookupController(),
-        db: db,
         properties: vars[key] != null ? vars : defaultVars);
     return resolver.string(key);
   }
@@ -57,12 +54,8 @@ class CVUActionOpenLink extends CVUAction {
   Future execute(CVUContext context) async {
     var link = vars["link"];
     if (link != null) {
-      var db = AppController.shared.databaseController;
       var resolver = CVUPropertyResolver(
-          context: context,
-          lookup: CVULookupController(),
-          db: db,
-          properties: vars);
+          context: context, lookup: CVULookupController(), properties: vars);
       var url = resolver.string("link");
       if (url != null) {
         if (url.toLowerCase().contains('discord.com')) {
@@ -85,27 +78,11 @@ class CVUActionCopyToClipboard extends CVUAction {
 
   @override
   execute(CVUContext context) async {
-    var db = AppController.shared.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context,
-        lookup: CVULookupController(),
-        db: db,
-        properties: vars);
+        context: context, lookup: CVULookupController(), properties: vars);
     var value = resolver.string("value");
     if (value != null) {
-      if (value.toLowerCase().contains('key')) {
-        if (value.contains('ownerKey')) {
-          Clipboard.setData(ClipboardData(
-              text:
-                  (await AppController.shared.podConnectionConfig)!.ownerKey));
-        } else if (value.contains('databaseKey')) {
-          Clipboard.setData(ClipboardData(
-              text: (await AppController.shared.podConnectionConfig)!
-                  .databaseKey));
-        }
-      } else {
-        Clipboard.setData(ClipboardData(text: value));
-      }
+      Clipboard.setData(ClipboardData(text: value));
     }
   }
 }
@@ -117,12 +94,8 @@ class CVUActionValidate extends CVUAction {
 
   @override
   execute(CVUContext context) async {
-    var db = AppController.shared.databaseController;
     var resolver = CVUPropertyResolver(
-        context: context,
-        lookup: CVULookupController(),
-        db: db,
-        properties: vars);
+        context: context, lookup: CVULookupController(), properties: vars);
 
     var rules = resolver.subdefinitionArray("rules");
 

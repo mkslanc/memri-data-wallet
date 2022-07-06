@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_lexer.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
@@ -8,10 +7,8 @@ import 'package:memri/cvu/services/parsing/cvu_parse_errors.dart';
 import 'package:memri/cvu/services/parsing/cvu_parser.dart';
 import 'package:memri/cvu/services/parsing/cvu_validator.dart';
 
-var databaseController = DatabaseController();
 var lookupController = CVULookupController();
-var validator = CVUValidator(
-    databaseController: databaseController, lookupController: lookupController);
+var validator = CVUValidator(lookupController: lookupController);
 
 List<CVUParsedDefinition> parse(String snippet) {
   CVULexer lexer = CVULexer(snippet);

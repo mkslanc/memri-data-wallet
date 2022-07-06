@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:get_it/get_it.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/app_controller.dart';
@@ -123,7 +124,8 @@ class ItemRecord with EquatableMixin {
     var properties = await db.databasePool.itemPropertyRecordsCustomSelect(
         "name = ? AND item = ?", [Variable(name), Variable(rowId)]);
     if (properties.length > 0) {
-      SchemaValueType? valueType = db.schema.expectedPropertyType(type, name);
+      SchemaValueType? valueType =
+          GetIt.I<Schema>().expectedPropertyType(type, name);
       if (valueType == null) {
         throw Exception("Not found property $name for $type");
       }
@@ -142,7 +144,7 @@ class ItemRecord with EquatableMixin {
     if (properties.length > 0) {
       return properties.map((property) {
         SchemaValueType? valueType =
-            db?.schema.expectedPropertyType(type, property.name);
+            GetIt.I<Schema>().expectedPropertyType(type, property.name);
         if (valueType == null) {
           throw Exception(
               "Not found property type ${property.name} for item $type");
@@ -168,7 +170,7 @@ class ItemRecord with EquatableMixin {
       return properties.map((property) {
         var type = groupedItems[property.item]!.type;
         SchemaValueType? valueType =
-            db?.schema.expectedPropertyType(type, property.name);
+            GetIt.I<Schema>().expectedPropertyType(type, property.name);
         if (valueType == null) {
           throw Exception(
               "Not found property type ${property.name} for item $type");
@@ -189,7 +191,7 @@ class ItemRecord with EquatableMixin {
     if (itemPropertyRecord == null) {
       return null;
     }
-    return itemPropertyRecord.value(type, db.schema);
+    return itemPropertyRecord.value(type, GetIt.I<Schema>());
   }
 
   Future<int> save([Database? db]) async {
@@ -663,7 +665,7 @@ class ItemRecord with EquatableMixin {
           dictList: schemaProperties, dbController: dbController);
       await ItemPropertyRecord.insertList(schemaItemProperties,
           db: dbController.databasePool);
-      await dbController.schema.load(dbController.databasePool);
+      await GetIt.I<Schema>().load();
     }
 
     var edgesRecords = await ItemRecord.edgesFromSyncItemDict(
@@ -730,7 +732,7 @@ class ItemRecord with EquatableMixin {
           return; //TODO: figure out why we receiving these schema item property types from pod
 
         var expectedType =
-            dbController.schema.expectedPropertyType(item.type, propertyName);
+            GetIt.I<Schema>().expectedPropertyType(item.type, propertyName);
         if (expectedType == null) {
           //first initialization with existing pod crashes without this
           if ((item.type == "ItemPropertySchema" &&
@@ -829,8 +831,7 @@ class ItemRecord with EquatableMixin {
 
   Future<Map<String, dynamic>> syncDict(DatabaseController dbController) async {
     return mergeDict(
-        properties: await properties(dbController),
-        schema: dbController.schema);
+        properties: await properties(dbController), schema: GetIt.I<Schema>());
   }
 
   static Future<List<Map<String, dynamic>>> syncItemsWithState(

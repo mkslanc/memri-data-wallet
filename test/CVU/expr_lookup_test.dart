@@ -16,34 +16,31 @@ CVUExpressionNode parse(String snippet, [bool stringMode = false]) {
 
 var lookupController = CVULookupController();
 
-Future<bool?> interpretAsBool(
-    CVUExpressionNode expr, DatabaseController databaseController,
+Future<bool?> interpretAsBool(CVUExpressionNode expr,
     [CVUContext? context]) async {
   context ??= CVUContext();
   return lookupController.resolve<bool>(
-      value: CVUValueExpression(expr),
-      context: context,
-      db: databaseController);
+    value: CVUValueExpression(expr),
+    context: context,
+  );
 }
 
-Future<double?> interpretAsDouble(
-    CVUExpressionNode expr, DatabaseController databaseController,
+Future<double?> interpretAsDouble(CVUExpressionNode expr,
     [CVUContext? context]) async {
   context ??= CVUContext();
   return lookupController.resolve<double>(
-      value: CVUValueExpression(expr),
-      context: context,
-      db: databaseController);
+    value: CVUValueExpression(expr),
+    context: context,
+  );
 }
 
-Future<String?> interpretAsString(
-    CVUExpressionNode expr, DatabaseController databaseController,
+Future<String?> interpretAsString(CVUExpressionNode expr,
     [CVUContext? context]) async {
   context ??= CVUContext();
   return lookupController.resolve<String>(
-      value: CVUValueExpression(expr),
-      context: context,
-      db: databaseController);
+    value: CVUValueExpression(expr),
+    context: context,
+  );
 }
 
 void main() {

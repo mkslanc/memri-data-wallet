@@ -4,16 +4,15 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:memri/core/controllers/app_controller.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/cvu_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
 import 'package:memri/cvu/models/view_context.dart';
-import 'package:memri/utilities/binding.dart';
+import 'package:memri/cvu/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
 import '../services/resolving/cvu_context.dart';
@@ -23,7 +22,6 @@ import 'database_query.dart';
 class ViewContextController extends ChangeNotifier {
   late ViewContextHolder configHolder;
 
-  late DatabaseController databaseController;
   late CVUController cvuController;
   late CVULookupController lookupController;
 
@@ -37,13 +35,10 @@ class ViewContextController extends ChangeNotifier {
 
   ViewContextController(
       {required ViewContextHolder config,
-      DatabaseController? databaseController,
       CVUController? cvuController,
       rendererDefinition})
       : this.rendererDefinition = rendererDefinition ?? CVUDefinitionContent() {
-    this.databaseController =
-        databaseController ?? AppController.shared.databaseController;
-    this.cvuController = cvuController ?? AppController.shared.cvuController;
+    this.cvuController = cvuController ?? GetIt.instance();
     this.lookupController = CVULookupController();
     config.config.viewArguments ?? CVUViewArguments();
     this.configHolder = config;
@@ -58,41 +53,38 @@ class ViewContextController extends ChangeNotifier {
     this.cvuController.addListener(() => updateUI());
   }
 
-  factory ViewContextController.fromParams(
-      {String viewName = "customView",
-      String rendererName = "custom",
-      CVUDefinitionContent? viewDefinition,
-      CVUViewArguments? viewArguments,
-      Item? focusedItem}) {
-    AppController appController = AppController.shared;
-    var db = appController.databaseController;
-
+  factory ViewContextController.fromParams({
+    String viewName = "customView",
+    String rendererName = "custom",
+    CVUDefinitionContent? viewDefinition,
+    CVUViewArguments? viewArguments,
+    Item? focusedItem,
+    CVUController? cvuController,
+  }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
+    cvuController ??= GetIt.instance();
 
-    viewDefinition ??=
-        appController.cvuController.viewDefinitionFor(viewName: viewName) ??
-            CVUDefinitionContent();
+    viewDefinition ??= cvuController.viewDefinitionFor(viewName: viewName) ??
+        CVUDefinitionContent();
     var newContext = CVUContext(
         currentItem: focusedItem,
         selector: null,
         viewName: viewName,
         viewDefinition: viewDefinition,
         viewArguments: viewArguments);
-    //TODO:
     var datasource = viewDefinition.definitions.firstWhereOrNull(
         (definition) => definition.type == CVUDefinitionType.datasource);
     var queryConfig = DatabaseQueryConfig.queryConfigWith(
-        context: newContext, datasource: datasource, databaseController: db);
-    queryConfig.dbController = db;
+        context: newContext, datasource: datasource);
 
     var defaultRenderer = "list";
     var rendererName = ((() =>
         viewDefinition!
             .propertyResolver(
-                context: newContext,
-                lookup: CVULookupController(),
-                db: appController.databaseController)
+              context: newContext,
+              lookup: CVULookupController(),
+            )
             .string("defaultRenderer") ??
         defaultRenderer))();
 
@@ -105,10 +97,7 @@ class ViewContextController extends ChangeNotifier {
         query: queryConfig);
 
     var holder = ViewContextHolder(config);
-    return ViewContextController(
-        config: holder,
-        databaseController: AppController.shared.databaseController,
-        cvuController: AppController.shared.cvuController);
+    return ViewContextController(config: holder, cvuController: cvuController);
   }
 
   int get focusedIndex {
@@ -166,7 +155,6 @@ class ViewContextController extends ChangeNotifier {
             viewArguments: viewArguments),
         nodeDefinition: nodeDefinition,
         lookup: lookupController,
-        db: databaseController,
         blankIfNoDefinition: blankIfNoDefinition,
         key: key);
   }
@@ -202,6 +190,13 @@ class ViewContextController extends ChangeNotifier {
 
     if (viewDefinition != null) {
       config.viewDefinition = viewDefinition!;
+
+      var datasource = config.viewDefinition.definitions.firstWhereOrNull(
+          (definition) => definition.type == CVUDefinitionType.datasource);
+      var queryConfig = DatabaseQueryConfig.queryConfigWith(
+          context: getCVUContext(item: config.focusedItem),
+          datasource: datasource);
+      config.query.queryGraphQL = queryConfig.queryGraphQL;
     }
 
     rendererDefinition =
@@ -209,14 +204,14 @@ class ViewContextController extends ChangeNotifier {
             CVUDefinitionContent();
 
     viewDefinitionPropertyResolver = config.viewDefinition.propertyResolver(
-        context: getCVUContext(),
-        lookup: CVULookupController(),
-        db: databaseController);
+      context: getCVUContext(),
+      lookup: CVULookupController(),
+    );
 
     rendererDefinitionPropertyResolver = rendererDefinition.propertyResolver(
-        context: getCVUContext(),
-        lookup: CVULookupController(),
-        db: databaseController);
+      context: getCVUContext(),
+      lookup: CVULookupController(),
+    );
     notifyListeners();
   }
 
@@ -248,16 +243,16 @@ class ViewContextController extends ChangeNotifier {
 
   late CVUPropertyResolver viewDefinitionPropertyResolver = () {
     return config.viewDefinition.propertyResolver(
-        context: getCVUContext(),
-        lookup: CVULookupController(),
-        db: databaseController);
+      context: getCVUContext(),
+      lookup: CVULookupController(),
+    );
   }();
 
   late CVUPropertyResolver rendererDefinitionPropertyResolver = () {
     return rendererDefinition.propertyResolver(
-        context: getCVUContext(),
-        lookup: CVULookupController(),
-        db: databaseController);
+      context: getCVUContext(),
+      lookup: CVULookupController(),
+    );
   }();
 
   CVUPropertyResolver? get itemPropertyResolver {
@@ -267,9 +262,9 @@ class ViewContextController extends ChangeNotifier {
       return null;
     }
     return viewDefinition.propertyResolver(
-        context: getCVUContext(item: focusedItem),
-        lookup: CVULookupController(),
-        db: databaseController);
+      context: getCVUContext(item: focusedItem),
+      lookup: CVULookupController(),
+    );
   }
 
   setRendererProperty(String renderer, String property, CVUValue value) {
@@ -291,9 +286,9 @@ class ViewContextController extends ChangeNotifier {
   CVUPropertyResolver? nodePropertyResolver(Item item) {
     var context = getCVUContext(item: item);
     return cvuController.nodeDefinitionFor(context)?.propertyResolver(
-        context: context,
-        lookup: CVULookupController(),
-        db: databaseController);
+          context: context,
+          lookup: CVULookupController(),
+        );
   }
 
   // MARK: Query RESULT
@@ -378,6 +373,7 @@ class ViewContextController extends ChangeNotifier {
     queryConfig.addListener(setupQueryObservation);
     if (queryConfig.queryGraphQL != null) {
       getItems(queryConfig);
+      //TODO if you wanna continuous update, consider uncommenting this part
       // queryObservation = Stream.periodic(Duration(seconds: app.settings.syncControllerIntervalSecs))
       //     .listen((_) => getItems(queryConfig));
     }

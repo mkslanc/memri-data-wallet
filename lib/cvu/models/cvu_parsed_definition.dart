@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/models/cvu_ui_node.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/services/parsing/cvu_string_convertible.dart';
@@ -51,12 +50,12 @@ class CVUDefinitionContent extends CVUStringConvertible with EquatableMixin {
     return CVUDefinitionContent.fromJson(jsonDecode(jsonEncode(this)));
   }
 
-  CVUPropertyResolver propertyResolver(
-      {required CVUContext context,
-      required CVULookupController lookup,
-      required DatabaseController db}) {
+  CVUPropertyResolver propertyResolver({
+    required CVUContext context,
+    required CVULookupController lookup,
+  }) {
     return CVUPropertyResolver(
-        context: context, lookup: lookup, db: db, properties: properties);
+        context: context, lookup: lookup, properties: properties);
   }
 
   String toCVUString(int depth, String tab, bool includeInitialTab) {

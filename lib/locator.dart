@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/core/services/gitlab_service.dart';
 import 'package:memri/core/services/log_service.dart';
 import 'package:memri/core/services/mixpanel_analytics_service.dart';
@@ -8,6 +9,7 @@ import 'package:memri/core/services/network_service.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/core/services/search_service.dart';
 import 'package:memri/core/services/storage_service.dart';
+import 'package:memri/cvu/controllers/cvu_controller.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/providers/importer_provider.dart';
 import 'package:memri/providers/pod_provider.dart';
@@ -29,6 +31,10 @@ Future<void> setup() async {
   locator.registerLazySingleton<ImporterProvider>(() => ImporterProvider());
   locator
       .registerLazySingleton<ProjectProvider>(() => ProjectProvider(locator()));
+
+  // CVU
+  locator.registerLazySingleton<CVUController>(() => CVUController(locator()));
+  locator.registerLazySingleton<Schema>(() => Schema(locator()));
 
   /// SERVICES
   locator.registerLazySingleton<PodService>(() => PodService(locator()));

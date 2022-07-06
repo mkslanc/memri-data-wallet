@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/database_query.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
@@ -147,9 +146,9 @@ class _CVUSubViewState extends State<CVUSubView> {
         viewArguments: viewArguments);
 
     queryConfig = DatabaseQueryConfig.queryConfigWith(
-        context: newContext,
-        datasource: datasource,
-        databaseController: AppController.shared.databaseController);
+      context: newContext,
+      datasource: datasource,
+    );
     queryConfig!.pageSize = 0;
 
     var config = ViewContext(
@@ -161,10 +160,7 @@ class _CVUSubViewState extends State<CVUSubView> {
         query: queryConfig!);
 
     var holder = ViewContextHolder(config);
-    _viewContext = ViewContextController(
-        config: holder,
-        databaseController: AppController.shared.databaseController,
-        cvuController: AppController.shared.cvuController);
+    _viewContext = ViewContextController(config: holder);
   }
 
   Widget get renderer => ValueListenableBuilder(

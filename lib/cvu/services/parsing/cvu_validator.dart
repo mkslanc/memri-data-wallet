@@ -1,6 +1,4 @@
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/services/cvu_action.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
 import 'package:memri/cvu/models/cvu_ui_element_family.dart';
@@ -83,14 +81,9 @@ class CVUValidator {
   List<CVUErrorAnnotation> warnings = [];
   List<CVUErrorAnnotation> errors = [];
 
-  DatabaseController databaseController;
   CVULookupController lookupController;
 
-  CVUValidator(
-      {DatabaseController? databaseController,
-      required CVULookupController this.lookupController})
-      : this.databaseController =
-            databaseController ?? AppController.shared.databaseController;
+  CVUValidator({required CVULookupController this.lookupController});
 
   valueToTruncatedString(value) {
     var str = value.toString();

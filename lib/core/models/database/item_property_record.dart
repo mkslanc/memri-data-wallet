@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/models/database/database.dart';
 import 'package:memri/core/services/database/property_database_value.dart';
@@ -26,7 +27,7 @@ class ItemPropertyRecord {
       : _$value = value;
 
   PropertyDatabaseValue? value(String itemType, [Schema? schema]) {
-    schema ??= AppController.shared.databaseController.schema;
+    schema ??= GetIt.I();
     var expectedType = schema.types[itemType]?.propertyTypes[name]?.valueType;
     if (expectedType == null) {
       return null;

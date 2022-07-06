@@ -1,19 +1,31 @@
 import 'dart:async';
 
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/models/database/database.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
+import '../pod_service.dart';
+
 /// A schema definition. This is used to dynamically enforce supported types and properties
 class Schema {
+  final PodService _podService;
+
+  Schema(this._podService);
+
   /// Supported types in the schema
   Map<String, SchemaType> types = {};
 
+  static Map<String, String> _mapSchemaValueType = {
+    "Text": "string",
+    "Integer": "int",
+    "Real": "double",
+    "Bool": "bool",
+    "DateTime": "datetime",
+  };
+
   /// Load a Schema struct from the given file URL. Default URL of nil loads `schema.json` from the app bundle
-  load([Database? db]) async {
-    db ??= AppController.shared.databaseController.databasePool;
-    var groupedProperties = await getSchemaProperties(db);
-    var groupedEdges = await getSchemaEdges(db);
+  load() async {
+    var groupedProperties = await getSchemaProperties();
+    var groupedEdges = await getSchemaEdges();
 
     var allTypes =
         Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
@@ -39,73 +51,49 @@ class Schema {
 
   Future<Map<String, List<SchemaProperty>>> getSchemaProperties(
       [Database? db]) async {
-    db ??= AppController.shared.databaseController.databasePool;
-    var itemRecords = await db.itemRecordsFetchByType("ItemPropertySchema");
-    var itemRowIDs = itemRecords
-        .map((itemRecord) => itemRecord.rowId)
-        .whereType<int>()
-        .toList();
-    var query = "item IN (${itemRowIDs.join(", ")})";
-    var schemaPropertyRecords = await db.itemPropertyRecordsCustomSelect(query);
-
-    var groupedItemPropertyRecords = <int, Map<String, String>>{};
-
-    schemaPropertyRecords.forEach((itemPropertyRecord) {
-      var rowID = itemPropertyRecord.item;
-      if (groupedItemPropertyRecords[rowID] == null) {
-        groupedItemPropertyRecords[rowID] = {};
-      }
-
-      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] =
-          itemPropertyRecord.value;
-    });
+    var query = '''
+      query {
+        ItemPropertySchema {
+          id
+          itemType
+          propertyName
+          valueType
+        }
+      }''';
+    var schemaPropertyRecords = await _podService.graphql(query: query);
 
     return Dictionary.groupBy(
-        groupedItemPropertyRecords.values.toList().compactMap(
-            (itemPropertyRecord) => itemPropertyRecord["itemType"] == null ||
-                    itemPropertyRecord["propertyName"] == null ||
-                    itemPropertyRecord["valueType"] == null
-                ? null
-                : SchemaProperty(
-                    itemPropertyRecord["itemType"]!,
-                    itemPropertyRecord["propertyName"]!,
-                    SchemaValueTypeExtension.rawValue(
-                        itemPropertyRecord["valueType"]!))),
-        (SchemaProperty $0) => $0.itemType);
+        schemaPropertyRecords.compactMap((itemPropertyRecord) {
+      var itemType = itemPropertyRecord.get("itemType");
+      var propertyName = itemPropertyRecord.get("propertyName");
+      var valueType = _mapSchemaValueType[itemPropertyRecord.get("valueType")];
+      return itemType == null || propertyName == null || valueType == null
+          ? null
+          : SchemaProperty(itemType, propertyName,
+              SchemaValueTypeExtension.rawValue(valueType));
+    }), (SchemaProperty $0) => $0.itemType);
   }
 
   Future<Map<String, List<SchemaEdge>>> getSchemaEdges([Database? db]) async {
-    db ??= AppController.shared.databaseController.databasePool;
-    var itemRecords = await db.itemRecordsFetchByType("ItemEdgeSchema");
-    var itemRowIDs = itemRecords
-        .map((itemRecord) => itemRecord.rowId)
-        .whereType<int>()
-        .toList();
-    var query = "item IN (${itemRowIDs.join(", ")})";
-    var schemaEdgeRecords = await db.itemPropertyRecordsCustomSelect(query);
-    var groupedItemPropertyRecords = <int, Map<String, String>>{};
+    var query = '''
+      query {
+        ItemEdgeSchema {
+          id
+          sourceType
+          edgeName
+          targetType
+        }
+      }''';
+    var schemaEdgeRecords = await _podService.graphql(query: query);
 
-    schemaEdgeRecords.forEach((itemPropertyRecord) {
-      var rowID = itemPropertyRecord.item;
-      if (groupedItemPropertyRecords[rowID] == null) {
-        groupedItemPropertyRecords[rowID] = {};
-      }
-
-      groupedItemPropertyRecords[rowID]![itemPropertyRecord.name] =
-          itemPropertyRecord.value;
-    });
-
-    return Dictionary.groupBy(
-        groupedItemPropertyRecords.values.toList().compactMap(
-            (itemPropertyRecord) => itemPropertyRecord["sourceType"] == null ||
-                    itemPropertyRecord["edgeName"] == null ||
-                    itemPropertyRecord["targetType"] == null
-                ? null
-                : SchemaEdge(
-                    itemPropertyRecord["sourceType"]!,
-                    itemPropertyRecord["edgeName"]!,
-                    itemPropertyRecord["targetType"]!)),
-        (SchemaEdge $0) => $0.sourceType);
+    return Dictionary.groupBy(schemaEdgeRecords.compactMap((edge) {
+      var sourceType = edge.get("sourceType");
+      var edgeName = edge.get("edgeName");
+      var targetType = edge.get("targetType");
+      return sourceType == null || edgeName == null || targetType == null
+          ? null
+          : SchemaEdge(sourceType, edgeName, targetType);
+    }), (SchemaEdge $0) => $0.sourceType);
   }
 
   List<String> propertyNamesForItemType(String itemType) {

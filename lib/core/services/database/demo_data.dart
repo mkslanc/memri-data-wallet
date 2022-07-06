@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/controllers/database_controller.dart';
@@ -47,7 +48,7 @@ class DemoData {
     }
 
     await databaseController.databasePool.schemaImportTransaction(items);
-    await databaseController.schema.load(databaseController.databasePool);
+    await GetIt.I<Schema>().load();
   }
 
   static loadSchema({isRunningTests = false}) async {

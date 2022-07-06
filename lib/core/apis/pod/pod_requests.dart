@@ -181,7 +181,7 @@ class PodDownloadRequest<Payload> {
   }
 
   Future<String> get destination async {
-    return await FileStorageController.getURLForFile(fileUID);
+    return FileStorageController.getURLForFile(fileUID);
   }
 
   Future<http.Response> execute(PodConfig connectionConfig) async {

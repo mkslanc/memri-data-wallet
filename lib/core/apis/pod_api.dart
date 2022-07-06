@@ -134,8 +134,8 @@ class PodAPI extends BaseAPI {
       },
     );
     checkResponseError(response);
-    String resBody = Utf8Decoder().convert(response.data);
-    return jsonDecode(resBody);
+
+    return response.data;
   }
 
   Future<String> podVersion() async {
@@ -211,7 +211,7 @@ class PodDownloadRequest<Payload> {
   }
 
   Future<String> get destination async {
-    return await FileStorageController.getURLForFile(fileUID);
+    return FileStorageController.getURLForFile(fileUID);
   }
 
   Future<http.Response> execute(PodConfig connectionConfig) async {

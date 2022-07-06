@@ -4,11 +4,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/constants/app_styles.dart';
-import 'package:memri/core/apis/pod/pod_connection_details.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
 import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/core/models/item.dart';
+import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/enum.dart';
 import 'package:memri/utilities/extensions/string.dart';
@@ -39,11 +40,13 @@ class _CVUEditorViewState extends State<CVUEditor> {
   StreamSubscription? logsStream;
 
   List<CVUParsedDefinition> definitions = [];
+  late CVUController cvuController;
 
   @override
   initState() {
     super.initState();
     controller = AceEditorController(saveCVU, validate: validate);
+    cvuController = GetIt.I();
     init();
   }
 
@@ -56,13 +59,13 @@ class _CVUEditorViewState extends State<CVUEditor> {
 
   void init() {
     definitions = CVUController.parseCVUString(widget.viewDefinition)
-        .compactMap((definition) => AppController.shared.cvuController
-            .definitionByQuery(definition.queryStr));
+        .compactMap((definition) =>
+            cvuController.definitionByQuery(definition.queryStr));
 
     if (!logMode) initCVU();
   }
 
-  getLogs(PodConnectionDetails connection, String id) async {
+  getLogs(PodConfig connection, String id) async {
     if (id == "") {
       controller.updateEditorContent(
           "Please, start plugin before trying to access logs");
@@ -128,9 +131,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
       ];
     }
 
-    var validator = CVUValidator(
-        lookupController: CVULookupController(),
-        databaseController: AppController.shared.databaseController);
+    var validator = CVUValidator(lookupController: CVULookupController());
     validator.validate(parsed);
 
     return (validator.errors + validator.warnings)
@@ -266,8 +267,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
 
   saveCVU() async {
     if (definitions.isNotEmpty) {
-      await AppController.shared.cvuController
-          .updateDefinition(content: controller.content);
+      cvuController.updateDefinition(content: controller.content);
       setState(() => init());
     }
     //widget.pageController.sceneController.scheduleUIUpdate();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
-import 'package:memri/constants/cvu/cvu_font.dart';
+import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/providers/pod_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
