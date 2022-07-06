@@ -28005,13 +28005,10 @@ var CvuHighlightRules = function () {
         "constant.language": "false|Infinity|NaN|nil|no|null|null|off|on|super|this|true|undefined|yes",
         "support.type": "left|top|right|bottom|center|lefttop|topleft|topright|righttop|leftbottom|bottomleft|rightbottom|bottomright",
         "support.constant": "regular|bold|semibold|heavy|light|ultralight|black|fit|fill",
-        "storage.type": "VStack|HStack|ZStack|EditorSection|EditorRow|EditorLabel|Button|FlowStack|Text|Textfield|ItemCell|SubView|Map|Picker|SecureField|ActionButton|MemriButton|Image|Circle|HorizontalLine|Rectangle|" +
-            "RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action|Observer|HTMLView|TimelineItem|TextField|Toggle|DropZone|Wrap|Dropdown|RichText|LoadingIndicator",
+        "storage.type": "VStack|HStack|ZStack|Button|FlowStack|Text|SubView|Image|Circle|HorizontalLine|Rectangle|" +
+            "Spacer|Divider|Empty|ActionButton|DropZone|Wrap|Dropdown|RichText|LoadingIndicator",
         "keyword": "and|AND|or|OR|equals|EQUALS|not|NOT|" +
-            "back|addItem|openView|openDynamicView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showOverlay|showNavigation|share|addToPanel|duplicate|schedule|addToList|" +
-            "duplicateNote|noteTimeline|starredNotes|allNotes|exampleUnpack|delete|setRenderer|select|selectAll|unselectAll|showAddLabel|openLabelView|setProperty|" +
-            "showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|link|addSelectionToList|closePopup|noop|unlink|multiAction|runIndexerRun|runImporterRun|setSetting" +
-            "datasource|view|filter|pluginRun|sync|wait|block|requestlocation|requeststorage|requestcontacts|openpopup|openPlugin|openLink|opencvueditor|createLabellingTask|parsePlugin|generatePluginCvu|validate|" +
+            "datasource|view|filter|openLink|" +
             "copytoclipboard"
     }, "identifier", true);
     var propertyKeywords = "\\b(showtimeline|currentSessionIndex|textalign|sessionDefinitions|name|currentViewIndex|viewDefinitions|editMode|showFilterPanel|" +
@@ -28131,6 +28128,37 @@ var CvuHighlightRules = function () {
                     stack.unshift(this.next, value, currentState);
                     return this.token;
                 },
+            }
+        ],
+        "multilineStringOpen": [
+            {
+                token: "string",
+                regex: /'{3}/,
+                next: "multilineString",
+                onMatch: function (value, currentState, stack) {
+                    stack.unshift(this.next, value, currentState);
+                    return this.token;
+                },
+            }
+        ],
+        "multilineString": [
+            {
+                token: "string",
+                regex: /'{3}/,
+                next: "start",
+                onMatch: function (value, currentState, stack) {
+                    if (value == stack[1]) {
+                        stack.shift();
+                        stack.shift();
+                        this.next = stack.shift();
+                    }
+                    else {
+                        this.next = '';
+                    }
+                    return this.token;
+                },
+            }, {
+                defaultToken: "string"
             }
         ],
         "string": [
