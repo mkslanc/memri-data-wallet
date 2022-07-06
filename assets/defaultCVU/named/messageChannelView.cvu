@@ -1,0 +1,51 @@
+.messageChannelView {
+    defaultRenderer: "list"
+
+    [datasource = pod] {
+        queryGraphQL: '''query {
+                Message (order_desc: dateSent) {
+                    content
+                    dateSent
+                    sender {
+                        isMe
+                    }
+                }
+            }'''
+    }
+
+    [renderer = list] {
+        edgeInset: 0
+        hideSeparators: true
+        isReverse: true
+    }
+
+    Message > list {
+        VStack {
+            alignment: top
+
+            HStack {
+                alignment: left
+
+                Image {
+                    cornerRadius: 50
+                    image: {{.sender.owner.profilePicture OR .sender.profilePicture OR "assets/images/person.png"}}
+                    maxHeight: 30
+                    maxWidth: 30
+                    minHeight: 30
+                    minWidth: 30
+                    sizingMode: fill
+                }
+
+                Text {
+                    background: {{.sender.owner = me OR .sender.isMe ? "#4F56FE" : "#eeeeee"}}
+                    color: {{.sender.owner = me OR .sender.isMe ? "#FBFBFB" : "#333333"}}
+                    cornerRadiusOnly: 0 5 5 5
+                    font: bodyText1
+                    padding: 15 10
+                    show: {{.content}}
+                    text: {{.content.plainString()}}
+                }
+            }
+        }
+    }
+}

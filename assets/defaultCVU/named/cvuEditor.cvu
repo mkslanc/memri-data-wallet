@@ -1,6 +1,0 @@
-.cvuEditor {
-    name: "cvuEditor"
-    title: "CVU Editor"
-    defaultRenderer: cvuEditor
-    cols: 6
-}
