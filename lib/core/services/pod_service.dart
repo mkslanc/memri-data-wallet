@@ -161,9 +161,6 @@ class PodService extends ApiService<PodAPI> {
   Future<Item> createItem({
     required Item item,
   }) async {
-    if (item.type == null) {
-      throw new Exception("Attempted to create item without an item type.");
-    }
     var itemMap = item.toJson();
     var resultID = await api.createItem(itemMap);
     item.properties["id"] = resultID;

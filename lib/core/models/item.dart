@@ -1,15 +1,13 @@
-import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 
 class Item {
-  String? type;
+  String type;
   Map<String, dynamic> properties;
   Map<String, EdgeList> edges;
 
   Item({
-    String? this.type = null,
+    required String this.type,
     Map<String, dynamic>? properties,
     Map<String, EdgeList>? edges,
   })  : properties = properties ?? {},
@@ -65,8 +63,11 @@ class Item {
         properties[key] = value;
       }
     });
+    if (type == null) {
+      throw Exception("Attempted to create item without an item type.");
+    }
     return Item(
-      type: type,
+      type: type!,
       properties: properties,
       edges: edges,
     );
