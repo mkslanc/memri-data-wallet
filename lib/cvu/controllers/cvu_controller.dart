@@ -92,7 +92,6 @@ class CVUController extends ChangeNotifier {
 
       storedDefinition.properties["definition"] =
           definition.toCVUString(0, "    ", true);
-      print("update stored definition");
       _podService.updateItem(item: storedDefinition);
 
       replaceDefinitionByQuery(definition.queryStr, definition);
@@ -119,9 +118,9 @@ class CVUController extends ChangeNotifier {
   }
 
   loadStoredDefinitions() async {
-    // if (storedDefinitions.isNotEmpty) {
-    //   return;
-    // }
+    if (storedDefinitions.isNotEmpty) {
+      return;
+    }
     var query = '''
       query {
         CVUStoredDefinition {

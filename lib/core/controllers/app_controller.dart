@@ -149,7 +149,6 @@ class AppController {
       _podConnectionConfig!.ownerKey.length > 12;
 
   Future init() async {
-    print("init app controller");
     await databaseController.init();
     await MixpanelAnalyticsService().init();
   }

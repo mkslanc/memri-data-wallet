@@ -15,6 +15,7 @@ import 'package:memri/cvu/models/view_context.dart';
 import 'package:memri/cvu/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
+import '../../utilities/helpers/app_helper.dart';
 import '../services/resolving/cvu_context.dart';
 import '../services/resolving/cvu_property_resolver.dart';
 import 'database_query.dart';
@@ -373,9 +374,10 @@ class ViewContextController extends ChangeNotifier {
     queryConfig.addListener(setupQueryObservation);
     if (queryConfig.queryGraphQL != null) {
       getItems(queryConfig);
-      //TODO if you wanna continuous update, consider uncommenting this part
-      // queryObservation = Stream.periodic(Duration(seconds: app.settings.syncControllerIntervalSecs))
-      //     .listen((_) => getItems(queryConfig));
+      //TODO replace it when pod would have sockets
+      queryObservation = Stream.periodic(
+              Duration(seconds: app.settings.syncControllerIntervalSecs))
+          .listen((_) => getItems(queryConfig));
     }
   }
 
