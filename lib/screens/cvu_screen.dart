@@ -27,9 +27,13 @@ class _CVUScreenState extends State<CVUScreen> {
   }
 
   init() async {
-    //TODO CVU test
+    //TODO CVU test: this part is just for testing
+    var cvuController = GetIt.I<CVUController>();
     await GetIt.I<Schema>().load();
-    await GetIt.I<CVUController>().loadStoredDefinitions();
+    await cvuController.loadStoredDefinitions();
+    if (cvuController.storedDefinitions.isEmpty) {
+      await cvuController.init();
+    }
     return true;
   }
 
