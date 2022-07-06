@@ -28116,25 +28116,27 @@ var CvuHighlightRules = function () {
                 token: "keyword.operator",
                 regex: /[=]/
             }, {
+                include: "multilineStringOpen"
+            }, {
                 include: "stringOpen"
             },
-        ],
-        "stringOpen": [
-            {
-                token: "string",
-                regex: /["']/,
-                next: "string",
-                onMatch: function (value, currentState, stack) {
-                    stack.unshift(this.next, value, currentState);
-                    return this.token;
-                },
-            }
         ],
         "multilineStringOpen": [
             {
                 token: "string",
                 regex: /'{3}/,
                 next: "multilineString",
+                onMatch: function (value, currentState, stack) {
+                    stack.unshift(this.next, value, currentState);
+                    return this.token;
+                },
+            }
+        ],
+        "stringOpen": [
+            {
+                token: "string",
+                regex: /["']/,
+                next: "string",
                 onMatch: function (value, currentState, stack) {
                     stack.unshift(this.next, value, currentState);
                     return this.token;
@@ -28205,6 +28207,9 @@ var CvuHighlightRules = function () {
             }
         ],
         "expressions": [
+            {
+                include: "multilineStringOpen"
+            },
             {
                 include: "stringOpen"
             },
