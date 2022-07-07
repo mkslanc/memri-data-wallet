@@ -34,10 +34,10 @@ class CVUController extends ChangeNotifier {
 
   Future<void> init() async {
     try {
-      definitions = [];
       await loadStoredDefinitions();
       if (definitions.isEmpty) {
-        definitions = await parseCVU();
+        var _definitions = await parseCVU();
+        await storeDefinitions(_definitions);
       }
     } catch (error) {
       AppLogger.err(error);
@@ -99,28 +99,40 @@ class CVUController extends ChangeNotifier {
     notifyListeners();
   }
 
-  storeDefinitions() async {
-    definitions.forEach((definition) {
-      var properties = {
-        "name": definition.name ?? "",
-        "domain": definition.domain.inString,
-        "renderer": definition.renderer ?? "",
-        "selector": definition.selector ?? "",
-        "definitionType": definition.type.inString,
-        "definition": definition.toCVUString(0, "    ", true),
-        "queryStr": definition.queryStr,
-      };
+  storeDefinitions(List<CVUParsedDefinition> _definitions) async {
+    _definitions
+        .forEach((definition) => storeDefinition(definition: definition));
+  }
 
-      var storedDefinition =
-          Item(type: "CVUStoredDefinition", properties: properties);
-      _podService.createItem(item: storedDefinition);
-    });
+  Future<Item?> storeDefinition(
+      {String? cvuString, CVUParsedDefinition? definition}) async {
+    definition ??= parseCVUString(cvuString!).asMap()[0];
+    if (definition == null) {
+      return null;
+    }
+
+    var properties = {
+      "name": definition.name ?? "",
+      "domain": definition.domain.inString,
+      "renderer": definition.renderer ?? "",
+      "selector": definition.selector ?? "",
+      "definitionType": definition.type.inString,
+      "definition": definition.toCVUString(0, "    ", true),
+      "queryStr": definition.queryStr,
+    };
+
+    var storedDefinition = await _podService.createItem(
+        item: Item(type: "CVUStoredDefinition", properties: properties));
+    storedDefinitions.add(storedDefinition);
+    definitions.add(definition);
+    return storedDefinition;
   }
 
   loadStoredDefinitions() async {
     if (storedDefinitions.isNotEmpty) {
       return;
     }
+    definitions = [];
     var query = '''
       query {
         CVUStoredDefinition {
