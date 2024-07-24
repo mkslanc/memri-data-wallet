@@ -65,7 +65,7 @@ class Sticker extends StatelessWidget {
                         TextButton(
                           style: ButtonStyle(
                               padding:
-                                  MaterialStateProperty.all(EdgeInsets.all(0))),
+                                  WidgetStateProperty.all(EdgeInsets.all(0))),
                           onPressed: buttonsCallback![index],
                           child: Row(
                             children: [

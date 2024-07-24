@@ -20,6 +20,22 @@ abstract class PodPayload {
   Map<String, dynamic> toJson() => {};
 }
 
+class SchemaMeta extends PodPayload {
+  String name;
+  String url;
+  String version;
+
+  SchemaMeta(this.name, this.url, this.version);
+
+  SchemaMeta.fromJson(Map<String, dynamic> meta)
+      : name = meta['name'],
+        url = meta['url'],
+        version = meta['version'];
+
+  @override
+  toJson() => {'name': name, 'url': url, 'version': version};
+}
+
 class PodPayloadEmptyPayload extends PodPayload {}
 
 class PodPayloadFileSHA extends PodPayload {
@@ -95,4 +111,19 @@ class PodPayloadBulkAction extends PodPayload {
         'deleteItems': deleteItems,
         'createEdges': createEdges
       };
+}
+
+class PodPayloadCreateSchema extends PodPayload {
+  SchemaMeta meta;
+  Map<String, dynamic> nodes;
+  Map<String, dynamic> edges;
+
+  PodPayloadCreateSchema(this.meta, this.nodes, this.edges);
+
+  @override
+  toJson() => {
+    'meta': meta.toJson(),
+    'nodes': nodes,
+    'edges': edges,
+  };
 }

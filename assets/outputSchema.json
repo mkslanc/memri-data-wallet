@@ -1,0 +1,1034 @@
+{
+  "meta": {
+    "name": "memriOne",
+    "url": "https://gitlab.memri.io/memri/consumer_app",
+    "version": "0.1"
+  },
+  "nodes": {
+    "Account": {
+      "properties": {
+        "accessToken": "Text",
+        "authEmail": "Text",
+        "avatarUrl": "Text",
+        "code": "Text",
+        "displayName": "Text",
+        "externalId": "Text",
+        "handle": "Text",
+        "identifier": "Text",
+        "isMe": "Bool",
+        "itemType": "Text",
+        "refreshToken": "Text",
+        "secret": "Text",
+        "service": "Text"
+      }
+    },
+    "Address": {
+      "properties": {
+        "city": "Text",
+        "itemType": "Text",
+        "latitude": "Real",
+        "locationAutoLookupHash": "Text",
+        "longitude": "Real",
+        "postalCode": "Text",
+        "state": "Text",
+        "street": "Text"
+      }
+    },
+    "AuditItem": {
+      "properties": {
+        "actionname": "Text",
+        "content": "Text",
+        "date": "DateTime"
+      }
+    },
+    "CVUStoredDefinition": {
+      "properties": {
+        "definition": "Text",
+        "definitionType": "Text",
+        "domain": "Text",
+        "itemType": "Text",
+        "name": "Text",
+        "queryStr": "Text",
+        "renderer": "Text",
+        "selector": "Text"
+      }
+    },
+    "CategoricalLabel": {
+      "properties": {
+        "allowSharing": "Bool",
+        "isSubmitted": "Bool",
+        "labelValue": "Text"
+      }
+    },
+    "CategoricalPrediction": {
+      "properties": {
+        "probs": "Text",
+        "source": "Text",
+        "value": "Text"
+      }
+    },
+    "Country": {
+      "properties": {
+        "latitude": "Real",
+        "longitude": "Real",
+        "name": "Text"
+      }
+    },
+    "CreativeWork": {
+      "properties": {
+        "abstract": "Text",
+        "content": "Text",
+        "datePublished": "DateTime",
+        "itemType": "Text",
+        "keyword": "Text",
+        "textContent": "Text",
+        "title": "Text",
+        "transcript": "Text"
+      }
+    },
+    "CryptoCurrency": {
+      "properties": {
+        "myToken": "Real",
+        "name": "Text",
+        "topic": "Text"
+      }
+    },
+    "CryptoKey": {
+      "properties": {
+        "active": "Bool",
+        "itemType": "Text",
+        "keystr": "Text",
+        "name": "Text",
+        "role": "Text",
+        "starred": "Bool"
+      }
+    },
+    "CryptoTransaction": {
+      "properties": {
+        "outward": "Bool",
+        "quantity": "Real"
+      }
+    },
+    "CurrencySetting": {
+      "properties": {
+        "deviceAddress": "Text",
+        "profileAddress": "Text",
+        "seedPhrase": "Text",
+        "tokenAddress": "Text"
+      }
+    },
+    "Dataset": {
+      "properties": {
+        "name": "Text",
+        "queryStr": "Text"
+      }
+    },
+    "DatasetType": {
+      "properties": {
+        "name": "Text",
+        "queryStr": "Text"
+      }
+    },
+    "Diet": {
+      "properties": {
+        "abstract": "Text",
+        "content": "Text",
+        "datePublished": "DateTime",
+        "duration": "Integer",
+        "itemType": "Text",
+        "keyword": "Text",
+        "name": "Text",
+        "textContent": "Text",
+        "title": "Text",
+        "transcript": "Text"
+      }
+    },
+    "EmailMessage": {
+      "properties": {
+        "abstract": "Text",
+        "content": "Text",
+        "datePublished": "DateTime",
+        "dateReceived": "DateTime",
+        "dateSent": "DateTime",
+        "externalId": "Text",
+        "isMock": "Bool",
+        "itemType": "Text",
+        "keyword": "Text",
+        "service": "Text",
+        "starred": "Bool",
+        "subject": "Text",
+        "textContent": "Text",
+        "title": "Text",
+        "transcript": "Text"
+      }
+    },
+    "File": {
+      "properties": {
+        "filename": "Text",
+        "keystr": "Text",
+        "nonce": "Text",
+        "sha256": "Text",
+        "starred": "Bool"
+      }
+    },
+    "Indexer": {
+      "properties": {
+        "bundleImage": "Text",
+        "icon": "Text",
+        "indexerClass": "Text",
+        "itemDescription": "Text",
+        "name": "Text",
+        "queryStr": "Text",
+        "repository": "Text",
+        "runDestination": "Text"
+      }
+    },
+    "IndexerRun": {
+      "properties": {
+        "errorMessage": "Text",
+        "name": "Text",
+        "progress": "Real",
+        "progressMessage": "Text",
+        "queryStr": "Text",
+        "repository": "Text",
+        "runStatus": "Text",
+        "targetDataType": "Text"
+      }
+    },
+    "Integrator": {
+      "properties": {
+        "name": "Text",
+        "repository": "Text"
+      }
+    },
+    "ItemEdgeSchema": {
+      "properties": {
+        "edgeName": "Text",
+        "sourceType": "Text",
+        "targetType": "Text"
+      }
+    },
+    "ItemPropertySchema": {
+      "properties": {
+        "itemType": "Text",
+        "propertyName": "Text",
+        "valueType": "Text"
+      }
+    },
+    "Label": {
+      "properties": {
+        "color": "Text",
+        "name": "Text"
+      }
+    },
+    "LabelAnnotation": {
+      "properties": {
+        "allowSharing": "Bool",
+        "isSubmitted": "Bool"
+      }
+    },
+    "LabelOption": {
+      "properties": {
+        "color": "Text",
+        "name": "Text"
+      }
+    },
+    "LabellingDataType": {
+      "properties": {
+        "labelType": "Text",
+        "name": "Text"
+      }
+    },
+    "LabellingTask": {
+      "properties": {
+        "currentLabelOption": "Text",
+        "name": "Text"
+      }
+    },
+    "Location": {
+      "properties": {
+        "latitude": "Real",
+        "longitude": "Real"
+      }
+    },
+    "MediaObject": {
+      "properties": {
+        "bitrate": "Integer",
+        "duration": "Integer",
+        "endTime": "DateTime",
+        "fileLocation": "Text",
+        "startTime": "DateTime"
+      }
+    },
+    "MedicalCondition": {
+      "properties": {
+        "conditiontype": "Text",
+        "itemType": "Text",
+        "name": "Text"
+      }
+    },
+    "Message": {
+      "properties": {
+        "abstract": "Text",
+        "content": "Text",
+        "datePublished": "DateTime",
+        "dateReceived": "DateTime",
+        "dateSent": "DateTime",
+        "externalId": "Text",
+        "isMock": "Bool",
+        "itemType": "Text",
+        "keyword": "Text",
+        "service": "Text",
+        "subject": "Text",
+        "textContent": "Text",
+        "title": "Text",
+        "transcript": "Text"
+      }
+    },
+    "MessageChannel": {
+      "properties": {
+        "encrypted": "Bool",
+        "externalId": "Text",
+        "name": "Text",
+        "topic": "Text"
+      }
+    },
+    "Model": {
+      "properties": {
+        "name": "Text",
+        "version": "Text"
+      }
+    },
+    "NavigationItem": {
+      "properties": {
+        "icon": "Text",
+        "itemType": "Text",
+        "sequence": "Integer",
+        "sessionName": "Text",
+        "title": "Text"
+      }
+    },
+    "Network": {
+      "properties": {
+        "name": "Text"
+      }
+    },
+    "Note": {
+      "properties": {
+        "abstract": "Text",
+        "content": "Text",
+        "datePublished": "DateTime",
+        "itemType": "Text",
+        "keyword": "Text",
+        "starred": "Bool",
+        "textContent": "Text",
+        "title": "Text",
+        "transcript": "Text"
+      }
+    },
+    "Person": {
+      "properties": {
+        "addressBookId": "Text",
+        "birthDate": "DateTime",
+        "deathDate": "DateTime",
+        "displayName": "Text",
+        "email": "Text",
+        "firstName": "Text",
+        "gender": "Text",
+        "lastName": "Text",
+        "role": "Text",
+        "sexualOrientation": "Text",
+        "starred": "Bool"
+      }
+    },
+    "PhoneNumber": {
+      "properties": {
+        "phoneNumber": "Text"
+      }
+    },
+    "Photo": {
+      "properties": {
+        "bitrate": "Integer",
+        "caption": "Text",
+        "duration": "Integer",
+        "endTime": "DateTime",
+        "exifData": "Text",
+        "fileLocation": "Text",
+        "name": "Text",
+        "startTime": "DateTime"
+      }
+    },
+    "Plugin": {
+      "properties": {
+        "bundleImage": "Text",
+        "config": "Text",
+        "configJson": "Text",
+        "containerImage": "Text",
+        "dataType": "Text",
+        "gitProjectId": "Integer",
+        "icon": "Text",
+        "name": "Text",
+        "pluginDescription": "Text",
+        "pluginModule": "Text",
+        "pluginName": "Text",
+        "pluginType": "Text"
+      }
+    },
+    "PluginRun": {
+      "properties": {
+        "authUrl": "Text",
+        "config": "Text",
+        "containerId": "Text",
+        "containerImage": "Text",
+        "error": "Text",
+        "pluginModule": "Text",
+        "pluginName": "Text",
+        "progress": "Real",
+        "status": "Text",
+        "targetItemId": "Text"
+      }
+    },
+    "Post": {
+      "properties": {
+        "externalId": "Text",
+        "isMock": "Bool",
+        "message": "Text",
+        "postDate": "DateTime",
+        "postType": "Text"
+      }
+    },
+    "Project": {
+      "properties": {
+        "gitlabUrl": "Text",
+        "name": "Text"
+      }
+    },
+    "Receipt": {
+      "properties": {
+        "category": "Text",
+        "store": "Text",
+        "totalCost": "Real"
+      }
+    },
+    "Relationship": {
+      "properties": {
+        "label": "Text",
+        "proximityValue": "Integer"
+      }
+    },
+    "Setting": {
+      "properties": {
+        "json": "Text",
+        "keystr": "Text"
+      }
+    },
+    "SuggestedMerge": {
+      "properties": {
+        "score": "Real",
+        "task": "Text"
+      }
+    },
+    "TextClassification": {
+      "properties": {
+        "labelType": "Text",
+        "name": "Text"
+      }
+    },
+    "VoteAction": {
+      "properties": {
+        "dateExecuted": "DateTime"
+      }
+    },
+    "Wallet": {
+      "properties": {
+        "name": "Text"
+      }
+    },
+    "Website": {
+      "properties": {
+        "itemType": "Text",
+        "url": "Text"
+      }
+    },
+    "WrittenWork": {
+      "properties": {
+        "abstract": "Text",
+        "content": "Text",
+        "datePublished": "DateTime",
+        "itemType": "Text",
+        "keyword": "Text",
+        "textContent": "Text",
+        "title": "Text",
+        "transcript": "Text"
+      }
+    }
+  },
+  "edges": {
+    "changelog": [
+      {
+        "source": "Account",
+        "target": "AuditItem"
+      },
+      {
+        "source": "Address",
+        "target": "AuditItem"
+      },
+      {
+        "source": "Photo",
+        "target": "AuditItem"
+      }
+    ],
+    "cryptoTransaction": [
+      {
+        "source": "Account",
+        "target": "CryptoTransaction"
+      }
+    ],
+    "location": [
+      {
+        "source": "Account",
+        "target": "Location"
+      },
+      {
+        "source": "Address",
+        "target": "Location"
+      },
+      {
+        "source": "Country",
+        "target": "Location"
+      }
+    ],
+    "network": [
+      {
+        "source": "Account",
+        "target": "Network"
+      }
+    ],
+    "ownCurrency": [
+      {
+        "source": "Account",
+        "target": "CryptoCurrency"
+      }
+    ],
+    "owner": [
+      {
+        "source": "Account",
+        "target": "Person"
+      },
+      {
+        "source": "CryptoKey",
+        "target": "Person"
+      }
+    ],
+    "profilePicture": [
+      {
+        "source": "Account",
+        "target": "Photo"
+      },
+      {
+        "source": "Person",
+        "target": "Photo"
+      }
+    ],
+    "trust": [
+      {
+        "source": "Account",
+        "target": "Account"
+      }
+    ],
+    "country": [
+      {
+        "source": "Address",
+        "target": "Country"
+      }
+    ],
+    "model": [
+      {
+        "source": "CategoricalPrediction",
+        "target": "Model"
+      }
+    ],
+    "flag": [
+      {
+        "source": "Country",
+        "target": "Photo"
+      }
+    ],
+    "contentLocation": [
+      {
+        "source": "CreativeWork",
+        "target": "Location"
+      },
+      {
+        "source": "Diet",
+        "target": "Location"
+      },
+      {
+        "source": "EmailMessage",
+        "target": "Location"
+      },
+      {
+        "source": "Message",
+        "target": "Location"
+      },
+      {
+        "source": "Note",
+        "target": "Location"
+      },
+      {
+        "source": "WrittenWork",
+        "target": "Location"
+      }
+    ],
+    "file": [
+      {
+        "source": "CreativeWork",
+        "target": "File"
+      },
+      {
+        "source": "Diet",
+        "target": "File"
+      },
+      {
+        "source": "EmailMessage",
+        "target": "File"
+      },
+      {
+        "source": "MediaObject",
+        "target": "File"
+      },
+      {
+        "source": "Message",
+        "target": "File"
+      },
+      {
+        "source": "Note",
+        "target": "File"
+      },
+      {
+        "source": "Photo",
+        "target": "File"
+      },
+      {
+        "source": "Receipt",
+        "target": "File"
+      },
+      {
+        "source": "WrittenWork",
+        "target": "File"
+      }
+    ],
+    "locationCreated": [
+      {
+        "source": "CreativeWork",
+        "target": "Location"
+      },
+      {
+        "source": "Diet",
+        "target": "Location"
+      },
+      {
+        "source": "EmailMessage",
+        "target": "Location"
+      },
+      {
+        "source": "Message",
+        "target": "Location"
+      },
+      {
+        "source": "Note",
+        "target": "Location"
+      },
+      {
+        "source": "WrittenWork",
+        "target": "Location"
+      }
+    ],
+    "writtenBy": [
+      {
+        "source": "CreativeWork",
+        "target": "Person"
+      },
+      {
+        "source": "Diet",
+        "target": "Person"
+      },
+      {
+        "source": "EmailMessage",
+        "target": "Person"
+      },
+      {
+        "source": "Message",
+        "target": "Person"
+      },
+      {
+        "source": "Note",
+        "target": "Person"
+      },
+      {
+        "source": "WrittenWork",
+        "target": "Person"
+      }
+    ],
+    "currencySetting": [
+      {
+        "source": "CryptoCurrency",
+        "target": "CurrencySetting"
+      }
+    ],
+    "picture": [
+      {
+        "source": "CryptoCurrency",
+        "target": "Photo"
+      },
+      {
+        "source": "Wallet",
+        "target": "Photo"
+      }
+    ],
+    "cryptoCurrency": [
+      {
+        "source": "CryptoTransaction",
+        "target": "CryptoCurrency"
+      }
+    ],
+    "relateToOther": [
+      {
+        "source": "CryptoTransaction",
+        "target": "Account"
+      }
+    ],
+    "relateToOwner": [
+      {
+        "source": "CryptoTransaction",
+        "target": "Account"
+      }
+    ],
+    "wallet": [
+      {
+        "source": "CurrencySetting",
+        "target": "Wallet"
+      }
+    ],
+    "datasetType": [
+      {
+        "source": "Dataset",
+        "target": "DatasetType"
+      }
+    ],
+    "entry": [
+      {
+        "source": "Dataset",
+        "target": "DatasetEntry"
+      }
+    ],
+    "feature": [
+      {
+        "source": "Dataset",
+        "target": "Any"
+      }
+    ],
+    "labellingTask": [
+      {
+        "source": "Dataset",
+        "target": "LabellingTask"
+      }
+    ],
+    "annotation": [
+      {
+        "source": "DatasetEntry",
+        "target": "CategoricalLabel"
+      }
+    ],
+    "data": [
+      {
+        "source": "DatasetEntry",
+        "target": "Any"
+      }
+    ],
+    "datasetPlugin": [
+      {
+        "source": "DatasetType",
+        "target": "Plugin"
+      }
+    ],
+    "bcc": [
+      {
+        "source": "EmailMessage",
+        "target": "Account"
+      }
+    ],
+    "cc": [
+      {
+        "source": "EmailMessage",
+        "target": "Account"
+      }
+    ],
+    "message": [
+      {
+        "source": "EmailMessage",
+        "target": "EmailMessage"
+      },
+      {
+        "source": "Message",
+        "target": "Message"
+      }
+    ],
+    "messageChannel": [
+      {
+        "source": "EmailMessage",
+        "target": "MessageChannel"
+      },
+      {
+        "source": "Message",
+        "target": "MessageChannel"
+      }
+    ],
+    "photo": [
+      {
+        "source": "EmailMessage",
+        "target": "Photo"
+      },
+      {
+        "source": "Message",
+        "target": "Photo"
+      },
+      {
+        "source": "MessageChannel",
+        "target": "Photo"
+      },
+      {
+        "source": "Post",
+        "target": "Photo"
+      },
+      {
+        "source": "Receipt",
+        "target": "Photo"
+      }
+    ],
+    "receiver": [
+      {
+        "source": "EmailMessage",
+        "target": "Account"
+      },
+      {
+        "source": "Message",
+        "target": "Account"
+      },
+      {
+        "source": "MessageChannel",
+        "target": "Account"
+      }
+    ],
+    "replyTo": [
+      {
+        "source": "EmailMessage",
+        "target": "Account"
+      }
+    ],
+    "sender": [
+      {
+        "source": "EmailMessage",
+        "target": "Account"
+      },
+      {
+        "source": "Message",
+        "target": "Account"
+      }
+    ],
+    "indexerRun": [
+      {
+        "source": "Indexer",
+        "target": "IndexerRun"
+      }
+    ],
+    "indexer": [
+      {
+        "source": "IndexerRun",
+        "target": "Indexer"
+      }
+    ],
+    "labelOption": [
+      {
+        "source": "LabellingTask",
+        "target": "LabelOption"
+      }
+    ],
+    "taskType": [
+      {
+        "source": "LabellingTask",
+        "target": "Any"
+      }
+    ],
+    "view": [
+      {
+        "source": "LabellingTask",
+        "target": "CVUStoredDefinition"
+      },
+      {
+        "source": "Plugin",
+        "target": "CVUStoredDefinition"
+      },
+      {
+        "source": "PluginRun",
+        "target": "CVUStoredDefinition"
+      }
+    ],
+    "includes": [
+      {
+        "source": "MediaObject",
+        "target": "Person"
+      },
+      {
+        "source": "Photo",
+        "target": "Person"
+      }
+    ],
+    "website": [
+      {
+        "source": "Network",
+        "target": "Website"
+      },
+      {
+        "source": "Person",
+        "target": "Website"
+      }
+    ],
+    "label": [
+      {
+        "source": "Note",
+        "target": "Label"
+      },
+      {
+        "source": "Person",
+        "target": "Label"
+      },
+      {
+        "source": "Photo",
+        "target": "Label"
+      }
+    ],
+    "account": [
+      {
+        "source": "Person",
+        "target": "Account"
+      },
+      {
+        "source": "PluginRun",
+        "target": "Account"
+      }
+    ],
+    "address": [
+      {
+        "source": "Person",
+        "target": "Address"
+      }
+    ],
+    "birthPlace": [
+      {
+        "source": "Person",
+        "target": "Location"
+      }
+    ],
+    "cryptoKey": [
+      {
+        "source": "Person",
+        "target": "CryptoKey"
+      }
+    ],
+    "deathPlace": [
+      {
+        "source": "Person",
+        "target": "Location"
+      }
+    ],
+    "diet": [
+      {
+        "source": "Person",
+        "target": "Diet"
+      }
+    ],
+    "hasPhoneNumber": [
+      {
+        "source": "Person",
+        "target": "PhoneNumber"
+      }
+    ],
+    "me": [
+      {
+        "source": "Person",
+        "target": "Person"
+      }
+    ],
+    "medicalCondition": [
+      {
+        "source": "Person",
+        "target": "MedicalCondition"
+      }
+    ],
+    "mergedFrom": [
+      {
+        "source": "Person",
+        "target": "Any"
+      }
+    ],
+    "relationship": [
+      {
+        "source": "Person",
+        "target": "Relationship"
+      },
+      {
+        "source": "Relationship",
+        "target": "Person"
+      }
+    ],
+    "thumbnail": [
+      {
+        "source": "Photo",
+        "target": "File"
+      }
+    ],
+    "plugin": [
+      {
+        "source": "PluginRun",
+        "target": "Plugin"
+      }
+    ],
+    "author": [
+      {
+        "source": "Post",
+        "target": "Account"
+      }
+    ],
+    "comment": [
+      {
+        "source": "Post",
+        "target": "Post"
+      }
+    ],
+    "parent": [
+      {
+        "source": "Post",
+        "target": "Post"
+      }
+    ],
+    "dataset": [
+      {
+        "source": "Project",
+        "target": "Dataset"
+      }
+    ],
+    "labellingPlugin": [
+      {
+        "source": "Project",
+        "target": "Plugin"
+      }
+    ],
+    "mergeFrom": [
+      {
+        "source": "SuggestedMerge",
+        "target": "Any"
+      }
+    ]
+  }
+}

@@ -12,7 +12,6 @@ import 'package:memri/core/controllers/pod_api.dart';
 import 'package:memri/core/apis/auth/authentication_shared.dart';
 import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/models/pod_setup.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/settings.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:uuid/uuid.dart';
@@ -150,7 +149,7 @@ class AppController {
 
   Future init() async {
     await databaseController.init();
-    await MixpanelAnalyticsService().init();
+    // await MixpanelAnalyticsService().init();
   }
 
   Future<void> updateState() async {

@@ -3,7 +3,6 @@
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/services/resolving/cvu_context.dart';
@@ -59,9 +58,9 @@ class CVUActionOpenLink extends CVUAction {
       var url = resolver.string("link");
       if (url != null) {
         if (url.toLowerCase().contains('discord.com')) {
-          MixpanelAnalyticsService().logDiscordButton();
+          // MixpanelAnalyticsService().logDiscordButton();
         } else if (url.toLowerCase().contains('gitlab.memri.io')) {
-          MixpanelAnalyticsService().logGitlabButton();
+          // MixpanelAnalyticsService().logGitlabButton();
         }
         await canLaunchUrlString(url)
             ? await launchUrlString(url)

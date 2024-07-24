@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
+import 'package:memri/widgets/empty.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HtmlViewUIKit extends StatefulWidget {
@@ -19,18 +20,18 @@ class HtmlViewUIKit extends StatefulWidget {
   _HtmlViewUIKitState createState() => _HtmlViewUIKitState();
 }
 
-class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
+class _HtmlViewUIKitState extends State<HtmlViewUIKit> { //TODO: revive this
   late WebViewController _webViewController;
 
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WebView(
+    return Empty();/*WebView(
         gestureRecognizers: [
           Factory<OneSequenceGestureRecognizer>(
             () => VerticalDragGestureRecognizer(),
@@ -50,10 +51,10 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
                             encoding: Encoding.getByName('utf-8'))
                         .toString();
                 _webViewController.loadUrl(source!);
-              });
+              });*/
   }
 
-  _loadContent() async {
+  /*_loadContent() async {
     var jsURL = "assets/HTMLResources/purify.min.js";
     try {
       var jsContent = await rootBundle.loadString(jsURL);
@@ -63,7 +64,7 @@ class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
       AppLogger.err(e);
       return;
     }
-  }
+  }*/
 
   String getContentLoaderString() {
     return """

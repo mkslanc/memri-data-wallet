@@ -32,7 +32,7 @@ class _DataScreenState extends State<DataScreen> {
                 Spacer(),
                 TextButton(
                   style: ButtonStyle(
-                      padding: MaterialStateProperty.all(EdgeInsets.all(0))),
+                      padding: WidgetStateProperty.all(EdgeInsets.all(0))),
                   onPressed: () {},
                   child: Text(
                     'Open data explorer',
@@ -79,7 +79,7 @@ class _DataScreenState extends State<DataScreen> {
                 Spacer(),
                 TextButton(
                   style: ButtonStyle(
-                      padding: MaterialStateProperty.all(EdgeInsets.all(0))),
+                      padding: WidgetStateProperty.all(EdgeInsets.all(0))),
                   onPressed: () {},
                   child: Text(
                     'Upload New Data',

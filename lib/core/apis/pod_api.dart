@@ -13,20 +13,33 @@ class PodAPI extends BaseAPI {
 
   late PodConfig _podConfig;
   String _endpointUrl = '';
+  String _endpointUrlV5 = '';
 
   void setConnectionConfig(PodConfig podConfig) {
     _podConfig = podConfig;
-    _endpointUrl =
-        '${_podConfig.baseUrl}/${_podConfig.apiVersion}/${_podConfig.ownerKey}';
+    _endpointUrl = '${_podConfig.baseUrl}/${_podConfig.apiVersion}/${_podConfig.ownerKey}';
+    _endpointUrlV5 = '${_podConfig.baseUrl}/v5/${_podConfig.ownerKey}';
   }
 
-  Future<dynamic> authenticate() async {
-    String endpoint = '$_endpointUrl/search';
+  Future<void> createSchema(PodPayloadCreateSchema request) async {
+    String endpoint = '$_endpointUrlV5/schema';
     var response = await dio.post(
       endpoint,
       data: {
         'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
-        'payload': {'_limit': 1},
+        'payload': request.toJson(),
+      },
+    );
+    checkResponseError(response);
+  }
+
+  Future<dynamic> authenticate() async {
+    String endpoint = '${_podConfig.baseUrl}/${_podConfig.apiVersion}/account/pod/open';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'ownerKey': _podConfig.ownerKey,
+        'databaseKey': _podConfig.databaseKey,
       },
     );
     checkResponseError(response);
@@ -138,6 +151,21 @@ class PodAPI extends BaseAPI {
     return response.data;
   }
 
+
+  Future<Map<String, dynamic>> getSchema() async {
+    String endpoint = '$_endpointUrlV5/get_schema';
+    var response = await dio.post(
+      endpoint,
+      data: {
+        'auth': {'type': 'ClientAuth', 'databaseKey': _podConfig.databaseKey},
+        'payload': null
+      },
+    );
+    checkResponseError(response);
+
+    return jsonDecode(response.toString());
+  }
+
   Future<String> podVersion() async {
     String endpoint = '$baseUrl/version';
     var response = await dio.get(endpoint);
@@ -159,8 +187,7 @@ class PodUploadRequest<Payload> {
   Payload payload;
 
   Future<bool> get uploadOnCellular async {
-    return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ??
-        false;
+    return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ?? false;
   }
 
   PodUploadRequest({required this.path, required this.payload});
@@ -170,8 +197,7 @@ class PodUploadRequest<Payload> {
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,
         port: connectionConfig.port,
-        path:
-            "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
+        path: "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
 
     return await http.post(url, body: payload);
   }
@@ -182,8 +208,7 @@ class PodUploadRequest<Payload> {
       String? fileSHAHash,
       required PodConfig connectionConfig}) async {
     fileData ??= await FileStorageController.getData(fileURL: fileURL);
-    fileSHAHash ??=
-        fileData != null ? FileStorageController.getHashForData(fileData) : "";
+    fileSHAHash ??= fileData != null ? FileStorageController.getHashForData(fileData) : "";
     var path = "upload_file/${connectionConfig.databaseKey}/$fileSHAHash";
 
     return PodUploadRequest(path: path, payload: fileData);
@@ -206,8 +231,7 @@ class PodDownloadRequest<Payload> {
       : headers = headers ?? {"content-type": "application/json"};
 
   Future<bool> get uploadOnCellular async {
-    return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ??
-        false;
+    return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ?? false;
   }
 
   Future<String> get destination async {
@@ -219,11 +243,9 @@ class PodDownloadRequest<Payload> {
         scheme: connectionConfig.scheme,
         host: connectionConfig.host,
         port: connectionConfig.port,
-        path:
-            "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
+        path: "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
 
-    var body = jsonEncode(
-        PodRequestBody(connectionConfig: connectionConfig, payload: payload));
+    var body = jsonEncode(PodRequestBody(connectionConfig: connectionConfig, payload: payload));
 
     var response = await http.post(url, headers: headers, body: body);
 
@@ -232,11 +254,8 @@ class PodDownloadRequest<Payload> {
     return response;
   }
 
-  static PodDownloadRequest<PodPayloadFileSHA> downloadFile(
-      String fileSHAHash, String fileUID) {
+  static PodDownloadRequest<PodPayloadFileSHA> downloadFile(String fileSHAHash, String fileUID) {
     return PodDownloadRequest(
-        path: "get_file",
-        payload: PodPayloadFileSHA(fileSHAHash),
-        fileUID: fileUID);
+        path: "get_file", payload: PodPayloadFileSHA(fileSHAHash), fileUID: fileUID);
   }
 }

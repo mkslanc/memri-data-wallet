@@ -5,8 +5,9 @@ import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/apis/auth/auth_key.dart';
 import 'package:memri/core/models/database/item_record.dart';
 import 'package:pointycastle/export.dart';
+import 'package:uuid/data.dart';
+import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
 
 class Authentication {
   static String rootKeyTag = "memriPrivateKey";
@@ -47,9 +48,7 @@ class Authentication {
   }
 
   static String generateCryptoStrongKey() {
-    return "${Uuid().v4(options: {
-          'rng': UuidUtil.cryptoRNG
-        })}${Uuid().v4(options: {'rng': UuidUtil.cryptoRNG})}"
+    return "${Uuid().v4(config: V4Options(null, CryptoRNG()))}${Uuid().v4(config: V4Options(null, CryptoRNG()))}"
         .replaceAll("-", "");
   }
 

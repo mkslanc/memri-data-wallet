@@ -33,12 +33,12 @@ class BaseScaffold extends StatelessWidget {
             child = Scaffold(appBar: appBar, body: body);
             break;
           case AppState.error:
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
+            WidgetsBinding.instance.addPostFrameCallback((_) =>
                 RouteNavigator.navigateTo(
                     context: context, route: Routes.error));
             break;
           case AppState.unauthenticated:
-            WidgetsBinding.instance!
+            WidgetsBinding.instance
                 .addPostFrameCallback((_) => RouteNavigator.navigateTo(
                       context: context,
                       route: Routes.onboarding,

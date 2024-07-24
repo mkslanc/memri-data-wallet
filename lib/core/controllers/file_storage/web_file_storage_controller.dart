@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
-import 'package:moor/moor.dart';
 
 /// The FileStorageController class provides methods to store and retrieve files locally
 class FileStorageController {

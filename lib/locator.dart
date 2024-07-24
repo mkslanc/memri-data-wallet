@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/core/services/gitlab_service.dart';
 import 'package:memri/core/services/log_service.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/network_service.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/core/services/search_service.dart';
@@ -25,9 +24,9 @@ Future<void> setup() async {
   /// PROVIDERS
   locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
   locator.registerLazySingleton<PodProvider>(
-      () => PodProvider(locator(), locator(), locator()));
+      () => PodProvider(locator(), locator()/*, locator()*/));
   locator.registerLazySingleton<WorkspaceProvider>(
-      () => WorkspaceProvider(locator(), locator()));
+      () => WorkspaceProvider(locator()/*, locator()*/));
   locator.registerLazySingleton<ImporterProvider>(() => ImporterProvider());
   locator
       .registerLazySingleton<ProjectProvider>(() => ProjectProvider(locator()));
@@ -43,8 +42,8 @@ Future<void> setup() async {
   locator.registerLazySingleton<SearchService>(() => SearchService());
   locator.registerLazySingleton<StorageService>(() => StorageService());
   locator.registerLazySingleton<NetworkService>(() => NetworkService());
-  locator.registerLazySingleton<MixpanelAnalyticsService>(
-      () => MixpanelAnalyticsService());
+  /*locator.registerLazySingleton<MixpanelAnalyticsService>(
+      () => MixpanelAnalyticsService());*/
 
   /// CLIENTS
   locator.registerSingleton<Dio>(Dio());

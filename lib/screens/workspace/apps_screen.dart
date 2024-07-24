@@ -54,7 +54,7 @@ class _AppsScreenState extends State<AppsScreen> {
                         Row(children: [
                           TextButton(
                             style: ButtonStyle(
-                                padding: MaterialStateProperty.all(
+                                padding: WidgetStateProperty.all(
                                     EdgeInsets.all(0))),
                             onPressed: () => RouteNavigator.navigateTo(
                                 context: context, route: Routes.inbox),

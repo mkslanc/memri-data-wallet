@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/utilities/execute_actions.dart';
@@ -72,7 +71,7 @@ class _CVUButtonState extends State<CVUButton> {
       buttonText = resolver.propertyResolver.string("text") ?? "Unknown";
     }
 
-    MixpanelAnalyticsService().logCvuButton(buttonText);
+    // MixpanelAnalyticsService().logCvuButton(buttonText);
   }
 
   @override

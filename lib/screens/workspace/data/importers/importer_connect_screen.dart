@@ -12,7 +12,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../constants/app_logger.dart';
 import '../../../../core/apis/pod/item.dart';
-import '../../../../core/services/mixpanel_analytics_service.dart';
 import '../../../../widgets/components/html_view/html_view.dart';
 
 class ImporterInfoLine extends StatelessWidget {
@@ -176,7 +175,7 @@ class _ImporterConnectScreenState extends State<ImporterConnectScreen> {
         "status": "idle",
         "targetItemId": id
       });
-      MixpanelAnalyticsService().logImporterConnect("WhatsappPlugin");
+      // MixpanelAnalyticsService().logImporterConnect("WhatsappPlugin");
 
       List<Item> createItems = [item];
       var bulkPayload = PodPayloadBulkAction(

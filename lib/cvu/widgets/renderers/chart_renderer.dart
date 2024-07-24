@@ -105,10 +105,9 @@ class _ChartRendererViewState extends RendererViewState {
           x: x,
           barRods: [
             BarChartRodData(
-                colors: [primaryColor],
-                y: y,
+                color: primaryColor,
                 width: 30,
-                borderRadius: BorderRadius.all(Radius.zero))
+                borderRadius: BorderRadius.all(Radius.zero), toY: y)
           ],
           showingTooltipIndicators: showValueLabels ? [0] : [],
         ));
@@ -130,20 +129,21 @@ class _ChartRendererViewState extends RendererViewState {
       barGroups: data,
       titlesData: FlTitlesData(
           show: true,
-          bottomTitles: SideTitles(
-              showTitles: true,
-              getTitles: (double value) =>
-                  itemChartProps[value.toInt()]!.xLabel,
-              getTextStyles: (double value) => TextStyle(
-                    color: Colors.black,
-                    fontSize: itemChartProps[value.toInt()]!.barLabelFont.size,
-                    fontWeight:
-                        itemChartProps[value.toInt()]!.barLabelFont.weight,
-                  ))),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true,
+               /* getTitles: (double value) =>
+                itemChartProps[value.toInt()]!.xLabel,
+                getTextStyles: (double value) => TextStyle(
+                  color: Colors.black,
+                  fontSize: itemChartProps[value.toInt()]!.barLabelFont.size,
+                  fontWeight:
+                  itemChartProps[value.toInt()]!.barLabelFont.weight,
+                )*/)
+              )),
       barTouchData: BarTouchData(
         enabled: false,
         touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: Colors.transparent,
+          //tooltipBgColor: Colors.transparent,
           tooltipPadding: const EdgeInsets.all(0),
           tooltipMargin: 8,
           getTooltipItem: (
@@ -241,7 +241,7 @@ class _ChartRendererViewState extends RendererViewState {
     var lineChartData = LineChartBarData(
       spots: spots,
       barWidth: lineWidth,
-      colors: [primaryColor],
+      color: primaryColor,
     );
     return LineChartData(
       gridData: FlGridData(
@@ -250,17 +250,17 @@ class _ChartRendererViewState extends RendererViewState {
       clipData: FlClipData.all(),
       borderData: FlBorderData(show: false),
       lineBarsData: [lineChartData],
-      showingTooltipIndicators: showValueLabels
+      showingTooltipIndicators: /*showValueLabels
           ? spots
               .mapIndexed((i, el) => ShowingTooltipIndicators(i, [
                     LineBarSpot(lineChartData, 0, lineChartData.spots[i]),
                   ]))
               .toList()
-          : null,
+          : */[],
       lineTouchData: LineTouchData(
         enabled: false,
         touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.transparent,
+          //tooltipBgColor: Colors.transparent,
           tooltipRoundedRadius: 8,
           getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
             return lineBarsSpot.map((lineBarSpot) {

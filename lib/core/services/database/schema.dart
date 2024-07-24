@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:memri/core/models/database/database.dart';
 import 'package:memri/utilities/extensions/collection.dart';
@@ -47,6 +48,40 @@ class Schema {
               []));
       return MapEntry(type, schemaType);
     }));
+  }
+
+  loadFromPod() async {
+    var schemaData = await _podService.getSchema();;
+
+    var nodeTypes = schemaData['nodes_types'] as Map<String, dynamic>;
+    var edgeTypes = schemaData['edges_types'] as Map<String, dynamic>;
+
+    types = nodeTypes.map((type, typeData) {
+      var properties = (typeData['properties'] as Map<String, dynamic>).map((property, valueType) {
+
+        valueType = _mapSchemaValueType[valueType]!;
+        return MapEntry(property, SchemaProperty(type, property, SchemaValueTypeExtension.rawValue(valueType)));
+      });
+
+      var edgeProperties = <String, SchemaEdge>{};
+      edgeTypes.forEach((edgeName, edgeList) {
+        for (var edge in edgeList) {
+          if (edge['source'] == type) {
+            edgeProperties[edgeName] = SchemaEdge(
+              edge['source'],
+              edgeName,
+              edge['target'],
+            );
+          }
+        }
+      });
+
+      return MapEntry(type, SchemaType(
+        type: type,
+        propertyTypes: properties,
+        edgeTypes: edgeProperties,
+      ));
+    });
   }
 
   Future<Map<String, List<SchemaProperty>>> getSchemaProperties(

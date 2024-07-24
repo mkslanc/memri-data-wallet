@@ -27,14 +27,18 @@ class _CVUScreenState extends State<CVUScreen> {
   }
 
   init() async {
-    //TODO CVU test: this part is just for testing
-    var cvuController = GetIt.I<CVUController>();
-    await GetIt.I<Schema>().load();
-    await cvuController.loadStoredDefinitions();
-    if (cvuController.storedDefinitions.isEmpty) {
-      await cvuController.init();
+    try {
+      //TODO CVU test: this part is just for testing
+      var cvuController = GetIt.I<CVUController>();
+      await GetIt.I<Schema>().loadFromPod();
+      await cvuController.loadStoredDefinitions();
+      if (cvuController.storedDefinitions.isEmpty) {
+        await cvuController.init();
+      }
+      return true;
+    } catch (error) {
+      return false;
     }
-    return true;
   }
 
   @override
@@ -48,15 +52,13 @@ class _CVUScreenState extends State<CVUScreen> {
           return CVUScaffold(
             currentItem: NavigationItem.cvu,
             child: SceneContentView(
-              viewContext: ViewContextController.fromParams(
-                  viewName: "messageChannelView"),
+              viewContext: ViewContextController.fromParams(viewName: "messageChannelView"),
             ),
             editor: CVUEditor(
               viewDefinition: GetIt.I<CVUController>()
-                  .definitionFor(
-                      viewName: "messageChannelView",
-                      type: CVUDefinitionType.view)!
-                  .toCVUString(0, "  ", false),
+                      .definitionFor(viewName: "messageChannelView", type: CVUDefinitionType.view)
+                      ?.toCVUString(0, "  ", false) ??
+                  "",
             ),
           );
         });

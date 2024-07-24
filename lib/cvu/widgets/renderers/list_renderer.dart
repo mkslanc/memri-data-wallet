@@ -135,7 +135,7 @@ class _ListRendererViewState extends RendererViewState {
         index == 0 &&
         selectedIndices.isEmpty &&
         selectFirst) {
-      WidgetsBinding.instance!.addPostFrameCallback((_) => callback());
+      WidgetsBinding.instance.addPostFrameCallback((_) => callback());
     }
     var isSelected = selectedIndices.contains(index);
     var titleWidget = viewContext.render(item: item);

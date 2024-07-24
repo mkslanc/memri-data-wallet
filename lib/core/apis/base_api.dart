@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:io' as io;
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
@@ -35,7 +35,7 @@ class BaseAPI {
     ]);
 
     if (!kIsWeb) {
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+      (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
           (io.HttpClient client) {
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod_api.dart';
@@ -9,14 +8,16 @@ import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/services/api_service.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/data.dart';
+import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
+
+import './demo_data_pod.dart';
 
 class PodService extends ApiService<PodAPI> {
   PodService(this._prefs) : super(api: PodAPI()) {
     podConfig = PodConfig(
-      baseUrl:
-          _prefs.getString(app.keys.podAddress) ?? app.settings.defaultPodUrl,
+      baseUrl: _prefs.getString(app.keys.podAddress) ?? app.settings.defaultPodUrl,
       ownerKey: _prefs.getString(app.keys.ownerKey) ?? '',
       databaseKey: _prefs.getString(app.keys.dbKey) ?? '',
       apiVersion: app.settings.podVersion,
@@ -65,9 +66,7 @@ class PodService extends ApiService<PodAPI> {
       await _prefs.setString(app.keys.podAddress, podAddress);
 
   String generateCryptoStrongKey() {
-    return "${Uuid().v4(options: {
-          'rng': UuidUtil.cryptoRNG
-        })}${Uuid().v4(options: {'rng': UuidUtil.cryptoRNG})}"
+    return "${Uuid().v4(config: V4Options(null, CryptoRNG()))}${Uuid().v4(config: V4Options(null, CryptoRNG()))}"
         .replaceAll("-", "");
   }
 
@@ -77,11 +76,14 @@ class PodService extends ApiService<PodAPI> {
 
   Future<void> createSchema() async {
     Map<String, dynamic> schemaJson =
-        jsonDecode(await rootBundle.loadString("assets/schema.json"));
+        jsonDecode(await rootBundle.loadString("assets/outputSchema.json"));
 
-    List<Map<String, dynamic>> schemaItems = [];
+    api.createSchema(PodPayloadCreateSchema(
+        SchemaMeta.fromJson(schemaJson['meta']), schemaJson['nodes'], schemaJson['edges']));
 
-    for (var property in schemaJson["properties"]) {
+    //List<Map<String, dynamic>> schemaItems = [];
+
+    /*for (var property in schemaJson["properties"]) {
       schemaItems.add({
         "type": "ItemPropertySchema",
         "itemType": property["item_type"],
@@ -105,11 +107,15 @@ class PodService extends ApiService<PodAPI> {
         updateItems: [],
         deleteItems: [],
         createEdges: []);
-    api.bulkAction(payload);
+    api.bulkAction(payload);*/
   }
 
-  Future<String> podVersion() async =>
-      api.podVersion().catchError((error) => '');
+  Future<void> loadDemoFiles() async {
+    var items = await DemoData.importDemoDataToPod();
+    this.bulkAction(createItems: items);
+  }
+
+  Future<String> podVersion() async => api.podVersion().catchError((error) => '');
 
   Future<void> bulkAction({
     List<Item>? createItems = null,
@@ -128,7 +134,9 @@ class PodService extends ApiService<PodAPI> {
     List<Map<String, dynamic>> updatePayload = [];
     if (updateItems != null) {
       updateItems.forEach((item) {
-        updatePayload.add(item.toJson());
+        var itemMap = item.toJson();
+        itemMap.remove("dateServerModified");
+        updatePayload.add(itemMap);
       });
     }
 
@@ -138,6 +146,7 @@ class PodService extends ApiService<PodAPI> {
         edgePayload.add(edge.toJson());
       });
     }
+    print(updatePayload);
 
     var bulkPayload = PodPayloadBulkAction(
         createItems: createPayload,
@@ -171,6 +180,7 @@ class PodService extends ApiService<PodAPI> {
     required Item item,
   }) async {
     var itemMap = item.toJson();
+    itemMap.remove("dateServerModified");
     await api.updateItem(itemMap);
     return item;
   }
@@ -180,5 +190,9 @@ class PodService extends ApiService<PodAPI> {
     List<dynamic> data = jsonBody['data'] ?? [];
     data.forEach((itemMap) => result.add(Item.fromJson(itemMap)));
     return result;
+  }
+
+  Future<Map<String, dynamic>> getSchema() async {
+    return await api.getSchema();
   }
 }

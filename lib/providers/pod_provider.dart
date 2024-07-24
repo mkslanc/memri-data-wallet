@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
-import 'package:memri/core/services/mixpanel_analytics_service.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/providers/app_provider.dart';
@@ -20,12 +19,12 @@ enum DeveloperAuthState { devSignIn, devSignUp }
 class PodProvider with ChangeNotifier {
   final AppProvider _appProvider;
   final PodService _podService;
-  final MixpanelAnalyticsService _mixpanelAnalyticsService;
+  // final MixpanelAnalyticsService _mixpanelAnalyticsService;
 
   PodProvider(
     this._appProvider,
     this._podService,
-    this._mixpanelAnalyticsService,
+    // this._mixpanelAnalyticsService,
   );
 
   AuthState state = AuthState.authentication;
@@ -46,6 +45,9 @@ class PodProvider with ChangeNotifier {
           podAddress: podUrl, ownerKey: ownerKey, dbKey: dbKey);
       // TODO move this once not required on signup
       await _podService.createSchema();
+
+      //TODO
+      await _podService.loadDemoFiles();
       _handleAuthenticated(context);
 
       RouteNavigator.navigateTo(
@@ -81,7 +83,7 @@ class PodProvider with ChangeNotifier {
     _handleAuthenticating(context);
     var podUrl = podAddress ?? app.settings.defaultPodUrl;
 
-    _mixpanelAnalyticsService.logSignIn(ownerKey);
+    // _mixpanelAnalyticsService.logSignIn(ownerKey);
     await _authenticate(context, podUrl, ownerKey, dbKey);
   }
 
@@ -95,7 +97,7 @@ class PodProvider with ChangeNotifier {
     String ownerKey = _podService.generateCryptoStrongKey();
     String dbKey = _podService.generateCryptoStrongKey();
 
-    _mixpanelAnalyticsService.logSignUp(ownerKey);
+    // _mixpanelAnalyticsService.logSignUp(ownerKey);
     await _authenticate(context, podUrl, ownerKey, dbKey);
   }
 
@@ -114,7 +116,7 @@ class PodProvider with ChangeNotifier {
   }
 
   void finishAuthentication(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) =>
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
         RouteNavigator.navigateTo(
             context: context, route: Routes.workspace, clearStack: true));
   }
