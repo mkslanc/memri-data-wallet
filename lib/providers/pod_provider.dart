@@ -118,7 +118,7 @@ class PodProvider with ChangeNotifier {
   void finishAuthentication(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) =>
         RouteNavigator.navigateTo(
-            context: context, route: Routes.workspace, clearStack: true));
+            context: context, route: Routes.cvu, clearStack: true));
   }
 
   void _handleAuthenticating(BuildContext context) {

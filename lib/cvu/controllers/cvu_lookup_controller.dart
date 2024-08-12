@@ -16,7 +16,6 @@ import 'package:memri/utilities/extensions/date_time.dart';
 import 'package:memri/utilities/extensions/number.dart';
 import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
-import 'package:memri/utilities/mock_generator.dart';
 
 import '../services/resolving/cvu_context.dart';
 
@@ -780,40 +779,6 @@ class CVULookupController {
           currentValue = LookupStepValues(values);
         } else {
           return null;
-        }
-        break;
-      case "generaterandom":
-        var exp = nodeType.args.asMap()[0];
-        String? type = resolve<String>(expression: exp, context: context);
-        if (type == null) {
-          return null;
-        }
-        var propertyExp = nodeType.args.asMap()[1];
-        String? property;
-        if (propertyExp != null) {
-          property = resolve<String>(expression: propertyExp, context: context);
-        }
-
-        //TODO: other types if we will need this
-        switch (type.toLowerCase()) {
-          case "string":
-            currentValue = LookupStepValues([
-              PropertyDatabaseValueString(MockDataGenerator.generateMockData(
-                  valueType: SchemaValueType.string, property: property))
-            ]);
-            break;
-          case "int":
-            currentValue = LookupStepValues([
-              PropertyDatabaseValueInt(MockDataGenerator.generateMockData(
-                  valueType: SchemaValueType.int, property: property))
-            ]);
-            break;
-          default:
-            currentValue = LookupStepValues([
-              PropertyDatabaseValueString(MockDataGenerator.generateMockData(
-                  valueType: SchemaValueType.string, property: property))
-            ]);
-            break;
         }
         break;
       case "format":

@@ -7,7 +7,6 @@ import 'package:jiffy/jiffy.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/core/services/database/schema.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
-import 'package:moor/moor.dart';
 
 import '../../../cvu/services/resolving/cvu_context.dart';
 
@@ -17,49 +16,6 @@ abstract class PropertyDatabaseValue with EquatableMixin {
   dynamic get value;
 
   SchemaValueType get type;
-
-  static PropertyDatabaseValue? createFromDBValue(
-      Value databaseValue, SchemaValueType propertyType) {
-    switch (propertyType) {
-      case SchemaValueType.string:
-        var string = databaseValue.value; //TODO:
-        if (string == null) {
-          return null;
-        }
-        return PropertyDatabaseValueString(string);
-      case SchemaValueType.bool:
-        var boolean = databaseValue.value;
-        if (boolean == null) {
-          return null;
-        }
-        return PropertyDatabaseValueBool(boolean);
-      case SchemaValueType.int:
-        var number = int.tryParse(databaseValue.value);
-        if (number == null) {
-          return null;
-        }
-        return PropertyDatabaseValueInt(number);
-      case SchemaValueType.double:
-        var doubleValue = databaseValue.value;
-        if (doubleValue == null || !(doubleValue is double)) {
-          return null;
-        }
-        return PropertyDatabaseValueDouble(doubleValue);
-      case SchemaValueType.datetime:
-        var datetimeInt = databaseValue.value;
-        if (datetimeInt == null) {
-          return null;
-        }
-        var date = DateTime.fromMillisecondsSinceEpoch(databaseValue.value);
-        return PropertyDatabaseValueDatetime(date);
-      case SchemaValueType.blob:
-        var data = databaseValue.value;
-        if (data == null) {
-          return null;
-        }
-        return PropertyDatabaseValueBlob(jsonEncode(data));
-    }
-  }
 
   static PropertyDatabaseValue create(
       dynamic value, SchemaValueType propertyType,

@@ -35,8 +35,9 @@ class BaseAPI {
     ]);
 
     if (!kIsWeb) {
-      (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-          (io.HttpClient client) {
+      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient =
+          () {
+        final io.HttpClient client = io.HttpClient();
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;
         return client;

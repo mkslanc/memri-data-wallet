@@ -7,8 +7,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/core/apis/pod/pod_requests.dart';
-import 'package:memri/core/controllers/app_controller.dart';
-import 'package:memri/core/models/item.dart';
 import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/enum.dart';
@@ -84,7 +82,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
     }
   }
 
-  setLogMode() async {
+/*  setLogMode() async {
     var currentConnection = await AppController.shared.podConnectionConfig;
     var pluginRuns = <Item>[]; //TODO get plugin runs
     controller.updateEditorContent("Loading...");
@@ -96,7 +94,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
             getLogs(currentConnection!,
                 pluginRuns.isNotEmpty ? pluginRuns.last.id : ""));
     });
-  }
+  }*/
 
   setCVUMode() {
     setState(() {
@@ -237,7 +235,7 @@ class _CVUEditorViewState extends State<CVUEditor> {
                               backgroundColor: Color(0xff202020),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 13.5)),
-                          onPressed: () async => await setLogMode(),
+                          onPressed: () {}, //TODO:
                           child: Text(
                             "Log",
                             style:

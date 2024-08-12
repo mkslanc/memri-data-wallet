@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/constants/cvu_font.dart';
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:memri/cvu/services/cvu_action.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 
@@ -31,7 +30,7 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
       if (e is String) {
         openErrorPopup(e);
       } else {
-        AppController.shared.showError(SystemError.generalError);
+        //TODO: AppController.shared.showError(SystemError.generalError);
         isDisabled?.value = false;
         throw e;
       }
@@ -49,8 +48,8 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
   }
   isDisabled?.value = true;
 
-  var isBlocked = AppController.shared.storage["isBlocked"];
-  if (isBlocked is ValueNotifier && isBlocked.value == true) {
+  //TODO: var isBlocked = AppController.shared.storage["isBlocked"];
+  /*if (isBlocked is ValueNotifier && isBlocked.value == true) {
     executeActionsWhenUnblocked() async {
       if (isBlocked.value == false) {
         isBlocked.removeListener(executeActionsWhenUnblocked);
@@ -59,7 +58,7 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
     }
 
     isBlocked.addListener(executeActionsWhenUnblocked);
-  } else {
+  } else {*/
     await executeActions(actions);
-  }
+  //}
 }

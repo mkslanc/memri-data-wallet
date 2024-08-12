@@ -23,13 +23,13 @@ class CVUScaffold extends StatelessWidget {
       body: Row(
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width / 2,
+            width: MediaQuery.of(context).size.width,
             child: child,
           ),
-          SizedBox(
+         /* SizedBox(
             width: MediaQuery.of(context).size.width / 2,
             child: editor,
-          )
+          )*/
         ],
       ),
     );

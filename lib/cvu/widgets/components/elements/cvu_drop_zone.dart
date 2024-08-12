@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
-import 'package:memri/widgets/components/image_files/file_drop_zone_unsupported.dart'
-    if (dart.library.html) 'package:memri/widgets/components/image_files/file_drop_zone_web.dart';
+import 'package:memri/widgets/empty.dart';
 
 /// A CVU element for displaying a drop zone
 class CVUDropZone extends StatefulWidget {
@@ -16,6 +15,6 @@ class CVUDropZone extends StatefulWidget {
 class _CVUDropZoneState extends State<CVUDropZone> {
   @override
   Widget build(BuildContext context) {
-    return FileDropZone();
+    return Empty();
   }
 }

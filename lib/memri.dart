@@ -7,9 +7,6 @@ import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/locator.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/providers/pod_provider.dart';
-import 'package:memri/providers/importer_provider.dart';
-import 'package:memri/providers/project_provider.dart';
-import 'package:memri/providers/workspace_provider.dart';
 import 'package:memri/screens/not_found_screen.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:provider/provider.dart';
@@ -40,9 +37,7 @@ class _MemriState extends State<Memri> {
         ChangeNotifierProvider(
             create: (_) => locator<AppProvider>()..initialize()),
         ChangeNotifierProvider(create: (_) => locator<PodProvider>()),
-        ChangeNotifierProvider(create: (_) => locator<WorkspaceProvider>()),
-        ChangeNotifierProvider(create: (_) => locator<ImporterProvider>()),
-        ChangeNotifierProvider(create: (_) => locator<ProjectProvider>()),
+        // ChangeNotifierProvider(create: (_) => locator<ImporterProvider>()),
       ],
       child: MaterialApp(
         title: "Memri",

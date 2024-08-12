@@ -1,11 +1,10 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
-import 'package:memri/core/services/settings.dart';
-import 'package:moor/moor.dart';
 
 enum HTTPMethod { get, post, delete, put }
 
@@ -128,10 +127,10 @@ class PodUploadRequest<Payload> {
   String path;
   Payload payload;
 
-  Future<bool> get uploadOnCellular async {
+/*  Future<bool> get uploadOnCellular async {
     return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ??
         false;
-  }
+  }*/
 
   PodUploadRequest({required this.path, required this.payload});
 
@@ -175,10 +174,10 @@ class PodDownloadRequest<Payload> {
       Map<String, String>? headers})
       : headers = headers ?? {"content-type": "application/json"};
 
-  Future<bool> get uploadOnCellular async {
+/*  Future<bool> get uploadOnCellular async {
     return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ??
         false;
-  }
+  }*/
 
   Future<String> get destination async {
     return FileStorageController.getURLForFile(fileUID);

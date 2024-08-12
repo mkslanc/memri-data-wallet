@@ -7,7 +7,6 @@ import 'package:memri/core/models/item.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
-import 'package:memri/core/models/database/item_record.dart';
 
 import '../services/resolving/cvu_context.dart';
 
@@ -175,7 +174,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     CVUDefinitionContent? datasourceContent,
     DatabaseQueryConfig? inheritQuery,
     Set<int>? overrideUIDs,
-    ItemRecord? targetItem,
     DateTimeRange? dateRange,
   }) {
     datasourceContent ??= datasource?.parsed;

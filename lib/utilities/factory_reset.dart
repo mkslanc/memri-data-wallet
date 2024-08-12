@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memri/core/controllers/app_controller.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 factoryReset(context) {
@@ -11,7 +10,7 @@ factoryReset(context) {
       actions: <Widget>[
         PointerInterceptor(
           child: TextButton(
-            onPressed: () async => await AppController.shared.resetApp(),
+            onPressed: () async => {}, //TODO: reset app
             child: const Text('OK'),
           ),
         ),

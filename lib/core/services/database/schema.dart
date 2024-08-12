@@ -1,9 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:memri/core/models/database/database.dart';
-import 'package:memri/utilities/extensions/collection.dart';
-
 import '../pod_service.dart';
 
 /// A schema definition. This is used to dynamically enforce supported types and properties
@@ -22,33 +16,6 @@ class Schema {
     "Bool": "bool",
     "DateTime": "datetime",
   };
-
-  /// Load a Schema struct from the given file URL. Default URL of nil loads `schema.json` from the app bundle
-  load() async {
-    var groupedProperties = await getSchemaProperties();
-    var groupedEdges = await getSchemaEdges();
-
-    var allTypes =
-        Set.of(groupedProperties.keys).union(Set.of(groupedEdges.keys));
-
-    types = Map.fromEntries(allTypes.map((type) {
-      var schemaType = SchemaType(
-          type: type,
-          propertyTypes: Map.fromEntries(groupedProperties[type]?.map(($0) {
-                var schemaProperty =
-                    SchemaProperty($0.itemType, $0.property, $0.valueType);
-                return MapEntry($0.property, schemaProperty);
-              }) ??
-              []),
-          edgeTypes: Map.fromEntries(groupedEdges[type]?.map(($0) {
-                var schemaEdge =
-                    SchemaEdge($0.sourceType, $0.edge, $0.targetType);
-                return MapEntry($0.edge, schemaEdge);
-              }) ??
-              []));
-      return MapEntry(type, schemaType);
-    }));
-  }
 
   loadFromPod() async {
     var schemaData = await _podService.getSchema();;
@@ -82,53 +49,6 @@ class Schema {
         edgeTypes: edgeProperties,
       ));
     });
-  }
-
-  Future<Map<String, List<SchemaProperty>>> getSchemaProperties(
-      [Database? db]) async {
-    var query = '''
-      query {
-        ItemPropertySchema {
-          id
-          itemType
-          propertyName
-          valueType
-        }
-      }''';
-    var schemaPropertyRecords = await _podService.graphql(query: query);
-
-    return Dictionary.groupBy(
-        schemaPropertyRecords.compactMap((itemPropertyRecord) {
-      var itemType = itemPropertyRecord.get("itemType");
-      var propertyName = itemPropertyRecord.get("propertyName");
-      var valueType = _mapSchemaValueType[itemPropertyRecord.get("valueType")];
-      return itemType == null || propertyName == null || valueType == null
-          ? null
-          : SchemaProperty(itemType, propertyName,
-              SchemaValueTypeExtension.rawValue(valueType));
-    }), (SchemaProperty $0) => $0.itemType);
-  }
-
-  Future<Map<String, List<SchemaEdge>>> getSchemaEdges([Database? db]) async {
-    var query = '''
-      query {
-        ItemEdgeSchema {
-          id
-          sourceType
-          edgeName
-          targetType
-        }
-      }''';
-    var schemaEdgeRecords = await _podService.graphql(query: query);
-
-    return Dictionary.groupBy(schemaEdgeRecords.compactMap((edge) {
-      var sourceType = edge.get("sourceType");
-      var edgeName = edge.get("edgeName");
-      var targetType = edge.get("targetType");
-      return sourceType == null || edgeName == null || targetType == null
-          ? null
-          : SchemaEdge(sourceType, edgeName, targetType);
-    }), (SchemaEdge $0) => $0.sourceType);
   }
 
   List<String> propertyNamesForItemType(String itemType) {

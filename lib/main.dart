@@ -10,7 +10,7 @@ void main() {
   configureApp();
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    locator.setup();
+    await locator.setup();
     // await MixpanelAnalyticsService().init(); // TODO: Move to the app provider
     runApp(Memri());
   }, (error, stackTrace) async {

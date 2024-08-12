@@ -64,18 +64,6 @@ class NavigationAppBar extends StatelessWidget {
                           SizedBox(width: 30),
                           TextButton(
                             onPressed: () => RouteNavigator.navigateTo(
-                                context: context, route: Routes.projects),
-                            child: Text(
-                              "Projects",
-                              style: CVUFont.bodyText1.copyWith(
-                                  color: currentItem == NavigationItem.projects
-                                      ? Color(0xffFE570F)
-                                      : Color(0xff333333)),
-                            ),
-                          ),
-                          SizedBox(width: 30),
-                          TextButton(
-                            onPressed: () => RouteNavigator.navigateTo(
                                 context: context, route: Routes.apps),
                             child: Text(
                               "Apps",

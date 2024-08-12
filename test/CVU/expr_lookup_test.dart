@@ -1,3 +1,4 @@
+/*
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memri/core/controllers/database_controller.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
@@ -54,6 +55,7 @@ void main() {
     await databaseController.setupWithDemoData(throwIfAgainstSchema: true);
   });
 
+*/
 /*  test('testStringModeStartWithString', () async {
     var snippet = "Note title: {.title}";
 
@@ -91,5 +93,7 @@ void main() {
     } else {
       throw ("No item");
     }
-  });*/
+  });*//*
+
 }
+*/
