@@ -115,9 +115,14 @@ Note > timeline {
     sortFields: title dateModified dateAccessed dateCreated
     
     [datasource = pod] {
-        query: "Note"
-        sortProperty: title
-        sortAscending: true
+        queryGraphQL: '''query {
+                        Note (order_desc: title) {
+                            content
+                            title
+                            starred
+                            dateModified
+                        }
+                    }'''
     }
     
     actionButton:
