@@ -1,0 +1,84 @@
+Wallet > grid {
+    onPress: openView {
+        viewName: walletCurrencyView
+        viewArguments {
+            walletUID: {{.uid}}
+            walletName: {{.name}}
+        }
+    }
+
+    ZStack {
+        Rectangle {
+            color: secondaryBackground
+            cornerRadius: 5
+        }
+
+        VStack {
+            alignment: center
+            spacing: 5
+
+            Image {
+                show: {{.picture}}
+                resizable: true
+                color: blue
+                width: 40
+                height: 40
+                padding: 5
+            }
+
+            Text {
+                text: "{.name}"
+                font: 16 semibold
+                color: primary
+                padding: 5 0 0 0
+            }
+
+            Text {
+                text: "{.dateModified}"
+                font: 11 regular
+                color: secondary
+                padding: 8 0 5 0
+            }
+        }
+    }
+}
+
+.allWallets {
+    name: "all-supported-wallets"
+    title: "All Supported Wallets"
+    emptyResultText: "There are no wallets supported."
+    defaultRenderer: grid
+    sortFields: dateModified
+
+    [datasource = pod] {
+        query: Wallet
+        sortProperty: dateModified
+        sortAscending: false
+    } 
+
+    [renderer = grid] {
+        spacing: 10
+        edgeInset: 10
+    }
+}
+
+.walletCurrencyView {
+    title: {{walletName}}
+    defaultRenderer: list
+
+    [datasource = pod] {
+        query: CurrencySetting
+        filter: {
+            edgeTargets: {
+                wallet: {{walletUID}}
+            }
+        }
+    }
+
+    [renderer = list] {
+        hideSeparators: true
+    }
+
+    CurrencySetting > list {
+    }
+}

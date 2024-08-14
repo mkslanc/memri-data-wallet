@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memri/cvu/constants/cvu_font.dart';
-import 'package:memri/providers/app_provider.dart';
-import 'package:memri/utilities/helpers/app_helper.dart';
-import 'package:memri/widgets/navigation/additional_navigation_view.dart';
+import 'package:memri/screens/cvu_screen.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/models/item.dart';
+import '../../providers/app_provider.dart';
+import '../empty.dart';
+import '../space.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
 class NavigationPaneView extends StatefulWidget {
@@ -14,21 +16,100 @@ class NavigationPaneView extends StatefulWidget {
 }
 
 class _NavigationPaneViewState extends State<NavigationPaneView> {
+  _NavigationPaneViewState();
+
   bool showSettings = false;
 
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextButton(
-            onPressed: () => Provider.of<AppProvider>(context, listen: false)
-                .navigationIsVisible = false,
-            child: app.icons.close()),
-        SizedBox(
-          height: 71,
-        ),
-        Expanded(child: AdditionalNavigationView())
-      ],
+    return ColoredBox(
+      color: Color(0xff543184),
+      child: Column(
+        children: [
+          ColoredBox(
+              color: Color(0xff532a84),
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  child: SizedBox(
+                    height: 95,
+                    child: Row(
+                      children: space(20, [
+                        IconButton(
+                            onPressed: () => showModalBottomSheet<void>(
+                                  context: context,
+                                  useRootNavigator: true,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) => Empty() /*SettingsPane()*/,
+                                ),
+                            icon: Icon(
+                              Icons.settings,
+                              size: 22,
+                              color: Color(0xffd9d2e9),
+                            )),
+                        Flexible(
+                          child: TextFormField(
+                            style: TextStyle(color: Color(0xff8a66bc)),
+                            onChanged: (text) =>
+                                {} /*setState(() => sceneController.navigationFilterText = text)*/,
+                            //initialValue: sceneController.navigationFilterText,
+                            decoration: InputDecoration(
+                              hintText: "Search",
+                              hintStyle: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.4)),
+                              fillColor: Color.fromRGBO(0, 0, 0, 0.4),
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                            ),
+                          ),
+                        )
+                      ]),
+                    ),
+                  ))),
+          FutureBuilder(
+            future:
+                Provider.of<AppProvider>(context, listen: false).podService.getNavigationItems(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasError) {
+                print(snapshot.error.toString());
+                return Text(
+                  "Error occurred",
+                  style: TextStyle(color: Colors.red),
+                );
+              }
+              if (snapshot.hasData) {
+                List<Widget> widgets = [];
+                List<Item> items = snapshot.data;
+                items.forEach((navItem) {
+                  var navigationType = navItem.get("itemType");
+                  switch (navigationType) {
+                    case "heading":
+                      widgets.add(NavigationHeadingView(title: navItem.get("title")));
+                      break;
+                    case "line":
+                      widgets.add(NavigationLineView());
+                      break;
+                    default:
+                      widgets.add(NavigationItemView(
+                        title: navItem.get("title"),
+                        targetViewName: navItem.get("sessionName"),
+                      ));
+                  }
+                });
+                return Flexible(
+                    child: ListView(padding: EdgeInsets.fromLTRB(0, 15, 0, 0), children: widgets));
+              }
+              return Padding(
+                padding: EdgeInsets.all(20),
+                child: SizedBox(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                ),
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 }
@@ -36,7 +117,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
 abstract class NavigationElement {}
 
 class NavigationElementItem extends NavigationElement {
-  final Item value;
+  final NavigationItem value;
 
   NavigationElementItem(this.value);
 }
@@ -49,34 +130,51 @@ class NavigationElementHeading extends NavigationElement {
 
 class NavigationElementLine extends NavigationElement {}
 
-class Item {
+class NavigationItem {
   String name;
-  String? targetViewName;
-  VoidCallback? callback;
-  String? icon;
+  String targetViewName;
 
-  Item({required this.name, this.targetViewName, this.callback, this.icon});
+  NavigationItem(this.name, this.targetViewName);
 }
 
 class NavigationItemView extends StatelessWidget {
-  final Item item;
-  final Color? textColor;
+  final title;
 
-  NavigationItemView({required this.item, this.textColor});
+  final targetViewName;
+
+  NavigationItemView({required this.title, required this.targetViewName});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        // MixpanelAnalyticsService().logNavigationButton(item.name);
-        if (item.callback != null) item.callback!();
-        if (item.targetViewName != null) {
-          Provider.of<AppProvider>(context, listen: false).navigationIsVisible =
-              false;
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CVUScreen(
+              viewName: targetViewName,
+            ),
+          ),
+        );
+        /*sceneController.navigateToNewContext(
+            clearStack: true, animated: false, viewName: item.targetViewName);
+        sceneController.navigationIsVisible.value = false; //TODO animation*/
       },
-      child:
-          Text(item.name, style: CVUFont.bodyText1.copyWith(color: textColor)),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
+        child: Text(
+          title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white70),
+        ),
+      ),
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) return Colors.white12;
+              return Colors.transparent;
+            },
+          ),
+          alignment: Alignment.topLeft),
     );
   }
 }
@@ -94,10 +192,7 @@ class NavigationHeadingView extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
             child: Text(
               title?.toUpperCase() ?? "",
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff8c73af)),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xff8c73af)),
             )),
         Spacer()
       ],
@@ -109,11 +204,11 @@ class NavigationLineView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30),
+      padding: EdgeInsets.symmetric(horizontal: 50),
       child: Column(
         children: [
           Divider(
-            color: Color(0xffF0F0F0),
+            color: Colors.black,
             height: 1,
           )
         ],

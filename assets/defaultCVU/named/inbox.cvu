@@ -1,0 +1,10 @@
+.inbox {
+    name: "inbox"
+    title: "Inbox"
+    defaultRenderer: timeline
+          
+    [datasource = pod] {
+        query: MessageChannel EmailMessage Note
+        sortProperty: dateModified
+    }
+}

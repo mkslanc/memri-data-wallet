@@ -111,7 +111,12 @@ class PodService extends ApiService<PodAPI> {
   }
 
   Future<void> loadDemoFiles() async {
-    var items = await DemoData.importDemoDataToPod();
+    var items = await DemoData.importDataToPod(defaultData: false);
+    this.bulkAction(createItems: items);
+  }
+
+  Future<void> loadDefaultData() async {
+    var items = await DemoData.importDataToPod();
     this.bulkAction(createItems: items);
   }
 
@@ -166,6 +171,19 @@ class PodService extends ApiService<PodAPI> {
     required String query,
   }) async =>
       _parseGQLResponse(await api.queryGraphQL(query));
+
+  Future<List<Item>> getNavigationItems() async {
+    var query = '''
+query {
+        NavigationItem {
+          title
+          itemType
+          sessionName
+        }
+      }
+''';
+    return graphql(query: query);
+  }
 
   Future<Item> createItem({
     required Item item,

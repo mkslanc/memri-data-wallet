@@ -1,0 +1,187 @@
+[session = all-plugin-instances] {
+    [view] {
+        title: "All StartPlugin"
+        [datasource = pod] {
+            query: "StartPlugin"
+        }
+    }
+}
+
+StartPlugin {
+    title: "{.name} start plugin"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+
+            view: {
+                defaultRenderer: timeline
+
+                [datasource = pod] {
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        showContextPane
+    ]
+
+    contextPane {
+        buttons: star schedule
+
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+
+        navigate: [
+            openView {
+                title: "Timeline of this start plugin"
+                view: {
+                    defaultRenderer: timeline
+
+                     [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName {
+                title: "Starred start plugins"
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
+                }
+            }
+            openSessionByName {
+                title: "All start plugins"
+                viewName: "all-plugin-instances"
+            }
+        ]
+    }
+
+    [renderer = generalEditor] {
+        layout: [
+            { section: iconHeading }
+            { section: info, exclude: name run }
+            { section: labels }
+            { section: other, fields: * }
+            { section: dates }
+        ]
+
+        iconHeading {
+            showTitle: false
+            dividers: false
+
+            HStack {
+                alignment: leading
+                fillWidth: true
+                spacing: 10
+                padding: 20
+
+                Image {
+                    padding: 8 0 8 0
+                    alignment: center
+                    show: {{.plugin.icon or .plugin.bundleImage}}
+                    systemName: {{.plugin.icon}}
+                    bundleImage: {{.plugin.bundleImage}}
+                    resizable: true
+                    color: #2480d6
+                    width: 30
+                    height: 30
+                }
+
+                Text {
+                        text: {{.name}}
+                        font: 25 bold
+                    }
+            }
+        }
+
+
+        info {
+            showTitle: false
+            dividers: false
+
+            VStack {
+                EditorRow {
+                    alignment: left
+                    readOnly: true
+                    padding: 0 10
+                    background: secondaryBackground
+                }
+                Divider
+
+                EditorRow {
+                    Text {
+                        text: {{.plugin.itemDescription}}
+                        font: 14 regular
+                        color: #555
+                        padding: 8 36 8 0
+                    }
+                }
+            }
+        }
+    }
+}
+
+.allStartPlugins {
+    name: "all-plugin-instances"
+    title: "All StartPlugins"
+    emptyResultText: "There are no StartPlugins"
+    defaultRenderer: list
+    sortFields: datatype dateModified dateAccessed dateCreated
+
+    [datasource = pod] {
+        query: "StartPlugin"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+}
+
+StartPlugin > list {
+    onPress: openView {
+        renderer: generaleditor
+    }
+    HStack {
+        alignment: left
+        spacing: 10
+        Image {
+            show: {{.plugin.icon or .plugin.bundleImage}}
+            systemName: {{.plugin.icon}}
+            bundleImage: {{.plugin.bundleImage}}
+            resizable: true
+            color: #2480d6
+            width: 30
+            height: 30
+        }
+        VStack{
+            Text {
+                text: "{.name}"
+                font: 18 semibold
+                color: primary
+            }
+            Text {
+                text: "{.dateCreated}"
+                font: 11 regular
+                color: secondary
+            }
+        }
+    }
+}

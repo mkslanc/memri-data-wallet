@@ -16,12 +16,12 @@ enum AuthState {
 
 enum DeveloperAuthState { devSignIn, devSignUp }
 
-class PodProvider with ChangeNotifier {
+class AuthProvider with ChangeNotifier {
   final AppProvider _appProvider;
   final PodService _podService;
   // final MixpanelAnalyticsService _mixpanelAnalyticsService;
 
-  PodProvider(
+  AuthProvider(
     this._appProvider,
     this._podService,
     // this._mixpanelAnalyticsService,
@@ -47,6 +47,7 @@ class PodProvider with ChangeNotifier {
       await _podService.createSchema();
 
       //TODO
+      await _podService.loadDefaultData();
       await _podService.loadDemoFiles();
       _handleAuthenticated(context);
 

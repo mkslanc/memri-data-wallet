@@ -11,7 +11,7 @@ import 'package:memri/core/services/storage_service.dart';
 import 'package:memri/cvu/controllers/cvu_controller.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/providers/importer_provider.dart';
-import 'package:memri/providers/pod_provider.dart';
+import 'package:memri/providers/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final locator = GetIt.instance;
@@ -21,8 +21,8 @@ Future<void> setup() async {
 
   /// PROVIDERS
   locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
-  locator.registerLazySingleton<PodProvider>(
-      () => PodProvider(locator(), locator()/*, locator()*/));
+  locator.registerLazySingleton<AuthProvider>(
+      () => AuthProvider(locator(), locator()/*, locator()*/));
   locator.registerLazySingleton<ImporterProvider>(() => ImporterProvider());
 
   // CVU

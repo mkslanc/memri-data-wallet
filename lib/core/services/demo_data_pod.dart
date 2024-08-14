@@ -61,9 +61,13 @@ class DemoData {
   }
 
 
-  static Future<List<Item>> importDemoDataToPod(
-      {bool throwIfAgainstSchema = false}) async {
-    var fileURL = "assets/demo_database.json";
+  static Future<List<Item>> importDataToPod(
+      {bool throwIfAgainstSchema = false, bool defaultData: true}) async {
+    var fileURL = "assets/dev_database.json";
+    if (!defaultData) {
+      fileURL = "assets/demo_database.json";
+    }
+
     var fileData = await rootBundle.loadString(fileURL, cache: false);
     var items = jsonDecode(fileData);
     if (items == null || items is! List) {

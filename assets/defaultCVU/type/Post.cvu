@@ -1,0 +1,92 @@
+Post > list {
+    VStack {
+        alignment: left
+        padding: 0 0 0 18
+
+        HStack {
+            alignment: center
+
+            ZStack {
+                alignment: top
+                margin: 0 15 0 0
+
+                Image {
+                    image: {{.author.owner.profilePicture}}
+                    sizingMode: fill
+                    minHeight: 50
+                    maxHeight: 50
+                    minWidth: 50
+                    maxWidth: 50
+                    cornerRadius: 30
+                }
+            }
+
+            VStack {
+                alignment: leading
+                HStack {
+                    alignment: leading
+                    Text {
+                        text: "{.author.owner.firstName} {.author.owner.lastName}"
+                        font: 18 semibold
+                        color: primary
+                        padding: 0 0 3 0
+                    }
+                }
+                HStack {
+                    alignment: leading
+                    Text {
+                        text: "Posted at {.postDate} on {.author.network.name}"
+                        lineLimit: 1
+                        font: 12 semibold
+                        color: secondary
+                        padding: 0 0 5 0
+                    }
+                }
+            }
+        }
+
+        Text {
+            text: "{.message}"
+            removeWhiteSpace: true
+            maxChar: 100
+            color: secondary
+            font: 14 regular
+        }
+
+        Grid {
+            show: {{.photo[].count() > 1}}
+            axis: vertical
+            height: 200
+            minColumnHeight: 80
+            spacing: 1
+            items: {{.photo[]}}
+
+
+            ForEach {
+              items: {{.photo[]}}
+                Image {
+                    image: {{.}}
+                    sizingMode: fill
+                    background: background
+                }
+            }
+        }
+        Image {
+            show: {{.photo[].count() = 1}}
+            image: {{.photo}}
+        }
+    }
+}
+
+.allPosts {
+    title: "YOUR SOCIAL UPDATES"
+    emptyResultText: "There are no posts here yet"
+    defaultRenderer: list
+    showTopBar: false
+
+    [datasource = pod] {
+        query: "Post"
+        sortProperty: postDate
+        sortAscending: false
+    }
+}

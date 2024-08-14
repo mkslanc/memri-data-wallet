@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/localization/generated/l10n.dart';
-import 'package:memri/providers/pod_provider.dart';
+import 'package:memri/providers/auth_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
@@ -16,7 +16,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  late var _podProvider = Provider.of<PodProvider>(context, listen: false);
+  late var _podProvider = Provider.of<AuthProvider>(context, listen: false);
 
   @override
   Widget build(BuildContext context) {

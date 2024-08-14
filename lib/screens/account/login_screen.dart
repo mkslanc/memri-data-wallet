@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/localization/generated/l10n.dart';
-import 'package:memri/providers/pod_provider.dart';
+import 'package:memri/providers/auth_provider.dart';
 import 'package:memri/widgets/components/error_message.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
 import 'package:memri/widgets/simple_text_editor.dart';
@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return AccountScaffold(
-      child: Consumer<PodProvider>(
+      child: Consumer<AuthProvider>(
           builder: (context, provider, child) => Center(
                 child: SingleChildScrollView(
                   child: Container(

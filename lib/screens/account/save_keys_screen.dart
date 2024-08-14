@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/constants/app_styles.dart';
 import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/localization/generated/l10n.dart';
-import 'package:memri/providers/pod_provider.dart';
+import 'package:memri/providers/auth_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/components/error_message.dart';
 import 'package:memri/widgets/scaffold/account_scaffold.dart';
@@ -15,7 +15,7 @@ class SaveKeysScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AccountScaffold(
       showSlider: false,
-      child: Consumer<PodProvider>(builder: (context, provider, child) {
+      child: Consumer<AuthProvider>(builder: (context, provider, child) {
         return Center(
           child: SingleChildScrollView(
             child: Column(

@@ -2,6 +2,84 @@
   {
     "_type": "NavigationItem",
     "itemType": "items",
+    "title": "Calendar",
+    "sessionName": "calendar"
+  },
+  {
+    "_type": "NavigationItem",
+    "itemType": "items",
+    "title": "Messages",
+    "sessionName": "messageChannelView"
+  },
+  {
+    "_type": "NavigationItem",
+    "itemType": "items",
+    "title": "email",
+    "sessionName": "allEmails"
+  },
+  {
+    "_type": "NavigationItem",
+    "itemType": "heading",
+    "title": "General"
+  },
+  {
+    "_type": "NavigationItem",
+    "sessionName": "allItems",
+    "title": "All Items"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "notes",
+    "sessionName": "allNotes"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "Social media",
+    "sessionName": "allPosts"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "people",
+    "sessionName": "allPeople"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "photos",
+    "sessionName": "allPhotos"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "crypto keys",
+    "sessionName": "allCryptoKeys"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "plugins",
+    "sessionName": "allPlugins"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "plugin instances",
+    "sessionName": "allStartPlugins"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "indexers",
+    "sessionName": "allIndexers"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "indexer instances",
+    "sessionName": "allIndexerRuns"
+  },
+  {
+    "_type": "NavigationItem",
+    "title": "Merge and fix",
+    "sessionName": "mergeAndFix"
+  },
+  {
+    "_type": "NavigationItem",
+    "itemType": "items",
     "title": "Home",
     "sessionName": "home",
     "icon": "home"

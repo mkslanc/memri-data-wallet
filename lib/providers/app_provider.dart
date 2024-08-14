@@ -23,6 +23,18 @@ class AppProvider with ChangeNotifier {
   bool _isLoadingOpened = false;
   bool _checkAuth = true;
 
+  closeMenu() {
+    navigationIsVisible = false;
+    notifyListeners();
+  }
+
+  openMenu() {
+    navigationIsVisible = true;
+    notifyListeners();
+  }
+
+  PodService get podService => _podService;
+
   Future<void> initialize() async {
     try {
       state = AppState.init;

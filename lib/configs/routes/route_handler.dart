@@ -28,4 +28,4 @@ var loginDeveloperScreenHandler =
 
 var saveKeysScreenHandler = Handler(handlerFunc: (_, __) => SaveKeysScreen());
 
-var cvuHandler = Handler(handlerFunc: (_, __) => CVUScreen());
+var cvuHandler = Handler(handlerFunc: (_, __) => CVUScreen(viewName: "messageChannelView",));
