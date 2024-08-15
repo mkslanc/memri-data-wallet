@@ -6,6 +6,7 @@ import 'package:memri/cvu/widgets/components/cvu_ui_node_resolver.dart';
 executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
     {ValueNotifier<bool>? isDisabled,
     List<CVUAction>? actions,
+      required BuildContext buildContext,
     String? actionsKey}) async {
   openErrorPopup(String text) {
     ScaffoldMessenger.of(state.context).showSnackBar(SnackBar(
@@ -20,11 +21,11 @@ executeActionsOnSubmit(CVUUINodeResolver nodeResolver, State state,
     return;
   }
 
-  executeActions(actions) async {
+  executeActions(List<CVUAction>? actions) async {
     nodeResolver.context.clearCache();
     try {
-      for (var action in actions) {
-        await action.execute(nodeResolver.context);
+      for (var action in actions!) {
+        await action.execute(nodeResolver.context, buildContext);
       }
     } catch (e) {
       if (e is String) {

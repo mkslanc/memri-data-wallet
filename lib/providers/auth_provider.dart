@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
+
+import '../core/services/database/schema.dart';
+import '../cvu/controllers/cvu_controller.dart';
 
 enum AuthState {
   authentication,
@@ -49,6 +53,9 @@ class AuthProvider with ChangeNotifier {
       //TODO
       await _podService.loadDefaultData();
       await _podService.loadDemoFiles();
+
+      await initCVUDefinitions();
+
       _handleAuthenticated(context);
 
       RouteNavigator.navigateTo(
@@ -62,6 +69,15 @@ class AuthProvider with ChangeNotifier {
         /// TODO should handle different error types
         _handleError(S.current.account_login_general_error);
       }
+    }
+  }
+
+  initCVUDefinitions() async {
+    var cvuController = GetIt.I<CVUController>();
+    await GetIt.I<Schema>().loadFromPod();
+    await cvuController.loadStoredDefinitions();
+    if (cvuController.storedDefinitions.isEmpty) {
+      await cvuController.init();
     }
   }
 

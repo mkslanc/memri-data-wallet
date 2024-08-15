@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class AccountScaffold extends StatefulWidget {
-  const AccountScaffold({Key? key, required this.child, this.showSlider = true})
+  const AccountScaffold({Key? key, required this.child, this.showSlider = false})
       : super(key: key);
 
   final Widget child;

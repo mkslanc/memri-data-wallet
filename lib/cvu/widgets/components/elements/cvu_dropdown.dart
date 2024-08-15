@@ -36,14 +36,14 @@ class _CVUDropdownState extends State<CVUDropdown> {
     setState(() => init());
   }
 
-  onChange() async {
+  onChange(BuildContext buildContext) async {
     var actions = widget.nodeResolver.propertyResolver.actions("onChange");
     if (actions == null) {
       return;
     }
     for (var action in actions) {
       await action
-          .execute(widget.nodeResolver.context.replacingItem(selectedItem!));
+          .execute(widget.nodeResolver.context.replacingItem(selectedItem!), buildContext);
     }
   }
 
@@ -81,7 +81,7 @@ class _CVUDropdownState extends State<CVUDropdown> {
           onChanged: (Item? newValue) {
             setState(() {
               selectedItem = newValue;
-              onChange();
+              onChange(context);
             });
           },
           items: items

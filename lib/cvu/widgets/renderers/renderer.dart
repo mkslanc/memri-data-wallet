@@ -84,7 +84,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
     });
   }
 
-  selectionMode(int index) {
+  selectionMode(int index, BuildContext buildContext) {
     return () {
       var item = viewContext.items.asMap()[index];
 
@@ -94,7 +94,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
                 viewContext.nodePropertyResolver(item)?.actions("onPress");
         if (presses != null) {
           presses.forEach((press) async =>
-              await press.execute(viewContext.getCVUContext(item: item)));
+              await press.execute(viewContext.getCVUContext(item: item), buildContext));
 
           selectIndice(index, true);
         }

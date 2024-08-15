@@ -61,12 +61,15 @@ class ViewContextController extends ChangeNotifier {
     CVUViewArguments? viewArguments,
     Item? focusedItem,
     CVUController? cvuController,
+    String defaultRenderer = "list",
+    String? overrideRenderer,
+    CVUDefinitionContent? customDefinition,
   }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
     cvuController ??= GetIt.instance();
 
-    viewDefinition ??= cvuController.viewDefinitionFor(viewName: viewName) ??
+    viewDefinition ??= cvuController.viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
         CVUDefinitionContent();
     var newContext = CVUContext(
         currentItem: focusedItem,
@@ -79,8 +82,7 @@ class ViewContextController extends ChangeNotifier {
     var queryConfig = DatabaseQueryConfig.queryConfigWith(
         context: newContext, datasource: datasource);
 
-    var defaultRenderer = "list";
-    var rendererName = ((() =>
+    var rendererName = overrideRenderer ?? ((() =>
         viewDefinition!
             .propertyResolver(
               context: newContext,
@@ -312,7 +314,7 @@ class ViewContextController extends ChangeNotifier {
   bool get hasItems => items.isNotEmpty || items.isNotEmpty;
 
   // MARK: Selection State
-  List<String> _selectedItems = <String>[];
+  List<dynamic> _selectedItems = <String>[];
 
   get selectedItems => _selectedItems;
 

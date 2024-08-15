@@ -3,6 +3,7 @@ import 'package:memri/screens/cvu_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/models/item.dart';
+import '../../cvu/controllers/view_context_controller.dart';
 import '../../providers/app_provider.dart';
 import '../empty.dart';
 import '../space.dart';
@@ -152,7 +153,7 @@ class NavigationItemView extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => CVUScreen(
-              viewName: targetViewName,
+              viewContextController: ViewContextController.fromParams(viewName: targetViewName),
             ),
           ),
         );

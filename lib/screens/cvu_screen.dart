@@ -11,8 +11,8 @@ import '../cvu/controllers/cvu_controller.dart';
 import '../widgets/scaffold/cvu_scaffold.dart';
 
 class CVUScreen extends StatefulWidget {
-  final String viewName;
-  const CVUScreen({Key? key, required this.viewName}) : super(key: key);
+  final ViewContextController viewContextController;
+  const CVUScreen({Key? key, required this.viewContextController}) : super(key: key);
 
   @override
   State<CVUScreen> createState() => _CVUScreenState();
@@ -52,7 +52,7 @@ class _CVUScreenState extends State<CVUScreen> {
           return CVUScaffold(
             // currentItem: NavigationItem.cvu,
             child: SceneContentView(
-              viewContext: ViewContextController.fromParams(viewName: widget.viewName),
+              viewContext: widget.viewContextController,
             ),
             editor: CVUEditor(
               viewDefinition: GetIt.I<CVUController>()

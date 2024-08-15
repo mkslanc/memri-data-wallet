@@ -1,5 +1,6 @@
 //  Created by T Brennan on 8/1/21.
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
@@ -9,8 +10,13 @@ import 'package:memri/cvu/services/resolving/cvu_context.dart';
 import 'package:memri/cvu/services/resolving/cvu_property_resolver.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../screens/cvu_screen.dart';
+import '../controllers/view_context_controller.dart';
+import '../models/cvu_parsed_definition.dart';
+import '../models/cvu_view_arguments.dart';
+
 abstract class CVUAction {
-  execute(CVUContext context);
+  execute(CVUContext context, BuildContext buildContext);
 
   Map<String, CVUValue> get defaultVars {
     return {};
@@ -35,6 +41,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionOpenLink(vars: vars);
     case "copytoclipboard":
       return ({Map? vars}) => CVUActionCopyToClipboard(vars: vars);
+    case "openview":
+      return ({Map? vars}) => CVUActionOpenView(vars: vars);
     case "validate":
       return ({Map? vars}) => CVUActionValidate(vars: vars);
     case "wait":
@@ -50,11 +58,11 @@ class CVUActionOpenLink extends CVUAction {
   CVUActionOpenLink({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(CVUContext context) async {
+  Future execute(CVUContext context, BuildContext buildContext) async {
     var link = vars["link"];
     if (link != null) {
-      var resolver = CVUPropertyResolver(
-          context: context, lookup: CVULookupController(), properties: vars);
+      var resolver =
+          CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: vars);
       var url = resolver.string("link");
       if (url != null) {
         if (url.toLowerCase().contains('discord.com')) {
@@ -76,9 +84,9 @@ class CVUActionCopyToClipboard extends CVUAction {
   CVUActionCopyToClipboard({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context) async {
-    var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), properties: vars);
+  execute(CVUContext context, BuildContext buildContext) async {
+    var resolver =
+        CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: vars);
     var value = resolver.string("value");
     if (value != null) {
       Clipboard.setData(ClipboardData(text: value));
@@ -92,17 +100,16 @@ class CVUActionValidate extends CVUAction {
   CVUActionValidate({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context) async {
-    var resolver = CVUPropertyResolver(
-        context: context, lookup: CVULookupController(), properties: vars);
+  execute(CVUContext context, BuildContext buildContext) async {
+    var resolver =
+        CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: vars);
 
     var rules = resolver.subdefinitionArray("rules");
 
     for (var rule in rules) {
       var exp = (rule.boolean("expression", false, true))!;
       if (!exp) {
-        var error = rule.string("error") ??
-            "Error on ${rule.properties["expression"].toString()}";
+        var error = rule.string("error") ?? "Error on ${rule.properties["expression"].toString()}";
         throw error;
       }
     }
@@ -115,14 +122,68 @@ class CVUActionWait extends CVUAction {
   CVUActionWait({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context) async {
+  execute(CVUContext context, BuildContext buildContext) async {
     var seconds = vars["seconds"];
 
-    if (seconds != null &&
-        seconds is CVUValueConstant &&
-        seconds.value is CVUConstantNumber) {
-      await Future.delayed(
-          Duration(seconds: (seconds.value.value as num).toInt()), () {});
+    if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
+      await Future.delayed(Duration(seconds: (seconds.value.value as num).toInt()), () {});
+    }
+  }
+}
+
+class CVUActionOpenView extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  String? viewName;
+  String? renderer;
+  Set<int>? uids;
+  DateTimeRange? dateRange;
+  CVUDefinitionContent? viewDefinition;
+
+  CVUActionOpenView(
+      {vars, this.viewName, this.renderer, this.uids, this.dateRange, this.viewDefinition})
+      : this.vars = vars ?? {};
+
+  @override
+  Future execute(CVUContext context, BuildContext buildContext) async {
+    var customDefinition = viewDefinition;
+    if (customDefinition == null) {
+      var view = vars["view"];
+      if (view is CVUValueSubdefinition) {
+        customDefinition = view.value;
+      }
+    }
+    CVUViewArguments viewArguments;
+    var viewArgs = vars["viewArguments"];
+    if (viewArgs is CVUValueSubdefinition) {
+      viewArguments = CVUViewArguments(
+          args: viewArgs.value.properties,
+          argumentItem: context.currentItem,
+          parentArguments: context.viewArguments);
+    } else {
+      viewArguments = CVUViewArguments();
+    }
+    var resolver =
+        CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: this.vars);
+
+    var route = MaterialPageRoute(
+      builder: (buildContext) => CVUScreen(
+          viewContextController: ViewContextController.fromParams(
+              viewName: viewName ?? resolver.string("viewName") ?? "customView",
+              //inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
+              overrideRenderer: renderer ?? resolver.string("renderer"),
+              defaultRenderer: "singleItem",
+              focusedItem: context.currentItem,
+              //overrideRowIDs: uids,
+              //dateRange: dateRange,
+              customDefinition: customDefinition,
+              viewArguments: viewArguments)),
+    );
+
+    if (resolver.boolean("clearStack") ?? false) {
+      Navigator.pushAndRemoveUntil(buildContext, route, (Route<dynamic> route) => false);
+    } else {
+      Navigator.push(buildContext, route);
     }
   }
 }

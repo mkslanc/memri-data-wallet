@@ -97,7 +97,7 @@ class GridRendererViewState extends RendererViewState {
             elements = viewContext.items.mapIndexed((index, item) {
               var isSelected = selectedIndices.contains(index);
               return GestureDetector(
-                onTap: selectionMode(index),
+                onTap: selectionMode(index, context),
                 child: Stack(
                   alignment: Alignment.topLeft,
                   children: [

@@ -40,11 +40,9 @@ class _CVUTextState extends State<CVUText> {
   }
 
   void init() {
-    resolvedTextProperties = CVUTextPropertiesModifier(
-            propertyResolver: widget.nodeResolver.propertyResolver)
-        .init();
-    content =
-        (widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    resolvedTextProperties =
+        CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver).init();
+    content = (widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
   }
 
   @override
@@ -52,9 +50,8 @@ class _CVUTextState extends State<CVUText> {
     if (content != null) {
       return Text(
         content!,
-        overflow: resolvedTextProperties.lineLimit == 1
-            ? TextOverflow.ellipsis
-            : TextOverflow.visible,
+        overflow:
+            resolvedTextProperties.lineLimit == 1 ? TextOverflow.ellipsis : TextOverflow.visible,
         softWrap: true,
         maxLines: resolvedTextProperties.lineLimit,
         style: resolvedTextProperties.textStyle,
@@ -97,11 +94,9 @@ class _CVUSmartTextState extends State<CVUSmartText> {
   }
 
   void init() {
-    resolvedTextProperties = CVUTextPropertiesModifier(
-            propertyResolver: widget.nodeResolver.propertyResolver)
-        .init();
-    content =
-        (widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
+    resolvedTextProperties =
+        CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver).init();
+    content = (widget.nodeResolver.propertyResolver.string("text"))?.nullIfBlank;
   }
 
   @override
@@ -109,9 +104,8 @@ class _CVUSmartTextState extends State<CVUSmartText> {
     if (content != null) {
       return Text(
         content!,
-        overflow: resolvedTextProperties.lineLimit == 1
-            ? TextOverflow.ellipsis
-            : TextOverflow.visible,
+        overflow:
+            resolvedTextProperties.lineLimit == 1 ? TextOverflow.ellipsis : TextOverflow.visible,
         softWrap: true,
         style: resolvedTextProperties.textStyle,
         textAlign: resolvedTextProperties.textAlign,
@@ -154,11 +148,9 @@ class _CVURichTextState extends State<CVURichText> {
   }
 
   void init() {
-    resolvedTextProperties = (CVUTextPropertiesModifier(
-            propertyResolver: widget.nodeResolver.propertyResolver)
-        .init());
-    var spans =
-        widget.nodeResolver.propertyResolver.subdefinitionArray("spans");
+    resolvedTextProperties =
+        (CVUTextPropertiesModifier(propertyResolver: widget.nodeResolver.propertyResolver).init());
+    var spans = widget.nodeResolver.propertyResolver.subdefinitionArray("spans");
     resolveTextSpans(spans);
   }
 
@@ -173,8 +165,7 @@ class _CVURichTextState extends State<CVURichText> {
             name: resolvedTextProperties.textStyle.fontFamily,
             size: resolvedTextProperties.textStyle.fontSize ?? 15,
             weight: resolvedTextProperties.textStyle.fontWeight,
-            italic: resolvedTextProperties.textStyle.fontStyle ==
-                FontStyle.italic));
+            italic: resolvedTextProperties.textStyle.fontStyle == FontStyle.italic));
     var color = spanResolver.color() ?? resolvedTextProperties.textStyle.color;
     var actions = spanResolver.actions("onPress");
     return TextSpan(
@@ -185,22 +176,21 @@ class _CVURichTextState extends State<CVURichText> {
           fontWeight: font.weight,
           fontStyle: font.italic ? FontStyle.italic : FontStyle.normal,
           color: color,
-        ),
+        ) /*,TODO:
         recognizer: actions == null
             ? null
             : (TapGestureRecognizer()
               ..onTap = () => executeActionsOnSubmit(widget.nodeResolver, this,
-                  isDisabled: _isDisabled, actions: actions)));
+                  isDisabled: _isDisabled, actions: actions))*/
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     return RichText(
-      text: TextSpan(
-          style: resolvedTextProperties.textStyle, children: textBlocks),
-      overflow: resolvedTextProperties.lineLimit == 1
-          ? TextOverflow.ellipsis
-          : TextOverflow.visible,
+      text: TextSpan(style: resolvedTextProperties.textStyle, children: textBlocks),
+      overflow:
+          resolvedTextProperties.lineLimit == 1 ? TextOverflow.ellipsis : TextOverflow.visible,
       softWrap: true,
       maxLines: resolvedTextProperties.lineLimit,
       textAlign: resolvedTextProperties.textAlign,

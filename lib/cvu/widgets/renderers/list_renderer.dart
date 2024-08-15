@@ -108,7 +108,7 @@ class _ListRendererViewState extends RendererViewState {
                   title: trailingElement!,
                 );
               }
-              return _buildItem(item, index);
+              return _buildItem(item, index, context);
             },
             separatorBuilder: (context, index) => _buildSeparator(),
             reverse: isReverse,
@@ -129,8 +129,8 @@ class _ListRendererViewState extends RendererViewState {
             );
   }
 
-  Widget _buildItem(Item item, int index) {
-    var callback = selectionMode(index);
+  Widget _buildItem(Item item, int index, BuildContext buildContext) {
+    var callback = selectionMode(index, buildContext);
     if (callback != null &&
         index == 0 &&
         selectedIndices.isEmpty &&

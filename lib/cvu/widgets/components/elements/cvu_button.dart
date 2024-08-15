@@ -57,10 +57,10 @@ class _CVUButtonState extends State<CVUButton> {
     _isDisabled = ValueNotifier(isDisabled);
   }
 
-  onPress() async {
+  onPress(BuildContext context) async {
     await logAnalyticsEvent();
     executeActionsOnSubmit(widget.nodeResolver, this,
-        isDisabled: _isDisabled, actionsKey: "onPress");
+        isDisabled: _isDisabled, actionsKey: "onPress", buildContext: context);
   }
 
   logAnalyticsEvent() async {
@@ -80,7 +80,7 @@ class _CVUButtonState extends State<CVUButton> {
       valueListenable: _isDisabled,
       builder: (BuildContext context, bool isDisabled, Widget? child) => isLink
           ? InkWell(
-              onTap: isDisabled ? null : onPress,
+              onTap: isDisabled ? null : onPress(context),
               child:
                   widget.nodeResolver.childrenInForEachWithWrap(centered: true),
               onHover: id != null
@@ -95,7 +95,7 @@ class _CVUButtonState extends State<CVUButton> {
                     }
                   : null)
           : TextButton(
-              onPressed: isDisabled ? null : onPress,
+              onPressed: isDisabled ? null : onPress(context),
               child:
                   widget.nodeResolver.childrenInForEachWithWrap(centered: true),
               style: TextButton.styleFrom(
