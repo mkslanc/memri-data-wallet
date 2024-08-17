@@ -48,7 +48,7 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
     case "wait":
       return ({Map? vars}) => CVUActionWait(vars: vars);
     default:
-      return null;
+      return ({Map? vars}) => CVUActionNoop(vars: vars);
   }
 }
 
@@ -186,4 +186,13 @@ class CVUActionOpenView extends CVUAction {
       Navigator.push(buildContext, route);
     }
   }
+}
+
+class CVUActionNoop extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionNoop({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(CVUContext context, BuildContext buildContext) {}
 }

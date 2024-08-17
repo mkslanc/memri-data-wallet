@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:memri/widgets/navigation/navigation_appbar.dart';
+import 'package:memri/widgets/components/layout/top_bar_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
-import '../../utilities/helpers/app_helper.dart';
 import '../navigation/navigation_pane_view.dart';
 
 class CVUScaffold extends StatelessWidget {
   const CVUScaffold(
-      {Key? key, /*required this.currentItem,*/ required this.child, required this.editor})
+      {Key? key, /*required this.currentItem,*/ required this.child})
       : super(key: key);
 
   final Widget child;
-  final Widget editor;
+
   //final NavigationItem currentItem;
 
   @override
@@ -30,18 +29,17 @@ class CVUScaffold extends StatelessWidget {
               );
             },
           ),
+          title: TopBarView(),
         ),
-        drawer: Drawer(child: NavigationPaneView(),),
+        drawer: Drawer(
+          child: NavigationPaneView(),
+        ),
         body: Row(
           children: [
             SizedBox(
               width: MediaQuery.of(context).size.width,
               child: child,
             ),
-            /* SizedBox(
-            width: MediaQuery.of(context).size.width / 2,
-            child: editor,
-          )*/
           ],
         ),
       );

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
-import 'package:memri/cvu/models/cvu_parsed_definition.dart';
-import 'package:memri/cvu/widgets/cvu_editor.dart';
 import 'package:memri/cvu/widgets/scene_content_view.dart';
 import 'package:memri/widgets/empty.dart';
+import 'package:provider/provider.dart';
 
 import '../core/services/database/schema.dart';
 import '../cvu/controllers/cvu_controller.dart';
+import '../providers/app_provider.dart';
 import '../widgets/scaffold/cvu_scaffold.dart';
 
 class CVUScreen extends StatefulWidget {
   final ViewContextController viewContextController;
+
   const CVUScreen({Key? key, required this.viewContextController}) : super(key: key);
 
   @override
@@ -24,6 +25,8 @@ class _CVUScreenState extends State<CVUScreen> {
   initState() {
     super.initState();
     _init = init();
+    Provider.of<AppProvider>(context, listen: false).currentViewContext =
+        widget.viewContextController;
   }
 
   init() async {
@@ -53,12 +56,6 @@ class _CVUScreenState extends State<CVUScreen> {
             // currentItem: NavigationItem.cvu,
             child: SceneContentView(
               viewContext: widget.viewContextController,
-            ),
-            editor: CVUEditor(
-              viewDefinition: GetIt.I<CVUController>()
-                      .definitionFor(viewName: "messageChannelView", type: CVUDefinitionType.view)
-                      ?.toCVUString(0, "  ", false) ??
-                  "",
             ),
           );
         });
