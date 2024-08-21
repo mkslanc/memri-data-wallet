@@ -377,9 +377,9 @@ class ViewContextController extends ChangeNotifier {
     if (queryConfig.queryGraphQL != null) {
       getItems(queryConfig);
       //TODO replace it when pod would have sockets
-      queryObservation = Stream.periodic(
+      /*queryObservation = Stream.periodic(
               Duration(seconds: app.settings.syncControllerIntervalSecs))
-          .listen((_) => getItems(queryConfig));
+          .listen((_) => getItems(queryConfig));*/
     }
   }
 

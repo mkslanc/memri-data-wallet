@@ -13,7 +13,7 @@ class PodConfig {
     this.scheme = "http",
     this.host = "localhost",
     this.port = 3030,
-    this.apiVersion = "v4",
+    this.apiVersion = "v5",
     this.ownerKey = "ownerKeyHere",
     this.databaseKey = "databaseKeyHere",
   });

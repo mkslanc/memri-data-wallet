@@ -6,6 +6,7 @@ import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/list_renderer.dart';
+import 'package:memri/cvu/widgets/renderers/note_editor_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/photo_viewer_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/single_item_renderer.dart';
 
@@ -54,6 +55,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return ChartRendererView(viewContext: viewContext);
       case "singleitem":
         return SingleItemRendererView(viewContext: viewContext);
+      case "noteeditor":
+        return NoteEditorRendererView(viewContext: viewContext);
       case "custom":
         return CustomRendererView(viewContext: viewContext);
       default:

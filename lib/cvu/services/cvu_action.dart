@@ -8,6 +8,8 @@ import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/services/resolving/cvu_context.dart';
 import 'package:memri/cvu/services/resolving/cvu_property_resolver.dart';
+import 'package:memri/providers/app_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../screens/cvu_screen.dart';
@@ -47,6 +49,8 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionValidate(vars: vars);
     case "wait":
       return ({Map? vars}) => CVUActionWait(vars: vars);
+    case "toggleeditmode":
+      return ({Map? vars}) => CVUActionToggleEditMode(vars: vars);
     default:
       return ({Map? vars}) => CVUActionNoop(vars: vars);
   }
@@ -195,4 +199,15 @@ class CVUActionNoop extends CVUAction {
 
   @override
   execute(CVUContext context, BuildContext buildContext) {}
+}
+
+class CVUActionToggleEditMode extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionToggleEditMode({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(CVUContext context, BuildContext buildContext) async {
+    Provider.of<AppProvider>(buildContext, listen: false).toggleEditMode();
+  }
 }

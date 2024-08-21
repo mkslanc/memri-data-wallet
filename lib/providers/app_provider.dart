@@ -24,6 +24,12 @@ class AppProvider with ChangeNotifier {
   bool _isLoadingOpened = false;
   bool _checkAuth = true;
   ViewContextController? currentViewContext;
+  bool isInEditMode = false;
+
+  toggleEditMode() {
+    isInEditMode = !isInEditMode;
+    notifyListeners();
+  }
 
   closeMenu() {
     navigationIsVisible = false;
