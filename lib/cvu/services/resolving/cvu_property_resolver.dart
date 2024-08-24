@@ -342,8 +342,8 @@ class CVUPropertyResolver {
     var val = value(propertyName);
     if (val == null) {
       return AlignmentResolver(
-          mainAxis: MainAxisAlignment.center,
-          crossAxis: CrossAxisAlignment.center);
+          mainAxis: MainAxisAlignment.start,
+          crossAxis: CrossAxisAlignment.start);
     }
     if (alignType == "row") {
       switch (lookup.resolve<String>(value: val, context: context)) {

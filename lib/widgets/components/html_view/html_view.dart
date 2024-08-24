@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'html_view_kit_unsupported.dart'
-    if (dart.library.html) 'html_view_kit_web.dart'
-    if (dart.library.io) 'html_view_kit_mobile.dart';
+import 'html_view_kit_mobile.dart';
 
 class HtmlView extends StatelessWidget {
   final String? html;

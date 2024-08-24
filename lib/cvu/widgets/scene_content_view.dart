@@ -60,8 +60,8 @@ class _SceneContentViewState extends State<SceneContentView> {
       case "custom":
         return CustomRendererView(viewContext: viewContext);
       default:
-        return Text("No renderer selected",
-            style: TextStyle(fontWeight: FontWeight.bold));
+        return Center(
+            child: Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold)));
     }
   }
 

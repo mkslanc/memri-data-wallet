@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
-import 'package:memri/widgets/empty.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HtmlViewUIKit extends StatefulWidget {
@@ -20,51 +18,54 @@ class HtmlViewUIKit extends StatefulWidget {
   _HtmlViewUIKitState createState() => _HtmlViewUIKitState();
 }
 
-class _HtmlViewUIKitState extends State<HtmlViewUIKit> { //TODO: revive this
+class _HtmlViewUIKitState extends State<HtmlViewUIKit> {
   late WebViewController _webViewController;
 
   @override
   void initState() {
     super.initState();
-    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
+    // Initialize the WebViewController
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (String url) => _loadContent(),
+        ),
+      );
+
+    if (widget.html != null || widget.src != null) {
+      final source = (widget.src != null)
+          ? widget.src!
+          : Uri.dataFromString(widget.html!,
+                  mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+              .toString();
+      _webViewController.loadRequest(Uri.parse(source));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Empty();/*WebView(
-        gestureRecognizers: [
-          Factory<OneSequenceGestureRecognizer>(
-            () => VerticalDragGestureRecognizer(),
-          ),
-        ].whereType<Factory<OneSequenceGestureRecognizer>>().toSet(),
-        initialUrl: 'about:blank',
-        onPageFinished: (String url) => _loadContent(),
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (widget.html == null && widget.src == null)
-            ? null
-            : (WebViewController webViewController) {
-                _webViewController = webViewController;
-                var source = (widget.src != null)
-                    ? widget.src
-                    : Uri.dataFromString(widget.html!,
-                            mimeType: 'text/html',
-                            encoding: Encoding.getByName('utf-8'))
-                        .toString();
-                _webViewController.loadUrl(source!);
-              });*/
+    return WebViewWidget(
+      controller: _webViewController,
+      gestureRecognizers: [
+        Factory<OneSequenceGestureRecognizer>(
+          () => VerticalDragGestureRecognizer(),
+        ),
+      ].toSet(),
+    );
   }
 
-  /*_loadContent() async {
-    var jsURL = "assets/HTMLResources/purify.min.js";
+  Future<void> _loadContent() async {
+    const jsURL = "assets/HTMLResources/purify.min.js";
     try {
-      var jsContent = await rootBundle.loadString(jsURL);
-      await _webViewController.runJavascript(jsContent);
-      await _webViewController.runJavascript(getContentLoaderString());
+      final jsContent = await rootBundle.loadString(jsURL);
+      await _webViewController.runJavaScript(jsContent);
+      await _webViewController.runJavaScript(getContentLoaderString());
     } catch (e) {
       AppLogger.err(e);
-      return;
     }
-  }*/
+  }
 
   String getContentLoaderString() {
     return """

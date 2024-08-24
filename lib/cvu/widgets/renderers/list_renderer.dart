@@ -53,7 +53,7 @@ class _ListRendererViewState extends RendererViewState {
   void init() {
     super.init();
     insets = viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
-        EdgeInsets.only(top: 0, left: 30, bottom: 0, right: 30);
+        EdgeInsets.only(top: 10, left: 10, bottom: 10, right: 10);
     spacing =
         viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
     backgroundColor =
@@ -86,7 +86,7 @@ class _ListRendererViewState extends RendererViewState {
     return itemCount > 0
         ? ListView.separated(
             shrinkWrap: true,
-            padding: EdgeInsets.fromLTRB(0, insets.top + 80, 0, insets.bottom),
+            padding: EdgeInsets.fromLTRB(0, insets.top, 0, insets.bottom),
             itemBuilder: (context, index) {
               var item = viewContext.items[index];
               if (index == 0 && startingElement != null) {
@@ -146,16 +146,11 @@ class _ListRendererViewState extends RendererViewState {
       key: Key(item.id),
       dense: true,
       minVerticalPadding: 0,
-      visualDensity: VisualDensity(horizontal: -2, vertical: -4),
+      visualDensity: VisualDensity(horizontal: -2, vertical: -2),
       selected: isSelected,
       selectedTileColor: backgroundSelected,
-      contentPadding: EdgeInsets.fromLTRB(
-          insets.left,
-          index == 0 && startingElement == null ? 0 : spacing.y / 2,
-          insets.right,
-          index == viewContext.items.length - 1 && trailingElement == null
-              ? 0
-              : spacing.y / 2),
+      contentPadding: EdgeInsets.fromLTRB(insets.left, index == 0 ? 0 : spacing.y / 2,
+                  insets.right, index == viewContext.items.length - 1 ? 0 : spacing.y / 2),
       title: title,
       onTap: callback,
     );

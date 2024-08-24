@@ -63,10 +63,27 @@ EmailMessage > list {
     sortFields: subject dateModified dateAccessed dateCreated
     
     [datasource = pod] {
-        query: "EmailMessage"
-        sortProperty: dateSent
-        sortAscending: true
-    }
+            queryGraphQL: '''query { EmailMessage (order_asc: dateSent) { id
+dateCreated
+dateModified
+dateServerModified
+externalId
+isMock
+abstract
+content
+datePublished
+itemType
+keyword
+textContent
+title
+transcript
+dateReceived
+dateSent
+service
+subject
+sourceProject
+starred } }'''
+        }
     
     actionButton:
         addItem {

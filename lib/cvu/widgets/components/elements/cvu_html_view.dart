@@ -41,10 +41,18 @@ class _CVUHTMLViewState extends State<CVUHTMLView> {
   @override
   Widget build(BuildContext context) {
     if (_content != null || src != null) {
-      return HtmlView(
-        html: _content,
-        src: src,
-        reload: reload,
+      return SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height,
+            maxHeight: MediaQuery.of(context).size.height,
+          ),
+          child: HtmlView(
+            html: _content,
+            src: src,
+            reload: reload,
+          ),
+        ),
       );
     }
     return Empty();
