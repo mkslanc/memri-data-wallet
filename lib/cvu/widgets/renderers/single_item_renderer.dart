@@ -38,7 +38,7 @@ class _SingleItemRendererViewState extends RendererViewState {
 
   void init() {
     insets = viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
-        EdgeInsets.fromLTRB(30, 0, 30, 0);
+        EdgeInsets.fromLTRB(10, 10, 10, 10);
     backgroundColor =
         viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
             CVUColor.system("systemBackground");

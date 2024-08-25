@@ -112,7 +112,8 @@ class PodService extends ApiService<PodAPI> {
 
   Future<void> loadDemoFiles() async {
     var items = await DemoData.importDataToPod(defaultData: false);
-    this.bulkAction(createItems: items);
+    var allEdges = items.expand((Item item) => item.getAllEdges() ?? []).cast<Edge>().toList();
+    await this.bulkAction(createItems: items, createEdges: allEdges);
   }
 
   Future<void> loadDefaultData() async {

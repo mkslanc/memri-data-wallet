@@ -63,7 +63,7 @@ class GridRendererViewState extends RendererViewState {
         viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ??
             false;
     insets = viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
-        EdgeInsets.fromLTRB(5, 80, 5, 5);
+        EdgeInsets.fromLTRB(10, 10, 10, 10);
 
     var _scrollDirection = widget.viewContext.rendererDefinitionPropertyResolver
         .string("scrollDirection");

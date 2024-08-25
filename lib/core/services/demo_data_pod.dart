@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/services/database/schema.dart';
+import 'package:memri/localization/generated/l10n.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../utilities/extensions/collection.dart';
@@ -60,7 +61,6 @@ class DemoData {
     }));
   }
 
-
   static Future<List<Item>> importDataToPod(
       {bool throwIfAgainstSchema = false, bool defaultData: true}) async {
     var fileURL = "assets/dev_database.json";
@@ -74,16 +74,78 @@ class DemoData {
       return [];
     }
     await loadSchema();
-    List<Item> processedItems = (await Future.wait(items.map((item) async =>
+    List<DemoItem> processedDemoItems = (await Future.wait(items.map((item) async =>
             await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))))
         .expand((element) => element)
         .toList();
 
-    return processedItems;
+    Map<String, String> tempIDLookup = {};
+    Map<String, String> sourceIDLookup = {};
+
+    List<Item> allItems = [];
+
+    for (var demoItem in processedDemoItems) {
+      var item = Item(
+          type: demoItem.type,
+          properties: demoItem.properties);
+      item.properties["id"] = demoItem.uid;
+      //TODO: date created/modified;
+      var tempUID = demoItem.tempUID;
+
+      if (demoItem.type == "File") {
+        //TODO: record.fileState = FileState.needsUpload;
+      }
+      if (tempUID != null) {
+        tempIDLookup[tempUID] = demoItem.uid;
+      }
+      sourceIDLookup[item.id] = demoItem.uid;
+
+      /*if (item.type == "Person") {
+        var record = ItemRecord(
+            type: "Relationship", dateCreated: item.dateCreated, dateModified: item.dateModified);
+        var recordRowID = await record.insert(databaseController.databasePool);
+        record.rowId = recordRowID;
+        await record.setPropertyValue("label", PropertyDatabaseValueString("Friend"),
+            db: databaseController);
+        await record.setPropertyValue("value", PropertyDatabaseValueInt(Random().nextInt(10000)),
+            db: databaseController);
+        var edge =
+        ItemEdgeRecord(sourceRowID: meRowId, name: "relationship", targetRowID: recordRowID);
+        await edge.insert(databaseController.databasePool);
+        edge =
+            ItemEdgeRecord(sourceRowID: recordRowID, name: "relationship", targetRowID: recordID);
+        await edge.insert(databaseController.databasePool);
+      }*/
+      allItems.add(item);
+    }
+
+    for (var demoItem in processedDemoItems) {
+      for (var edge in demoItem.edges) {
+        var targetActualID = tempIDLookup[edge.targetTempUID];
+        if (targetActualID == null) {
+          continue;
+        }
+        //var sourceRowID = sourceIDLookup[item.uid];
+        var sourceEdgeItem = allItems.firstWhereOrNull((el) {
+          return demoItem.uid == el.id;
+        });
+        var targetEdgeItem = allItems.firstWhereOrNull((el) {
+          return el.id == targetActualID;
+        });
+        if (targetEdgeItem == null || sourceEdgeItem == null) {
+          continue;
+        }
+        sourceEdgeItem.edges[edge.name] = EdgeList(name: edge.name, targets: [targetEdgeItem]);
+      }
+    }
+
+    return allItems;
   }
 
-  static Future<List<Item>> processItemJSON(
-      {required Map<String, dynamic> item, String? overrideUID, bool isRunningTests = false}) async {
+  static Future<List<DemoItem>> processItemJSON(
+      {required Map<String, dynamic> item,
+      String? overrideUID,
+      bool isRunningTests = false}) async {
     handleError(String string) {
       if (isRunningTests) {
         // Used for testing: throw an error if error in demo data
@@ -100,20 +162,21 @@ class DemoData {
       return [];
     }
 
-    if (types[itemType] == null) { //TODO:
+    if (types[itemType] == null) {
+      //TODO:
       AppLogger.warn("$itemType not in schema");
       return [];
     }
 
     var itemTempUID = overrideUID ?? item["uid"]?.toString();
 
-    List<Item> items = [];
+    List<DemoItem> items = [];
     Map<String, dynamic> properties = {};
-    Map<String, EdgeList> edges = {};
+    List<DemoEdge> edges = [];
     // Fake a recent date for the demo data
 
     var dateCreated =
-    DateTime.now().subtract(Duration(milliseconds: Random().nextInt(1814400 * 1000)));
+        DateTime.now().subtract(Duration(milliseconds: Random().nextInt(1814400 * 1000)));
     var dateModified = dateCreated;
 
     await Future.forEach(item.entries, (MapEntry itemProperty) async {
@@ -122,6 +185,7 @@ class DemoData {
       switch (propertyName) {
         case "_type":
         case "uid":
+        case "id":
         case "version":
           return;
         case "allEdges":
@@ -155,19 +219,13 @@ class DemoData {
 
             var targetUID = edge["uid"]?.toString();
             if (targetUID != null) {
-              if (!edges.containsKey(edgeName)) {
-                edges[edgeName] = EdgeList(name: edgeName, targets: []);
-              }
-              edges[edgeName]?.targets.add(Item(type: targetType, properties: {"uid": targetUID}));
+              edges.add(DemoEdge(name: edgeName, targetTempUID: targetUID));
             } else {
               var subitem = edge["_target"];
               if (subitem is Map) {
                 // Sub-item declared as edge, add edge property AND item
                 var targetUID = Uuid().v4();
-                if (!edges.containsKey(edgeName)) {
-                  edges[edgeName] = EdgeList(name: edgeName, targets: []);
-                }
-                edges[edgeName]?.targets.add(Item(type: targetType, properties: {"uid": targetUID}));
+                edges.add(DemoEdge(name: edgeName, targetTempUID: targetUID));
                 items = [
                   ...items,
                   ...await processItemJSON(
@@ -193,28 +251,22 @@ class DemoData {
             return;
           }
           try {
-
-
             /*PropertyDatabaseValue.create(
                 propertyValue, expectedType.valueType, "$itemType.$propertyName");*/
 
             if (!isRunningTests &&
                 itemType == "File" &&
-                propertyName == "filename" && propertyValue is String) {
+                propertyName == "filename" &&
+                propertyValue is String) {
               var fileName = propertyValue.split(".");
 
               var demoDirectory = "assets/demoAssets";
               var sourcePath = "";
               if (fileName.length == 1) {
-                sourcePath = demoDirectory +
-                    "/" +
-                    ("${fileName[0]}.jpg");
+                sourcePath = demoDirectory + "/" + ("${fileName[0]}.jpg");
               } else {
-                sourcePath = demoDirectory +
-                    "/" +
-                    ("${fileName[0] ?? ""}.${fileName[1]}");
+                sourcePath = demoDirectory + "/" + ("${fileName[0] ?? ""}.${fileName[1]}");
               }
-
 
               // Also add sha256 property for item
               var byteData = await FileStorageController.getByteDataFromAsset(sourcePath);
@@ -236,15 +288,15 @@ class DemoData {
       }
     });
 
-    var finalItem = Item(
-      type: itemType,
-      properties: properties,
-      edges: edges,
-    );
-    items.add(finalItem);
+    items.add(DemoItem(
+        type: itemType,
+        tempUID: itemTempUID,
+        properties: properties,
+        edges: edges,
+        dateCreated: dateCreated,
+        dateModified: dateModified));
     return items;
   }
-
 }
 
 class SchemaFile {
@@ -255,12 +307,39 @@ class SchemaFile {
 
   SchemaFile.fromJson(Map<String, dynamic> json)
       : properties = (json['properties'] as List)
-      .map((property) => SchemaProperty.fromJson(property))
-      .toList(),
+            .map((property) => SchemaProperty.fromJson(property))
+            .toList(),
         edges = (json['edges'] as List).map((edge) => SchemaEdge.fromJson(edge)).toList();
 
   Map<String, dynamic> toJson() => {
-    'properties': properties,
-    'edges': edges,
-  };
+        'properties': properties,
+        'edges': edges,
+      };
+}
+
+class DemoItem {
+  String type;
+  String uid;
+  String? tempUID;
+  Map<String, dynamic> properties;
+  List<DemoEdge> edges;
+  DateTime? dateCreated;
+  DateTime? dateModified;
+
+  DemoItem(
+      {required this.type,
+      uid,
+      this.tempUID,
+      required this.properties,
+      required this.edges,
+      this.dateCreated,
+      this.dateModified})
+      : this.uid = uid ?? Uuid().v4().toString();
+}
+
+class DemoEdge {
+  String name;
+  String targetTempUID;
+
+  DemoEdge({required this.name, required this.targetTempUID});
 }

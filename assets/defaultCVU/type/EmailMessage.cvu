@@ -56,44 +56,49 @@ EmailMessage > list {
 }
 
 .allEmails {
-    title: "All Emails"
-    emptyResultText: "There are no emails here yet"
-    defaultRenderer: list
-    filterButtons: showStarred toggleFilterPanel
-    sortFields: subject dateModified dateAccessed dateCreated
-    
-    [datasource = pod] {
-            queryGraphQL: '''query { EmailMessage (order_asc: dateSent) { id
-dateCreated
-dateModified
-dateServerModified
-externalId
-isMock
-abstract
-content
-datePublished
-itemType
-keyword
-textContent
-title
-transcript
-dateReceived
-dateSent
-service
-subject
-sourceProject
-starred } }'''
-        }
-    
-    actionButton:
-        addItem {
-            template {
+    actionButton: [
+        addItem
+        {
+            template: {
                 _type: EmailMessage
             }
         }
-        
-    editActionButton: toggleEditMode
-    
+        ]
+        defaultRenderer: list
+        editActionButton: toggleEditMode
+        emptyResultText: "There are no emails here yet"
+        filterButtons: showStarred toggleFilterPanel
+        sortFields: subject dateModified dateAccessed dateCreated
+        title: "All Emails"
+
+        [datasource = pod] {
+            queryGraphQL: '''query { EmailMessage (order_asc: dateSent) { id
+            dateCreated
+            dateModified
+            dateServerModified
+            externalId
+            isMock
+            abstract
+            content
+            datePublished
+            itemType
+            keyword
+            textContent
+            title
+            transcript
+            dateReceived
+            dateSent
+            sender {
+                owner {
+                    firstName
+                    lastName
+                }
+            }
+            service
+            subject
+            sourceProject
+            starred } }'''
+        }
 }
 
 EmailMessage > timeline {

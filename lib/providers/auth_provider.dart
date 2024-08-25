@@ -43,16 +43,20 @@ class AuthProvider with ChangeNotifier {
   bool get developerMode => _developerMode;
 
   Future<void> _authenticate(BuildContext context, String podUrl,
-      String ownerKey, String dbKey) async {
+      String ownerKey, String dbKey, bool isLogin) async {
     try {
       await _podService.authenticate(
           podAddress: podUrl, ownerKey: ownerKey, dbKey: dbKey);
-      // TODO move this once not required on signup
-      await _podService.createSchema();
 
-      //TODO
-      await _podService.loadDefaultData();
-      await _podService.loadDemoFiles();
+      if (!isLogin) {
+        // TODO move this once not required on signup
+        await _podService.createSchema();
+
+        //TODO
+        await _podService.loadDefaultData();
+        await _podService.loadDemoFiles();
+      }
+
 
       await initCVUDefinitions();
 
@@ -101,7 +105,7 @@ class AuthProvider with ChangeNotifier {
     var podUrl = podAddress ?? app.settings.defaultPodUrl;
 
     // _mixpanelAnalyticsService.logSignIn(ownerKey);
-    await _authenticate(context, podUrl, ownerKey, dbKey);
+    await _authenticate(context, podUrl, ownerKey, dbKey, true);
   }
 
   Future<void> signUp(BuildContext context, {String? podAddress}) async {
@@ -115,7 +119,7 @@ class AuthProvider with ChangeNotifier {
     String dbKey = _podService.generateCryptoStrongKey();
 
     // _mixpanelAnalyticsService.logSignUp(ownerKey);
-    await _authenticate(context, podUrl, ownerKey, dbKey);
+    await _authenticate(context, podUrl, ownerKey, dbKey, false);
   }
 
   void openLoginScreen(BuildContext context, {bool developerMode = false}) {

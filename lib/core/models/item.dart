@@ -30,6 +30,20 @@ class Item {
     }
   }
 
+  List<Edge>? getAllEdges() {
+    List<Edge> allEdges = [];
+    this.edges.forEach((edgeName, edgeList) {
+      edgeList.targets.forEach((target) {
+        allEdges.add(Edge(
+          source: this,
+          target: target,
+          name: edgeName,
+        ));
+      });
+    });
+    return allEdges.isEmpty ? null : allEdges;
+  }
+
   List<Item>? getEdgeTargets(String edgeName) {
     return this.edges[edgeName]?.targets;
   }
