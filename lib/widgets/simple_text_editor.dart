@@ -17,7 +17,7 @@ class SimpleTextEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 632,
-      height: 51,
+      height: 60,
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       color: Color(0xffF0F0F0),
       child: Column(

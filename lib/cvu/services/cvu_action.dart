@@ -13,12 +13,13 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../screens/cvu_screen.dart';
+import '../../widgets/navigation/filter_panel_view.dart';
 import '../controllers/view_context_controller.dart';
 import '../models/cvu_parsed_definition.dart';
 import '../models/cvu_view_arguments.dart';
 
 abstract class CVUAction {
-  execute(CVUContext context, BuildContext buildContext);
+  execute(CVUContext cvuContext, BuildContext context);
 
   Map<String, CVUValue> get defaultVars {
     return {};
@@ -26,9 +27,9 @@ abstract class CVUAction {
 
   late Map<String, CVUValue> vars;
 
-  String? getString(String key, CVUContext context) {
+  String? getString(String key, CVUContext cvuContext) {
     var resolver = CVUPropertyResolver(
-        context: context,
+        context: cvuContext,
         lookup: CVULookupController(),
         properties: vars[key] != null ? vars : defaultVars);
     return resolver.string(key);
@@ -51,6 +52,12 @@ CVUAction Function({Map<String, CVUValue>? vars})? cvuAction(String named) {
       return ({Map? vars}) => CVUActionWait(vars: vars);
     case "toggleeditmode":
       return ({Map? vars}) => CVUActionToggleEditMode(vars: vars);
+    case "togglefilterpanel":
+      return ({Map? vars}) => CVUActionToggleFilterPanel(vars: vars);
+    case "star":
+      return ({Map? vars}) => CVUActionStar(vars: vars);
+    case "showstarred":
+      return ({Map? vars}) => CVUActionShowStarred(vars: vars);
     default:
       return ({Map? vars}) => CVUActionNoop(vars: vars);
   }
@@ -62,11 +69,11 @@ class CVUActionOpenLink extends CVUAction {
   CVUActionOpenLink({vars}) : this.vars = vars ?? {};
 
   @override
-  Future execute(CVUContext context, BuildContext buildContext) async {
+  Future execute(CVUContext cvuContext, BuildContext context) async {
     var link = vars["link"];
     if (link != null) {
       var resolver =
-          CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: vars);
+          CVUPropertyResolver(context: cvuContext, lookup: CVULookupController(), properties: vars);
       var url = resolver.string("link");
       if (url != null) {
         if (url.toLowerCase().contains('discord.com')) {
@@ -88,9 +95,9 @@ class CVUActionCopyToClipboard extends CVUAction {
   CVUActionCopyToClipboard({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context, BuildContext buildContext) async {
+  execute(CVUContext cvuContext, BuildContext context) async {
     var resolver =
-        CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: vars);
+        CVUPropertyResolver(context: cvuContext, lookup: CVULookupController(), properties: vars);
     var value = resolver.string("value");
     if (value != null) {
       Clipboard.setData(ClipboardData(text: value));
@@ -104,9 +111,9 @@ class CVUActionValidate extends CVUAction {
   CVUActionValidate({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context, BuildContext buildContext) async {
+  execute(CVUContext cvuContext, BuildContext context) async {
     var resolver =
-        CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: vars);
+        CVUPropertyResolver(context: cvuContext, lookup: CVULookupController(), properties: vars);
 
     var rules = resolver.subdefinitionArray("rules");
 
@@ -126,7 +133,7 @@ class CVUActionWait extends CVUAction {
   CVUActionWait({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context, BuildContext buildContext) async {
+  execute(CVUContext cvuContext, BuildContext context) async {
     var seconds = vars["seconds"];
 
     if (seconds != null && seconds is CVUValueConstant && seconds.value is CVUConstantNumber) {
@@ -149,7 +156,7 @@ class CVUActionOpenView extends CVUAction {
       : this.vars = vars ?? {};
 
   @override
-  Future execute(CVUContext context, BuildContext buildContext) async {
+  Future execute(CVUContext cvuContext, BuildContext context) async {
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -162,22 +169,22 @@ class CVUActionOpenView extends CVUAction {
     if (viewArgs is CVUValueSubdefinition) {
       viewArguments = CVUViewArguments(
           args: viewArgs.value.properties,
-          argumentItem: context.currentItem,
-          parentArguments: context.viewArguments);
+          argumentItem: cvuContext.currentItem,
+          parentArguments: cvuContext.viewArguments);
     } else {
       viewArguments = CVUViewArguments();
     }
     var resolver =
-        CVUPropertyResolver(context: context, lookup: CVULookupController(), properties: this.vars);
+        CVUPropertyResolver(context: cvuContext, lookup: CVULookupController(), properties: this.vars);
 
     var route = MaterialPageRoute(
-      builder: (buildContext) => CVUScreen(
+      builder: (context) => CVUScreen(
           viewContextController: ViewContextController.fromParams(
               viewName: viewName ?? resolver.string("viewName") ?? "customView",
               //inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
               overrideRenderer: renderer ?? resolver.string("renderer"),
               defaultRenderer: "singleItem",
-              focusedItem: context.currentItem,
+              focusedItem: cvuContext.currentItem,
               //overrideRowIDs: uids,
               //dateRange: dateRange,
               customDefinition: customDefinition,
@@ -185,9 +192,9 @@ class CVUActionOpenView extends CVUAction {
     );
 
     if (resolver.boolean("clearStack") ?? false) {
-      Navigator.pushAndRemoveUntil(buildContext, route, (Route<dynamic> route) => false);
+      Navigator.pushAndRemoveUntil(context, route, (Route<dynamic> route) => false);
     } else {
-      Navigator.push(buildContext, route);
+      Navigator.push(context, route);
     }
   }
 }
@@ -198,16 +205,85 @@ class CVUActionNoop extends CVUAction {
   CVUActionNoop({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context, BuildContext buildContext) {}
+  execute(CVUContext cvuContext, BuildContext context) {}
 }
 
+class CVUActionToggleFilterPanel extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  Map<String, CVUValue> get defaultVars {
+    return {"icon": CVUValueConstant(CVUConstantString("rhombus.fill"))};
+  }
+
+  CVUActionToggleFilterPanel({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(CVUContext cvuContext, BuildContext context) async {
+    var appProvider = Provider.of<AppProvider>(context, listen: false);
+    appProvider.filterPanelIsVisible = true;//TODO set to false on modal close
+
+    var viewContextController = appProvider.currentViewContext!;
+    return showModalBottomSheet(
+      constraints: BoxConstraints(minWidth: double.infinity),
+      context: context,
+      builder: (BuildContext context) {
+          return FilterPanelView(viewContext: viewContextController);
+      },
+    );
+  }
+}
+
+class CVUActionStar extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  CVUActionStar({vars}) : this.vars = vars ?? {};
+
+  @override
+  Future execute(CVUContext cvuContext, BuildContext context) async {
+    var currentItem = cvuContext.currentItem;
+    if (currentItem == null) {
+      return;
+    }
+
+    // var prop = "starred";
+    // var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
+    // try {
+    //   await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
+    //   //sceneController.scheduleUIUpdate();
+    // } catch (error) {
+    //   print(
+    //       "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
+    // }
+  }
+}
+
+class CVUActionShowStarred extends CVUAction {
+  Map<String, CVUValue> vars;
+
+  Map<String, CVUValue> get defaultVars {
+    return {"icon": CVUValueConstant(CVUConstantString("star.fill"))};
+  }
+
+  CVUActionShowStarred({vars}) : this.vars = vars ?? {};
+
+  @override
+  execute(CVUContext cvuContext, BuildContext context) async {
+    Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
+    // CVUActionOpenView(
+    //     vars: newVars,
+    //     viewName: "filter-starred",
+    //     renderer: cvuContext.rendererName,
+    //     viewDefinition: cvuContext.viewDefinition)
+    //     .execute(sceneController, cvuContext);
+  }
+}
 class CVUActionToggleEditMode extends CVUAction {
   Map<String, CVUValue> vars;
 
   CVUActionToggleEditMode({vars}) : this.vars = vars ?? {};
 
   @override
-  execute(CVUContext context, BuildContext buildContext) async {
-    Provider.of<AppProvider>(buildContext, listen: false).toggleEditMode();
+  execute(CVUContext cvuContext, BuildContext context) async {
+    Provider.of<AppProvider>(context, listen: false).toggleEditMode();
   }
 }

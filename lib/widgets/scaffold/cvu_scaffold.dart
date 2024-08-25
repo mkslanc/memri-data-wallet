@@ -7,11 +7,11 @@ import '../navigation/navigation_pane_view.dart';
 
 class CVUScaffold extends StatelessWidget {
   const CVUScaffold(
-      {Key? key, /*required this.currentItem,*/ required this.child})
+      {Key? key, /*required this.currentItem,*/ required this.child, this.bottomBar})
       : super(key: key);
 
   final Widget child;
-
+  final Widget? bottomBar;
   //final NavigationItem currentItem;
 
   @override
@@ -42,6 +42,8 @@ class CVUScaffold extends StatelessWidget {
             ),
           ],
         ),
+        bottomNavigationBar: bottomBar,
+        bottomSheet: null,
       );
     });
   }

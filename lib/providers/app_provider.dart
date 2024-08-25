@@ -20,7 +20,8 @@ class AppProvider with ChangeNotifier {
   String? appVersion;
   String errorMessage = '';
   String welcomeMessage = S.current.check_server_status;
-  bool navigationIsVisible = false;
+
+  bool _filterPanelIsVisible = false;
   bool _isLoadingOpened = false;
   bool _checkAuth = true;
   ViewContextController? currentViewContext;
@@ -31,13 +32,9 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  closeMenu() {
-    navigationIsVisible = false;
-    notifyListeners();
-  }
-
-  openMenu() {
-    navigationIsVisible = true;
+  get filterPanelIsVisible => _filterPanelIsVisible;
+  set filterPanelIsVisible(value) {
+    _filterPanelIsVisible = !_filterPanelIsVisible;
     notifyListeners();
   }
 

@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/scene_content_view.dart';
 import 'package:memri/widgets/empty.dart';
+import 'package:memri/widgets/navigation/bottom_bar_view.dart';
 import 'package:provider/provider.dart';
 
 import '../core/services/database/schema.dart';
@@ -52,11 +53,13 @@ class _CVUScreenState extends State<CVUScreen> {
           if (snapshot.connectionState != ConnectionState.done) {
             return Empty();
           }
+
           return CVUScaffold(
             // currentItem: NavigationItem.cvu,
             child: SceneContentView(
               viewContext: widget.viewContextController,
             ),
+            bottomBar: BottomBarView(viewContext: widget.viewContextController),
           );
         });
   }

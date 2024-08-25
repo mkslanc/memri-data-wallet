@@ -1,5 +1,6 @@
 .messageChannelView {
     defaultRenderer: "list"
+    filterButtons: [ showStarred toggleFilterPanel ]
 
     [datasource = pod] {
         queryGraphQL: '''query {
