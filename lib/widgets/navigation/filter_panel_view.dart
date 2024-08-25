@@ -29,7 +29,7 @@ class FilterPanelView extends StatefulWidget {
 
 class _FilterPanelViewState extends State<FilterPanelView> {
   final ViewContextController viewContext;
-  ValueNotifier<_FilterPanelTab> _currentTab = ValueNotifier(_FilterPanelTab.rendererOptions);
+  ValueNotifier<_FilterPanelTab> _currentTab = ValueNotifier(_FilterPanelTab.renderer);
 
   _FilterPanelTab get currentTab => _currentTab.value;
 
@@ -360,8 +360,8 @@ class _FilterPanelTabBar extends StatelessWidget {
     var tabList = [
       tabButton(Icons.note, _FilterPanelTab.renderer),
       tabButton(Icons.settings, _FilterPanelTab.rendererOptions),
-      tabButton(Icons.restore, _FilterPanelTab.filterOptions),
-      tabButton(Icons.swap_vertical_circle, _FilterPanelTab.sortOptions),
+      // tabButton(Icons.restore, _FilterPanelTab.filterOptions),
+      // tabButton(Icons.swap_vertical_circle, _FilterPanelTab.sortOptions),
     ];
 
     return Row(
