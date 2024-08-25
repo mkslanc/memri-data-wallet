@@ -27,7 +27,6 @@ class ViewContextController extends ChangeNotifier {
   late CVULookupController lookupController;
 
   var configObservation;
-  StreamSubscription? queryObservation;
 
   CVUDefinitionContent? viewDefinition;
   CVUDefinitionContent rendererDefinition;
@@ -352,6 +351,8 @@ class ViewContextController extends ChangeNotifier {
 
   bool get isObservingQuery => _isObservingQuery;
 
+  ValueNotifier<String?> searchStringNotifier = ValueNotifier(null);
+
   set isObservingQuery(bool isObservingQuery) {
     if (_isObservingQuery == isObservingQuery) {
       return;
@@ -365,7 +366,6 @@ class ViewContextController extends ChangeNotifier {
     var queryConfig = config.query;
 
     /// Remove old observation
-    queryObservation?.cancel();
     queryConfig.removeListener(setupQueryObservation);
 
     /// Only set up an observation if `isObserving` is true
@@ -376,10 +376,6 @@ class ViewContextController extends ChangeNotifier {
     queryConfig.addListener(setupQueryObservation);
     if (queryConfig.queryGraphQL != null) {
       getItems(queryConfig);
-      //TODO replace it when pod would have sockets
-      /*queryObservation = Stream.periodic(
-              Duration(seconds: app.settings.syncControllerIntervalSecs))
-          .listen((_) => getItems(queryConfig));*/
     }
   }
 
