@@ -29,23 +29,16 @@ class _AdditionalNavigationViewState extends State<AdditionalNavigationView> {
                     "Account",
                     style: CVUFont.bodyBold.copyWith(color: Colors.white),
                   ),
-                  InkWell(
-                      onTap: () {
-                        // widget.sceneController.navigateToNewContext(
-                        //     clearStack: true, animated: false, viewName: "allCryptoKeys");
-                        Provider.of<AppProvider>(context, listen: false)
-                            .navigationIsVisible = false;
-                      },
-                      child: Row(
-                        children: [
-                          app.icons.key(),
-                          Text(
-                            "Your pod keys",
-                            style:
-                                CVUFont.bodyText1.copyWith(color: Colors.white),
-                          )
-                        ],
-                      )),
+                  Row(
+                    children: [
+                      app.icons.key(),
+                      Text(
+                        "Your pod keys",
+                        style:
+                            CVUFont.bodyText1.copyWith(color: Colors.white),
+                      )
+                    ],
+                  ),
                   InkWell(
                       onTap: () => factoryReset(context),
                       child: Row(
