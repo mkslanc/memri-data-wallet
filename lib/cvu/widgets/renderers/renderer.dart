@@ -94,7 +94,7 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
                 viewContext.nodePropertyResolver(item)?.actions("onPress");
         if (presses != null) {
           presses.forEach((press) async =>
-              await press.execute(viewContext.getCVUContext(item: item), buildContext));
+              await press.execute(viewContext.getCVUContext(item: item, items: viewContext.items), buildContext));
 
           selectIndice(index, true);
         }

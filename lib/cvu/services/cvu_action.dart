@@ -174,8 +174,8 @@ class CVUActionOpenView extends CVUAction {
     } else {
       viewArguments = CVUViewArguments();
     }
-    var resolver =
-        CVUPropertyResolver(context: cvuContext, lookup: CVULookupController(), properties: this.vars);
+    var resolver = CVUPropertyResolver(
+        context: cvuContext, lookup: CVULookupController(), properties: this.vars);
 
     var route = MaterialPageRoute(
       builder: (context) => CVUScreen(
@@ -188,6 +188,7 @@ class CVUActionOpenView extends CVUAction {
               //overrideRowIDs: uids,
               //dateRange: dateRange,
               customDefinition: customDefinition,
+              items: cvuContext.items,
               viewArguments: viewArguments)),
     );
 
@@ -220,14 +221,14 @@ class CVUActionToggleFilterPanel extends CVUAction {
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
     var appProvider = Provider.of<AppProvider>(context, listen: false);
-    appProvider.filterPanelIsVisible = true;//TODO set to false on modal close
+    appProvider.filterPanelIsVisible = true; //TODO set to false on modal close
 
     var viewContextController = appProvider.currentViewContext!;
     return showModalBottomSheet(
       constraints: BoxConstraints(minWidth: double.infinity),
       context: context,
       builder: (BuildContext context) {
-          return FilterPanelView(viewContext: viewContextController);
+        return FilterPanelView(viewContext: viewContextController);
       },
     );
   }
@@ -277,6 +278,7 @@ class CVUActionShowStarred extends CVUAction {
     //     .execute(sceneController, cvuContext);
   }
 }
+
 class CVUActionToggleEditMode extends CVUAction {
   Map<String, CVUValue> vars;
 

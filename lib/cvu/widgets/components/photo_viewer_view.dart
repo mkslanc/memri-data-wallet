@@ -5,8 +5,7 @@ import 'package:memri/widgets/empty.dart';
 
 class PhotoViewerView extends StatefulWidget {
   final void Function(bool) onToggleOverlayVisibility;
-  final Future<PhotoViewerControllerPhotoItem?> Function(int index)
-      photoItemProvider;
+  final Future<PhotoViewerControllerPhotoItem?> Function(int index) photoItemProvider;
   final int initialIndex;
   final ViewContextController viewContext;
 
@@ -35,8 +34,7 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
   }
 
   Future<List<PhotoViewerControllerPhotoItem?>> resolveImages() async {
-    return await Future.wait(
-        widget.viewContext.items.mapIndexed((index, item) async {
+    return await Future.wait(widget.viewContext.items.mapIndexed((index, item) async {
       return await widget.photoItemProvider(index);
     }));
   }
@@ -46,16 +44,15 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
     _pageController = PageController(initialPage: _initialIndex);
     return FutureBuilder(
         future: _resolveImages,
-        builder: (BuildContext context,
-            AsyncSnapshot<List<PhotoViewerControllerPhotoItem?>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<List<PhotoViewerControllerPhotoItem?>> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var photoItems = snapshot.data;
 
             if (photoItems == null || photoItems.length == 0) {
               return Empty();
             }
-            return PageView(
-                controller: _pageController, children: getImages(photoItems));
+            return PageView(controller: _pageController, children: getImages(photoItems));
           } else {
             return Center(
               child: SizedBox(
@@ -70,8 +67,13 @@ class _PhotoViewerViewState extends State<PhotoViewerView> {
 
   List<Widget> getImages(List<PhotoViewerControllerPhotoItem?> photoItems) {
     return photoItems
-        .compactMap((photoItem) =>
-            photoItem == null ? null : PhotoScalingView(photoItem: photoItem))
+        .map((photoItem) => photoItem == null
+            ? Center(
+                child: Icon(
+                Icons.error,
+                color: Color(0x993c3c43),
+              ))
+            : PhotoScalingView(photoItem: photoItem))
         .toList();
   }
 //TODO: overlay changing with animations
@@ -94,8 +96,7 @@ class PhotoScalingView extends StatefulWidget {
   _PhotoScalingViewState createState() => _PhotoScalingViewState();
 }
 
-class _PhotoScalingViewState extends State<PhotoScalingView>
-    with SingleTickerProviderStateMixin {
+class _PhotoScalingViewState extends State<PhotoScalingView> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
   late Animation<Matrix4> _animation;

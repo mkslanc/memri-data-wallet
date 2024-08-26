@@ -63,6 +63,7 @@ class ViewContextController extends ChangeNotifier {
     String defaultRenderer = "list",
     String? overrideRenderer,
     CVUDefinitionContent? customDefinition,
+    List<Item>? items
   }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
@@ -99,7 +100,12 @@ class ViewContextController extends ChangeNotifier {
         query: queryConfig);
 
     var holder = ViewContextHolder(config);
-    return ViewContextController(config: holder, cvuController: cvuController);
+    var viewContextController =  ViewContextController(config: holder, cvuController: cvuController);
+    //TODO: not sure of side effects for now
+    if (items != null) {
+      viewContextController.items = items;
+    }
+    return viewContextController;
   }
 
   int get focusedIndex {
