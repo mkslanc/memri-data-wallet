@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 
@@ -59,6 +61,7 @@ class Item {
   }
 
   get id => get("id");
+  get dateModified => DateTime.fromMillisecondsSinceEpoch(get("dateModified"));
 
   factory Item.fromJson(Map<String, dynamic> itemMap) {
     String? type;

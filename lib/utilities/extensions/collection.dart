@@ -19,17 +19,16 @@ extension Dictionary<E> on List<E> {
         .whereType<T>()
         .toList();
   }
+
+  List<T> addSeparator<T>(T f()) {
+    return this.expand((element) sync* {
+      yield f();
+      yield element;
+    }).skip(1).whereType<T>().toList();
+  }
 }
 
 extension IndexedMapExtension<T> on List<T> {
-  /// Maps each element of the list.
-  /// The [map] function gets both the original [item] and its [index].
-  Iterable<E> mapIndexed<E>(E Function(int index, T item) map) sync* {
-    for (var index = 0; index < length; index++) {
-      yield map(index, this[index]);
-    }
-  }
-
   /// Groups elements into map by [keyOf].
   Map<K, T> toMapByKey<K>(K Function(T element) keyOf,
       [T Function(T element)? valueOf]) {

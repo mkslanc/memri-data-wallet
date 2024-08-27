@@ -9,6 +9,7 @@ import 'package:memri/cvu/widgets/renderers/list_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/note_editor_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/photo_viewer_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/single_item_renderer.dart';
+import 'package:memri/cvu/widgets/renderers/timeline_renderer.dart';
 
 class SceneContentView extends StatefulWidget {
   final ViewContextController viewContext;
@@ -49,6 +50,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return ListRendererView(viewContext: viewContext);
       case "grid":
         return GridRendererView(viewContext: viewContext);
+      case "timeline":
+        return TimelineRendererView(viewContext: viewContext);
       case "photoviewer":
         return PhotoViewerRendererView(viewContext: viewContext);
       case "chart":

@@ -6,12 +6,17 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:memri/core/services/demo_data_pod.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/string.dart';
-import '../../cvu/constants/cvu_color.dart';
-import '../../cvu/controllers/view_context_controller.dart';
-import '../../cvu/utilities/binding.dart';
-import '../components/optional_date_picker.dart';
-import '../empty.dart';
+import 'package:memri/widgets/navigation/filter_panel/renderer_settings/chart_renderer_settings_view.dart';
+import 'package:memri/widgets/navigation/filter_panel/renderer_settings/grid_renderer_settings_view.dart';
+import 'package:memri/widgets/navigation/filter_panel/renderer_settings/timeline_renderer_settings_view.dart';
+import '../../../cvu/constants/cvu_color.dart';
+import '../../../cvu/controllers/view_context_controller.dart';
+import '../../../cvu/utilities/binding.dart';
+import '../../components/optional_date_picker.dart';
+import '../../empty.dart';
 
 enum _FilterPanelTab { renderer, filterOptions, rendererOptions, sortOptions }
 
@@ -215,11 +220,11 @@ class _RendererOptionsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "timeline":
-        return TimelineRendererSettingsView();
+        return TimelineRendererSettingsView(viewContext: viewContext);
       case "chart":
-      // return ChartRendererSettingsView(viewContext: viewContext);
-      // case "grid":
-      //   return GridRendererSettingsView(viewContext: viewContext);
+      return ChartRendererSettingsView(viewContext: viewContext);
+      case "grid":
+        return GridRendererSettingsView(viewContext: viewContext);
       default:
     }
     return Padding(
@@ -364,20 +369,7 @@ class _FilterPanelTabBar extends StatelessWidget {
       // tabButton(Icons.swap_vertical_circle, _FilterPanelTab.sortOptions),
     ];
 
-    return Row(
-      children: tabList.expand((tab) sync* {
-        yield VerticalDivider(width: 1);
-        yield tab;
-      }).skip(1).toList()
-    );
-  }
-}
-
-class TimelineRendererSettingsView extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
+    return Row(children: tabList.addSeparator<Widget>(() => VerticalDivider(width: 1)));
   }
 }
 

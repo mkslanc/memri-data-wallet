@@ -25,6 +25,7 @@ enum CVUUIElementFamily {
   EditorSection,
   SubView,
   HTMLView,
+  TimelineItem,
   FileThumbnail,
   Null,
   Grid,

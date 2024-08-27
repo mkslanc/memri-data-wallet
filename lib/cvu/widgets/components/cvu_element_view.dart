@@ -19,6 +19,8 @@ import 'package:memri/cvu/widgets/components/elements/cvu_sub_view.dart';
 import 'package:memri/cvu/widgets/components/elements/cvu_text.dart';
 import 'package:memri/widgets/empty.dart';
 
+import 'elements/cvu_timeline_item.dart';
+
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
 class CVUElementView extends StatefulWidget {
   final CVUUINodeResolver nodeResolver;
@@ -78,6 +80,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUShapeRectangle(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.HTMLView:
         return CVUHTMLView(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.TimelineItem:
+        return CVUTimelineItem(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Spacer:
         return Spacer();
       case CVUUIElementFamily.Empty:

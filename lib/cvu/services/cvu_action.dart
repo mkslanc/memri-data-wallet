@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../screens/cvu_screen.dart';
-import '../../widgets/navigation/filter_panel_view.dart';
+import '../../widgets/navigation/filter_panel/filter_panel_view.dart';
 import '../controllers/view_context_controller.dart';
 import '../models/cvu_parsed_definition.dart';
 import '../models/cvu_view_arguments.dart';

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/utilities/extensions/collection.dart';
