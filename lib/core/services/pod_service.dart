@@ -111,14 +111,22 @@ class PodService extends ApiService<PodAPI> {
   }
 
   Future<void> loadDemoFiles() async {
-    var items = await DemoData.importDataToPod(defaultData: false);
-    var allEdges = items.expand((Item item) => item.getAllEdges() ?? []).cast<Edge>().toList();
-    await this.bulkAction(createItems: items, createEdges: allEdges);
+    var result = await DemoData.importDataToPod(defaultData: false);
+    await uploadData(result["items"], result["urls"]);
   }
 
   Future<void> loadDefaultData() async {
-    var items = await DemoData.importDataToPod();
-    this.bulkAction(createItems: items);
+    var result = await DemoData.importDataToPod();
+    await uploadData(result["items"], result["urls"]);
+  }
+
+  Future<void> uploadData(List<Item> items, List<String> urls) async {
+    var allEdges = items.expand((Item item) => item.getAllEdges() ?? []).cast<Edge>().toList();
+    await this.bulkAction(createItems: items, createEdges: allEdges);
+
+    for (var url in urls) {
+      await api.uploadFile(url);
+    }
   }
 
   Future<String> podVersion() async => api.podVersion().catchError((error) => '');
@@ -213,5 +221,9 @@ query {
 
   Future<Map<String, dynamic>> getSchema() async {
     return await api.getSchema();
+  }
+
+  downloadFile(String fileSHAHash) async {
+    return api.downloadFile(fileSHAHash);
   }
 }

@@ -171,6 +171,23 @@ class PodAPI extends BaseAPI {
     checkResponseError(response);
     return jsonDecode(response.data)['cargo'];
   }
+
+  uploadFile(String url) async {
+    var request = await PodUploadRequest.uploadFile(fileURL: url, connectionConfig: _podConfig);
+    var response = await request.execute(_podConfig);
+    //checkResponseError(response); TODO:
+
+    //return jsonDecode(response.toString());
+  }
+
+
+  downloadFile(String fileSHA) async {
+    var request = PodDownloadRequest.downloadFile(fileSHA, fileSHA);
+    await request.execute(_podConfig);
+    //checkResponseError(response); TODO:
+
+    //return jsonDecode(response.toString());
+  }
 }
 
 enum HTTPMethod { get, post, delete, put }
@@ -185,18 +202,10 @@ class PodUploadRequest<Payload> {
   String path;
   Payload payload;
 
-/*  Future<bool> get uploadOnCellular async {
-    return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ?? false;
-  }*/
-
   PodUploadRequest({required this.path, required this.payload});
 
   Future<http.Response> execute(PodConfig connectionConfig) async {
-    Uri url = Uri(
-        scheme: connectionConfig.scheme,
-        host: connectionConfig.host,
-        port: connectionConfig.port,
-        path: "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
+    Uri url = Uri.parse(connectionConfig.baseUrl + "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
 
     return await http.post(url, body: payload);
   }
@@ -229,26 +238,18 @@ class PodDownloadRequest<Payload> {
       Map<String, String>? headers})
       : headers = headers ?? {"content-type": "application/json"};
 
-/*  Future<bool> get uploadOnCellular async {
-    return (await Settings.shared.getSetting<bool>("device/upload/cellular")) ?? false;
-  }*/
-
   Future<String> get destination async {
     return FileStorageController.getURLForFile(fileUID);
   }
 
   Future<http.Response> execute(PodConfig connectionConfig) async {
-    Uri url = Uri(
-        scheme: connectionConfig.scheme,
-        host: connectionConfig.host,
-        port: connectionConfig.port,
-        path: "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
-
+    Uri url = Uri.parse(connectionConfig.baseUrl + "/${connectionConfig.apiVersion}/${connectionConfig.ownerKey}/$path");
     var body = jsonEncode(PodRequestBody(connectionConfig: connectionConfig, payload: payload));
 
     var response = await http.post(url, headers: headers, body: body);
-
-    await FileStorageController.write(await destination, response.bodyBytes);
+    if (response.statusCode == 200) {
+      await FileStorageController.write(await destination, response.bodyBytes);
+    }
 
     return response;
   }

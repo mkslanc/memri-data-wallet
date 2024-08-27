@@ -61,7 +61,7 @@ class DemoData {
     }));
   }
 
-  static Future<List<Item>> importDataToPod(
+  static Future<Map<String, dynamic>> importDataToPod(
       {bool throwIfAgainstSchema = false, bool defaultData: true}) async {
     var fileURL = "assets/dev_database.json";
     if (!defaultData) {
@@ -71,13 +71,19 @@ class DemoData {
     var fileData = await rootBundle.loadString(fileURL, cache: false);
     var items = jsonDecode(fileData);
     if (items == null || items is! List) {
-      return [];
+      return {"items": [], "urls": []};
     }
     await loadSchema();
-    List<DemoItem> processedDemoItems = (await Future.wait(items.map((item) async =>
-            await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema))))
-        .expand((element) => element)
-        .toList();
+    List<DemoItem> processedDemoItems = [];
+    List<String> collectedUrls = [];
+
+    var results = await Future.wait(items.map((item) async =>
+    await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema)));
+
+    for (var result in results) {
+      processedDemoItems.addAll(result["items"]);
+      collectedUrls.addAll(result["urls"]);
+    }
 
     Map<String, String> tempIDLookup = {};
     Map<String, String> sourceIDLookup = {};
@@ -89,7 +95,8 @@ class DemoData {
           type: demoItem.type,
           properties: demoItem.properties);
       item.properties["id"] = demoItem.uid;
-      //TODO: date created/modified;
+      //item.properties["dateCreated"] = demoItem.dateCreated?.millisecondsSinceEpoch;
+      //item.properties["dateModified"] = demoItem.dateModified?.millisecondsSinceEpoch;
       var tempUID = demoItem.tempUID;
 
       if (demoItem.type == "File") {
@@ -125,7 +132,6 @@ class DemoData {
         if (targetActualID == null) {
           continue;
         }
-        //var sourceRowID = sourceIDLookup[item.uid];
         var sourceEdgeItem = allItems.firstWhereOrNull((el) {
           return demoItem.uid == el.id;
         });
@@ -139,10 +145,10 @@ class DemoData {
       }
     }
 
-    return allItems;
+    return {"items": allItems, "urls": collectedUrls};
   }
 
-  static Future<List<DemoItem>> processItemJSON(
+  static Future<Map<String, dynamic>> processItemJSON(
       {required Map<String, dynamic> item,
       String? overrideUID,
       bool isRunningTests = false}) async {
@@ -159,18 +165,19 @@ class DemoData {
     var itemType = item["_type"];
     if (itemType is! String) {
       handleError("BAD RECORD: $item");
-      return [];
+      return {"items": [], "urls": []};
     }
 
     if (types[itemType] == null) {
       //TODO:
       AppLogger.warn("$itemType not in schema");
-      return [];
+      return {"items": [], "urls": []};
     }
 
     var itemTempUID = overrideUID ?? item["uid"]?.toString();
 
     List<DemoItem> items = [];
+    List<String> urls = [];
     Map<String, dynamic> properties = {};
     List<DemoEdge> edges = [];
     // Fake a recent date for the demo data
@@ -226,13 +233,12 @@ class DemoData {
                 // Sub-item declared as edge, add edge property AND item
                 var targetUID = Uuid().v4();
                 edges.add(DemoEdge(name: edgeName, targetTempUID: targetUID));
-                items = [
-                  ...items,
-                  ...await processItemJSON(
+                var result = await processItemJSON(
                       item: subitem as Map<String, dynamic>,
                       overrideUID: targetUID,
-                      isRunningTests: isRunningTests)
-                ];
+                    isRunningTests: isRunningTests);
+                items = [...items, ...result["items"]];
+                urls = [...urls, ...result["urls"]];
               }
             }
           }
@@ -251,9 +257,6 @@ class DemoData {
             return;
           }
           try {
-            /*PropertyDatabaseValue.create(
-                propertyValue, expectedType.valueType, "$itemType.$propertyName");*/
-
             if (!isRunningTests &&
                 itemType == "File" &&
                 propertyName == "filename" &&
@@ -262,22 +265,23 @@ class DemoData {
 
               var demoDirectory = "assets/demoAssets";
               var sourcePath = "";
+              var extension = "jpg";
               if (fileName.length == 1) {
-                sourcePath = demoDirectory + "/" + ("${fileName[0]}.jpg");
+                sourcePath = demoDirectory + "/" + ("${fileName[0]}.$extension");
               } else {
-                sourcePath = demoDirectory + "/" + ("${fileName[0] ?? ""}.${fileName[1]}");
+                extension = fileName[1];
+                sourcePath = demoDirectory + "/" + ("${fileName[0] ?? ""}.$extension");
               }
 
-              // Also add sha256 property for item
-              var byteData = await FileStorageController.getByteDataFromAsset(sourcePath);
-              var sha256 = FileStorageController.getHashForData(
-                  byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+              var newFileName =
+                  "${Uuid().v4()}.$extension";
+              var url = (await FileStorageController.getFileStorageURL()) + "/" + newFileName;
+              await FileStorageController.copy(sourcePath, url);
 
-              var url = (await FileStorageController.getFileStorageURL()) + "/" + sha256;
+              var sha256 = await FileStorageController.getHashForFile(fileURL: url);
 
               properties["sha256"] = sha256;
-
-              await FileStorageController.copy(sourcePath, url);
+              urls.add(url);  // Add the generated URL to the list
             }
 
             properties[propertyName] = propertyValue;
@@ -295,7 +299,8 @@ class DemoData {
         edges: edges,
         dateCreated: dateCreated,
         dateModified: dateModified));
-    return items;
+
+    return {"items": items, "urls": urls};
   }
 }
 
