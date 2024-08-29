@@ -47,8 +47,8 @@ CVUParsedDefinition _$CVUParsedDefinitionFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CVUParsedDefinitionToJson(
         CVUParsedDefinition instance) =>
     <String, dynamic>{
-      'type': _$CVUDefinitionTypeEnumMap[instance.type],
-      'domain': _$CVUDefinitionDomainEnumMap[instance.domain],
+      'type': _$CVUDefinitionTypeEnumMap[instance.type]!,
+      'domain': _$CVUDefinitionDomainEnumMap[instance.domain]!,
       'selector': instance.selector,
       'name': instance.name,
       'renderer': instance.renderer,

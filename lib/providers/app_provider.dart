@@ -5,7 +5,6 @@ import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/widgets/blur_dialog.dart';
 import 'package:memri/widgets/loading_indicator.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 enum AppState { init, loading, success, error, unauthenticated, authenticating }
 
@@ -15,7 +14,6 @@ class AppProvider with ChangeNotifier {
   AppProvider(this._podService);
 
   AppState state = AppState.init;
-  PackageInfo? _packageInfo;
   String? podVersion;
   String? appVersion;
   String errorMessage = '';
@@ -44,13 +42,6 @@ class AppProvider with ChangeNotifier {
     try {
       state = AppState.init;
       if (appVersion == null || podVersion == null) {
-        _packageInfo = await PackageInfo.fromPlatform();
-        appVersion = _packageInfo!.version +
-            '.' +
-            (_packageInfo?.buildNumber == null ||
-                    _packageInfo!.buildNumber.isEmpty
-                ? '0'
-                : _packageInfo!.buildNumber);
         await _updateWelcomeMessage(S.current.welcome);
         podVersion = await _podService.podVersion();
         _handleLoading();

@@ -157,6 +157,7 @@ class CVUActionOpenView extends CVUAction {
 
   @override
   Future execute(CVUContext cvuContext, BuildContext context) async {
+    var currentContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -181,7 +182,7 @@ class CVUActionOpenView extends CVUAction {
       builder: (context) => CVUScreen(
           viewContextController: ViewContextController.fromParams(
               viewName: viewName ?? resolver.string("viewName") ?? "customView",
-              //inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
+              inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
               overrideRenderer: renderer ?? resolver.string("renderer"),
               defaultRenderer: "singleItem",
               focusedItem: cvuContext.currentItem,
@@ -189,7 +190,7 @@ class CVUActionOpenView extends CVUAction {
               //dateRange: dateRange,
               customDefinition: customDefinition,
               items: cvuContext.items,
-              viewArguments: viewArguments)),
+              viewArguments: viewArguments, currentContext: currentContext)),
     );
 
     if (resolver.boolean("clearStack") ?? false) {
@@ -269,13 +270,11 @@ class CVUActionShowStarred extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    Map<String, CVUValue> newVars = {"inheritDatasource": CVUValueConstant(CVUConstantBool(true))};
-    // CVUActionOpenView(
-    //     vars: newVars,
-    //     viewName: "filter-starred",
-    //     renderer: cvuContext.rendererName,
-    //     viewDefinition: cvuContext.viewDefinition)
-    //     .execute(sceneController, cvuContext);
+    var currentContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
+    var query = currentContext?.config.query;
+    query?.addPropertyEqualCondition("starred", true);
+    query?.queryGraphQL = query.constructGraphQLQuery();
+    currentContext?.setupQueryObservation();
   }
 }
 

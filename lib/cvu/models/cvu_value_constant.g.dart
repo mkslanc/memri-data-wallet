@@ -18,7 +18,7 @@ CVUConstantNumber _$CVUConstantNumberFromJson(Map<String, dynamic> json) =>
 
 CVUConstantInt _$CVUConstantIntFromJson(Map<String, dynamic> json) =>
     CVUConstantInt(
-      json['value'] as int,
+      (json['value'] as num).toInt(),
     );
 
 CVUConstantString _$CVUConstantStringFromJson(Map<String, dynamic> json) =>

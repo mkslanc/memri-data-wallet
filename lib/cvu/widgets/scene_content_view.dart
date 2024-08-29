@@ -1,6 +1,7 @@
 //  Created by T Brennan on 23/1/21.
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
@@ -10,6 +11,9 @@ import 'package:memri/cvu/widgets/renderers/note_editor_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/photo_viewer_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/single_item_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/timeline_renderer.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/app_provider.dart';
 
 class SceneContentView extends StatefulWidget {
   final ViewContextController viewContext;
@@ -47,9 +51,17 @@ class _SceneContentViewState extends State<SceneContentView> {
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
-        return ListRendererView(viewContext: viewContext);
+        return RefreshIndicator(
+            onRefresh: () async {
+              return await viewContext.getItems(viewContext.config.query);
+            },
+            child: ListRendererView(viewContext: viewContext));
       case "grid":
-        return GridRendererView(viewContext: viewContext);
+        return RefreshIndicator(
+            onRefresh: () async {
+              return await viewContext.getItems(viewContext.config.query);
+            },
+            child: GridRendererView(viewContext: viewContext));
       case "timeline":
         return TimelineRendererView(viewContext: viewContext);
       case "photoviewer":
@@ -72,6 +84,6 @@ class _SceneContentViewState extends State<SceneContentView> {
 
   @override
   Widget build(BuildContext context) {
-    return renderer;
+      return renderer;
   }
 }

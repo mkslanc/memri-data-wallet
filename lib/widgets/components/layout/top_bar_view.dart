@@ -81,16 +81,17 @@ class _TopBarViewState extends State<TopBarView> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (editActionButtonArray != null && editActionButtonArray.isNotEmpty)
+                    /*if (editActionButtonArray != null && editActionButtonArray.isNotEmpty)
                       ActionButton(
                         action: cvuAction(editActionButtonArray.first)!.call(vars: {
                           "icon": CVUValueConstant(CVUConstantString("pencil"))
                         }),
                         viewContext: viewContext!.getCVUContext(),
+                        color: Provider.of<AppProvider>(context, listen: false).isInEditMode ? Colors.blue : Colors.black,
                       ),
                     if (actions != null)
                       ...actions.map((action) =>
-                          ActionButton(action: action, viewContext: viewContext!.getCVUContext()))
+                          ActionButton(action: action, viewContext: viewContext!.getCVUContext()))*/
                   ],
                   mainAxisAlignment: MainAxisAlignment.end,
                 ),

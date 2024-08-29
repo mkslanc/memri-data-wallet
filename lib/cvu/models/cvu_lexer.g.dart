@@ -8,8 +8,8 @@ part of 'cvu_lexer.dart';
 
 CVUTokenLocation _$CVUTokenLocationFromJson(Map<String, dynamic> json) =>
     CVUTokenLocation(
-      json['ln'] as int,
-      json['ch'] as int,
+      (json['ln'] as num).toInt(),
+      (json['ch'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CVUTokenLocationToJson(CVUTokenLocation instance) =>

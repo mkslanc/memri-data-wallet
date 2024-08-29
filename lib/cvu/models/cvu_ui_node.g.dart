@@ -24,7 +24,7 @@ CVUUINode _$CVUUINodeFromJson(Map<String, dynamic> json) => CVUUINode(
       ..id = json['id'] as String;
 
 Map<String, dynamic> _$CVUUINodeToJson(CVUUINode instance) => <String, dynamic>{
-      'type': _$CVUUIElementFamilyEnumMap[instance.type],
+      'type': _$CVUUIElementFamilyEnumMap[instance.type]!,
       'children': instance.children,
       'properties': instance.properties,
       'tokenLocation': instance.tokenLocation,
@@ -55,6 +55,7 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.EditorSection: 'EditorSection',
   CVUUIElementFamily.SubView: 'SubView',
   CVUUIElementFamily.HTMLView: 'HTMLView',
+  CVUUIElementFamily.TimelineItem: 'TimelineItem',
   CVUUIElementFamily.FileThumbnail: 'FileThumbnail',
   CVUUIElementFamily.Null: 'Null',
   CVUUIElementFamily.Grid: 'Grid',

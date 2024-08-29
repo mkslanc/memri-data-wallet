@@ -24,9 +24,7 @@ Map<String, dynamic> _$CVUExpressionNodeLookupToJson(
 CVUExpressionNodeStringMode _$CVUExpressionNodeStringModeFromJson(
         Map<String, dynamic> json) =>
     CVUExpressionNodeStringMode(
-      (json['nodes'] as List<dynamic>)
-          .map((e) => CVUExpressionNode.fromJson(e))
-          .toList(),
+      (json['nodes'] as List<dynamic>).map(CVUExpressionNode.fromJson).toList(),
     )..inParens = json['inParens'] as bool;
 
 Map<String, dynamic> _$CVUExpressionNodeStringModeToJson(

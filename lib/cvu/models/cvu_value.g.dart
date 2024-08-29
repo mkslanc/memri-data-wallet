@@ -52,9 +52,7 @@ Map<String, dynamic> _$CVUValueItemToJson(CVUValueItem instance) =>
 
 CVUValueArray _$CVUValueArrayFromJson(Map<String, dynamic> json) =>
     CVUValueArray(
-      (json['value'] as List<dynamic>)
-          .map((e) => CVUValue.fromJson(e))
-          .toList(),
+      (json['value'] as List<dynamic>).map(CVUValue.fromJson).toList(),
       tokenLocation: json['tokenLocation'] == null
           ? null
           : CVUTokenLocation.fromJson(

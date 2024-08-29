@@ -7,8 +7,9 @@ import '../../../utilities/extensions/icon_data.dart';
 class ActionButton extends StatefulWidget {
   final CVUAction action;
   final CVUContext viewContext;
+  final Color? color;
 
-  ActionButton({required this.action, required this.viewContext});
+  ActionButton({required this.action, this.color, required this.viewContext});
 
   @override
   _ActionButtonState createState() => _ActionButtonState();
@@ -38,7 +39,7 @@ class _ActionButtonState extends State<ActionButton> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        child: Icon(MemriIcon.getByName(icon)),
+        child: Icon(MemriIcon.getByName(icon), color: widget.color ?? Colors.black,),
         onPressed: () async {
           await widget.action.execute(widget.viewContext, context);
           setState(() => initIcon());

@@ -15,7 +15,6 @@ import 'package:memri/cvu/models/view_context.dart';
 import 'package:memri/cvu/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
-import '../../utilities/helpers/app_helper.dart';
 import '../services/resolving/cvu_context.dart';
 import '../services/resolving/cvu_property_resolver.dart';
 import 'database_query.dart';
@@ -63,14 +62,17 @@ class ViewContextController extends ChangeNotifier {
     String defaultRenderer = "list",
     String? overrideRenderer,
     CVUDefinitionContent? customDefinition,
-    List<Item>? items
+    List<Item>? items,
+    bool inheritDatasource = false,
+    ViewContextController? currentContext
   }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
     cvuController ??= GetIt.instance();
 
-    viewDefinition ??= cvuController.viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
-        CVUDefinitionContent();
+    viewDefinition ??=
+        cvuController.viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
+            CVUDefinitionContent();
     var newContext = CVUContext(
         currentItem: focusedItem,
         selector: null,
@@ -78,9 +80,12 @@ class ViewContextController extends ChangeNotifier {
         viewDefinition: viewDefinition,
         viewArguments: viewArguments);
     var datasource = viewDefinition.definitions.firstWhereOrNull(
-        (definition) => definition.type == CVUDefinitionType.datasource);
+            (definition) => definition.type == CVUDefinitionType.datasource);
     var queryConfig = DatabaseQueryConfig.queryConfigWith(
-        context: newContext, datasource: datasource);
+      context: newContext,
+      datasource: datasource,
+      inheritQuery: inheritDatasource ? currentContext?.config.query : null,
+    );
 
     var rendererName = overrideRenderer ?? ((() =>
         viewDefinition!
@@ -104,6 +109,8 @@ class ViewContextController extends ChangeNotifier {
     //TODO: not sure of side effects for now
     if (items != null) {
       viewContextController.items = items;
+      viewContextController.focusedIndex = items.indexWhere((item) => item == focusedItem); //TODO: remake
+
     }
     return viewContextController;
   }
@@ -199,12 +206,12 @@ class ViewContextController extends ChangeNotifier {
     if (viewDefinition != null) {
       config.viewDefinition = viewDefinition!;
 
-      var datasource = config.viewDefinition.definitions.firstWhereOrNull(
+     /* var datasource = config.viewDefinition.definitions.firstWhereOrNull(
           (definition) => definition.type == CVUDefinitionType.datasource);
       var queryConfig = DatabaseQueryConfig.queryConfigWith(
           context: getCVUContext(item: config.focusedItem),
           datasource: datasource);
-      config.query.queryGraphQL = queryConfig.queryGraphQL;
+      config.query.queryGraphQL = queryConfig.queryGraphQL;*/
     }
 
     rendererDefinition =
