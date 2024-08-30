@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/widgets/blur_dialog.dart';
 import 'package:memri/widgets/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum AppState { init, loading, success, error, unauthenticated, authenticating }
+import '../core/services/database/schema.dart';
+import '../cvu/controllers/cvu_controller.dart';
+import '../utilities/helpers/app_helper.dart';
+
+enum AppState { init, loading, success, error, unauthenticated, authenticating, loggedIn }
 
 class AppProvider with ChangeNotifier {
   final PodService _podService;
@@ -41,12 +47,6 @@ class AppProvider with ChangeNotifier {
   Future<void> initialize() async {
     try {
       state = AppState.init;
-      if (appVersion == null || podVersion == null) {
-        await _updateWelcomeMessage(S.current.welcome);
-        podVersion = await _podService.podVersion();
-        _handleLoading();
-        await Future.delayed(Duration(milliseconds: 700));
-      }
 
       if (_checkAuth) {
         if (_podService.podConfig.ownerKey.isEmpty) {
@@ -76,6 +76,16 @@ class AppProvider with ChangeNotifier {
       barrierDismissible: false,
     );
   }
+
+  initCVUDefinitions() async {
+    var cvuController = GetIt.I<CVUController>();
+    await GetIt.I<Schema>().loadFromPod();
+    await cvuController.loadStoredDefinitions();
+    if (cvuController.storedDefinitions.isEmpty) {
+      await cvuController.init();
+    }
+  }
+
 
   void closeLoadingDialog(BuildContext context) {
     if (_isLoadingOpened) {
@@ -112,5 +122,12 @@ class AppProvider with ChangeNotifier {
     state = AppState.error;
     errorMessage = e.toString();
     notifyListeners();
+  }
+
+  resetApp() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.remove(app.keys.podAddress);
+    await _prefs.remove(app.keys.ownerKey);
+    await _prefs.remove(app.keys.dbKey);
   }
 }

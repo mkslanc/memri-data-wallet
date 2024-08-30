@@ -28,8 +28,6 @@ class _AccountScaffoldState extends State<AccountScaffold>
   final List<Widget> _slides = <Widget>[];
   PageController _controller = PageController();
   Timer? _periodicTimer;
-  late AnimationController _animationController;
-  late Animation<Color?> animation;
 
   final colors = TweenSequence([
     TweenSequenceItem(
@@ -49,30 +47,6 @@ class _AccountScaffoldState extends State<AccountScaffold>
   @override
   void initState() {
     Provider.of<AppProvider>(context, listen: false).initAccountsAuthState();
-    if (widget.showSlider) {
-      _animationController = AnimationController(
-          duration: const Duration(milliseconds: 600), vsync: this);
-      animation = colors.animate(_animationController)
-        ..addListener(() {
-          setState(() {});
-        });
-
-      _slides.addAll([_slide1, _slide2, _slide3]);
-      _periodicTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-        if (_controller.page == null) return;
-        if (_controller.page! > 0 &&
-            _controller.page!.toInt() == _slides.length - 1) {
-          _controller.animateToPage(
-            0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease,
-          );
-        } else {
-          _controller.nextPage(
-              duration: const Duration(milliseconds: 300), curve: Curves.ease);
-        }
-      });
-    }
     super.initState();
   }
 
@@ -80,7 +54,6 @@ class _AccountScaffoldState extends State<AccountScaffold>
   void dispose() {
     _controller.dispose();
     if (_periodicTimer != null) _periodicTimer!.cancel();
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -166,23 +139,6 @@ class _AccountScaffoldState extends State<AccountScaffold>
                     ]),
             ),
           ),
-          if (widget.showSlider)
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: widget.showSlider ? animation.value : Colors.white,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 50,
-                      bottom: 60,
-                      right: 50,
-                      child: _buildSlider(),
-                    ),
-                  ],
-                ),
-              ),
-            )
         ],
       ),
     );
@@ -199,14 +155,14 @@ class _AccountScaffoldState extends State<AccountScaffold>
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height - 150,
                 color: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 50),
+                padding: EdgeInsets.symmetric(horizontal: 30),
                 child: widget.child),
-            Container(
-              color: widget.showSlider ? animation.value : Colors.white,
+            /*Container(
+              color: Colors.white,
               width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               child: _buildSlider(),
-            )
+            )*/
           ],
         ),
       ),
@@ -226,9 +182,6 @@ class _AccountScaffoldState extends State<AccountScaffold>
             physics: AlwaysScrollableScrollPhysics(),
             controller: _controller,
             children: _slides,
-            onPageChanged: (index) {
-              _animationController.animateTo(index / _slides.length);
-            },
           ),
         ),
         SizedBox(height: 40),

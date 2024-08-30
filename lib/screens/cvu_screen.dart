@@ -32,13 +32,7 @@ class _CVUScreenState extends State<CVUScreen> {
 
   init() async {
     try {
-      //TODO CVU test: this part is just for testing
-      var cvuController = GetIt.I<CVUController>();
-      await GetIt.I<Schema>().loadFromPod();
-      await cvuController.loadStoredDefinitions();
-      if (cvuController.storedDefinitions.isEmpty) {
-        await cvuController.init();
-      }
+      Provider.of<AppProvider>(context, listen: false).initCVUDefinitions();
       return true;
     } catch (error) {
       return false;

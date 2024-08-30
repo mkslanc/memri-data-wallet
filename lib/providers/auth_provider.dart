@@ -58,7 +58,7 @@ class AuthProvider with ChangeNotifier {
       }
 
 
-      await initCVUDefinitions();
+      await _appProvider.initCVUDefinitions();
 
       _handleAuthenticated(context);
 
@@ -73,15 +73,6 @@ class AuthProvider with ChangeNotifier {
         /// TODO should handle different error types
         _handleError(S.current.account_login_general_error);
       }
-    }
-  }
-
-  initCVUDefinitions() async {
-    var cvuController = GetIt.I<CVUController>();
-    await GetIt.I<Schema>().loadFromPod();
-    await cvuController.loadStoredDefinitions();
-    if (cvuController.storedDefinitions.isEmpty) {
-      await cvuController.init();
     }
   }
 

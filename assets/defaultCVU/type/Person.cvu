@@ -645,6 +645,13 @@ Person > timeline {
                 sortAscending: false
             }
         }
+        edges: '''
+            profilePicture {
+                file {
+                    sha256
+                }
+            }
+            '''
     }
 
     actionButton:

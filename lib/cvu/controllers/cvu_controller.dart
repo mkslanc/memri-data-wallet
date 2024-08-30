@@ -24,7 +24,7 @@ import '../../core/services/pod_service.dart';
 import '../services/resolving/cvu_context.dart';
 
 class CVUController extends ChangeNotifier {
-  late List<CVUParsedDefinition> definitions;
+  List<CVUParsedDefinition> definitions = [];
 
   List<Item> storedDefinitions = [];
 

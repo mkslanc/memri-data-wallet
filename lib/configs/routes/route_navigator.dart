@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/configs/routes/route_handler.dart';
 
 class Routes {
-  static String workspace = '/hello'; //TODO: should be to basic page
-  static String onboarding = '/';
+  static String onboarding = '/onboarding';
   static String error = '/error';
 
   // static String create = '/account/create';
@@ -24,10 +23,8 @@ class Routes {
   static String importerDownloading = '/data/importer/downloading';
   static String importerError = '/data/importer/error';
 
-  static String cvu = '/cvu';
+  static String cvu = '/';
 
-  static String apps = '/workspace/apps';
-  static String inbox = '/workspace/apps/inbox';
 
   static void configureRoutes(FluroRouter router) {
     router.notFoundHandler = notFoundHandler;

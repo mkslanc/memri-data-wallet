@@ -239,7 +239,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  String constructGraphQLQuery({List<String>? edges}) {
+  String? constructGraphQLQuery({List<String>? edges}) {
     Schema schema = GetIt.I<Schema>();
 
     // Initialize the combined query string
@@ -249,6 +249,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     // Iterate over each item type specified in the config
     // Fetch the properties for the current item type using the Schema object
     List<String> properties = schema.propertyNamesForItemType(itemType) ?? [];
+    if (properties.isEmpty) {
+      return null;
+    }
 
     // Build the filter part of the query based on the config
     String filter = '';

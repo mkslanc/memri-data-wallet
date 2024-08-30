@@ -1,9 +1,8 @@
 //  Created by T Brennan on 30/1/21.
 
-import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/cvu_controller.dart';
@@ -50,6 +49,16 @@ class ViewContextController extends ChangeNotifier {
 
     setupQueryObservation();
     this.cvuController.addListener(() => updateUI());
+  }
+
+  factory ViewContextController.empty() {
+    var queryConfig = DatabaseQueryConfig.queryConfigWith(
+      context: CVUContext(),
+    );
+    var config = ViewContext(rendererName: "list", query: queryConfig);
+    var holder = ViewContextHolder(config);
+    var viewContextController = ViewContextController(config: holder);
+    return viewContextController;
   }
 
   factory ViewContextController.fromParams({

@@ -39,34 +39,6 @@ class SaveKeysScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 Divider(height: 1),
-                if (provider.developerMode)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 25),
-                      Text(S.current.account_save_keys_developer_hint,
-                          style: CVUFont.headline3),
-                      SizedBox(height: 5),
-                      Text(
-                        "store_keys --owner_key ${provider.ownerKey} --database_key ${provider.databaseKey}",
-                        style: CVUFont.bodyText2,
-                        softWrap: true,
-                      ),
-                      SizedBox(height: 10),
-                      TextButton(
-                        onPressed: provider.copyKeysToClipboard,
-                        style: TextButton.styleFrom(
-                            backgroundColor: Color(0xffF0F0F0)),
-                        child: Text(
-                          S.current.copy,
-                          style: CVUFont.buttonLabel
-                              .copyWith(color: Color(0xffFE570F)),
-                        ),
-                      ),
-                      SizedBox(height: 25),
-                      Divider(height: 1),
-                    ],
-                  ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

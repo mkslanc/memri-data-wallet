@@ -127,10 +127,10 @@ class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
                         SizedBox(height: 30),
                         if (provider.state == AuthState.error)
                           ErrorMessage(provider.errorMessage),
-                        Padding(
+                        /*Padding(
                           padding: EdgeInsets.only(top: 60, bottom: 16),
                           child: _buildSwitchModeButton(),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),

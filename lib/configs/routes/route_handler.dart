@@ -4,7 +4,6 @@ import 'package:memri/constants/app_logger.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/screens/account/login_developer_screen.dart';
 import 'package:memri/screens/account/login_screen.dart';
-import 'package:memri/screens/account/onboarding_screen.dart';
 import 'package:memri/screens/account/save_keys_screen.dart';
 import 'package:memri/screens/cvu_screen.dart';
 import 'package:memri/screens/not_found_screen.dart';
@@ -17,7 +16,7 @@ var notFoundHandler = Handler(handlerFunc: (BuildContext? context, Map<String, d
 ///
 /// Account
 ///
-var onboardingScreenHandler = Handler(handlerFunc: (_, __) => OnboardingScreen());
+var onboardingScreenHandler = Handler(handlerFunc: (_, __) => LoginDeveloperScreen());//OnboardingScreen
 
 var loginScreenHandler = Handler(handlerFunc: (_, __) => LoginScreen());
 

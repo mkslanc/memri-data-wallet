@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/item.dart';
 import '../../cvu/controllers/view_context_controller.dart';
 import '../../providers/app_provider.dart';
-import '../empty.dart';
+import '../settings_pane.dart';
 import '../space.dart';
 
 /// This view is the main  NavigationPane. It lists NavigationItems and provides search functionality for this list.
@@ -39,7 +39,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                                   context: context,
                                   useRootNavigator: true,
                                   isScrollControlled: true,
-                                  builder: (BuildContext context) => Empty() /*SettingsPane()*/,
+                                  builder: (BuildContext context) => SettingsPane(),
                                 ),
                             icon: Icon(
                               Icons.settings,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
 import '../navigation/navigation_pane_view.dart';
+import 'base_scaffold.dart';
 
 class CVUScaffold extends StatelessWidget {
   const CVUScaffold(
@@ -17,33 +18,35 @@ class CVUScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(builder: (BuildContext context, provider, _) {
-      return Scaffold(
-        appBar: AppBar(
-          leading: Builder(
-            builder: (context) {
-              return IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            },
-          ),
-          title: TopBarView(),
-        ),
-        drawer: Drawer(
-          child: NavigationPaneView(),
-        ),
-        body: Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: child,
+      return BaseScaffold(
+        body: Scaffold(
+          appBar: AppBar(
+            leading: Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                );
+              },
             ),
-          ],
+            title: TopBarView(),
+          ),
+          drawer: Drawer(
+            child: NavigationPaneView(),
+          ),
+          body: Row(
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: child,
+              ),
+            ],
+          ),
+          bottomNavigationBar: bottomBar,
+          bottomSheet: null,
         ),
-        bottomNavigationBar: bottomBar,
-        bottomSheet: null,
       );
     });
   }
