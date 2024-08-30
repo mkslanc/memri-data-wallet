@@ -190,7 +190,9 @@ class CVUActionOpenView extends CVUAction {
               //dateRange: dateRange,
               customDefinition: customDefinition,
               items: cvuContext.items,
-              viewArguments: viewArguments, currentContext: currentContext)),
+              viewArguments: viewArguments,
+              previousContext: currentContext
+          )),
     );
 
     if (resolver.boolean("clearStack") ?? false) {
@@ -271,10 +273,12 @@ class CVUActionShowStarred extends CVUAction {
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
     var currentContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
-    var query = currentContext?.config.query;
-    query?.addPropertyEqualCondition("starred", true);
-    query?.queryGraphQL = query.constructGraphQLQuery();
-    currentContext?.setupQueryObservation();
+    if (currentContext == null) {
+      print("shouldn't get here");
+      return;
+    }
+    var query = currentContext.config.query;
+    query.addPropertyEqualCondition("starred", true);
   }
 }
 

@@ -283,22 +283,27 @@ class CVUController extends ChangeNotifier {
     return null;
   }
 
+  CVUDefinitionContent? globalDefinitionFor(String type, String? rendererName) {
+    return definitionFor(
+        type: CVUDefinitionType.uiNode,
+        selector: type,
+        rendererName: rendererName)
+        ?.parsed;
+  }
+
   CVUDefinitionContent? nodeDefinitionFor(CVUContext context) {
     var currentItem = context.currentItem;
     if (currentItem == null) {
       return null;
     }
 
-    var globalDefinition = definitionFor(
-            type: CVUDefinitionType.uiNode,
-            selector: currentItem.type,
-            rendererName: context.rendererName)
-        ?.parsed;
+    var globalDefinition = globalDefinitionFor(currentItem.type, context.rendererName);
+
     var specificDefinition = definitionFor(
-            specifiedDefinitions: context.viewDefinition.definitions,
-            type: CVUDefinitionType.uiNode,
-            selector: currentItem.type,
-            rendererName: context.rendererName)
+        specifiedDefinitions: context.viewDefinition.definitions,
+        type: CVUDefinitionType.uiNode,
+        selector: currentItem.type,
+        rendererName: context.rendererName)
         ?.parsed;
 
     return globalDefinition?.merge(specificDefinition) ?? specificDefinition;

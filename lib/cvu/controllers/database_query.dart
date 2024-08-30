@@ -7,7 +7,6 @@ import 'package:memri/core/models/item.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
-import 'package:memri/utilities/extensions/collection.dart';
 
 import '../../core/services/database/schema.dart';
 import '../services/resolving/cvu_context.dart';
@@ -21,6 +20,7 @@ enum ConditionOperator { and, or }
 class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   @annotation.JsonKey(ignore: true)
   final PodService _podService;
+  Schema? schema;
 
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
@@ -104,6 +104,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of conditions. eg. property name = "Demo note"
   List<DatabaseQueryCondition> conditions = [];
 
+  /// A list of edges to include in query. eg. ".file"
+  List<String> edges = [];
+
   ConditionOperator edgeTargetsOperator = ConditionOperator.and;
 
   @annotation.JsonKey(ignore: true)
@@ -113,15 +116,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   List<String> groupByProperties = [];
 
   /// Only include items created before this date
-  String? _queryGraphQL;
-
-  String? get queryGraphQL => _queryGraphQL;
-
-  set queryGraphQL(String? newValue) {
-    if (_queryGraphQL == newValue) return;
-    _queryGraphQL = newValue;
-    notifyListeners();
-  }
+  String? queryGraphQL;
 
   DatabaseQueryConfig(
       {List<String>? itemTypes,
@@ -153,7 +148,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   DatabaseQueryConfig clone() {
     //TODO find better way to clone object
-    var config =  DatabaseQueryConfig(
+    return DatabaseQueryConfig(
       itemTypes: itemTypes,
       itemRowIDs: itemRowIDs,
       sortProperty: sortProperty,
@@ -170,12 +165,13 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       count: count,
       conditions: conditions,
     );
-    config.queryGraphQL = queryGraphQL;
-    return config;
   }
 
-  Future<List<Item>> executeGraphQLRequest() async {
-    return await _podService.graphql(query: queryGraphQL!);
+  Future<List<Item>> executeRequest() async {
+    var query = queryGraphQL ?? _constructGraphQLQuery();
+    if (query.isEmpty)
+      return [];
+    return await _podService.graphql(query: query);
   }
 
   factory DatabaseQueryConfig.queryConfigWith({
@@ -192,7 +188,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       lookup: CVULookupController(),
     );
     var filterDef = datasourceResolver?.subdefinition("filter");
-    var edges = datasourceResolver?.stringArray("edges");
 
     if (inheritQuery == null) {
       var queryConfig = DatabaseQueryConfig();
@@ -206,32 +201,36 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       if (properties != null) {
         for (var key in properties.properties.keys) {
           dynamic value = properties.string(key) ?? "";
-          queryConfig.addPropertyEqualCondition(key, value);
+          queryConfig._addPropertyEqualCondition(key, value);
         }
       }
+
+      queryConfig.edges = datasourceResolver?.stringArray("edges") ?? [];//TODO
 
       var queryGraphQL = datasourceResolver?.string("queryGraphQL") ?? "";
       if (queryGraphQL.isNotEmpty) {// direct graphql query in cvu
         queryConfig.queryGraphQL =
             queryGraphQL.replaceAll("[", "{").replaceAll("]", "}");
-      } else {
-        queryConfig.queryGraphQL =
-            queryConfig.constructGraphQLQuery(edges: edges);
       }
 
       return queryConfig;
     } else {
       return inheritQuery.clone();
     }
-
   }
 
   void addPropertyEqualCondition(String key, dynamic value) {
+    _addPropertyEqualCondition(key, value);
+    notifyListeners();
+  }
+
+  void _addPropertyEqualCondition(String key, dynamic value) {
     // Check if a condition with the same key and value already exists
     bool exists = conditions.any((condition) =>
-    condition is DatabaseQueryConditionPropertyEquals &&
-        condition.value.name == key &&
-        condition.value.value == value);
+      condition is DatabaseQueryConditionPropertyEquals &&
+      condition.value.name == key &&
+      condition.value.value == value
+    );
 
     // Add the condition only if it doesn't already exist
     if (!exists) {
@@ -239,21 +238,35 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  String? constructGraphQLQuery({List<String>? edges}) {
-    Schema schema = GetIt.I<Schema>();
-
-    // Initialize the combined query string
-    String combinedQuery = 'query {';
+  String _constructGraphQLQuery({List<String>? edges}) {
     var itemType = itemTypes[0]; //TODO: multiple queries to overcome single query only restriction
+    return _constructItemGraphQLQuery(itemType);
+  }
 
-    // Iterate over each item type specified in the config
+  String _constructItemGraphQLQuery(String itemType) {
+    schema ??= GetIt.I<Schema>();
+    if (!schema!.isLoaded)
+      return "";
+
     // Fetch the properties for the current item type using the Schema object
-    List<String> properties = schema.propertyNamesForItemType(itemType) ?? [];
-    if (properties.isEmpty) {
-      return null;
-    }
+    List<String> properties = schema!.propertyNamesForItemType(itemType);
 
-    // Build the filter part of the query based on the config
+    String filter = _graphQlFilter();
+    String edgesQuery = _graphQlEdgesQuery(itemType);
+
+    return '''query {
+      $itemType (
+        order_desc: ${sortProperty ?? 'dateModified'}, 
+        ${filter.isNotEmpty ? "filter: $filter" : ""}
+      ) {
+        ${properties.join('\n')}
+        $edgesQuery
+      }
+    }''';
+  }
+
+  // Build the filter part of the query based on the config
+  String _graphQlFilter() {
     String filter = '';
 
     /*if (deleted != null) {
@@ -265,49 +278,27 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       if (dateModifiedBefore != null) {
         filter += 'dateModified: { lte: "${dateModifiedBefore!.toIso8601String()}" }, ';
       }*/
-    if (conditions.isNotEmpty) {
-      for (var condition in conditions) {
-        if (condition is DatabaseQueryConditionPropertyEquals) {
-          filter += '{${condition.value.name}: { eq: ${condition.value.value} }}, ';
-        }
+    for (var condition in conditions) {
+      if (condition is DatabaseQueryConditionPropertyEquals) {
+        filter += '{${condition.value.name}: { eq: ${condition.value.value} }}, ';
       }
     }
+    return filter;
+  }
 
-    // Initialize edges query parts
+  // Initialize edges query parts
+  String _graphQlEdgesQuery(itemType) {
     String edgesQuery = '';
-
     // Process each edge to build the chained structure
-    if (edges != null) {
-      //TODO: this should be taken from LookupController
-      for (String edge in edges) {
-        // Split edge by "." to get edge levels
-        List<String> edgeLevels = edge.split('.');
+    //TODO: this should be taken from LookupController
+    for (String edge in edges) {
+      // Split edge by "." to get edge levels
+      List<String> edgeLevels = edge.split('.');
 
-        // Build the nested query structure starting from the base item type
-        edgesQuery += _buildEdgeQuery(schema, itemType, edgeLevels);
-      }
+      // Build the nested query structure starting from the base item type
+      edgesQuery += _buildEdgeQuery(schema!, itemType, edgeLevels);
     }
-
-    // Construct the query string for the current item type
-    String itemQuery = '''
-      $itemType (
-        order_desc: ${sortProperty ?? 'dateModified'}, 
-        ${filter != "" ? "filter: $filter" : ""}
-      ) {
-        ${properties.join('\n')}
-        $edgesQuery
-      }
-    ''';
-
-    // Append the current item type query to the combined query
-    combinedQuery += itemQuery;
-
-    // Close the combined query string
-    combinedQuery += '}';
-
-    queryGraphQL = combinedQuery; //TODO: this could be wrong;
-
-    return combinedQuery;
+    return edgesQuery;
   }
 
   // Function to recursively build the edge query string

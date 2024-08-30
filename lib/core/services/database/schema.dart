@@ -3,6 +3,7 @@ import '../pod_service.dart';
 /// A schema definition. This is used to dynamically enforce supported types and properties
 class Schema {
   final PodService _podService;
+  bool isLoaded = false;
 
   Schema(this._podService);
 
@@ -49,6 +50,7 @@ class Schema {
         edgeTypes: edgeProperties,
       ));
     });
+    isLoaded = true;
   }
 
   List<String> propertyNamesForItemType(String itemType) {

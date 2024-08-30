@@ -51,16 +51,6 @@ class ViewContextController extends ChangeNotifier {
     this.cvuController.addListener(() => updateUI());
   }
 
-  factory ViewContextController.empty() {
-    var queryConfig = DatabaseQueryConfig.queryConfigWith(
-      context: CVUContext(),
-    );
-    var config = ViewContext(rendererName: "list", query: queryConfig);
-    var holder = ViewContextHolder(config);
-    var viewContextController = ViewContextController(config: holder);
-    return viewContextController;
-  }
-
   factory ViewContextController.fromParams({
     String viewName = "customView",
     String rendererName = "custom",
@@ -73,7 +63,7 @@ class ViewContextController extends ChangeNotifier {
     CVUDefinitionContent? customDefinition,
     List<Item>? items,
     bool inheritDatasource = false,
-    ViewContextController? currentContext
+    ViewContextController? previousContext
   }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
@@ -93,7 +83,7 @@ class ViewContextController extends ChangeNotifier {
     var queryConfig = DatabaseQueryConfig.queryConfigWith(
       context: newContext,
       datasource: datasource,
-      inheritQuery: inheritDatasource ? currentContext?.config.query : null,
+      inheritQuery: inheritDatasource ? previousContext?.config.query : null,
     );
 
     var rendererName = overrideRenderer ?? ((() =>
@@ -214,13 +204,6 @@ class ViewContextController extends ChangeNotifier {
 
     if (viewDefinition != null) {
       config.viewDefinition = viewDefinition!;
-
-     /* var datasource = config.viewDefinition.definitions.firstWhereOrNull(
-          (definition) => definition.type == CVUDefinitionType.datasource);
-      var queryConfig = DatabaseQueryConfig.queryConfigWith(
-          context: getCVUContext(item: config.focusedItem),
-          datasource: datasource);
-      config.query.queryGraphQL = queryConfig.queryGraphQL;*/
     }
 
     rendererDefinition =
@@ -332,7 +315,7 @@ class ViewContextController extends ChangeNotifier {
   bool get isLoaded => _items != null;
 
   /// Convenience variable returning whether there are any items
-  bool get hasItems => items.isNotEmpty || items.isNotEmpty;
+  bool get hasItems => items.isNotEmpty;
 
   // MARK: Selection State
   List<dynamic> _selectedItems = <String>[];
@@ -396,13 +379,11 @@ class ViewContextController extends ChangeNotifier {
     }
 
     queryConfig.addListener(setupQueryObservation);
-    if (queryConfig.queryGraphQL != null) {
-      getItems(queryConfig);
-    }
+    getItems(queryConfig);
   }
 
   getItems(DatabaseQueryConfig queryConfig) {
-    queryConfig.executeGraphQLRequest().then((records) {
+    queryConfig.executeRequest().then((records) {
       items = records;
     });
   }
