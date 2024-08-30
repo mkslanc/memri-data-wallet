@@ -288,44 +288,41 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   // Initialize edges query parts
   String _graphQlEdgesQuery(itemType) {
-    String edgesQuery = '';
-    // Process each edge to build the chained structure
-    //TODO: this should be taken from LookupController
-    for (String edge in edges) {
-      // Split edge by "." to get edge levels
-      List<String> edgeLevels = edge.split('.');
+    // Map to keep track of the nested edge structures
+    Map<dynamic, dynamic> edgeTree = {};
+    // Process each edge to build the nested map structure
+      for (String edge in edges) {
+        List<String> edgeLevels = edge.split('.');
+        Map<dynamic, dynamic> currentLevel = edgeTree;
 
-      // Build the nested query structure starting from the base item type
-      edgesQuery += _buildEdgeQuery(schema!, itemType, edgeLevels);
-    }
+        for (String level in edgeLevels) {
+          currentLevel = currentLevel.putIfAbsent(level, () => {});
+        }
+      }
+
+    // Convert the edge tree into a GraphQL query string
+    String edgesQuery = _buildEdgeQuery(schema!, itemType, edgeTree);
+
     return edgesQuery;
   }
 
-  // Function to recursively build the edge query string
-  String _buildEdgeQuery(Schema schema, String currentType, List<String> edgeLevels) {
-    if (edgeLevels.isEmpty) return '';
-
-    // Get the current edge level
-    String edgeLevel = edgeLevels.first;
-    // Determine the target type of the current edge
-    String? targetType = schema.expectedTargetType(currentType, edgeLevel);
-
-    // If the target type is found, fetch its properties
-    if (targetType != null) {
-      List<String> edgeProperties = schema.propertyNamesForItemType(targetType);
-
-      // Recursively build the nested edge query for remaining levels
-      String nestedEdgeQuery = _buildEdgeQuery(schema, targetType, edgeLevels.sublist(1));
-
-      // Construct the current edge level query with its properties and nested edges
-      return '''
-      $edgeLevel {
-        ${edgeProperties.join('\n')}
-        $nestedEdgeQuery
+  // Recursive function to convert edge tree to GraphQL query string
+  String _buildEdgeQuery(Schema schema, String currentType, Map<dynamic, dynamic> subEdges) {
+    String result = '';
+    subEdges.forEach((edge, nested) {
+      String? targetType = schema.expectedTargetType(currentType, edge);
+      if (targetType != null) {
+        List<String> edgeProperties = schema.propertyNamesForItemType(targetType) ?? [];
+        String nestedQuery = _buildEdgeQuery(schema, targetType, nested);
+        result += '''
+        $edge {
+          ${edgeProperties.join('\n')}
+          $nestedQuery
+        }
+        ''';
       }
-      ''';
-    }
-    return '';
+    });
+    return result;
   }
 
   factory DatabaseQueryConfig.fromJson(Map<String, dynamic> json) =>
