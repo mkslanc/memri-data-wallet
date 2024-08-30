@@ -154,7 +154,7 @@ MessageChannel > list {
         query: "MessageChannel"
         sortProperty: dateModified
         sortAscending: true
-    }
+        }
 }
 
 MessageChannel > timeline {

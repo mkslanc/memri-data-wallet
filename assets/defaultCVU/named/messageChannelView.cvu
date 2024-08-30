@@ -1,21 +1,15 @@
 .messageChannelView {
     defaultRenderer: "list"
-    filterButtons: [ showStarred toggleFilterPanel ]
+    filterButtons: showStarred toggleFilterPanel
 
     [datasource = pod] {
-        queryGraphQL: '''query {
-                Message (order_desc: dateSent) {
-                    content
-                    dateSent
-                    sender {
-                        isMe
-                    }
-                }
-            }'''
+        query: "Message"
+        sortProperty: "date"
+        edges: ["sender.owner.profilePicture.file"]
     }
 
     [renderer = list] {
-        edgeInset: 0
+        edgeInset: 10
         hideSeparators: true
         isReverse: true
     }
@@ -25,7 +19,6 @@
             alignment: top
 
             HStack {
-                alignment: left
 
                 Image {
                     cornerRadius: 50

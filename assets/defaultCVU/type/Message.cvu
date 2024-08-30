@@ -176,7 +176,7 @@ Message > list {
     
     [datasource = pod] {
         query: "Message"
-    }
+        }
         
     [renderer = list] {
         spacing: 8

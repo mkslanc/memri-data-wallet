@@ -2,12 +2,6 @@
   {
     "_type": "NavigationItem",
     "itemType": "items",
-    "title": "Calendar",
-    "sessionName": "calendar"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "items",
     "title": "Messages",
     "sessionName": "messageChannelView"
   },
@@ -54,38 +48,6 @@
   },
   {
     "_type": "NavigationItem",
-    "title": "plugins",
-    "sessionName": "allPlugins"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "plugin instances",
-    "sessionName": "allStartPlugins"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "indexers",
-    "sessionName": "allIndexers"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "indexer instances",
-    "sessionName": "allIndexerRuns"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Merge and fix",
-    "sessionName": "mergeAndFix"
-  },
-  {
-    "_type": "NavigationItem",
-    "itemType": "items",
-    "title": "Home",
-    "sessionName": "home",
-    "icon": "home"
-  },
-  {
-    "_type": "NavigationItem",
     "itemType": "items",
     "title": "Inbox",
     "sessionName": "inbox",
@@ -96,12 +58,6 @@
     "title": "People",
     "sessionName": "mixedAccountsAndPersons",
     "icon": "users"
-  },
-  {
-    "_type": "NavigationItem",
-    "title": "Assets",
-    "sessionName": "assets",
-    "icon": "grid"
   },
   {
     "uid": 20004,

@@ -84,307 +84,303 @@
 }
 
 Person {
+    contextPane: {
+        buttons: star schedule
+        changeLog: "{.describeChangelog()}"
+        labels: {{.label[]}}
+        navigate: [
+            openView
+            {
+                renderer: generalEditor
+                title: "Person"
+                view: {
+                    defaultRenderer: timeline
+
+                    [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortAscending: true
+                        sortProperty: dateCreated
+                    }
+
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName
+            {
+                renderer: "grid"
+                title: "{$starred} {type.plural()}"
+                viewArguments: {
+                    include: "all-{type}"
+                }
+                viewName: "filter-starred"
+            }
+            openSessionByName
+            {
+                sessionName: "all-person"
+                title: "All Persons"
+            }
+        ]
+        title: "{.firstName} {.lastName}"
+    }
     defaultRenderer: singleitem
+    editActionButton: toggleEditMode
     showTopBar: false
 
-    /*include:
-    "defaultButtonsForItem" { type: Person }*/
+    [renderer = generalEditor] {
+        changeLog: {
+            title: "Change Log"
 
-    editActionButton: toggleEditMode
-    filterButtons: [
-        openView {
-            icon: "increase.indent"
-            title: "{$showtimeline}"
-
-            view: {
-                defaultRenderer: timeline
-
-                [datasource = pod] {
-                    query: AuditItem
-                    filter: {
-                        edgeSources: {
-                            changelog: {{uid}}
-                        }
+            SubView {
+                height: 165
+                view: {
+                    arguments: {
+                        readOnly: true
+                        showBottomBar: false
+                        showToolbar: false
                     }
-                }
+                    defaultRenderer: list
+                    viewName: AuditItem
 
-                [renderer = timeline] {
-                    timeProperty: dateCreated
+                    [datasource = pod] {
+                        filter: {
+                            edgeSources: {
+                                changelog: {{uid}}
+                            }
+                        }
+                        query: AuditItem
+                    }
                 }
             }
         }
-        openView {
-            icon: "calendar"
-            title: "{$showtimeline}"
+        cryptoKeys: {
+            EditorRow: {
+                title: "{.name}"
 
-            view: {
-                defaultRenderer: timeline
-
-                [datasource = pod] {
-                    query: EmailMessage Message Note Photo
-                    edgeTargetsOperator: "OR"
-                    filter: {
-                        edgeTargets: {
-                            sender: {{.account.uid}}
-                            includes: {{uid}}
-                        }
-                    }
-                }
-
-                [renderer = timeline] {
-                    timeProperty: dateCreated
+                Text {
+                    text: "{.key}"
                 }
             }
         }
-        showContextPane
+        layout: [
+            {
+                exclude: labels
+                section: profilePicture
+            }
+            {
+                fields: firstName lastName
+                section: names
+            }
+            {
+                section: picturesOfPerson
+            }
+            {
+                edges: hasPhoneNumber
+                section: phoneNumbers
+                type: PhoneNumber
+            }
+            {
+                edges: relationship
+                section: relationships
+                type: Person
+            }
+            {
+                edges: address
+                section: addresses
+                type: Address
+            }
+            {
+                edges: website
+                section: websites
+                type: Website
+            }
+            {
+                edges: company
+                section: companies
+                type: Company
+            }
+            {
+                edges: diet
+                section: diets
+                type: Diet
+            }
+            {
+                edges: medicalCondition
+                section: medicalConditions
+                type: MedicalCondition
+            }
+            {
+                edges: cryptoKey
+                section: cryptoKeys
+                type: CryptoKey
+            }
+            {
+                edges: onlineProfile
+                section: onlineProfiles
+                type: OnlineProfile
+            }
+            {
+                fields: *
+                section: other
+            }
+            {
+                section: dates
+            }
+            {
+                section: changeLog
+            }
         ]
+        onlineProfiles: {
+            EditorRow: {
+                title: "{.itemType}"
 
-        contextPane {
-            title: "{.firstName} {.lastName}"
-            buttons: star schedule
-            changeLog: "{.describeChangelog()}"
+                VStack {
+                    cornerRadius: 5
 
-            navigate: [
-                openView {
-                    title: "Person"
-                    renderer: generalEditor
-                    view: {
-                        defaultRenderer: timeline
-
-                        [datasource = pod] {
-                            query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                    Text {
+                        text: "{.handle}"
                     }
                 }
-                openViewByName {
-                    title: "{$starred} {type.plural()}"
-                    viewName: "filter-starred"
-                    renderer: "grid"
-                    viewArguments: {
-                        include: "all-{type}"
-                    }
-                }
-                openSessionByName {
-                    title: "All Persons"
-                    sessionName: "all-person"
-                }
-                ]
-
-                labels: {{ .label[] }}
+            }
         }
+        picturesOfPerson: {
+            title: "Photos of {.firstName} {.lastName}"
 
+            Grid {
+                emptyResultText: "There are no photos here yet"
+                height: 200
+                items: {{.~includes[]}}
+                minColumnHeight: 80
+                spacing: 1
 
-        /* end include */
+                ForEach {
+                    items: {{.~includes[]}}
 
-        [renderer = generalEditor] {
-            layout: [
-                { section: profilePicture, exclude: labels }
-                { section: names, fields: firstName lastName }
-                { section: picturesOfPerson }
-                { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber }
-                { section: relationships, edges: relationship, type: Person }
-                { section: addresses, edges: address, type: Address }
-                { section: websites, edges: website, type: Website }
-                { section: companies, edges: company, type: Company }
-                { section: diets, edges: diet, type: Diet }
-                { section: medicalConditions, edges: medicalCondition, type: MedicalCondition }
-                { section: cryptoKeys, edges: cryptoKey, type: CryptoKey }
-                { section: onlineProfiles, edges: onlineProfile, type: OnlineProfile }
-                { section: other, fields: * }
-                { section: dates }
-                { section: changeLog }
-                ]
+                    Image {
+                        background: background
+                        image: {{.file}}
+                        sizingMode: fill
+                        width: 90
+                    }
+                }
+            }
+        }
+        profilePicture: {
+            showTitle: false
 
-                profilePicture {
-                    showTitle: false
+            HStack {
+                alignment: center
+                maxHeight: 180
+                minHeight: 180
+
+                ZStack {
+                    alignment: center
+                    border: #fff 27
+                    cornerRadius: 25
+                    maxHeight: 140
+                    maxWidth: 140
+                    padding: 12
+
+                    Image {
+                        image: {{.profilePicture}}
+                        sizingMode: fill
+                    }
 
                     HStack {
                         alignment: center
-                        minHeight: 180
-                        maxHeight: 180
+                        maxHeight: 140
+                        maxWidth: 140
+                        show: {{!readOnly}}
 
-                        ZStack {
-                            border: #fff 27
-                            padding: 12
-                            maxWidth: 140
-                            maxHeight: 140
-                            cornerRadius: 25
+                        ActionButton {
                             alignment: center
-
-                            Image {
-                                image: {{.profilePicture}}
-                                sizingMode: fill
-                            }
-
-                            HStack {
-                                alignment: center
-                                maxWidth: 140
-                                maxHeight: 140
-                                show: {{!readOnly}}
-
-                                ActionButton {
-                                    cornerRadius: 25
-                                    maxWidth: 50
-                                    maxHeight: 50
-                                    background: #eee
-                                    color: #434343
-                                    alignment: center
-                                    font: 14 regular
-
-                                    onPress: openViewByName {
-                                        renderAs: popup
-                                        title: "Edit"
-
-                                        viewName: "itemByQuery"
-                                        viewArguments: {
-                                            query: "Photo"
-                                            type: Photo
-                                            renderer: "grid"
-                                            edgeType: "profilePicture"
-                                            distinct: true
-                                            title: "Choose a photo"
-                                            editMode: false
-                                            onPress: [
-                                                link {
-                                                    subject: {{subject}}
-                                                    edgeType: {{edgeType}}
-                                                    distinct: {{distinct}}
-                                                }
-                                                closePopup
-                                                ]
-                                        }
+                            background: #eee
+                            color: #434343
+                            cornerRadius: 25
+                            font: 14 regular
+                            maxHeight: 50
+                            maxWidth: 50
+                            onPress: [
+                                openViewByName
+                                {
+                                    renderAs: popup
+                                    title: "Edit"
+                                    viewArguments: {
+                                        distinct: true
+                                        edgeType: "profilePicture"
+                                        editMode: false
+                                        onPress: [
+                                            link
+                                            {
+                                                distinct: {{distinct}}
+                                                edgeType: {{edgeType}}
+                                                subject: {{subject}}
+                                            }
+                                            closePopup
+                                        ]
+                                        query: "Photo"
+                                        renderer: "grid"
+                                        title: "Choose a photo"
+                                        type: Photo
                                     }
+                                    viewName: "itemByQuery"
                                 }
-                            }
+                            ]
                         }
+                    }
+                }
 
-                        VStack {
-                            spacing: 6
-                            Text {
-                                font: 20 bold
-                                text: "{.firstName} {.lastName}"
-                            }
+                VStack {
+                    spacing: 6
 
-                            Text {
-                                show: {{ !.label }}
-                                text: "no labels yet"
-                            }
+                    Text {
+                        font: 20 bold
+                        text: "{.firstName} {.lastName}"
+                    }
 
-                            FlowStack {
-                                spacing: 5
-                                list: {{ .label[] }}
+                    Text {
+                        show: {{!.label}}
+                        text: "no labels yet"
+                    }
 
-                                button {
-                                    onPress: openView {
-                                        viewName: "allItemsWithLabel"
-                                        viewArguments: {
-                                            name: "{.name}"
-                                            uid: {{.uid}}
-                                        }
+                    FlowStack {
+                        list: {{.label[]}}
+                        spacing: 5
+
+                        Button {
+                            onPress: [
+                                openView
+                                {
+                                    viewArguments: {
+                                        name: "{.name}"
+                                        uid: {{.uid}}
                                     }
+                                    viewName: "allItemsWithLabel"
+                                }
+                            ]
 
-                                    VStack {
-                                        background: {{.color}}
-                                        cornerRadius: 5
+                            VStack {
+                                background: {{.color}}
+                                cornerRadius: 5
 
-                                        Text {
-                                            text: "{.name}"
-                                            font: 16 semibold
-                                            color: #fff
-                                            padding: 5 8 5 8
-                                        }
-                                    }
+                                Text {
+                                    color: #fff
+                                    font: 16 semibold
+                                    padding: 5 8 5 8
+                                    text: "{.name}"
                                 }
                             }
                         }
                     }
                 }
-
-                picturesOfPerson {
-                    title: "Photos of {.firstName} {.lastName}"
-
-                    Grid {
-                        height: 200
-                        minColumnHeight: 80
-                        spacing: 1
-                        items: {{.~includes[]}}
-                        emptyResultText: "There are no photos here yet"
-
-                        ForEach {
-                            items: {{.~includes[]}}
-                            Image {
-                                image: {{.file}}
-                                sizingMode: fill
-                                background: background
-                                width: 90
-                            }
-                        }
-                    }
-                }
-
-                cryptoKeys {
-                    EditorRow {
-                        title: "{.name}"
-
-                        Text {
-                            text: "{.key}"
-                        }
-                    }
-                }
-
-                onlineProfiles {
-                    EditorRow {
-                        title: "{.itemType}"
-
-                        VStack {
-                            cornerRadius: 5
-
-                            Text {
-                                text: "{.handle}"
-                            }
-                        }
-                    }
-                }
-
-                changeLog {
-                    title: "Change Log"
-
-                    SubView {
-                        height: 165
-
-                        view {
-                            viewName: AuditItem
-                            defaultRenderer: list
-
-                            [datasource = pod] {
-                                query: AuditItem
-                                filter: {
-                                    edgeSources: {
-                                        changelog: {{uid}}
-                                    }
-                                }
-                            }
-
-                            arguments: {
-                                showToolbar: false
-                                showBottomBar: false
-                                readOnly: true
-                            }
-                        }
-
-                    }
-                }
+            }
         }
+    }
 
-        [renderer = timeline] {
-            timeProperty: dateCreated
-        }
+    [renderer = timeline] {
+        timeProperty: dateCreated
+    }
 }
 
 Person > singleitem {
@@ -418,129 +414,13 @@ Person > singleitem {
                 padding: 31 0 0 20
                 spacing: 10
 
-                Button {
-                    background: white
-                    width: 172
-                    height: 80
-
-                    VStack {
-                        padding: 27 0 0 10
-
-                        Text {
-                            text: "CONTACT DETAILS"
-                            font: tile_label
-                            color: black
-                        }
-                    }
-
-                    onPress: openView {
-                        renderer: generalEditor
-                    }
-                }
-
-                Button {
-                    background: white
-                    width: 172
-                    height: 80
-
-                    VStack {
-                        alignment: topright
-                        padding: 27 0 0 10
-
-                        Text {
-                            text: "SOCIAL MEDIA UPDATES"
-                            font: tile_label
-                            color: black
-                        }
-                    }
-
-                    onPress: openView {
-                        view: {
-                            defaultRenderer: list
-
-                            [datasource = pod] {
-                                query: Post
-                                edgeTargetsOperator: "OR"
-                                filter: {
-                                    edgeTargets: {
-                                        author: {{.account[]}}
-                                        author: {{.~owner[]}}
-                                    }
-                                }
-                            }
-
-                            [renderer = timeline] {
-                                timeProperty: dateCreated
-                            }
-                        }
-                    }
-                }
             }
 
             HStack {
                 padding: 10 0 0 20
                 spacing: 10
 
-                Button {
-                    background: white
-                    width: 172
-                    height: 80
 
-                    VStack {
-                        alignment: topright
-                        padding: 10 0 0 31
-
-                        Text {
-                            text: "INTERACTIONS"
-                            font: tile_label
-                            color: black
-                        }
-                    }
-
-                    onPress: openView {
-                        viewName: "allPosts"
-                    }
-                }
-
-                Button {
-                    background: white
-                    width: 172
-                    height: 80
-
-                    VStack {
-                        alignment: topright
-                        padding: 10 0 0 31
-
-                        Text {
-                            text: "TIMELINE"
-                            font: tile_label
-                            color: black
-                        }
-                    }
-
-                    onPress: openView {
-                        title: "{$showtimeline}"
-
-                        view: {
-                            defaultRenderer: timeline
-
-                            [datasource = pod] {
-                                query: EmailMessage Message Note Photo
-                                edgeTargetsOperator: "OR"
-                                filter: {
-                                    edgeTargets: {
-                                        sender: {{.account.uid}}
-                                        includes: {{uid}}
-                                    }
-                                }
-                            }
-
-                            [renderer = timeline] {
-                                timeProperty: dateCreated
-                            }
-                        }
-                    }
-                }
             }
 
         }
@@ -593,24 +473,28 @@ Person > list {
 }
 
 Person > grid {
-    onPress: openView {
-        renderer: generalEditor
-    }
+    onPress: [
+        openView
+        {
+            renderer: singleItem
+        }
+    ]
+
     VStack {
         alignment: center
 
         Image {
-            image: {{.profilePicture}}
             cornerRadius: 10
-            sizingMode: fill
+            image: {{.profilePicture}}
             sizingMode: fit
         }
+
         Text {
-            text: "{.firstName} {.lastName}"
-            font: 12 semibold
-            textAlign: center
             color: primary
+            font: 12 semibold
             padding: 3 0 0 0
+            text: "{.firstName} {.lastName}"
+            textAlign: center
         }
     }
 }
@@ -629,65 +513,53 @@ Person > timeline {
 }
 
 .allPeople {
-    title: "People"
-    defaultRenderer: list
-    emptyResultText: "There are no people here yet"
-
-    [datasource = pod] {
-        query: "Person"
-        sort: {
-            edgeSource: {
-                edgeTarget: {
-                    relationship: {{me.uid}}
-                }
-                name: relationship
-                sortProperty: value
-                sortAscending: false
-            }
-        }
-        edges: '''
-            profilePicture {
-                file {
-                    sha256
-                }
-            }
-            '''
-    }
-
-    actionButton:
-    [
-        openView {
+    actionButton: [
+        openView
+        {
+            clearStack: true
             icon: "person.circle"
             viewName: "user"
+        }
+        openView
+        {
             clearStack: true
-        },
-        openView {
             icon: "person.2.fill"
             viewName: "allPeople"
-            clearStack: true
-        }]
-
-        filterButtons: showStarred toggleFilterPanel
-
-        [renderer = list] {
-            contextMenu: [
-                star { title: "Favourite" }
-                ]
         }
+    ]
+    defaultRenderer: list
+    emptyResultText: "There are no people here yet"
+    filterButtons: showStarred toggleFilterPanel
+    title: "People"
 
-        [renderer = grid] {
-            spacing: 10
-            edgeInset: 10
-            columnSize: 100
+    [datasource = pod] {
+        edges: ["profilePicture.file"]
+        query: "Person"
+    }
 
-            contextMenu: [
-                star { title: "Favourite" }
-                ]
-        }
+    [renderer = list] {
+        contextMenu: [
+            star
+            {
+                title: "Favourite"
+            }
+        ]
+    }
 
-        [renderer = map] {
-            address: {{.address[]}}
-            label: "{.firstName}"
-        }
+    [renderer = grid] {
+        columnSize: 100
+        contextMenu: [
+            star
+            {
+                title: "Favourite"
+            }
+        ]
+        edgeInset: 10
+        spacing: 10
+    }
 
+    [renderer = map] {
+        address: {{.address[]}}
+        label: "{.firstName}"
+    }
 }

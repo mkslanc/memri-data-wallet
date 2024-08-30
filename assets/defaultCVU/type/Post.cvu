@@ -11,82 +11,88 @@ Post > list {
                 margin: 0 15 0 0
 
                 Image {
-                    image: {{.author.owner.profilePicture}}
-                    sizingMode: fill
-                    minHeight: 50
-                    maxHeight: 50
-                    minWidth: 50
-                    maxWidth: 50
                     cornerRadius: 30
+                    image: {{.author.owner.profilePicture}}
+                    maxHeight: 50
+                    maxWidth: 50
+                    minHeight: 50
+                    minWidth: 50
+                    sizingMode: fill
                 }
             }
 
             VStack {
                 alignment: leading
+
                 HStack {
                     alignment: leading
+
                     Text {
-                        text: "{.author.owner.firstName} {.author.owner.lastName}"
-                        font: 18 semibold
                         color: primary
+                        font: 18 semibold
                         padding: 0 0 3 0
+                        text: "{.author.owner.firstName} {.author.owner.lastName}"
                     }
                 }
+
                 HStack {
                     alignment: leading
+
                     Text {
-                        text: "Posted at {.postDate} on {.author.network.name}"
-                        lineLimit: 1
-                        font: 12 semibold
                         color: secondary
+                        font: 12 semibold
+                        lineLimit: 1
                         padding: 0 0 5 0
+                        text: "Posted at {.postDate.format()} on {.author.network.name}"
                     }
                 }
             }
         }
 
         Text {
-            text: "{.message}"
-            removeWhiteSpace: true
-            maxChar: 100
             color: secondary
             font: 14 regular
+            maxChar: 100
+            removeWhiteSpace: true
+            text: "{.message}"
         }
 
         Grid {
-            show: {{.photo[].count() > 1}}
             axis: vertical
             height: 200
-            minColumnHeight: 80
-            spacing: 1
             items: {{.photo[]}}
-
+            minColumnHeight: 80
+            show: {{.photo[].count() > 1}}
+            spacing: 1
 
             ForEach {
-              items: {{.photo[]}}
+                items: {{.photo[]}}
+
                 Image {
+                    background: background
                     image: {{.}}
                     sizingMode: fill
-                    background: background
                 }
             }
         }
+
         Image {
-            show: {{.photo[].count() = 1}}
             image: {{.photo}}
+            show: {{.photo[].count() = 1}}
         }
     }
 }
 
 .allPosts {
-    title: "YOUR SOCIAL UPDATES"
-    emptyResultText: "There are no posts here yet"
     defaultRenderer: list
+    emptyResultText: "There are no posts here yet"
     showTopBar: false
+    title: "YOUR SOCIAL UPDATES"
 
     [datasource = pod] {
         query: "Post"
-        sortProperty: postDate
         sortAscending: false
+        sortProperty: postDate
+        edges: ["author.owner.profilePicture.file", "author.network", "photo.file"]
     }
 }

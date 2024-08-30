@@ -1,57 +1,62 @@
 EmailMessage > list {
     onPress: openView
-    
+
     VStack {
         alignment: left
         spacing: 3
-        
+
         HStack {
             alignment: left
-            
+
             Text {
-                text: "{.sender.owner.firstName} {.sender.owner.lastName}"
-                lineLimit: 1
+                color: secondary
                 font: 18
-                color: secondary
-                padding: 0 0 0 0
-            }
-            Spacer
-            Text {
-                text: "{.dateSent}" /* TODO: Short */
                 lineLimit: 1
-                font: 11 regular
-                color: secondary
                 padding: 0 0 0 0
+                text: "{.sender.owner.firstName} {.sender.owner.lastName}"
+            }
+
+            Spacer
+
+            Text {
+                color: secondary
+                font: 11 regular
+                lineLimit: 1
+                padding: 0 0 0 0
+                text: "{.dateSent.format()}"
             }
         }
+
         HStack {
             fillWidth: true
+
             Text {
-                text: {{.subject or "[No subject]"}}
-                lineLimit: 1
-                font: 18 semibold
                 color: primary
+                font: 18 semibold
+                lineLimit: 1
                 padding: 0 0 0 0
+                text: {{.subject OR "[No subject]"}}
             }
+
             Image {
-                systemName: "star.fill"
-                font: 14
                 color: yellow
+                font: 14
                 margin: 5
                 show: {{.starred}}
+                systemName: "star.fill"
             }
+
             Spacer
         }
-        
+
         Text {
-            text: "{.content.plainString()}"
-            lineLimit: 2
-            removeWhiteSpace: true
-            maxChar: 100
             color: secondary
             font: 14 regular
+            lineLimit: 2
+            maxChar: 100
+            removeWhiteSpace: true
+            text: "{.content.plainString()}"
         }
-        
     }
 }
 
@@ -116,42 +121,53 @@ EmailMessage > singleItem {
         HStack {
             padding: 10 10
             spacing: 10
+
             ZStack {
-                width: 50
                 height: 50
+                width: 50
+
                 Circle {
                     color: #000000
                 }
+
                 Text {
-                    text: "{.sender.owner.initials()}"
-                    font: 20 bold
                     color: #FFFFFF
+                    font: 20 bold
+                    text: "{.sender.owner.initials()}"
                 }
             }
+
             VStack {
                 alignment: leading
                 spacing: 4
+
                 HStack {
                     Text {
-                        text: "{.subject}"
                         font: 20
+                        text: "{.subject}"
                     }
+
                     Spacer
+
                     Text {
-                        text: "{.dateSent}"
                         color: secondary
+                        text: "{.dateSent.format()}"
                     }
                 }
+
                 HStack {
                     Text {
-                        text: "{.sender.owner.firstName} {.sender.owner.lastName}"
                         color: secondary
+                        text: "{.sender.owner.firstName} {.sender.owner.lastName}"
                     }
+
                     Spacer
                 }
             }
         }
+
         Divider
+
         HTMLView {
             content: {{.content}}
         }
