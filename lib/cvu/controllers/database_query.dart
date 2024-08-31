@@ -168,10 +168,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   Future<List<Item>> executeRequest() async {
-    var query = queryGraphQL ?? _constructGraphQLQuery();
-    if (query.isEmpty)
-      return [];
-    return await _podService.graphql(query: query);
+    List<Item> items = [];
+    Iterable<String> queries = queryGraphQL != null ? [queryGraphQL!] : _constructGraphQLQueries();
+    for (var query in queries) {
+      items += await _podService.graphql(query: query);
+    }
+    return items;
   }
 
   factory DatabaseQueryConfig.queryConfigWith({
@@ -238,12 +240,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  String _constructGraphQLQuery({List<String>? edges}) {
-    var itemType = itemTypes[0]; //TODO: multiple queries to overcome single query only restriction
-    return _constructItemGraphQLQuery(itemType);
+  Iterable<String> _constructGraphQLQueries() {
+    return itemTypes.map(_constructGraphQLQuery);
   }
 
-  String _constructItemGraphQLQuery(String itemType) {
+  String _constructGraphQLQuery(String itemType) {
     schema ??= GetIt.I<Schema>();
     if (!schema!.isLoaded)
       return "";
