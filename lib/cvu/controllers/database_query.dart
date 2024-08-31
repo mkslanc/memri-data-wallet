@@ -131,11 +131,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.currentPage = 0,
       this.searchString,
       this.includeImmediateEdgeSearch = true,
-        List<DatabaseQueryCondition>? conditions,
+      List<DatabaseQueryCondition>? conditions,
       this.edgeTargetsOperator = ConditionOperator.and,
       this.count})
-      : itemTypes = itemTypes ??
-            ["Person", "Note", "Address", "Photo"],
+      : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo"],
         itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
         _sortAscending = sortAscending,
         _sortProperty = sortProperty,
@@ -171,7 +170,13 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     List<Item> items = [];
     Iterable<String> queries = queryGraphQL != null ? [queryGraphQL!] : _constructGraphQLQueries();
     for (var query in queries) {
-      items += await _podService.graphql(query: query);
+      List<Item> itemsByType = [];
+      try {
+        itemsByType = await _podService.graphql(query: query);
+      } catch (e) {
+        //ignore for now
+      }
+      items += itemsByType;
     }
     return items;
   }
@@ -193,7 +198,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     if (inheritQuery == null) {
       var queryConfig = DatabaseQueryConfig();
-      var itemTypes = datasourceResolver?.stringArray("query") /*?? [targetItem?.type].compactMap()*/ ?? [];
+      var itemTypes =
+          datasourceResolver?.stringArray("query") /*?? [targetItem?.type].compactMap()*/ ?? [];
       if (itemTypes.isNotEmpty) {
         queryConfig.itemTypes = itemTypes;
       }
@@ -207,12 +213,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         }
       }
 
-      queryConfig.edges = datasourceResolver?.stringArray("edges") ?? [];//TODO
+      queryConfig.edges = datasourceResolver?.stringArray("edges") ?? []; //TODO
 
       var queryGraphQL = datasourceResolver?.string("queryGraphQL") ?? "";
-      if (queryGraphQL.isNotEmpty) {// direct graphql query in cvu
-        queryConfig.queryGraphQL =
-            queryGraphQL.replaceAll("[", "{").replaceAll("]", "}");
+      if (queryGraphQL.isNotEmpty) {
+        // direct graphql query in cvu
+        queryConfig.queryGraphQL = queryGraphQL.replaceAll("[", "{").replaceAll("]", "}");
       }
 
       return queryConfig;
@@ -229,10 +235,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   void _addPropertyEqualCondition(String key, dynamic value) {
     // Check if a condition with the same key and value already exists
     bool exists = conditions.any((condition) =>
-      condition is DatabaseQueryConditionPropertyEquals &&
-      condition.value.name == key &&
-      condition.value.value == value
-    );
+        condition is DatabaseQueryConditionPropertyEquals &&
+        condition.value.name == key &&
+        condition.value.value == value);
 
     // Add the condition only if it doesn't already exist
     if (!exists) {
@@ -246,8 +251,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   String _constructGraphQLQuery(String itemType) {
     schema ??= GetIt.I<Schema>();
-    if (!schema!.isLoaded)
-      return "";
+    if (!schema!.isLoaded) return "";
 
     // Fetch the properties for the current item type using the Schema object
     List<String> properties = schema!.propertyNamesForItemType(itemType);
@@ -292,29 +296,34 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     // Map to keep track of the nested edge structures
     Map<dynamic, dynamic> edgeTree = {};
     // Process each edge to build the nested map structure
-      for (String edge in edges) {
-        List<String> edgeLevels = edge.split('.');
-        Map<dynamic, dynamic> currentLevel = edgeTree;
+    for (String edge in edges) {
+      List<String> edgeLevels = edge.split('.');
+      Map<dynamic, dynamic> currentLevel = edgeTree;
 
-        for (String level in edgeLevels) {
-          currentLevel = currentLevel.putIfAbsent(level, () => {});
-        }
+      for (String level in edgeLevels) {
+        currentLevel = currentLevel.putIfAbsent(level, () => {});
       }
+    }
 
     // Convert the edge tree into a GraphQL query string
-    String edgesQuery = _buildEdgeQuery(schema!, itemType, edgeTree);
+    String edgesQuery = _buildEdgeQuery(itemType, edgeTree, 0);
 
     return edgesQuery;
   }
 
   // Recursive function to convert edge tree to GraphQL query string
-  String _buildEdgeQuery(Schema schema, String currentType, Map<dynamic, dynamic> subEdges) {
+  String _buildEdgeQuery(String currentType, Map<dynamic, dynamic> subEdges, int depth) {
+    if (depth > 1 && subEdges.isEmpty) return ''; // Restrict recursion depth to 2 levels
+
     String result = '';
-    subEdges.forEach((edge, nested) {
-      String? targetType = schema.expectedTargetType(currentType, edge);
+    // Fetch all edges for the current item type
+    List<String> edgeNames = schema!.edgeNamesForItemType(currentType) ?? [];
+
+    for (String edge in edgeNames) {
+      String? targetType = schema!.expectedTargetType(currentType, edge);
       if (targetType != null) {
-        List<String> edgeProperties = schema.propertyNamesForItemType(targetType) ?? [];
-        String nestedQuery = _buildEdgeQuery(schema, targetType, nested);
+        List<String> edgeProperties = schema!.propertyNamesForItemType(targetType) ?? [];
+        String nestedQuery = _buildEdgeQuery(targetType, subEdges[edge] ?? {}, depth + 1);
         result += '''
         $edge {
           ${edgeProperties.join('\n')}
@@ -322,7 +331,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         }
         ''';
       }
-    });
+    }
     return result;
   }
 
@@ -348,7 +357,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         conditions,
       ];
 }
-
 
 abstract class DatabaseQueryCondition {
   dynamic get value;

@@ -57,6 +57,10 @@ class Schema {
     return types[itemType]?.propertyTypes.keys.toList() ?? [];
   }
 
+  List<String> edgeNamesForItemType(String itemType) {
+    return types[itemType]?.edgeTypes.keys.toList() ?? [];
+  }
+
   ResolvedType? expectedType(String itemType, String propertyOrEdgeName) {
     var propertyType = expectedPropertyType(itemType, propertyOrEdgeName);
     if (propertyType != null) {
