@@ -35,12 +35,21 @@ class AuthProvider with ChangeNotifier {
   DeveloperAuthState devState = DeveloperAuthState.devSignUp;
   String errorMessage = '';
   bool _developerMode = false;
+  bool _importDemoData = false;
+
 
   String get ownerKey => _podService.podConfig.ownerKey;
 
   String get databaseKey => _podService.podConfig.databaseKey;
 
   bool get developerMode => _developerMode;
+
+  bool get importDemoData => _importDemoData;
+
+  set importDemoData(bool value) {
+    _importDemoData = value;
+    notifyListeners();
+  }
 
   Future<void> _authenticate(BuildContext context, String podUrl,
       String ownerKey, String dbKey, bool isLogin) async {
@@ -51,12 +60,12 @@ class AuthProvider with ChangeNotifier {
       if (!isLogin) {
         // TODO move this once not required on signup
         await _podService.createSchema();
-
-        //TODO
         await _podService.loadDefaultData();
-        await _podService.loadDemoFiles();
-      }
 
+        if (_importDemoData) {
+          await _podService.loadDemoFiles();
+        }
+      }
 
       await _appProvider.initCVUDefinitions();
 
@@ -64,14 +73,14 @@ class AuthProvider with ChangeNotifier {
 
       RouteNavigator.navigateTo(
           context: context, route: Routes.saveKeys, clearStack: true);
-    } on Exception catch (_) {
+    } on Exception catch (error) {
       _appProvider.closeLoadingDialog(context);
 
       if (devState == DeveloperAuthState.devSignUp) {
-        _handleError(S.current.account_login_invalid_pod_url_error);
+        _handleError(error);
       } else {
         /// TODO should handle different error types
-        _handleError(S.current.account_login_general_error);
+        _handleError(error);
       }
     }
   }
