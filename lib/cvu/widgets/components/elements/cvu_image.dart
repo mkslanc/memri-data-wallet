@@ -126,9 +126,11 @@ class _CVUImageState extends State<CVUImage> {
             //TODO: .renderingMode(.template).if(nodeResolver.propertyResolver.bool("resizable", defaultValue: false)) { $0.resizable() }
             //.if(nodeResolver.propertyResolver.sizingMode() == .fit) { $0.aspectRatio(contentMode: .fit) }
           } else if (isLoaded) {
-            return Icon(
-              Icons.error,
-              color: Color(0x993c3c43),
+            return Center(
+              child: Icon(
+                Icons.error,
+                color: Color(0x993c3c43),
+              ),
             );
           } else {
             return Empty();

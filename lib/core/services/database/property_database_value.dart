@@ -148,7 +148,10 @@ abstract class PropertyDatabaseValue with EquatableMixin {
     if (value is DateTime) {
       return value;
     }
-    var val = int.tryParse(value); //TODO is this correct @anijanyan
+    var val = value;
+    if (value is String) {
+      val = int.tryParse(value);
+    }
     return val == null ? null : DateTime.fromMillisecondsSinceEpoch(val);
   }
 

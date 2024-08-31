@@ -12,6 +12,9 @@ import 'package:memri/widgets/empty.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer_flow.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer_simple.dart';
 import 'package:memri/cvu/widgets/renderers/renderer.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/app_provider.dart';
 
 /// The grid renderer
 /// This presents the data in a grid (aka collection view)
@@ -56,17 +59,13 @@ class GridRendererViewState extends RendererViewState {
 
   void init() {
     super.init();
-    layout = widget.viewContext.rendererDefinitionPropertyResolver
-            .string("layout") ??
-        "simple";
-    singleChoice =
-        viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ??
-            false;
+    layout = widget.viewContext.rendererDefinitionPropertyResolver.string("layout") ?? "simple";
+    singleChoice = viewContext.viewDefinitionPropertyResolver.boolean("singleChoice") ?? false;
     insets = viewContext.rendererDefinitionPropertyResolver.edgeInsets ??
         EdgeInsets.fromLTRB(10, 10, 10, 10);
 
-    var _scrollDirection = widget.viewContext.rendererDefinitionPropertyResolver
-        .string("scrollDirection");
+    var _scrollDirection =
+        widget.viewContext.rendererDefinitionPropertyResolver.string("scrollDirection");
     scrollDirection = () {
       switch (_scrollDirection) {
         case "horizontal":
@@ -76,98 +75,92 @@ class GridRendererViewState extends RendererViewState {
       }
     }();
 
-    spacing =
-        viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
-    backgroundColor =
-        viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
-            CVUColor.system("systemBackground");
+    spacing = viewContext.rendererDefinitionPropertyResolver.spacing ?? Point(10, 10);
+    backgroundColor = viewContext.rendererDefinitionPropertyResolver.backgroundColor ??
+        CVUColor.system("systemBackground");
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: viewContext.itemsValueNotifier,
-        builder: (BuildContext context, List<Item> value, Widget? child) {
-          if (!viewContext.isLoaded) {
-            return Empty();
-          }
-          List<Widget> elements = [];
+    return Consumer<AppProvider>(builder: (BuildContext context, provider, _) {
+      if (!viewContext.isLoaded) {
+        return Empty();
+      }
+      List<Widget> elements = [];
 
-          if (viewContext.hasItems) {
-            elements = viewContext.items.mapIndexed((index, item) {
-              var isSelected = selectedIndices.contains(index);
-              return GestureDetector(
-                onTap: selectionMode(index, context),
-                child: Stack(
-                  alignment: Alignment.topLeft,
-                  children: [
-                    MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: viewContext.render(
-                            item: item,
-                            viewArguments: CVUViewArguments(args: {
-                              "isSelected":
-                                  CVUValueConstant(CVUConstantBool(isSelected))
-                            }))),
-                    if (isSelected && showDefaultSelections)
-                      Container(
-                        height: 30,
-                        width: 30,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Circle(
-                                color: Colors.blue,
-                                border:
-                                    Border.all(color: Colors.white, width: 2)),
-                            Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 15,
-                            )
-                          ],
-                        ),
-                      )
-                  ],
+      if (viewContext.hasItems) {
+        elements = viewContext.items.mapIndexed((index, item) {
+          var isSelected = selectedIndices.contains(index);
+          return GestureDetector(
+            onTap: selectionMode(index, context),
+            child: Stack(
+              alignment: Alignment.topLeft,
+              children: [
+                MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: viewContext.render(
+                        item: item,
+                        viewArguments: CVUViewArguments(
+                            args: {"isSelected": CVUValueConstant(CVUConstantBool(isSelected))}))),
+                if (Provider.of<AppProvider>(context, listen: false).isInEditMode &&
+                    isSelected &&
+                    showDefaultSelections)
+                  Container(
+                    height: 30,
+                    width: 30,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Circle(
+                            color: Colors.blue, border: Border.all(color: Colors.white, width: 2)),
+                        Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 15,
+                        )
+                      ],
+                    ),
+                  )
+              ],
+            ),
+          );
+        }).toList();
+      }
+      if (startingElement != null) {
+        elements.insert(
+            0,
+            GestureDetector(
+              child: startingElement!,
+            ));
+      }
+      if (trailingElement != null) {
+        elements.add(GestureDetector(child: trailingElement!));
+      }
+
+      return elements.isNotEmpty
+          ? layout == "flow"
+              ? GridRendererFlowView(elements: elements, spacing: spacing)
+              : GridRendererSimpleView(
+                  elements: elements,
+                  spacing: spacing,
+                  insets: insets,
+                  scrollDirection: scrollDirection,
+                )
+          : emptyResult ??
+              Padding(
+                padding: EdgeInsets.all(30),
+                child: Center(
+                  child: Text(
+                    "No items",
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        color: Color.fromRGBO(0, 0, 0, 0.7),
+                        backgroundColor: backgroundColor),
+                  ),
                 ),
               );
-            }).toList();
-          }
-          if (startingElement != null) {
-            elements.insert(
-                0,
-                GestureDetector(
-                  child: startingElement!,
-                ));
-          }
-          if (trailingElement != null) {
-            elements.add(GestureDetector(child: trailingElement!));
-          }
-
-          return elements.isNotEmpty
-              ? layout == "flow"
-                  ? GridRendererFlowView(elements: elements, spacing: spacing)
-                  : GridRendererSimpleView(
-                      elements: elements,
-                      spacing: spacing,
-                      insets: insets,
-                      scrollDirection: scrollDirection,
-                    )
-              : emptyResult ??
-                  Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Center(
-                      child: Text(
-                        "No items",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                            color: Color.fromRGBO(0, 0, 0, 0.7),
-                            backgroundColor: backgroundColor),
-                      ),
-                    ),
-                  );
-        });
+    });
   }
 }
 
