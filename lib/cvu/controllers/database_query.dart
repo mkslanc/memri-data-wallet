@@ -18,8 +18,19 @@ enum ConditionOperator { and, or }
 /// This type is used to describe a database query.
 @JsonSerializable()
 class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
+  Map<String, dynamic> _filterProperties;
+  T _get<T>(key) => _filterProperties[key] as T;
+  void _set<T>(String key, T newValue) {
+    if (_filterProperties[key] != newValue) {
+      _filterProperties[key] = newValue;
+      notifyListeners();
+    }
+  }
+
   @annotation.JsonKey(ignore: true)
-  final PodService _podService;
+  late final PodService _podService;
+
+  @annotation.JsonKey(ignore: true)
   Schema? schema;
 
   /// A list of item types to include. Default is Empty -> ALL item types
@@ -28,66 +39,25 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   /// A list of item `rowid` to include. Default is Empty -> don't filter on `rowid`
   Set<int> itemRowIDs;
 
-  /// A property to sort the results by
-  String? _sortProperty;
+  String? get sortProperty => _get<String?>("sortProperty");
+  set sortProperty(String? newValue) => _set<String?>("sortProperty", newValue);
 
-  String? get sortProperty => _sortProperty;
+  bool get sortAscending => _get<bool>("sortAscending");
+  set sortAscending(bool newValue) => _set<bool>("sortAscending", newValue);
 
-  set sortProperty(String? newValue) {
-    _sortProperty = newValue;
-    notifyListeners();
-  }
+  DateTime? get dateModifiedAfter => _get<DateTime?>("dateModifiedAfter");
+  set dateModifiedAfter(DateTime? newValue) => _set<DateTime?>("dateModifiedAfter", newValue);
+  
+  DateTime? get dateModifiedBefore => _get<DateTime?>("dateModifiedBefore");
+  set dateModifiedBefore(DateTime? newValue) => _set<DateTime?>("dateModifiedBefore", newValue);
 
-  bool _sortAscending = false;
+  DateTime? get dateCreatedAfter => _get<DateTime?>("dateCreatedAfter");
+  set dateCreatedAfter(DateTime? newValue) => _set<DateTime?>("dateCreatedAfter", newValue);
 
-  bool get sortAscending => _sortAscending;
-
-  set sortAscending(bool newValue) {
-    _sortAscending = newValue;
-    notifyListeners();
-  }
-
-  /// Only include items modified after this date
-  DateTime? _dateModifiedAfter;
-
-  DateTime? get dateModifiedAfter => _dateModifiedAfter;
-
-  set dateModifiedAfter(DateTime? newValue) {
-    _dateModifiedAfter = newValue;
-    notifyListeners();
-  }
-
-  /// Only include items modified before this date
-  DateTime? _dateModifiedBefore;
-
-  DateTime? get dateModifiedBefore => _dateModifiedBefore;
-
-  set dateModifiedBefore(DateTime? newValue) {
-    _dateModifiedBefore = newValue;
-    notifyListeners();
-  }
-
-  /// Only include items created after this date
-  DateTime? _dateCreatedAfter;
-
-  DateTime? get dateCreatedAfter => _dateCreatedAfter;
-
-  set dateCreatedAfter(DateTime? newValue) {
-    _dateCreatedAfter = newValue;
-    notifyListeners();
-  }
+  DateTime? get dateCreatedBefore => _get<DateTime?>("dateCreatedBefore");
+  set dateCreatedBefore(DateTime? newValue) => _set<DateTime?>("dateCreatedBefore", newValue);
 
   bool? deleted = false;
-
-  /// Only include items created before this date
-  DateTime? _dateCreatedBefore;
-
-  DateTime? get dateCreatedBefore => _dateCreatedBefore;
-
-  set dateCreatedBefore(DateTime? newValue) {
-    _dateCreatedBefore = newValue;
-    notifyListeners();
-  }
 
   /// The maximum number of items to fetch
   int pageSize;
@@ -121,12 +91,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   DatabaseQueryConfig(
       {List<String>? itemTypes,
       Set<int>? itemRowIDs,
-      String? sortProperty = "dateModified",
-      bool sortAscending = false,
-      DateTime? dateModifiedAfter,
-      DateTime? dateModifiedBefore,
-      DateTime? dateCreatedAfter,
-      DateTime? dateCreatedBefore,
+      Map<String, dynamic>? filterProperties,
       this.pageSize = 1000,
       this.currentPage = 0,
       this.searchString,
@@ -136,12 +101,15 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.count})
       : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo"],
         itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
-        _sortAscending = sortAscending,
-        _sortProperty = sortProperty,
-        _dateModifiedAfter = dateModifiedAfter,
-        _dateModifiedBefore = dateModifiedBefore,
-        _dateCreatedAfter = dateCreatedAfter,
-        _dateCreatedBefore = dateCreatedBefore,
+        _filterProperties = filterProperties ??
+            {
+              "sortProperty": "dateModified",
+              "sortAscending": false,
+              "dateModifiedAfter": null,
+              "dateModifiedBefore": null,
+              "dateCreatedAfter": null,
+              "dateCreatedBefore": null,
+            },
         _podService = GetIt.I(),
         conditions = conditions ?? [];
 
@@ -150,12 +118,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     return DatabaseQueryConfig(
       itemTypes: itemTypes,
       itemRowIDs: itemRowIDs,
-      sortProperty: sortProperty,
-      sortAscending: sortAscending,
-      dateModifiedAfter: dateModifiedAfter,
-      dateModifiedBefore: dateModifiedBefore,
-      dateCreatedAfter: dateCreatedAfter,
-      dateCreatedBefore: dateCreatedBefore,
+      filterProperties: _filterProperties,
       pageSize: pageSize,
       currentPage: currentPage,
       searchString: searchString,
@@ -261,11 +224,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     String filter = _graphQlFilter();
     String edgesQuery = _graphQlEdgesQuery(itemType);
+    String order = sortAscending ? "order_asc" : "order_desc";
 
     return '''query {
       $itemType (
-        order_desc: ${sortProperty ?? 'dateModified'}, 
-        ${filter.isNotEmpty ? "filter: $filter" : ""}
+        ${order}: ${sortProperty ?? 'dateModified'}, 
+        ${filter.isNotEmpty ? "filter: ${filter}, " : ""}
       ) {
         ${properties.join('\n')}
         $edgesQuery
@@ -275,23 +239,44 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   // Build the filter part of the query based on the config
   String _graphQlFilter() {
-    String filter = '';
+    List<String> filterParts = [];
 
-    /*if (deleted != null) {
-        filter += 'deleted: { eq: ${deleted} }, ';
-      }*/
-    /*if (dateModifiedAfter != null) {
-        filter += 'dateModified: { gte: "${dateModifiedAfter!.toIso8601String()}" }, ';
-      }
-      if (dateModifiedBefore != null) {
-        filter += 'dateModified: { lte: "${dateModifiedBefore!.toIso8601String()}" }, ';
-      }*/
+    // if (deleted != null) {
+    //   filterParts.add(filterPart("deleted", deleted, "eq"));
+    // }
+    if (dateModifiedAfter != null) {
+      filterParts.add(filterPart("dateModified", dateModifiedAfter!.millisecondsSinceEpoch, "gte"));
+    }
+    if (dateModifiedBefore != null) {
+      filterParts.add(filterPart("dateModified", dateModifiedBefore!.millisecondsSinceEpoch, "lte"));
+    }
+    if (dateCreatedAfter != null) {
+      filterParts.add(filterPart("dateCreated", dateCreatedAfter!.millisecondsSinceEpoch, "gte"));
+    }
+    if (dateCreatedBefore != null) {
+      filterParts.add(filterPart("dateCreated", dateCreatedBefore!.millisecondsSinceEpoch, "lte"));
+    }
     for (var condition in conditions) {
       if (condition is DatabaseQueryConditionPropertyEquals) {
-        filter += '{${condition.value.name}: { eq: ${condition.value.value} }}, ';
+        filterParts.add(filterPart(condition.value.name, condition.value.value, "eq"));
       }
     }
-    return filter;
+
+    if (filterParts.isEmpty)
+      return "";
+    return combineFilterParts(filterParts);
+  }
+
+  String combineFilterParts(List<String> filterParts) {
+    if (filterParts.length > 1) {
+      return "{and: [" + filterParts.removeAt(0) + ", " + combineFilterParts(filterParts) + "]}";
+    } else {
+      return filterParts.first;
+    }
+  }
+
+  String filterPart(String key, dynamic value, String op) {
+    return '{${key}: { ${op}: ${value} }}';
   }
 
   // Initialize edges query parts
@@ -320,7 +305,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     String result = '';
     // Fetch all edges for the current item type
-    List<String> edgeNames = schema!.edgeNamesForItemType(currentType) ?? [];
+    List<String> edgeNames = schema!.edgeNamesForItemType(currentType);
 
     for (String edge in edgeNames) {
       String? targetType = schema!.expectedTargetType(currentType, edge);
@@ -377,12 +362,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   List<Object?> get props => [
         itemTypes,
         itemRowIDs,
-        _sortProperty,
-        _sortAscending,
-        _dateModifiedAfter,
-        _dateModifiedBefore,
-        _dateCreatedAfter,
-        _dateCreatedBefore,
+        _filterProperties,
         pageSize,
         currentPage,
         searchString,

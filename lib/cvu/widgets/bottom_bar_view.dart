@@ -5,10 +5,10 @@
 import 'package:flutter/material.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
-import '../../cvu/controllers/view_context_controller.dart';
-import '../../cvu/models/cvu_value.dart';
-import '../../cvu/services/cvu_action.dart';
-import '../components/buttons/action_button.dart';
+import '../controllers/view_context_controller.dart';
+import '../models/cvu_value.dart';
+import '../services/cvu_action.dart';
+import '../../widgets/components/buttons/action_button.dart';
 
 
 /// This view contains the contents of the 'Bottom bar' which is shown below renderer content.

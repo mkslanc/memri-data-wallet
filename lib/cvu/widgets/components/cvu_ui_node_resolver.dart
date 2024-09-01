@@ -1,6 +1,6 @@
 //  Created by T Brennan on 7/1/21.
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_ui_element_family.dart';

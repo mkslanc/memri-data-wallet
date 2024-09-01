@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../cvu/controllers/view_context_controller.dart';
-import '../../../../cvu/models/cvu_value.dart';
-import '../../../../cvu/models/cvu_value_constant.dart';
-import '../../../../cvu/utilities/binding.dart';
-import '../../../components/picker.dart';
+import '../../../../../widgets/components/picker.dart';
+import '../../../../controllers/view_context_controller.dart';
+import '../../../../models/cvu_value.dart';
+import '../../../../models/cvu_value_constant.dart';
+import '../../../../utilities/binding.dart';
+
 
 class GridRendererSettingsView extends StatefulWidget {
   final ViewContextController viewContext;
