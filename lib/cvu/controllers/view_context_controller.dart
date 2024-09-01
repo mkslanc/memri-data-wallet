@@ -48,7 +48,12 @@ class ViewContextController extends ChangeNotifier {
     _updateCachedValues();
 
     setupQueryObservation();
+
+    searchStringNotifier = ValueNotifier(configHolder.config.query.searchString);
+
     this.cvuController.addListener(() => updateUI());
+
+
   }
 
   factory ViewContextController.fromParams({
@@ -112,6 +117,15 @@ class ViewContextController extends ChangeNotifier {
 
     }
     return viewContextController;
+  }
+
+  // MARK: Search State
+  String? get searchString => config.query.searchString;
+
+  set searchString(String? newValue) {
+    config.query.searchString = newValue;
+    searchStringNotifier.value = newValue;
+    setupQueryObservation();
   }
 
   int get focusedIndex {

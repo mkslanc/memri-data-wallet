@@ -178,6 +178,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       }
       items += itemsByType;
     }
+    if (searchString != null && searchString!.isNotEmpty) {
+      items = localFullTextSearch(items: items, needle: searchString!);
+    }
     return items;
   }
 
@@ -334,6 +337,36 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
     return result;
   }
+
+  List<Item> localFullTextSearch({
+    required List<Item> items,
+    required String needle,
+  }) {
+    // Convert the needle to lowercase for case-insensitive search
+    String searchNeedle = needle.toLowerCase();
+
+    // Filter items that contain the needle in any of their string properties
+    List<Item> filteredResults = items.where((item) {
+      // Get all property names for the item's type
+      List<String> properties = schema!.propertyNamesForItemType(item.type);
+
+      // Check if any of the item's string properties contain the needle
+      for (String property in properties) {
+        // Check if the property type is string
+        if (schema!.expectedPropertyType(item.type, property) == SchemaValueType.string) {
+          var propertyValue = item.get(property);
+          if (propertyValue is String && propertyValue.toLowerCase().contains(searchNeedle)) {
+            return true; // Needle found in one of the string properties
+          }
+        }
+      }
+      return false; // Needle not found in any string properties
+    }).toList();
+
+    return filteredResults;
+  }
+
+
 
   factory DatabaseQueryConfig.fromJson(Map<String, dynamic> json) =>
       _$DatabaseQueryConfigFromJson(json);

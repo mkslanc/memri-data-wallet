@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/widgets/components/layout/search_bar.dart';
 import 'package:memri/widgets/components/layout/top_bar_view.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,9 @@ class CVUScaffold extends StatelessWidget {
                 );
               },
             ),
-            title: TopBarView(),
+            titleSpacing: 0,
+            title: provider.searchBarOpen ? SearchTopBar(
+                viewContext: provider.currentViewContext!) : TopBarView(),
           ),
           drawer: Drawer(
             child: NavigationPaneView(),

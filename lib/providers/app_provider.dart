@@ -31,9 +31,15 @@ class AppProvider with ChangeNotifier {
   bool _checkAuth = true;
   ViewContextController? currentViewContext;
   bool isInEditMode = false;
+  bool searchBarOpen = false;
 
   toggleEditMode() {
     isInEditMode = !isInEditMode;
+    notifyListeners();
+  }
+
+  toggleSearchBar() {
+    searchBarOpen = !searchBarOpen;
     notifyListeners();
   }
 
