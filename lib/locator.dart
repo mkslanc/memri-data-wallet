@@ -19,6 +19,8 @@ final locator = GetIt.instance;
 Future<void> setup() async {
   SharedPreferences _prefs = await SharedPreferences.getInstance();
 
+  final podService = await PodService.create(_prefs);
+
   /// PROVIDERS
   locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
   locator.registerLazySingleton<AuthProvider>(
@@ -30,7 +32,7 @@ Future<void> setup() async {
   locator.registerLazySingleton<Schema>(() => Schema(locator()));
 
   /// SERVICES
-  locator.registerLazySingleton<PodService>(() => PodService(locator()));
+  locator.registerSingleton<PodService>(podService); // Register initialized instance
   locator.registerLazySingleton<GitlabService>(() => GitlabService());
   locator.registerLazySingleton<LogService>(() => LogService());
   locator.registerLazySingleton<SearchService>(() => SearchService());

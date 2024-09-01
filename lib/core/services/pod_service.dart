@@ -12,17 +12,16 @@ import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
 
+import '../controllers/authentication.dart';
 import './demo_data_pod.dart';
 
 class PodService extends ApiService<PodAPI> {
-  PodService(this._prefs) : super(api: PodAPI()) {
-    podConfig = PodConfig(
-      baseUrl: _prefs.getString(app.keys.podAddress) ?? app.settings.defaultPodUrl,
-      ownerKey: _prefs.getString(app.keys.ownerKey) ?? '',
-      databaseKey: _prefs.getString(app.keys.dbKey) ?? '',
-      apiVersion: app.settings.podVersion,
-    );
-    api.setConnectionConfig(podConfig);
+  PodService._(this._prefs) : super(api: PodAPI());
+
+  static Future<PodService> create(SharedPreferences prefs) async {
+    final service = PodService._(prefs);
+    await service._init();
+    return service;
   }
 
   final SharedPreferences _prefs;
@@ -34,6 +33,21 @@ class PodService extends ApiService<PodAPI> {
     "bool": "Bool",
     "datetime": "DateTime",
   };
+
+  Future<void> _init() async {
+    final podAddress = _prefs.getString(app.keys.podAddress) ?? app.settings.defaultPodUrl;
+    final ownerKey = await Authentication.instance.getOwnerKey() ?? '';
+    final dbKey = await Authentication.instance.getDbKey() ?? '';
+
+    podConfig = PodConfig(
+      baseUrl: podAddress,
+      ownerKey: ownerKey,
+      databaseKey: dbKey,
+      apiVersion: app.settings.podVersion,
+    );
+
+    api.setConnectionConfig(podConfig);
+  }
 
   /**
    *  Authentication
@@ -57,10 +71,10 @@ class PodService extends ApiService<PodAPI> {
   }
 
   Future<void> storeOwnerKey(String ownerKey) async =>
-      await _prefs.setString(app.keys.ownerKey, ownerKey);
+      await Authentication.instance.setOwnerKey(ownerKey);
 
   Future<void> storeDatabaseKey(String dbKey) async =>
-      await _prefs.setString(app.keys.dbKey, dbKey);
+      await Authentication.instance.setDbKey(dbKey);
 
   Future<void> storePodAddress(String podAddress) async =>
       await _prefs.setString(app.keys.podAddress, podAddress);
@@ -80,34 +94,6 @@ class PodService extends ApiService<PodAPI> {
 
     api.createSchema(PodPayloadCreateSchema(
         SchemaMeta.fromJson(schemaJson['meta']), schemaJson['nodes'], schemaJson['edges']));
-
-    //List<Map<String, dynamic>> schemaItems = [];
-
-    /*for (var property in schemaJson["properties"]) {
-      schemaItems.add({
-        "type": "ItemPropertySchema",
-        "itemType": property["item_type"],
-        "propertyName": property["property"],
-        "valueType": _podPropertyTypes[property["value_type"]],
-      });
-    }
-
-    for (var edge in schemaJson["edges"]) {
-      schemaItems.add({
-        "type": "ItemEdgeSchema",
-        "sourceType": edge["source_type"],
-        "targetType": edge["target_type"],
-        "edgeName": edge["edge"],
-      });
-    }
-
-    debugPrint("[DEBUG] create schema: ${schemaItems.length} items");
-    var payload = PodPayloadBulkAction(
-        createItems: schemaItems,
-        updateItems: [],
-        deleteItems: [],
-        createEdges: []);
-    api.bulkAction(payload);*/
   }
 
   Future<void> loadDemoFiles() async {

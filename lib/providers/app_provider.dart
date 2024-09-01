@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
+import 'package:memri/core/controllers/authentication.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/localization/generated/l10n.dart';
@@ -127,7 +128,6 @@ class AppProvider with ChangeNotifier {
   resetApp() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     await _prefs.remove(app.keys.podAddress);
-    await _prefs.remove(app.keys.ownerKey);
-    await _prefs.remove(app.keys.dbKey);
+    await Authentication.instance.removeAll();
   }
 }
