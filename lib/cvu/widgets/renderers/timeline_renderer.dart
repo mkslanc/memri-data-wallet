@@ -28,9 +28,10 @@ class TimelineRendererView extends Renderer {
 class _TimelineRendererViewState extends RendererViewState<TimelineRendererView> {
   get viewContext => widget.viewContext;
   late TimelineRendererModel model;
-  int cellCount = 9;
+  late int cellCount = 9;
 
   init() {
+    cellCount = MediaQuery.of(context).size.width > 800 ? 9 : 5;//TODO more convenient way to calc cells
     generateModel();
   }
 
