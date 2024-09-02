@@ -32,6 +32,14 @@ class AppProvider with ChangeNotifier {
   ViewContextController? currentViewContext;
   bool isInEditMode = false;
   bool searchBarOpen = false;
+  bool _isDrawerOpen = false;
+
+  bool get isDrawerOpen => _isDrawerOpen;
+
+  void toggleDrawer() {
+    _isDrawerOpen = !_isDrawerOpen;
+    notifyListeners();
+  }
 
   toggleEditMode() {
     isInEditMode = !isInEditMode;
