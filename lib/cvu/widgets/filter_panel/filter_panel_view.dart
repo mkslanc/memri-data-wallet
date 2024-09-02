@@ -166,7 +166,7 @@ class _FilterPanelTabBar extends StatelessWidget {
           // icon: ,
           onPressed: () => onCurrentTabChange(tab),
           style: TextButton.styleFrom(
-            padding: EdgeInsets.all(5),
+            padding: EdgeInsets.all(10),
             // primary: currentTab == tab ? CVUColor.system("systemFill") : Colors.transparent,
           ), //? Color(.systemFill) : Color(.secondarySystemBackground)
         ),

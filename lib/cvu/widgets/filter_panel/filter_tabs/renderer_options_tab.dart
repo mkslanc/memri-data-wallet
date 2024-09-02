@@ -4,6 +4,7 @@ import 'package:memri/cvu/widgets/filter_panel/filter_tabs/renderer_settings/cha
 import 'package:memri/cvu/widgets/filter_panel/filter_tabs/renderer_settings/grid_renderer_settings_view.dart';
 import 'package:memri/cvu/widgets/filter_panel/filter_tabs/renderer_settings/timeline_renderer_settings_view.dart';
 
+import '../../../../utilities/helpers/app_helper.dart';
 import '../../../controllers/view_context_controller.dart';
 
 class RendererOptionsTab extends StatelessWidget {
@@ -23,11 +24,11 @@ class RendererOptionsTab extends StatelessWidget {
       default:
     }
     return Padding(
-      padding: const EdgeInsets.all(0),
+      padding: const EdgeInsets.all(10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("No configurable settings for this renderer.", style: TextStyle(fontSize: 16)),
+          Text("No configurable settings for this renderer.", style: TextStyle(fontSize: 14, color: app.colors.brandGreyText)),
         ],
       ),
     );
