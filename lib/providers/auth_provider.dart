@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 
-import '../core/services/database/schema.dart';
-import '../cvu/controllers/cvu_controller.dart';
 
 enum AuthState {
   authentication,
@@ -139,7 +136,7 @@ class AuthProvider with ChangeNotifier {
   void finishAuthentication(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) =>
         RouteNavigator.navigateTo(
-            context: context, route: Routes.cvu, clearStack: true));
+            context: context, route: Routes.index, clearStack: true));
   }
 
   void _handleAuthenticating(BuildContext context) {

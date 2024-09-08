@@ -67,7 +67,7 @@ Photo > fileViewer {
     itemTitle: {{.caption}}
 }
 
-.allPhotos {
+.allPhoto {
     defaultRenderer: grid
     editActionButton: toggleEditMode
     emptyResultText: "There are no photos here yet"

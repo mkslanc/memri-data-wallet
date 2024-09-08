@@ -1,4 +1,4 @@
-.allAddresses {
+.allAddress {
     defaultRenderer: list
     filterButtons: showStarred toggleFilterPanel
     editActionButton: toggleEditMode

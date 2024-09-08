@@ -1,4 +1,4 @@
-.allLocations {
+.allLocation {
     name: all-locations
     defaultRenderer: list
     filterButtons: showStarred toggleFilterPanel

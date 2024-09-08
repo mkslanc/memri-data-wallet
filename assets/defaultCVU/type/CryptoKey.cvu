@@ -119,7 +119,7 @@ CryptoKey {
 }
 
 
-.allCryptoKeys {
+.allCryptoKey {
     title: "All Crypto Keys"
     emptyResultText: "There are no keys here yet"
     defaultRenderer: list

@@ -83,7 +83,7 @@ Post > list {
     }
 }
 
-.allPosts {
+.allPost {
     defaultRenderer: list
     emptyResultText: "There are no posts here yet"
     showTopBar: false

@@ -23,7 +23,8 @@ class Routes {
   static String importerDownloading = '/data/importer/downloading';
   static String importerError = '/data/importer/error';
 
-  static String cvu = '/';
+  static String cvu = '/cvu';
+  static String index = '/';
 
 
   static void configureRoutes(FluroRouter router) {
@@ -33,6 +34,7 @@ class Routes {
     router.define(loginDev, handler: loginDeveloperScreenHandler);
     router.define(saveKeys, handler: saveKeysScreenHandler);
     router.define(cvu, handler: cvuHandler);
+    router.define(index, handler: indexHandler);
   }
 }
 

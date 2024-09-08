@@ -107,7 +107,7 @@ Note > timeline {
     }
 }
 
-.allNotes {
+.allNote {
     name: "all-notes"
     title: "All Notes"
     emptyResultText: "There are no notes here yet"

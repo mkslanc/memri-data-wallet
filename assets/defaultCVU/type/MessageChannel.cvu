@@ -144,7 +144,7 @@ MessageChannel > list {
     }
 }
 
-.allMessageChannels {
+.allMessageChannel {
     title: "Channels"
     defaultRenderer: list
     filterButtons: [ showStarred toggleFilterPanel ]

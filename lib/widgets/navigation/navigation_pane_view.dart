@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/item.dart';
 import '../../cvu/controllers/view_context_controller.dart';
 import '../../providers/app_provider.dart';
+import '../../screens/all_item_types_screen.dart';
 import '../settings_pane.dart';
 import '../space.dart';
 
@@ -80,6 +81,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
               if (snapshot.hasData) {
                 List<Widget> widgets = [];
                 List<Item> items = snapshot.data;
+                widgets.add(NavigationItemView(title: "All item types", targetViewName:"", isCore: true,));
                 items.forEach((navItem) {
                   var navigationType = navItem.get("itemType");
                   switch (navigationType) {
@@ -145,16 +147,21 @@ class NavigationItemView extends StatelessWidget {
   final String title;
   final String targetViewName;
 
-  NavigationItemView({required this.title, required this.targetViewName});
+  var isCore;
+
+  NavigationItemView({required this.title, required this.targetViewName, this.isCore = false});
 
   @override
   Widget build(BuildContext context) {
+
     return TextButton(
       onPressed: () {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-          builder: (context) => CVUScreen(
+          builder: (context) => isCore ? AllItemTypesScreen(
+            viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
+          ) : CVUScreen(
             viewContextController: ViewContextController.fromParams(viewName: targetViewName),
           ),
         ),(Route<dynamic> route) => false);

@@ -60,7 +60,7 @@ EmailMessage > list {
     }
 }
 
-.allEmails {
+.allEmailMessage {
     actionButton: [
         addItem
         {

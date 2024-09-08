@@ -138,7 +138,7 @@ StartPlugin {
     }
 }
 
-.allStartPlugins {
+.allStartPlugin {
     name: "all-plugin-instances"
     title: "All StartPlugins"
     emptyResultText: "There are no StartPlugins"

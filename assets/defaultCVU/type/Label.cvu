@@ -76,7 +76,7 @@ Label > grid {
     }
 }
 
-.allLabels {
+.allLabel {
     name: "all-labels"
     title: "All Labels"
     emptyResultText: "You have not added any labels yet"

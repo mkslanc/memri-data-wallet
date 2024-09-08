@@ -43,7 +43,7 @@ Wallet > grid {
     }
 }
 
-.allWallets {
+.allWallet {
     name: "all-supported-wallets"
     title: "All Supported Wallets"
     emptyResultText: "There are no wallets supported."

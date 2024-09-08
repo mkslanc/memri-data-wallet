@@ -88,7 +88,7 @@ Receipt > fileViewer {
     itemTitle: {{.store}}
 }
 
-.allReceipts {
+.allReceipt {
     defaultRenderer: timeline
     filterButtons: [ showStarred toggleFilterPanel ]
     

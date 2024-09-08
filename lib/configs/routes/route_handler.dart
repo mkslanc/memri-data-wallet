@@ -5,6 +5,7 @@ import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/screens/account/login_developer_screen.dart';
 import 'package:memri/screens/account/login_screen.dart';
 import 'package:memri/screens/account/save_keys_screen.dart';
+import 'package:memri/screens/all_item_types_screen.dart';
 import 'package:memri/screens/cvu_screen.dart';
 import 'package:memri/screens/not_found_screen.dart';
 
@@ -28,3 +29,8 @@ var cvuHandler = Handler(
     handlerFunc: (_, __) => CVUScreen(
           viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
         ));
+
+var indexHandler = Handler(
+    handlerFunc: (_, __) => AllItemTypesScreen(
+      viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
+    ));

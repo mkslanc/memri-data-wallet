@@ -59,8 +59,8 @@ class _CVUButtonState extends State<CVUButton> {
 
   onPress(BuildContext context) {
     //await logAnalyticsEvent();
-    executeActionsOnSubmit(widget.nodeResolver, this,
-        isDisabled: _isDisabled, actionsKey: "onPress", buildContext: context);
+    /*executeActionsOnSubmit(widget.nodeResolver, this,
+        isDisabled: _isDisabled, actionsKey: "onPress", buildContext: context);*/
   }
 
   logAnalyticsEvent() async {

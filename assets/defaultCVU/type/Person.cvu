@@ -512,7 +512,7 @@ Person > timeline {
     }
 }
 
-.allPeople {
+.allPerson {
     actionButton: [
         openView
         {

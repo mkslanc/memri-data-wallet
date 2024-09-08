@@ -146,7 +146,7 @@ IndexerRun {
 }
 
 
-.allIndexerRuns {
+.allIndexerRun {
     name: "all-indexer-instances"
     title: "All IndexerRuns"
     emptyResultText: "There are no IndexerRuns"

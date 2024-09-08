@@ -63,7 +63,7 @@ CryptoCurrency > list {
     }
 }
 
-.allCryptoCurrencies {
+.allCryptoCurrency {
     title: "All Cryptocurrencies"
     emptyResultText: "There are no crypto currencies yet."
     defaultRenderer: list

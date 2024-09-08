@@ -173,7 +173,7 @@ Importer > grid {
     }
 }
 
-.allImporters {
+.allImporter {
     name: "all-importers"
     title: "All Importers"
     emptyResultText: "There are no Importers"

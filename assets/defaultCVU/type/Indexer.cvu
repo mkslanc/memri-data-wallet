@@ -174,7 +174,7 @@ Indexer > grid {
     }
 }
 
-.allIndexers {
+.allIndexer {
     name: "all-indexers"
     title: "All Indexers"
     emptyResultText: "There are no Indexers"

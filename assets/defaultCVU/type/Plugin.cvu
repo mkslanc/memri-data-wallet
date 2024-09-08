@@ -167,7 +167,7 @@ Plugin > grid {
     }
 }
 
-.allPlugins {
+.allPlugin {
     name: "all-plugins"
     title: "All Plugins"
     emptyResultText: "There are no Plugins"

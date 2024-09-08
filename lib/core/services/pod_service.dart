@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod_api.dart';
 import 'package:memri/core/models/item.dart';
@@ -14,6 +15,7 @@ import 'package:uuid/uuid.dart';
 
 import '../controllers/authentication.dart';
 import './demo_data_pod.dart';
+import 'database/schema.dart';
 
 class PodService extends ApiService<PodAPI> {
   PodService._(this._prefs) : super(api: PodAPI());
@@ -211,5 +213,35 @@ query {
 
   downloadFile(String fileSHAHash) async {
     return api.downloadFile(fileSHAHash);
+  }
+
+  Future<Map<String, int>> countItemsByType(Schema? schema) async { //TODO: this is very expensive and should be optimized
+    schema ??= GetIt.I<Schema>();
+
+    if (!schema.isLoaded) {
+      await schema.loadFromPod();
+    }
+
+    final Map<String, int> itemCountByType = {};
+
+    for (var type in schema.types.keys) {
+      try {
+        var query = '''
+      query {
+        $type {
+          dateCreated
+        }
+      }
+      ''';
+
+        final List<Item> items = await graphql(query: query);
+
+        itemCountByType[type] = items.length;
+      } catch (error) {
+        print('Failed to fetch data for type $type: $error');
+      }
+    }
+
+    return itemCountByType;
   }
 }

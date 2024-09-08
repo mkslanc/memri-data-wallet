@@ -170,7 +170,7 @@ Message > list {
     }
 }
 
-.allMessages {
+.allMessage {
     defaultRenderer: messages
     filterButtons: showStarred toggleFilterPanel
     
