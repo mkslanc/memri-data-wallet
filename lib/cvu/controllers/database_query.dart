@@ -1,9 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:json_annotation/json_annotation.dart' as annotation;
 import 'package:memri/core/models/item.dart';
+import 'package:memri/core/services/demo_data_pod.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
@@ -175,7 +177,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       if (properties != null) {
         for (var key in properties.properties.keys) {
           dynamic value = properties.string(key) ?? "";
-          queryConfig._addPropertyEqualCondition(key, value);
+          queryConfig._addPropertyCondition(key, value);
         }
       }
 
@@ -193,21 +195,33 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void addPropertyEqualCondition(String key, dynamic value) {
-    _addPropertyEqualCondition(key, value);
+  void addPropertyCondition(String key, dynamic value) {
+    _addPropertyCondition(key, value);
     notifyListeners();
   }
 
-  void _addPropertyEqualCondition(String key, dynamic value) {
-    // Check if a condition with the same key and value already exists
-    bool exists = conditions.any((condition) =>
-        condition is DatabaseQueryConditionPropertyEquals &&
-        condition.value.name == key &&
-        condition.value.value == value);
+  bool existsPropertyCondition(String key) => getPropertyCondition(key) != null;
 
-    // Add the condition only if it doesn't already exist
-    if (!exists) {
+  removePropertyCondition(String key) {
+    var condition = getPropertyCondition(key);
+    if (condition == null)
+      return;
+    conditions.remove(condition);
+    notifyListeners();
+  }
+
+  DatabaseQueryConditionPropertyEquals? getPropertyCondition(String key) => conditions
+      .firstWhereOrNull((condition) =>
+    condition is DatabaseQueryConditionPropertyEquals &&
+    condition.value.name == key) as DatabaseQueryConditionPropertyEquals?;
+
+  void _addPropertyCondition(String key, dynamic value) {
+    var propertyEqualCondition = getPropertyCondition(key);
+
+    if (propertyEqualCondition == null) {
       conditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
+    } else if (propertyEqualCondition.value != value) {
+      propertyEqualCondition.value = value;
     }
   }
 

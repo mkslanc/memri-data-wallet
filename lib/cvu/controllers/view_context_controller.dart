@@ -52,8 +52,6 @@ class ViewContextController extends ChangeNotifier {
     searchStringNotifier = ValueNotifier(configHolder.config.query.searchString);
 
     this.cvuController.addListener(() => updateUI());
-
-
   }
 
   factory ViewContextController.fromParams({

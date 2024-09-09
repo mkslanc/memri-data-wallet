@@ -249,23 +249,18 @@ class CVUActionStar extends CVUAction {
       return;
     }
 
-    // var prop = "starred";
-    // var currentVal = (await currentItem.propertyValue(prop))?.asBool() ?? false;
-    // try {
-    //   await currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
-    //   //sceneController.scheduleUIUpdate();
-    // } catch (error) {
-    //   print(
-    //       "ERROR CVUAction_Star: item: ${currentItem.type} with id: ${currentItem.rowId} error: $error");
-    // }
+    var prop = "starred";
+    var currentVal = currentItem.get<bool>(prop) ?? false;
+    currentItem.set(prop, !currentVal);
   }
 }
 
 class CVUActionShowStarred extends CVUAction {
   Map<String, CVUValue> vars;
+  String icon = "star";
 
   Map<String, CVUValue> get defaultVars {
-    return {"icon": CVUValueConstant(CVUConstantString("star.fill"))};
+    return {"icon": CVUValueConstant(CVUConstantString(icon))};
   }
 
   CVUActionShowStarred({vars}) : this.vars = vars ?? {};
@@ -278,7 +273,14 @@ class CVUActionShowStarred extends CVUAction {
       return;
     }
     var query = currentContext.config.query;
-    query.addPropertyEqualCondition("starred", true);
+    var property = "starred";
+    if (query.existsPropertyCondition(property)) {
+      query.removePropertyCondition(property);
+      icon = "star";
+    } else {
+      query.addPropertyCondition("starred", true);
+      icon = "star.fill";
+    }
   }
 }
 

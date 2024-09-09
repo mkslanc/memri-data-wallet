@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
+
+import '../services/pod_service.dart';
 
 class Item {
   String type;
@@ -50,8 +53,15 @@ class Item {
     return this.edges[edgeName]?.targets;
   }
 
-  dynamic get(String propertyName) {
-    return this.properties[propertyName] ?? null;
+  T? get<T>(String propertyName) {
+    return this.properties[propertyName];
+  }
+
+  set(String propertyName, dynamic propertyValue) {
+    this.properties[propertyName] = propertyValue;
+    //TODO may consider moving db update to service to clean model clean
+    var podService = GetIt.I<PodService>();
+    podService.updateItem(item: this);
   }
 
   void setIdIfNotExists() {

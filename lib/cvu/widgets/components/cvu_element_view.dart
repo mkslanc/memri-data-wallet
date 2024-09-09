@@ -19,6 +19,7 @@ import 'package:memri/cvu/widgets/components/elements/cvu_sub_view.dart';
 import 'package:memri/cvu/widgets/components/elements/cvu_text.dart';
 import 'package:memri/widgets/empty.dart';
 
+import 'elements/cvu_action_button.dart';
 import 'elements/cvu_timeline_item.dart';
 
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
@@ -57,23 +58,17 @@ class _CVUElementViewState extends State<CVUElementView> {
       case CVUUIElementFamily.Wrap:
         return CVUWrap(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Text:
-        return CVUText(
-          nodeResolver: widget.nodeResolver,
-        );
+        return CVUText(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.SmartText:
-        return CVUSmartText(
-          nodeResolver: widget.nodeResolver,
-        );
+        return CVUSmartText(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Button:
-        return CVUButton(
-          nodeResolver: widget.nodeResolver,
-        );
+        return CVUButton(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.ActionButton:
+        return CVUActionButton(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Divider:
-        return Divider(
-          height: 1,
-        );
+        return Divider(height: 1);
       case CVUUIElementFamily.Circle:
         return CVUShapeCircle(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Rectangle:

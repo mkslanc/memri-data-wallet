@@ -16,9 +16,7 @@ class ActionButton extends StatefulWidget {
 }
 
 class _ActionButtonState extends State<ActionButton> {
-  String? _icon;
-
-  String get icon => _icon ?? "";
+  String icon = "";
 
   @override
   initState() {
@@ -33,7 +31,7 @@ class _ActionButtonState extends State<ActionButton> {
   }
 
   initIcon() {
-    _icon = widget.action.getString("icon", widget.viewContext);
+    icon = widget.action.getString("icon", widget.viewContext) ?? "";
   }
 
   @override
@@ -41,8 +39,9 @@ class _ActionButtonState extends State<ActionButton> {
     return TextButton(
         child: Icon(MemriIcon.getByName(icon), color: widget.color ?? Colors.black,),
         onPressed: () async {
-          await widget.action.execute(widget.viewContext, context);
-          setState(() => initIcon());
+          await widget.action
+              .execute(widget.viewContext, context)
+              .whenComplete(setState(() => initIcon()));
         });
   }
 }
