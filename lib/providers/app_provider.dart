@@ -95,10 +95,7 @@ class AppProvider with ChangeNotifier {
   initCVUDefinitions() async {
     var cvuController = GetIt.I<CVUController>();
     await GetIt.I<Schema>().loadFromPod();
-    await cvuController.loadStoredDefinitions();
-    if (cvuController.storedDefinitions.isEmpty) {
-      await cvuController.init();
-    }
+    await cvuController.init();
   }
 
 

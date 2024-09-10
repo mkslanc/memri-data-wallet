@@ -32,7 +32,7 @@ class _CVUScreenState extends State<CVUScreen> {
 
   init() async {
     try {
-      Provider.of<AppProvider>(context, listen: false).initCVUDefinitions();
+      await Provider.of<AppProvider>(context, listen: false).initCVUDefinitions();
       return true;
     } catch (error) {
       return false;

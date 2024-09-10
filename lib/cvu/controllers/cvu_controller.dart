@@ -100,8 +100,9 @@ class CVUController extends ChangeNotifier {
   }
 
   storeDefinitions(List<CVUParsedDefinition> _definitions) async {
-    _definitions
-        .forEach((definition) => storeDefinition(definition: definition));
+    for (var definition in _definitions) {
+      await storeDefinition(definition: definition);
+    }
   }
 
   Future<Item?> storeDefinition(

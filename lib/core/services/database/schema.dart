@@ -19,6 +19,8 @@ class Schema {
   };
 
   loadFromPod() async {
+    if (isLoaded)
+      return;
     var schemaData = await _podService.getSchema();;
 
     var nodeTypes = schemaData['nodes_types'] as Map<String, dynamic>;
