@@ -1,6 +1,7 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:memri/configs/routes/route_navigator.dart';
 import 'package:memri/constants/app_themes.dart';
 import 'package:memri/localization/generated/l10n.dart';
@@ -27,6 +28,7 @@ class _MemriState extends State<Memri> {
     final router = FluroRouter();
     Routes.configureRoutes(router);
     RouteNavigator.router = router;
+    MapboxOptions.setAccessToken(app.settings.mapboxAccessToken);
     super.initState();
   }
 

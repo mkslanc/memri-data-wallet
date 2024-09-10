@@ -48,4 +48,7 @@ class AppSettings {
   /// Links
   final String guideUrl = 'https://docs.memri.io/overview/quickStart/';
   final String discordUrl = 'https://discord.com/invite/BcRfajJk4k';
+
+  //MapBox
+  final String mapboxAccessToken = "sk.eyJ1IjoibWtzbGFuYyIsImEiOiJjbTB1emFoZGMwZWRvMm1zN3V0NGZraDh1In0.4zY7se5RDFMVQ95261qmKw";
 }

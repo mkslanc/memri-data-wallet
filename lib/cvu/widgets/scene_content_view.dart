@@ -6,6 +6,7 @@ import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/list_renderer.dart';
+import 'package:memri/cvu/widgets/renderers/map_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/note_editor_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/photo_viewer_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/single_item_renderer.dart';
@@ -56,11 +57,9 @@ class _SceneContentViewState extends State<SceneContentView> {
             },
             child: ListRendererView(viewContext: viewContext));
       case "grid":
-        return RefreshIndicator(
-            onRefresh: () async {
-              return await viewContext.getItems(viewContext.config.query);
-            },
-            child: GridRendererView(viewContext: viewContext));
+        return GridRendererView(viewContext: viewContext);
+      case "map":
+        return MapRendererView(viewContext: viewContext);
       case "timeline":
         return TimelineRendererView(viewContext: viewContext);
       case "photoviewer":

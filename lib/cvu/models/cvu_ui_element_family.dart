@@ -33,7 +33,8 @@ enum CVUUIElementFamily {
   Wrap,
   Dropdown,
   RichText,
-  LoadingIndicator
+  LoadingIndicator,
+  Map
 }
 
 extension CVUUIElementFamilyExtension on CVUUIElementFamily {

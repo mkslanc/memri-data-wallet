@@ -20,6 +20,7 @@ import 'package:memri/cvu/widgets/components/elements/cvu_text.dart';
 import 'package:memri/widgets/empty.dart';
 
 import 'elements/cvu_action_button.dart';
+import 'elements/cvu_map.dart';
 import 'elements/cvu_timeline_item.dart';
 
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
@@ -61,6 +62,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVUText(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.Map:
+        return CVUMap(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.SmartText:
         return CVUSmartText(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Button:

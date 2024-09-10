@@ -64,4 +64,5 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.Dropdown: 'Dropdown',
   CVUUIElementFamily.RichText: 'RichText',
   CVUUIElementFamily.LoadingIndicator: 'LoadingIndicator',
+  CVUUIElementFamily.Map: 'Map',
 };
