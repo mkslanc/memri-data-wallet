@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
+import 'package:memri/cvu/controllers/database_query.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/services/resolving/cvu_context.dart';
@@ -278,7 +279,7 @@ class CVUActionShowStarred extends CVUAction {
       query.removePropertyCondition(property);
       icon = "star";
     } else {
-      query.addPropertyCondition("starred", true);
+      query.addPropertyCondition("starred", true, ComparisonType.equals);
       icon = "star.fill";
     }
   }

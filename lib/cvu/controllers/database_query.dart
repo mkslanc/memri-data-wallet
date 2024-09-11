@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:json_annotation/json_annotation.dart' as annotation;
 import 'package:memri/core/models/item.dart';
-import 'package:memri/core/services/demo_data_pod.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
@@ -75,7 +74,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   bool includeImmediateEdgeSearch;
 
   /// A list of conditions. eg. property name = "Demo note"
-  List<DatabaseQueryCondition> conditions = [];
+  List<QueryCondition> conditions = [];
 
   /// A list of edges to include in query. eg. ".file"
   List<String> edges = [];
@@ -99,7 +98,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       this.currentPage = 0,
       this.searchString,
       this.includeImmediateEdgeSearch = true,
-      List<DatabaseQueryCondition>? conditions,
+      List<QueryCondition>? conditions,
       this.edgeTargetsOperator = ConditionOperator.and,
       this.count})
       : itemTypes = itemTypes ?? ["Person", "Note", "Address", "Photo"],
@@ -147,6 +146,9 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     if (searchString != null && searchString!.isNotEmpty) {
       items = localFullTextSearch(items: items, needle: searchString!);
     }
+
+    items = _filterByLikeConditions(items);
+
     return items;
   }
 
@@ -179,7 +181,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       if (properties != null) {
         for (var key in properties.properties.keys) {
           dynamic value = properties.string(key) ?? "";
-          queryConfig._addPropertyCondition(key, value);
+          queryConfig._addPropertyCondition(key, value, ComparisonType.equals); //TODO: should rely on different comparison types
         }
       }
 
@@ -197,8 +199,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void addPropertyCondition(String key, dynamic value) {
-    _addPropertyCondition(key, value);
+  void addPropertyCondition(String key, dynamic value, ComparisonType comparisonType) {
+    _addPropertyCondition(key, value, comparisonType);
     notifyListeners();
   }
 
@@ -212,18 +214,19 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     notifyListeners();
   }
 
-  DatabaseQueryConditionPropertyEquals? getPropertyCondition(String key) => conditions
+  PropertyCondition? getPropertyCondition(String key) => conditions
       .firstWhereOrNull((condition) =>
-    condition is DatabaseQueryConditionPropertyEquals &&
-    condition.value.name == key) as DatabaseQueryConditionPropertyEquals?;
+    condition is PropertyCondition &&
+    condition.name == key) as PropertyCondition?;
 
-  void _addPropertyCondition(String key, dynamic value) {
-    var propertyEqualCondition = getPropertyCondition(key);
+  void _addPropertyCondition(String key, dynamic value, ComparisonType comparisonType) {
+    var propertyCondition = getPropertyCondition(key);
 
-    if (propertyEqualCondition == null) {
-      conditions.add(DatabaseQueryConditionPropertyEquals(PropertyEquals(key, value)));
-    } else if (propertyEqualCondition.value != value) {
-      propertyEqualCondition.value = value;
+    if (propertyCondition == null) {
+      conditions.add(PropertyCondition(key, value, comparisonType));
+    } else if (propertyCondition.value != value || propertyCondition.comparisonType != comparisonType) {
+      propertyCondition.value = value;
+      propertyCondition.comparisonType = comparisonType;
     }
   }
 
@@ -238,7 +241,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     // Fetch the properties for the current item type using the Schema object
     List<String> properties = schema!.propertyNamesForItemType(itemType);
 
-    String filter = _graphQlFilter();
+    String filter = _graphQlFilter(itemType);
     String edgesQuery = _graphQlEdgesQuery(itemType);
     String order = sortAscending ? "order_asc" : "order_desc";
 
@@ -254,27 +257,27 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   // Build the filter part of the query based on the config
-  String _graphQlFilter() {
+  String _graphQlFilter(String itemType) {
     List<String> filterParts = [];
 
     // if (deleted != null) {
     //   filterParts.add(filterPart("deleted", deleted, "eq"));
     // }
     if (dateModifiedAfter != null) {
-      filterParts.add(filterPart("dateModified", dateModifiedAfter!.millisecondsSinceEpoch, "gte"));
+      filterParts.add(filterPart("dateModified", dateModifiedAfter!.millisecondsSinceEpoch, "gte", itemType));
     }
     if (dateModifiedBefore != null) {
-      filterParts.add(filterPart("dateModified", dateModifiedBefore!.millisecondsSinceEpoch, "lte"));
+      filterParts.add(filterPart("dateModified", dateModifiedBefore!.millisecondsSinceEpoch, "lte", itemType));
     }
     if (dateCreatedAfter != null) {
-      filterParts.add(filterPart("dateCreated", dateCreatedAfter!.millisecondsSinceEpoch, "gte"));
+      filterParts.add(filterPart("dateCreated", dateCreatedAfter!.millisecondsSinceEpoch, "gte", itemType));
     }
     if (dateCreatedBefore != null) {
-      filterParts.add(filterPart("dateCreated", dateCreatedBefore!.millisecondsSinceEpoch, "lte"));
+      filterParts.add(filterPart("dateCreated", dateCreatedBefore!.millisecondsSinceEpoch, "lte", itemType));
     }
     for (var condition in conditions) {
-      if (condition is DatabaseQueryConditionPropertyEquals) {
-        filterParts.add(filterPart(condition.value.name, condition.value.value, "eq"));
+      if (condition is PropertyCondition && condition.comparisonType == ComparisonType.equals) {
+        filterParts.add(filterPart(condition.name, condition.value, "eq", itemType));
       }
     }
 
@@ -291,7 +294,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  String filterPart(String key, dynamic value, String op) {
+  String filterPart(String key, dynamic value, String op, String itemType) {
+    if (schema!.expectedPropertyType(itemType, key) == "string") {
+      value = '"$value"';
+    }
     return '{${key}: { ${op}: ${value} }}';
   }
 
@@ -326,7 +332,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     for (String edge in edgeNames) {
       String? targetType = schema!.expectedTargetType(currentType, edge);
       if (targetType != null) {
-        List<String> edgeProperties = schema!.propertyNamesForItemType(targetType) ?? [];
+        List<String> edgeProperties = schema!.propertyNamesForItemType(targetType);
         String nestedQuery = _buildEdgeQuery(targetType, subEdges[edge] ?? {}, depth + 1);
         result += '''
         $edge {
@@ -367,6 +373,29 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     return filteredResults;
   }
 
+  // Method for filtering based on ComparisonType.like conditions
+  List<Item> _filterByLikeConditions(List<Item> items) {
+    // Collect all conditions of type ComparisonType.like
+    List<QueryCondition> likeConditions = conditions.where((condition) =>
+    condition is PropertyCondition && condition.comparisonType == ComparisonType.like).toList();
+
+    if (likeConditions.isEmpty) {
+      return items; // No `like` conditions to filter, return all items
+    }
+
+    // Filter items that satisfy all `like` conditions
+    return items.where((item) {
+      return likeConditions.every((condition) {
+        if (condition is PropertyCondition) {
+          var propertyValue = item.get(condition.name);
+          return propertyValue is String &&
+              propertyValue.toLowerCase().contains(condition.value.toString().toLowerCase());
+        }
+        return false;
+      });
+    }).toList();
+  }
+
 
 
   factory DatabaseQueryConfig.fromJson(Map<String, dynamic> json) =>
@@ -387,78 +416,74 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       ];
 }
 
-abstract class DatabaseQueryCondition {
+abstract class QueryCondition {
   dynamic get value;
 
   Map<String, dynamic> toJson();
 
-  DatabaseQueryCondition();
+  QueryCondition();
 
-  factory DatabaseQueryCondition.fromJson(json) {
+  factory QueryCondition.fromJson(Map<String, dynamic> json) {
     switch (json["type"]) {
-      case "DatabaseQueryConditionPropertyEquals":
-        return DatabaseQueryConditionPropertyEquals.fromJson(json);
-      case "DatabaseQueryConditionEdgeHasTarget":
-        return DatabaseQueryConditionEdgeHasTarget.fromJson(json);
-      case "DatabaseQueryConditionEdgeHasSource":
-        return DatabaseQueryConditionEdgeHasSource.fromJson(json);
+      case "PropertyCondition":
+        return PropertyCondition.fromJson(json);
+      case "EdgeHasTargetCondition":
+        return EdgeHasTargetCondition.fromJson(json);
+      case "EdgeHasSourceCondition":
+        return EdgeHasSourceCondition.fromJson(json);
       default:
-        throw Exception("Unknown DatabaseQueryCondition: ${json["type"]}");
+        throw Exception("Unknown QueryCondition: ${json["type"]}");
     }
   }
 }
 
-// A property of this item equals a particular value
 @annotation.JsonSerializable()
-class DatabaseQueryConditionPropertyEquals extends DatabaseQueryCondition {
-  PropertyEquals value;
+class PropertyCondition extends QueryCondition {
+  String name;
+  dynamic value;
+  ComparisonType comparisonType;
 
-  DatabaseQueryConditionPropertyEquals(this.value);
+  PropertyCondition(this.name, this.value, this.comparisonType);
 
-  factory DatabaseQueryConditionPropertyEquals.fromJson(Map<String, dynamic> json) =>
-      _$DatabaseQueryConditionPropertyEqualsFromJson(json);
+  factory PropertyCondition.fromJson(Map<String, dynamic> json) =>
+      _$PropertyConditionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$DatabaseQueryConditionPropertyEqualsToJson(this)..addAll({"type": runtimeType.toString()});
+      _$PropertyConditionToJson(this)..addAll({"type": runtimeType.toString()});
 }
 
 // This item has an edge pointing to 'x' item
 @annotation.JsonSerializable()
-class DatabaseQueryConditionEdgeHasTarget extends DatabaseQueryCondition {
+class EdgeHasTargetCondition extends QueryCondition {
   EdgeHasTarget value;
 
-  DatabaseQueryConditionEdgeHasTarget(this.value);
+  EdgeHasTargetCondition(this.value);
 
-  factory DatabaseQueryConditionEdgeHasTarget.fromJson(Map<String, dynamic> json) =>
-      _$DatabaseQueryConditionEdgeHasTargetFromJson(json);
+  factory EdgeHasTargetCondition.fromJson(Map<String, dynamic> json) =>
+      _$EdgeHasTargetConditionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$DatabaseQueryConditionEdgeHasTargetToJson(this)..addAll({"type": runtimeType.toString()});
+      _$EdgeHasTargetConditionToJson(this)..addAll({"type": runtimeType.toString()});
 }
 
 @annotation.JsonSerializable()
-class DatabaseQueryConditionEdgeHasSource extends DatabaseQueryCondition {
+class EdgeHasSourceCondition extends QueryCondition {
   EdgeHasSource value;
 
-  DatabaseQueryConditionEdgeHasSource(this.value);
+  EdgeHasSourceCondition(this.value);
 
-  factory DatabaseQueryConditionEdgeHasSource.fromJson(Map<String, dynamic> json) =>
-      _$DatabaseQueryConditionEdgeHasSourceFromJson(json);
+  factory EdgeHasSourceCondition.fromJson(Map<String, dynamic> json) =>
+      _$EdgeHasSourceConditionFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$DatabaseQueryConditionEdgeHasSourceToJson(this)..addAll({"type": runtimeType.toString()});
+      _$EdgeHasSourceConditionToJson(this)..addAll({"type": runtimeType.toString()});
 }
 
-@annotation.JsonSerializable()
-class PropertyEquals {
-  String name;
-  dynamic value;
-
-  PropertyEquals(this.name, this.value);
-
-  factory PropertyEquals.fromJson(Map<String, dynamic> json) => _$PropertyEqualsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$PropertyEqualsToJson(this);
+enum ComparisonType {
+  equals,
+  greaterThan,
+  lessThan,
+  like,
 }
 
 @annotation.JsonSerializable()
@@ -484,3 +509,5 @@ class EdgeHasSource {
 
   Map<String, dynamic> toJson() => _$EdgeHasSourceToJson(this);
 }
+
+

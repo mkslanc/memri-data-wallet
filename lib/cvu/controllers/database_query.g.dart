@@ -20,7 +20,7 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) =>
       includeImmediateEdgeSearch:
           json['includeImmediateEdgeSearch'] as bool? ?? true,
       conditions: (json['conditions'] as List<dynamic>?)
-          ?.map(DatabaseQueryCondition.fromJson)
+          ?.map((e) => QueryCondition.fromJson(e as Map<String, dynamic>))
           .toList(),
       edgeTargetsOperator: $enumDecodeNullable(
               _$ConditionOperatorEnumMap, json['edgeTargetsOperator']) ??
@@ -77,51 +77,48 @@ const _$ConditionOperatorEnumMap = {
   ConditionOperator.or: 'or',
 };
 
-DatabaseQueryConditionPropertyEquals
-    _$DatabaseQueryConditionPropertyEqualsFromJson(Map<String, dynamic> json) =>
-        DatabaseQueryConditionPropertyEquals(
-          PropertyEquals.fromJson(json['value'] as Map<String, dynamic>),
-        );
-
-Map<String, dynamic> _$DatabaseQueryConditionPropertyEqualsToJson(
-        DatabaseQueryConditionPropertyEquals instance) =>
-    <String, dynamic>{
-      'value': instance.value,
-    };
-
-DatabaseQueryConditionEdgeHasTarget
-    _$DatabaseQueryConditionEdgeHasTargetFromJson(Map<String, dynamic> json) =>
-        DatabaseQueryConditionEdgeHasTarget(
-          EdgeHasTarget.fromJson(json['value'] as Map<String, dynamic>),
-        );
-
-Map<String, dynamic> _$DatabaseQueryConditionEdgeHasTargetToJson(
-        DatabaseQueryConditionEdgeHasTarget instance) =>
-    <String, dynamic>{
-      'value': instance.value,
-    };
-
-DatabaseQueryConditionEdgeHasSource
-    _$DatabaseQueryConditionEdgeHasSourceFromJson(Map<String, dynamic> json) =>
-        DatabaseQueryConditionEdgeHasSource(
-          EdgeHasSource.fromJson(json['value'] as Map<String, dynamic>),
-        );
-
-Map<String, dynamic> _$DatabaseQueryConditionEdgeHasSourceToJson(
-        DatabaseQueryConditionEdgeHasSource instance) =>
-    <String, dynamic>{
-      'value': instance.value,
-    };
-
-PropertyEquals _$PropertyEqualsFromJson(Map<String, dynamic> json) =>
-    PropertyEquals(
+PropertyCondition _$PropertyConditionFromJson(Map<String, dynamic> json) =>
+    PropertyCondition(
       json['name'] as String,
       json['value'],
+      $enumDecode(_$ComparisonTypeEnumMap, json['comparisonType']),
     );
 
-Map<String, dynamic> _$PropertyEqualsToJson(PropertyEquals instance) =>
+Map<String, dynamic> _$PropertyConditionToJson(PropertyCondition instance) =>
     <String, dynamic>{
       'name': instance.name,
+      'value': instance.value,
+      'comparisonType': _$ComparisonTypeEnumMap[instance.comparisonType]!,
+    };
+
+const _$ComparisonTypeEnumMap = {
+  ComparisonType.equals: 'equals',
+  ComparisonType.greaterThan: 'greaterThan',
+  ComparisonType.lessThan: 'lessThan',
+  ComparisonType.like: 'like',
+};
+
+EdgeHasTargetCondition _$EdgeHasTargetConditionFromJson(
+        Map<String, dynamic> json) =>
+    EdgeHasTargetCondition(
+      EdgeHasTarget.fromJson(json['value'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$EdgeHasTargetConditionToJson(
+        EdgeHasTargetCondition instance) =>
+    <String, dynamic>{
+      'value': instance.value,
+    };
+
+EdgeHasSourceCondition _$EdgeHasSourceConditionFromJson(
+        Map<String, dynamic> json) =>
+    EdgeHasSourceCondition(
+      EdgeHasSource.fromJson(json['value'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$EdgeHasSourceConditionToJson(
+        EdgeHasSourceCondition instance) =>
+    <String, dynamic>{
       'value': instance.value,
     };
 
