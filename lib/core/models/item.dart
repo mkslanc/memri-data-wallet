@@ -69,11 +69,11 @@ class Item {
     return DateTime.fromMillisecondsSinceEpoch(val);
   }
 
-  set<T>(String propertyName, T propertyValue) {
+  set<T>(String propertyName, T propertyValue) async {
     this.properties[propertyName] = propertyValue;
     //TODO may consider moving db update to service to clean model clean
     var podService = GetIt.I<PodService>();
-    podService.updateItem(item: this);
+    await podService.updateItem(item: this);
   }
 
   void setIdIfNotExists() {

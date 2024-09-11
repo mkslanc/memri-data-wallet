@@ -134,7 +134,7 @@ class _GeneralEditorRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GeneralEditorLabel(
-                  content: prop.camelCaseToWords().toLowerCase().capitalizingFirst()),
+                  content: prop.camelCaseToWords()),
               nodeDefinition != null
                   ? viewContext.render(item: currentItem, nodeDefinition: nodeDefinition)
                   : currentWidget,
@@ -218,7 +218,7 @@ class _GeneralEditorRow extends StatelessWidget {
 
   Widget get defaultRow {
     return _GeneralEditorCaption(
-        content: prop.camelCaseToWords().toLowerCase().capitalizingFirst());
+        content: prop.camelCaseToWords());
   }
 
   TextStyle get style {

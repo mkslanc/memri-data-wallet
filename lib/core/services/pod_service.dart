@@ -200,6 +200,12 @@ query {
     return item;
   }
 
+  Future<void> deleteItem({
+    required Item item,
+  }) async {
+    await api.deleteItem(item.id);
+  }
+
   List<Item> _parseGQLResponse(Map<String, dynamic> jsonBody) {
     List<Item> result = [];
     List<dynamic> data = jsonBody['data'] ?? [];
@@ -215,16 +221,10 @@ query {
     return api.downloadFile(fileSHAHash);
   }
 
-  Future<Map<String, int>> countItemsByType(Schema? schema) async { //TODO: this is very expensive and should be optimized
-    schema ??= GetIt.I<Schema>();
-
-    if (!schema.isLoaded) {
-      await schema.loadFromPod();
-    }
-
+  Future<Map<String, int>> countItemsByType(List<String> types) async { //TODO: this is very expensive and should be optimized
     final Map<String, int> itemCountByType = {};
 
-    for (var type in schema.types.keys) {
+    for (var type in types) {
       try {
         var query = '''
       query {

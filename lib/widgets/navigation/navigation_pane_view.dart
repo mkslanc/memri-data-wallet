@@ -83,8 +83,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                 List<Item> items = snapshot.data;
                 widgets.add(NavigationItemView(title: "All item types", targetViewName:"", isCore: true,));
                 items.forEach((navItem) {
-                  var navigationType = navItem.get("itemType");
-                  switch (navigationType) {
+                  var itemType = navItem.get("itemType");
+                  switch (itemType) {
                     case "heading":
                       widgets.add(
                           NavigationHeadingView(title: navItem.get("title")));
@@ -96,6 +96,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                       widgets.add(NavigationItemView(
                         title: navItem.get("title"),
                         targetViewName: navItem.get("sessionName"),
+                        itemType: itemType,
                       ));
                   }
                 });
@@ -146,10 +147,15 @@ class NavigationItem {
 class NavigationItemView extends StatelessWidget {
   final String title;
   final String targetViewName;
+  final String? itemType;
 
-  var isCore;
+  final bool isCore;
 
-  NavigationItemView({required this.title, required this.targetViewName, this.isCore = false});
+  NavigationItemView(
+      {required this.title,
+      required this.targetViewName,
+      this.isCore = false,
+      this.itemType});
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +168,10 @@ class NavigationItemView extends StatelessWidget {
           builder: (context) => isCore ? AllItemTypesScreen(
             viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
           ) : CVUScreen(
-            viewContextController: ViewContextController.fromParams(viewName: targetViewName),
+            viewContextController: ViewContextController.fromParams(
+              viewName: targetViewName,
+              itemType: itemType
+            ),
           ),
         ),(Route<dynamic> route) => false);
         Provider.of<AppProvider>(context, listen: false).toggleDrawer();

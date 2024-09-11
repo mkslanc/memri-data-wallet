@@ -21,6 +21,7 @@ extension StringExtension on String {
         .replaceAllMapped(RegExp(r'([A-Z])'), (match) {
           return ' ${match.group(1)}';
         })
+        .substring(1)
         .toLowerCase()
         .capitalizingFirst();
   }
