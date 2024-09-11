@@ -45,6 +45,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   @override
   Widget build(BuildContext context) {
     return CVUScaffold(
+      viewContextController: widget.viewContextController,
       child: FutureBuilder<void>(
         future: _initFuture,
         builder: (context, snapshot) {

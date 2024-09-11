@@ -26,8 +26,7 @@ class _CVUScreenState extends State<CVUScreen> {
   initState() {
     super.initState();
     _init = init();
-    Provider.of<AppProvider>(context, listen: false).currentViewContext =
-        widget.viewContextController;
+      Provider.of<AppProvider>(context, listen: false).currentViewContext = widget.viewContextController;
   }
 
   init() async {
@@ -49,12 +48,13 @@ class _CVUScreenState extends State<CVUScreen> {
           }
 
           return CVUScaffold(
-            // currentItem: NavigationItem.cvu,
+            viewContextController: widget.viewContextController,
             child: SceneContentView(
               viewContext: widget.viewContextController,
             ),
             bottomBar: BottomBarView(viewContext: widget.viewContextController),
           );
-        });
+      },
+    );
   }
 }

@@ -16,7 +16,7 @@
         alignment: left
         spacing: 15
         Text {
-            text: "{.dateCreated.format()}"
+            text: "{.name OR .title OR .dateCreated.format()}"
             font: 16 regular
         }
     }

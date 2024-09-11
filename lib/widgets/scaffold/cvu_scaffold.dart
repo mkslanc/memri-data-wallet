@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/widgets/components/layout/search_bar.dart';
 import 'package:memri/widgets/components/layout/top_bar_view.dart';
 import 'package:provider/provider.dart';
@@ -12,11 +13,12 @@ class CVUScaffold extends StatelessWidget {
     Key? key,
     required this.child,
     this.bottomBar,
+    required this.viewContextController,
   }) : super(key: key);
 
   final Widget child;
   final Widget? bottomBar;
-
+  final ViewContextController viewContextController;
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +32,17 @@ class CVUScaffold extends StatelessWidget {
                   leading: Builder(
                     builder: (context) {
                       return IconButton(
-                      icon: Navigator.canPop(context) ? Icon(Icons.arrow_back) : Icon(Icons.menu),
+                        icon: Navigator.canPop(context) ? Icon(Icons.arrow_back) : Icon(Icons.menu),
                         onPressed: () {
-                        if (Navigator.canPop(context)){
-                          Navigator.pop(context);
-                        } else {
-                          provider.toggleDrawer();
-                        }
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                            if (viewContextController.previousViewContext != null) {
+                              provider.currentViewContext =
+                                  viewContextController.previousViewContext;
+                            }
+                          } else {
+                            provider.toggleDrawer();
+                          }
                         },
                       );
                     },
@@ -57,10 +63,9 @@ class CVUScaffold extends StatelessWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 250, // Width of the custom drawer
-                          color: Colors.white,
-                          child: NavigationPaneView()
-                        ),
+                            width: 250, // Width of the custom drawer
+                            color: Colors.white,
+                            child: NavigationPaneView()),
                         Expanded(
                           child: Container(),
                         ),

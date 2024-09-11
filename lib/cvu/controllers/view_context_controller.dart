@@ -31,6 +31,8 @@ class ViewContextController extends ChangeNotifier {
 
   ViewContext get config => configHolder.config;
 
+  ViewContextController? previousViewContext;
+
   ViewContextController(
       {required ViewContextHolder config,
       CVUController? cvuController,
@@ -116,6 +118,7 @@ class ViewContextController extends ChangeNotifier {
       viewContextController.focusedIndex = items.indexWhere((item) => item == focusedItem); //TODO: remake
 
     }
+    viewContextController.previousViewContext = previousContext; //TODO:
     return viewContextController;
   }
 
@@ -367,6 +370,8 @@ class ViewContextController extends ChangeNotifier {
   bool get isObservingQuery => _isObservingQuery;
 
   ValueNotifier<String?> searchStringNotifier = ValueNotifier(null);
+
+
 
   set isObservingQuery(bool isObservingQuery) {
     if (_isObservingQuery == isObservingQuery) {
