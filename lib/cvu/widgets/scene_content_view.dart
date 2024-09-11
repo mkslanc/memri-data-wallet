@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
+import 'package:memri/cvu/widgets/renderers/general_editor_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/list_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/map_renderer.dart';
@@ -51,11 +52,7 @@ class _SceneContentViewState extends State<SceneContentView> {
   Widget get renderer {
     switch (viewContext.config.rendererName.toLowerCase()) {
       case "list":
-        return RefreshIndicator(
-            onRefresh: () async {
-              return await viewContext.getItems(viewContext.config.query);
-            },
-            child: ListRendererView(viewContext: viewContext));
+        return ListRendererView(viewContext: viewContext);
       case "grid":
         return GridRendererView(viewContext: viewContext);
       case "map":
@@ -72,6 +69,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return NoteEditorRendererView(viewContext: viewContext);
       case "custom":
         return CustomRendererView(viewContext: viewContext);
+      case "generaleditor":
+        return GeneralEditorRendererView(viewContext: viewContext);
       default:
         return Center(
             child: Text("No renderer selected", style: TextStyle(fontWeight: FontWeight.bold)));
@@ -82,6 +81,11 @@ class _SceneContentViewState extends State<SceneContentView> {
 
   @override
   Widget build(BuildContext context) {
-      return renderer;
+    return RefreshIndicator(
+        onRefresh: () async {
+          viewContext.getItems(viewContext.config.query);
+        },
+        child: renderer
+    );
   }
 }

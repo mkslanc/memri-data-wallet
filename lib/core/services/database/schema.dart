@@ -77,8 +77,12 @@ class Schema {
     }
   }
 
+  SchemaProperty? expectedProperty(String itemType, String propertyName) {
+    return types[itemType]?.propertyTypes[propertyName];
+  }
+
   SchemaValueType? expectedPropertyType(String itemType, String propertyName) {
-    return types[itemType]?.propertyTypes[propertyName]?.valueType;
+    return expectedProperty(itemType, propertyName)?.valueType;
   }
 
   String? expectedTargetType(String itemType, String edgeName) {

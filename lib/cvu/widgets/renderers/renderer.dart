@@ -89,9 +89,8 @@ abstract class RendererViewState<T extends Renderer> extends State<T> {
       var item = viewContext.items.asMap()[index];
 
       if (item != null) {
-        var presses =
-            viewContext.rendererDefinitionPropertyResolver.actions("onPress") ??
-                viewContext.nodePropertyResolver(item)?.actions("onPress");
+        var presses = viewContext.nodePropertyResolver(item)?.actions("onPress") ??
+            viewContext.rendererDefinitionPropertyResolver.actions("onPress");
         if (presses != null) {
           presses.forEach((press) async =>
               await press.execute(viewContext.getCVUContext(item: item, items: viewContext.items), buildContext));

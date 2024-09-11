@@ -39,9 +39,8 @@ class _ActionButtonState extends State<ActionButton> {
     return TextButton(
         child: Icon(MemriIcon.getByName(icon), color: widget.color ?? Colors.black,),
         onPressed: () async {
-          await widget.action
-              .execute(widget.viewContext, context)
-              .whenComplete(setState(() => initIcon()));
+          await widget.action.execute(widget.viewContext, context);
+          setState(initIcon);
         });
   }
 }

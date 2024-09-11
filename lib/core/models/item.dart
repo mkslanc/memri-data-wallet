@@ -54,10 +54,22 @@ class Item {
   }
 
   T? get<T>(String propertyName) {
-    return this.properties[propertyName];
+    return T.toString().startsWith("DateTime") ? _toDate(propertyName) : this.properties[propertyName];
   }
 
-  set(String propertyName, dynamic propertyValue) {
+  DateTime? _toDate(String propertyName) {
+    var value = get(propertyName);
+    if (value is DateTime?) {
+      return value;
+    }
+    var val = value;
+    if (value is String) {
+      val = int.tryParse(value);
+    }
+    return DateTime.fromMillisecondsSinceEpoch(val);
+  }
+
+  set<T>(String propertyName, T propertyValue) {
     this.properties[propertyName] = propertyValue;
     //TODO may consider moving db update to service to clean model clean
     var podService = GetIt.I<PodService>();

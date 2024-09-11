@@ -9,6 +9,7 @@ import 'package:memri/core/services/demo_data_pod.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 
 import '../../core/services/database/schema.dart';
 import '../services/resolving/cvu_context.dart';
@@ -156,6 +157,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     DatabaseQueryConfig? inheritQuery,
     Set<int>? overrideUIDs,
     DateTimeRange? dateRange,
+    String? itemType,
   }) {
     datasourceContent ??= datasource?.parsed;
     var datasourceResolver = datasourceContent?.propertyResolver(
@@ -167,7 +169,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     if (inheritQuery == null) {
       var queryConfig = DatabaseQueryConfig();
       var itemTypes =
-          datasourceResolver?.stringArray("query") /*?? [targetItem?.type].compactMap()*/ ?? [];
+          datasourceResolver?.stringArray("query") ?? [itemType].compactMap();
       if (itemTypes.isNotEmpty) {
         queryConfig.itemTypes = itemTypes;
       }

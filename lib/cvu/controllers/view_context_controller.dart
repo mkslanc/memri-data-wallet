@@ -66,7 +66,8 @@ class ViewContextController extends ChangeNotifier {
     CVUDefinitionContent? customDefinition,
     List<Item>? items,
     bool inheritDatasource = false,
-    ViewContextController? previousContext
+    ViewContextController? previousContext,
+    String? itemType,
   }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
@@ -87,6 +88,7 @@ class ViewContextController extends ChangeNotifier {
       context: newContext,
       datasource: datasource,
       inheritQuery: inheritDatasource ? previousContext?.config.query : null,
+      itemType: itemType//TODO types?
     );
 
     var rendererName = overrideRenderer ?? ((() =>
@@ -316,12 +318,8 @@ class ViewContextController extends ChangeNotifier {
   List<Item> get items => _items ?? [];
   set items(List<Item> items) {
     _items = items;
-    // itemsValueNotifier.value = _itemRecords!;
     notifyListeners();
   }
-
-  ValueNotifier<List<Item>> itemsValueNotifier =
-      ValueNotifier([]); //TODO not sure if this is right architecture
 
   /// Convenience variable returning whether the items are loaded or not
   bool get isLoaded => _items != null;

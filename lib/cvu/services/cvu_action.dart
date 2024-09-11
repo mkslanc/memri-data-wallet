@@ -184,7 +184,7 @@ class CVUActionOpenView extends CVUAction {
               viewName: viewName ?? resolver.string("viewName") ?? "customView",
               inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
               overrideRenderer: renderer ?? resolver.string("renderer"),
-              defaultRenderer: "singleItem",
+              defaultRenderer: "generalEditor",
               focusedItem: cvuContext.currentItem,
               //overrideRowIDs: uids,
               //dateRange: dateRange,
@@ -251,7 +251,7 @@ class CVUActionStar extends CVUAction {
 
     var prop = "starred";
     var currentVal = currentItem.get<bool>(prop) ?? false;
-    currentItem.set(prop, !currentVal);
+    currentItem.set<bool>(prop, !currentVal);
   }
 }
 

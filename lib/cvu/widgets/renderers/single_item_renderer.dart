@@ -24,16 +24,12 @@ class _SingleItemRendererViewState extends RendererViewState {
   @override
   void didUpdateWidget(covariant Renderer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    setState(() => init());
+    setState(init);
   }
 
   @override
   dispose() {
     super.dispose();
-  }
-
-  updateState() {
-    setState(() {});
   }
 
   void init() {
@@ -49,40 +45,36 @@ class _SingleItemRendererViewState extends RendererViewState {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: viewContext.itemsValueNotifier,
-        builder: (BuildContext context, List<Item> value, Widget? child) {
-          var item = viewContext.focusedItem ?? viewContext.items.asMap()[0];
-          Widget group;
-          if (item != null) {
-            group = viewContext.render(item: item, items: viewContext.items);
-          } else {
-            group = emptyResult ?? Center(child: Text("No item selected"));
-          }
-          if (insets != null) {
-            group = Padding(
-              padding: insets!,
-              child: group,
-            );
-          }
-          if (backgroundColor != null) {
-            group = ColoredBox(
-              color: backgroundColor!,
-              child: group,
-            );
-          }
-          if (scrollable) {
-            return CustomScrollView(
-              slivers: [
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: group,
-                  fillOverscroll: false,
-                ),
-              ],
-            );
-          }
-          return group;
-        });
+    var item = viewContext.focusedItem ?? viewContext.items.asMap()[0];
+    Widget group;
+    if (item != null) {
+      group = viewContext.render(item: item, items: viewContext.items);
+    } else {
+      group = emptyResult ?? Center(child: Text("No item selected"));
+    }
+    if (insets != null) {
+      group = Padding(
+        padding: insets!,
+        child: group,
+      );
+    }
+    if (backgroundColor != null) {
+      group = ColoredBox(
+        color: backgroundColor!,
+        child: group,
+      );
+    }
+    if (scrollable) {
+      return CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: group,
+            fillOverscroll: false,
+          ),
+        ],
+      );
+    }
+    return group;
   }
 }

@@ -23,8 +23,8 @@ class _SortOptionsTabState extends State<SortOptionsTab> {
     "externalId",
     "version",
     "allEdges",
-    "dateServerModified"
-        "itemType",
+    "dateServerModified",
+    "itemType",
     "transcript"
   ];
   var defaultSortFields = [];

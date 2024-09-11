@@ -1,5 +1,7 @@
 EmailMessage > list {
-    onPress: openView
+    onPress: openView {
+        renderer: singleitem
+    }
 
     VStack {
         alignment: left

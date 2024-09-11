@@ -9,7 +9,21 @@
     }
 }
 
+* > list {
+    onPress: openView
+
+    HStack {
+        alignment: left
+        spacing: 15
+        Text {
+            text: "{.dateCreated.format()}"
+            font: 16 regular
+        }
+    }
+}
+
 * {
+    defaultRenderer: generalEditor
     searchHint: Search
 }
 
@@ -17,6 +31,7 @@
 *[]: {
     searchHint: Search
     sortFields: dateCreated dateModified dateAccessed,
+
 
     [renderer = generalEditor] {
         EditorRow {

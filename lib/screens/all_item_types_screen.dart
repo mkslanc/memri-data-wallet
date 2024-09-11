@@ -85,6 +85,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
                       builder: (context) => CVUScreen(
                         viewContextController: ViewContextController.fromParams(
                           viewName: "all" + schemaType.type,
+                          itemType: schemaType.type
                         ),
                       ),
                     ),
