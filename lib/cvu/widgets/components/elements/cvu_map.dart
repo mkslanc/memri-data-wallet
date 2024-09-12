@@ -1,3 +1,4 @@
+/*
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -137,3 +138,4 @@ class MapItem {
 
   MapItem({required this.label, required this.coordinate, required this.dataItem});
 }
+*/

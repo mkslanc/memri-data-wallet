@@ -1,3 +1,4 @@
+/*
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -49,14 +50,20 @@ class _MapViewWidgetState extends State<MapViewWidget> {
     _markerStates.add(markerState);
   }
 
+*/
 /*  void _onMapCreated(MapboxMap controller) {
     mapController = controller;
-   *//* mapController.addListener(() {
+   *//*
+*/
+/* mapController.addListener(() {
       if (mapController.isCameraMoving) {
         _updateMarkerPosition();
       }
     });*//*
-  }*/
+*/
+/*
+  }*//*
+
 
   void _onCameraIdleCallback(MapIdleEventData? mapIdleEventData) {
     _updateMarkerPosition();
@@ -69,11 +76,13 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       coordinates.add(markerState.getCoordinate());
     }
 
-    /*mapController.toScreenLocationBatch(coordinates).then((points) {
+    */
+/*mapController.toScreenLocationBatch(coordinates).then((points) {
       _markerStates.asMap().forEach((i, value) {
         _markerStates[i].updatePosition(points[i]);
       });
-    });*/
+    });*//*
+
   }
 
   void _addMarker(math.Point point, Position coordinates) {
@@ -129,3 +138,4 @@ class _MapViewWidgetState extends State<MapViewWidget> {
         });
   }
 }
+*/

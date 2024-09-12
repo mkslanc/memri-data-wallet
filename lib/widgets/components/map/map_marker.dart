@@ -1,3 +1,4 @@
+/*
 import 'dart:math' as math; // Alias the dart:math import
 
 import 'package:flutter/foundation.dart';
@@ -71,3 +72,4 @@ class MapMarkerState extends State<MapMarker> with TickerProviderStateMixin {
     });
   }
 }
+*/

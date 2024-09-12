@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/widgets/renderers/renderer.dart';
 
@@ -49,3 +50,4 @@ class _MapRendererViewState extends RendererViewState {
         moveable: moveable);
   }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -76,7 +77,8 @@ class MapService {
     if (lookup != null) {
       var location = lookup.firstWhereOrNull((element) => element.center != null);
       if (location != null) {
-        /*var locationItem = Item(type: "Location");
+        */
+/*var locationItem = Item(type: "Location");
         var itemRowId = await locationItem.insert(db.databasePool);
 
         var locationItemProperties = [
@@ -94,7 +96,8 @@ class MapService {
 
         await Future.forEach(locationItemProperties,
             ((ItemPropertyRecord el) async => await el.save(db!.databasePool)));
-        await locationEdge.save(db.databasePool);*/
+        await locationEdge.save(db.databasePool);*//*
+
         addressLookupResults[lookupHash] = Position(location.center![0], location.center![1]);
         return addressLookupResults[lookupHash];
       }
@@ -139,3 +142,4 @@ class MapBoxObject {
         matchingPlaceName: json["matching_place_name"] ?? "",
       );
 }
+*/

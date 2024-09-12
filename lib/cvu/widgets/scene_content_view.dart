@@ -55,8 +55,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return ListRendererView(viewContext: viewContext);
       case "grid":
         return GridRendererView(viewContext: viewContext);
-      case "map":
-        return MapRendererView(viewContext: viewContext);
+      // case "map":
+      //   return MapRendererView(viewContext: viewContext);
       case "timeline":
         return TimelineRendererView(viewContext: viewContext);
       case "photoviewer":

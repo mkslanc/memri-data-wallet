@@ -63,7 +63,7 @@ class _CVUElementViewState extends State<CVUElementView> {
       case CVUUIElementFamily.Image:
         return CVUImage(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Map:
-        return CVUMap(nodeResolver: widget.nodeResolver);
+        return Empty()/*CVUMap(nodeResolver: widget.nodeResolver)*/;
       case CVUUIElementFamily.SmartText:
         return CVUSmartText(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.Button:
