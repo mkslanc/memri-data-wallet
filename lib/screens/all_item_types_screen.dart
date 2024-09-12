@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
+import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/string.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +28,16 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   late PodService _podService;
   late Map<String, int> _itemCounts;
 
-  final List<String> _ignoreList = ["CVUStoredDefinition", "NavigationItem"];
+  final List<String> _ignoreList = [
+    "CVUStoredDefinition",
+    "NavigationItem",
+    "CryptoKey",
+    "ItemEdgeSchema",
+    "Any",
+    "ItemPropertySchema",
+    "AuditItem",
+    "PluginRun"
+  ];
   late List<Item> _navigationItems;
   late List<String> _favoriteList;
   late final List<SchemaType> _sortedTypes;
@@ -45,8 +55,8 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   Future<void> _initialize() async {
     try {
       await _schema.loadFromPod();
-      List<SchemaType> types = _schema.types.values.where(
-              (type) => !_ignoreList.contains(type.type)).toList();
+      List<SchemaType> types =
+          _schema.types.values.where((type) => !_ignoreList.contains(type.type)).toList();
       _itemCounts = await _podService.countItemsByType(types.map((type) => type.type).toList());
       _sortedTypes = types
         ..sort((a, b) {
@@ -55,9 +65,13 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
           return countB.compareTo(countA);
         });
       _navigationItems = await _podService.getNavigationItems();
-      _favoriteList = _navigationItems.map((item) => item.get<String>("itemType")!).toList();
+      _favoriteList =
+          _navigationItems.map((item) => item.get<String>("itemType")).toList().compactMap();
     } catch (error) {
       _itemCounts = {};
+      _sortedTypes = [];
+      _navigationItems = [];
+      _favoriteList = [];
     }
   }
 
@@ -70,10 +84,12 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   }
 
   String _title(String itemType) => itemType.camelCaseToWords();
+
   String _viewName(String itemType) => "all" + itemType;
 
   _addFavourite(String itemType) async {
-    Item item = await _podService.createItem(item: Item(
+    Item item = await _podService.createItem(
+        item: Item(
       type: "NavigationItem",
       properties: {
         "title": _title(itemType),
@@ -109,25 +125,22 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
         ),
         onPressed: () => _markFavourite(itemType),
       ),
-      onTap: itemCount > 0
-          ? openItemView(schemaType.type)
-          : null, // Disable button if itemCount is 0
+      onTap:
+          itemCount > 0 ? openItemView(schemaType.type) : null, // Disable button if itemCount is 0
     );
   }
 
   openItemView(itemType) => () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CVUScreen(
-          viewContextController: ViewContextController.fromParams(
-              viewName: _viewName(itemType),
-              itemType: itemType
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CVUScreen(
+              viewContextController: ViewContextController.fromParams(
+                  viewName: _viewName(itemType), itemType: itemType),
+            ),
           ),
-        ),
-      ),
-    );
-  };
+        );
+      };
 
   @override
   Widget build(BuildContext context) {
