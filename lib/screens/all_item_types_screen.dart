@@ -31,6 +31,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
     "CryptoKey",
     "ItemEdgeSchema",
     "ItemPropertySchema",
+    "Any",
     "AuditItem",
     "PluginRun"
   ];
