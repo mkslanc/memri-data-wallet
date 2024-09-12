@@ -81,7 +81,8 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
               if (snapshot.hasData) {
                 List<Widget> widgets = [];
                 List<Item> items = snapshot.data;
-                widgets.add(NavigationItemView(title: "All item types", targetViewName:"", isCore: true,));
+                widgets.add(NavigationItemView(title: "All item types", targetViewName:"allItemTypes"));
+                widgets.add(NavigationHeadingView(title: "Favorites"));
                 items.forEach((navItem) {
                   var itemType = navItem.get("itemType");
                   switch (itemType) {
@@ -149,12 +150,9 @@ class NavigationItemView extends StatelessWidget {
   final String targetViewName;
   final String? itemType;
 
-  final bool isCore;
-
   NavigationItemView(
       {required this.title,
       required this.targetViewName,
-      this.isCore = false,
       this.itemType});
 
   @override
@@ -165,10 +163,10 @@ class NavigationItemView extends StatelessWidget {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-          builder: (context) => isCore ? AllItemTypesScreen(
-            viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
-          ) : CVUScreen(
-            viewContextController: ViewContextController.fromParams(
+          builder: (context) => targetViewName == "allItemTypes"
+            ? AllItemTypesScreen()
+            : CVUScreen(
+              viewContextController: ViewContextController.fromParams(
               viewName: targetViewName,
               itemType: itemType
             ),

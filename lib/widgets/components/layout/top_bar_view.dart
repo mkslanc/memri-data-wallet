@@ -3,11 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../cvu/constants/cvu_color.dart';
 import '../../../cvu/controllers/view_context_controller.dart';
-import '../../../cvu/models/cvu_value.dart';
-import '../../../cvu/models/cvu_value_constant.dart';
-import '../../../cvu/services/cvu_action.dart';
 import '../../../providers/app_provider.dart';
-import '../buttons/action_button.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
@@ -25,9 +21,9 @@ class _TopBarViewState extends State<TopBarView> {
   @override
   Widget build(BuildContext context) {
     viewContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
-    var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
-    var editActionButtonArray =
-        viewContext?.viewDefinitionPropertyResolver.stringArray("editActionButton");
+    // var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
+    // var editActionButtonArray =
+    //     viewContext?.viewDefinitionPropertyResolver.stringArray("editActionButton");
     return Column(
       children: [
         SizedBox(

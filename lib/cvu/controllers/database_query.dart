@@ -59,6 +59,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   DateTime? get dateCreatedBefore => _get<DateTime?>("dateCreatedBefore");
   set dateCreatedBefore(DateTime? newValue) => _set<DateTime?>("dateCreatedBefore", newValue);
 
+  /// A search string to match item properties against
+  String? get searchString => _get<String?>("searchString");
+  set searchString(String? newValue) => _set<String?>("searchString", newValue);
+
   bool? deleted = false;
 
   /// The maximum number of items to fetch
@@ -66,9 +70,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   /// Use this to change which page is requested by the query (eg. if there are more than `pageSize` items)
   int currentPage;
-
-  /// A search string to match item properties against
-  String? searchString;
 
   /// If enabled the search will find items that link to another item matching the search term. This only goes one edge deep for performance purposes.
   bool includeImmediateEdgeSearch;
@@ -96,7 +97,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       Map<String, dynamic>? filterProperties,
       this.pageSize = 1000,
       this.currentPage = 0,
-      this.searchString,
       this.includeImmediateEdgeSearch = true,
       List<QueryCondition>? conditions,
       this.edgeTargetsOperator = ConditionOperator.and,
@@ -105,6 +105,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
         itemRowIDs = itemRowIDs ?? Set.of(<int>[]),
         _filterProperties = filterProperties ??
             {
+              "searchString": null,
               "sortProperty": "dateModified",
               "sortAscending": false,
               "dateModifiedAfter": null,
@@ -123,7 +124,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       filterProperties: _filterProperties,
       pageSize: pageSize,
       currentPage: currentPage,
-      searchString: searchString,
       includeImmediateEdgeSearch: includeImmediateEdgeSearch,
       edgeTargetsOperator: edgeTargetsOperator,
       count: count,

@@ -31,6 +31,5 @@ var cvuHandler = Handler(
         ));
 
 var indexHandler = Handler(
-    handlerFunc: (_, __) => AllItemTypesScreen(
-      viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
-    ));
+    handlerFunc: (_, __) => AllItemTypesScreen()
+);

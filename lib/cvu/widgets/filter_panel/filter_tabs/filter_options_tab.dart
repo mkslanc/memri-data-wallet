@@ -26,8 +26,8 @@ class _FilterOptionsTabState extends State<FilterOptionsTab> {
     "externalId",
     "version",
     "allEdges",
-    "dateServerModified"
-        "itemType",
+    "dateServerModified",
+    "itemType",
     "transcript",
     "dateCreated",
     "dateModified",

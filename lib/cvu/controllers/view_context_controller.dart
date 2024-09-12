@@ -123,12 +123,12 @@ class ViewContextController extends ChangeNotifier {
   }
 
   // MARK: Search State
-  String? get searchString => config.query.searchString;
+  String? get searchString => searchStringNotifier.value;
 
+  late ValueNotifier<String?> searchStringNotifier;
   set searchString(String? newValue) {
-    config.query.searchString = newValue;
     searchStringNotifier.value = newValue;
-    setupQueryObservation();
+    config.query.searchString = newValue;
   }
 
   int get focusedIndex {
@@ -368,10 +368,6 @@ class ViewContextController extends ChangeNotifier {
   bool _isObservingQuery = true;
 
   bool get isObservingQuery => _isObservingQuery;
-
-  ValueNotifier<String?> searchStringNotifier = ValueNotifier(null);
-
-
 
   set isObservingQuery(bool isObservingQuery) {
     if (_isObservingQuery == isObservingQuery) {

@@ -16,7 +16,6 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) =>
           .toSet(),
       pageSize: (json['pageSize'] as num?)?.toInt() ?? 1000,
       currentPage: (json['currentPage'] as num?)?.toInt() ?? 0,
-      searchString: json['searchString'] as String?,
       includeImmediateEdgeSearch:
           json['includeImmediateEdgeSearch'] as bool? ?? true,
       conditions: (json['conditions'] as List<dynamic>?)
@@ -40,6 +39,7 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) =>
       ..dateCreatedBefore = json['dateCreatedBefore'] == null
           ? null
           : DateTime.parse(json['dateCreatedBefore'] as String)
+      ..searchString = json['searchString'] as String?
       ..deleted = json['deleted'] as bool?
       ..edges =
           (json['edges'] as List<dynamic>).map((e) => e as String).toList()
@@ -59,10 +59,10 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(
       'dateModifiedBefore': instance.dateModifiedBefore?.toIso8601String(),
       'dateCreatedAfter': instance.dateCreatedAfter?.toIso8601String(),
       'dateCreatedBefore': instance.dateCreatedBefore?.toIso8601String(),
+      'searchString': instance.searchString,
       'deleted': instance.deleted,
       'pageSize': instance.pageSize,
       'currentPage': instance.currentPage,
-      'searchString': instance.searchString,
       'includeImmediateEdgeSearch': instance.includeImmediateEdgeSearch,
       'conditions': instance.conditions,
       'edges': instance.edges,

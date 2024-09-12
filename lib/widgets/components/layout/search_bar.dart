@@ -38,7 +38,6 @@ class _SearchTopBarState extends State<SearchTopBar> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,7 +50,7 @@ class _SearchTopBarState extends State<SearchTopBar> {
                 child: IconButton(
                     style:
                         TextButton.styleFrom(foregroundColor: app.colors.brandPurple),
-                    icon: Icon(Icons.arrow_back),
+                    icon: Icon(Icons.close),
                     onPressed: () {
                       widget.viewContext.searchString = null;
                       Provider.of<AppProvider>(context, listen: false).toggleSearchBar();

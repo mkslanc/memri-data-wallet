@@ -148,7 +148,6 @@ class PodService extends ApiService<PodAPI> {
         edgePayload.add(edge.toJson());
       });
     }
-    print(updatePayload);
 
     var bulkPayload = PodPayloadBulkAction(
         createItems: createPayload,

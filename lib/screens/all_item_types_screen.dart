@@ -14,10 +14,6 @@ import '../widgets/scaffold/cvu_scaffold.dart';
 import 'cvu_screen.dart';
 
 class AllItemTypesScreen extends StatefulWidget {
-  final ViewContextController viewContextController;
-
-  const AllItemTypesScreen({Key? key, required this.viewContextController}) : super(key: key);
-
   @override
   State<AllItemTypesScreen> createState() => _AllItemTypesScreenState();
 }
@@ -27,13 +23,13 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   late Schema _schema;
   late PodService _podService;
   late Map<String, int> _itemCounts;
+  late ViewContextController viewContextController;//TODO
 
   final List<String> _ignoreList = [
     "CVUStoredDefinition",
     "NavigationItem",
     "CryptoKey",
     "ItemEdgeSchema",
-    "Any",
     "ItemPropertySchema",
     "AuditItem",
     "PluginRun"
@@ -41,6 +37,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   late List<Item> _navigationItems;
   late List<String> _favoriteList;
   late final List<SchemaType> _sortedTypes;
+  List<SchemaType> _filteredTypes = [];
 
   @override
   void initState() {
@@ -48,12 +45,12 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
     _schema = GetIt.I<Schema>();
     _podService = GetIt.I<PodService>();
     _initFuture = _initialize();
-    Provider.of<AppProvider>(context, listen: false).currentViewContext =
-        widget.viewContextController;
   }
 
   Future<void> _initialize() async {
     try {
+      viewContextController = ViewContextController.fromParams();
+      Provider.of<AppProvider>(context, listen: false).currentViewContext = viewContextController;
       await _schema.loadFromPod();
       List<SchemaType> types =
           _schema.types.values.where((type) => !_ignoreList.contains(type.type)).toList();
@@ -107,7 +104,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   }
 
   Widget listTile(int index) {
-    final SchemaType schemaType = _sortedTypes[index];
+    final SchemaType schemaType = _filteredTypes[index];
     final String itemType = schemaType.type;
     final int itemCount = _itemCounts[itemType] ?? 0;
     final bool isFavorite = _favoriteList.contains(itemType);
@@ -145,7 +142,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   @override
   Widget build(BuildContext context) {
     return CVUScaffold(
-      viewContextController: widget.viewContextController,
+      viewContextController: viewContextController,
       child: FutureBuilder<void>(
         future: _initFuture,
         builder: (context, snapshot) {
@@ -157,10 +154,19 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
             return Center(child: Text('Failed to load schema data.'));
           }
 
-          return ListView.builder(
-            itemCount: _sortedTypes.length,
-            itemBuilder: (context, index) {
-              return listTile(index);
+          return ValueListenableBuilder<String?>(
+            valueListenable: viewContextController.searchStringNotifier,
+            builder: (context, searchString, child) {
+              var needle = searchString?.toLowerCase() ?? "";
+              _filteredTypes = _sortedTypes
+                  .where((type) => type.type.toLowerCase().contains(needle))
+                  .toList();
+              return ListView.builder(
+                itemCount: _filteredTypes.length,
+                itemBuilder: (context, index) {
+                  return listTile(index);
+                },
+              );
             },
           );
         },
