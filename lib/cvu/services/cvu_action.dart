@@ -229,10 +229,15 @@ class CVUActionToggleFilterPanel extends CVUAction {
 
     var viewContextController = appProvider.currentViewContext!;
     return showModalBottomSheet(
+      isScrollControlled: true,
       constraints: BoxConstraints(minWidth: double.infinity),
       context: context,
       builder: (BuildContext context) {
-        return FilterPanelView(viewContext: viewContextController);
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: FilterPanelView(viewContext: viewContextController),
+        );
       },
     );
   }

@@ -78,6 +78,7 @@ class _FilterPanelViewState extends State<FilterPanelView> {
                   child: MaterialApp(
                       debugShowCheckedModeBanner: false,
                       home: Scaffold(
+                        resizeToAvoidBottomInset: false,
                         backgroundColor: Color(0xfff3f2f8),
                         appBar: PreferredSize(
                           preferredSize: Size.fromHeight(56.0),

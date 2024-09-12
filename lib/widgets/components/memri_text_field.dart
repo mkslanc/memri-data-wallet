@@ -52,6 +52,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   stringTextForm() {
     return TextFormField(
       obscureText: widget.secureMode,
+      autofocus: true,
       readOnly: !widget.isEditing,
       style: widget.style,
       decoration: InputDecoration(
@@ -68,6 +69,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   intTextForm() {
     return TextFormField(
       obscureText: widget.secureMode,
+      autofocus: true,
       readOnly: !widget.isEditing,
       style: widget.style,
       decoration: InputDecoration(border: InputBorder.none, hintText: widget.hint),
@@ -83,6 +85,7 @@ class _MemriTextFieldState<T> extends State<MemriTextField<T>> {
   doubleTextForm() {
     return TextFormField(
       obscureText: widget.secureMode,
+      autofocus: true,
       readOnly: !widget.isEditing,
       style: widget.style,
       decoration: InputDecoration(border: InputBorder.none, hintText: widget.hint),
