@@ -147,7 +147,6 @@ flutter:
     - assets/defaultCVU/named/
     - assets/defaultCVU/renderer/
     - assets/defaultCVU/type/
-    - assets/demoAssets/
     - assets/HTMLResources/
     - assets/noteEditor/noteEditorDist/
     - assets/noteEditor/noteEditorDist/css/

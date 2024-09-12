@@ -84,17 +84,35 @@ class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
                             ],
                           ),
                         if (provider.devState == DeveloperAuthState.devSignUp)
-                          Row(children: [
-                            Checkbox(
-                                value: provider.importDemoData,
-                                onChanged: (value) {
-                                  provider.importDemoData = value!;
-                                }),
-                            Text(
-                              "Import demo data",
-                              style: CVUFont.bodyText1,
-                            ),
-                          ]),
+                          Column(
+                            children: [
+                              Row(children: [
+                                Checkbox(
+                                    value: provider.importDemoData,
+                                    onChanged: (value) {
+                                      provider.importDemoData = value!;
+                                    }),
+                                Text(
+                                  "Import demo data",
+                                  style: CVUFont.bodyText1,
+                                ),
+                              ]),
+                              Row(children: [
+                                Checkbox(
+                                    value: provider.downloadDemoAssets,
+                                    onChanged: (value) {
+                                      provider.downloadDemoAssets = value!;
+                                      if (value) {
+                                        provider.importDemoData = true;
+                                      }
+                                    }),
+                                Text(
+                                  "Download demo assets",
+                                  style: CVUFont.bodyText1,
+                                ),
+                              ]),
+                            ],
+                          ),
                         SizedBox(height: 45),
                         Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,

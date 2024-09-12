@@ -198,6 +198,41 @@ class CVUPropertyResolver {
         property: propertyName, item: item);
   }
 
+  /*Future<Bin<T>?> binding<T>(String key, [T? defaultValue]) async {
+    if (T == bool) {
+      return await _bindingWithBoolean(key, defaultValue != null ? defaultValue as bool : false)
+      as FutureBinding<T>?;
+    } else {
+      return await _bindingWithString(key, defaultValue?.toString()) as FutureBinding<T>?;
+    }
+  }
+
+  Future<FutureBinding<bool>?> _bindingWithBoolean(String key, [bool defaultValue = false]) async {
+    var val = this.value(key);
+    if (val == null) {
+      return null;
+    }
+    return await lookup.resolve<FutureBinding>(
+        value: val,
+        defaultValue: defaultValue,
+        context: this.context,
+        db: this.db,
+        additionalType: bool) as FutureBinding<bool>?;
+  }
+
+  Future<FutureBinding<String>?> _bindingWithString(String key, String? defaultValue) async {
+    var val = value(key);
+    if (val == null) {
+      return null;
+    }
+    return await lookup.resolve<FutureBinding>(
+        value: val,
+        defaultValue: defaultValue,
+        context: this.context,
+        db: this.db,
+        additionalType: String) as FutureBinding<String>?;
+  }*/
+
   List<CVUAction>? actions(String key) {
     var val = value(key);
     if (val == null) {

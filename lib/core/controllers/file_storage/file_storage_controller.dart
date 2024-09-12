@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
 
 /// The FileStorageController class provides methods to store and retrieve files locally
 class FileStorageController {
@@ -95,4 +96,19 @@ class FileStorageController {
       return FileImage(image);
     }
   }
+
+  static Future<File> download(String url, String newPath) async {
+    var file = File(newPath);
+    if (await file.exists()) {
+      return file;
+    } else {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        return await write(newPath, response.bodyBytes);
+      } else {
+        throw Exception('Failed to download file');
+      }
+    }
+  }
+
 }

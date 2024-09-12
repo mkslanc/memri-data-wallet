@@ -33,7 +33,7 @@ class AuthProvider with ChangeNotifier {
   String errorMessage = '';
   bool _developerMode = false;
   bool _importDemoData = false;
-
+  bool _downloadDemoAssets = false;
 
   String get ownerKey => _podService.podConfig.ownerKey;
 
@@ -45,6 +45,13 @@ class AuthProvider with ChangeNotifier {
 
   set importDemoData(bool value) {
     _importDemoData = value;
+    notifyListeners();
+  }
+
+  bool get downloadDemoAssets => _downloadDemoAssets;
+
+  set downloadDemoAssets(bool value) {
+    _downloadDemoAssets = value;
     notifyListeners();
   }
 

@@ -13,6 +13,8 @@ import '../../utilities/extensions/collection.dart';
 import '../models/item.dart';
 
 class DemoData {
+  static String demoAssetsLink = "https://gitlab.memri.io/memri/flutter-app-assets/-/raw/dev/";
+
   static Map<String, SchemaType> types = {};
 
   static loadSchema({isRunningTests = false}) async {
@@ -265,25 +267,19 @@ class DemoData {
                 propertyValue is String && !kIsWeb) {
               var fileName = propertyValue.split(".");
 
-              var demoDirectory = "assets/demoAssets";
-              var sourcePath = "";
-              var extension = "jpg";
-              if (fileName.length == 1) {
-                sourcePath = demoDirectory + "/" + ("${fileName[0]}.$extension");
-              } else {
-                extension = fileName[1];
-                sourcePath = demoDirectory + "/" + ("${fileName[0] ?? ""}.$extension");
-              }
+              var baseURL = DemoData.demoAssetsLink; // Replace with your image base URL
+              var extension = fileName.length > 1 ? fileName[1] : "jpg";
+              var sourceURL = "$baseURL/${fileName[0]}.$extension";
 
-              var newFileName =
-                  "${Uuid().v4()}.$extension";
+              var newFileName = "${Uuid().v4()}.$extension";
               var url = (await FileStorageController.getFileStorageURL()) + "/" + newFileName;
-              await FileStorageController.copy(sourcePath, url);
+
+              await FileStorageController.download(sourceURL, url);
 
               var sha256 = await FileStorageController.getHashForFile(fileURL: url);
 
               properties["sha256"] = sha256;
-              urls.add(url);  // Add the generated URL to the list
+              urls.add(url); // Add the generated URL to the list
             }
 
             properties[propertyName] = propertyValue;
@@ -291,6 +287,7 @@ class DemoData {
             handleError(error.toString());
             return;
           }
+
       }
     });
 
