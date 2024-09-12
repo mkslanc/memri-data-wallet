@@ -9,7 +9,8 @@ extension StringExtension on String {
   }
 
   String capitalizingFirst() {
-    return "${this[0].toUpperCase()}${this.substring(1)}";
+    if (this.isEmpty) return this;
+    return this[0].toUpperCase() + this.substring(1);
   }
 
   String titleCase() {
@@ -17,13 +18,15 @@ extension StringExtension on String {
   }
 
   String camelCaseToWords() {
-    return this
-        .replaceAllMapped(RegExp(r'([A-Z])'), (match) {
-          return ' ${match.group(1)}';
-        })
-        .substring(1)
-        .toLowerCase()
-        .capitalizingFirst();
+    // Replace all uppercase letters with space followed by the letter
+    String result = this.replaceAllMapped(RegExp(r'([A-Z])'), (match) {
+      return ' ${match.group(1)}';
+    });
+
+    // Trim any leading or trailing spaces and capitalize the first letter
+    result = result.trim().toLowerCase().capitalizingFirst();
+
+    return result;
   }
 
   String escapeForJavascript() {

@@ -30,7 +30,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
             child: Padding(
               padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: SizedBox(
-                height: 95,
+                height: 75,
                 child: Row(
                       children: space(20, [
                     IconButton(
@@ -45,11 +45,11 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                         size: 22,
                         color: Color(0xffd9d2e9),
                             )),
-                    Flexible(
+                    /*Flexible(
                       child: TextFormField(
                         style: TextStyle(color: Color(0xff8a66bc)),
                             onChanged: (text) =>
-                                {} /*setState(() => sceneController.navigationFilterText = text)*/,
+                                {} *//*setState(() => sceneController.navigationFilterText = text)*//*,
                             //initialValue: sceneController.navigationFilterText,
                         decoration: InputDecoration(
                           hintText: "Search",
@@ -62,7 +62,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
                           ),
                         ),
                       ),
-                        )
+                        )*/
                       ]),
             ),
                   ))),

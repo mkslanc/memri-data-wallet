@@ -83,17 +83,18 @@ class _LoginDeveloperScreenState extends State<LoginDeveloperScreen> {
                               ),
                             ],
                           ),
-                        Row(children: [
+                        if (provider.devState == DeveloperAuthState.devSignUp)
+                          Row(children: [
                             Checkbox(
                                 value: provider.importDemoData,
                                 onChanged: (value) {
                                   provider.importDemoData = value!;
                                 }),
                             Text(
-                            "Import demo data",
-                            style: CVUFont.bodyText1,
-                          ),
-                        ],),
+                              "Import demo data",
+                              style: CVUFont.bodyText1,
+                            ),
+                          ]),
                         SizedBox(height: 45),
                         Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
