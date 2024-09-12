@@ -1,0 +1,62 @@
+
+[session = *] {
+    [view] {
+        title: "Everything"
+
+        [datasource = pod] {
+            query: "*"
+        }
+    }
+}
+
+* > list {
+    onPress: openView
+
+    HStack {
+        alignment: left
+        spacing: 15
+        Text {
+            text: "{.name OR .title OR .dateCreated.format()}"
+            font: 16 regular
+        }
+    }
+}
+
+* {
+    defaultRenderer: generalEditor
+    searchHint: Search
+}
+
+
+*[]: {
+    searchHint: Search
+    sortFields: dateCreated dateModified dateAccessed,
+
+
+    [renderer = generalEditor] {
+        EditorRow {
+            HStack {
+                alignment: center
+
+                MemriButton {
+                    margin: 0 5
+                    item: {{.}}
+                }
+                Spacer
+                Button {
+                    onPress: unlink {
+                        subject: {{subject}}
+                        edgeType: {{name}}
+                    }
+                    show: {{!readOnly}}
+
+                    Image {
+                        systemName: "minus.circle.fill"
+                        color: #ff0000
+                    }
+                }
+            }
+        }
+    }
+}
+

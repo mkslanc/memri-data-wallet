@@ -1,0 +1,214 @@
+
+CryptoKey {
+    title: "CryptoKey"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    contextButtons: star
+
+    [renderer = generalEditor] {
+        layout: [
+            { section: header, exclude: starred }
+            { section: owner, edges: owner, type: Person }
+            { section: "Key Information", fields: name type role keystr active }
+            { section: other, fields: * }
+            { section: dates }
+        ]
+
+        header {
+            showTitle: false
+            dividers: false
+
+            VStack {
+                padding: 20 36 10 36
+
+                HStack {
+                    Text {
+                        text: "{.active ? '' : '[INACTIVE] '}{.name or .itemType or '<Unnamed Key>'}"
+                        font: 20 semibold
+                        padding: 0 5 0 0
+                    }
+                    ActionButton {
+                        onPress: star
+                    }
+                }
+                FlowStack {
+                    spacing: 5
+                    show: {{.label}}
+                    list: {{ .label[] }}
+
+                    Button {
+                        onPress: openViewByName {
+                            viewName: all-items-with-label
+                            viewArguments: {
+                                name: "{.name}"
+                                uid: {{.uid}}
+                            }
+                        }
+
+                        VStack {
+                            background: {{.color}}
+                            cornerRadius: 5
+
+                            Text {
+                                text: "{.computedTitle()}"
+                                font: 16 semibold
+                                color: #fff
+                                padding: 5 8 5 8
+                            }
+                        }
+                    }
+                }
+
+                HStack {
+                    alignment: center
+
+                    MemriButton {
+                        edge: {{._owner}}
+                        padding: 10 0 0 0
+                    }
+
+                    ActionButton {
+                        show: {{!readOnly}}
+                        font: 12 regular
+                        margin: 8 0 0 10
+
+                        onPress: openViewByName {
+                            renderAs: popup
+                            title: "Set Owner"
+                            color: #2a3fe0 /* TODO: Unable to set the color */
+
+                            viewName: "choose-item-by-query"
+                            viewArguments: {
+                                query: "Person" /* AND ANY allEdges.targetItemID = {.uid} */
+                                type: Person
+                                renderer: "list"
+                                subject: {{.}}
+                                edgeType: "owner"
+                                distinct: true
+                                title: "Choose the owner"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        keystr {
+            ZStack {
+                HStack {
+                    show: {{readOnly}}
+
+                    Text {
+                        text: "******"
+                        padding: 0 20 0 0
+                    }
+                    Button {
+                        onPress: copyToClipboard {
+                            value: {{.keystr}}
+                        }
+
+                        Text { text: "copy" }
+                    }
+                }
+                SecureField {
+                    value: {{.keystr}}
+                }
+            }
+        }
+    }
+}
+
+
+.allCryptoKey {
+    title: "All Crypto Keys"
+    emptyResultText: "There are no keys here yet"
+    defaultRenderer: list
+    sortFields: title dateModified dateCreated
+
+    [datasource = pod] {
+        query: "CryptoKey"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+
+    actionButton:
+        addItem {
+            template {
+                _type: CryptoKey
+            }
+        }
+
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+
+}
+
+CryptoKey > list {
+        onPress: openView {
+            renderer: generalEditor
+        }
+
+        VStack {
+            alignment: left
+            spacing: 3
+
+            HStack {
+                alignment: left
+
+                Text {
+                    text: "{.active ? '' : '[INACTIVE] '}{.name or .itemType or '<Unnamed Key>'}"
+                    lineLimit: 1
+                    font: 18 semibold
+                    color: {{.active ? "#333333" : "#999999"}}
+                    padding: 0 0 0 0
+                }
+                Image {
+                    systemName: "star.fill"
+                    font: 14
+                    color: #eecc00
+                    margin: 5
+                    show: {{.starred}}
+                }
+            }
+            HStack {
+                alignment: bottomright
+
+                VStack {
+                    Text {
+                        show: {{.itemType}}
+                        text: "{.itemType}"
+                        lineLimit: 1
+                        removeWhiteSpace: true
+                        maxChar: 100
+                        color: #333
+                        font: 14 regular
+                    }
+                    Text {
+                        /* TODO: Why does .role not work?? */
+                        show: {{.role}}
+                        text: "Role: {.role.firstUppercased()}"
+                        lineLimit: 1
+                        removeWhiteSpace: true
+                        maxChar: 100
+                        color: #555
+                        font: 14 regular
+                        padding: 3 0 0 0
+                    }
+                    Text {
+                        text: "{.dateCreated}"
+                        lineLimit: 1
+                        font: 11 regular
+                        color: #888
+                        padding: 5 0 0 0
+                    }
+                }
+
+                Spacer
+
+                MemriButton {
+                    title: "Owner"
+                    item: {{.owner}}
+                }
+            }
+        }
+    }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
@@ -99,7 +100,8 @@ class DemoData {
       //item.properties["dateModified"] = demoItem.dateModified?.millisecondsSinceEpoch;
       var tempUID = demoItem.tempUID;
 
-      if (demoItem.type == "File") {
+      if (demoItem.type == "File" && kIsWeb) {
+        continue;
         //TODO: record.fileState = FileState.needsUpload;
       }
       if (tempUID != null) {
@@ -260,7 +262,7 @@ class DemoData {
             if (!isRunningTests &&
                 itemType == "File" &&
                 propertyName == "filename" &&
-                propertyValue is String) {
+                propertyValue is String && !kIsWeb) {
               var fileName = propertyValue.split(".");
 
               var demoDirectory = "assets/demoAssets";

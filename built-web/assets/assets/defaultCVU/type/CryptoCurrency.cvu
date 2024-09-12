@@ -1,0 +1,75 @@
+.cryptoCurrencyView {
+    defaultRenderer: list
+    title: {{currency.topic or currency.name}}
+
+    [datasource = pod] {
+        query: Account
+        filter: {
+            edgeTargets: {
+                ownCurrency: {{currencyUID}}
+            }
+        }
+        sortProperty: "dateCreated"
+    }
+
+    [renderer = list] {
+        hideSeparators: true
+    }
+
+    Account > list {
+    }
+}
+
+CryptoCurrency > list {
+    onPress: openView {
+        viewName: cryptoCurrencyView
+        viewArguments {
+            currencyUID: {{.uid}}
+            currency: {{.}}
+        }
+    }
+
+    HStack {
+        alignment: left
+
+        margin: 0 15 0 0
+        
+        Image {
+            image: {{.picture}}
+            sizingMode: fill
+            minHeight: 50
+            maxHeight: 50
+            minWidth: 50
+            maxWidth: 50
+            cornerRadius: 30
+        }
+
+        HStack {
+            Text {
+                text: {{.name}}
+                font: 18 semibold
+                color: primary
+                padding: 0 20 0 20
+            }
+
+            Spacer
+
+            Text {
+                text: {{.topic}}
+                font: 16 regular
+                color: tertiary
+            }
+        }
+    }
+}
+
+.allCryptoCurrency {
+    title: "All Cryptocurrencies"
+    emptyResultText: "There are no crypto currencies yet."
+    defaultRenderer: list
+
+    [datasource = pod] {
+        query: "CryptoCurrency"
+        sortProperty: dateModified
+    } 
+}
