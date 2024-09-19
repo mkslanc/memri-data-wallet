@@ -57,6 +57,21 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isConnectionError = false;
+
+  bool get isConnectionError => _isConnectionError;
+
+  void set isConnectionError(bool value) {
+    if (_isConnectionError != value) {
+      _isConnectionError = value;
+      notifyListeners();
+    }
+  }
+
+  void retryConnection() {
+    currentViewContext?.refreshScreen();
+  }
+
   PodService get podService => _podService;
 
   Future<void> initialize() async {

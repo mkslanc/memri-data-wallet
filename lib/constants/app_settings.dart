@@ -35,8 +35,8 @@ class AppSettings {
       "https://colab.research.google.com/drive/189JJ2gLHAtxlmzc5XI3HhB9_VE3fT6DT";
 
   /// DIO
-  final int dioConnectTimeout = 10000;
-  final int dioReceiveTimeout = 5000;
+  final Duration dioConnectTimeout = const Duration(seconds: 5);
+  final Duration dioReceiveTimeout = const Duration(seconds: 3);
   final int dioFailureRetries = 3; // Number of retries before a failure
   final bool dioLoggerEnabled = true;
   final bool dioLogInterceptorRequest = true;

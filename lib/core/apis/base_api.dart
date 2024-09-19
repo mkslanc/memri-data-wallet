@@ -19,8 +19,8 @@ class BaseAPI {
     _dio.interceptors.clear();
     _dio.options = BaseOptions(
       baseUrl: app.settings.defaultPodUrl,
-      // connectTimeout: app.settings.dioConnectTimeout,
-      // receiveTimeout: app.settings.dioReceiveTimeout,
+      connectTimeout: app.settings.dioConnectTimeout,
+      receiveTimeout: app.settings.dioReceiveTimeout,
     );
     _dio.interceptors.addAll([
       if (!app.settings.dioLoggerEnabled)

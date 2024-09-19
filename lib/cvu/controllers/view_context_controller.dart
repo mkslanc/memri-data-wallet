@@ -14,6 +14,7 @@ import 'package:memri/cvu/models/view_context.dart';
 import 'package:memri/cvu/utilities/binding.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
+import '../../providers/app_provider.dart';
 import '../services/resolving/cvu_context.dart';
 import '../services/resolving/cvu_property_resolver.dart';
 import 'database_query.dart';
@@ -394,9 +395,19 @@ class ViewContextController extends ChangeNotifier {
   }
 
   getItems(DatabaseQueryConfig queryConfig) {
+    final appProvider = GetIt.I<AppProvider>();
     queryConfig.executeRequest().then((records) {
       items = records;
+      appProvider.isConnectionError = false;
+    }).onError((e, s) {
+      appProvider.isConnectionError = true;
     });
+  }
+
+  refreshScreen() { //TODO:
+    final appProvider = GetIt.I<AppProvider>();
+    appProvider.isConnectionError = false;
+    getItems(config.query);
   }
 
   updateUI() {

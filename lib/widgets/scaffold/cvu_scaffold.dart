@@ -22,61 +22,111 @@ class CVUScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (BuildContext context, provider, _) {
-        return BaseScaffold(
-          body: Stack(
-            children: [
-              Scaffold(
-                appBar: AppBar(
-                  leading: Builder(
-                    builder: (context) {
-                      return IconButton(
-                        icon: Navigator.canPop(context) ? Icon(Icons.arrow_back) : Icon(Icons.menu),
-                        onPressed: () {
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                            if (viewContextController.previousViewContext != null) {
-                              provider.currentViewContext =
-                                  viewContextController.previousViewContext;
-                            }
-                          } else {
-                            provider.toggleDrawer();
-                          }
-                        },
-                      );
+    // Provide ViewContextController here
+    return ChangeNotifierProvider<ViewContextController>.value(
+      value: viewContextController,
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
+    final appProvider = Provider.of<AppProvider>(context);
+    return BaseScaffold(
+      body: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              leading: Builder(
+                builder: (context) {
+                  return IconButton(
+                    icon: Navigator.canPop(context) ? Icon(Icons.arrow_back) : Icon(Icons.menu),
+                    onPressed: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                        if (viewContextController.previousViewContext != null) {
+                          appProvider.currentViewContext =
+                              viewContextController.previousViewContext;
+                        }
+                      } else {
+                        appProvider.toggleDrawer();
+                      }
                     },
-                  ),
-                  titleSpacing: 0,
-                  title: provider.searchBarOpen
-                      ? SearchTopBar(viewContext: provider.currentViewContext!)
-                      : TopBarView(),
-                ),
-                body: child,
-                bottomNavigationBar: bottomBar,
+                  );
+                },
               ),
-              if (provider.isDrawerOpen)
-                GestureDetector(
-                  onTap: provider.toggleDrawer,
-                  child: Container(
-                    color: Colors.black54, // Background color when drawer is open
-                    child: Row(
-                      children: [
-                        Container(
-                            width: 250, // Width of the custom drawer
-                            color: Colors.white,
-                            child: NavigationPaneView()),
-                        Expanded(
-                          child: Container(),
+              titleSpacing: 0,
+              title: appProvider.searchBarOpen
+                  ? SearchTopBar(
+                      viewContext: appProvider.currentViewContext!,
+                    )
+                  : TopBarView(),
+            ),
+            body: Column(
+              children: [
+                // Notification Banner
+                Consumer<AppProvider>(
+                  builder: (context, controller, _) {
+                    if (appProvider.isConnectionError) {
+                      return Container(
+                        width: double.infinity,
+                        color: Colors.orangeAccent,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Unable to refresh data due to connectivity issues.',
+                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                controller.retryConnection();
+                              },
+                              child: Text(
+                                'Retry',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
                 ),
-            ],
+                // Main Content
+                Expanded(
+                  child: child,
+                ),
+              ],
+            ),
+            bottomNavigationBar: bottomBar,
           ),
-        );
-      },
+          if (appProvider.isDrawerOpen)
+            GestureDetector(
+              onTap: appProvider.toggleDrawer,
+              child: Container(
+                color: Colors.black54,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 250,
+                      color: Colors.white,
+                      child: NavigationPaneView(),
+                    ),
+                    Expanded(child: Container()),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
