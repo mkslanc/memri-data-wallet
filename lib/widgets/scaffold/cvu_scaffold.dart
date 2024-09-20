@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
+import 'package:memri/providers/connection_provider.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/widgets/components/layout/search_bar.dart';
 import 'package:memri/widgets/components/layout/top_bar_view.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +32,7 @@ class CVUScaffold extends StatelessWidget {
   }
 
   Widget _buildScaffold(BuildContext context) {
-    final appProvider = Provider.of<AppProvider>(context);
+    final uiStateProvider = Provider.of<UIStateProvider>(context);
     return BaseScaffold(
       body: Stack(
         children: [
@@ -44,29 +46,29 @@ class CVUScaffold extends StatelessWidget {
                       if (Navigator.canPop(context)) {
                         Navigator.pop(context);
                         if (viewContextController.previousViewContext != null) {
-                          appProvider.currentViewContext =
+                          uiStateProvider.currentViewContext =
                               viewContextController.previousViewContext;
                         }
                       } else {
-                        appProvider.toggleDrawer();
+                        uiStateProvider.toggleDrawer();
                       }
                     },
                   );
                 },
               ),
               titleSpacing: 0,
-              title: appProvider.searchBarOpen
+              title: uiStateProvider.searchBarOpen
                   ? SearchTopBar(
-                      viewContext: appProvider.currentViewContext!,
+                      viewContext: uiStateProvider.currentViewContext!,
                     )
                   : TopBarView(),
             ),
             body: Column(
               children: [
                 // Notification Banner
-                Consumer<AppProvider>(
+                Consumer<ConnectionProvider>(
                   builder: (context, controller, _) {
-                    if (appProvider.isConnectionError) {
+                    if (controller.isConnectionError) {
                       return Container(
                         width: double.infinity,
                         color: Colors.orangeAccent,
@@ -82,7 +84,7 @@ class CVUScaffold extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                controller.retryConnection();
+                                uiStateProvider.refreshScreen();
                               },
                               child: Text(
                                 'Retry',
@@ -108,9 +110,9 @@ class CVUScaffold extends StatelessWidget {
             ),
             bottomNavigationBar: bottomBar,
           ),
-          if (appProvider.isDrawerOpen)
+          if (uiStateProvider.isDrawerOpen)
             GestureDetector(
-              onTap: appProvider.toggleDrawer,
+              onTap: uiStateProvider.toggleDrawer,
               child: Container(
                 color: Colors.black54,
                 child: Row(

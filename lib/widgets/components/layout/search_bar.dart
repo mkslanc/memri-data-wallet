@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../cvu/controllers/view_context_controller.dart';
-import '../../../providers/app_provider.dart';
 import '../../../utilities/helpers/app_helper.dart';
 
 
@@ -53,7 +53,7 @@ class _SearchTopBarState extends State<SearchTopBar> {
                     icon: Icon(Icons.close),
                     onPressed: () {
                       widget.viewContext.searchString = null;
-                      Provider.of<AppProvider>(context, listen: false).toggleSearchBar();
+                      Provider.of<UIStateProvider>(context, listen: false).toggleSearchBar();
                     }),
               ),
               Expanded(

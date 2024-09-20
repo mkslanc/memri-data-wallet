@@ -9,7 +9,7 @@ import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/services/resolving/cvu_context.dart';
 import 'package:memri/cvu/services/resolving/cvu_property_resolver.dart';
-import 'package:memri/providers/app_provider.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -158,7 +158,7 @@ class CVUActionOpenView extends CVUAction {
 
   @override
   Future execute(CVUContext cvuContext, BuildContext context) async {
-    var currentContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
+    var currentContext = Provider.of<UIStateProvider>(context, listen: false).currentViewContext;
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -224,10 +224,10 @@ class CVUActionToggleFilterPanel extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    var appProvider = Provider.of<AppProvider>(context, listen: false);
-    appProvider.filterPanelIsVisible = true; //TODO set to false on modal close
+    var uiStateProvider = Provider.of<UIStateProvider>(context, listen: false);
+    uiStateProvider.filterPanelIsVisible = true; //TODO set to false on modal close
 
-    var viewContextController = appProvider.currentViewContext!;
+    var viewContextController = uiStateProvider.currentViewContext!;
     return showModalBottomSheet(
       isScrollControlled: true,
       constraints: BoxConstraints(minWidth: double.infinity),
@@ -273,7 +273,7 @@ class CVUActionShowStarred extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    var currentContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
+    var currentContext = Provider.of<UIStateProvider>(context, listen: false).currentViewContext;
     if (currentContext == null) {
       print("shouldn't get here");
       return;
@@ -297,6 +297,6 @@ class CVUActionToggleEditMode extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    Provider.of<AppProvider>(context, listen: false).toggleEditMode();
+    Provider.of<UIStateProvider>(context, listen: false).toggleEditMode();
   }
 }

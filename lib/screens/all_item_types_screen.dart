@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
+import 'package:memri/providers/connection_provider.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/string.dart';
 import 'package:provider/provider.dart';
@@ -53,9 +55,10 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
     try {
       viewContextController = ViewContextController.fromParams();
 
-      var appProvider = Provider.of<AppProvider>(context, listen: false);
-      appProvider.isConnectionError = false;
-      appProvider.currentViewContext = viewContextController;
+      var connectionProvider = Provider.of<ConnectionProvider>(context, listen: false);
+      connectionProvider.isConnectionError = false;
+
+      Provider.of<UIStateProvider>(context, listen: false).currentViewContext = viewContextController;
 
       await _schema.loadFromPod();
       List<SchemaType> types =

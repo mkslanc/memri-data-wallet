@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/scene_content_view.dart';
 import 'package:memri/cvu/widgets/bottom_bar_view.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/app_provider.dart';
@@ -23,7 +24,7 @@ class _CVUScreenState extends State<CVUScreen> {
   initState() {
     super.initState();
     _init = init();
-      Provider.of<AppProvider>(context, listen: false).currentViewContext = widget.viewContextController;
+      Provider.of<UIStateProvider>(context, listen: false).currentViewContext = widget.viewContextController;
   }
 
   init() async {
