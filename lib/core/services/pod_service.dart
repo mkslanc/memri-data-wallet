@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
@@ -16,6 +17,7 @@ import 'package:uuid/uuid.dart';
 import '../controllers/authentication.dart';
 import './demo_data_pod.dart';
 import 'database/schema.dart';
+import 'error_service.dart';
 
 class PodService extends ApiService<PodAPI> {
   PodService._(this._prefs) : super(api: PodAPI());
@@ -93,9 +95,12 @@ class PodService extends ApiService<PodAPI> {
   Future<void> createSchema() async {
     Map<String, dynamic> schemaJson =
         jsonDecode(await rootBundle.loadString("assets/outputSchema.json"));
-
-    api.createSchema(PodPayloadCreateSchema(
-        SchemaMeta.fromJson(schemaJson['meta']), schemaJson['nodes'], schemaJson['edges']));
+    try {
+      api.createSchema(PodPayloadCreateSchema(
+          SchemaMeta.fromJson(schemaJson['meta']), schemaJson['nodes'], schemaJson['edges']));
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
   Future<void> loadDemoFiles() async {
@@ -111,9 +116,12 @@ class PodService extends ApiService<PodAPI> {
   Future<void> uploadData(List<Item> items, List<String> urls) async {
     var allEdges = items.expand((Item item) => item.getAllEdges() ?? []).cast<Edge>().toList();
     await this.bulkAction(createItems: items, createEdges: allEdges);
-
-    for (var url in urls) {
-      await api.uploadFile(url);
+    try {
+      for (var url in urls) {
+        await api.uploadFile(url);
+      }
+    } on Exception catch (e) {
+      throw _handleException(e);
     }
   }
 
@@ -155,18 +163,47 @@ class PodService extends ApiService<PodAPI> {
         deleteItems: deleteItems ?? [],
         createEdges: edgePayload);
 
-    await api.bulkAction(bulkPayload);
+    try {
+      await api.bulkAction(bulkPayload);
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
   Future<Item> getItem({
     required String id,
-  }) async =>
-      Item.fromJson(await api.getItem(id));
+  }) async {
+    try {
+      return Item.fromJson(await api.getItem(id));
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
+  }
 
   Future<List<Item>> graphql({
     required String query,
-  }) async =>
-      _parseGQLResponse(await api.queryGraphQL(query));
+  }) async {
+    try {
+      final response = await api.queryGraphQL(query);
+      return _parseGQLResponse(response);
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
+  }
+
+  _handleException(Exception e) {
+    if (ErrorService.isConnectionError(e)) {
+      throw e;
+    } else if (e is DioException && e.type == DioExceptionType.badResponse) {
+      // Bad response (e.g., 404, 500)
+      final statusCode = e.response?.statusCode;
+      final statusMessage = e.response?.statusMessage;
+      throw Exception('Server Error: $statusCode - $statusMessage');
+    } else {
+      // Other errors
+      throw Exception('Unexpected Error');
+    }
+  }
 
   Future<List<Item>> getNavigationItems() async {
     var query = '''
@@ -185,9 +222,13 @@ query {
     required Item item,
   }) async {
     var itemMap = item.toJson();
-    var resultID = await api.createItem(itemMap);
-    item.properties["id"] = resultID;
-    return item;
+    try {
+      var resultID = await api.createItem(itemMap);
+      item.properties["id"] = resultID;
+      return item;
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
   Future<Item> updateItem({
@@ -195,14 +236,22 @@ query {
   }) async {
     var itemMap = item.toJson();
     itemMap.remove("dateServerModified");
-    await api.updateItem(itemMap);
-    return item;
+    try {
+      await api.updateItem(itemMap);
+      return item;
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
   Future<void> deleteItem({
     required Item item,
   }) async {
-    await api.deleteItem(item.id);
+    try {
+      await api.deleteItem(item.id);
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
   List<Item> _parseGQLResponse(Map<String, dynamic> jsonBody) {
@@ -213,14 +262,23 @@ query {
   }
 
   Future<Map<String, dynamic>> getSchema() async {
-    return await api.getSchema();
+    try {
+      return await api.getSchema();
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
   downloadFile(String fileSHAHash) async {
-    return api.downloadFile(fileSHAHash);
+    try {
+      return await api.downloadFile(fileSHAHash);
+    } on Exception catch (e) {
+      throw _handleException(e);
+    }
   }
 
-  Future<Map<String, int>> countItemsByType(List<String> types) async { //TODO: this is very expensive and should be optimized
+  Future<Map<String, int>> countItemsByType(List<String> types) async {
+    //TODO: this is very expensive and should be optimized
     final Map<String, int> itemCountByType = {};
 
     for (var type in types) {

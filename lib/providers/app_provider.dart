@@ -26,36 +26,8 @@ class AppProvider with ChangeNotifier {
   String errorMessage = '';
   String welcomeMessage = S.current.check_server_status;
 
-  bool _filterPanelIsVisible = false;
   bool _isLoadingOpened = false;
   bool _checkAuth = true;
-  ViewContextController? currentViewContext;
-  bool isInEditMode = false;
-  bool searchBarOpen = false;
-  bool _isDrawerOpen = false;
-
-  bool get isDrawerOpen => _isDrawerOpen;
-
-  void toggleDrawer() {
-    _isDrawerOpen = !_isDrawerOpen;
-    notifyListeners();
-  }
-
-  toggleEditMode() {
-    isInEditMode = !isInEditMode;
-    notifyListeners();
-  }
-
-  toggleSearchBar() {
-    searchBarOpen = !searchBarOpen;
-    notifyListeners();
-  }
-
-  get filterPanelIsVisible => _filterPanelIsVisible;
-  set filterPanelIsVisible(value) {
-    _filterPanelIsVisible = !_filterPanelIsVisible;
-    notifyListeners();
-  }
 
   PodService get podService => _podService;
 

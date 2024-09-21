@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/screens/cvu_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -172,7 +173,7 @@ class NavigationItemView extends StatelessWidget {
             ),
           ),
         ),(Route<dynamic> route) => false);
-        Provider.of<AppProvider>(context, listen: false).toggleDrawer();
+        Provider.of<UIStateProvider>(context, listen: false).toggleDrawer();
       },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),

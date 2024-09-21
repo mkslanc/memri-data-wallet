@@ -1,10 +1,11 @@
-import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:json_annotation/json_annotation.dart' as annotation;
 import 'package:memri/core/models/item.dart';
+import 'package:memri/core/services/error_service.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/models/cvu_parsed_definition.dart';
@@ -138,8 +139,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
       List<Item> itemsByType = [];
       try {
         itemsByType = await _podService.graphql(query: query);
-      } catch (e) {
-        //ignore for now
+      } on Exception catch (e) {
+        if (ErrorService.isConnectionError(e)) {
+          throw e;
+        }
+        //ignore other exceptions for now
       }
       items += itemsByType;
     }

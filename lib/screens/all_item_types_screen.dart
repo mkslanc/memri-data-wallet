@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
+import 'package:memri/providers/connection_provider.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 import 'package:memri/utilities/extensions/string.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +14,7 @@ import '../providers/app_provider.dart';
 import '../utilities/helpers/app_helper.dart';
 import '../widgets/scaffold/cvu_scaffold.dart';
 import 'cvu_screen.dart';
+import 'error_connectivity_screen.dart';
 
 class AllItemTypesScreen extends StatefulWidget {
   @override
@@ -23,7 +26,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   late Schema _schema;
   late PodService _podService;
   late Map<String, int> _itemCounts;
-  late ViewContextController viewContextController;//TODO
+  late ViewContextController viewContextController; //TODO
 
   final List<String> _ignoreList = [
     "CVUStoredDefinition",
@@ -37,7 +40,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   ];
   late List<Item> _navigationItems;
   late List<String> _favoriteList;
-  late final List<SchemaType> _sortedTypes;
+  late List<SchemaType> _sortedTypes;
   List<SchemaType> _filteredTypes = [];
 
   @override
@@ -51,7 +54,12 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   Future<void> _initialize() async {
     try {
       viewContextController = ViewContextController.fromParams();
-      Provider.of<AppProvider>(context, listen: false).currentViewContext = viewContextController;
+
+      var connectionProvider = Provider.of<ConnectionProvider>(context, listen: false);
+      connectionProvider.isConnectionError = false;
+
+      Provider.of<UIStateProvider>(context, listen: false).currentViewContext = viewContextController;
+
       await _schema.loadFromPod();
       List<SchemaType> types =
           _schema.types.values.where((type) => !_ignoreList.contains(type.type)).toList();
@@ -70,6 +78,7 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
       _sortedTypes = [];
       _navigationItems = [];
       _favoriteList = [];
+      throw error;
     }
   }
 
@@ -147,29 +156,36 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
       child: FutureBuilder<void>(
         future: _initFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return Center(child: CircularProgressIndicator());
-          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return ErrorConnectivityScreen(
+                errorMessage: snapshot.error.toString(),
+                onRetry: () {
+                  setState(() {
+                    _initFuture = _initialize(); // Retry initialization
+                  });
+                });
+          } else {
+            if (!_schema.isLoaded) {
+              return Center(child: Text('Failed to load schema data.'));
+            }
 
-          if (!_schema.isLoaded) {
-            return Center(child: Text('Failed to load schema data.'));
+            return ValueListenableBuilder<String?>(
+              valueListenable: viewContextController.searchStringNotifier,
+              builder: (context, searchString, child) {
+                var needle = searchString?.toLowerCase() ?? "";
+                _filteredTypes =
+                    _sortedTypes.where((type) => type.type.toLowerCase().contains(needle)).toList();
+                return ListView.builder(
+                  itemCount: _filteredTypes.length,
+                  itemBuilder: (context, index) {
+                    return listTile(index);
+                  },
+                );
+              },
+            );
           }
-
-          return ValueListenableBuilder<String?>(
-            valueListenable: viewContextController.searchStringNotifier,
-            builder: (context, searchString, child) {
-              var needle = searchString?.toLowerCase() ?? "";
-              _filteredTypes = _sortedTypes
-                  .where((type) => type.type.toLowerCase().contains(needle))
-                  .toList();
-              return ListView.builder(
-                itemCount: _filteredTypes.length,
-                itemBuilder: (context, index) {
-                  return listTile(index);
-                },
-              );
-            },
-          );
         },
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../cvu/constants/cvu_color.dart';
@@ -20,7 +21,7 @@ class _TopBarViewState extends State<TopBarView> {
 
   @override
   Widget build(BuildContext context) {
-    viewContext = Provider.of<AppProvider>(context, listen: false).currentViewContext;
+    viewContext = Provider.of<UIStateProvider>(context, listen: false).currentViewContext;
     // var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     // var editActionButtonArray =
     //     viewContext?.viewDefinitionPropertyResolver.stringArray("editActionButton");
@@ -35,7 +36,7 @@ class _TopBarViewState extends State<TopBarView> {
                 child: TextButton(
                     style: TextButton.styleFrom(padding: EdgeInsets.all(10)),
                     onPressed: () =>
-                        {Provider.of<AppProvider>(context, listen: false).toggleSearchBar()},
+                        {Provider.of<UIStateProvider>(context, listen: false).toggleSearchBar()},
                     child: Text(
                       "Search in App",
                       style: Theme.of(context)

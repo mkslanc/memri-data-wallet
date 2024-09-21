@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -88,7 +89,7 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
                 Expanded(
                   child: WebViewWidget(controller: _controller),
                 ),
-                if (Provider.of<AppProvider>(context, listen: false).isInEditMode)
+                if (Provider.of<UIStateProvider>(context, listen: false).isInEditMode)
                   MemriTextEditorToolbar(
                     toolbarState: toolbarState,
                     executeEditorCommand: executeEditorCommand,
@@ -197,7 +198,7 @@ class _MemriTextEditorState extends State<MemriTextEditor> {
   }
 
   void switchEditMode() {
-    bool isInEditMode = Provider.of<AppProvider>(this.context, listen: false).isInEditMode;
+    bool isInEditMode = Provider.of<UIStateProvider>(this.context, listen: false).isInEditMode;
     _controller.runJavaScript("window.editor.options.editable = ${isInEditMode};");
     if (!isInEditMode) {
       SystemChannels.textInput.invokeMethod('TextInput.hide');

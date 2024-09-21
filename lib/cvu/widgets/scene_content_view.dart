@@ -83,7 +83,7 @@ class _SceneContentViewState extends State<SceneContentView> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
         onRefresh: () async {
-          viewContext.getItems(viewContext.config.query);
+          viewContext.refreshScreen();
         },
         child: renderer
     );

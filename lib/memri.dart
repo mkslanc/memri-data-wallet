@@ -7,6 +7,8 @@ import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/locator.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/providers/auth_provider.dart';
+import 'package:memri/providers/connection_provider.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/screens/not_found_screen.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +40,8 @@ class _MemriState extends State<Memri> {
         ChangeNotifierProvider(
             create: (_) => locator<AppProvider>()..initialize()),
         ChangeNotifierProvider(create: (_) => locator<AuthProvider>()),
-        // ChangeNotifierProvider(create: (_) => locator<ImporterProvider>()),
+        ChangeNotifierProvider(create: (_) => locator<ConnectionProvider>()),
+        ChangeNotifierProvider(create: (_) => locator<UIStateProvider>()),
       ],
       child: MaterialApp(
         title: "Memri",
