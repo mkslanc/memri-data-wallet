@@ -12,6 +12,7 @@ import 'package:memri/cvu/controllers/cvu_controller.dart';
 import 'package:memri/providers/app_provider.dart';
 import 'package:memri/providers/auth_provider.dart';
 import 'package:memri/providers/connection_provider.dart';
+import 'package:memri/providers/settings_provider.dart';
 import 'package:memri/providers/ui_state_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,8 +20,10 @@ final locator = GetIt.instance;
 
 Future<void> setup() async {
   SharedPreferences _prefs = await SharedPreferences.getInstance();
+  SettingsProvider _settingsProvider = SettingsProvider(_prefs);
+  final podService = await PodService.create(_settingsProvider);
 
-  final podService = await PodService.create(_prefs);
+  locator.registerLazySingleton<SharedPreferences>(() => _prefs);
 
   /// PROVIDERS
   locator.registerLazySingleton<AppProvider>(() => AppProvider(locator()));
@@ -28,6 +31,7 @@ Future<void> setup() async {
       () => AuthProvider(locator(), locator()/*, locator()*/));
   locator.registerLazySingleton<ConnectionProvider>(() => ConnectionProvider());
   locator.registerLazySingleton<UIStateProvider>(() => UIStateProvider());
+  locator.registerLazySingleton<SettingsProvider>(() => _settingsProvider);
 
   // CVU
   locator.registerLazySingleton<CVUController>(() => CVUController(locator()));
@@ -47,6 +51,5 @@ Future<void> setup() async {
   locator.registerSingleton<Dio>(Dio());
   locator.registerLazySingleton<http.Client>(() => http.Client());
 
-  /// PLUGINS
-  locator.registerLazySingleton<SharedPreferences>(() => _prefs);
+
 }

@@ -2,33 +2,31 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:memri/core/apis/pod/pod_payloads.dart';
 import 'package:memri/core/apis/pod_api.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/core/models/pod/pod_config.dart';
 import 'package:memri/core/services/api_service.dart';
+import 'package:memri/providers/settings_provider.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
 
 import '../controllers/authentication.dart';
 import './demo_data_pod.dart';
-import 'database/schema.dart';
 import 'error_service.dart';
 
 class PodService extends ApiService<PodAPI> {
-  PodService._(this._prefs) : super(api: PodAPI());
+  PodService._(this._settings) : super(api: PodAPI());
 
-  static Future<PodService> create(SharedPreferences prefs) async {
-    final service = PodService._(prefs);
+  static Future<PodService> create(SettingsProvider settings) async {
+    final service = PodService._(settings);
     await service._init();
     return service;
   }
 
-  final SharedPreferences _prefs;
+  final SettingsProvider _settings;
   late PodConfig podConfig;
   final Map<String, String> _podPropertyTypes = {
     "string": "Text",
@@ -39,7 +37,7 @@ class PodService extends ApiService<PodAPI> {
   };
 
   Future<void> _init() async {
-    final podAddress = _prefs.getString(app.keys.podAddress) ?? app.settings.defaultPodUrl;
+    final podAddress = _settings.podAddress;
     final ownerKey = await Authentication.instance.getOwnerKey() ?? '';
     final dbKey = await Authentication.instance.getDbKey() ?? '';
 
@@ -81,7 +79,7 @@ class PodService extends ApiService<PodAPI> {
       await Authentication.instance.setDbKey(dbKey);
 
   Future<void> storePodAddress(String podAddress) async =>
-      await _prefs.setString(app.keys.podAddress, podAddress);
+      await _settings.setPodAddress(podAddress);
 
   String generateCryptoStrongKey() {
     return "${Uuid().v4(config: V4Options(null, CryptoRNG()))}${Uuid().v4(config: V4Options(null, CryptoRNG()))}"
@@ -207,13 +205,13 @@ class PodService extends ApiService<PodAPI> {
 
   Future<List<Item>> getNavigationItems() async {
     var query = '''
-query {
-        NavigationItem {
-          title
-          itemType
-          sessionName
+  query {
+          NavigationItem {
+            title
+            itemType
+            sessionName
+          }
         }
-      }
 ''';
     return graphql(query: query);
   }

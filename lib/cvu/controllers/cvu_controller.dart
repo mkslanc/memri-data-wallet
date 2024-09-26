@@ -32,9 +32,9 @@ class CVUController extends ChangeNotifier {
 
   CVUController(this._podService);
 
-  Future<void> init() async {
+  Future<void> init({forceLoad = false}) async {
     try {
-      await loadStoredDefinitions();
+      await loadStoredDefinitions(forceLoad: forceLoad);
       if (definitions.isEmpty) {
         var _definitions = await parseCVU();
         await storeDefinitions(_definitions);
@@ -129,8 +129,8 @@ class CVUController extends ChangeNotifier {
     return storedDefinition;
   }
 
-  loadStoredDefinitions() async {
-    if (storedDefinitions.isNotEmpty) {
+  loadStoredDefinitions({forceLoad = false}) async {
+    if (storedDefinitions.isNotEmpty && !forceLoad) {
       return;
     }
     definitions = [];
