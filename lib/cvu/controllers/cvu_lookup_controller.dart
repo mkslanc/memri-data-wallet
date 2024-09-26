@@ -18,6 +18,7 @@ import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 
 import '../services/resolving/cvu_context.dart';
+import '../utilities/binding.dart';
 
 /// This struct can be used to _resolve CVU values to a final value of the desired type.
 /// For lookups you must provide a CVUContext which contains required information on the default item, viewArguments, etc to be used in the lookup.
@@ -92,6 +93,8 @@ class CVULookupController {
           return _resolveArrayOfCVUConstantMap(value!, context!) as T?;
         }
         return _resolveItemArray(value!, context!) as T?;
+      case Binding:
+        return _resolveBinding(value!, context!, defaultValue) as T?;
       case LookupStep:
         return _resolveLookupStep(nodes!, context!) as T?;
       case PropertyDatabaseValue:
@@ -143,8 +146,7 @@ class CVULookupController {
 
   DateTime? _resolveDate(CVUValue value, CVUContext context) {
     if (value is CVUValueConstant) {
-      return DateTime.fromMillisecondsSinceEpoch(
-          int.parse(value.value.asNumber().toString()));
+      return DateTime.fromMillisecondsSinceEpoch(int.parse(value.value.asNumber().toString()));
     } else if (value is CVUValueExpression) {
       return resolve<DateTime>(expression: value.value, context: context);
     } else {
@@ -165,18 +167,14 @@ class CVULookupController {
   List<Item> _resolveItemArray(CVUValue value, CVUContext context) {
     if (value is CVUValueExpression) {
       CVUExpressionNode expression = value.value;
-      return (resolve<List>(
-          expression: expression,
-          context: context,
-          additionalType: Item)) as List<Item>;
+      return (resolve<List>(expression: expression, context: context, additionalType: Item))
+          as List<Item>;
     } else if (value is CVUValueArray) {
-      var cvuValueArray = (resolve<List>(
-          value: value,
-          context: context,
-          additionalType: CVUValue)) as List<CVUValue>;
+      var cvuValueArray = (resolve<List>(value: value, context: context, additionalType: CVUValue))
+          as List<CVUValue>;
 
-      return cvuValueArray.compactMap(
-          (cvuValue) => resolve<Item>(value: cvuValue, context: context));
+      return cvuValueArray
+          .compactMap((cvuValue) => resolve<Item>(value: cvuValue, context: context));
     } else {
       return [];
     }
@@ -196,11 +194,9 @@ class CVULookupController {
     if (value is CVUValueArray) {
       var values = value.value;
       return values
-          .map((el) => Map.fromEntries(
-              (el.getSubdefinition()?.properties.entries.toList() ?? [])
-                  .map((entry) => MapEntry(entry.key,
-                      resolve<List<CVUConstant>>(value: entry.value)))
-                  .where((element) => element.value != null)))
+          .map((el) => Map.fromEntries((el.getSubdefinition()?.properties.entries.toList() ?? [])
+              .map((entry) => MapEntry(entry.key, resolve<List<CVUConstant>>(value: entry.value)))
+              .where((element) => element.value != null)))
           .whereType<Map<String, List<CVUConstant>>>()
           .where((element) => element.isNotEmpty)
           .toList();
@@ -209,16 +205,32 @@ class CVULookupController {
     }
   }
 
-  List<CVUConstant>? _resolveCVUConstantArray(
-      CVUValue value, CVUContext context) {
+  List<CVUConstant>? _resolveCVUConstantArray(CVUValue value, CVUContext context) {
     if (value is CVUValueConstant) {
       var constant = value.value;
       return [constant];
     } else if (value is CVUValueArray) {
       var values = value.value;
-      return (values.map((element) =>
-          (resolve<List>(value: element, additionalType: CVUConstant) ?? [])
-              as List<CVUConstant>)).expand((element) => element).toList();
+      return (values.map((element) => (resolve<List>(value: element, additionalType: CVUConstant) ??
+          []) as List<CVUConstant>)).expand((element) => element).toList();
+    } else {
+      return null;
+    }
+  }
+
+  Binding? _resolveBinding(CVUValue value, CVUContext context, dynamic defaultValue) {
+    if (value is CVUValueExpression) {
+      var expression = value.value;
+      if (expression is CVUExpressionNodeLookup) {
+        List<CVULookupNode> nodes = []..addAll(expression.nodes);
+        List? res = _resolveToItemAndProperty(nodes, context);
+        Item? item = res?[0];
+        String? property = res?[1];
+        if (res != null && item != null && property != null) {
+          return Binding.forItem(item, property, defaultValue);
+        }
+      }
+      return null;
     } else {
       return null;
     }
@@ -235,27 +247,23 @@ class CVULookupController {
   }
 
   /// Lookup a property from an Item
-  PropertyDatabaseValue? _resolvePropertyDatabaseValue(
-      String property, Item item) {
+  PropertyDatabaseValue? _resolvePropertyDatabaseValue(String property, Item item) {
     var value = item.get(property);
     if (value == null) {
       return null;
     }
-    SchemaValueType? propertyType =
-        GetIt.I<Schema>().expectedPropertyType(item.type, property);
+    SchemaValueType? propertyType = GetIt.I<Schema>().expectedPropertyType(item.type, property);
     if (propertyType == null) {
       return null;
     }
     return PropertyDatabaseValue.create(value, propertyType);
   }
 
-  LookupStep? _resolveLookupStep(
-      List<CVULookupNode> nodes, CVUContext context) {
+  LookupStep? _resolveLookupStep(List<CVULookupNode> nodes, CVUContext context) {
     LookupStep? currentValue;
     var nodePath = "";
     for (CVULookupNode node in nodes) {
-      if (node.type is CVULookupTypeDefault ||
-          nodePath.isNotEmpty && nodePath != ".") {
+      if (node.type is CVULookupTypeDefault || nodePath.isNotEmpty && nodePath != ".") {
         nodePath += ".";
       }
       nodePath += node.toCVUString();
@@ -291,8 +299,7 @@ class CVULookupController {
     return currentValue;
   }
 
-  LookupStep? _resolveLookup(
-      CVULookupNode node, LookupStep? currentValue, CVUContext context) {
+  LookupStep? _resolveLookup(CVULookupNode node, LookupStep? currentValue, CVUContext context) {
     var nodeType = node.type as CVULookupTypeLookup;
 
     if (currentValue is LookupStepItems) {
@@ -310,23 +317,17 @@ class CVULookupController {
         if (argValue is CVUValueConstant) {
           CVUConstant constant = argValue.value;
           if (constant is CVUConstantArgument) {
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueString(constant.value)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
           } else if (constant is CVUConstantNumber) {
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueDouble(constant.value)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueDouble(constant.value)]);
           } else if (constant is CVUConstantInt) {
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueInt(constant.value)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueInt(constant.value)]);
           } else if (constant is CVUConstantString) {
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueString(constant.value)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
           } else if (constant is CVUConstantBool) {
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueBool(constant.value)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueBool(constant.value)]);
           } else if (constant is CVUConstantColorHex) {
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueString(constant.value)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(constant.value)]);
           } else if (constant is CVUConstantNil) {
             currentValue = null;
           } else {
@@ -341,26 +342,20 @@ class CVULookupController {
                 items: viewArgs.argumentItems,
                 viewArguments: viewArgs.parentArguments);
 
-            List<Item> items = resolve<List>(
-                expression: expression,
-                context: context,
-                additionalType: Item) as List<Item>;
+            List<Item> items =
+                resolve<List>(expression: expression, context: context, additionalType: Item)
+                    as List<Item>;
 
             if (items.isNotEmpty) return LookupStepItems(items);
 
-            Item? item =
-                resolve<Item>(expression: expression, context: context);
+            Item? item = resolve<Item>(expression: expression, context: context);
             if (item != null) return LookupStepItems([item]);
 
-            double? number =
-                resolve<double>(expression: expression, context: context);
-            if (number != null)
-              return LookupStepValues([PropertyDatabaseValueDouble(number)]);
+            double? number = resolve<double>(expression: expression, context: context);
+            if (number != null) return LookupStepValues([PropertyDatabaseValueDouble(number)]);
 
-            String? string =
-                resolve<String>(expression: expression, context: context);
-            if (string != null)
-              return LookupStepValues([PropertyDatabaseValueString(string)]);
+            String? string = resolve<String>(expression: expression, context: context);
+            if (string != null) return LookupStepValues([PropertyDatabaseValueString(string)]);
 
             return null;
           }();
@@ -370,8 +365,7 @@ class CVULookupController {
       } else if (node.name == "uid") {
         var uid = context.currentItem?.id;
         if (uid != null) {
-          currentValue =
-              LookupStepValues([PropertyDatabaseValueString(uid as String)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(uid as String)]);
         }
       } else if (node.name == "items") {
         List<Item>? items = context.items;
@@ -380,8 +374,7 @@ class CVULookupController {
         }
         currentValue = LookupStepItems(items);
       } else if (node.name == "currentIndex") {
-        currentValue = LookupStepValues(
-            [PropertyDatabaseValueInt(context.currentIndex + 1)]);
+        currentValue = LookupStepValues([PropertyDatabaseValueInt(context.currentIndex + 1)]);
       }
     } else {
       currentValue = null;
@@ -414,30 +407,28 @@ class CVULookupController {
               .map((element) => element.asString())
               .where((element) => element != null && element.isNotEmpty)
               .join(separator);
-          currentValue =
-              LookupStepValues([PropertyDatabaseValueString(joined)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
         } else {
           String joined = currentValue.values
               .map((element) => element.asString())
               .where((element) => element != null && element.isNotEmpty)
               .join(", "); //TODO @anijanyan String.localizedString(strings);
-          currentValue =
-              LookupStepValues([PropertyDatabaseValueString(joined)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
         }
         break;
       case "joinwithcomma":
-        String joined = (args.map((element) =>
-                (resolve<String>(expression: element, context: context))))
-            .where((element) => element != null && element.isNotEmpty)
-            .join(", ");
+        String joined =
+            (args.map((element) => (resolve<String>(expression: element, context: context))))
+                .where((element) => element != null && element.isNotEmpty)
+                .join(", ");
         currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
         break;
       case "joinnatural":
-        List<String> strings = (args.map((element) =>
-            (resolve<String>(expression: element, context: context))
-                .toString())).where((element) => element.isNotEmpty).toList();
-        var joined = strings
-            .join(", "); //TODO @anijanyan String.localizedString(strings);
+        List<String> strings = (args.map(
+                (element) => (resolve<String>(expression: element, context: context)).toString()))
+            .where((element) => element.isNotEmpty)
+            .toList();
+        var joined = strings.join(", "); //TODO @anijanyan String.localizedString(strings);
         currentValue = LookupStepValues([PropertyDatabaseValueString(joined)]);
         break;
       case "plainstring":
@@ -450,8 +441,7 @@ class CVULookupController {
               if (htmlstring == null || htmlstring.isEmpty) {
                 return null;
               }
-              var strippedText =
-                  parse(parse(htmlstring).body!.text).documentElement!.text;
+              var strippedText = parse(parse(htmlstring).body!.text).documentElement!.text;
               return PropertyDatabaseValueString(strippedText);
             })
             .whereType<PropertyDatabaseValue>()
@@ -464,11 +454,9 @@ class CVULookupController {
           return null;
         }
 
-        if (currentValue is LookupStepValues &&
-            currentValue.values.isNotEmpty) {
+        if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
           currentValue = LookupStepValues([currentValue.values.first]);
-        } else if (currentValue is LookupStepItems &&
-            currentValue.items.isNotEmpty) {
+        } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
           currentValue = LookupStepItems([currentValue.items.first]);
         } else {
           return null;
@@ -479,11 +467,9 @@ class CVULookupController {
           return null;
         }
 
-        if (currentValue is LookupStepValues &&
-            currentValue.values.isNotEmpty) {
+        if (currentValue is LookupStepValues && currentValue.values.isNotEmpty) {
           currentValue = LookupStepValues([currentValue.values.last]);
-        } else if (currentValue is LookupStepItems &&
-            currentValue.items.isNotEmpty) {
+        } else if (currentValue is LookupStepItems && currentValue.items.isNotEmpty) {
           currentValue = LookupStepItems([currentValue.items.last]);
         } else {
           return null;
@@ -495,11 +481,9 @@ class CVULookupController {
         }
 
         if (currentValue is LookupStepValues) {
-          currentValue = LookupStepValues(
-              [PropertyDatabaseValueInt(currentValue.values.length)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueInt(currentValue.values.length)]);
         } else if (currentValue is LookupStepItems) {
-          currentValue = LookupStepValues(
-              [PropertyDatabaseValueInt(currentValue.items.length)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueInt(currentValue.items.length)]);
         } else {
           return null;
         }
@@ -522,9 +506,7 @@ class CVULookupController {
         currentValue = LookupStepValues([
           PropertyDatabaseValueString(((arg == 0
                   ? 0
-                  : ((currentValue.values.asMap()[0]?.value ?? 0) /
-                      arg *
-                      100)) as double)
+                  : ((currentValue.values.asMap()[0]?.value ?? 0) / arg * 100)) as double)
               .format(1))
         ]);
 
@@ -537,12 +519,10 @@ class CVULookupController {
           Item first = currentValue.items[0];
           if (first.type == "Person") {
             String name = [
-              resolve<PropertyDatabaseValue>(
-                  property: "firstName", item: first),
+              resolve<PropertyDatabaseValue>(property: "firstName", item: first),
               resolve<PropertyDatabaseValue>(property: "lastName", item: first)
             ].map((element) => (element?.asString() ?? "")).join(" ");
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueString(name)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(name)]);
           } else {
             return null;
           }
@@ -557,8 +537,7 @@ class CVULookupController {
               .where((element) => element != null && element.isNotEmpty)
               .join()
               .toUpperCase();
-          currentValue =
-              LookupStepValues([PropertyDatabaseValueString(initials)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
         } else if (currentValue is LookupStepItems) {
           if (currentValue.items.isEmpty) {
             return null;
@@ -566,16 +545,14 @@ class CVULookupController {
           Item first = currentValue.items[0];
           if (first.type == "Person") {
             String initials = [
-              resolve<PropertyDatabaseValue>(
-                  property: "firstName", item: first),
+              resolve<PropertyDatabaseValue>(property: "firstName", item: first),
               resolve<PropertyDatabaseValue>(property: "lastName", item: first)
             ]
                 .map((element) => element?.asString()?[0])
                 .where((element) => element != null && element.isNotEmpty)
                 .join()
                 .toUpperCase();
-            currentValue =
-                LookupStepValues([PropertyDatabaseValueString(initials)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(initials)]);
           } else {
             return null;
           }
@@ -591,11 +568,9 @@ class CVULookupController {
           Item first = currentValue.items[0];
           if (first.type == "Person") {
             var dateCreated =
-                DateTime.fromMillisecondsSinceEpoch(first.get("dateCreated"))
-                    .formatted();
+                DateTime.fromMillisecondsSinceEpoch(first.get("dateCreated")).formatted();
             var timeSinceCreated =
-                DateTime.fromMillisecondsSinceEpoch(first.get("dateCreated"))
-                    .timeDelta;
+                DateTime.fromMillisecondsSinceEpoch(first.get("dateCreated")).timeDelta;
             return LookupStepValues([
               PropertyDatabaseValueString(
                   "You created this ${first.type} $dateCreated over the past $timeSinceCreated")
@@ -738,12 +713,10 @@ class CVULookupController {
           return null;
         }
         var isHovered = viewArgs.args["isHovered$id"];
-        if (isHovered is! CVUValueConstant ||
-            isHovered.value is! CVUConstantBool) {
+        if (isHovered is! CVUValueConstant || isHovered.value is! CVUConstantBool) {
           return null;
         }
-        currentValue = LookupStepValues(
-            [PropertyDatabaseValueBool(isHovered.value.value)]);
+        currentValue = LookupStepValues([PropertyDatabaseValueBool(isHovered.value.value)]);
         break;
       case "fromjson":
         if (currentValue == null) {
@@ -791,25 +764,20 @@ class CVULookupController {
           if (exp != null) {
             dateFormat = resolve<String>(expression: exp, context: context);
           }
-          var newDate = currentValue.values.first
-              .asDate()
-              ?.formatDate(dateFormat: dateFormat);
+          var newDate = currentValue.values.first.asDate()?.formatDate(dateFormat: dateFormat);
           if (newDate == null) {
             return null;
           }
-          currentValue =
-              LookupStepValues([PropertyDatabaseValueString(newDate)]);
+          currentValue = LookupStepValues([PropertyDatabaseValueString(newDate)]);
         } else {
           return null;
         }
         break;
       case "itemtype":
-        if (currentValue is! LookupStepItems ||
-            currentValue.items.length == 0) {
+        if (currentValue is! LookupStepItems || currentValue.items.length == 0) {
           return null;
         }
-        currentValue = LookupStepValues(
-            [PropertyDatabaseValueString(currentValue.items[0].type)]);
+        currentValue = LookupStepValues([PropertyDatabaseValueString(currentValue.items[0].type)]);
         break;
       case "fromconfig":
         var exp = nodeType.args.asMap()[0];
@@ -819,8 +787,7 @@ class CVULookupController {
         }
         switch (param.toLowerCase()) {
           case "colablink":
-            currentValue = LookupStepValues(
-                [PropertyDatabaseValueString(app.settings.colabLink)]);
+            currentValue = LookupStepValues([PropertyDatabaseValueString(app.settings.colabLink)]);
             break;
           default:
             return null;
@@ -832,8 +799,7 @@ class CVULookupController {
     return currentValue;
   }
 
-  List<Item> filter(
-      List<Item> items, CVUExpressionNode? exp, CVUContext context) {
+  List<Item> filter(List<Item> items, CVUExpressionNode? exp, CVUContext context) {
     if (exp == null) {
       return items;
     }
@@ -853,10 +819,9 @@ class CVULookupController {
         : null));
   }
 
-  CVUExpressionNode? _getNamedExpression(
-      List<CVUExpressionNode> expressions, String name) {
-    return (expressions.firstWhereOrNull((expression) =>
-                expression is CVUExpressionNodeNamed && expression.key == name)
+  CVUExpressionNode? _getNamedExpression(List<CVUExpressionNode> expressions, String name) {
+    return (expressions.firstWhereOrNull(
+                (expression) => expression is CVUExpressionNodeNamed && expression.key == name)
             as CVUExpressionNodeNamed?)
         ?.value;
   }
@@ -886,20 +851,17 @@ class CVULookupController {
     switch (node.name) {
       case "uid":
       case "id":
-        return LookupStepValues(items
-            .map((element) => PropertyDatabaseValueString(element.id))
-            .toList());
+        return LookupStepValues(
+            items.map((element) => PropertyDatabaseValueString(element.id)).toList());
       case "dateModified":
         return LookupStepValues(items
             .map((element) => PropertyDatabaseValueDatetime(
-                DateTime.fromMillisecondsSinceEpoch(
-                    element.get("dateModified"))))
+                DateTime.fromMillisecondsSinceEpoch(element.get("dateModified"))))
             .toList());
       case "dateCreated":
         return LookupStepValues(items
             .map((element) => PropertyDatabaseValueDatetime(
-                DateTime.fromMillisecondsSinceEpoch(
-                    element.get("dateCreated"))))
+                DateTime.fromMillisecondsSinceEpoch(element.get("dateCreated"))))
             .toList());
       case "label":
         return LookupStepItems(items.asMap()[0]?.getEdgeTargets("label") ?? []);
@@ -911,8 +873,7 @@ class CVULookupController {
 
     ResolvedType? expectedType;
     if (node.name.startsWith("~")) {
-      var expectedTypes =
-          GetIt.I<Schema>().expectedSourceTypes(itemType, trimmedName);
+      var expectedTypes = GetIt.I<Schema>().expectedSourceTypes(itemType, trimmedName);
       if (expectedTypes.isEmpty) return null;
 
       expectedType = ResolvedTypeEdge(expectedTypes.first);
@@ -924,8 +885,7 @@ class CVULookupController {
       /// LOOKUP PROPERTY FOR EACH ITEM
       List<PropertyDatabaseValue> result = [];
       items.forEach((Item item) {
-        PropertyDatabaseValue? value =
-            _resolvePropertyDatabaseValue(node.name, item);
+        PropertyDatabaseValue? value = _resolvePropertyDatabaseValue(node.name, item);
         if (value == null) {
           return null;
         }
@@ -1000,8 +960,7 @@ class CVULookupController {
     if (lookupMockMode != null) {
       return lookupMockMode!.string;
     }
-    LookupStep? lookupResult =
-        resolve<LookupStep>(nodes: nodes, context: context);
+    LookupStep? lookupResult = resolve<LookupStep>(nodes: nodes, context: context);
     if (lookupResult == null) {
       return null;
     }
@@ -1020,8 +979,7 @@ class CVULookupController {
     if (lookupMockMode != null) {
       return lookupMockMode!.boolean;
     }
-    LookupStep? lookupResult =
-        resolve<LookupStep>(nodes: nodes, context: context);
+    LookupStep? lookupResult = resolve<LookupStep>(nodes: nodes, context: context);
     if (lookupResult == null) {
       return null;
     }
@@ -1039,8 +997,7 @@ class CVULookupController {
     List<CVULookupNode> nodes,
     CVUContext context,
   ) {
-    LookupStep? lookupResult =
-        resolve<LookupStep>(nodes: nodes, context: context);
+    LookupStep? lookupResult = resolve<LookupStep>(nodes: nodes, context: context);
     if (lookupResult == null) {
       return null;
     }
@@ -1052,10 +1009,8 @@ class CVULookupController {
   }
 
   /// Lookup using a CVU expression string and return the value as an array of items
-  List<Item> _resolveNodesItemArray(
-      List<CVULookupNode> nodes, CVUContext context) {
-    LookupStep? lookupResult =
-        resolve<LookupStep>(nodes: nodes, context: context);
+  List<Item> _resolveNodesItemArray(List<CVULookupNode> nodes, CVUContext context) {
+    LookupStep? lookupResult = resolve<LookupStep>(nodes: nodes, context: context);
     if (lookupResult == null) {
       return [];
     }
@@ -1074,8 +1029,7 @@ class CVULookupController {
       return resolve<Item>(nodes: expression.nodes, context: context);
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
-          resolve<bool>(expression: expression.condition, context: context) ??
-              false;
+          resolve<bool>(expression: expression.condition, context: context) ?? false;
       if (conditionResolved) {
         return resolve<Item>(expression: expression.trueExp, context: context);
       } else {
@@ -1089,94 +1043,69 @@ class CVULookupController {
     }
   }
 
-  List<Item> _resolveExpressionItemArray(
-      CVUExpressionNode expression, CVUContext context) {
+  List<Item> _resolveExpressionItemArray(CVUExpressionNode expression, CVUContext context) {
     if (expression is CVUExpressionNodeLookup) {
-      return (resolve<List>(
-          nodes: expression.nodes,
-          context: context,
-          additionalType: Item)) as List<Item>;
+      return (resolve<List>(nodes: expression.nodes, context: context, additionalType: Item))
+          as List<Item>;
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
-          resolve<bool>(expression: expression.condition, context: context) ??
-              false;
+          resolve<bool>(expression: expression.condition, context: context) ?? false;
       if (conditionResolved) {
         return (resolve<List>(
-            expression: expression.trueExp,
-            context: context,
-            additionalType: Item)) as List<Item>;
+            expression: expression.trueExp, context: context, additionalType: Item)) as List<Item>;
       } else {
         return (resolve<List>(
-            expression: expression.falseExp,
-            context: context,
-            additionalType: Item)) as List<Item>;
+            expression: expression.falseExp, context: context, additionalType: Item)) as List<Item>;
       }
     } else if (expression is CVUExpressionNodeAnd) {
-      return ((resolve<List>(
-              expression: expression.lhs,
-              context: context,
-              additionalType: Item)) as List<Item>) +
-          ((resolve<List>(
-              expression: expression.rhs,
-              context: context,
-              additionalType: Item)) as List<Item>);
+      return ((resolve<List>(expression: expression.lhs, context: context, additionalType: Item))
+              as List<Item>) +
+          ((resolve<List>(expression: expression.rhs, context: context, additionalType: Item))
+              as List<Item>);
     } else if (expression is CVUExpressionNodeOr) {
-      var resolvedA = (resolve<List>(
-          expression: expression.lhs,
-          context: context,
-          additionalType: Item)) as List<Item>;
+      var resolvedA =
+          (resolve<List>(expression: expression.lhs, context: context, additionalType: Item))
+              as List<Item>;
       return resolvedA.length > 0
           ? resolvedA
-          : (resolve<List>(
-              expression: expression.rhs,
-              context: context,
-              additionalType: Item)) as List<Item>;
+          : (resolve<List>(expression: expression.rhs, context: context, additionalType: Item))
+              as List<Item>;
     } else {
       return [];
     }
   }
 
-  double? _resolveExpressionDouble(
-      CVUExpressionNode expression, CVUContext context) {
+  double? _resolveExpressionDouble(CVUExpressionNode expression, CVUContext context) {
     if (expression is CVUExpressionNodeLookup) {
       return resolve<double>(nodes: expression.nodes, context: context);
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
-          resolve<bool>(expression: expression.condition, context: context) ??
-              false;
+          resolve<bool>(expression: expression.condition, context: context) ?? false;
       if (conditionResolved) {
-        return resolve<double>(
-            expression: expression.trueExp, context: context);
+        return resolve<double>(expression: expression.trueExp, context: context);
       } else {
-        return resolve<double>(
-            expression: expression.falseExp, context: context);
+        return resolve<double>(expression: expression.falseExp, context: context);
       }
     } else if (expression is CVUExpressionNodeOr) {
       return resolve<double>(expression: expression.lhs, context: context) ??
           resolve<double>(expression: expression.rhs, context: context);
     } else if (expression is CVUExpressionNodeNegation) {
-      AppLogger.err(
-          "CVU Expression error: Should not use ! operator on non-boolean value");
+      AppLogger.err("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
-      return (resolve<double>(expression: expression.lhs, context: context) ??
-              0) +
+      return (resolve<double>(expression: expression.lhs, context: context) ?? 0) +
           (resolve<double>(expression: expression.rhs, context: context) ?? 0);
     } else if (expression is CVUExpressionNodeSubtraction) {
-      return (resolve<double>(expression: expression.lhs, context: context) ??
-              0) -
+      return (resolve<double>(expression: expression.lhs, context: context) ?? 0) -
           (resolve<double>(expression: expression.rhs, context: context) ?? 0);
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asNumber();
     } else if (expression is CVUExpressionNodeMultiplication) {
-      return (resolve<double>(expression: expression.lhs, context: context) ??
-              0) *
+      return (resolve<double>(expression: expression.lhs, context: context) ?? 0) *
           (resolve<double>(expression: expression.rhs, context: context) ?? 0);
     } else if (expression is CVUExpressionNodeDivision) {
-      double? lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      double? rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      double? lhs = resolve<double>(expression: expression.lhs, context: context);
+      double? rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs != null && rhs != null && rhs != 0) {
         return lhs / rhs;
       } else {
@@ -1195,8 +1124,7 @@ class CVULookupController {
       return resolve<int>(nodes: expression.nodes, context: context);
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
-          resolve<bool>(expression: expression.condition, context: context) ??
-              false;
+          resolve<bool>(expression: expression.condition, context: context) ?? false;
       if (conditionResolved) {
         return resolve<int>(expression: expression.trueExp, context: context);
       } else {
@@ -1206,8 +1134,7 @@ class CVULookupController {
       return resolve<int>(expression: expression.lhs, context: context) ??
           resolve<int>(expression: expression.rhs, context: context);
     } else if (expression is CVUExpressionNodeNegation) {
-      AppLogger.err(
-          "CVU Expression error: Should not use ! operator on non-boolean value");
+      AppLogger.err("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
       return (resolve<int>(expression: expression.lhs, context: context) ?? 0) +
@@ -1233,20 +1160,16 @@ class CVULookupController {
     }
   }
 
-  String? _resolveExpressionString(
-      CVUExpressionNode expression, CVUContext context) {
+  String? _resolveExpressionString(CVUExpressionNode expression, CVUContext context) {
     if (expression is CVUExpressionNodeLookup) {
       return resolve<String>(nodes: expression.nodes, context: context);
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
-          resolve<bool>(expression: expression.condition, context: context) ??
-              false;
+          resolve<bool>(expression: expression.condition, context: context) ?? false;
       if (conditionResolved) {
-        return resolve<String>(
-            expression: expression.trueExp, context: context);
+        return resolve<String>(expression: expression.trueExp, context: context);
       } else {
-        return resolve<String>(
-            expression: expression.falseExp, context: context);
+        return resolve<String>(expression: expression.falseExp, context: context);
       }
     } else if (expression is CVUExpressionNodeOr) {
       return resolve<String>(
@@ -1256,22 +1179,19 @@ class CVULookupController {
           ??
           resolve<String>(expression: expression.rhs, context: context);
     } else if (expression is CVUExpressionNodeNegation) {
-      AppLogger.err(
-          "CVU Expression error: Should not use ! operator on non-boolean value");
+      AppLogger.err("CVU Expression error: Should not use ! operator on non-boolean value");
       return null;
     } else if (expression is CVUExpressionNodeAddition) {
-      return (resolve<String>(expression: expression.lhs, context: context) ??
-              "") +
+      return (resolve<String>(expression: expression.lhs, context: context) ?? "") +
           (resolve<String>(expression: expression.rhs, context: context) ?? "");
     } else if (expression is CVUExpressionNodeSubtraction) {
-      AppLogger.err(
-          "CVU Expression error: Should not use - operator on string value");
+      AppLogger.err("CVU Expression error: Should not use - operator on string value");
       return null;
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asString();
     } else if (expression is CVUExpressionNodeStringMode) {
-      return (expression.nodes.map((element) =>
-              resolve<String>(expression: element, context: context)))
+      return (expression.nodes
+              .map((element) => resolve<String>(expression: element, context: context)))
           .whereType<String>()
           .join();
     } else {
@@ -1287,78 +1207,60 @@ class CVULookupController {
       return resolve<bool>(nodes: expression.nodes, context: context);
     } else if (expression is CVUExpressionNodeConditional) {
       bool conditionResolved =
-          resolve<bool>(expression: expression.condition, context: context) ??
-              false;
+          resolve<bool>(expression: expression.condition, context: context) ?? false;
       if (conditionResolved) {
         return resolve<bool>(expression: expression.trueExp, context: context);
       } else {
         return resolve<bool>(expression: expression.falseExp, context: context);
       }
     } else if (expression is CVUExpressionNodeAnd) {
-      return (resolve<bool>(expression: expression.lhs, context: context) ??
-              false) &&
-          (resolve<bool>(expression: expression.rhs, context: context) ??
-              false);
+      return (resolve<bool>(expression: expression.lhs, context: context) ?? false) &&
+          (resolve<bool>(expression: expression.rhs, context: context) ?? false);
     } else if (expression is CVUExpressionNodeOr) {
-      return (resolve<bool>(expression: expression.lhs, context: context) ??
-              false) ||
-          (resolve<bool>(expression: expression.rhs, context: context) ??
-              false);
+      return (resolve<bool>(expression: expression.lhs, context: context) ?? false) ||
+          (resolve<bool>(expression: expression.rhs, context: context) ?? false);
     } else if (expression is CVUExpressionNodeNegation) {
-      bool? res =
-          resolve<bool>(expression: expression.expression, context: context);
+      bool? res = resolve<bool>(expression: expression.expression, context: context);
       return res == null ? res : !res;
     } else if (expression is CVUExpressionNodeAddition) {
-      AppLogger.err(
-          "CVU Expression error: Should not use + operator on bool value");
+      AppLogger.err("CVU Expression error: Should not use + operator on bool value");
       return null;
     } else if (expression is CVUExpressionNodeSubtraction) {
-      AppLogger.err(
-          "CVU Expression error: Should not use - operator on bool value");
+      AppLogger.err("CVU Expression error: Should not use - operator on bool value");
       return null;
     } else if (expression is CVUExpressionNodeConstant) {
       return expression.value.asBool();
     } else if (expression is CVUExpressionNodeLessThan) {
-      double? lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      double? rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      double? lhs = resolve<double>(expression: expression.lhs, context: context);
+      double? rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs < rhs;
     } else if (expression is CVUExpressionNodeGreaterThan) {
-      double? lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      double? rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      double? lhs = resolve<double>(expression: expression.lhs, context: context);
+      double? rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs > rhs;
     } else if (expression is CVUExpressionNodeLessThanOrEqual) {
-      double? lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      double? rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      double? lhs = resolve<double>(expression: expression.lhs, context: context);
+      double? rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs <= rhs;
     } else if (expression is CVUExpressionNodeGreaterThanOrEqual) {
-      double? lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      double? rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      double? lhs = resolve<double>(expression: expression.lhs, context: context);
+      double? rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs == null || rhs == null) {
         return null;
       }
       return lhs >= rhs;
     } else if (expression is CVUExpressionNodeAreEqual) {
-      dynamic lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      dynamic rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      dynamic lhs = resolve<double>(expression: expression.lhs, context: context);
+      dynamic rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs == null || rhs == null) {
         lhs = resolve<Item>(expression: expression.lhs, context: context);
         rhs = resolve<Item>(expression: expression.rhs, context: context);
@@ -1379,10 +1281,8 @@ class CVULookupController {
       }
       return lhs == rhs;
     } else if (expression is CVUExpressionNodeAreNotEqual) {
-      dynamic lhs =
-          resolve<double>(expression: expression.lhs, context: context);
-      dynamic rhs =
-          resolve<double>(expression: expression.rhs, context: context);
+      dynamic lhs = resolve<double>(expression: expression.lhs, context: context);
+      dynamic rhs = resolve<double>(expression: expression.rhs, context: context);
       if (lhs == null || rhs == null) {
         lhs = resolve<Item>(expression: expression.lhs, context: context);
         rhs = resolve<Item>(expression: expression.rhs, context: context);
@@ -1405,6 +1305,50 @@ class CVULookupController {
     } else {
       return null;
     }
+  }
+
+  List? _resolveToItemAndProperty(
+      List<CVULookupNode> nodes, CVUContext context) {
+    Item? currentItem;
+    if (nodes.isEmpty) {
+      return null;
+    }
+
+    // Find the item referenced by the lookup
+    CVULookupNode? last = nodes.removeLast();
+    for (CVULookupNode node in nodes) {
+      var nodeType = node.type;
+      if (nodeType is CVULookupTypeDefault) {
+        Item? defaultItem = context.currentItem;
+        if (defaultItem == null) {
+          return null;
+        }
+        currentItem = defaultItem;
+        break;
+      } else if (nodeType is CVULookupTypeLookup) {
+        Item? nextItem = currentItem;
+        if (nextItem != null) {
+          LookupStep? step = itemLookup(
+              node: node,
+              items: [nextItem],
+              subexpressions: nodeType.subexpressions,
+              context: context);
+          if (step != null && step is LookupStepItems) {
+            currentItem = step.items[0];
+          }
+        }
+        break;
+      } else if (nodeType is CVULookupTypeFunction) {
+        return null;
+      } else {
+        throw Exception("Unknown CVULookupNode: ${nodeType.toString()}");
+      }
+    }
+    Item? targetItem = currentItem;
+    CVULookupNode? propertyLookup = last;
+
+    // Make a binding to the right property
+    return [targetItem, propertyLookup.name];
   }
 }
 

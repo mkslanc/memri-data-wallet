@@ -16,6 +16,7 @@ import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
+import '../../utilities/binding.dart';
 import 'cvu_context.dart';
 
 class CVUPropertyResolver {
@@ -801,6 +802,18 @@ class CVUPropertyResolver {
   Point? get spacing {
     return cgPoint("spacing");
   }
+
+  Binding? binding(String key, [dynamic defaultValue]) {
+    var val = this.value(key);
+    if (val == null) {
+      return null;
+    }
+    return lookup.resolve<Binding>(
+        value: val,
+        defaultValue: defaultValue,
+        context: this.context);
+  }
+
 }
 
 class AlignmentResolver {

@@ -22,6 +22,7 @@ import 'package:memri/widgets/empty.dart';
 import 'elements/cvu_action_button.dart';
 import 'elements/cvu_map.dart';
 import 'elements/cvu_timeline_item.dart';
+import 'elements/cvu_toggle.dart';
 
 /// This view is used to display CVU elements (and is used in a nested fashion to display their children)
 class CVUElementView extends StatefulWidget {
@@ -98,6 +99,8 @@ class _CVUElementViewState extends State<CVUElementView> {
         return CVURichText(nodeResolver: widget.nodeResolver);
       case CVUUIElementFamily.LoadingIndicator:
         return CVULoadingIndicator(nodeResolver: widget.nodeResolver);
+      case CVUUIElementFamily.Toggle:
+        return CVUToggle(nodeResolver: widget.nodeResolver);
       default:
         return Text("${widget.nodeResolver.node.type} not implemented yet.");
     }
