@@ -12,10 +12,6 @@ class Toggle extends StatefulWidget {
 }
 
 class _ToggleState extends State<Toggle> {
-  init() async {
-    updateValue(widget.binding?.get());
-  }
-
   bool _value = false;
 
   get value {
@@ -23,14 +19,8 @@ class _ToggleState extends State<Toggle> {
   }
 
   set value(newValue) {
-    if (widget.binding != null) {
-      widget.binding!.set(newValue);
-    }
-    updateValue(newValue);
-  }
-
-  void updateValue(newValue) {
     setState(() {
+      widget.binding?.set(newValue);
       _value = newValue;
     });
   }
@@ -40,7 +30,7 @@ class _ToggleState extends State<Toggle> {
     return Switch(
       value: value,
       onChanged: widget.isEditing
-          ? (bool newValue) async {
+          ? (bool newValue) {
               value = newValue;
             }
           : null,
