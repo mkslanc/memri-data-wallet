@@ -65,4 +65,5 @@ const _$CVUUIElementFamilyEnumMap = {
   CVUUIElementFamily.RichText: 'RichText',
   CVUUIElementFamily.LoadingIndicator: 'LoadingIndicator',
   CVUUIElementFamily.Map: 'Map',
+  CVUUIElementFamily.Toggle: 'Toggle',
 };

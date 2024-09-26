@@ -8,9 +8,9 @@ import 'package:memri/utilities/extensions/string.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/database/schema.dart';
-import '../../../providers/app_provider.dart';
 import '../../../widgets/components/memri_date_picker.dart';
 import '../../../widgets/components/memri_text_field.dart';
+import '../../../widgets/components/toggle.dart';
 import '../../constants/cvu_color.dart';
 import '../../controllers/view_context_controller.dart';
 import '../../models/cvu_parsed_definition.dart';
@@ -177,20 +177,8 @@ class _GeneralEditorRow extends StatelessWidget {
   }
 
   Widget get boolRow {
-    /*var binding = FutureBinding<bool>(
-        () async => (await currentItem.propertyValue(property.property))?.asBool() ?? false,
-        (value) async {
-      var currentVal = (await currentItem.propertyValue(property.property))?.asBool() ?? false;
-      currentItem.setPropertyValue(prop, PropertyDatabaseValueBool(!currentVal));
-    });*/
-    return Text("Toggle"); //TODO
-    /* return Toggle(isOn: binding) {
-            Text(prop
-                .camelCaseToWords()
-                .lowercased()
-                .capitalizingFirst())
-        }
-        .generalEditorCaption()*/
+    var binding = Binding.forItem(currentItem, prop, false);
+    return Toggle(binding: binding, isEditing: isEditing);
   }
 
   Widget get intRow {
