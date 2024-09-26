@@ -13,9 +13,9 @@ import 'package:memri/cvu/models/cvu_view_arguments.dart';
 import 'package:memri/cvu/models/view_context.dart';
 import 'package:memri/cvu/utilities/binding.dart';
 import 'package:memri/providers/connection_provider.dart';
+import 'package:memri/providers/settings_provider.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
-import '../../providers/app_provider.dart';
 import '../services/resolving/cvu_context.dart';
 import '../services/resolving/cvu_property_resolver.dart';
 import 'database_query.dart';
@@ -397,17 +397,20 @@ class ViewContextController extends ChangeNotifier {
 
   getItems(DatabaseQueryConfig queryConfig) {
     final connectionProvider = GetIt.I<ConnectionProvider>();
+    connectionProvider.isConnectionError = false;
     queryConfig.executeRequest().then((records) {
       items = records;
-      connectionProvider.isConnectionError = false;
     }).onError((e, s) {
       connectionProvider.isConnectionError = true;
     });
   }
 
-  refreshScreen() { //TODO:
-    final connectionProvider = GetIt.I<ConnectionProvider>();
-    connectionProvider.isConnectionError = false;
+  refreshScreen() async { //TODO:
+    var settingsProvider = GetIt.I<SettingsProvider>();
+    if(settingsProvider.cvuDeveloperMode) {
+      var cvuController = GetIt.I<CVUController>();
+      await cvuController.init(forceLoad: true);
+    }
     getItems(config.query);
   }
 
