@@ -85,11 +85,6 @@ class _SceneContentViewState extends State<SceneContentView> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
         onRefresh: () async {
-          var settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-          if(settingsProvider.cvuDeveloperMode) {
-            var cvuController = GetIt.I<CVUController>();
-            await cvuController.init(forceLoad: true);
-          }
           viewContext.refreshScreen();
         },
         child: renderer

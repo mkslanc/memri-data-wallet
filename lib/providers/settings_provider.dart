@@ -21,11 +21,9 @@ class SettingsProvider with ChangeNotifier {
     _loadSettings();
   }
 
-  Future<void> _loadSettings() async {
+  void _loadSettings() {
     _cvuDeveloperMode = _prefs.getBool(_developerModeKey) ?? false;
     _podAddress = _prefs.getString(app.keys.podAddress) ?? app.settings.defaultPodUrl;
-
-    notifyListeners();
   }
 
   Future<void> setCvuDeveloperMode(bool isEnabled) async {
