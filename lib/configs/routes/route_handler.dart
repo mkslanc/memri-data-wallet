@@ -1,12 +1,13 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
+import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/screens/account/login_developer_screen.dart';
 import 'package:memri/screens/account/login_screen.dart';
 import 'package:memri/screens/account/save_keys_screen.dart';
 import 'package:memri/screens/all_item_types_screen.dart';
-import 'package:memri/screens/cvu_screen.dart';
 import 'package:memri/screens/not_found_screen.dart';
 
 var notFoundHandler = Handler(handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
@@ -25,11 +26,15 @@ var loginDeveloperScreenHandler = Handler(handlerFunc: (_, __) => LoginDeveloper
 
 var saveKeysScreenHandler = Handler(handlerFunc: (_, __) => SaveKeysScreen());
 
-var cvuHandler = Handler(
-    handlerFunc: (_, __) => CVUScreen(
-          viewContextController: ViewContextController.fromParams(viewName: "messageChannelView"),
-        ));
+var _indexViewContextController;
 
 var indexHandler = Handler(
-    handlerFunc: (_, __) => AllItemTypesScreen()
+    handlerFunc: (_, __) {
+      if (_indexViewContextController == null) {
+        _indexViewContextController ??= ViewContextController.fromParams();
+        GetIt.I<UIStateProvider>().navigateToContext(_indexViewContextController);
+      }
+
+      return AllItemTypesScreen(viewContextController: _indexViewContextController);
+    }
 );

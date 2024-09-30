@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/providers/ui_state_provider.dart';
-import 'package:memri/screens/cvu_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/models/item.dart';
 import '../../cvu/controllers/view_context_controller.dart';
 import '../../providers/app_provider.dart';
-import '../../screens/all_item_types_screen.dart';
 import '../settings_pane.dart';
 import '../space.dart';
 
@@ -158,22 +157,14 @@ class NavigationItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var uiStateProvider = GetIt.I<UIStateProvider>();
 
     return TextButton(
       onPressed: () {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-          builder: (context) => targetViewName == "allItemTypes"
-            ? AllItemTypesScreen()
-            : CVUScreen(
-              viewContextController: ViewContextController.fromParams(
-              viewName: targetViewName,
-              itemType: itemType
-            ),
-          ),
-        ),(Route<dynamic> route) => false);
-        Provider.of<UIStateProvider>(context, listen: false).toggleDrawer();
+        var viewContextController =
+            ViewContextController.fromParams(viewName: targetViewName, itemType: itemType);
+        uiStateProvider.navigateToScreen(context, viewContextController, clearStack: true);
+        uiStateProvider.toggleDrawer();
       },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),

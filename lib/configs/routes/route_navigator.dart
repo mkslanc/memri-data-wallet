@@ -33,7 +33,6 @@ class Routes {
     router.define(login, handler: loginScreenHandler);
     router.define(loginDev, handler: loginDeveloperScreenHandler);
     router.define(saveKeys, handler: saveKeysScreenHandler);
-    router.define(cvu, handler: cvuHandler);
     router.define(index, handler: indexHandler);
   }
 }
