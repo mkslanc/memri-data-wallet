@@ -2,12 +2,10 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/constants/cvu_color.dart';
 import 'package:memri/cvu/models/cvu_value.dart';
 import 'package:memri/cvu/models/cvu_value_constant.dart';
 import 'package:memri/cvu/models/cvu_view_arguments.dart';
-import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/widgets/components/shapes/circle.dart';
 import 'package:memri/widgets/empty.dart';
 import 'package:memri/cvu/widgets/renderers/grid_renderer_flow.dart';
@@ -103,7 +101,7 @@ class GridRendererViewState extends RendererViewState {
                         item: item,
                         viewArguments: CVUViewArguments(
                             args: {"isSelected": CVUValueConstant(CVUConstantBool(isSelected))}))),
-                if (Provider.of<UIStateProvider>(context, listen: false).isInEditMode &&
+                if (viewContext.isInEditMode &&
                     isSelected &&
                     showDefaultSelections)
                   Container(

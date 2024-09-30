@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/localization/generated/l10n.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../utilities/extensions/collection.dart';
@@ -65,7 +64,7 @@ class DemoData {
   }
 
   static Future<Map<String, dynamic>> importDataToPod(
-      {bool throwIfAgainstSchema = false, bool defaultData: true}) async {
+      {bool throwIfAgainstSchema = false, bool defaultData = true, bool downloadDemoAssets = false}) async {
     var fileURL = "assets/dev_database.json";
     if (!defaultData) {
       fileURL = "assets/demo_database.json";
@@ -81,7 +80,7 @@ class DemoData {
     List<String> collectedUrls = [];
 
     var results = await Future.wait(items.map((item) async =>
-    await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema)));
+    await processItemJSON(item: item, isRunningTests: throwIfAgainstSchema, downloadDemoAssets: downloadDemoAssets)));
 
     for (var result in results) {
       processedDemoItems.addAll(result["items"]);
@@ -155,7 +154,7 @@ class DemoData {
   static Future<Map<String, dynamic>> processItemJSON(
       {required Map<String, dynamic> item,
       String? overrideUID,
-      bool isRunningTests = false}) async {
+      bool isRunningTests = false, bool downloadDemoAssets = false}) async {
     handleError(String string) {
       if (isRunningTests) {
         // Used for testing: throw an error if error in demo data
@@ -169,13 +168,16 @@ class DemoData {
     var itemType = item["_type"];
     if (itemType is! String) {
       handleError("BAD RECORD: $item");
-      return {"items": [], "urls": []};
+      return {"items": <DemoItem>[], "urls": <String>[]};
+    }
+    if (itemType == "File" && !downloadDemoAssets) {
+      return {"items": <DemoItem>[], "urls": <String>[]};
     }
 
     if (types[itemType] == null) {
       //TODO:
       AppLogger.warn("$itemType not in schema");
-      return {"items": [], "urls": []};
+      return {"items": <DemoItem>[], "urls": <String>[]};
     }
 
     var itemTempUID = overrideUID ?? item["uid"]?.toString();
@@ -240,7 +242,7 @@ class DemoData {
                 var result = await processItemJSON(
                       item: subitem as Map<String, dynamic>,
                       overrideUID: targetUID,
-                    isRunningTests: isRunningTests);
+                    isRunningTests: isRunningTests, downloadDemoAssets: downloadDemoAssets);
                 items = [...items, ...result["items"]];
                 urls = [...urls, ...result["urls"]];
               }
@@ -264,7 +266,7 @@ class DemoData {
             if (!isRunningTests &&
                 itemType == "File" &&
                 propertyName == "filename" &&
-                propertyValue is String && !kIsWeb) {
+                propertyValue is String && !kIsWeb && downloadDemoAssets) {
               var fileName = propertyValue.split(".");
 
               var baseURL = DemoData.demoAssetsLink; // Replace with your image base URL

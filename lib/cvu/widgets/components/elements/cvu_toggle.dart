@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/cvu/utilities/binding.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +33,7 @@ class _CVUToggleState extends State<CVUToggle> {
 
   @override
   Widget build(BuildContext context) {
-    var isEditing = Provider.of<UIStateProvider>(context, listen: false).isInEditMode;
+    var isEditing = GetIt.I<UIStateProvider>().currentViewContext!.isInEditMode;
     return Toggle(binding: binding, isEditing: isEditing);
   }
 }

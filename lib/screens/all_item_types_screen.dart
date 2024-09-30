@@ -10,13 +10,15 @@ import 'package:provider/provider.dart';
 
 import '../core/models/item.dart';
 import '../core/services/database/schema.dart';
-import '../providers/app_provider.dart';
 import '../utilities/helpers/app_helper.dart';
 import '../widgets/scaffold/cvu_scaffold.dart';
-import 'cvu_screen.dart';
 import 'error_connectivity_screen.dart';
 
 class AllItemTypesScreen extends StatefulWidget {
+  final ViewContextController viewContextController;
+
+  const AllItemTypesScreen({Key? key, required this.viewContextController}) : super(key: key);
+
   @override
   State<AllItemTypesScreen> createState() => _AllItemTypesScreenState();
 }
@@ -26,7 +28,6 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
   late Schema _schema;
   late PodService _podService;
   late Map<String, int> _itemCounts;
-  late ViewContextController viewContextController; //TODO
 
   final List<String> _ignoreList = [
     "CVUStoredDefinition",
@@ -53,12 +54,8 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
 
   Future<void> _initialize() async {
     try {
-      viewContextController = ViewContextController.fromParams();
-
       var connectionProvider = Provider.of<ConnectionProvider>(context, listen: false);
       connectionProvider.isConnectionError = false;
-
-      Provider.of<UIStateProvider>(context, listen: false).currentViewContext = viewContextController;
 
       await _schema.loadFromPod();
       List<SchemaType> types =
@@ -132,27 +129,23 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
         ),
         onPressed: () => _markFavourite(itemType),
       ),
-      onTap:
-          itemCount > 0 ? openItemView(schemaType.type) : null, // Disable button if itemCount is 0
+      onTap: itemCount > 0 ? openItemView(schemaType.type) : null, // Disable if itemCount is 0
     );
   }
 
   openItemView(itemType) => () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CVUScreen(
-              viewContextController: ViewContextController.fromParams(
-                  viewName: _viewName(itemType), itemType: itemType),
-            ),
-          ),
-        );
-      };
+    var uiStateProvider = GetIt.I<UIStateProvider>();
+    var viewContextController = ViewContextController.fromParams(
+      viewName: _viewName(itemType),
+      itemType: itemType,
+    );
+    uiStateProvider.navigateToScreen(context, viewContextController);
+  };
 
   @override
   Widget build(BuildContext context) {
     return CVUScaffold(
-      viewContextController: viewContextController,
+      viewContextController: widget.viewContextController,
       child: FutureBuilder<void>(
         future: _initFuture,
         builder: (context, snapshot) {
@@ -167,23 +160,22 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
                   });
                 });
           } else {
-            if (!_schema.isLoaded) {
-              return Center(child: Text('Failed to load schema data.'));
-            }
+            return Consumer<ViewContextController>(
+                builder: (context, controller, child) {
+                  if (!_schema.isLoaded) {
+                    return Center(child: Text('Failed to load schema data.'));
+                  }
 
-            return ValueListenableBuilder<String?>(
-              valueListenable: viewContextController.searchStringNotifier,
-              builder: (context, searchString, child) {
-                var needle = searchString?.toLowerCase() ?? "";
-                _filteredTypes =
-                    _sortedTypes.where((type) => type.type.toLowerCase().contains(needle)).toList();
-                return ListView.builder(
-                  itemCount: _filteredTypes.length,
-                  itemBuilder: (context, index) {
-                    return listTile(index);
-                  },
-                );
-              },
+                  var needle = widget.viewContextController.searchString?.toLowerCase() ?? "";
+                  _filteredTypes =
+                      _sortedTypes.where((type) => type.type.toLowerCase().contains(needle)).toList();
+                  return ListView.builder(
+                    itemCount: _filteredTypes.length,
+                    itemBuilder: (context, index) {
+                      return listTile(index);
+                    },
+                  );
+                }
             );
           }
         },

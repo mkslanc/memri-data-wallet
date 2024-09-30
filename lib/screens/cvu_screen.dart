@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/scene_content_view.dart';
 import 'package:memri/cvu/widgets/bottom_bar_view.dart';
-import 'package:memri/providers/ui_state_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/app_provider.dart';
@@ -24,7 +23,6 @@ class _CVUScreenState extends State<CVUScreen> {
   initState() {
     super.initState();
     _init = init();
-      Provider.of<UIStateProvider>(context, listen: false).currentViewContext = widget.viewContextController;
   }
 
   init() async {
@@ -56,12 +54,12 @@ class _CVUScreenState extends State<CVUScreen> {
               errorMessage: snapshot.error.toString(),
               onRetry: () {
                 Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (_, __, ___) => CVUScreen(viewContextController: widget.viewContextController,),
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-              ),
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (_, __, ___) => CVUScreen(viewContextController: widget.viewContextController,),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
                 );
               },
             );

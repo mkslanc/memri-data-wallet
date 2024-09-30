@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -122,7 +121,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     return DatabaseQueryConfig(
       itemTypes: itemTypes,
       itemRowIDs: itemRowIDs,
-      filterProperties: _filterProperties,
+      filterProperties: Map.from(_filterProperties)..remove("searchString"),
       pageSize: pageSize,
       currentPage: currentPage,
       includeImmediateEdgeSearch: includeImmediateEdgeSearch,

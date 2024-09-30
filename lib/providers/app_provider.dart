@@ -11,7 +11,7 @@ import 'package:memri/widgets/loading_indicator.dart';
 import '../core/services/database/schema.dart';
 import '../cvu/controllers/cvu_controller.dart';
 
-enum AppState { init, loading, success, error, unauthenticated, authenticating, loggedIn }
+enum AppState { init, loading, success, error, unauthenticated, authenticating }
 
 class AppProvider with ChangeNotifier {
   final PodService _podService;

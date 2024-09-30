@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/cvu/controllers/cvu_lookup_controller.dart';
 import 'package:memri/cvu/controllers/database_query.dart';
@@ -13,7 +14,6 @@ import 'package:memri/providers/ui_state_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../../screens/cvu_screen.dart';
 import '../controllers/view_context_controller.dart';
 import '../models/cvu_parsed_definition.dart';
 import '../models/cvu_view_arguments.dart';
@@ -158,7 +158,6 @@ class CVUActionOpenView extends CVUAction {
 
   @override
   Future execute(CVUContext cvuContext, BuildContext context) async {
-    var currentContext = Provider.of<UIStateProvider>(context, listen: false).currentViewContext;
     var customDefinition = viewDefinition;
     if (customDefinition == null) {
       var view = vars["view"];
@@ -179,28 +178,22 @@ class CVUActionOpenView extends CVUAction {
     var resolver = CVUPropertyResolver(
         context: cvuContext, lookup: CVULookupController(), properties: this.vars);
 
-    var route = MaterialPageRoute(
-      builder: (context) => CVUScreen(
-          viewContextController: ViewContextController.fromParams(
-              viewName: viewName ?? resolver.string("viewName") ?? "customView",
-              inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
-              overrideRenderer: renderer ?? resolver.string("renderer"),
-              defaultRenderer: "generalEditor",
-              focusedItem: cvuContext.currentItem,
-              //overrideRowIDs: uids,
-              //dateRange: dateRange,
-              customDefinition: customDefinition,
-              items: cvuContext.items,
-              viewArguments: viewArguments,
-              previousContext: currentContext
-          )),
+    var viewContextController = ViewContextController.fromParams(
+        viewName: viewName ?? resolver.string("viewName") ?? "customView",
+        inheritDatasource: (resolver.boolean("inheritDatasource", true))!,
+        overrideRenderer: renderer ?? resolver.string("renderer"),
+        defaultRenderer: "generalEditor",
+        focusedItem: cvuContext.currentItem,
+        //overrideRowIDs: uids,
+        //dateRange: dateRange,
+        customDefinition: customDefinition,
+        items: cvuContext.items,
+        viewArguments: viewArguments
     );
 
-    if (resolver.boolean("clearStack") ?? false) {
-      Navigator.pushAndRemoveUntil(context, route, (Route<dynamic> route) => false);
-    } else {
-      Navigator.push(context, route);
-    }
+    GetIt.I<UIStateProvider>().navigateToScreen(
+        context, viewContextController,
+        clearStack: resolver.boolean("clearStack"));
   }
 }
 
@@ -224,7 +217,7 @@ class CVUActionToggleFilterPanel extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    var uiStateProvider = Provider.of<UIStateProvider>(context, listen: false);
+    var uiStateProvider = GetIt.I<UIStateProvider>();
     uiStateProvider.filterPanelIsVisible = true; //TODO set to false on modal close
 
     var viewContextController = uiStateProvider.currentViewContext!;
@@ -273,7 +266,7 @@ class CVUActionShowStarred extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    var currentContext = Provider.of<UIStateProvider>(context, listen: false).currentViewContext;
+    var currentContext = GetIt.I<UIStateProvider>().currentViewContext;
     if (currentContext == null) {
       print("shouldn't get here");
       return;
@@ -297,6 +290,6 @@ class CVUActionToggleEditMode extends CVUAction {
 
   @override
   execute(CVUContext cvuContext, BuildContext context) async {
-    Provider.of<UIStateProvider>(context, listen: false).toggleEditMode();
+    GetIt.I<UIStateProvider>().currentViewContext?.toggleEditMode();
   }
 }

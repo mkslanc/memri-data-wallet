@@ -42,9 +42,7 @@ class _NoteEditorRendererViewState extends RendererViewState {
       var resolver = viewContext.nodePropertyResolver(item);
       if (resolver != null) {
         var value = resolver.string("content") ?? "";
-        if (value != null) {
-          return Binding(() => value, (value) => {});
-        }
+        return Binding(() => value, (value) => {});
         /*var binding = await resolver.binding<String>("content", "");
         if (binding != null) {
           return binding;
