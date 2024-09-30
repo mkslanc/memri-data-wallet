@@ -101,8 +101,8 @@ class PodService extends ApiService<PodAPI> {
     }
   }
 
-  Future<void> loadDemoFiles() async {
-    var result = await DemoData.importDataToPod(defaultData: false);
+  Future<void> loadDemoFiles(bool downloadDemoAssets) async {
+    var result = await DemoData.importDataToPod(defaultData: false, downloadDemoAssets: downloadDemoAssets);
     await uploadData(result["items"], result["urls"]);
   }
 

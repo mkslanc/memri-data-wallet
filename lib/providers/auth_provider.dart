@@ -67,7 +67,7 @@ class AuthProvider with ChangeNotifier {
         await _podService.loadDefaultData();
 
         if (_importDemoData) {
-          await _podService.loadDemoFiles();
+          await _podService.loadDemoFiles(_downloadDemoAssets);
         }
       }
 
