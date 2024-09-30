@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/constants/cvu_color.dart';
 import 'package:memri/cvu/widgets/renderers/renderer.dart';
 

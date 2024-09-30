@@ -54,7 +54,6 @@ class _TimelineRendererViewState extends RendererViewState<TimelineRendererView>
       viewContext.rendererDefinitionPropertyResolver.boolean("recentFirst", true)!;
 
   selectElement(TimelineElement element) => () {
-    print(element);
     if (element.isGroup) {
       CVUActionOpenView(
           renderer: "list",

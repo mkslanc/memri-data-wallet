@@ -30,7 +30,6 @@ class _ListRendererViewState extends RendererViewState {
   initState() {
     super.initState();
     init();
-    viewContext.addListener(updateState);
   }
 
   @override
@@ -42,7 +41,6 @@ class _ListRendererViewState extends RendererViewState {
   @override
   dispose() {
     super.dispose();
-    viewContext.removeListener(updateState);
   }
 
   updateState() {
