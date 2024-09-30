@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:memri/constants/app_logger.dart';
 import 'package:memri/core/controllers/file_storage/file_storage_controller.dart';
 import 'package:memri/core/services/database/schema.dart';
-import 'package:memri/localization/generated/l10n.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../utilities/extensions/collection.dart';
@@ -65,7 +64,7 @@ class DemoData {
   }
 
   static Future<Map<String, dynamic>> importDataToPod(
-      {bool throwIfAgainstSchema = false, bool defaultData: true}) async {
+      {bool throwIfAgainstSchema = false, bool defaultData = true}) async {
     var fileURL = "assets/dev_database.json";
     if (!defaultData) {
       fileURL = "assets/demo_database.json";

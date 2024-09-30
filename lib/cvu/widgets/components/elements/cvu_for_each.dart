@@ -51,7 +51,7 @@ class _CVUForEachState extends State<CVUForEach> {
   }
 }
 
-abstract class StackWidget {
+mixin StackWidget {
   late final CVUUINodeResolver? nodeResolver;
 
   Widget initWidget() {
