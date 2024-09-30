@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/providers/ui_state_provider.dart';
-import 'package:provider/provider.dart';
 
 import '../../../cvu/constants/cvu_color.dart';
-import '../../../cvu/controllers/view_context_controller.dart';
-import '../../../providers/app_provider.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
-  //final void Function() onSearchPressed;
-
-  TopBarView(/*{required this.onSearchPressed}*/);
+  TopBarView();
 
   @override
   _TopBarViewState createState() => _TopBarViewState();
 }
 
 class _TopBarViewState extends State<TopBarView> {
-  late ViewContextController? viewContext;
-
   @override
   Widget build(BuildContext context) {
-    viewContext = Provider.of<UIStateProvider>(context, listen: false).currentViewContext;
+    var viewContext = GetIt.I<UIStateProvider>().currentViewContext;
     // var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
     // var editActionButtonArray =
     //     viewContext?.viewDefinitionPropertyResolver.stringArray("editActionButton");
@@ -35,8 +29,7 @@ class _TopBarViewState extends State<TopBarView> {
                 height: 78,
                 child: TextButton(
                     style: TextButton.styleFrom(padding: EdgeInsets.all(10)),
-                    onPressed: () =>
-                        {Provider.of<UIStateProvider>(context, listen: false).toggleSearchBar()},
+                    onPressed: () => viewContext?.toggleSearchBar(),
                     child: Text(
                       "Search in App",
                       style: Theme.of(context)

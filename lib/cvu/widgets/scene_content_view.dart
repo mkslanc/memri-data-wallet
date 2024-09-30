@@ -1,7 +1,6 @@
 //  Created by T Brennan on 23/1/21.
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
 import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
@@ -14,9 +13,6 @@ import 'package:memri/cvu/widgets/renderers/photo_viewer_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/single_item_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/timeline_renderer.dart';
 import 'package:provider/provider.dart';
-
-import '../../providers/settings_provider.dart';
-import '../controllers/cvu_controller.dart';
 
 class SceneContentView extends StatefulWidget {
   final ViewContextController viewContext;
@@ -36,18 +32,12 @@ class _SceneContentViewState extends State<SceneContentView> {
   initState() {
     super.initState();
     viewContext.onAppear();
-    viewContext.addListener(updateState);
   }
 
   @override
   dispose() {
     super.dispose();
     viewContext.onDisappear();
-    viewContext.removeListener(updateState);
-  }
-
-  updateState() {
-    setState(() {});
   }
 
   /// Translates the rendererName to the correct Renderer view
@@ -87,7 +77,11 @@ class _SceneContentViewState extends State<SceneContentView> {
         onRefresh: () async {
           viewContext.refreshScreen();
         },
-        child: renderer
+        child: Consumer<ViewContextController>(
+          builder: (context, provider, child) {
+            return renderer;
+          }
+        )
     );
   }
 }

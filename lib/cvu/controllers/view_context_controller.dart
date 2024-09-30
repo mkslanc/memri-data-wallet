@@ -16,6 +16,7 @@ import 'package:memri/providers/connection_provider.dart';
 import 'package:memri/providers/settings_provider.dart';
 import 'package:memri/utilities/extensions/collection.dart';
 
+import '../../providers/ui_state_provider.dart';
 import '../services/resolving/cvu_context.dart';
 import '../services/resolving/cvu_property_resolver.dart';
 import 'database_query.dart';
@@ -33,7 +34,8 @@ class ViewContextController extends ChangeNotifier {
 
   ViewContext get config => configHolder.config;
 
-  ViewContextController? previousViewContext;
+  bool isInEditMode = false;
+  bool searchBarOpen = false;
 
   ViewContextController(
       {required ViewContextHolder config,
@@ -53,8 +55,6 @@ class ViewContextController extends ChangeNotifier {
 
     setupQueryObservation();
 
-    searchStringNotifier = ValueNotifier(configHolder.config.query.searchString);
-
     this.cvuController.addListener(() => updateUI());
   }
 
@@ -70,12 +70,13 @@ class ViewContextController extends ChangeNotifier {
     CVUDefinitionContent? customDefinition,
     List<Item>? items,
     bool inheritDatasource = false,
-    ViewContextController? previousContext,
     String? itemType,
   }) {
     viewArguments ??= CVUViewArguments();
     viewArguments.argumentItem = focusedItem;
-    cvuController ??= GetIt.instance();
+    cvuController ??= GetIt.I();
+
+    var previousContext = GetIt.I<UIStateProvider>().currentViewContext;
 
     viewDefinition ??=
         cvuController.viewDefinitionFor(viewName: viewName, customDefinition: customDefinition) ??
@@ -120,17 +121,26 @@ class ViewContextController extends ChangeNotifier {
       viewContextController.focusedIndex = items.indexWhere((item) => item == focusedItem); //TODO: remake
 
     }
-    viewContextController.previousViewContext = previousContext; //TODO:
+
     return viewContextController;
   }
 
   // MARK: Search State
-  String? get searchString => searchStringNotifier.value;
+  String? get searchString => config.query.searchString;
 
-  late ValueNotifier<String?> searchStringNotifier;
   set searchString(String? newValue) {
-    searchStringNotifier.value = newValue;
     config.query.searchString = newValue;
+  }
+
+
+  void toggleSearchBar() {
+    searchBarOpen = !searchBarOpen;
+    notifyListeners();
+  }
+
+  void toggleEditMode() {
+    isInEditMode = !isInEditMode;
+    notifyListeners();
   }
 
   int get focusedIndex {

@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memri/core/models/item.dart';
 import 'package:memri/cvu/widgets/renderers/renderer.dart';
-import 'package:memri/providers/ui_state_provider.dart';
 import 'package:memri/utilities/extensions/string.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/services/database/schema.dart';
 import '../../../widgets/components/memri_date_picker.dart';
@@ -124,7 +122,7 @@ class _GeneralEditorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    isEditing = Provider.of<UIStateProvider>(context, listen: false).isInEditMode;
+    isEditing = viewContext.isInEditMode;
     var nodeDefinition = _nodeDefinition;
     return Column(
       children: [
