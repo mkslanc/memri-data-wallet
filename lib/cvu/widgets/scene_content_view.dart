@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:memri/cvu/controllers/view_context_controller.dart';
+import 'package:memri/cvu/widgets/renderers/calendar_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/chart_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/custom_renderer.dart';
 import 'package:memri/cvu/widgets/renderers/general_editor_renderer.dart';
@@ -55,6 +56,8 @@ class _SceneContentViewState extends State<SceneContentView> {
         return PhotoViewerRendererView(viewContext: viewContext);
       case "chart":
         return ChartRendererView(viewContext: viewContext);
+      case "calendar":
+        return CalendarRendererView(viewContext: viewContext);
       case "singleitem":
         return SingleItemRendererView(viewContext: viewContext);
       case "noteeditor":
