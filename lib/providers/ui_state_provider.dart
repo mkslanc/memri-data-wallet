@@ -21,6 +21,13 @@ class UIStateProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void closeDrawer() {
+    if (_isDrawerOpen) {
+      _isDrawerOpen = false;
+      notifyListeners();
+    }
+  }
+
   bool get isDrawerOpen => _isDrawerOpen;
 
   bool get filterPanelIsVisible => _filterPanelIsVisible;
@@ -47,6 +54,7 @@ class UIStateProvider with ChangeNotifier {
       Navigator.push(context, route);
     }
 
+    closeDrawer();
     navigateToContext(viewContextController);
   }
 
