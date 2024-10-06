@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memri/cvu/utilities/binding.dart';
 
 class Toggle extends StatefulWidget {
-  final Binding<bool>? binding;
+  final Binding<bool?>? binding;
   final bool isEditing;
 
   Toggle({required this.binding, required this.isEditing});

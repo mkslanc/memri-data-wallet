@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:memri/cvu/controllers/database_query.dart';
+import 'package:memri/utilities/extensions/string.dart';
 import 'package:memri/widgets/components/memri_text_field.dart';
+import 'package:memri/widgets/components/toggle.dart';
 
 import '../../../../core/services/database/schema.dart';
 import '../../../../utilities/extensions/icon_data.dart';
-import '../../../../widgets/components/optional_date_picker.dart';
 import '../../../controllers/view_context_controller.dart';
 import '../../../utilities/binding.dart';
 
@@ -19,6 +21,8 @@ class FilterOptionsTab extends StatefulWidget {
 }
 
 class _FilterOptionsTabState extends State<FilterOptionsTab> {
+  late Schema _schema;
+  late String itemType;
   var excludedFilterFields = [
     "abstract",
     "id",
@@ -33,79 +37,91 @@ class _FilterOptionsTabState extends State<FilterOptionsTab> {
     "dateModified",
   ];
 
-  Widget optionalDateRow(String title, Binding<DateTime?> selection, [DateTime? initialSet]) {
-    initialSet ??= DateTime.now();
-    return OptionalDatePicker(title: title, selection: selection, initialSet: initialSet);
-  }
-
   List<String> get filterFields {
-    var itemTypes = widget.viewContext.config.query.itemTypes;
-    List<String> fields = GetIt.I<Schema>().propertyNamesForItemType(itemTypes[0] ?? "");
-    return fields.where((field) => !excludedFilterFields.contains(field)).toList()..sort();
+    List<String> properties = _schema.propertyNamesForItemType(itemType);
+    var fields = properties.where((field) => !excludedFilterFields.contains(field)).toList()..sort();
+    return fields..insertAll(0, ["dateModified", "dateCreated"]);
   }
 
   @override
   Widget build(BuildContext context) {
+    _schema = GetIt.I<Schema>();
+    itemType = widget.viewContext.config.query.itemTypes[0] ?? "";
     var date = DateTime.now();
-    List<Widget> filterOptions = [
-      optionalDateRow(
-          "Modified after",
-          Binding(() => widget.viewContext.config.query.dateModifiedAfter,
-              (newValue) => widget.viewContext.config.query.dateModifiedAfter = newValue),
-          date.subtract(Duration(days: 7))),
-      optionalDateRow(
-          "Modified before",
-          Binding(() => widget.viewContext.config.query.dateModifiedBefore,
-              (newValue) => widget.viewContext.config.query.dateModifiedBefore = newValue)),
-      optionalDateRow(
-          "Created after",
-          Binding(() => widget.viewContext.config.query.dateCreatedAfter,
-              (newValue) => widget.viewContext.config.query.dateCreatedAfter = newValue),
-          date.subtract(Duration(days: 7))),
-      optionalDateRow(
-          "Created before",
-          Binding(() => widget.viewContext.config.query.dateCreatedBefore,
-              (newValue) => widget.viewContext.config.query.dateCreatedBefore = newValue)),
-    ];
+    var weekAgo = date.subtract(Duration(days: 7));
 
-    filterOptions.addAll(filterFields.map((el) => FilterPanelFilterItemView(
-        property: el,
-        selection:
-            Binding(() => widget.viewContext.config.query.getPropertyCondition(el)?.value,
-                (newValue) {
-          widget.viewContext.config.query.removePropertyCondition(el);
-          if (newValue != null) {
-            widget.viewContext.config.query.addPropertyCondition(el, newValue, ComparisonType.like);
-          }
-        }))));
+    List<Widget> filterOptions = filterFields.expand((property) {
+      var propertyType = _schema.expectedPropertyType(itemType, property)!;
+      if (property == "dateModified" || property == "dateCreated")
+        propertyType = SchemaValueType.datetime;//TODO why in our schema they're not datetime?
+      var title = property.camelCaseToWords();
+      switch (propertyType) {
+        case SchemaValueType.bool:
+          return [filterItem<bool>(title, property, ComparisonType.equals)];
+        case SchemaValueType.datetime:
+          if (title.startsWith("Date "))
+            title = title.replaceFirst("Date ", "").capitalizingFirst();
+          return [
+            filterItem<DateTime>(title + " after", property, ComparisonType.greaterThan, weekAgo),
+            filterItem<DateTime>(title + " before", property, ComparisonType.lessThan, date),
+          ];
+        default:
+          return [filterItem<String>(title, property, ComparisonType.like)];
+      }
+    }).toList();
 
     return ListView.separated(
         physics: BouncingScrollPhysics(parent: BouncingScrollPhysics()),
         padding: EdgeInsets.zero,
         shrinkWrap: true,
-        itemBuilder: (BuildContext context, int index) => ListTile(
+        itemBuilder: (BuildContext context, int index) =>
+            ListTile(
               dense: true,
               minVerticalPadding: 0,
               title: filterOptions[index],
             ),
-        separatorBuilder: (context, index) => Divider(
+        separatorBuilder: (context, index) =>
+            Divider(
               height: 0,
             ),
         itemCount: filterOptions.length);
   }
+
+  FilterPanelFilterItemView<T> filterItem<T>(
+      String title,
+      String property,
+      ComparisonType comparisonType,
+      [T? initialSet]
+      ) {
+    var query = widget.viewContext.config.query;
+    return FilterPanelFilterItemView<T>(
+        title: title,
+        selection:
+            Binding<T?>(() => query.getPropertyCondition(property)?.value,
+                (newValue) {
+              if (newValue == null) {
+                query.removePropertyCondition(property, comparisonType);
+              } else {
+                query.addPropertyCondition(property, newValue, comparisonType);
+              }
+        }),
+        initialSet: initialSet,
+    );
+  }
 }
 
-class FilterPanelFilterItemView extends StatefulWidget {
-  final String property;
-  final Binding selection;
+class FilterPanelFilterItemView<T> extends StatefulWidget {
+  final String title;
+  final Binding<T?> selection;
+  final T? initialSet;
 
-  FilterPanelFilterItemView({required this.property, required this.selection});
+  FilterPanelFilterItemView({required this.title, required this.selection, this.initialSet});
 
   @override
-  State<FilterPanelFilterItemView> createState() => _FilterPanelFilterItemViewState();
+  State<FilterPanelFilterItemView> createState() => _FilterPanelFilterItemViewState<T>();
 }
 
-class _FilterPanelFilterItemViewState extends State<FilterPanelFilterItemView> {
+class _FilterPanelFilterItemViewState<T> extends State<FilterPanelFilterItemView<T>> {
   bool _isEditing = false;
 
   @override
@@ -113,7 +129,11 @@ class _FilterPanelFilterItemViewState extends State<FilterPanelFilterItemView> {
     return SizedBox(
       height: 40,
       child: Row(
-        children: [Text(widget.property), Spacer(), ...setBinding()],
+        children: [
+          Text(widget.title),
+          Spacer(),
+          ...setBinding()
+        ],
       ),
     );
   }
@@ -122,11 +142,7 @@ class _FilterPanelFilterItemViewState extends State<FilterPanelFilterItemView> {
     if (_isEditing) {
       return [
         Expanded(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            color: Colors.black12,
-            child: MemriTextField.sync(binding: widget.selection),
-          ),
+          child: field,
         ),
         IconButton(
           onPressed: () => setState(() {
@@ -141,11 +157,58 @@ class _FilterPanelFilterItemViewState extends State<FilterPanelFilterItemView> {
       return [
         TextButton(
           onPressed: () => setState(() {
+            widget.selection.set(widget.initialSet);
             _isEditing = true; // Switch to the editing mode
           }),
           child: Text("Set"),
         )
       ];
     }
+  }
+
+  Widget get field {
+    switch (T) {
+      case DateTime:
+        return dateField;
+      case bool:
+        return boolField;
+      default:
+        return stringField;
+    }
+  }
+
+  _selectDate(BuildContext context) async {
+    var selection = widget.selection as Binding<DateTime?>;
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: (selection.get()),
+      firstDate: DateTime.now().subtract(Duration(days: 365 * 100)),
+      lastDate: DateTime.now().add(Duration(days: 365 * 5)),
+    );
+    if (picked != null && picked != selection.get())
+      setState(() {
+        selection.set(picked);
+      });
+  }
+
+  Widget get dateField {
+    var selection = widget.selection as Binding<DateTime?>;
+    return TextButton(
+      onPressed: () => _selectDate(context),
+      child: Text(Jiffy.parseFromDateTime(selection.get()!).format(pattern: 'yyyy-MM-dd')),
+    );
+  }
+
+  Widget get boolField {
+    var binding = widget.selection as Binding<bool?>;
+    return Toggle(binding: binding, isEditing: true);
+  }
+
+  Widget get stringField {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      color: Colors.black12,
+      child: MemriTextField.sync(binding: widget.selection),
+    );
   }
 }
