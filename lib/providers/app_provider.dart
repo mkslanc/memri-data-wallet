@@ -10,6 +10,7 @@ import 'package:memri/widgets/loading_indicator.dart';
 
 import '../core/services/database/schema.dart';
 import '../cvu/controllers/cvu_controller.dart';
+import 'ui_state_provider.dart';
 
 enum AppState { init, loading, success, error, unauthenticated, authenticating }
 
@@ -109,5 +110,6 @@ class AppProvider with ChangeNotifier {
   resetApp() async {
     await GetIt.I<SettingsProvider>().clear();
     await Authentication.instance.removeAll();
+    GetIt.I<UIStateProvider>().closeDrawer();
   }
 }
