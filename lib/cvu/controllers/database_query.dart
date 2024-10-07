@@ -187,7 +187,7 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void addPropertyCondition( key, dynamic value, ComparisonType comparisonType) {
+  void addPropertyCondition(String key, dynamic value, ComparisonType comparisonType) {
     _addPropertyCondition(key, value, comparisonType);
     notifyListeners();
   }
