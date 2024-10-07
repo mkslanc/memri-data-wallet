@@ -27,18 +27,6 @@ DatabaseQueryConfig _$DatabaseQueryConfigFromJson(Map<String, dynamic> json) =>
     )
       ..sortProperty = json['sortProperty'] as String?
       ..sortAscending = json['sortAscending'] as bool
-      ..dateModifiedAfter = json['dateModifiedAfter'] == null
-          ? null
-          : DateTime.parse(json['dateModifiedAfter'] as String)
-      ..dateModifiedBefore = json['dateModifiedBefore'] == null
-          ? null
-          : DateTime.parse(json['dateModifiedBefore'] as String)
-      ..dateCreatedAfter = json['dateCreatedAfter'] == null
-          ? null
-          : DateTime.parse(json['dateCreatedAfter'] as String)
-      ..dateCreatedBefore = json['dateCreatedBefore'] == null
-          ? null
-          : DateTime.parse(json['dateCreatedBefore'] as String)
       ..searchString = json['searchString'] as String?
       ..deleted = json['deleted'] as bool?
       ..edges =
@@ -55,10 +43,6 @@ Map<String, dynamic> _$DatabaseQueryConfigToJson(
       'itemRowIDs': instance.itemRowIDs.toList(),
       'sortProperty': instance.sortProperty,
       'sortAscending': instance.sortAscending,
-      'dateModifiedAfter': instance.dateModifiedAfter?.toIso8601String(),
-      'dateModifiedBefore': instance.dateModifiedBefore?.toIso8601String(),
-      'dateCreatedAfter': instance.dateCreatedAfter?.toIso8601String(),
-      'dateCreatedBefore': instance.dateCreatedBefore?.toIso8601String(),
       'searchString': instance.searchString,
       'deleted': instance.deleted,
       'pageSize': instance.pageSize,

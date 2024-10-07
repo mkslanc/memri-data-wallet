@@ -33,7 +33,8 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   late final PodService _podService;
 
   @annotation.JsonKey(ignore: true)
-  Schema? schema;
+  Schema? _schema;
+  Schema get schema => _schema ??= GetIt.I<Schema>();
 
   /// A list of item types to include. Default is Empty -> ALL item types
   List<String> itemTypes;
@@ -46,18 +47,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
   bool get sortAscending => _get<bool>("sortAscending");
   set sortAscending(bool newValue) => _set<bool>("sortAscending", newValue);
-
-  DateTime? get dateModifiedAfter => _get<DateTime?>("dateModifiedAfter");
-  set dateModifiedAfter(DateTime? newValue) => _set<DateTime?>("dateModifiedAfter", newValue);
-  
-  DateTime? get dateModifiedBefore => _get<DateTime?>("dateModifiedBefore");
-  set dateModifiedBefore(DateTime? newValue) => _set<DateTime?>("dateModifiedBefore", newValue);
-
-  DateTime? get dateCreatedAfter => _get<DateTime?>("dateCreatedAfter");
-  set dateCreatedAfter(DateTime? newValue) => _set<DateTime?>("dateCreatedAfter", newValue);
-
-  DateTime? get dateCreatedBefore => _get<DateTime?>("dateCreatedBefore");
-  set dateCreatedBefore(DateTime? newValue) => _set<DateTime?>("dateCreatedBefore", newValue);
 
   /// A search string to match item properties against
   String? get searchString => _get<String?>("searchString");
@@ -108,10 +97,6 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
               "searchString": null,
               "sortProperty": "dateModified",
               "sortAscending": false,
-              "dateModifiedAfter": null,
-              "dateModifiedBefore": null,
-              "dateCreatedAfter": null,
-              "dateCreatedBefore": null,
             },
         _podService = GetIt.I(),
         conditions = conditions ?? [];
@@ -207,27 +192,32 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     notifyListeners();
   }
 
-  bool existsPropertyCondition(String key) => getPropertyCondition(key) != null;
+  List<PropertyCondition> get propertyConditions =>
+      conditions.whereType<PropertyCondition>().toList();
 
-  removePropertyCondition(String key) {
-    var condition = getPropertyCondition(key);
+  PropertyCondition? getPropertyCondition(String key, [ComparisonType? comparisonType]) =>
+      propertyConditions.firstWhereOrNull(
+          (condition) => condition.name == key
+              && (comparisonType == null || condition.comparisonType == comparisonType)
+      );
+
+  bool existsPropertyCondition(String key, [ComparisonType? comparisonType]) =>
+      getPropertyCondition(key, comparisonType) != null;
+
+  removePropertyCondition(String key, [ComparisonType? comparisonType]) {
+    var condition = getPropertyCondition(key, comparisonType);
     if (condition == null)
       return;
     conditions.remove(condition);
     notifyListeners();
   }
 
-  PropertyCondition? getPropertyCondition(String key) => conditions
-      .firstWhereOrNull((condition) =>
-    condition is PropertyCondition &&
-    condition.name == key) as PropertyCondition?;
-
   void _addPropertyCondition(String key, dynamic value, ComparisonType comparisonType) {
-    var propertyCondition = getPropertyCondition(key);
+    var propertyCondition = getPropertyCondition(key, comparisonType);
 
     if (propertyCondition == null) {
       conditions.add(PropertyCondition(key, value, comparisonType));
-    } else if (propertyCondition.value != value || propertyCondition.comparisonType != comparisonType) {
+    } else if (propertyCondition.value != value) {
       propertyCondition.value = value;
       propertyCondition.comparisonType = comparisonType;
     }
@@ -238,11 +228,10 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   String _constructGraphQLQuery(String itemType) {
-    schema ??= GetIt.I<Schema>();
-    if (!schema!.isLoaded) return "";
+    if (!schema.isLoaded) return "";
 
     // Fetch the properties for the current item type using the Schema object
-    List<String> properties = schema!.propertyNamesForItemType(itemType);
+    List<String> properties = schema.propertyNamesForItemType(itemType);
 
     String filter = _graphQlFilter(itemType);
     String edgesQuery = _graphQlEdgesQuery(itemType);
@@ -266,22 +255,11 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     // if (deleted != null) {
     //   filterParts.add(filterPart("deleted", deleted, "eq"));
     // }
-    if (dateModifiedAfter != null) {
-      filterParts.add(filterPart("dateModified", dateModifiedAfter!.millisecondsSinceEpoch, "gte", itemType));
-    }
-    if (dateModifiedBefore != null) {
-      filterParts.add(filterPart("dateModified", dateModifiedBefore!.millisecondsSinceEpoch, "lte", itemType));
-    }
-    if (dateCreatedAfter != null) {
-      filterParts.add(filterPart("dateCreated", dateCreatedAfter!.millisecondsSinceEpoch, "gte", itemType));
-    }
-    if (dateCreatedBefore != null) {
-      filterParts.add(filterPart("dateCreated", dateCreatedBefore!.millisecondsSinceEpoch, "lte", itemType));
-    }
-    for (var condition in conditions) {
-      if (condition is PropertyCondition && condition.comparisonType == ComparisonType.equals) {
-        filterParts.add(filterPart(condition.name, condition.value, "eq", itemType));
-      }
+    for (var condition in propertyConditions) {
+      var operation = condition.operation;
+      if (operation == null)
+        continue;
+      filterParts.add(filterPart(condition.name, condition.value, operation, itemType));
     }
 
     if (filterParts.isEmpty)
@@ -298,8 +276,17 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
   }
 
   String filterPart(String key, dynamic value, String op, String itemType) {
-    if (schema!.expectedPropertyType(itemType, key) == "string") {
-      value = '"$value"';
+    var expectedType = schema.expectedPropertyType(itemType, key);
+    if (key == "dateModified" || key == "dateCreated")
+      expectedType = SchemaValueType.datetime;//TODO why in our schema they're not datetime?
+    switch (expectedType) {
+      case SchemaValueType.string:
+        value = '"$value"';
+        break;
+      case SchemaValueType.datetime:
+        value = value.millisecondsSinceEpoch;
+        break;
+      default: break;
     }
     return '{${key}: { ${op}: ${value} }}';
   }
@@ -330,12 +317,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
 
     String result = '';
     // Fetch all edges for the current item type
-    List<String> edgeNames = schema!.edgeNamesForItemType(currentType);
+    List<String> edgeNames = schema.edgeNamesForItemType(currentType);
 
     for (String edge in edgeNames) {
-      String? targetType = schema!.expectedTargetType(currentType, edge);
+      String? targetType = schema.expectedTargetType(currentType, edge);
       if (targetType != null) {
-        List<String> edgeProperties = schema!.propertyNamesForItemType(targetType);
+        List<String> edgeProperties = schema.propertyNamesForItemType(targetType);
         String nestedQuery = _buildEdgeQuery(targetType, subEdges[edge] ?? {}, depth + 1);
         result += '''
         $edge {
@@ -358,12 +345,12 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     // Filter items that contain the needle in any of their string properties
     List<Item> filteredResults = items.where((item) {
       // Get all property names for the item's type
-      List<String> properties = schema!.propertyNamesForItemType(item.type);
+      List<String> properties = schema.propertyNamesForItemType(item.type);
 
       // Check if any of the item's string properties contain the needle
       for (String property in properties) {
         // Check if the property type is string
-        if (schema!.expectedPropertyType(item.type, property) == SchemaValueType.string) {
+        if (schema.expectedPropertyType(item.type, property) == SchemaValueType.string) {
           var propertyValue = item.get(property);
           if (propertyValue is String && propertyValue.toLowerCase().contains(searchNeedle)) {
             return true; // Needle found in one of the string properties
@@ -376,25 +363,18 @@ class DatabaseQueryConfig extends ChangeNotifier with EquatableMixin {
     return filteredResults;
   }
 
-  // Method for filtering based on ComparisonType.like conditions
   List<Item> _filterByLikeConditions(List<Item> items) {
-    // Collect all conditions of type ComparisonType.like
-    List<QueryCondition> likeConditions = conditions.where((condition) =>
-    condition is PropertyCondition && condition.comparisonType == ComparisonType.like).toList();
+    List<PropertyCondition> likeConditions = propertyConditions
+        .where((condition) => condition.comparisonType == ComparisonType.like).toList();
 
-    if (likeConditions.isEmpty) {
-      return items; // No `like` conditions to filter, return all items
-    }
+    if (likeConditions.isEmpty)
+      return items;
 
-    // Filter items that satisfy all `like` conditions
     return items.where((item) {
       return likeConditions.every((condition) {
-        if (condition is PropertyCondition) {
-          var propertyValue = item.get(condition.name);
-          return propertyValue is String &&
-              propertyValue.toLowerCase().contains(condition.value.toString().toLowerCase());
-        }
-        return false;
+        var propertyValue = item.get(condition.name);
+        return propertyValue is String &&
+            propertyValue.toLowerCase().contains(condition.value.toString().toLowerCase());
       });
     }).toList();
   }
@@ -447,6 +427,13 @@ class PropertyCondition extends QueryCondition {
   ComparisonType comparisonType;
 
   PropertyCondition(this.name, this.value, this.comparisonType);
+
+  String? get operation => switch (comparisonType) {
+        ComparisonType.equals => "eq",
+        ComparisonType.greaterThan => "gte",
+        ComparisonType.lessThan => "lte",
+        ComparisonType.like => null,
+      };
 
   factory PropertyCondition.fromJson(Map<String, dynamic> json) =>
       _$PropertyConditionFromJson(json);
