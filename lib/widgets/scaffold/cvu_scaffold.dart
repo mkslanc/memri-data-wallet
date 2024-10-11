@@ -73,7 +73,7 @@ class CVUScaffold extends StatelessWidget {
             if (uiStateProvider.canNavigateBack) {
               uiStateProvider.navigateBack(context);
             } else {
-              uiStateProvider.toggleDrawer();
+              uiStateProvider.openDrawer();
             }
           },
         );
@@ -125,7 +125,7 @@ class CVUScaffold extends StatelessWidget {
   );
 
   Widget get _drawer => GestureDetector(
-    onTap: uiStateProvider.toggleDrawer,
+    onTap: uiStateProvider.closeDrawer,
     child: Container(
       color: Colors.black54,
       child: Row(
