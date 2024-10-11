@@ -17,16 +17,12 @@ class UIStateProvider with ChangeNotifier {
   }
 
   void toggleDrawer() {
-    _isDrawerOpen = !_isDrawerOpen;
+    _isDrawerOpen = !isDrawerOpen;
     notifyListeners();
   }
 
-  void closeDrawer() {
-    if (_isDrawerOpen) {
-      _isDrawerOpen = false;
-      notifyListeners();
-    }
-  }
+  void openDrawer() => !_isDrawerOpen ? toggleDrawer() : null;
+  void closeDrawer() => _isDrawerOpen ? toggleDrawer() : null;
 
   bool get isDrawerOpen => _isDrawerOpen;
 
@@ -44,7 +40,7 @@ class UIStateProvider with ChangeNotifier {
       builder: (context) => viewContextController.config.viewName == "allItemTypes"
           ? AllItemTypesScreen(viewContextController: viewContextController)
           : CVUScreen(
-              viewContextController: currentViewContext!,
+              viewContextController: viewContextController,
             ),
     );
     if (clearStack) {

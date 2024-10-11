@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:memri/core/services/pod_service.dart';
 import 'package:memri/providers/ui_state_provider.dart';
-import 'package:provider/provider.dart';
 
 import '../../core/models/item.dart';
 import '../../cvu/controllers/view_context_controller.dart';
-import '../../providers/app_provider.dart';
 import '../settings_pane.dart';
 import '../space.dart';
 
@@ -67,9 +66,7 @@ class _NavigationPaneViewState extends State<NavigationPaneView> {
             ),
                   ))),
           FutureBuilder(
-            future: Provider.of<AppProvider>(context, listen: false)
-                .podService
-                .getNavigationItems(),
+            future: GetIt.I<PodService>().getNavigationItems(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasError) {
                 print(snapshot.error.toString());
@@ -164,7 +161,6 @@ class NavigationItemView extends StatelessWidget {
         var viewContextController =
             ViewContextController.fromParams(viewName: targetViewName, itemType: itemType);
         uiStateProvider.navigateToScreen(context, viewContextController, clearStack: true);
-        uiStateProvider.toggleDrawer();
       },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
