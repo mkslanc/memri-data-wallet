@@ -39,7 +39,7 @@ class _MemriState extends State<Memri> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (_) => locator<AppProvider>()..initialize()),
+            create: (_) => locator<AppProvider>()),
         ChangeNotifierProvider(create: (_) => locator<AuthProvider>()),
         ChangeNotifierProvider(create: (_) => locator<ConnectionProvider>()),
         ChangeNotifierProvider(create: (_) => locator<UIStateProvider>()),

@@ -71,8 +71,6 @@ class AuthProvider with ChangeNotifier {
         }
       }
 
-      await _appProvider.initCVUDefinitions();
-
       _handleAuthenticated(context);
 
       RouteNavigator.navigateTo(

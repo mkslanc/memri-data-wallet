@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../core/models/item.dart';
 import '../core/services/database/schema.dart';
+import '../providers/app_provider.dart';
 import '../utilities/helpers/app_helper.dart';
 import '../widgets/scaffold/cvu_scaffold.dart';
 import 'error_connectivity_screen.dart';
@@ -54,6 +55,12 @@ class _AllItemTypesScreenState extends State<AllItemTypesScreen> {
 
   Future<void> _initialize() async {
     try {
+      var provider = GetIt.I<AppProvider>();
+      if (provider.state != AppState.success)//TODO
+        await provider.initialize();
+      if (![AppState.success, AppState.authenticating].contains(provider.state))//TODO
+        return;
+      await provider.initCVUDefinitions();
       var connectionProvider = Provider.of<ConnectionProvider>(context, listen: false);
       connectionProvider.isConnectionError = false;
 
