@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/cvu/constants/cvu_font.dart';
 import 'package:memri/localization/generated/l10n.dart';
 import 'package:memri/providers/app_provider.dart';
@@ -46,7 +47,7 @@ class _AccountScaffoldState extends State<AccountScaffold>
 
   @override
   void initState() {
-    Provider.of<AppProvider>(context, listen: false).initAccountsAuthState();
+    GetIt.I<AppProvider>().initAccountsAuthState();
     super.initState();
   }
 

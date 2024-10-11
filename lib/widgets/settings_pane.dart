@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get_it/get_it.dart';
 import 'package:memri/utilities/helpers/app_helper.dart';
 import 'package:memri/widgets/space.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +50,7 @@ class SettingsPane extends StatelessWidget {
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () async {
-                                    await Provider.of<AppProvider>(context, listen: false).resetApp();
+                                    await GetIt.I<AppProvider>().resetApp();
                                     RouteNavigator.navigateTo(
                                         context: context,
                                         route: Routes.onboarding);
