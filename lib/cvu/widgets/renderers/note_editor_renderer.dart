@@ -18,39 +18,25 @@ class NoteEditorRendererView extends Renderer {
 }
 
 class _NoteEditorRendererViewState extends RendererViewState {
-  Binding<String>? get noteTitle {
+  late Binding? noteTitle;
+  late Binding? noteContent;
+
+  @override
+  initState() {
+    super.initState();
+    noteTitle = getBinding("title");
+    noteContent = getBinding("content", "");
+  }
+
+  Binding? getBinding(key, [String? defaultValue]) {
     var item = viewContext.focusedItem;
     if (item != null) {
       var resolver = viewContext.nodePropertyResolver(item);
-      if (resolver != null) {
-        var value = resolver.string("title");
-        if (value != null) {
-          return Binding(() => value, (value) => {});
-        }
-        /*var binding = await resolver.binding<String>("title");
-        if (binding != null) {
-          return binding;
-        }*/
-      }
+      return resolver?.binding(key, defaultValue);
     }
     return null;
   }
 
-  Binding<String>? get noteContent {
-    var item = viewContext.focusedItem;
-    if (item != null) {
-      var resolver = viewContext.nodePropertyResolver(item);
-      if (resolver != null) {
-        var value = resolver.string("content") ?? "";
-        return Binding(() => value, (value) => {});
-        /*var binding = await resolver.binding<String>("content", "");
-        if (binding != null) {
-          return binding;
-        }*/
-      }
-    }
-    return null;
-  }
 
   MemriTextEditorModel getEditorModel() {
     return MemriTextEditorModel(title: noteTitle?.get(), body: noteContent?.get());
