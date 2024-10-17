@@ -63,5 +63,6 @@ class UIStateProvider with ChangeNotifier {
   navigateBack(BuildContext context) {
     Navigator.pop(context);
     _viewContexts.removeLast();
+    currentViewContext?.refreshScreen();
   }
 }
