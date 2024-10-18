@@ -3,6 +3,10 @@ import 'package:get_it/get_it.dart';
 import 'package:memri/providers/ui_state_provider.dart';
 
 import '../../../cvu/constants/cvu_color.dart';
+import '../../../cvu/models/cvu_value.dart';
+import '../../../cvu/models/cvu_value_constant.dart';
+import '../../../cvu/services/cvu_action.dart';
+import '../buttons/action_button.dart';
 
 /// This view provides the 'Navigation Bar' for the app interface
 class TopBarView extends StatefulWidget {
@@ -17,8 +21,8 @@ class _TopBarViewState extends State<TopBarView> {
   Widget build(BuildContext context) {
     var viewContext = GetIt.I<UIStateProvider>().currentViewContext;
     // var actions = viewContext?.viewDefinitionPropertyResolver.actions("actionButton");
-    // var editActionButtonArray =
-    //     viewContext?.viewDefinitionPropertyResolver.stringArray("editActionButton");
+    var editActionButtonArray =
+        viewContext?.viewDefinitionPropertyResolver.stringArray("editActionButton");
     return Column(
       children: [
         SizedBox(
@@ -40,29 +44,29 @@ class _TopBarViewState extends State<TopBarView> {
                     )),
               ),
             ),
-            /* Padding(
+             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: 100),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    */ /*if (editActionButtonArray != null && editActionButtonArray.isNotEmpty)
+                     if (editActionButtonArray != null && editActionButtonArray.isNotEmpty)
                       ActionButton(
                         action: cvuAction(editActionButtonArray.first)!.call(vars: {
                           "icon": CVUValueConstant(CVUConstantString("pencil"))
                         }),
                         viewContext: viewContext!.getCVUContext(),
-                        color: Provider.of<AppProvider>(context, listen: false).isInEditMode ? Colors.blue : Colors.black,
+                        color: viewContext.isInEditMode ? Colors.blue : Colors.black,
                       ),
-                    if (actions != null)
-                      ...actions.map((action) =>
-                          ActionButton(action: action, viewContext: viewContext!.getCVUContext()))*/ /*
+                    // if (actions != null)
+                    //   ...actions.map((action) =>
+                    //       ActionButton(action: action, viewContext: viewContext!.getCVUContext()))
                   ],
                   mainAxisAlignment: MainAxisAlignment.end,
                 ),
               ),
-            ),*/
+            ),
           ]),
         ),
         Divider(

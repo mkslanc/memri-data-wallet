@@ -19,7 +19,7 @@ class CVUToggle extends StatefulWidget {
 }
 
 class _CVUToggleState extends State<CVUToggle> {
-  late Binding<bool>? binding;
+  late Binding binding;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _CVUToggleState extends State<CVUToggle> {
   }
 
   init() async {
-    binding = widget.nodeResolver.propertyResolver.binding("value", false) as Binding<bool>;
+    binding = widget.nodeResolver.propertyResolver.binding("value", false)!;
   }
 
   @override
